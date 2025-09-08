@@ -30,15 +30,15 @@ beforeEach(() => {
   // Cannot get the escaping to work in the mock JSON file, so doing it programmatically here
   const affiliationQuery = 'query Affiliations($name: String!){ ' +
     'affiliations(name: $name) { ' +
-      'totalCount ' +
-      'nextCursor ' +
-      'items { ' +
-        'id ' +
-        'displayName ' +
-        'uri ' +
-      '} ' +
+    'totalCount ' +
+    'nextCursor ' +
+    'items { ' +
+    'id ' +
+    'displayName ' +
+    'uri ' +
     '} ' +
-  '}';
+    '} ' +
+    '}';
 
   const json: AffiliationSearchQuestionType = {
     type: 'affiliationSearch',
@@ -355,7 +355,7 @@ describe("QuestionEditPage", () => {
     fireEvent.click(changeTypeButton);
 
     // Verify that router redirects to question types page
-    expect(mockRouter.push).toHaveBeenCalledWith('/template/123/q/new?section_id=67&step=1&questionId=67');
+    expect(mockRouter.push).toHaveBeenCalledWith('/en-US/template/123/q/new?section_id=67&step=1&questionId=67');
   })
 
   it('should call the useUpdateQuestionMutation when user clicks \'save\' button', async () => {
@@ -394,6 +394,7 @@ describe("QuestionEditPage", () => {
 
     // Set required QuestionType value
     fireEvent.change(input, { target: { value: 'Testing' } });
+
 
     const saveButton = screen.getByText('buttons.saveAndUpdate');
     expect(saveButton).toBeInTheDocument();
@@ -1425,5 +1426,83 @@ describe('Options questions', () => {
         }
       })
     });
+  });
+
+  it('should prevent unload when there are unsaved changes and user tries to navigate away from page', async () => {
+    // Mock addEventListener
+    const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+    const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener');
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockRadioQuestion,
+      loading: false,
+      error: undefined,
+    });
+
+    const mockUpdateQuestion = jest.fn().mockResolvedValue({ data: { key: 'value' } });
+
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      mockUpdateQuestion,
+      { loading: false, error: undefined },
+    ]);
+
+    // Render with radio button question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: 'checkBoxes' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: 'checkBoxes' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
+    await act(async () => {
+      render(<QuestionEdit />);
+    });
+
+    const addButton = screen.getByRole('button', { name: /buttons.addRow/i });
+
+    await act(async () => {
+      fireEvent.click(addButton);
+    })
+
+    const allRows = screen.queryAllByLabelText('Text');
+    expect(allRows.length).toBe(3);
+
+    // Enter the label text for new radio button 
+    fireEvent.change(allRows[2], { target: { value: 'Maybe' } });
+
+    // Wait for state update
+    await waitFor(() => {
+      // Get the last registered 'beforeunload' handler
+      const handler = addEventListenerSpy.mock.calls
+        .filter(([event]) => event === 'beforeunload')
+        .map(([, fn]) => fn)
+        .pop();
+
+      // Simulate event of navigating way from page
+      const event = new Event('beforeunload');
+      Object.defineProperty(event, 'returnValue', {
+        writable: true,
+        value: undefined,
+      });
+
+      if (typeof handler === 'function') {
+        handler(event as unknown as BeforeUnloadEvent);
+      } else if (handler && typeof handler.handleEvent === 'function') {
+        handler.handleEvent(event as unknown as BeforeUnloadEvent);
+      } else {
+        throw new Error('beforeunload handler is not callable');
+      }
+    });
+    // Cleanup
+    removeEventListenerSpy.mockRestore();
+    addEventListenerSpy.mockRestore();
   });
 });

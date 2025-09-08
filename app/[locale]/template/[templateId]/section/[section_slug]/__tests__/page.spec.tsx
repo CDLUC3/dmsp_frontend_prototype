@@ -232,6 +232,92 @@ describe("SectionUpdatePage", () => {
     expect(screen.getByText('helpText.sectionGuidance')).toBeInTheDocument();
   });
 
+  it('should call updateSectionMutation with new value when save button is clicked', async () => {
+    const mockUpdateSection = jest.fn().mockResolvedValueOnce({ data: { updateSection: { errors: null } } });
+    (useUpdateSectionMutation as jest.Mock).mockReturnValue([
+      mockUpdateSection,
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(<SectionUpdatePage />);
+    });
+
+    // Simulate entering a new value
+    const sectionNameInput = screen.getByLabelText(/sectionName/i);
+    await act(async () => {
+      fireEvent.change(sectionNameInput, { target: { value: 'New Section Name' } });
+    });
+
+    // Simulate clicking the save button
+    const saveButton = screen.getByRole('button', { name: /buttons.saveAndUpdate/i });
+    await act(async () => {
+      fireEvent.click(saveButton);
+    });
+
+    // Assert mutation was called with expected variables
+    await waitFor(() => {
+      expect(mockUpdateSection).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variables: expect.objectContaining({
+            input: expect.objectContaining({
+              name: 'New Section Name',
+            }),
+          }),
+        })
+      );
+    });
+  });
+
+  it('should prevent unload when there are unsaved changes and user tries to navigate away from page', async () => {
+    // Mock addEventListener
+    const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+    const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener');
+    const mockUpdateSection = jest.fn().mockResolvedValueOnce({ data: { updateSection: { errors: null } } });
+    (useUpdateSectionMutation as jest.Mock).mockReturnValue([
+      mockUpdateSection,
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(<SectionUpdatePage />);
+    });
+
+    // Simulate entering a new value
+    const sectionNameInput = screen.getByLabelText(/sectionName/i);
+    await act(async () => {
+      fireEvent.change(sectionNameInput, { target: { value: 'New Section Name' } });
+    });
+
+    // Wait for state update
+    await waitFor(() => {
+      // Get the last registered 'beforeunload' handler
+      const handler = addEventListenerSpy.mock.calls
+        .filter(([event]) => event === 'beforeunload')
+        .map(([, fn]) => fn)
+        .pop();
+
+      // Simulate event of navigating way from page
+      const event = new Event('beforeunload');
+      Object.defineProperty(event, 'returnValue', {
+        writable: true,
+        value: undefined,
+      });
+
+      if (typeof handler === 'function') {
+        handler(event as unknown as BeforeUnloadEvent);
+      } else if (handler && typeof handler.handleEvent === 'function') {
+        handler.handleEvent(event as unknown as BeforeUnloadEvent);
+      } else {
+        throw new Error('beforeunload handler is not callable');
+      }
+    });
+
+    // Cleanup
+    removeEventListenerSpy.mockRestore();
+    addEventListenerSpy.mockRestore();
+  });
+
   it('should display error when no value is entered in section name field', async () => {
     (useUpdateSectionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
@@ -462,8 +548,8 @@ describe("SectionUpdatePage", () => {
     });
 
     it('should successfully delete section when confirm button is clicked', async () => {
-      const mockRemoveSection = jest.fn().mockResolvedValueOnce({ 
-        data: { removeSection: { id: 123, name: 'Test Section' } } 
+      const mockRemoveSection = jest.fn().mockResolvedValueOnce({
+        data: { removeSection: { id: 123, name: 'Test Section' } }
       });
 
       (useUpdateSectionMutation as jest.Mock).mockReturnValue([
@@ -539,7 +625,7 @@ describe("SectionUpdatePage", () => {
     });
 
     it('should disable delete button while deletion is in progress', async () => {
-      const mockRemoveSection = jest.fn().mockImplementation(() => 
+      const mockRemoveSection = jest.fn().mockImplementation(() =>
         new Promise(resolve => setTimeout(() => resolve({ data: { removeSection: { id: 123 } } }), 100))
       );
 
