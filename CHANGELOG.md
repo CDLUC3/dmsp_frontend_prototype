@@ -1,7 +1,13 @@
+### Added 
+
+- Duplicate templates to add Organization Templates pagee
+
 ### Added
+
 - Add departments and schools page
 
 ### Added
+
 - Add organization details page
 
 ### Added

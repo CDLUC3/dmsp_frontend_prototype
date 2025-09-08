@@ -510,5 +510,15 @@
       "table": "Table",
       "affiliationSearch": "Affiliation search"
     }
+  },
+  "OrganizationTemplates": {
+    "title": "Organization Templates",
+    "description": "Manage your organization templates and publish for the public",
+    "actionCreate": "Create Template",
+    "actionSearch": "Search",
+    "searchLabel": "Search organization templates",
+    "searchHelpText": "Search by template name, description, or other details",
+    "noItemsFoundError": "No organization templates found matching '{term}'",
+    "somethingWentWrong": "Something went wrong while loading organization templates"
   }
 }

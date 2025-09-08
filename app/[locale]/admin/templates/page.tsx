@@ -1,0 +1,348 @@
+"use client";
+
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Breadcrumb,
+  Breadcrumbs,
+  Button,
+  FieldError,
+  Input,
+  Label,
+  Link,
+  SearchField,
+  Text,
+} from "react-aria-components";
+import { useFormatter, useTranslations } from "next-intl";
+
+//GraphQL
+import { useTemplatesQuery } from "@/generated/graphql";
+
+// Components
+import PageHeader from "@/components/PageHeader";
+import TemplateSelectListItem from "@/components/TemplateSelectListItem";
+import { ContentContainer, LayoutContainer } from "@/components/Container";
+import ErrorMessages from "@/components/ErrorMessages";
+
+// Hooks
+import { useScrollToTop } from "@/hooks/scrollToTop";
+
+import { toSentenceCase } from "@/utils/general";
+import { routePath } from "@/utils/routes";
+import { TemplateSearchResultInterface, TemplateItemProps, PaginatedTemplateSearchResultsInterface } from "@/app/types";
+import styles from "./organizationTemplates.module.scss";
+
+const OrganizationTemplateListPage: React.FC = () => {
+  const formatter = useFormatter();
+  const { scrollToTop } = useScrollToTop();
+
+  const errorRef = useRef<HTMLDivElement | null>(null);
+  const nextSectionRef = useRef<HTMLDivElement>(null);
+  const topRef = useRef<HTMLDivElement>(null);
+
+  const [errors, setErrors] = useState<string[]>([]);
+  const [templates, setTemplates] = useState<TemplateItemProps[]>([]);
+  const [filteredTemplates, setFilteredTemplates] = useState<TemplateItemProps[] | null>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [visibleCount, setVisibleCount] = useState({
+    templates: 3,
+    filteredTemplates: 3,
+  });
+
+  // For translations
+  const t = useTranslations("OrganizationTemplates");
+  const Global = useTranslations("Global");
+  const SelectTemplate = useTranslations("TemplateSelectTemplatePage");
+
+  // Set URLs
+  const TEMPLATE_CREATE_URL = routePath("template.create");
+
+  // TODO: Replace this with organization-specific GraphQL query
+  // Currently using useTemplatesQuery (user's templates) - needs to be changed to
+  // search all templates in the current organization instead of individual user's templates
+  const {
+    data,
+    loading,
+    error: queryError,
+  } = useTemplatesQuery({
+    // TODO: Adding this because the default limit is too small. We eventually want to
+    //       convert this to use the provided cursor when clicking "Load more" instead of
+    //       the local Array of initial results
+    variables: { paginationOptions: { limit: 25 } },
+    /* Force Apollo to notify React of changes. This was needed for when refetch is
+    called and a re-render of data is necessary*/
+    notifyOnNetworkStatusChange: true,
+  });
+
+  // zero out search and filters
+  const resetSearch = () => {
+    setSearchTerm("");
+    setFilteredTemplates(null);
+    setVisibleCount({
+      templates: 3,
+      filteredTemplates: 3,
+    });
+    scrollToTop(topRef);
+  };
+
+  //Update searchTerm state whenever entry in the search field changes
+  const handleSearchInput = (value: string) => {
+    setSearchTerm(value);
+  };
+
+  // Find title, funder, content and publishStatus fields that include search term
+  const handleFiltering = (term: string) => {
+    setErrors([]);
+    const lowerCaseTerm = term.toLowerCase();
+    const filteredList = templates.filter((item) => {
+      return [item.title, item.funder, item.publishStatus, item.latestPublishVisibility, item.description]
+        .filter(Boolean)
+        .some((field) => field?.toLowerCase().includes(lowerCaseTerm));
+    });
+
+    if (filteredList.length >= 1) {
+      setSearchTerm(term);
+      setFilteredTemplates(filteredList);
+    } else {
+      //If there are no matching results, then display an error
+      const errorMessage = t("noItemsFoundError", { term });
+      setErrors((prev) => [...prev, errorMessage]);
+    }
+  };
+
+  // Format date using next-intl date formatter
+  const formatDate = (date: string) => {
+    const formattedDate = formatter.dateTime(new Date(Number(date)), {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    // Replace slashes with hyphens
+    return formattedDate.replace(/\//g, "-");
+  };
+
+  useEffect(() => {
+    if (queryError) {
+      setErrors((prev) => [...prev, t("somethingWentWrong")]);
+    }
+  }, [queryError]);
+
+  useEffect(() => {
+    (async () => {
+      // Transform templates into format expected by TemplateSelectListItem component
+      const fetchAllTemplates = async (templates: PaginatedTemplateSearchResultsInterface | null) => {
+        const items = templates?.items ?? [];
+        const transformedTemplates = await Promise.all(
+          items.map(async (template: TemplateSearchResultInterface | null) => {
+            return {
+              title: template?.name || "",
+              link: routePath("template.show", { templateId: template?.id ?? "" }) || "",
+              funder: template?.ownerDisplayName,
+              lastUpdated: template?.modified ? formatDate(template?.modified) : null,
+              lastRevisedBy: template?.modifiedByName,
+              publishStatus: template?.isDirty ? "Unpublished" : "Published",
+              publishDate: template?.latestPublishDate ? formatDate(template?.latestPublishDate) : null,
+              defaultExpanded: false,
+              latestPublishVisibility: toSentenceCase(
+                template?.latestPublishVisibility ? template?.latestPublishVisibility?.toString() : "",
+              ),
+            };
+          }),
+        );
+
+        setTemplates(transformedTemplates);
+      };
+      if (data && data.myTemplates) {
+        await fetchAllTemplates({
+          ...data.myTemplates,
+          items: (data.myTemplates.items ?? []).filter((item): item is TemplateSearchResultInterface => item !== null),
+        });
+      } else {
+        setTemplates([]);
+      }
+    })();
+  }, [data]);
+
+  useEffect(() => {
+    // Need this to set list of templates back to original, full list after filtering
+    if (searchTerm === "") {
+      setFilteredTemplates(null);
+    }
+  }, [searchTerm]);
+
+  type VisibleCountKeys = keyof typeof visibleCount;
+  // When user clicks the 'Load more' button, display 3 more by default
+  const handleLoadMore = (listKey: VisibleCountKeys) => {
+    setVisibleCount((prevCounts) => ({
+      ...prevCounts,
+      [listKey]: prevCounts[listKey] + 3, // Increase the visible count for the specific list
+    }));
+
+    setTimeout(() => {
+      if (nextSectionRef.current) {
+        nextSectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 0);
+  };
+
+  const renderLoadMore = (items: TemplateItemProps[], visibleCountKey: VisibleCountKeys) => {
+    if (items.length - visibleCount[visibleCountKey] > 0) {
+      const loadMoreNumber = items.length - visibleCount[visibleCountKey]; // Calculate loadMoreNumber
+      const currentlyDisplayed = visibleCount[visibleCountKey];
+      const totalAvailable = items.length;
+      return (
+        <>
+          <Button onPress={() => handleLoadMore(visibleCountKey)}>
+            {loadMoreNumber > 2
+              ? SelectTemplate("buttons.load3More")
+              : SelectTemplate("buttons.loadMore", { name: loadMoreNumber })}
+          </Button>
+          <div className={styles.remainingText}>
+            {SelectTemplate("numDisplaying", { num: currentlyDisplayed, total: totalAvailable })}
+          </div>
+        </>
+      );
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    // console.log('Filtered templates:', filteredTemplates);
+    // console.log('Templates:', templates);
+  }, [filteredTemplates, templates]);
+
+  // TODO: Implement shared loading
+  if (loading) {
+    return <div>{Global("messaging.loading")}...</div>;
+  }
+
+  return (
+    <>
+      <PageHeader
+        title={t("title")}
+        description={t("description")}
+        showBackButton={false}
+        breadcrumbs={
+          <Breadcrumbs>
+            <Breadcrumb>
+              <Link href={routePath("app.home")}>{Global("breadcrumbs.home")}</Link>
+            </Breadcrumb>
+            <Breadcrumb>
+              <Link href={routePath("template.index")}>{Global("breadcrumbs.templates")}</Link>
+            </Breadcrumb>
+            <Breadcrumb>{t("title")}</Breadcrumb>
+          </Breadcrumbs>
+        }
+        actions={
+          <>
+            <Link
+              href={TEMPLATE_CREATE_URL}
+              className={"button-link button--primary"}
+            >
+              {t("actionCreate")}
+            </Link>
+          </>
+        }
+        className="page-template-list"
+      />
+      <ErrorMessages
+        errors={errors}
+        ref={errorRef}
+      />
+
+      <LayoutContainer>
+        <ContentContainer>
+          <div
+            className="searchSection"
+            role="search"
+            ref={topRef}
+          >
+            <SearchField
+              onClear={() => {
+                setFilteredTemplates(null);
+              }}
+            >
+              <Label>{t("searchLabel")}</Label>
+              <Input
+                value={searchTerm}
+                onChange={(e) => handleSearchInput(e.target.value)}
+              />
+              <Button
+                onPress={() => {
+                  // Call your filtering function without changing the input value
+                  handleFiltering(searchTerm);
+                }}
+              >
+                {t("actionSearch")}
+              </Button>
+              <FieldError />
+              <Text
+                slot="description"
+                className="help"
+              >
+                {t("searchHelpText")}
+              </Text>
+            </SearchField>
+          </div>
+
+          {filteredTemplates && filteredTemplates.length > 0 ? (
+            <div
+              className="template-list"
+              aria-label="Template list"
+              role="list"
+            >
+              {filteredTemplates.slice(0, visibleCount["filteredTemplates"]).map((template, index) => {
+                const isFirstInNextSection = index === visibleCount["filteredTemplates"] - 3;
+                return (
+                  <div
+                    ref={isFirstInNextSection ? nextSectionRef : null}
+                    key={index}
+                  >
+                    <TemplateSelectListItem
+                      key={index}
+                      item={template}
+                    />
+                  </div>
+                );
+              })}
+              <div className={styles.loadBtnContainer}>
+                {renderLoadMore(filteredTemplates, "filteredTemplates")}
+                {filteredTemplates.length > 0 && (
+                  <Link
+                    onPress={resetSearch}
+                    className={`${styles.searchMatchText} ${styles.clearFilter}`}
+                  >
+                    {SelectTemplate("clearFilter")}
+                  </Link>
+                )}
+              </div>
+            </div>
+          ) : templates.length > 0 ? (
+            <div
+              className="template-list"
+              aria-label="Template list"
+              role="list"
+            >
+              {templates.slice(0, visibleCount["templates"]).map((template, index) => {
+                const isFirstInNextSection = index === visibleCount["templates"] - 3;
+                return (
+                  <div
+                    ref={isFirstInNextSection ? nextSectionRef : null}
+                    key={index}
+                  >
+                    <TemplateSelectListItem
+                      key={index}
+                      item={template}
+                    />
+                  </div>
+                );
+              })}
+              <div className={styles.loadBtnContainer}>{renderLoadMore(templates, "templates")}</div>
+            </div>
+          ) : null}
+        </ContentContainer>
+      </LayoutContainer>
+    </>
+  );
+};
+
+export default OrganizationTemplateListPage;
