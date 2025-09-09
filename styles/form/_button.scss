@@ -53,10 +53,14 @@
 
 @mixin button-secondary {
   background: transparent;
-  border: 2px solid var(--slate-900);
+
+  // box-shadow makes border appear on the inside of button, keeping it same size as primary button, as opposed to
+  // border, which renders the border on the outside of the button, making secondary larger than primary. An
+  // alternative is setting box-sizing, but a height must be set.
+  box-shadow: 0 0 0 2px var(--slate-900) inset;
+
   color: var(--slate-900);
   font-weight: bold;
-
 
   &:active,
   &:visited {
@@ -66,7 +70,7 @@
   &:hover:not(:disabled) {
     background: var(--blue-500);
     color: #fff;
-    border: 2px solid var(--blue-500);
+    box-shadow: 0 0 0 2px var(--blue-500) inset;
     text-decoration: none;
   }
 
@@ -78,7 +82,6 @@
   &:disabled {
     background: var(--blue-500);
     opacity: 0.5;
-
   }
 }
 

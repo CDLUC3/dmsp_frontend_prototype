@@ -55,8 +55,8 @@ describe("RelatedWorks", () => {
     render(<RelatedWorksHarness />);
 
     expect(screen.getByRole("tab", { name: "tabs.pending" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "tabs.related" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "tabs.discarded" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "tabs.accepted" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "tabs.rejected" })).toBeInTheDocument();
   });
 
   it("should render pending research outputs", () => {
@@ -70,7 +70,7 @@ describe("RelatedWorks", () => {
     render(<RelatedWorksHarness />);
 
     // Click related tab
-    await userEvent.click(screen.getByRole("tab", { name: "tabs.related" }));
+    await userEvent.click(screen.getByRole("tab", { name: "tabs.accepted" }));
 
     expect(screen.getByText("Real-Time Sim2Real Transfer for Bipedal Robot Gait Adaptation")).toBeInTheDocument();
     expect(screen.getByText("Multisensory Feedback Loops for Dexterous Robotic Manipulation")).toBeInTheDocument();
@@ -80,7 +80,7 @@ describe("RelatedWorks", () => {
     render(<RelatedWorksHarness />);
 
     // Click discarded tab
-    await userEvent.click(screen.getByRole("tab", { name: "tabs.discarded" }));
+    await userEvent.click(screen.getByRole("tab", { name: "tabs.rejected" }));
 
     expect(
       screen.getByText("Stellar Cartography and the Dynamic Mapping of Interstellar Gas Clouds"),
