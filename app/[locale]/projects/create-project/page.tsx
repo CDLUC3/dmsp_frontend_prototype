@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -13,7 +12,10 @@ import {
 } from "react-aria-components";
 
 //GraphQL
-import { ProjectErrors, useAddProjectMutation } from '@/generated/graphql';
+import {
+  useAddProjectMutation,
+  ProjectErrors,
+} from '@/generated/graphql';
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -24,7 +26,6 @@ import {
 import {
   CheckboxGroupComponent,
   FormInput,
-  RadioGroupComponent
 } from '@/components/Form';
 import ErrorMessages from '@/components/ErrorMessages';
 
@@ -33,20 +34,16 @@ import logECS from '@/utils/clientLogger';
 import { scrollToTop } from '@/utils/general';
 import { routePath } from '@/utils/routes';
 import { useToast } from '@/context/ToastContext';
+import { checkErrors } from '@/utils/errorHandler';
 
-interface CreateProjectResponse {
-  id?: number | null;
-  errors?: ProjectErrors | null;
-}
+
 interface CreateProjectInterface {
   projectName: string;
-  radioGroup?: string;
   checkboxGroup?: string[];
 }
 
 interface CreateProjectErrorsInterface {
   projectName: string;
-  radioGroup?: string;
   checkboxGroup?: string;
 }
 
@@ -59,12 +56,10 @@ const ProjectsCreateProject = () => {
 
   const [fieldErrors, setFieldErrors] = useState<CreateProjectErrorsInterface>({
     projectName: '',
-    radioGroup: '',
     checkboxGroup: '',
   });
   const [formData, setFormData] = useState<CreateProjectInterface>({
     projectName: '',
-    radioGroup: '',
     checkboxGroup: [],
   })
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -74,22 +69,6 @@ const ProjectsCreateProject = () => {
   const Global = useTranslations('Global');
   const CreateProject = useTranslations('ProjectsCreateProject');
 
-  const radioData = {
-    radioGroupLabel: CreateProject('form.newOrExisting'),
-    radioButtonData: [
-      {
-        value: 'previous',
-        label: CreateProject('form.radioExistingLabel'),
-        description: CreateProject('form.radioExistingHelpText'),
-      },
-      {
-        value: 'new',
-        label: CreateProject('form.radioNewLabel'),
-        description: CreateProject('form.radioNewHelpText')
-      }
-    ]
-  }
-
   const checkboxData = [
     {
       value: 'checkboxGroup',
@@ -98,9 +77,7 @@ const ProjectsCreateProject = () => {
     }
   ]
 
-  // Initialize addProjectMutation
   const [addProjectMutation] = useAddProjectMutation();
-
 
   // Update form data
   const handleUpdate = (name: string, value: string | string[]) => {
@@ -112,11 +89,6 @@ const ProjectsCreateProject = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     handleUpdate(name, value);
-  };
-
-  // Handle changes from RadioGroup
-  const handleRadioChange = (value: string) => {
-    handleUpdate('radioGroup', value);
   };
 
   // Handle changes from CheckboxGroup
@@ -134,7 +106,6 @@ const ProjectsCreateProject = () => {
     toastState.add(successMessage, { type: 'success' });
   }
 
-
   // Client-side validation of fields
   const validateField = (name: keyof CreateProjectInterface, value: string | string[]) => {
     switch (name) {
@@ -151,7 +122,6 @@ const ProjectsCreateProject = () => {
   const isFormValid = (): boolean => {
     const errors: CreateProjectErrorsInterface = {
       projectName: '',
-      radioGroup: '',
       checkboxGroup: '',
     };
 
@@ -175,58 +145,51 @@ const ProjectsCreateProject = () => {
     return !hasError;
   };
 
-  // Make GraphQL mutation request to update section
-  const createProject = async (): Promise<CreateProjectResponse> => {
-    try {
-      const response = await addProjectMutation({
-        variables: {
-          title: formData.projectName,
-          isTestProject: formData.checkboxGroup ? formData.checkboxGroup.includes('checkboxGroup') : false
-        }
-      });
-
-      if (response.data?.addProject) {
-        return response.data.addProject;
-      }
-      setFormSubmitted(true)
-    } catch (error) {
-      logECS('error', 'createProject', {
-        error,
-        url: { path: routePath('projects.create') }
-      });
-      if (error instanceof ApolloError) {
-        setErrors(prevErrors => [...prevErrors, error.message]);
-      } else {
-        setErrors(prevErrors => [...prevErrors, CreateProject('messages.errors.createProjectError')]);
-      }
-    }
-    return {};
-  };
-
   // Handle form submit
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setFormSubmitted(true);
-    // Clear previous error messages
     setErrors([]);
 
     if (isFormValid()) {
+      const isTestProject = formData.checkboxGroup?.includes('checkboxGroup');
 
       // Create new section
-      const response = await createProject();
+      addProjectMutation({
+        variables: {
+          isTestProject,
+          title: formData.projectName,
+        }
+      }).then(({data}) => {
+        const result = data!.addProject;
+        const [hasErrors, errs] = checkErrors(
+          result?.errors as ProjectErrors,
+          ['general', 'title'],
+        );
 
-      // Check if there are any errors (always exclude the GraphQL `_typename` entry)
-      if (response.errors && Object.values(response.errors).filter((err) => err && err !== 'ProjectErrors').length > 0) {
-        setFieldErrors(prev => ({ ...prev, projectName: response.errors?.title || '' }));
-
-        setErrors([response.errors.general || CreateProject('messages.errors.createProjectError')]);
-
-      } else {
-        // Show success message
-        showSuccessToast();
-        router.push(`/projects/${response.id}/project-funding`);
-      }
+        if (hasErrors) {
+          setFieldErrors({
+            ...fieldErrors,
+            projectName: String(errs.title),
+          });
+          setErrors([
+            String(errs.general || CreateProject('messages.errors.createProjectError'))
+          ]);
+        } else {
+          // Show success message
+          showSuccessToast();
+          router.push(routePath('projects.create.funding.search', {
+            projectId: String(result!.id)
+          }));
+        }
+      }).catch((error) => {
+        logECS('error', 'createProject', {
+          error,
+          url: { path: routePath('projects.create') }
+        });
+        setErrors(prevErrors => [...prevErrors, CreateProject('messages.errors.createProjectError')]);
+      });
     }
   };
 
@@ -275,17 +238,9 @@ const ProjectsCreateProject = () => {
               id="projectName"
             />
 
-            <RadioGroupComponent
-              name="radioGroup"
-              value={formData.radioGroup ?? ''}
-              radioGroupLabel={radioData.radioGroupLabel}
-              radioButtonData={radioData.radioButtonData}
-              onChange={handleRadioChange}
-            />
-
             <CheckboxGroupComponent
               name="checkboxGroup"
-              value={formData.checkboxGroup || []}
+              value={formData.checkboxGroup}
               checkboxGroupLabel={CreateProject('form.checkboxGroupLabel')}
               checkboxGroupDescription={CreateProject('form.checkboxGroupHelpText')}
               checkboxData={checkboxData}
@@ -298,14 +253,11 @@ const ProjectsCreateProject = () => {
             >
               {Global('buttons.continue')}
             </Button>
-
           </Form>
-
         </ContentContainer>
       </LayoutContainer>
-
-
     </>
   );
 };
+
 export default ProjectsCreateProject;

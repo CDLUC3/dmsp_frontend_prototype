@@ -1,363 +1,217 @@
 'use client';
 
 import React from 'react';
+import { useParams } from 'next/navigation';
+import { useTranslations } from "next-intl";
 import {
   Breadcrumb,
   Breadcrumbs,
   Button,
-  Checkbox,
-  CheckboxGroup,
-  Label,
   Link
 } from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
-  LayoutContainer,
+  LayoutWithPanel,
+  SidebarPanel,
 } from "@/components/Container";
+import ExpandableContentSection from '@/components/ExpandableContentSection';
+import { FormTextArea } from '@/components/Form';
+import { routePath } from '@/utils/routes';
 import styles from './ProjectsProjectPlanFeedback.module.scss';
 
-// Interface for member data
-interface Member {
-  id: string;
-  name: string;
-  email: string;
-  affiliation: string;
-  orcid?: string;
-  role: string;
-  accessType: 'edit' | 'comment';
-  status: 'active' | 'notAccepted' | 'revoked';
-  inviteSentDate?: string;
-  accessRevokedDate?: string;
-}
-
 const ProjectsProjectPlanFeedback = () => {
-  // Members with current access
-  const activeMembers: Member[] = [
-    {
-      id: 'member-001',
-      name: 'Frederick Cook',
-      email: 'f.cook@github.ac.uk',
-      affiliation: 'University of California',
-      orcid: '0000-0001-2603-5427',
-      role: 'Project collaborator',
-      accessType: 'edit',
-      status: 'active',
-    },
-    {
-      id: 'member-002',
-      name: 'Jennifer Frost',
-      email: 'jennifer.frost@ucam.edu',
-      affiliation: 'University of Arctic Studies',
-      role: 'Invite not yet accepted',
-      accessType: 'edit',
-      status: 'active',
-    },
-    {
-      id: 'member-003',
-      name: 'Angela Snow',
-      email: 'a.snow@northernhelm.edu',
-      affiliation: 'University of California',
-      role: 'Project collaborator',
-      accessType: 'edit',
-      status: 'active',
-    },
-    {
-      id: 'member-004',
-      name: 'UC Support Team',
-      email: 'support@arctic.edu',
-      affiliation: 'External',
-      role: '',
-      accessType: 'edit',
-      status: 'active',
-    },
-  ];
-
-  // Members who haven't accepted invites
-  const pendingMembers: Member[] = [
-    {
-      id: 'member-005',
-      name: 'Vinjalmur Stefansson',
-      email: 'vinjalmur.s@arctic.edu',
-      affiliation: 'Invite sent April 1 2024',
-      role: '',
-      accessType: 'edit',
-      status: 'notAccepted',
-      inviteSentDate: 'April 1 2024',
-    },
-    {
-      id: 'member-006',
-      name: 'Oscar Wisting',
-      email: 'o.wisting@arctic.edu',
-      affiliation: '',
-      role: 'Invite sent March 1 2024',
-      accessType: 'edit',
-      status: 'notAccepted',
-      inviteSentDate: 'March 1 2024',
-    },
-  ];
-
-  // Members who no longer have access
-  const revokedMembers: Member[] = [
-    {
-      id: 'member-007',
-      name: 'Janet Snowden',
-      email: 'janet.snowden@arctic.edu',
-      affiliation: '',
-      role: 'Access revoked July 9 2024',
-      accessType: 'edit',
-      status: 'revoked',
-      accessRevokedDate: 'July 9 2024',
-    },
-  ];
-
-  const handleRevoke = (memberId: string): void => {
-    // Handle revoking access
-    console.log(`Revoking access for member: ${memberId}`);
-  };
-
-  const handleDeleteInvite = (memberId: string): void => {
-    // Handle deleting invite
-    console.log(`Deleting invite for member: ${memberId}`);
-  };
-
-  const handleResend = (memberId: string): void => {
-    // Handle resending invite
-    console.log(`Resending invite for member: ${memberId}`);
+  const params = useParams();
+  const projectId = params.projectId as string;
+  const dmpId = params.dmpid as string;
+  
+  // State management
+  const [isSubmitted, setIsSubmitted] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [feedbackMessage, setFeedbackMessage] = React.useState('');
+  
+  // Refs for accessibility
+  const successMessageRef = React.useRef<HTMLSpanElement>(null);
+  
+  // Translations
+  const Global = useTranslations('Global');
+  const t = useTranslations('ProjectsProjectPlanFeedback');
+  
+  const handleRequestFeedback = async () => {
+    // Handle feedback request submission
+    console.log('Requesting feedback from University of California support team');
+    console.log('Feedback message:', feedbackMessage);
+    
+    // Set loading state
+    setIsSubmitting(true);
+    
+    try {
+      // Simulate API call delay for demonstration
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // TODO: Add actual API endpoint call here
+      // await submitFeedbackRequest({
+      //   projectId,
+      //   dmpId,
+      //   message: feedbackMessage
+      // });
+      
+      // Set submitted state to trigger UI changes
+      setIsSubmitted(true);
+      
+      // Focus on success message for accessibility
+      setTimeout(() => {
+        successMessageRef.current?.focus();
+      }, 100);
+      
+    } catch (error) {
+      console.error('Failed to submit feedback request:', error);
+      // Handle error state if needed
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <>
       <PageHeader
-        title="Invite people and manage access"
+        title={t('title')}
         description=""
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">Projects</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.dmp.show', { projectId, dmpId })}>{Global('breadcrumbs.planOverview')}</Link></Breadcrumb>
+            <Breadcrumb>{t('title')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={
           <>
           </>
         }
-        className="page-project-members"
+        className="page-project-feedback"
       />
 
-      <LayoutContainer>
-        <ContentContainer className="layout-content-container-full">
+      <LayoutWithPanel>
+        <ContentContainer>
           <p>
-            When you invite a person, we&#39;ll send an email to this person
-            inviting them to view your plan.
-          </p>
-          <p>
-            <Link href='/projects/proj_2425/dmp/xxx/feedback/invite'
-              className={"react-aria-Button react-aria-Button--secondary"}>Invite
-              a person</Link>
+            {t('description')}
           </p>
 
-          {/* Current access section */}
-          <section className={styles.section}
-            aria-labelledby="current-access-heading">
-            <h2 id="current-access-heading"
-              className={styles.sectionTitle}>These people currently have
-              access to this plan</h2>
-            <div className={styles.membersList} role="list">
-              {activeMembers.map((member) => (
-                <div
-                  key={member.id}
-                  className={styles.membersListItem}
-                  role="listitem"
-                  aria-label={`Project member: ${member.name}`}
+          {/* TODO: Pull message box content from database */}
+          <div className={styles.messageBox}>
+            <p><strong>Hello John,</strong></p>
+            <p>Your plan <strong>&quot;Coastal Ocean Processes of North Greenland&quot;</strong> will be submitted to University of California Research Data Management and Library Research Support for feedback. Please allow three business days for someone to respond to your request.</p>
+            <p>The University of California Research Data Management Office can provide feedback on Data Management and Stewardship submissions of test plans or for classes but will not be reviewed. If you have any questions after submitting your plan, please submit a request to Research Data Management.</p>
+            <p>If you have included an University of California service (e.g., high-performance computing, regulated research storage) in your plan, please contact the Research Technology Office by submitting a request to Research Computing Services to ensure those services are available and any costs can be communicated.</p>
+            <p>It is recommended that you contact any third-party data repositories outside of University of California to become familiar with their requirements for depositing datasets or potential costs.</p>
+            <p>For additional information, visit University of California Research Data Management for more details on project support.</p>
+            <p><strong>Thank you,</strong><br />
+            University of California Research Data Management Office<br />
+            University of California Library Open Science and Scholarly Communication<br />
+            University of California</p>
+                  </div>
+
+          <div className={styles.feedbackForm}>
+            {!isSubmitted && (
+              <FormTextArea
+                name="feedback-message"
+                label={t('form.label')}
+                placeholder={t('form.placeholder')}
+                value={feedbackMessage}
+                onChange={setFeedbackMessage}
+                richText={false}
+                className={styles.messageTextarea}
+                disabled={isSubmitting}
+              />
+            )}
+            <div className={styles.submitSection}>
+              <Button
+                onPress={handleRequestFeedback}
+                className="react-aria-Button react-aria-Button--primary"
+                isDisabled={isSubmitted || isSubmitting}
+                aria-describedby={isSubmitted ? "feedback-success" : undefined}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className={styles.loadingSpinner} aria-hidden="true"></span>
+                    <span className="sr-only">Submitting feedback request...</span>
+                    Submitting...
+                  </>
+                ) : (
+                  t('form.submitButton')
+                )}
+              </Button>
+              {isSubmitted && (
+                <span 
+                  ref={successMessageRef}
+                  id="feedback-success"
+                  className={styles.successMessage}
+                  role="status"
+                  aria-live="polite"
+                  tabIndex={-1}
                 >
-                  <div className={styles.memberInfo}>
-                    <h3 className={styles.memberName}>{member.name}</h3>
-                    <p className={styles.memberEmail}>{member.email}</p>
-                    <p className={styles.memberRole}>{member.role}</p>
-                  </div>
-                  <div className={styles.accessOptions}>
-
-                    <CheckboxGroup
-                      aria-label={`Access options for ${member.name}`}
-                    >
-                      <Label className="hidden-accessibly">{`Accepted options for ${member.name}`}</Label>
-                      <Checkbox
-                        value={`${member.id}-edit`}
-                        aria-label={`Can edit plan for ${member.name}`}
-                        isSelected={member.accessType === 'edit'}
-                      >
-                        <div className="checkbox">
-                          <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4" />
-                          </svg>
-                        </div>
-                        <span>Can edit plan</span>
-                      </Checkbox>
-
-                      <Checkbox
-                        value={`${member.id}-comment`}
-                        aria-label={`Comment only for ${member.name}`}
-                        isSelected={member.accessType === 'comment'}
-                      >
-                        <div className="checkbox">
-                          <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4" />
-                          </svg>
-                        </div>
-                        <span>Comment only</span>
-                      </Checkbox>
-
-                    </CheckboxGroup>
-                  </div>
-                  <div className={styles.memberActions}>
-                    <Button
-                      onPress={() => handleRevoke(member.id)}
-                      className="button-link"
-                      aria-label={`Revoke access for ${member.name}`}
-                    >
-                      Revoke
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                  {t('form.successMessage')}
+                </span>
+              )}
             </div>
-          </section>
+          </div>
 
-          {/* Not accepted section */}
-          <section className={styles.section}
-            aria-labelledby="not-accepted-heading">
-            <h2 id="not-accepted-heading" className={styles.sectionTitle}>
-              These people have not accepted
-              invite yet</h2>
-            <div className={styles.membersList} role="list">
-              {pendingMembers.map((member) => (
-                <div
-                  key={member.id}
-                  className={styles.membersListItem}
-                  role="listitem"
-                  aria-label={`Pending invite: ${member.name}`}
-                >
-                  <div className={styles.memberInfo}>
-                    <h3 className={styles.memberName}>{member.name}</h3>
-                    <p className={styles.memberEmail}>{member.email}</p>
-                    <p className={styles.memberRole}>{member.inviteSentDate}</p>
-                  </div>
-                  <div className={styles.accessOptions}>
-                    <CheckboxGroup
-                      aria-label={`Access options for ${member.name}`}>
-                      <Label className="hidden-accessibly">{`Access options for ${member.name}`}</Label>
-                      <Checkbox
-                        value={`${member.id}-edit`}
-                        aria-label={`Can edit plan for ${member.name}`}
-                        isSelected={member.accessType === 'edit'}
-                      >
-                        <div className="checkbox">
-                          <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4" />
-                          </svg>
-                        </div>
-                        <span>Can edit plan</span>
-                      </Checkbox>
-
-                      <Checkbox
-                        value={`${member.id}-comment`}
-                        aria-label={`Comment only for ${member.name}`}
-                        isSelected={member.accessType === 'comment'}
-                      >
-                        <div className="checkbox">
-                          <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4" />
-                          </svg>
-                        </div>
-                        <span>Comment only</span>
-                      </Checkbox>
-                    </CheckboxGroup>
-                  </div>
-                  <div className={styles.memberActions}>
-                    <Button
-                      onPress={() => handleDeleteInvite(member.id)}
+          <section className={styles.teamFeedbackSection}>
+            <h2>{t('teamFeedback.title')}</h2>
+            <p>{t('teamFeedback.description')}</p>
+            <Link 
+              href={routePath('projects.collaboration', { projectId })}
                       className="react-aria-Button react-aria-Button--secondary"
-                      aria-label={`Delete invite for ${member.name}`}
-                    >
-                      Delete invite
-                    </Button>
-                    <Button
-                      onPress={() => handleResend(member.id)}
-                      className="button-link"
-                      aria-label={`Resend invite for ${member.name}`}
-                    >
-                      Resend
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* No longer have access section */}
-          <section className={styles.section}
-            aria-labelledby="no-longer-access-heading">
-            <h2 id="no-longer-access-heading" className={styles.sectionTitle}>No
-              longer have access</h2>
-            <div className={styles.membersList} role="list">
-              {revokedMembers.map((member) => (
-                <div
-                  key={member.id}
-                  className={styles.membersListItem}
-                  role="listitem"
-                  aria-label={`Revoked access: ${member.name}`}
-                >
-                  <div className={styles.memberInfo}>
-                    <h3 className={styles.memberName}>{member.name}</h3>
-                    <p className={styles.memberEmail}>{member.email}</p>
-                    <p className={styles.accessRevoked}>{member.role}</p>
-                  </div>
-                  <div className={styles.accessOptions}>
-                    <CheckboxGroup
-                      aria-label={`Access options for ${member.name}`}>
-                      <Label className="hidden-accessibly">{`Accepted options for ${member.name}`}</Label>
-                      <Checkbox
-                        value={`${member.id}-edit`}
-                        aria-label={`Can edit plan for ${member.name}`}
-                        isSelected={member.accessType === 'edit'}
-                      >
-                        <div className="checkbox">
-                          <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4" />
-                          </svg>
-                        </div>
-                        <span>Can edit plan</span>
-                      </Checkbox>
-                      <Checkbox
-                        value={`${member.id}-comment`}
-                        aria-label={`Comment only for ${member.name}`}
-                        isSelected={member.accessType === 'comment'}
-                      >
-                        <div className="checkbox">
-                          <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4" />
-                          </svg>
-                        </div>
-                        <span>Comment only</span>
-                      </Checkbox>
-                    </CheckboxGroup>
-                  </div>
-                  <div className={styles.memberActions}>
-                    <Button
-                      onPress={() => handleResend(member.id)}
-                      className="button-link"
-                      aria-label={`Resend invite for ${member.name}`}
-                    >
-                      Resend
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+            >
+              {t('teamFeedback.updateAccessButton')}
+            </Link>
           </section>
         </ContentContainer>
-      </LayoutContainer>
+
+        <SidebarPanel>
+          {/* TODO: Pull sidebar content from database */}
+          <div className={styles.sidebarContent}>
+            <ExpandableContentSection
+              id="university-support-feedback"
+              heading={t('sidebar.universitySupport.title')}
+              expandLabel={Global('links.expand')}
+              summaryCharLimit={150}
+            >
+              <p>{t('sidebar.universitySupport.description')}</p>
+              
+              <p><strong>{t('sidebar.universitySupport.expertsCanTitle')}</strong></p>
+              <ul>
+                <li>{t('sidebar.universitySupport.expertsCan.0')}</li>
+                <li>{t('sidebar.universitySupport.expertsCan.1')}</li>
+                <li>{t('sidebar.universitySupport.expertsCan.2')}</li>
+              </ul>
+              
+              <p>{t('sidebar.universitySupport.requestInfo')}</p>
+            </ExpandableContentSection>
+
+            <ExpandableContentSection
+              id="team-members-feedback"
+              heading={t('sidebar.teamMembers.title')}
+              expandLabel={Global('links.expand')}
+              summaryCharLimit={150}
+            >
+              <p>{t('sidebar.teamMembers.description')}</p>
+              
+              <p><strong>{t('sidebar.teamMembers.usefulWhenTitle')}</strong></p>
+              <ul>
+                <li>{t('sidebar.teamMembers.usefulWhen.0')}</li>
+                <li>{t('sidebar.teamMembers.usefulWhen.1')}</li>
+                <li>{t('sidebar.teamMembers.usefulWhen.2')}</li>
+              </ul>
+              
+              <p>{t('sidebar.teamMembers.encourageInfo')}</p>
+            </ExpandableContentSection>
+          </div>
+        </SidebarPanel>
+      </LayoutWithPanel>
     </>
   );
 };

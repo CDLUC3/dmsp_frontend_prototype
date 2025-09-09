@@ -3,6 +3,7 @@ query ProjectFunding($projectFundingId: Int!) {
     affiliation {
       name
       displayName
+      uri
     }
     status
     grantId

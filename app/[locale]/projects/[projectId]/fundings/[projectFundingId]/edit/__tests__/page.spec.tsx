@@ -6,13 +6,21 @@ import {
   useProjectFundingQuery,
   useUpdateProjectFundingMutation
 } from '@/generated/graphql';
+import {
+  removeProjectFundingAction
+} from '../actions';
 import logECS from '@/utils/clientLogger';
+import { useToast } from '@/context/ToastContext';
 
 import ProjectsProjectFundingEdit from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
+
+jest.mock('../actions/index', () => ({
+  removeProjectFundingAction: jest.fn(),
+}));
 
 jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
@@ -33,6 +41,10 @@ const mockRouter = {
   push: jest.fn(),
 };
 
+const mockToast = {
+  add: jest.fn(),
+};
+
 
 describe('ProjectsProjectFundingEdit', () => {
   const mockUseParams = useParams as jest.Mock;
@@ -43,6 +55,8 @@ describe('ProjectsProjectFundingEdit', () => {
     mockScrollTo();
     mockUseParams.mockReturnValue({ projectId: '1', projectFundingId: '1' });
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
+    // Mock Toast
+    (useToast as jest.Mock).mockReturnValue(mockToast);
     mockUseProjectFundingQuery.mockReturnValue({
       data: {
         projectFunding: {
@@ -106,7 +120,7 @@ describe('ProjectsProjectFundingEdit', () => {
     expect(screen.getByText('breadcrumbs.projectFunding')).toBeInTheDocument();
   });
 
-  it('should display error if the initial ProjectFundingsQuery returns an error', async() => {
+  it('should display error if the initial ProjectFundingsQuery returns an error', async () => {
     (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
@@ -115,7 +129,7 @@ describe('ProjectsProjectFundingEdit', () => {
     mockUseProjectFundingQuery.mockReturnValue({
       data: null,
       loading: false,
-      error: { message: 'There was an error getting the funders.'}
+      error: { message: 'There was an error getting the funders.' }
     });
 
     await act(async () => {
@@ -126,24 +140,6 @@ describe('ProjectsProjectFundingEdit', () => {
 
     expect(screen.getByText('There was an error getting the funders.')).toBeInTheDocument();
   })
-
-  it('should update the funderName field when the user types in the input', async () => {
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    await act(async () => {
-      render(
-        <ProjectsProjectFundingEdit />
-      );
-    });
-
-    const funderNameInput = screen.getByLabelText('labels.funderName');
-    fireEvent.change(funderNameInput, { target: { value: 'New-funderName-123' } });
-
-    expect(funderNameInput).toHaveValue('New-funderName-123');
-  });
 
   it('should update the fundingStatus field when the user selects a new option', async () => {
     (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
@@ -265,27 +261,6 @@ describe('ProjectsProjectFundingEdit', () => {
     });
   });
 
-  it('should display error message when the funder name field has no value', async () => {
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    await act(async () => {
-      render(
-        <ProjectsProjectFundingEdit />
-      );
-    });
-
-    const funderNameInput = screen.getByLabelText('labels.funderName');
-    await act(async() => {
-      fireEvent.change(funderNameInput, { target: { value: '' } });
-    })
-
-    expect(screen.getByText('messages.errors.fundingName')).toBeInTheDocument();
-  });
-
-
   it('should display error messages when mutation throws an error', async () => {
     (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
       jest.fn().mockRejectedValueOnce(new Error("Error")),
@@ -375,6 +350,179 @@ describe('ProjectsProjectFundingEdit', () => {
     // Assert that refetch was called
     await waitFor(() => {
       expect(mockRefetch).toHaveBeenCalled();
+    });
+  });
+
+  it('should not allow editing of the funderName input field', async () => {
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <ProjectsProjectFundingEdit />
+      );
+    });
+
+    const input = screen.getByLabelText("labels.funderName");
+    expect(input).toBeDisabled();
+  });
+
+  it('should redirect user to the Add Funder page when they click the \'Add another\' button', async () => {
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <ProjectsProjectFundingEdit />
+      );
+    });
+
+    const addAnotherBtn = screen.getByRole('button', { name: 'buttons.addAnother' });
+    fireEvent.click(addAnotherBtn);
+    // Verify that router.push was called with "/en-US/projects/1/fundings/add"
+    expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/1/fundings/add');
+  });
+
+  it('should call removeProjectFunding and redirect user when the \'Remove funder\' button is clicked', async () => {
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    (removeProjectFundingAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: null,
+          status: null,
+          affiliationId: null,
+          funderOpportunityNumber: null,
+          funderProjectNumber: null,
+          grantId: null,
+          projectId: null
+        },
+        id: 1
+      },
+    });
+    await act(async () => {
+      render(
+        <ProjectsProjectFundingEdit />
+      );
+    });
+
+    const removeAnotherBtn = screen.getByRole('button', { name: 'buttons.removeFunder' });
+    fireEvent.click(removeAnotherBtn);
+    await waitFor(() => {
+      expect(removeProjectFundingAction).toHaveBeenCalledWith({
+        projectFundingId: expect.any(Number),
+      });
+      expect(mockToast.add).toHaveBeenCalledWith('messages.success.removedFunding', { type: 'success' });
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/1/fundings');
+    });
+  });
+
+  it('should redirect user if the call to removeProjectFundingAction returns a redirect url', async () => {
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    (removeProjectFundingAction as jest.Mock).mockResolvedValue({
+      success: true,
+      redirect: "/login",
+      data: {
+        errors: {
+          general: null,
+          status: null,
+          affiliationId: null,
+          funderOpportunityNumber: null,
+          funderProjectNumber: null,
+          grantId: null,
+          projectId: null
+        },
+        id: 1
+      },
+    });
+    await act(async () => {
+      render(
+        <ProjectsProjectFundingEdit />
+      );
+    });
+
+    const removeAnotherBtn = screen.getByRole('button', { name: 'buttons.removeFunder' });
+    fireEvent.click(removeAnotherBtn);
+    await waitFor(() => {
+      expect(removeProjectFundingAction).toHaveBeenCalledWith({
+        projectFundingId: expect.any(Number),
+      });
+      expect(mockRouter.push).toHaveBeenCalledWith('/login');
+    });
+  });
+
+  it('should display error message if removeProjectFundingAction returns errors', async () => {
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    (removeProjectFundingAction as jest.Mock).mockResolvedValue({
+      success: false,
+      errors: ["There was a problem"]
+    });
+    await act(async () => {
+      render(
+        <ProjectsProjectFundingEdit />
+      );
+    });
+
+    const removeAnotherBtn = screen.getByRole('button', { name: 'buttons.removeFunder' });
+    fireEvent.click(removeAnotherBtn);
+    await waitFor(() => {
+      expect(removeProjectFundingAction).toHaveBeenCalledWith({
+        projectFundingId: expect.any(Number),
+      });
+      expect(screen.getByText("There was a problem")).toBeInTheDocument();
+    });
+  });
+
+  it('should display error message if removeProjectFundingAction returns field-level errors', async () => {
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    (removeProjectFundingAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: "There was a general error",
+          status: null,
+          affiliationId: null,
+          funderOpportunityNumber: null,
+          funderProjectNumber: null,
+          grantId: null,
+          projectId: null
+        },
+        id: 1
+      },
+    });
+    await act(async () => {
+      render(
+        <ProjectsProjectFundingEdit />
+      );
+    });
+
+    const removeAnotherBtn = screen.getByRole('button', { name: 'buttons.removeFunder' });
+    fireEvent.click(removeAnotherBtn);
+    await waitFor(() => {
+      expect(removeProjectFundingAction).toHaveBeenCalledWith({
+        projectFundingId: expect.any(Number),
+      });
+      expect(screen.getByText("There was a general error")).toBeInTheDocument();
     });
   });
 

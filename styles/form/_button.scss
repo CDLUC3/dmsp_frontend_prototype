@@ -125,7 +125,7 @@
 
   &:active:not(:disabled),
   &[data-pressed]:not(:disabled) {
-    color: var(--slate-200);
+    color: var(--slate-500);
   }
 
   &:disabled {

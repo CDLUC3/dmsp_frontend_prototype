@@ -1,0 +1,32 @@
+.searchMatchText {
+  font-size: var(--fs-small);
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.clearFilter {
+  cursor: pointer;
+  color: var(--link-color);
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.loadBtnContainer {
+  margin-top: var(--space-3);
+  text-align: center;
+}
+
+.remainingText {
+  font-size: var(--fs-small);
+  color: var(--text-secondary);
+  margin-top: var(--space-2);
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--space-4);
+  color: var(--text-secondary);
+  font-style: italic;
+}

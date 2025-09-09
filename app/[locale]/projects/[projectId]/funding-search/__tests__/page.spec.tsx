@@ -556,7 +556,7 @@ describe("CreateProjectSearchFunder", () => {
     fireEvent.click(selectBtn);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/projects\/123\/projects-search/));
+      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/projects\/123\/project-funding/));
     });
   });
 
@@ -733,6 +733,27 @@ describe("CreateProjectSearchFunder", () => {
       expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/projects\/123\/fundings\/add/));
     });
   });
+
+
+  it("should allow proceeding without a funder", async () => {
+    const mockPush = jest.fn();
+    (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
+
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <CreateProjectSearchFunder />
+      </MockedProvider>
+    );
+
+    const noFunderBtn = screen.getByText('noFunderButtonLabel');
+    expect(noFunderBtn).toBeInTheDocument();
+    fireEvent.click(noFunderBtn);
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/projects\/123\/project/));
+    });
+  });
+
 
   it('should pass accessibility tests', async () => {
     const { container } = render(
