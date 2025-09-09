@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { useParams } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -9,14 +9,29 @@ import {
   Checkbox,
   CheckboxGroup,
   Label,
-  Link
+  Link,
+  Radio
 } from "react-aria-components";
+
+//GraphQL
+import {
+  ProjectCollaborator,
+  UpdateProjectCollaboratorErrors,
+  useProjectCollaboratorsQuery
+} from '@/generated/graphql';
+
+import {
+  updateProjectCollaboratorAction
+} from './actions';
+
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
   LayoutContainer,
 } from "@/components/Container";
+import { RadioGroupComponent } from '@/components/Form';
 import { routePath } from '@/utils/routes';
+import { extractErrors } from '@/utils/errorHandler';
 import styles from './ProjectsProjectCollaboration.module.scss';
 import { useTranslations } from "next-intl";
 
@@ -37,8 +52,21 @@ interface Member {
 const ProjectsProjectCollaboration = () => {
   // Get projectId param
   const params = useParams();
+  const router = useRouter();
   const projectId = String(params.projectId);
   const Global = useTranslations('Global');
+
+  const [projectCollaborators, setProjectCollaborators] = useState<ProjectCollaborator[]>([]);
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
+  // Get project collaborators
+  const { data, loading, error: queryError, refetch } = useProjectCollaboratorsQuery(
+    {
+      variables: { projectId: Number(projectId) },
+      skip: (!projectId), // prevents the query from running when no projectId
+      fetchPolicy: 'network-only', // always fetch from network
+      notifyOnNetworkStatusChange: true
+    }
+  );
 
   // Members with current access
   const activeMembers: Member[] = [
@@ -119,7 +147,50 @@ const ProjectsProjectCollaboration = () => {
     },
   ];
 
-  const handleRevoke = (memberId: string): void => {
+  // Call Server Action updateProjectCollaborator to update access level
+  const updateAccessLevel = async (accessLevel: string, id: number) => {
+    // Don't need a try-catch block here, as the error is handled in the action
+    const response = await updateProjectCollaboratorAction({
+      projectCollaboratorId: Number(id),
+      accessLevel
+    })
+
+    if (response.redirect) {
+      router.push(response.redirect);
+    }
+
+    return {
+      success: response.success,
+      errors: response.errors,
+      data: response.data
+    }
+  }
+
+  const handleRadioChange = async (accessLevel: string, id: number) => {
+
+    const result = await updateAccessLevel(accessLevel, id);
+
+    if (!result.success) {
+      const errors = result.errors;
+
+      //Check if errors is an array or an object
+      if (Array.isArray(errors)) {
+        //Handle errors as an array
+        setErrorMessages(errors);
+      }
+    } else {
+      if (result?.data?.errors) {
+        const errs = extractErrors<UpdateProjectCollaboratorErrors>(result?.data?.errors, ['general', 'status']);
+        if (errs.length > 0) {
+          setErrorMessages(errs);
+        } else {
+          //Successfully updated
+        }
+      }
+    }
+  }
+
+  const handleRevoke = (memberId: number | undefined): void => {
     // Handle revoking access
     console.log(`Revoking access for member: ${memberId}`);
   };
@@ -134,6 +205,16 @@ const ProjectsProjectCollaboration = () => {
     console.log(`Resending invite for member: ${memberId}`);
   };
 
+  useEffect(() => {
+    if (data && data.projectCollaborators) {
+      // Filter out nulls
+      setProjectCollaborators(
+        data.projectCollaborators.filter((c): c is ProjectCollaborator => c !== null)
+      );
+    } else {
+      setProjectCollaborators([]);
+    }
+  }, [data]);
   return (
     <>
       <PageHeader
@@ -174,63 +255,50 @@ const ProjectsProjectCollaboration = () => {
               className={styles.sectionTitle}>These people currently have
               access to this plan</h2>
             <div className={styles.membersList} role="list">
-              {activeMembers.map((member) => (
-                <div
-                  key={member.id}
-                  className={styles.membersListItem}
-                  role="listitem"
-                  aria-label={`Project member: ${member.name}`}
-                >
-                  <div className={styles.memberInfo}>
-                    <h3 className={styles.memberName}>{member.name}</h3>
-                    <p className={styles.memberEmail}>{member.email}</p>
-                    <p className={styles.memberRole}>{member.role}</p>
-                  </div>
-                  <div className={styles.accessOptions}>
+              {projectCollaborators && projectCollaborators.map((collaborator) => {
+                const collaboratorName = `${collaborator?.user?.givenName} ${collaborator?.user?.surName}`;
+                return (
+                  <div
+                    key={collaborator.id}
+                    className={styles.membersListItem}
+                    role="listitem"
+                    aria-label={`Project member: ${collaboratorName}`}
+                  >
+                    <div className={styles.memberInfo}>
+                      <h3 className={styles.memberName}>{collaboratorName}</h3>
+                      <p className={styles.memberEmail}>{collaborator?.email}</p>
+                    </div>
+                    <div className={styles.accessOptions}>
 
-                    <CheckboxGroup
-                      aria-label={`Access options for ${member.name}`}
-                    >
-                      <Label className="hidden-accessibly">{`Accepted options for ${member.name}`}</Label>
-                      <Checkbox
-                        value={`${member.id}-edit`}
-                        aria-label={`Can edit plan for ${member.name}`}
-                        isSelected={member.accessType === 'edit'}
+                      <RadioGroupComponent
+                        name="accessLevel"
+                        value={collaborator?.accessLevel || 'edit'}
+                        radioGroupLabel=""
+                        onChange={value => handleRadioChange(value, collaborator.id)}
                       >
-                        <div className="checkbox">
-                          <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4" />
-                          </svg>
+                        <div>
+                          <Radio value="edit" aria-label={`Can edit plan for ${collaboratorName}`}>Can edit plan</Radio>
                         </div>
-                        <span>Can edit plan</span>
-                      </Checkbox>
-
-                      <Checkbox
-                        value={`${member.id}-comment`}
-                        aria-label={`Comment only for ${member.name}`}
-                        isSelected={member.accessType === 'comment'}
+                        <div>
+                          <Radio value="comment" aria-label={`Comment only for ${collaboratorName}`}>Comment only</Radio>
+                        </div>
+                        <div>
+                          <Radio value="own" aria-label={`Own plan for ${collaboratorName}`}>Own</Radio>
+                        </div>
+                      </RadioGroupComponent>
+                    </div>
+                    <div className={styles.memberActions}>
+                      <Button
+                        onPress={() => handleRevoke(Number(collaborator.id))}
+                        className="button-link"
+                        aria-label={`Revoke access for ${collaboratorName}`}
                       >
-                        <div className="checkbox">
-                          <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4" />
-                          </svg>
-                        </div>
-                        <span>Comment only</span>
-                      </Checkbox>
-
-                    </CheckboxGroup>
+                        Revoke
+                      </Button>
+                    </div>
                   </div>
-                  <div className={styles.memberActions}>
-                    <Button
-                      onPress={() => handleRevoke(member.id)}
-                      className="button-link"
-                      aria-label={`Revoke access for ${member.name}`}
-                    >
-                      Revoke
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </section>
 

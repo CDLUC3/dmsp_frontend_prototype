@@ -1,0 +1,14 @@
+mutation UpdateProjectCollaborator($projectCollaboratorId: Int!, $accessLevel: ProjectCollaboratorAccessLevel!) {
+  updateProjectCollaborator(projectCollaboratorId: $projectCollaboratorId, accessLevel: $accessLevel) {
+    id
+    errors {
+      accessLevel
+      email
+      general
+      invitedById
+      planId
+      userId
+    }
+    accessLevel
+  }
+}
