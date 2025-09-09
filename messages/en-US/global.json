@@ -376,6 +376,10 @@
     },
     "actions": {
       "save": "Save"
+    },
+    "screenReader": {
+      "feedbackEnabled": "Feedback options are now enabled. Additional fields are available below.",
+      "feedbackDisabled": "Feedback options are now disabled. Additional fields are hidden."
     }
   },
   "Account": {

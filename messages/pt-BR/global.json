@@ -542,6 +542,10 @@
     },
     "actions": {
       "save": "Salvar"
+    },
+    "screenReader": {
+      "feedbackEnabled": "Opções de feedback agora estão ativadas. Campos adicionais estão disponíveis abaixo.",
+      "feedbackDisabled": "Opções de feedback agora estão desativadas. Campos adicionais estão ocultos."
     }
   }
 }

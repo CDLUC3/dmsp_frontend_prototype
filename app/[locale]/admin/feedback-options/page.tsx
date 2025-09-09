@@ -65,9 +65,7 @@ const FeedbackOptions: React.FC = () => {
                   aria-atomic="true"
                   className={styles.srOnly}
                 >
-                  {feedbackEnabled === "on"
-                    ? "Feedback options are now enabled. Additional fields are available below."
-                    : "Feedback options are now disabled. Additional fields are hidden."}
+                  {feedbackEnabled === "on" ? t("screenReader.feedbackEnabled") : t("screenReader.feedbackDisabled")}
                 </div>
 
                 {/* Feedback email address section - only show when enabled */}
