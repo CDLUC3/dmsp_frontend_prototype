@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { routePath } from '@/utils/routes';
+import { useProjectFundingsApiLazyQuery } from '@/generated/graphql';
+
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -20,15 +22,17 @@ import {
 } from "@/components/Container"
 import { RadioGroupComponent } from '@/components/Form';
 
+
 const ProjectsCreateProjectFunding = () => {
   const router = useRouter();
   const params = useParams();
+  const [fundingsApiQuery] = useProjectFundingsApiLazyQuery({});
 
   const { projectId } = params;
-  const FUNDING_SEARCH_URL = routePath('projects.create.funding.search', {
+  const PROJECT_SEARCH_URL = routePath('projects.create.projects.search', {
     projectId: projectId as string,
   });
-  const PROJECT_DETAIL_URL = routePath('projects.show', {
+  const PROJECT_EDIT_URL = routePath('projects.project.info', {
     projectId: projectId as string,
   });
 
@@ -38,14 +42,26 @@ const ProjectsCreateProjectFunding = () => {
   const Global = useTranslations('Global');
   const ProjectFunding = useTranslations('ProjectsCreateProjectFunding');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    if (hasFunding === 'yes') {
-      router.push(FUNDING_SEARCH_URL);
-    } else {
-      router.push(PROJECT_DETAIL_URL);
-    }
+    fundingsApiQuery({
+      variables: {
+        projectId: Number(projectId),
+      }
+    }).then(({data}) => {
+      let nextUrl: string = PROJECT_EDIT_URL;
+
+      // NOTE: In the previous step, we selected a funder. So when we get to
+      // this point, we already have an affiliated funder. Using assertion here
+      // to tell typescript we definltely have a value here.
+      const fundings = data!.project!.fundings!;
+      const funder = fundings[0]!.affiliation;
+      if (funder!.apiTarget && hasFunding === 'yes') {
+        nextUrl = PROJECT_SEARCH_URL;
+      }
+      router.push(nextUrl);
+    });
   }
 
   const radioData = {
@@ -53,11 +69,13 @@ const ProjectsCreateProjectFunding = () => {
     radioButtonData: [
       {
         value: 'yes',
-        label: Global('form.yesLabel'),
+        label: ProjectFunding('form.radioYesLabel'),
+        description: ProjectFunding('form.radioYesDescription'),
       },
       {
         value: 'no',
-        label: Global('form.noLabel'),
+        label: ProjectFunding('form.radioNoLabel'),
+        description: ProjectFunding('form.radioNoDescription'),
       }
     ]
   }

@@ -15,7 +15,11 @@ import { routePath } from '@/utils/routes';
 // Components
 import PageHeader from "@/components/PageHeader";
 import { Card } from '@/components/Card/card';
-import { ContentContainer, LayoutContainer } from "@/components/Container";
+import {
+  ContentContainer,
+  LayoutWithPanel,
+  SidebarPanel
+} from "@/components/Container";
 
 interface FundingInterface {
   name: string;
@@ -66,6 +70,10 @@ const ProjectOverviewPage: React.FC = () => {
   const ProjectOverview = useTranslations('ProjectOverview');
   const Global = useTranslations('Global');
 
+  //const FEEDBACK_URL = routePath('projects.dmp.feedback', { projectId });
+  const COLLABORATION_URL = routePath('projects.collaboration', { projectId });
+
+
   // Get Project using projectId
   const { data, loading, error } = useProjectQuery(
     {
@@ -76,7 +84,23 @@ const ProjectOverviewPage: React.FC = () => {
 
   // Format date using next-intl date formatter
   const formatDate = (date: string) => {
-    const formattedDate = formatter.dateTime(new Date(Number(date)), {
+    let dateObj: Date;
+
+    // Check if date is a timestamp (numeric string) or ISO string
+    if (/^\d+$/.test(date)) {
+      // It's a timestamp, convert to number
+      dateObj = new Date(Number(date));
+    } else {
+      // It's likely an ISO string or other format
+      dateObj = new Date(date);
+    }
+
+    // Check if the date is valid
+    if (isNaN(dateObj.getTime())) {
+      return date; // Return original if invalid
+    }
+
+    const formattedDate = formatter.dateTime(dateObj, {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -135,6 +159,7 @@ const ProjectOverviewPage: React.FC = () => {
     }
   }
 
+
   return (
     <>
       <PageHeader
@@ -151,7 +176,7 @@ const ProjectOverviewPage: React.FC = () => {
         actions={null}
         className="page-project-list"
       />
-      <LayoutContainer>
+      <LayoutWithPanel>
         <ContentContainer>
           <div className="project-overview">
             <section className="project-overview-item project-header"
@@ -165,8 +190,8 @@ const ProjectOverviewPage: React.FC = () => {
               <p>
                 {project.startDate && project.endDate && (
                   ProjectOverview('dateRange', {
-                    startDate: (project.startDate ?? ''),
-                    endDate: (project.endDate ?? '')
+                    startDate: formatDate(project.startDate),
+                    endDate: formatDate(project.endDate)
                   }))}
               </p>
               <Link href={`/projects/${projectId}/project`} aria-label={ProjectOverview('editProject')}>
@@ -338,7 +363,37 @@ const ProjectOverviewPage: React.FC = () => {
             })}
           </section>
         </ContentContainer>
-      </LayoutContainer>
+
+        <SidebarPanel>
+          <div className={"sidePanel statusPanelContent"}>
+
+            <div className={"sidePanelContent"}>
+              <div className={`panelRow mb-5`}>
+                <div>
+                  <h3>{ProjectOverview('status.collaboration.title')}</h3>
+                  <p>{ProjectOverview('status.collaboration.description', {
+                    total: project.projectMembers.length ?? 0,
+                  })}</p>
+                </div>
+                <Link className={"sidePanelLink"} href={COLLABORATION_URL} aria-label={Global('links.request')} >
+                  {ProjectOverview('status.collaboration.link_text')}
+                </Link >
+              </div >
+              {/** Feedback 
+              <div className={`panelRow mb-5`}>
+                <div>
+                  <h3>{ProjectOverview('status.feedback.title')}</h3>
+                </div>
+                <Link className={"sidePanelLink"} href={FEEDBACK_URL} aria-label={Global('links.request')} >
+                  {Global('links.request')}
+                </Link >
+              </div >
+*/}
+            </div >
+          </div >
+
+        </SidebarPanel >
+      </LayoutWithPanel>
 
     </>
   );

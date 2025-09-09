@@ -201,7 +201,7 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
       {/* Live region to announce changes */}
       <div
         ref={statusRef}
-        className="sr-only"
+        className="hidden-accessibly"
         role="status"
         aria-live="polite"
       ></div>

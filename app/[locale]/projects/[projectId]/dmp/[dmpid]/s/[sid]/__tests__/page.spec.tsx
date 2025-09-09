@@ -180,6 +180,11 @@ const planMock = {
   feedback: {
     id: 789,
     completed: null
+  },
+  progress: {
+    answeredQuestions: 0,
+    percentComplete: 0,
+    totalQuestions: 16
   }
 };
 
@@ -301,7 +306,7 @@ describe('PlanOverviewSectionPage', () => {
     (useParams as jest.Mock).mockReturnValue(mockParams);
   });
 
-  it('should render the page with questions and section data', async () => {
+  it.only('should render the page with questions and section data', async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
         <PlanOverviewSectionPage />
