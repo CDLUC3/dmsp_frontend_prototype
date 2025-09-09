@@ -3074,7 +3074,7 @@ export type Template = {
   latestPublishDate?: Maybe<Scalars['String']['output']>;
   /** The last published version */
   latestPublishVersion?: Maybe<Scalars['String']['output']>;
-  /** The last published visibility */
+  /** Visibility set for the last published template */
   latestPublishVisibility?: Maybe<TemplateVisibility>;
   /** The timestamp when the Object was last modifed */
   modified?: Maybe<Scalars['String']['output']>;
@@ -3163,7 +3163,7 @@ export type TemplateSearchResult = {
   latestPublishDate?: Maybe<Scalars['String']['output']>;
   /** The last published version */
   latestPublishVersion?: Maybe<Scalars['String']['output']>;
-  /** The last published visibility */
+  /** Visibility set for the last published template */
   latestPublishVisibility?: Maybe<TemplateVisibility>;
   /** The timestamp when the Template was last modified */
   modified?: Maybe<Scalars['String']['output']>;

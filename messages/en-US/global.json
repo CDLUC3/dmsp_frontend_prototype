@@ -117,6 +117,7 @@
   },
   "FunderSearch": {
     "headerTitle": "Search for Funders",
+    "headerDescription": "Select the funder to use for this project. This can be the funder you plan to apply to or where you already have funding from. You'll be able to add additional funders later if you have more than one.",
     "funder": "Funder",
     "popularTitle": "Most popular funders",
     "found": "{count} funders found",

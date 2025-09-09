@@ -150,7 +150,7 @@ const CreateProjectSearchFunder = () => {
     <>
       <PageHeader
         title={trans('headerTitle')}
-        description=""
+        description={trans('pageIntro')}
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
