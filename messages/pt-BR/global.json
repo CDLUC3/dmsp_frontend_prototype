@@ -124,6 +124,9 @@
     "addManuallyHeading": "Não está nesta lista.",
     "addManuallyText": "Se o seu projeto não for exibido, você pode adicionar os detalhes manualmente.",
     "addManuallyLabel": "Adicionar professor manualmente",
+    "noFunderHeading": "Ainda não tem um financiador?",
+    "noFunderText": "Se você ainda não tem um financiador, pode usar o link abaixo para prosseguir para a próxima etapa.",
+    "noFunderButtonLabel": "Eu não tenho um financiador",
     "messages": {
       "success": {
         "addProjectFunding": "O financiador foi adicionado ao projeto com sucesso."
@@ -157,6 +160,7 @@
     "btnBack": "Voltar"
   },
   "Admin": {
+    "headingRelatedActions": "Ações relacionadas",
     "sections": {
       "organisationTemplatesAndPlans": {
         "title": "Modelos e Planos da Organização",
@@ -190,8 +194,12 @@
             "title": "Editar detalhes da organização",
             "description": "Atualizar o nome da sua organização, abreviação, instituição, etc"
           },
+          "departments": {
+            "title": "Departamentos",
+            "description": "Gerenciar seus diferentes departamentos, faculdades, escolas ou divisões"
+          },
           "schoolsDepartments": {
-            "title": "Escolas/Departamentos",
+            "title": "Schools/Departments",
             "description": "Gerenciar seus diferentes departamentos, faculdades, escolas ou divisões"
           },
           "manageUserAccounts": {
@@ -302,6 +310,35 @@
       "success": {
         "organizationDetailsSaved": "Detalhes da organização salvos com sucesso!"
       }
+    }
+  },
+  "Departments": {
+    "title": "Departamentos",
+    "sections": {
+      "departmentsList": {
+        "title": "Departamentos",
+        "description": "Gerencie seus diferentes departamentos, faculdades, escolas ou divisões."
+      }
+    },
+    "fields": {
+      "departmentName": {
+        "label": "Nome do Departamento",
+        "placeholder": "Digite o nome do departamento"
+      },
+      "departmentAbbr": {
+        "label": "Nome abreviado do departamento", 
+        "placeholder": "Digite a abreviação"
+      }
+    },
+    "actions": {
+      "addNew": "Adicionar novo",
+      "save": "Salvar",
+      "delete": "Excluir"
+    },
+    "deleteModal": {
+      "title": "Confirmar exclusão",
+      "content": "Tem certeza de que deseja excluir {name}? Esta ação não pode ser desfeita.",
+      "deleteButton": "Excluir"
     }
   },
   "Account": {
@@ -469,6 +506,46 @@
       "filteredSearch": "Pesquisa com filtros",
       "table": "Tabela",
       "affiliationSearch": "Affiliation search"
+    }
+  },
+  "FeedbackOptions": {
+    "title": "Opções de Feedback",
+    "description": "Se estiver Ativado, usuários da sua organização podem solicitar feedback sobre seus DMPs. Isso será enviado para o e-mail de contato da sua organização, que é support@dmp.edu.",
+    "sections": {
+      "feedbackToggle": {
+        "title": "Ativar ou desativar Feedback"
+      },
+      "feedbackEmail": {
+        "title": "Endereço de e-mail para feedback"
+      },
+      "expertFeedback": {
+        "title": "Solicitar Feedback de Especialista"
+      }
+    },
+    "fields": {
+      "feedbackEnabled": {
+        "label": "Ativar ou desativar Feedback",
+        "options": {
+          "on": "Ativado - Feedback pode ser solicitado",
+          "off": "Desativado - Feedback não pode ser solicitado"
+        }
+      },
+      "feedbackEmail": {
+        "label": "Endereço de e-mail para feedback",
+        "placeholder": "Digite o endereço de e-mail para feedback",
+        "helpText": "Por padrão, este é o endereço de e-mail de contato da organização. No entanto, você pode alterar o endereço de e-mail para feedback"
+      },
+      "feedbackText": {
+        "label": "Solicitar Feedback de Especialista",
+        "placeholder": "Digite o texto de feedback"
+      }
+    },
+    "actions": {
+      "save": "Salvar"
+    },
+    "screenReader": {
+      "feedbackEnabled": "Opções de feedback agora estão ativadas. Campos adicionais estão disponíveis abaixo.",
+      "feedbackDisabled": "Opções de feedback agora estão desativadas. Campos adicionais estão ocultos."
     }
   }
 }

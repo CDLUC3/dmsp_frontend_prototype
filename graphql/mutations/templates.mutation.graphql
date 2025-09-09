@@ -10,8 +10,8 @@ mutation ArchiveTemplate($templateId: Int!) {
   }
 }
 
-mutation CreateTemplateVersion($templateId: Int!, $comment: String, $versionType: TemplateVersionType, $visibility: TemplateVisibility!) {
-  createTemplateVersion(templateId: $templateId, comment: $comment, versionType: $versionType, visibility: $visibility) {
+mutation CreateTemplateVersion($templateId: Int!, $comment: String, $versionType: TemplateVersionType, $latestPublishVisibility: TemplateVisibility!) {
+  createTemplateVersion(templateId: $templateId, comment: $comment, versionType: $versionType, latestPublishVisibility: $latestPublishVisibility) {
     errors {
       general
       name
@@ -34,11 +34,11 @@ mutation AddTemplate($name: String!, $copyFromTemplateId: Int) {
   }
 }
 
-mutation UpdateTemplate($templateId: Int!, $name: String!, $visibility: TemplateVisibility!) {
-  updateTemplate(templateId: $templateId, name: $name, visibility: $visibility) {
+mutation UpdateTemplate($templateId: Int!, $name: String!) {
+  updateTemplate(templateId: $templateId, name: $name) {
     id
     name
-    visibility
+    latestPublishVisibility
     errors {
       general
       name

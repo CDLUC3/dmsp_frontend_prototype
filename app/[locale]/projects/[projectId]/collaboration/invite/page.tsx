@@ -79,17 +79,15 @@ const reducer = (state: typeof initialState, action: Action) => {
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 
-const ProjectsProjectPlanFeedbackInvite = () => {
-  // Get projectId and planId params
+const ProjectsProjectCollaborationInvite = () => {
+  // Get projectId param
   const params = useParams();
   const router = useRouter();
   const projectId = String(params.projectId);
-  const dmpId = String(params.dmpid);
-  const planId = Number(dmpId);
 
   // Localization keys
   const Global = useTranslations('Global');
-  const t = useTranslations('ProjectsProjectPlanFeedbackInvite');
+  const t = useTranslations('ProjectsProjectCollaborationInvite');
 
   const toastState = useToast(); // Access the toast state from context
 
@@ -105,9 +103,9 @@ const ProjectsProjectPlanFeedbackInvite = () => {
   const errorRef = useRef<HTMLDivElement | null>(null);
 
   // Route paths
-  const INVITE_ROUTE = routePath('projects.dmp.feedback.invite', { projectId, dmpId });
+  const INVITE_ROUTE = routePath('projects.collaboration.invite', { projectId });
   const MEMBERS_ROUTE = routePath('projects.members.index', { projectId });
-  const FEEDBACK_ROUTE = routePath('projects.dmp.feedback', { projectId, dmpId });
+  const COLLABORATION_ROUTE = routePath('projects.collaboration', { projectId });
 
   // Access level ratio button data
   const radioData = {
@@ -130,13 +128,22 @@ const ProjectsProjectPlanFeedbackInvite = () => {
     dispatch({ type: 'SET_EMAIL', payload: e.target.value });
   }
 
-  // Close modal and redirect to Feedback page
+  // Close modal and redirect to Collaboration page
   const handleModalClose = () => {
     dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false });
     // Reset form after closing the modal
     dispatch({ type: 'SET_EMAIL', payload: '' });
-    // Redirect back to feedback page
-    router.push(FEEDBACK_ROUTE);
+    // Redirect back to collaboration page
+    router.push(COLLABORATION_ROUTE);
+  };
+
+  // Go to project page
+  const handleGoToProject = () => {
+    dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false });
+    // Reset form after closing the modal
+    dispatch({ type: 'SET_EMAIL', payload: '' });
+    // Redirect to project page
+    router.push(`/projects/${projectId}`);
   };
 
   // Validate email before submitting
@@ -193,6 +200,9 @@ const ProjectsProjectPlanFeedbackInvite = () => {
         });
         //Handle errors as an array
         dispatch({ type: 'SET_ERROR_MESSAGES', payload: [...state.errorMessages, Global('messaging.somethingWentWrong')] });
+      } else if (result.data?.errors?.general) {
+        // Handle general error from failed result
+        toastState.add(result.data.errors.general, { type: 'error' });
       }
     } else {
       if (result.data?.errors?.general) {
@@ -223,7 +233,7 @@ const ProjectsProjectPlanFeedbackInvite = () => {
             <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.project')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('projects.dmp.feedback', { projectId, dmpId: planId })}>{Global('breadcrumbs.feedback')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.collaboration', { projectId })}>{Global('breadcrumbs.feedback')}</Link></Breadcrumb>
             <Breadcrumb>{t('title')}</Breadcrumb>
           </Breadcrumbs >
         }
@@ -321,12 +331,15 @@ const ProjectsProjectPlanFeedbackInvite = () => {
               {t('para5', { access: accessLevelDescription })}
             </p>
           </div>
-          <Button data-secondary className="secondary" onPress={handleModalClose}>{Global('buttons.close')}</Button>
+          <div>
+            <Button className="react-aria-Button react-aria-Button--primary" onPress={handleGoToProject}>{Global('buttons.goToProject')}</Button>
+            <Button data-secondary className="secondary" onPress={handleModalClose}>{Global('buttons.close')}</Button>
+          </div>
         </Dialog>
       </Modal >
     </>
   );
 };
 
-export default ProjectsProjectPlanFeedbackInvite;
+export default ProjectsProjectCollaborationInvite;
 

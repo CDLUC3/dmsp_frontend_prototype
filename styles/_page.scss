@@ -63,10 +63,6 @@ header {
 }
 
 .subheader {
-  @include device(md) {
-    font-size: 1rem;
-  }
-
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -75,6 +71,10 @@ header {
   font-size: 0.8rem;
   color: var(--gray-600);
   margin-top: 0;
+
+  @include device(md) {
+    font-size: 1rem;
+  }
 }
 
 // ** Main Section ** //

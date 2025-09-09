@@ -1,53 +1,13 @@
 import React from 'react';
-import { gql } from '@apollo/client';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { useParams, useRouter } from 'next/navigation';
-jest.mock("@/generated/graphql", () => {
-  const actual = jest.requireActual("@/generated/graphql");
-  return {
-    ...actual,
-    AddProjectMemberDocument: gql`
-    mutation AddProjectMember($input: AddProjectMemberInput!) {
-    addProjectMember(input: $input) {
-    email
-    errors {
-      general
-    }
-  }
-}`,
-    AddProjectCollaboratorDocument: gql`
-    mutation addProjectCollaborator($projectId: Int!, $email: String!, $accessLevel: ProjectCollaboratorAccessLevel) {
-    addProjectCollaborator(
-    projectId: $projectId
-    email: $email
-    accessLevel: $accessLevel
-  ) {
-    id
-    errors {
-      general
-      email
-    }
-    email
-    user {
-      givenName
-      surName
-      affiliation {
-        uri
-      }
-      orcid
-    }
-  }
-}
-    `,
-  };
-});
+import { useRouter, useParams } from 'next/navigation';
 
 import {
   mockScrollIntoView,
   mockScrollTo
 } from "@/__mocks__/common";
-import ProjectsProjectPlanFeedbackInvite from "../page";
+import ProjectsProjectCollaborationInvite from "../page";
 import { addProjectCollaboratorAction } from '../actions/index';
 jest.mock('../actions/index', () => ({
   addProjectCollaboratorAction: jest.fn(),
@@ -60,6 +20,13 @@ jest.mock("next/headers", () => ({
   cookies: jest.fn(),
 }));
 
+// Mock the ToastContext
+const mockToastAdd = jest.fn();
+jest.mock('@/context/ToastContext', () => ({
+  useToast: jest.fn(() => ({
+    add: mockToastAdd,
+  })),
+}));
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -71,7 +38,7 @@ const mockUseRouter = useRouter as jest.Mock;
 expect.extend(toHaveNoViolations);
 
 
-describe('ProjectsProjectPlanFeedbackInvite', () => {
+describe('ProjectsProjectCollaborationInvite', () => {
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
@@ -84,10 +51,11 @@ describe('ProjectsProjectPlanFeedbackInvite', () => {
       push: jest.fn(),
     })
     jest.clearAllMocks();
+    mockToastAdd.mockClear();
   })
 
   it('should render initial invite page', async () => {
-    render(<ProjectsProjectPlanFeedbackInvite />);
+    render(<ProjectsProjectCollaborationInvite />);
 
     expect(screen.getByText('breadcrumbs.home')).toBeInTheDocument();
     expect(screen.getByText('breadcrumbs.projects')).toBeInTheDocument();
@@ -118,7 +86,7 @@ describe('ProjectsProjectPlanFeedbackInvite', () => {
     (addProjectCollaboratorAction as jest.Mock).mockResolvedValue({
       success: true,
       data: {
-        error: {
+        errors: {
           general: null,
           email: null
         },
@@ -131,7 +99,7 @@ describe('ProjectsProjectPlanFeedbackInvite', () => {
       },
     });
 
-    render(<ProjectsProjectPlanFeedbackInvite />);
+    render(<ProjectsProjectCollaborationInvite />);
 
     // Enter email address
     const emailField = screen.getByPlaceholderText('placeHolders.email');
@@ -169,7 +137,7 @@ describe('ProjectsProjectPlanFeedbackInvite', () => {
     (addProjectCollaboratorAction as jest.Mock).mockResolvedValue({
       success: true,
       data: {
-        error: {
+        errors: {
           general: null,
           email: null
         },
@@ -182,7 +150,7 @@ describe('ProjectsProjectPlanFeedbackInvite', () => {
       },
     });
 
-    render(<ProjectsProjectPlanFeedbackInvite />);
+    render(<ProjectsProjectCollaborationInvite />);
 
     // Enter email address
     const emailField = screen.getByPlaceholderText('placeHolders.email');
@@ -223,74 +191,123 @@ describe('ProjectsProjectPlanFeedbackInvite', () => {
       },
     });
 
-    render(<ProjectsProjectPlanFeedbackInvite />);
+    render(<ProjectsProjectCollaborationInvite />);
 
     // Enter email address
     const emailField = screen.getByPlaceholderText('placeHolders.email');
     fireEvent.change(emailField, { target: { value: 'testing@example.com' } });
 
     expect(emailField).toHaveValue('testing@example.com');
-
-    // Select the "Comment only" radio option
-    const commentOnlyRadio = screen.getByRole('radio', { name: 'radioButtons.access.comment' });
-    fireEvent.click(commentOnlyRadio);
 
     // Click "Grant Access" button
     const grantAccessBtn = screen.getByRole('button', { name: /buttons\.grantAccess/i });
     fireEvent.click(grantAccessBtn);
 
     await waitFor(() => {
+      expect(addProjectCollaboratorAction).toHaveBeenCalledWith({
+        projectId: 1,
+        email: 'testing@example.com',
+        accessLevel: 'EDIT',
+      });
+    });
+
+    await waitFor(() => {
       expect(screen.getByText('Email already exists')).toBeInTheDocument();
-
     });
   });
 
-  it('should display error messages when addProjectCollaboratorAction fails', async () => {
-    (addProjectCollaboratorAction as jest.Mock).mockResolvedValue({
-      success: false,
-      errors: ['Something went wrong'],
-    });
-
-    render(<ProjectsProjectPlanFeedbackInvite />);
-
-    // Fill out the form
-    const emailField = screen.getByPlaceholderText('placeHolders.email');
-    fireEvent.change(emailField, { target: { value: 'test@example.com' } });
-
-    const grantAccessButton = screen.getByRole('button', { name: /buttons\.grantAccess/i });
-    fireEvent.click(grantAccessButton);
-
-    await waitFor(() => {
-      expect(screen.getByText('messaging.somethingWentWrong')).toBeInTheDocument();
-    });
-  });
-
-  it('should redirect to correct path if addProjectCollaboratorAction returns a redirect path', async () => {
-    (addProjectCollaboratorAction as jest.Mock).mockResolvedValue({
-      success: false,
-      redirect: '/login'
-    });
-
-    render(<ProjectsProjectPlanFeedbackInvite />);
-
-    // Fill out the form
-    const emailField = screen.getByPlaceholderText('placeHolders.email');
-    fireEvent.change(emailField, { target: { value: 'test@example.com' } });
-
-    const grantAccessButton = screen.getByRole('button', { name: /buttons\.grantAccess/i });
-    fireEvent.click(grantAccessButton);
-
-    await waitFor(() => {
-      // Should redirect to the Feeback page when modal is closed
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/login');
-    });
-  });
-
-  it('should open modal and successfully display text after user submits the \'Grant access\' form ', async () => {
+  it('should display general error when the request result contains a general error', async () => {
     (addProjectCollaboratorAction as jest.Mock).mockResolvedValue({
       success: true,
       data: {
-        error: {
+        errors: {
+          general: "General error message",
+          email: null,
+        },
+        user: {
+          givenName: 'John',
+          surName: 'Doe',
+          affiliation: { uri: 'affiliation-uri' },
+          orcid: 'orcid-id',
+        },
+      },
+    });
+
+    render(<ProjectsProjectCollaborationInvite />);
+
+    // Enter email address
+    const emailField = screen.getByPlaceholderText('placeHolders.email');
+    fireEvent.change(emailField, { target: { value: 'testing@example.com' } });
+
+    expect(emailField).toHaveValue('testing@example.com');
+
+    // Click "Grant Access" button
+    const grantAccessBtn = screen.getByRole('button', { name: /buttons\.grantAccess/i });
+    fireEvent.click(grantAccessBtn);
+
+    await waitFor(() => {
+      expect(addProjectCollaboratorAction).toHaveBeenCalledWith({
+        projectId: 1,
+        email: 'testing@example.com',
+        accessLevel: 'EDIT',
+      });
+    });
+
+    await waitFor(() => {
+      expect(mockToastAdd).toHaveBeenCalledWith('General error message', { type: 'error' });
+    });
+  });
+
+  it('should display general error as toast when both general and email errors exist (general takes precedence)', async () => {
+    (addProjectCollaboratorAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: "General error message",
+          email: "Email error message",
+        },
+        user: {
+          givenName: 'John',
+          surName: 'Doe',
+          affiliation: { uri: 'affiliation-uri' },
+          orcid: 'orcid-id',
+        },
+      },
+    });
+
+    render(<ProjectsProjectCollaborationInvite />);
+
+    // Enter email address
+    const emailField = screen.getByPlaceholderText('placeHolders.email');
+    fireEvent.change(emailField, { target: { value: 'testing@example.com' } });
+
+    expect(emailField).toHaveValue('testing@example.com');
+
+    // Click "Grant Access" button
+    const grantAccessBtn = screen.getByRole('button', { name: /buttons\.grantAccess/i });
+    fireEvent.click(grantAccessBtn);
+
+    await waitFor(() => {
+      expect(addProjectCollaboratorAction).toHaveBeenCalledWith({
+        projectId: 1,
+        email: 'testing@example.com',
+        accessLevel: 'EDIT',
+      });
+    });
+
+    await waitFor(() => {
+      // General error should be shown as toast (takes precedence over email error)
+      expect(mockToastAdd).toHaveBeenCalledWith('General error message', { type: 'error' });
+      // Email error should NOT be shown because general error takes precedence
+      expect(screen.queryByText('Email error message')).not.toBeInTheDocument();
+    });
+  });
+
+  it('should handle successful invitation and redirect to project page', async () => {
+    (addProjectCollaboratorAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
           general: null,
           email: null
         },
@@ -303,7 +320,12 @@ describe('ProjectsProjectPlanFeedbackInvite', () => {
       },
     });
 
-    render(<ProjectsProjectPlanFeedbackInvite />);
+    const mockPush = jest.fn();
+    mockUseRouter.mockReturnValue({
+      push: mockPush,
+    });
+
+    render(<ProjectsProjectCollaborationInvite />);
 
     // Enter email address
     const emailField = screen.getByPlaceholderText('placeHolders.email');
@@ -311,38 +333,42 @@ describe('ProjectsProjectPlanFeedbackInvite', () => {
 
     expect(emailField).toHaveValue('testing@example.com');
 
-    // Click "Grant Access button"
+    // Click "Grant Access" button
     const grantAccessBtn = screen.getByRole('button', { name: /buttons\.grantAccess/i });
     fireEvent.click(grantAccessBtn);
 
     await waitFor(() => {
-      expect(screen.getByTestId('invite-confirmation-modal')).toBeInTheDocument();
-      expect(screen.getByRole('heading', { name: 'headings.h2InviteSent' })).toBeInTheDocument();
-      expect(screen.getByText('para3')).toBeInTheDocument();
-      expect(screen.getByText('para4')).toBeInTheDocument();
-      expect(screen.getByText('para5')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /buttons\.close/i })).toBeInTheDocument();
+      expect(addProjectCollaboratorAction).toHaveBeenCalledWith({
+        projectId: 1,
+        email: 'testing@example.com',
+        accessLevel: 'EDIT',
+      });
     });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('invite-confirmation-modal')).toBeInTheDocument();
+    });
+
+    // Click "Go to project" button
+    const goToProjectBtn = screen.getByRole('button', { name: /buttons\.goToProject/i });
+    fireEvent.click(goToProjectBtn);
+
+    expect(mockPush).toHaveBeenCalledWith('/projects/1');
   });
 
-  it('should redirect user when user clicks on \'Close\' button in modal', async () => {
+  it('should handle failed invitation and display error message', async () => {
     (addProjectCollaboratorAction as jest.Mock).mockResolvedValue({
-      success: true,
+      success: false,
       data: {
-        error: {
-          general: null,
+        errors: {
+          general: "Failed to invite collaborator",
           email: null
         },
-        user: {
-          givenName: 'John',
-          surName: 'Doe',
-          affiliation: { uri: 'affiliation-uri' },
-          orcid: 'orcid-id',
-        },
+        user: null,
       },
     });
 
-    render(<ProjectsProjectPlanFeedbackInvite />);
+    render(<ProjectsProjectCollaborationInvite />);
 
     // Enter email address
     const emailField = screen.getByPlaceholderText('placeHolders.email');
@@ -350,26 +376,25 @@ describe('ProjectsProjectPlanFeedbackInvite', () => {
 
     expect(emailField).toHaveValue('testing@example.com');
 
-    // Click "Grant Access button"
+    // Click "Grant Access" button
     const grantAccessBtn = screen.getByRole('button', { name: /buttons\.grantAccess/i });
     fireEvent.click(grantAccessBtn);
 
     await waitFor(() => {
-      expect(screen.getByTestId('invite-confirmation-modal')).toBeInTheDocument();
+      expect(addProjectCollaboratorAction).toHaveBeenCalledWith({
+        projectId: 1,
+        email: 'testing@example.com',
+        accessLevel: 'EDIT',
+      });
     });
 
-    // Close modal form
-    const closeButton = screen.getByRole('button', { name: /buttons\.close/i });
-    fireEvent.click(closeButton);
-
     await waitFor(() => {
-      // Should redirect to the Feeback page when modal is closed
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/1/dmp/1/feedback');
+      expect(mockToastAdd).toHaveBeenCalledWith('Failed to invite collaborator', { type: 'error' });
     });
   });
 
-  it('should pass accessibility tests for initial page', async () => {
-    const { container } = render(<ProjectsProjectPlanFeedbackInvite />);
+  it('should pass accessibility tests', async () => {
+    const { container } = render(<ProjectsProjectCollaborationInvite />);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

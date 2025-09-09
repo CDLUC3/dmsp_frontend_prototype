@@ -1,6 +1,10 @@
-
-
 // Toggle Switch
+
+$switch-width: 2.5rem;
+$switch-height: 1.25rem;
+$switch-border: 2px;
+$thumb-size: 1rem;
+
 .react-aria-Switch {
   display: flex;
   align-items: center;
@@ -8,51 +12,45 @@
   font-size: 1.143rem;
   color: var(--text-color);
   forced-color-adjust: none;
+  cursor: pointer;
 
   .indicator {
-    width: 2rem;
-    height: 1.143rem;
-    border: 2px solid var(--border-color);
+    width: $switch-width;
+    height: $switch-height;
+    border: $switch-border solid var(--border-color);
     background: var(--background-color);
     border-radius: 1.143rem;
     transition: all 200ms;
 
     &:before {
-      content: '';
+      content: "";
       display: block;
-      margin: 0.143rem;
-      width: 0.857rem;
-      height: 0.857rem;
+      width: $thumb-size;
+      height: $thumb-size;
       background: var(--highlight-background);
       border-radius: 16px;
       transition: all 200ms;
     }
   }
 
+  &[data-selected] .indicator:before {
+    transform: translateX(calc(#{$switch-width} - (2 * #{$switch-border}) - #{$thumb-size}));
+    background: var(--field-background);
+  }
+
   &[data-pressed] .indicator {
     border-color: var(--border-color-pressed);
-
-    &:before {
-      background: var(--highlight-background-pressed);
-    }
   }
 
   &[data-selected] {
     .indicator {
       border-color: var(--highlight-background);
       background: var(--highlight-background);
-
-      &:before {
-        background: var(--field-background);
-        transform: translateX(100%);
-      }
     }
 
-    &[data-pressed] {
-      .indicator {
-        border-color: var(--highlight-background-pressed);
-        background: var(--highlight-background-pressed);
-      }
+    &[data-pressed] .indicator {
+      border-color: var(--highlight-background-pressed);
+      background: var(--highlight-background-pressed);
     }
   }
 

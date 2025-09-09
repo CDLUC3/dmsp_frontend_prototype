@@ -75,3 +75,13 @@ query Project($projectId: Int!) {
     }
   }
 }
+
+query ProjectFundingsApi($projectId: Int!) {
+  project(projectId: $projectId) {
+    fundings {
+      affiliation {
+        apiTarget
+      }
+    }
+  }
+}

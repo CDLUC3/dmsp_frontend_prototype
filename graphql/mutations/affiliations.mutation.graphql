@@ -1,6 +1,7 @@
 mutation AddAffiliation($input: AffiliationInput!) {
   addAffiliation(input: $input) {
     errors {
+      general
       name
     }
     uri
