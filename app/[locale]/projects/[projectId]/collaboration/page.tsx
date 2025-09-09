@@ -8,19 +8,24 @@ import {
   Button,
   Checkbox,
   CheckboxGroup,
+  Dialog,
+  DialogTrigger,
   Label,
   Link,
+  Modal,
+  ModalOverlay,
   Radio
 } from "react-aria-components";
 
 //GraphQL
 import {
   ProjectCollaborator,
-  UpdateProjectCollaboratorErrors,
+  ProjectCollaboratorAccessLevel,
   useProjectCollaboratorsQuery
 } from '@/generated/graphql';
 
 import {
+  removeProjectCollaboratorAction,
   updateProjectCollaboratorAction
 } from './actions';
 
@@ -30,6 +35,8 @@ import {
   LayoutContainer,
 } from "@/components/Container";
 import { RadioGroupComponent } from '@/components/Form';
+import { ModalOverlayComponent } from '@/components/ModalOverlayComponent';
+
 import { routePath } from '@/utils/routes';
 import { extractErrors } from '@/utils/errorHandler';
 import styles from './ProjectsProjectCollaboration.module.scss';
@@ -58,8 +65,12 @@ const ProjectsProjectCollaboration = () => {
 
   const [projectCollaborators, setProjectCollaborators] = useState<ProjectCollaborator[]>([]);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
+  // State for remove project member modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   // Get project collaborators
-  const { data, loading, error: queryError, refetch } = useProjectCollaboratorsQuery(
+  const { data, loading, error: queryError } = useProjectCollaboratorsQuery(
     {
       variables: { projectId: Number(projectId) },
       skip: (!projectId), // prevents the query from running when no projectId
@@ -152,7 +163,7 @@ const ProjectsProjectCollaboration = () => {
     // Don't need a try-catch block here, as the error is handled in the action
     const response = await updateProjectCollaboratorAction({
       projectCollaboratorId: Number(id),
-      accessLevel
+      accessLevel: accessLevel.toUpperCase()
     })
 
     if (response.redirect) {
@@ -166,7 +177,27 @@ const ProjectsProjectCollaboration = () => {
     }
   }
 
-  const handleRadioChange = async (accessLevel: string, id: number) => {
+  const handleRadioChange = async (accessLevel: string, id: number | undefined) => {
+
+    if (!id) return;
+    // Find previous access level
+    const prevCollaborator = projectCollaborators.find(collab => collab.id === id);
+    const previousAccessLevel = prevCollaborator?.accessLevel;
+    if (previousAccessLevel?.toLowerCase() === accessLevel.toLowerCase()) {
+      // No change in access level
+      return;
+    }
+
+    setErrorMessages([]); // Clear previous errors
+
+    // Optimistically update the UI
+    setProjectCollaborators(prev =>
+      prev.map(collab =>
+        collab.id === id
+          ? { ...collab, accessLevel: accessLevel.toUpperCase() as ProjectCollaboratorAccessLevel }
+          : collab
+      )
+    );
 
     const result = await updateAccessLevel(accessLevel, id);
 
@@ -178,9 +209,19 @@ const ProjectsProjectCollaboration = () => {
         //Handle errors as an array
         setErrorMessages(errors);
       }
+
+      // revert optimistic update if mutation fails
+      setProjectCollaborators(prev => prev.map(collab =>
+        collab.id === id ? { ...collab, accessLevel: previousAccessLevel } : collab
+      ));
     } else {
       if (result?.data?.errors) {
-        const errs = extractErrors<UpdateProjectCollaboratorErrors>(result?.data?.errors, ['general', 'status']);
+        // Convert nulls to undefined before passing to extractErrors
+        const normalizedErrors = Object.fromEntries(
+          Object.entries(result?.data?.errors ?? {}).map(([key, value]) => [key, value ?? undefined])
+        );
+
+        const errs = extractErrors(normalizedErrors, ['general', 'accessLevel']);
         if (errs.length > 0) {
           setErrorMessages(errs);
         } else {
@@ -190,10 +231,68 @@ const ProjectsProjectCollaboration = () => {
     }
   }
 
-  const handleRevoke = (memberId: number | undefined): void => {
-    // Handle revoking access
-    console.log(`Revoking access for member: ${memberId}`);
-  };
+  // Call Server Action removeProjectCollaborator to remove/revoke access
+  const removeProjectCollaborator = async (projectCollaboratorId: number) => {
+    // Don't need a try-catch block here, as the error is handled in the action
+    const response = await removeProjectCollaboratorAction({
+      projectCollaboratorId: Number(projectCollaboratorId),
+    })
+
+    if (response.redirect) {
+      router.push(response.redirect);
+    }
+
+    return {
+      success: response.success,
+      errors: response.errors,
+      data: response.data
+    }
+  }
+
+  const handleRevoke = async (projectCollaboratorId: number) => {
+
+    if (!projectCollaboratorId) return;
+
+
+    // Find previous access level
+    const originalCollaborators = [...projectCollaborators];
+
+    setErrorMessages([]); // Clear previous errors
+
+    // Optimistically update the UI
+    setProjectCollaborators(prev =>
+      prev.filter(collab => collab.id !== projectCollaboratorId)
+    );
+
+    const result = await removeProjectCollaborator(projectCollaboratorId);
+
+    if (!result.success) {
+      const errors = result.errors;
+
+      //Check if errors is an array or an object
+      if (Array.isArray(errors)) {
+        //Handle errors as an array
+        setErrorMessages(errors);
+      }
+
+      // revert optimistic update if mutation fails
+      setProjectCollaborators(originalCollaborators);
+    } else {
+      if (result?.data?.errors) {
+        // Convert nulls to undefined before passing to extractErrors
+        const normalizedErrors = Object.fromEntries(
+          Object.entries(result?.data?.errors ?? {}).map(([key, value]) => [key, value ?? undefined])
+        );
+
+        const errs = extractErrors(normalizedErrors, ['general', 'accessLevel']);
+        if (errs.length > 0) {
+          setErrorMessages(errs);
+        } else {
+          //Successfully updated
+        }
+      }
+    }
+  }
 
   const handleDeleteInvite = (memberId: string): void => {
     // Handle deleting invite
@@ -215,6 +314,17 @@ const ProjectsProjectCollaboration = () => {
       setProjectCollaborators([]);
     }
   }, [data]);
+
+  useEffect(() => {
+    if (queryError) {
+      setErrorMessages(queryError.message ? [queryError.message] : [])
+    }
+  }, [queryError])
+
+  if (loading) {
+    return <div>{Global('messaging.loading')}...</div>;
+  }
+
   return (
     <>
       <PageHeader
@@ -257,6 +367,7 @@ const ProjectsProjectCollaboration = () => {
             <div className={styles.membersList} role="list">
               {projectCollaborators && projectCollaborators.map((collaborator) => {
                 const collaboratorName = `${collaborator?.user?.givenName} ${collaborator?.user?.surName}`;
+                const collaboratorAccessLevel = (collaborator?.accessLevel || 'edit').toLowerCase();
                 return (
                   <div
                     key={collaborator.id}
@@ -266,15 +377,15 @@ const ProjectsProjectCollaboration = () => {
                   >
                     <div className={styles.memberInfo}>
                       <h3 className={styles.memberName}>{collaboratorName}</h3>
-                      <p className={styles.memberEmail}>{collaborator?.email}</p>
+                      <p className={styles.memberEmail}>{collaborator?.user?.email}</p>
                     </div>
                     <div className={styles.accessOptions}>
 
                       <RadioGroupComponent
                         name="accessLevel"
-                        value={collaborator?.accessLevel || 'edit'}
+                        value={collaboratorAccessLevel}
                         radioGroupLabel=""
-                        onChange={value => handleRadioChange(value, collaborator.id)}
+                        onChange={value => handleRadioChange(value, Number(collaborator?.id))}
                       >
                         <div>
                           <Radio value="edit" aria-label={`Can edit plan for ${collaboratorName}`}>Can edit plan</Radio>
@@ -288,13 +399,45 @@ const ProjectsProjectCollaboration = () => {
                       </RadioGroupComponent>
                     </div>
                     <div className={styles.memberActions}>
-                      <Button
-                        onPress={() => handleRevoke(Number(collaborator.id))}
-                        className="button-link"
-                        aria-label={`Revoke access for ${collaboratorName}`}
-                      >
-                        Revoke
-                      </Button>
+                      <DialogTrigger isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+                        <Button
+                          className="secondary"
+                          aria-label={`Revoke access for ${collaboratorName}`}
+                          isDisabled={isDeleting}
+                        >
+                          {isDeleting ? "is Deleting..." : "Revoke"}
+                        </Button>
+                        <ModalOverlay>
+                          <Modal>
+                            <Dialog>
+                              {({ close }) => (
+                                <>
+                                  <h3>Remove project collaborator</h3>
+                                  <p>Removing this member means they will no longer be able to collaborate on this plan.</p>
+                                  <div className={styles.deleteConfirmButtons}>
+                                    <Button
+                                      className="secondary"
+                                      aria-label="Cancel removal of project collaborator"
+                                      autoFocus
+                                      onPress={close}>
+                                      {Global('buttons.cancel')}
+                                    </Button>
+                                    <Button
+                                      className="primary"
+                                      onPress={() => {
+                                        handleRevoke(Number(collaborator.id));
+                                        close();
+                                      }}
+                                    >
+                                      {Global('buttons.delete')}
+                                    </Button>
+                                  </div>
+                                </>
+                              )}
+                            </Dialog>
+                          </Modal>
+                        </ModalOverlay>
+                      </DialogTrigger>
                     </div>
                   </div>
                 )

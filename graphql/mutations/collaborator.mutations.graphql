@@ -12,3 +12,22 @@ mutation UpdateProjectCollaborator($projectCollaboratorId: Int!, $accessLevel: P
     accessLevel
   }
 }
+
+mutation RemoveProjectCollaborator($projectCollaboratorId: Int!) {
+  removeProjectCollaborator(projectCollaboratorId: $projectCollaboratorId) {
+    id
+    errors {
+      accessLevel
+      email
+      general
+      invitedById
+      planId
+      userId
+    }
+    user {
+      givenName
+      id
+      surName
+    }
+  }
+}
