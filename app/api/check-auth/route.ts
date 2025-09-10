@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
 import { verifyJwtToken } from '@/lib/server/auth';
 import logger from '@/utils/server/logger';
-import { error } from 'console';
 
 const LOGIN = `${process.env.NEXT_PUBLIC_BASE_URL}/login`;
 

@@ -47,7 +47,7 @@ describe('GET Function', () => {
     const data = await response.json();
 
     expect(data).toEqual({ authenticated: false })
-    expect(logger.error).toHaveBeenCalledWith({ "error": "User verification failed", "route": "/api/check-auth", "token": "valid-token" });
+    expect(logger.error).toHaveBeenCalledWith({ error: "User verification failed", route: "/api/check-auth", token: "valid-token" });
   })
 
   it('should return false for "authenticated" if there is no "dmspt" auth cookie/token', async () => {
