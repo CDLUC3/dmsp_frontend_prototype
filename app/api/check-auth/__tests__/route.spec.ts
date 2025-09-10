@@ -47,7 +47,7 @@ describe('GET Function', () => {
     const data = await response.json();
 
     expect(data).toEqual({ authenticated: false })
-    expect(logger.error).toHaveBeenCalledWith('User verification failed');
+    expect(logger.error).toHaveBeenCalledWith({ "error": "User verification failed", "route": "/api/check-auth", "token": "valid-token" });
   })
 
   it('should return false for "authenticated" if there is no "dmspt" auth cookie/token', async () => {
@@ -66,8 +66,8 @@ describe('GET Function', () => {
 
     expect(data).toEqual({ authenticated: false, error: 'Internal Server Error' })
     expect(logger.error).toHaveBeenCalledWith(
-      expect.objectContaining({ error: expect.any(Error) }),
-      "Error getting auth token"
+      expect.objectContaining({ error: expect.any(Error), route: '/api/check-auth' }),
+      "Error getting auth token from cookie"
     );
   })
 
