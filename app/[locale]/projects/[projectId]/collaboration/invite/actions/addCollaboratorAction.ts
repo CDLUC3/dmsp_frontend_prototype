@@ -23,7 +23,7 @@ export async function addProjectCollaboratorAction({
     });
 
   } catch (error) {
-    logger.error(`[Add Project Collaborator Error]: ${error}`, { error });
+    logger.error({ error }, `[Add Project Collaborator Error]: ${error}`);
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }

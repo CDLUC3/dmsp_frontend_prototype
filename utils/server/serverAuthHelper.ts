@@ -85,7 +85,7 @@ export const serverRefreshAuthTokens = async () => {
       cookies: setCookieHeaders
     };
   } catch (err) {
-    logger.error("Error refreshing auth token", err);
+    logger.error({ error: err }, "Error refreshing auth token");
     return null;
   }
 };
@@ -105,7 +105,7 @@ export const serverFetchCsrfToken = async () => {
 
     return response;
   } catch (err) {
-    logger.error("Error getting CSRF token", err);
+    logger.error({ error: err }, "Error getting CSRF token");
     return null;
   }
 };

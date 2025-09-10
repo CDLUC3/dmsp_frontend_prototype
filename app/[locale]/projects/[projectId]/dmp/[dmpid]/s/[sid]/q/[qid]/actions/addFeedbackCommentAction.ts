@@ -24,7 +24,7 @@ export async function addFeedbackCommentAction({
       dataPath: "addFeedbackComment"
     });
   } catch (error) {
-    logger.error(`[Add feedbackComment from answer]: ${error}`, { error });
+    logger.error({ error }, `[Add feedbackComment from answer]: ${error}`);
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }

@@ -22,7 +22,7 @@ export async function updateFeedbackCommentAction({
       dataPath: "updateFeedbackComment"
     });
   } catch (error) {
-    logger.error(`[Update feedbackComment from answer]: ${error}`, { error });
+    logger.error({ error }, `[Update feedbackComment from answer]: ${error}`);
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }

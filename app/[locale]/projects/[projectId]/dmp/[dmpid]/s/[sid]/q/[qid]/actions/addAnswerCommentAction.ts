@@ -20,7 +20,7 @@ export async function addAnswerCommentAction({
       dataPath: "addAnswerComment"
     });
   } catch (error) {
-    logger.error(`[Add answerComment from answer]: ${error}`, { error });
+    logger.error({ error }, `[Add answerComment from answer]: ${error}`);
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }
