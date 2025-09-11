@@ -40,11 +40,6 @@
       "info": "{name} ({role})",
       "edit": "Adjust for this plan"
     },
-    "outputs": {
-      "title": "Research outputs for this plan",
-      "count": "{count} outputs",
-      "edit": "Adjust for this plan"
-    },
     "relatedWorks": {
       "title": "Related works for this plan",
       "count": "{count} works",
