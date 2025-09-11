@@ -316,5 +316,35 @@
     "headings": {
       "h2InviteSent": "Invite sent"
     }
+  },
+  "ProjectsProjectCollaboration": {
+    "title": "Invite people and manage access",
+    "description": "When you invite a person, we'll send an email to this person inviting them to view your plan.",
+    "removeCollaborator": "Removing this member means they will no longer be able to collaborate on this plan.",
+    "canEdit": "Can edit plan",
+    "canComment": "Comment only",
+    "own": "Owner",
+    "cancelRemoval": "Cancel removal of project collaborator {name}",
+    "deleteCollaborator": "Delete project collaborator {name}",
+    "canEditPlanFor": "Can edit plan for {name}",
+    "canCommentPlanFor": "Can comment on plan for {name}",
+    "canOwnPlanFor": "Own plan for {name}",
+    "revokeAccessFor": "Revoke access for {name}",
+    "headings": {
+      "hasAccess": "These people currently have access to this plan",
+      "removeCollaborator": "Remove project collaborator",
+      "pendingInvites": "These people have not accepted invite yet"
+    },
+    "buttons": {
+      "invite": "Invite Collaborators",
+      "isDeleting": "is Deleting...",
+      "revoke": "Revoke"
+    },
+    "links": {
+      "inviteAPerson": "Invite a person"
+    },
+    "messages": {
+      "noCollaborators": "No collaborators found"
+    }
   }
 }

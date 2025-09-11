@@ -4269,7 +4269,7 @@ export type ProjectCollaboratorsQueryVariables = Exact<{
 }>;
 
 
-export type ProjectCollaboratorsQuery = { __typename?: 'Query', projectCollaborators?: Array<{ __typename?: 'ProjectCollaborator', id?: number | null, accessLevel?: ProjectCollaboratorAccessLevel | null, errors?: { __typename?: 'ProjectCollaboratorErrors', accessLevel?: string | null, email?: string | null, general?: string | null, invitedById?: string | null, planId?: string | null, userId?: string | null } | null, user?: { __typename?: 'User', givenName?: string | null, surName?: string | null, email?: string | null } | null } | null> | null };
+export type ProjectCollaboratorsQuery = { __typename?: 'Query', projectCollaborators?: Array<{ __typename?: 'ProjectCollaborator', id?: number | null, accessLevel?: ProjectCollaboratorAccessLevel | null, created?: string | null, email: string, errors?: { __typename?: 'ProjectCollaboratorErrors', accessLevel?: string | null, email?: string | null, general?: string | null, invitedById?: string | null, planId?: string | null, userId?: string | null } | null, user?: { __typename?: 'User', givenName?: string | null, surName?: string | null, email?: string | null } | null } | null> | null };
 
 export type ProjectFundingsQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -6666,6 +6666,8 @@ export const ProjectCollaboratorsDocument = gql`
       userId
     }
     accessLevel
+    created
+    email
     user {
       givenName
       surName

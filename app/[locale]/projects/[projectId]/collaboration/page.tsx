@@ -1,20 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
-  Button,
-  Checkbox,
-  CheckboxGroup,
-  Dialog,
-  DialogTrigger,
-  Label,
   Link,
-  Modal,
-  ModalOverlay,
-  Radio
 } from "react-aria-components";
 
 //GraphQL
@@ -34,40 +26,36 @@ import {
   ContentContainer,
   LayoutContainer,
 } from "@/components/Container";
-import { RadioGroupComponent } from '@/components/Form';
-import { ModalOverlayComponent } from '@/components/ModalOverlayComponent';
+import ErrorMessages from '@/components/ErrorMessages';
 
 import { routePath } from '@/utils/routes';
 import { extractErrors } from '@/utils/errorHandler';
-import styles from './ProjectsProjectCollaboration.module.scss';
-import { useTranslations } from "next-intl";
 
-// Interface for member data
-interface Member {
-  id: string;
-  name: string;
-  email: string;
-  affiliation: string;
-  orcid?: string;
-  role: string;
-  accessType: 'edit' | 'comment';
-  status: 'active' | 'notAccepted' | 'revoked';
-  inviteSentDate?: string;
-  accessRevokedDate?: string;
-}
+import RevokeCollaboratorModal from './RevokeCollaboratorModal';
+import AccessLevelRadioGroup from './AccessLevelRadioGroup';
+import styles from './ProjectsProjectCollaboration.module.scss';
 
 const ProjectsProjectCollaboration = () => {
   // Get projectId param
   const params = useParams();
   const router = useRouter();
   const projectId = String(params.projectId);
+
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
+
+  // Localization
   const Global = useTranslations('Global');
+  const t = useTranslations('ProjectsProjectCollaboration');
 
   const [projectCollaborators, setProjectCollaborators] = useState<ProjectCollaborator[]>([]);
+  const [hasAccess, setHasAccess] = useState<ProjectCollaborator[]>([]);
+  const [invitesPending, setInvitesPending] = useState<ProjectCollaborator[]>([]); // collaborators who haven't accepted yet
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
+
   // State for remove project member modal
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteModalFor, setDeleteModalFor] = useState<number | null>(null);
 
   // Get project collaborators
   const { data, loading, error: queryError } = useProjectCollaboratorsQuery(
@@ -79,85 +67,6 @@ const ProjectsProjectCollaboration = () => {
     }
   );
 
-  // Members with current access
-  const activeMembers: Member[] = [
-    {
-      id: 'member-001',
-      name: 'Frederick Cook',
-      email: 'f.cook@github.ac.uk',
-      affiliation: 'University of California',
-      orcid: '0000-0001-2603-5427',
-      role: 'Project collaborator',
-      accessType: 'edit',
-      status: 'active',
-    },
-    {
-      id: 'member-002',
-      name: 'Jennifer Frost',
-      email: 'jennifer.frost@ucam.edu',
-      affiliation: 'University of Arctic Studies',
-      role: 'Invite not yet accepted',
-      accessType: 'edit',
-      status: 'active',
-    },
-    {
-      id: 'member-003',
-      name: 'Angela Snow',
-      email: 'a.snow@northernhelm.edu',
-      affiliation: 'University of California',
-      role: 'Project collaborator',
-      accessType: 'edit',
-      status: 'active',
-    },
-    {
-      id: 'member-004',
-      name: 'UC Support Team',
-      email: 'support@arctic.edu',
-      affiliation: 'External',
-      role: '',
-      accessType: 'edit',
-      status: 'active',
-    },
-  ];
-
-  // Members who haven't accepted invites
-  const pendingMembers: Member[] = [
-    {
-      id: 'member-005',
-      name: 'Vinjalmur Stefansson',
-      email: 'vinjalmur.s@arctic.edu',
-      affiliation: 'Invite sent April 1 2024',
-      role: '',
-      accessType: 'edit',
-      status: 'notAccepted',
-      inviteSentDate: 'April 1 2024',
-    },
-    {
-      id: 'member-006',
-      name: 'Oscar Wisting',
-      email: 'o.wisting@arctic.edu',
-      affiliation: '',
-      role: 'Invite sent March 1 2024',
-      accessType: 'edit',
-      status: 'notAccepted',
-      inviteSentDate: 'March 1 2024',
-    },
-  ];
-
-  // Members who no longer have access
-  const revokedMembers: Member[] = [
-    {
-      id: 'member-007',
-      name: 'Janet Snowden',
-      email: 'janet.snowden@arctic.edu',
-      affiliation: '',
-      role: 'Access revoked July 9 2024',
-      accessType: 'edit',
-      status: 'revoked',
-      accessRevokedDate: 'July 9 2024',
-    },
-  ];
-
   // Call Server Action updateProjectCollaborator to update access level
   const updateAccessLevel = async (accessLevel: string, id: number) => {
     // Don't need a try-catch block here, as the error is handled in the action
@@ -166,7 +75,7 @@ const ProjectsProjectCollaboration = () => {
       accessLevel: accessLevel.toUpperCase()
     })
 
-    if (response.redirect) {
+    if (response?.redirect) {
       router.push(response.redirect);
     }
 
@@ -178,15 +87,10 @@ const ProjectsProjectCollaboration = () => {
   }
 
   const handleRadioChange = async (accessLevel: string, id: number | undefined) => {
-
     if (!id) return;
     // Find previous access level
     const prevCollaborator = projectCollaborators.find(collab => collab.id === id);
     const previousAccessLevel = prevCollaborator?.accessLevel;
-    if (previousAccessLevel?.toLowerCase() === accessLevel.toLowerCase()) {
-      // No change in access level
-      return;
-    }
 
     setErrorMessages([]); // Clear previous errors
 
@@ -251,6 +155,7 @@ const ProjectsProjectCollaboration = () => {
 
   const handleRevoke = async (projectCollaboratorId: number) => {
 
+    setIsDeleting(true);
     if (!projectCollaboratorId) return;
 
 
@@ -289,31 +194,49 @@ const ProjectsProjectCollaboration = () => {
           setErrorMessages(errs);
         } else {
           //Successfully updated
+          setIsDeleting(false);
+          setDeleteModalFor(null);
         }
       }
     }
   }
 
-  const handleDeleteInvite = (memberId: string): void => {
-    // Handle deleting invite
-    console.log(`Deleting invite for member: ${memberId}`);
-  };
-
-  const handleResend = (memberId: string): void => {
-    // Handle resending invite
-    console.log(`Resending invite for member: ${memberId}`);
-  };
-
   useEffect(() => {
     if (data && data.projectCollaborators) {
-      // Filter out nulls
+      // Filter out nulls and invites pending (user is null when invite not accepted)
       setProjectCollaborators(
-        data.projectCollaborators.filter((c): c is ProjectCollaborator => c !== null)
+        data.projectCollaborators.filter(
+          (c): c is ProjectCollaborator => c !== null
+        )
+      );
+
+      // Filter collaborators who HAVE accepted invite already
+      setHasAccess(
+        data.projectCollaborators.filter((c): c is ProjectCollaborator => c?.user !== null)
+      );
+
+      // Filter collaborators who haven't accepted yet
+      setInvitesPending(
+        data.projectCollaborators.filter((c): c is ProjectCollaborator => !c?.user)
       );
     } else {
       setProjectCollaborators([]);
     }
   }, [data]);
+
+  useEffect(() => {
+    if (projectCollaborators) {
+      // Filter collaborators who HAVE accepted invite already
+      setHasAccess(
+        projectCollaborators.filter((c): c is ProjectCollaborator => c?.user !== null)
+      );
+
+      // Filter collaborators who haven't accepted yet
+      setInvitesPending(
+        projectCollaborators.filter((c): c is ProjectCollaborator => !c?.user)
+      );
+    }
+  }, [projectCollaborators]);
 
   useEffect(() => {
     if (queryError) {
@@ -328,7 +251,7 @@ const ProjectsProjectCollaboration = () => {
   return (
     <>
       <PageHeader
-        title="Invite people and manage access"
+        title={t('title')}
         description=""
         showBackButton={true}
         breadcrumbs={
@@ -336,7 +259,7 @@ const ProjectsProjectCollaboration = () => {
             <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
-
+            <Breadcrumb>{t('title')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={
@@ -346,31 +269,31 @@ const ProjectsProjectCollaboration = () => {
         className="page-project-members"
       />
 
+      <ErrorMessages errors={errorMessages} ref={errorRef} />
+
       <LayoutContainer>
         <ContentContainer className="layout-content-container-full">
           <p>
-            When you invite a person, we&#39;ll send an email to this person
-            inviting them to view your plan.
+            {t('description')}
           </p>
           <p>
             <Link href={routePath('projects.collaboration.invite', { projectId })}
-              className={"react-aria-Button react-aria-Button--secondary"}>Invite
-              a person</Link>
+              className={"react-aria-Button react-aria-Button--secondary"}>{t('links.inviteAPerson')}</Link>
           </p>
 
           {/* Current access section */}
           <section className={styles.section}
             aria-labelledby="current-access-heading">
             <h2 id="current-access-heading"
-              className={styles.sectionTitle}>These people currently have
-              access to this plan</h2>
+              className={styles.sectionTitle}>{t('headings.hasAccess')}</h2>
             <div className={styles.membersList} role="list">
-              {projectCollaborators && projectCollaborators.map((collaborator) => {
+              {hasAccess.length > 0 && hasAccess.map((collaborator) => {
                 const collaboratorName = `${collaborator?.user?.givenName} ${collaborator?.user?.surName}`;
                 const collaboratorAccessLevel = (collaborator?.accessLevel || 'edit').toLowerCase();
                 return (
                   <div
                     key={collaborator.id}
+                    data-id={collaborator.id}
                     className={styles.membersListItem}
                     role="listitem"
                     aria-label={`Project member: ${collaboratorName}`}
@@ -379,202 +302,65 @@ const ProjectsProjectCollaboration = () => {
                       <h3 className={styles.memberName}>{collaboratorName}</h3>
                       <p className={styles.memberEmail}>{collaborator?.user?.email}</p>
                     </div>
-                    <div className={styles.accessOptions}>
 
-                      <RadioGroupComponent
-                        name="accessLevel"
-                        value={collaboratorAccessLevel}
-                        radioGroupLabel=""
-                        onChange={value => handleRadioChange(value, Number(collaborator?.id))}
-                      >
-                        <div>
-                          <Radio value="edit" aria-label={`Can edit plan for ${collaboratorName}`}>Can edit plan</Radio>
-                        </div>
-                        <div>
-                          <Radio value="comment" aria-label={`Comment only for ${collaboratorName}`}>Comment only</Radio>
-                        </div>
-                        <div>
-                          <Radio value="own" aria-label={`Own plan for ${collaboratorName}`}>Own</Radio>
-                        </div>
-                      </RadioGroupComponent>
-                    </div>
-                    <div className={styles.memberActions}>
-                      <DialogTrigger isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-                        <Button
-                          className="secondary"
-                          aria-label={`Revoke access for ${collaboratorName}`}
-                          isDisabled={isDeleting}
-                        >
-                          {isDeleting ? "is Deleting..." : "Revoke"}
-                        </Button>
-                        <ModalOverlay>
-                          <Modal>
-                            <Dialog>
-                              {({ close }) => (
-                                <>
-                                  <h3>Remove project collaborator</h3>
-                                  <p>Removing this member means they will no longer be able to collaborate on this plan.</p>
-                                  <div className={styles.deleteConfirmButtons}>
-                                    <Button
-                                      className="secondary"
-                                      aria-label="Cancel removal of project collaborator"
-                                      autoFocus
-                                      onPress={close}>
-                                      {Global('buttons.cancel')}
-                                    </Button>
-                                    <Button
-                                      className="primary"
-                                      onPress={() => {
-                                        handleRevoke(Number(collaborator.id));
-                                        close();
-                                      }}
-                                    >
-                                      {Global('buttons.delete')}
-                                    </Button>
-                                  </div>
-                                </>
-                              )}
-                            </Dialog>
-                          </Modal>
-                        </ModalOverlay>
-                      </DialogTrigger>
-                    </div>
+                    <AccessLevelRadioGroup
+                      value={collaboratorAccessLevel}
+                      onChange={value => handleRadioChange(value, Number(collaborator?.id))}
+                      collaboratorName={collaboratorName}
+                    />
+
+                    <RevokeCollaboratorModal
+                      collaboratorId={Number(collaborator.id)}
+                      collaboratorName={collaboratorName}
+                      isOpen={deleteModalFor === collaborator.id}
+                      isDeleting={isDeleting}
+                      onOpenChange={open => setDeleteModalFor(open ? Number(collaborator.id) : null)}
+                      onRevoke={handleRevoke}
+                      onCancel={() => setDeleteModalFor(null)}
+                    />
                   </div>
                 )
               })}
             </div>
           </section>
 
-          {/* Not accepted section */}
+          {/* Not accepted invite yet */}
           <section className={styles.section}
             aria-labelledby="not-accepted-heading">
-            <h2 id="not-accepted-heading" className={styles.sectionTitle}>
-              These people have not accepted
-              invite yet</h2>
+            <h2 id="not-accepted-heading" className={styles.sectionTitle}>{t('headings.pendingInvites')}</h2>
             <div className={styles.membersList} role="list">
-              {pendingMembers.map((member) => (
-                <div
-                  key={member.id}
-                  className={styles.membersListItem}
-                  role="listitem"
-                  aria-label={`Pending invite: ${member.name}`}
-                >
-                  <div className={styles.memberInfo}>
-                    <h3 className={styles.memberName}>{member.name}</h3>
-                    <p className={styles.memberEmail}>{member.email}</p>
-                    <p className={styles.memberRole}>{member.inviteSentDate}</p>
+              {invitesPending && invitesPending.map((pending) => {
+                const pendingName = pending?.user?.givenName || pending?.user?.surName ? `${pending?.user?.givenName} ${pending?.user?.surName}` : null;
+                const pendingAccessLevel = (pending?.accessLevel || 'edit').toLowerCase();
+                return (
+                  <div
+                    key={pending.id}
+                    className={styles.membersListItem}
+                    role="listitem"
+                    aria-label={`Pending invite: ${pendingName}`}
+                  >
+                    <div className={styles.memberInfo}>
+                      <h3 className={styles.memberName}>{pendingName ? pendingName : pending.email}</h3>
+                      <p className={styles.memberEmail}>{pendingName ? pending.email : null}</p>
+                      <p className={styles.memberRole}>{pending.created}</p>
+                    </div>
+                    <AccessLevelRadioGroup
+                      value={pendingAccessLevel}
+                      onChange={value => handleRadioChange(value, Number(pending?.id))}
+                      collaboratorName={pendingName ?? pending.email}
+                    />
+                    <RevokeCollaboratorModal
+                      collaboratorId={Number(pending.id)}
+                      collaboratorName={pendingName ?? pending.email}
+                      isOpen={deleteModalFor === pending.id}
+                      isDeleting={isDeleting}
+                      onOpenChange={open => setDeleteModalFor(open ? Number(pending.id) : null)}
+                      onRevoke={handleRevoke}
+                      onCancel={() => setDeleteModalFor(null)}
+                    />
                   </div>
-                  <div className={styles.accessOptions}>
-                    <CheckboxGroup
-                      aria-label={`Access options for ${member.name}`}>
-                      <Label className="hidden-accessibly">{`Access options for ${member.name}`}</Label>
-                      <Checkbox
-                        value={`${member.id}-edit`}
-                        aria-label={`Can edit plan for ${member.name}`}
-                        isSelected={member.accessType === 'edit'}
-                      >
-                        <div className="checkbox">
-                          <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4" />
-                          </svg>
-                        </div>
-                        <span>Can edit plan</span>
-                      </Checkbox>
-
-                      <Checkbox
-                        value={`${member.id}-comment`}
-                        aria-label={`Comment only for ${member.name}`}
-                        isSelected={member.accessType === 'comment'}
-                      >
-                        <div className="checkbox">
-                          <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4" />
-                          </svg>
-                        </div>
-                        <span>Comment only</span>
-                      </Checkbox>
-                    </CheckboxGroup>
-                  </div>
-                  <div className={styles.memberActions}>
-                    <Button
-                      onPress={() => handleDeleteInvite(member.id)}
-                      className="react-aria-Button react-aria-Button--secondary"
-                      aria-label={`Delete invite for ${member.name}`}
-                    >
-                      Delete invite
-                    </Button>
-                    <Button
-                      onPress={() => handleResend(member.id)}
-                      className="button-link"
-                      aria-label={`Resend invite for ${member.name}`}
-                    >
-                      Resend
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* No longer have access section */}
-          <section className={styles.section}
-            aria-labelledby="no-longer-access-heading">
-            <h2 id="no-longer-access-heading" className={styles.sectionTitle}>No
-              longer have access</h2>
-            <div className={styles.membersList} role="list">
-              {revokedMembers.map((member) => (
-                <div
-                  key={member.id}
-                  className={styles.membersListItem}
-                  role="listitem"
-                  aria-label={`Revoked access: ${member.name}`}
-                >
-                  <div className={styles.memberInfo}>
-                    <h3 className={styles.memberName}>{member.name}</h3>
-                    <p className={styles.memberEmail}>{member.email}</p>
-                    <p className={styles.accessRevoked}>{member.role}</p>
-                  </div>
-                  <div className={styles.accessOptions}>
-                    <CheckboxGroup
-                      aria-label={`Access options for ${member.name}`}>
-                      <Label className="hidden-accessibly">{`Accepted options for ${member.name}`}</Label>
-                      <Checkbox
-                        value={`${member.id}-edit`}
-                        aria-label={`Can edit plan for ${member.name}`}
-                        isSelected={member.accessType === 'edit'}
-                      >
-                        <div className="checkbox">
-                          <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4" />
-                          </svg>
-                        </div>
-                        <span>Can edit plan</span>
-                      </Checkbox>
-                      <Checkbox
-                        value={`${member.id}-comment`}
-                        aria-label={`Comment only for ${member.name}`}
-                        isSelected={member.accessType === 'comment'}
-                      >
-                        <div className="checkbox">
-                          <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4" />
-                          </svg>
-                        </div>
-                        <span>Comment only</span>
-                      </Checkbox>
-                    </CheckboxGroup>
-                  </div>
-                  <div className={styles.memberActions}>
-                    <Button
-                      onPress={() => handleResend(member.id)}
-                      className="button-link"
-                      aria-label={`Resend invite for ${member.name}`}
-                    >
-                      Resend
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </section>
         </ContentContainer>
