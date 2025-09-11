@@ -44,7 +44,6 @@ import RevokeCollaboratorModal from './RevokeCollaboratorModal';
 import AccessLevelRadioGroup from './AccessLevelRadioGroup';
 import styles from './ProjectsProjectCollaboration.module.scss';
 
-
 const ProjectsProjectCollaboration = () => {
   // Get projectId param
   const params = useParams();
@@ -106,7 +105,6 @@ const ProjectsProjectCollaboration = () => {
     setErrorMessages([]); // Clear previous errors
 
     if (!id) return;
-
     // Find previous access level
     const prevCollaborator = projectCollaborators.find(collab => collab.id === id);
     const previousAccessLevel = prevCollaborator?.accessLevel;
