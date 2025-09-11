@@ -330,6 +330,8 @@
     "canCommentPlanFor": "Can comment on plan for {name}",
     "canOwnPlanFor": "Own plan for {name}",
     "revokeAccessFor": "Revoke access for {name}",
+    "deleteInviteFor": "Delete invite for {name}",
+    "resendInviteFor": "Resend invite for {name}",
     "headings": {
       "hasAccess": "These people currently have access to this plan",
       "removeCollaborator": "Remove project collaborator",
@@ -338,13 +340,20 @@
     "buttons": {
       "invite": "Invite Collaborators",
       "isDeleting": "is Deleting...",
-      "revoke": "Revoke"
+      "revoke": "Revoke",
+      "deleteInvite": "Delete Invite",
+      "resend": "Resend"
     },
     "links": {
       "inviteAPerson": "Invite a person"
     },
     "messages": {
-      "noCollaborators": "No collaborators found"
+      "noCollaborators": "No collaborators found",
+      "success": {
+        "resentInvite": "Successfully resent invite to {name}",
+        "revokedAccess": "Successfully revoked access for {name}",
+        "updatedAccess": "Successfully updated access for {name} to {accessLevel}"
+      }
     }
   }
 }

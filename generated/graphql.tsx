@@ -856,6 +856,8 @@ export type Mutation = {
   removeUserEmail?: Maybe<UserEmail>;
   /** Request a round of admin feedback */
   requestFeedback?: Maybe<PlanFeedback>;
+  /** Resend an invite to a ProjectCollaborator */
+  resendInviteToProjectCollaborator?: Maybe<ProjectCollaborator>;
   /** Add an Output to a Plan */
   selectProjectOutputForPlan?: Maybe<ProjectOutput>;
   /** Designate the email as the current user's primary email address */
@@ -1243,6 +1245,11 @@ export type MutationRemoveUserEmailArgs = {
 
 export type MutationRequestFeedbackArgs = {
   planId: Scalars['Int']['input'];
+};
+
+
+export type MutationResendInviteToProjectCollaboratorArgs = {
+  projectCollaboratorId: Scalars['Int']['input'];
 };
 
 
@@ -3943,7 +3950,7 @@ export type UpdateProjectCollaboratorMutationVariables = Exact<{
 }>;
 
 
-export type UpdateProjectCollaboratorMutation = { __typename?: 'Mutation', updateProjectCollaborator?: { __typename?: 'ProjectCollaborator', id?: number | null, accessLevel?: ProjectCollaboratorAccessLevel | null, errors?: { __typename?: 'ProjectCollaboratorErrors', accessLevel?: string | null, email?: string | null, general?: string | null, invitedById?: string | null, planId?: string | null, userId?: string | null } | null } | null };
+export type UpdateProjectCollaboratorMutation = { __typename?: 'Mutation', updateProjectCollaborator?: { __typename?: 'ProjectCollaborator', id?: number | null, accessLevel?: ProjectCollaboratorAccessLevel | null, errors?: { __typename?: 'ProjectCollaboratorErrors', accessLevel?: string | null, email?: string | null, general?: string | null, invitedById?: string | null, planId?: string | null, userId?: string | null } | null, user?: { __typename?: 'User', givenName?: string | null, id?: number | null, surName?: string | null } | null } | null };
 
 export type RemoveProjectCollaboratorMutationVariables = Exact<{
   projectCollaboratorId: Scalars['Int']['input'];
@@ -3951,6 +3958,13 @@ export type RemoveProjectCollaboratorMutationVariables = Exact<{
 
 
 export type RemoveProjectCollaboratorMutation = { __typename?: 'Mutation', removeProjectCollaborator?: { __typename?: 'ProjectCollaborator', id?: number | null, errors?: { __typename?: 'ProjectCollaboratorErrors', accessLevel?: string | null, email?: string | null, general?: string | null, invitedById?: string | null, planId?: string | null, userId?: string | null } | null, user?: { __typename?: 'User', givenName?: string | null, id?: number | null, surName?: string | null } | null } | null };
+
+export type ResendInviteToProjectCollaboratorMutationVariables = Exact<{
+  projectCollaboratorId: Scalars['Int']['input'];
+}>;
+
+
+export type ResendInviteToProjectCollaboratorMutation = { __typename?: 'Mutation', resendInviteToProjectCollaborator?: { __typename?: 'ProjectCollaborator', id?: number | null, email: string, user?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null } | null, errors?: { __typename?: 'ProjectCollaboratorErrors', accessLevel?: string | null, email?: string | null, general?: string | null, invitedById?: string | null, planId?: string | null, userId?: string | null } | null } | null };
 
 export type RemoveFeedbackCommentMutationVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -4785,6 +4799,11 @@ export const UpdateProjectCollaboratorDocument = gql`
       userId
     }
     accessLevel
+    user {
+      givenName
+      id
+      surName
+    }
   }
 }
     `;
@@ -4861,6 +4880,53 @@ export function useRemoveProjectCollaboratorMutation(baseOptions?: Apollo.Mutati
 export type RemoveProjectCollaboratorMutationHookResult = ReturnType<typeof useRemoveProjectCollaboratorMutation>;
 export type RemoveProjectCollaboratorMutationResult = Apollo.MutationResult<RemoveProjectCollaboratorMutation>;
 export type RemoveProjectCollaboratorMutationOptions = Apollo.BaseMutationOptions<RemoveProjectCollaboratorMutation, RemoveProjectCollaboratorMutationVariables>;
+export const ResendInviteToProjectCollaboratorDocument = gql`
+    mutation ResendInviteToProjectCollaborator($projectCollaboratorId: Int!) {
+  resendInviteToProjectCollaborator(projectCollaboratorId: $projectCollaboratorId) {
+    id
+    email
+    user {
+      id
+      givenName
+      surName
+    }
+    errors {
+      accessLevel
+      email
+      general
+      invitedById
+      planId
+      userId
+    }
+  }
+}
+    `;
+export type ResendInviteToProjectCollaboratorMutationFn = Apollo.MutationFunction<ResendInviteToProjectCollaboratorMutation, ResendInviteToProjectCollaboratorMutationVariables>;
+
+/**
+ * __useResendInviteToProjectCollaboratorMutation__
+ *
+ * To run a mutation, you first call `useResendInviteToProjectCollaboratorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useResendInviteToProjectCollaboratorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [resendInviteToProjectCollaboratorMutation, { data, loading, error }] = useResendInviteToProjectCollaboratorMutation({
+ *   variables: {
+ *      projectCollaboratorId: // value for 'projectCollaboratorId'
+ *   },
+ * });
+ */
+export function useResendInviteToProjectCollaboratorMutation(baseOptions?: Apollo.MutationHookOptions<ResendInviteToProjectCollaboratorMutation, ResendInviteToProjectCollaboratorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ResendInviteToProjectCollaboratorMutation, ResendInviteToProjectCollaboratorMutationVariables>(ResendInviteToProjectCollaboratorDocument, options);
+      }
+export type ResendInviteToProjectCollaboratorMutationHookResult = ReturnType<typeof useResendInviteToProjectCollaboratorMutation>;
+export type ResendInviteToProjectCollaboratorMutationResult = Apollo.MutationResult<ResendInviteToProjectCollaboratorMutation>;
+export type ResendInviteToProjectCollaboratorMutationOptions = Apollo.BaseMutationOptions<ResendInviteToProjectCollaboratorMutation, ResendInviteToProjectCollaboratorMutationVariables>;
 export const RemoveFeedbackCommentDocument = gql`
     mutation RemoveFeedbackComment($planId: Int!, $planFeedbackCommentId: Int!) {
   removeFeedbackComment(

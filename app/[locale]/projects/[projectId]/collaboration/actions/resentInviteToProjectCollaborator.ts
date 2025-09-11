@@ -2,21 +2,17 @@
 
 import { executeGraphQLMutation } from "@/utils/server/graphqlServerActionHandler";
 import { ActionResponse } from "@/app/types";
-import { UpdateProjectCollaboratorDocument } from "@/generated/graphql";
+import { ResendInviteToProjectCollaboratorDocument } from "@/generated/graphql";
 
-export async function updateProjectCollaboratorAction({
+export async function resendInviteToProjectCollaboratorAction({
   projectCollaboratorId,
-  accessLevel
 }: {
   projectCollaboratorId: number;
-  accessLevel: string;
 }): Promise<ActionResponse> {
-
   // Execute the mutation using the shared handler
   return await executeGraphQLMutation({
-    document: UpdateProjectCollaboratorDocument,
-    variables: { projectCollaboratorId, accessLevel },
-    dataPath: "updateProjectCollaborator"
+    document: ResendInviteToProjectCollaboratorDocument,
+    variables: { projectCollaboratorId },
+    dataPath: "resendInviteToProjectCollaborator"
   });
-
 }

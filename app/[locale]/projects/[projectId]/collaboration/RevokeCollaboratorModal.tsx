@@ -15,7 +15,7 @@ interface RevokeCollaboratorModalProps {
   isOpen: boolean;
   isDeleting: boolean;
   onOpenChange: (open: boolean) => void;
-  onRevoke: (id: number) => void;
+  onRevoke: (id: number, name: string) => void;
   onCancel: () => void;
 }
 
@@ -66,7 +66,7 @@ const RevokeCollaboratorModal: React.FC<RevokeCollaboratorModalProps> = ({
                       className="primary"
                       aria-label={t('deleteCollaborator', { name: collaboratorName })}
                       onPress={() => {
-                        onRevoke(collaboratorId);
+                        onRevoke(collaboratorId, collaboratorName);
                         close();
                       }}
                     >

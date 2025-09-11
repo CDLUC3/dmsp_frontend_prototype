@@ -3,7 +3,7 @@ import { render, screen, fireEvent, act, waitFor, within } from '@testing-librar
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { MockedProvider } from '@apollo/client/testing';
 import { useParams, useRouter } from 'next/navigation';
-import { removeProjectCollaboratorAction, updateProjectCollaboratorAction } from '../actions';
+import { removeProjectCollaboratorAction, updateProjectCollaboratorAction, resendInviteToProjectCollaboratorAction } from '../actions';
 import { mockScrollIntoView } from "@/__mocks__/common";
 
 import {
@@ -28,6 +28,11 @@ jest.mock('../actions', () => ({
     errors: [],
     data: {},
     redirect: undefined
+  }),
+  resendInviteToProjectCollaboratorAction: jest.fn().mockResolvedValue({
+    success: true,
+    errors: [],
+    data: {}
   }),
 }));
 
@@ -314,8 +319,6 @@ describe('ProjectsProjectCollaborationPage', () => {
       });
       expect(mockRouter.push).toHaveBeenCalledWith('/en-US/login');
     });
-
-
   });
 
   it('should NOT call handleRevoke when the revoke button is clicked, and \'cancel\' button is clicked', async () => {
@@ -524,6 +527,122 @@ describe('ProjectsProjectCollaborationPage', () => {
     })
   });
 
+  it('should call handleResend when the Resend button is clicked', async () => {
+    await act(async () => {
+      render(
+        <MockedProvider mocks={MOCKS}>
+          <ProjectsProjectCollaboration />
+        </MockedProvider>
+      );
+    });
+
+    await waitFor(() => {
+      const resendButton = screen.queryAllByRole('button', { name: /resendInviteFor/i });
+      fireEvent.click(resendButton[0]);
+    });
+
+    await waitFor(() => {
+      expect(resendInviteToProjectCollaboratorAction).toHaveBeenCalledWith({
+        projectCollaboratorId: 20,
+      });
+    });
+  });
+
+  it('should handle failure when resend fails', async () => {
+    // Override the default mock for this test only
+    (resendInviteToProjectCollaboratorAction as jest.Mock).mockResolvedValueOnce({
+      success: false,
+      errors: ['Something went wrong'],
+      data: {}
+    });
+
+    await act(async () => {
+      render(
+        <MockedProvider mocks={MOCKS}>
+          <ProjectsProjectCollaboration />
+        </MockedProvider>
+      );
+    });
+
+    await waitFor(() => {
+      const resendButton = screen.queryAllByRole('button', { name: /resendInviteFor/i });
+      fireEvent.click(resendButton[0]);
+    });
+
+    await waitFor(() => {
+      expect(resendInviteToProjectCollaboratorAction).toHaveBeenCalledWith({
+        projectCollaboratorId: 20,
+      });
+    });
+
+    // Should display error message
+    expect(await screen.findByText(/something went wrong/i)).toBeInTheDocument();
+  });
+
+  it('should display any field-level errors returned from handleResend', async () => {
+    // Override the default mock for this test only
+    (resendInviteToProjectCollaboratorAction as jest.Mock).mockResolvedValueOnce({
+      success: true,
+      errors: null,
+      data: {
+        errors: {
+          general: 'Something went wrong with the handleResend action'
+        }
+      }
+    });
+
+    await act(async () => {
+      render(
+        <MockedProvider mocks={MOCKS}>
+          <ProjectsProjectCollaboration />
+        </MockedProvider>
+      );
+    });
+
+    await waitFor(() => {
+      const resendButton = screen.queryAllByRole('button', { name: /resendInviteFor/i });
+      fireEvent.click(resendButton[0]);
+    });
+
+    await waitFor(() => {
+      expect(resendInviteToProjectCollaboratorAction).toHaveBeenCalledWith({
+        projectCollaboratorId: 20,
+      });
+    });
+
+    // Should display error message
+    expect(await screen.findByText(/Something went wrong with the handleResend action/i)).toBeInTheDocument();
+  });
+
+  it('should call redirect if resendInviteToProjectCollaboratorAction response includes a redirect', async () => {
+    // Override the default mock for this test only
+    (resendInviteToProjectCollaboratorAction as jest.Mock).mockResolvedValueOnce({
+      success: true,
+      errors: null,
+      data: {},
+      redirect: '/en-US/login'
+    });
+
+    await act(async () => {
+      render(
+        <MockedProvider mocks={MOCKS}>
+          <ProjectsProjectCollaboration />
+        </MockedProvider>
+      );
+    });
+
+    await waitFor(() => {
+      const resendButton = screen.queryAllByRole('button', { name: /resendInviteFor/i });
+      fireEvent.click(resendButton[0]);
+    });
+
+    await waitFor(() => {
+      expect(resendInviteToProjectCollaboratorAction).toHaveBeenCalledWith({
+        projectCollaboratorId: 20,
+      });
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/login');
+    });
+  });
 
   it('should display error if projectCollaborators query fails', async () => {
 

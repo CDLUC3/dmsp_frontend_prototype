@@ -6,6 +6,11 @@ import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
+  Button,
+  Dialog,
+  DialogTrigger,
+  Modal,
+  ModalOverlay,
   Link,
 } from "react-aria-components";
 
@@ -18,9 +23,11 @@ import {
 
 import {
   removeProjectCollaboratorAction,
+  resendInviteToProjectCollaboratorAction,
   updateProjectCollaboratorAction
 } from './actions';
 
+// Components
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
@@ -28,18 +35,23 @@ import {
 } from "@/components/Container";
 import ErrorMessages from '@/components/ErrorMessages';
 
+// Utils and other
 import { routePath } from '@/utils/routes';
 import { extractErrors } from '@/utils/errorHandler';
+import { useToast } from '@/context/ToastContext';
 
 import RevokeCollaboratorModal from './RevokeCollaboratorModal';
 import AccessLevelRadioGroup from './AccessLevelRadioGroup';
 import styles from './ProjectsProjectCollaboration.module.scss';
+
 
 const ProjectsProjectCollaboration = () => {
   // Get projectId param
   const params = useParams();
   const router = useRouter();
   const projectId = String(params.projectId);
+
+  const toastState = useToast(); // Access the toast state from context
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -55,7 +67,11 @@ const ProjectsProjectCollaboration = () => {
 
   // State for remove project member modal
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isResending, setIsResending] = useState(false);
   const [deleteModalFor, setDeleteModalFor] = useState<number | null>(null);
+
+  // Added for accessibility
+  const [announcement, setAnnouncement] = useState('');
 
   // Get project collaborators
   const { data, loading, error: queryError } = useProjectCollaboratorsQuery(
@@ -86,13 +102,14 @@ const ProjectsProjectCollaboration = () => {
     }
   }
 
-  const handleRadioChange = async (accessLevel: string, id: number | undefined) => {
+  const handleRadioChange = async (accessLevel: string, id: number | undefined, collaboratorName: string) => {
+    setErrorMessages([]); // Clear previous errors
+
     if (!id) return;
+
     // Find previous access level
     const prevCollaborator = projectCollaborators.find(collab => collab.id === id);
     const previousAccessLevel = prevCollaborator?.accessLevel;
-
-    setErrorMessages([]); // Clear previous errors
 
     // Optimistically update the UI
     setProjectCollaborators(prev =>
@@ -106,31 +123,32 @@ const ProjectsProjectCollaboration = () => {
     const result = await updateAccessLevel(accessLevel, id);
 
     if (!result.success) {
-      const errors = result.errors;
-
-      //Check if errors is an array or an object
-      if (Array.isArray(errors)) {
-        //Handle errors as an array
-        setErrorMessages(errors);
+      if (result.errors && result.errors.length > 0) {
+        setErrorMessages(result.errors);
+      } else {
+        setErrorMessages([Global('messaging.somethingWentWrong')]);
       }
-
       // revert optimistic update if mutation fails
       setProjectCollaborators(prev => prev.map(collab =>
         collab.id === id ? { ...collab, accessLevel: previousAccessLevel } : collab
       ));
     } else {
-      if (result?.data?.errors) {
+      if (result?.data?.errors &&
+        Object.values(result.data.errors).some(val => val != null && val !== '')
+      ) {
         // Convert nulls to undefined before passing to extractErrors
         const normalizedErrors = Object.fromEntries(
           Object.entries(result?.data?.errors ?? {}).map(([key, value]) => [key, value ?? undefined])
         );
-
-        const errs = extractErrors(normalizedErrors, ['general', 'accessLevel']);
-        if (errs.length > 0) {
-          setErrorMessages(errs);
-        } else {
-          //Successfully updated
-        }
+        // This will flatten field-level errors into an array of strings, since we have no form fields here
+        // and want to display any errors at the top of the page
+        const errs = extractErrors(normalizedErrors);
+        setErrorMessages(errs);
+      } else {
+        // Since sited users can see the change real time as they select a different access level, we don't need a toast message here.
+        // However, we do want to announce the change for screen reader users
+        const message = t('messages.success.updatedAccess', { name: collaboratorName, accessLevel: accessLevel.toLowerCase() });
+        setAnnouncement(message);
       }
     }
   }
@@ -149,20 +167,24 @@ const ProjectsProjectCollaboration = () => {
     return {
       success: response.success,
       errors: response.errors,
-      data: response.data
+      data: response.data,
     }
   }
 
-  const handleRevoke = async (projectCollaboratorId: number) => {
+  // Delete project collaborator
+  const handleRevoke = async (projectCollaboratorId: number, collaboratorName: string) => {
 
     setIsDeleting(true);
-    if (!projectCollaboratorId) return;
+    setErrorMessages([]); // Clear previous errors
 
+    if (!projectCollaboratorId) {
+      setIsDeleting(false);
+      return;
+    }
 
     // Find previous access level
     const originalCollaborators = [...projectCollaborators];
 
-    setErrorMessages([]); // Clear previous errors
 
     // Optimistically update the UI
     setProjectCollaborators(prev =>
@@ -172,32 +194,97 @@ const ProjectsProjectCollaboration = () => {
     const result = await removeProjectCollaborator(projectCollaboratorId);
 
     if (!result.success) {
-      const errors = result.errors;
+      setIsDeleting(false);
 
-      //Check if errors is an array or an object
-      if (Array.isArray(errors)) {
-        //Handle errors as an array
-        setErrorMessages(errors);
+      if (result.errors && result.errors.length > 0) {
+        setErrorMessages(result.errors);
+      } else {
+        setErrorMessages([Global('messaging.somethingWentWrong')]);
       }
-
       // revert optimistic update if mutation fails
       setProjectCollaborators(originalCollaborators);
     } else {
-      if (result?.data?.errors) {
+      if (result?.data?.errors &&
+        Object.values(result.data.errors).some(val => val != null && val !== '')
+      ) {
+        // Convert nulls to undefined before passing to extractErrors
+        const normalizedErrors = Object.fromEntries(
+          Object.entries(result?.data?.errors ?? {}).map(([key, value]) => [key, value ?? undefined])
+        );
+        // This will flatten field-level errors into an array of strings, since we have no form fields here
+        // and want to display any errors at the top of the page
+        const errs = extractErrors(normalizedErrors);
+        setErrorMessages(errs);
+      } else {
+        //Successfully updated
+        setIsDeleting(false);
+        setDeleteModalFor(null);
+        const successMessage = t('messages.success.revokedAccess', { name: collaboratorName });
+        toastState.add(successMessage, { type: 'success', timeout: 3000 });
+      }
+      setIsDeleting(false);
+    }
+  }
+
+  // Use Server Action to resend invite to project collaborator
+  const resendInviteToProjectCollaborator = async (projectCollaboratorId: number) => {
+    // Don't need a try-catch block here, as the error is handled in the server action
+    const response = await resendInviteToProjectCollaboratorAction({
+      projectCollaboratorId: Number(projectCollaboratorId),
+    });
+
+    if (response.redirect) {
+      router.push(response.redirect);
+    }
+
+    return {
+      success: response.success,
+      errors: response.errors,
+      data: response.data,
+    };
+  }
+
+  // Resend invite
+  const handleResend = async (projectCollaboratorId: number, collaboratorName: string) => {
+    setIsResending(true);
+    setErrorMessages([]);// Clear previous errors
+
+    if (!projectCollaboratorId) {
+      setIsResending(false);
+      return;
+    }
+
+    const result = await resendInviteToProjectCollaborator(projectCollaboratorId)
+
+    if (!result.success) {
+      setIsResending(false);
+
+      if (result.errors && result.errors.length > 0) {
+        setErrorMessages(result.errors);
+      } else {
+        setErrorMessages([Global('messaging.somethingWentWrong')]);
+      }
+    } else {
+      if (result?.data?.errors &&
+        Object.values(result.data.errors).some(val => val != null && val !== '')
+      ) {
         // Convert nulls to undefined before passing to extractErrors
         const normalizedErrors = Object.fromEntries(
           Object.entries(result?.data?.errors ?? {}).map(([key, value]) => [key, value ?? undefined])
         );
 
-        const errs = extractErrors(normalizedErrors, ['general', 'accessLevel']);
-        if (errs.length > 0) {
-          setErrorMessages(errs);
-        } else {
-          //Successfully updated
-          setIsDeleting(false);
-          setDeleteModalFor(null);
-        }
+        // This will flatten field-level errors into an array of strings, since we have no form fields here
+        // and want to display any errors at the top of the page
+        const errs = extractErrors(normalizedErrors);
+        setErrorMessages(errs);
+      } else {
+        // No field-level errors, operation succeeded
+        setIsDeleting(false);
+        setDeleteModalFor(null);
+        const successMessage = t('messages.success.resentInvite', { name: collaboratorName });
+        toastState.add(successMessage, { type: 'success', timeout: 3000 });
       }
+      setIsResending(false);
     }
   }
 
@@ -305,7 +392,7 @@ const ProjectsProjectCollaboration = () => {
 
                     <AccessLevelRadioGroup
                       value={collaboratorAccessLevel}
-                      onChange={value => handleRadioChange(value, Number(collaborator?.id))}
+                      onChange={value => handleRadioChange(value, Number(collaborator?.id), collaboratorName)}
                       collaboratorName={collaboratorName}
                     />
 
@@ -346,18 +433,66 @@ const ProjectsProjectCollaboration = () => {
                     </div>
                     <AccessLevelRadioGroup
                       value={pendingAccessLevel}
-                      onChange={value => handleRadioChange(value, Number(pending?.id))}
+                      onChange={value => handleRadioChange(value, Number(pending?.id), pendingName ?? pending.email)}
                       collaboratorName={pendingName ?? pending.email}
                     />
-                    <RevokeCollaboratorModal
-                      collaboratorId={Number(pending.id)}
-                      collaboratorName={pendingName ?? pending.email}
-                      isOpen={deleteModalFor === pending.id}
-                      isDeleting={isDeleting}
-                      onOpenChange={open => setDeleteModalFor(open ? Number(pending.id) : null)}
-                      onRevoke={handleRevoke}
-                      onCancel={() => setDeleteModalFor(null)}
-                    />
+                    <div className={styles.memberActions}>
+                      <DialogTrigger
+                        isOpen={deleteModalFor === pending.id}
+                        onOpenChange={open => setDeleteModalFor(open ? Number(pending.id) : null)}
+                      >
+                        <Button
+                          className="secondary"
+                          aria-label={t('deleteInviteFor', { name: pendingName ?? pending.email })}
+                          isDisabled={isDeleting}
+                        >
+                          {t('buttons.deleteInvite')}
+                        </Button>
+                        <ModalOverlay className={`${styles.modalOverride} react-aria-ModalOverlay`}>
+                          <Modal>
+                            <Dialog>
+                              {({ close }) => (
+                                <>
+                                  <h3>{t('headings.removeCollaborator')}</h3>
+                                  <p>{t('removeCollaborator')}</p>
+                                  <div className={styles.deleteConfirmButtons}>
+                                    <Button
+                                      className="secondary"
+                                      aria-label={t('cancelRemoval', { name: pendingName ?? pending.email })}
+                                      autoFocus
+                                      onPress={() => {
+                                        setDeleteModalFor(null);
+                                        close();
+                                      }}>
+                                      {Global('buttons.cancel')}
+                                    </Button>
+                                    <Button
+                                      className="primary"
+                                      aria-label={t('deleteCollaborator', { name: pendingName ?? pending.email })}
+                                      onPress={() => {
+                                        handleRevoke(Number(pending.id), pendingName ?? pending.email);
+                                        close();
+                                      }}
+                                    >
+                                      {t('buttons.deleteInvite')}
+                                    </Button>
+                                  </div>
+                                </>
+                              )}
+                            </Dialog>
+                          </Modal>
+                        </ModalOverlay>
+                      </DialogTrigger>
+                      <Button
+                        className="secondary"
+                        type="button"
+                        onPress={() => handleResend(Number(pending?.id), pendingName ?? pending.email)}
+                        aria-label={t('resendInviteFor', { name: pendingName ?? pending.email })}
+                        isDisabled={isResending}
+                      >
+                        {t('buttons.resend')}
+                      </Button>
+                    </div>
                   </div>
                 )
               })}
@@ -365,6 +500,9 @@ const ProjectsProjectCollaboration = () => {
           </section>
         </ContentContainer>
       </LayoutContainer>
+      <div aria-live="polite" aria-atomic="true" className="hidden-accessibly">
+        {announcement}
+      </div>
     </>
   );
 };

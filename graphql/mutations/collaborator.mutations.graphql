@@ -9,7 +9,12 @@ mutation UpdateProjectCollaborator($projectCollaboratorId: Int!, $accessLevel: P
       planId
       userId
     }
-    accessLevel
+    accessLevel,
+    user {
+      givenName
+      id
+      surName
+    }
   }
 }
 
@@ -28,6 +33,26 @@ mutation RemoveProjectCollaborator($projectCollaboratorId: Int!) {
       givenName
       id
       surName
+    }
+  }
+}
+
+mutation ResendInviteToProjectCollaborator($projectCollaboratorId: Int!) {
+  resendInviteToProjectCollaborator(projectCollaboratorId: $projectCollaboratorId) {
+    id
+    email
+    user {
+      id
+      givenName
+      surName
+    }
+    errors {
+      accessLevel
+      email
+      general
+      invitedById
+      planId
+      userId
     }
   }
 }

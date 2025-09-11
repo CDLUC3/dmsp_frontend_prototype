@@ -21,6 +21,47 @@ interface GraphQLActionResponse<T = unknown> {
   redirect?: string;
 }
 
+/** Normalize various error formats into a consistent array */
+function normalizeErrors(errors: unknown): string[] {
+  if (!errors) return [];
+
+  // If it's already a string array, return as is
+  if (Array.isArray(errors)) {
+    return errors
+      .map(error => {
+        if (typeof error === 'string') return error;
+        if (error && typeof error === 'object' && 'message' in error) {
+          return String(error.message);
+        }
+        return String(error);
+      })
+      .filter(Boolean);
+  }
+
+  // If it's an object with error properties, extract them
+  if (typeof errors === 'object' && errors !== null) {
+    const errorMessages: string[] = [];
+
+    // Handle nested error objects (like from GraphQL responses)
+    for (const value of Object.values(errors)) {
+      if (Array.isArray(value)) {
+        errorMessages.push(...value.map(String).filter(Boolean));
+      } else if (value && typeof value === 'string') {
+        errorMessages.push(value);
+      } else if (value && typeof value === 'object' && 'message' in value) {
+        errorMessages.push(String(value.message));
+      } else if (value) {
+        errorMessages.push(String(value));
+      }
+    }
+
+    return errorMessages.length > 0 ? errorMessages : [];
+  }
+
+  // If it's a single string or other type, convert to array
+  return [String(errors)].filter(Boolean);
+}
+
 /**
  * Execute a GraphQL mutation with comprehensive error handling
  *
@@ -138,7 +179,10 @@ console.log('response', response)
 
               if (retryResult.errors) {
                 logger.error(`[GraphQL Retry Error]: ${retryResult.errors[0]?.message}`, { error: "GRAPHQL_ERROR" });
-                return { success: false, errors: retryResult.errors.map((err: GraphQLError) => err.message) };
+                return {
+                  success: false,
+                  errors: normalizeErrors(retryResult.errors.map((err: GraphQLError) => err.message))
+                };
               }
 
               // Extract data using provided path
@@ -168,7 +212,7 @@ console.log('response', response)
 
           default:
             logger.error(`[GraphQL Error]: ${message}`, { error: "GRAPHQL_ERROR" });
-            return { success: false, errors: [message] };
+            return { success: false, errors: normalizeErrors(message) };
         }
       }
     }
