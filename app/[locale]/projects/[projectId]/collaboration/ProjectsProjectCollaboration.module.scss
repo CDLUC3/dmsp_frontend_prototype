@@ -20,11 +20,19 @@
 
 .membersListItem {
   display: grid;
-  grid-template-columns: 2fr 1fr 2fr;
+  grid-template-columns: 1fr; // Mobile first (stacked)
+  gap: 1rem;
   align-items: start;
   padding: 1rem 0;
   border-bottom: 1px solid #eaeaea;
+  
+  @include r.device(lg) {
+    grid-template-columns: 2fr 1fr 2fr; // Desktop layout
+    gap: 0; // Remove gap for desktop if desired
+  }
 }
+
+
 
 .memberInfo {
   display: flex;
