@@ -115,9 +115,6 @@ describe('PlanOverviewPage', () => {
     expect(screen.getByText('members.title')).toBeInTheDocument();
     expect(screen.getByText('members.info')).toBeInTheDocument();
     expect(screen.getByText('members.edit')).toBeInTheDocument();
-    expect(screen.getByText('outputs.title')).toBeInTheDocument();
-    expect(screen.getByText('outputs.count')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'outputs.edit' })).toBeInTheDocument();
     expect(screen.getByText('relatedWorks.title')).toBeInTheDocument();
     expect(screen.getByText('relatedWorks.count')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'relatedWorks.edit' })).toBeInTheDocument();
@@ -169,8 +166,6 @@ describe('PlanOverviewPage', () => {
     expect(screen.getByText('members.title')).toBeInTheDocument();
     expect(screen.getByText('members.info')).toBeInTheDocument();
     expect(screen.getByText('members.edit')).toBeInTheDocument();
-    expect(screen.getByText('outputs.title')).toBeInTheDocument();
-    expect(screen.getByText('outputs.count')).toBeInTheDocument();
     expect(screen.getByText('relatedWorks.title')).toBeInTheDocument();
     expect(screen.getByText('relatedWorks.count')).toBeInTheDocument();
 

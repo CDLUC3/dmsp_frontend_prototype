@@ -49,6 +49,7 @@
 - Update json mocks in `__mocks__` directory to reflect changes to question and answer types [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Updated mocks in `components` to work with updated question JSON [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
+- Removed research outputs, including related pages and routes, from the demp overview [#764](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/764)
 
 ### Fixed
 - Fixed some new errors related to an update in how data is passed to `logger` using `@elastic/ecs-pino-format`. Also, deleted `package-lock.json` and re-ran `npm install` to get clean packages after the npm debug and chalk compromise.

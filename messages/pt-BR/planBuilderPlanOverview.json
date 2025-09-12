@@ -40,11 +40,6 @@
       "info": "{name} ({role})",
       "edit": "Ajustar para este plano"
     },
-    "outputs": {
-      "title": "Saídas de pesquisa para este plano",
-      "count": "{count} outputs",
-      "edit": "Ajustar para este plano"
-    },
     "question": {
       "answered": "Respondido",
       "notAnswered": "Não atendida"
