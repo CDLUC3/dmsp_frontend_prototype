@@ -1381,8 +1381,6 @@ function Page() {
 
           <div id="_fields_text">
             <h2>TextField</h2>
-
-
             <h3>
               Text
             </h3>
@@ -1458,6 +1456,19 @@ function Page() {
                 <ButtonWithImage url="http://localhost:3000"
                   imageUrl="/images/orcid.svg"
                   buttonText="Connect institutional credentials" />
+              </div>
+            </Example>
+
+            <h2>Button Sizes</h2>
+            <p>
+              Button size can be changed by adding a size modifier class, for example:<br/> <code>{'<Button className="primary small">Small Primary</Button>'}</code>.
+            </p>
+
+            <Example>
+              <div className="sg-button-list">
+                <Button className="primary small">Small Primary</Button>
+                <Button className="secondary small">Small Secondary</Button>
+                <Button className="tertiary small">Small Tertiary</Button>
               </div>
             </Example>
 

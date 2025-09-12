@@ -77,7 +77,7 @@ describe("RelatedWorksListItem", () => {
 
     // Expand details
     expect(screen.queryAllByRole("details").length).toEqual(0);
-    const expand = screen.getByRole("button", { name: "buttons.review details for Title" });
+    const expand = screen.getByRole("button", { name: "buttons.expand details for Title" });
     await userEvent.click(expand);
 
     // Check that details panel now exists
@@ -92,10 +92,6 @@ describe("RelatedWorksListItem", () => {
     const acceptWork = jest.fn();
     render(<RelatedWorksListItemHarness acceptWork={acceptWork} />);
 
-    // Expand details
-    const expand = screen.getByRole("button", { name: "buttons.review details for Title" });
-    await userEvent.click(expand);
-
     // Click Accept
     const accept = screen.getByRole("button", { name: "buttons.accept" });
     await userEvent.click(accept);
@@ -107,16 +103,12 @@ describe("RelatedWorksListItem", () => {
     });
   });
 
-  it("should discard work", async () => {
+  it("should reject work", async () => {
     const discardWork = jest.fn();
     render(<RelatedWorksListItemHarness discardWork={discardWork} />);
 
-    // Expand details
-    const expand = screen.getByRole("button", { name: "buttons.review details for Title" });
-    await userEvent.click(expand);
-
     // Click Discard
-    const discard = screen.getByRole("button", { name: "buttons.discard" });
+    const discard = screen.getByRole("button", { name: "buttons.reject" });
     await userEvent.click(discard);
 
     // Check discardWork called with DOI

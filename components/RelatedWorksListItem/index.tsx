@@ -71,7 +71,7 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
             </div>
           </div>
 
-          <div className={styles.overviewActions}>
+          <div className={styles.overviewHeaderActions}>
             <span
               data-testid="confidence"
               className={styles.confidence}
@@ -82,8 +82,8 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
             <ExpandButton
               aria-controls={expandedContentId}
               collapseLabel={t("buttons.collapse")}
-              expandLabel={item.status === Status.Pending ? t("buttons.review") : t("buttons.expand")}
-              aria-label={`${expanded ? t("buttons.collapse") : t("buttons.review")} details for ${work.title}`}
+              expandLabel={t("buttons.expand")}
+              aria-label={`${expanded ? t("buttons.collapse") : t("buttons.expand")} details for ${work.title}`}
               expanded={expanded}
               setExpanded={setExpanded}
             />
@@ -91,32 +91,63 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
         </div>
 
         <div className={styles.overviewFooter}>
-          {item.status === Status.Pending && (
-            <span data-testid="dateFound">
-              {t("fieldNames.dateFound")}: {dateFound}
+          <div className={styles.overviewMetadata}>
+            {item.status === Status.Pending && (
+              <span data-testid="dateFound">
+                {t("fieldNames.dateFound")}: {dateFound}
+              </span>
+            )}
+            {[Status.Related, Status.Discarded].includes(item.status) && (
+              <span data-testid="dateReviewed">
+                {t("fieldNames.dateReviewed")}: {dateReviewed}
+              </span>
+            )}
+            {work.type !== null && (
+              <span data-testid="workType">
+                {t("fieldNames.type")}: {dataTypes(`workType.${work.type}`)}
+              </span>
+            )}
+            <span>
+              {t("fieldNames.source")}:{" "}
+              <a
+                href={work.source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.sourceUrl}
+              >
+                {work.source.name}
+              </a>
             </span>
-          )}
-          {[Status.Related, Status.Discarded].includes(item.status) && (
-            <span data-testid="dateReviewed">
-              {t("fieldNames.dateReviewed")}: {dateReviewed}
-            </span>
-          )}
-          {work.type !== null && (
-            <span data-testid="workType">
-              {t("fieldNames.type")}: {dataTypes(`workType.${work.type}`)}
-            </span>
-          )}
-          <span>
-            {t("fieldNames.source")}:{" "}
-            <a
-              href={work.source.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.sourceUrl}
-            >
-              {work.source.name}
-            </a>
-          </span>
+          </div>
+
+          <div className={styles.overviewFooterActions}>
+            {[Status.Discarded, Status.Pending].includes(item.status) && (
+              <Button
+                onPress={() => {
+                  setFadeOut(true);
+                  setTimeout(() => {
+                    acceptWork(work.doi);
+                  }, FADEOUT_TIMEOUT);
+                }}
+                className={[item.status === Status.Pending ? "primary" : "secondary", "small"].join(" ")}
+              >
+                {t("buttons.accept")}
+              </Button>
+            )}
+            {[Status.Pending, Status.Related].includes(item.status) && (
+              <Button
+                onPress={() => {
+                  setFadeOut(true);
+                  setTimeout(() => {
+                    discardWork(work.doi);
+                  }, FADEOUT_TIMEOUT);
+                }}
+                className={[item.status === Status.Pending ? "primary" : "secondary", "small"].join(" ")}
+              >
+                {t("buttons.reject")}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -289,38 +320,6 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
                     />
                   </div>
                 )}
-              </div>
-
-              <div className={styles.reviewActions}>
-                <div>
-                  {[Status.Pending, Status.Related].includes(item.status) && (
-                    <Button
-                      onPress={() => {
-                        setFadeOut(true);
-                        setTimeout(() => {
-                          discardWork(work.doi);
-                        }, FADEOUT_TIMEOUT);
-                      }}
-                      className={item.status === Status.Pending ? "primary" : "secondary"}
-                    >
-                      {t("buttons.discard")}
-                    </Button>
-                  )}
-
-                  {[Status.Discarded, Status.Pending].includes(item.status) && (
-                    <Button
-                      onPress={() => {
-                        setFadeOut(true);
-                        setTimeout(() => {
-                          acceptWork(work.doi);
-                        }, FADEOUT_TIMEOUT);
-                      }}
-                      className={item.status === Status.Pending ? "primary" : "secondary"}
-                    >
-                      {t("buttons.accept")}
-                    </Button>
-                  )}
-                </div>
               </div>
 
               <span className={styles.actionInstructions}>{t(`instructions.actions.${item.status}`)}</span>

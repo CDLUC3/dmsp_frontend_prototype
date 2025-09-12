@@ -67,15 +67,9 @@
 
 }
 
-// smaller buttons for the drawer panel and sample text and comments buttons
-.buttonSmall {
-  border-radius: 0.5rem;
-  font-size: 0.75rem;
-}
-
   /* We want buttons to be side by side on larger screens
   but stack on top of each other on mobile*/
-  .modalAction {
+.modalAction {
   display: flex;
   flex-direction: column;  // stack buttons on mobile
   gap: 1rem;

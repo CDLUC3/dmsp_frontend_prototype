@@ -745,12 +745,13 @@
       margin-bottom: var(--space-2);
     }
     .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+
       @include r.device(sm) {
         flex-direction: row;
         align-items: center;
-      }
-      a{
-        margin-bottom: var(--space-1);
       }
     }
   }
