@@ -1461,10 +1461,7 @@ function Page() {
 
             <h2>Button Sizes</h2>
             <p>
-              This is a <em>core component</em>, see
-              the <a
-                href="https://react-spectrum.adobe.com/react-aria/Button.html">component
-              docs here.</a>
+              Button size can be changed by adding a size modifier class, for example:<br/> <code>{'<Button className="primary small">Small Primary</Button>'}</code>.
             </p>
 
             <Example>
