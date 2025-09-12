@@ -21,6 +21,8 @@ export default function Pagination({
 }: PaginationProps) {
   const Global = useTranslations('Global');
 
+  console.log("Pagination props:", { currentPage, totalPages, hasPreviousPage, hasNextPage });
+
   const getPages = () => {
     const pages: (number | string)[] = [];
     const delta = 2; // pages around the current page
