@@ -177,9 +177,6 @@ const PlanOverviewPage: React.FC = () => {
   const RELATED_WORKS_URL = routePath('projects.dmp.relatedWorks', { projectId, dmpId: planId });
 
 
-  //TODO: Get research output count from backend
-  const researchOutputCount = 3;
-
   //TODO: Get related works count from backend
   const relatedWorksCount = 3;
 
