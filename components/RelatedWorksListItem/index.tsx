@@ -121,33 +121,32 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
           </div>
 
           <div className={styles.overviewFooterActions}>
-              {[Status.Pending, Status.Related].includes(item.status) && (
-                  <Button
-                      onPress={() => {
-                        setFadeOut(true);
-                        setTimeout(() => {
-                          discardWork(work.doi);
-                        }, FADEOUT_TIMEOUT);
-                      }}
-                      className={[item.status === Status.Pending ? "primary" : "secondary", "small"].join(" ")}
-                  >
-                    {t("buttons.reject")}
-                  </Button>
-              )}
-
-              {[Status.Discarded, Status.Pending].includes(item.status) && (
-                  <Button
-                      onPress={() => {
-                        setFadeOut(true);
-                        setTimeout(() => {
-                          acceptWork(work.doi);
-                        }, FADEOUT_TIMEOUT);
-                      }}
-                      className={[item.status === Status.Pending ? "primary" : "secondary", "small"].join(" ")}
-                  >
-                    {t("buttons.accept")}
-                  </Button>
-              )}
+            {[Status.Discarded, Status.Pending].includes(item.status) && (
+              <Button
+                onPress={() => {
+                  setFadeOut(true);
+                  setTimeout(() => {
+                    acceptWork(work.doi);
+                  }, FADEOUT_TIMEOUT);
+                }}
+                className={[item.status === Status.Pending ? "primary" : "secondary", "small"].join(" ")}
+              >
+                {t("buttons.accept")}
+              </Button>
+            )}
+            {[Status.Pending, Status.Related].includes(item.status) && (
+              <Button
+                onPress={() => {
+                  setFadeOut(true);
+                  setTimeout(() => {
+                    discardWork(work.doi);
+                  }, FADEOUT_TIMEOUT);
+                }}
+                className={[item.status === Status.Pending ? "primary" : "secondary", "small"].join(" ")}
+              >
+                {t("buttons.reject")}
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -322,8 +321,6 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
                   </div>
                 )}
               </div>
-
-
 
               <span className={styles.actionInstructions}>{t(`instructions.actions.${item.status}`)}</span>
             </div>
