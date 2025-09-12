@@ -1,4 +1,5 @@
 ### Added
+- Added use of pagination queries to the `template/[templateId]/section/new` page [#676]
 - Added curl to the AWS Dockerfile for session manager access
 - Added bash to the AWS Dockerfile for session manager access
 - Added shared `dmptool-network` to the `docker-compose.yaml` file to allow nextJS server side actions to be able to reach the local apollo server
@@ -51,6 +52,7 @@
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
 
 ### Fixed
+- Fixed middleware issue to add `dmspt` token cookie when a refreshToken is implemented [#676]
 - Fixed some new errors related to an update in how data is passed to `logger` using `@elastic/ecs-pino-format`. Also, deleted `package-lock.json` and re-ran `npm install` to get clean packages after the npm debug and chalk compromise.
 - Make `Tab` use `cursor: pointer`.
 - Fix styling of `Toggle Switch` as toggle button was vertically off-centre.

@@ -19,9 +19,8 @@ export default function Pagination({
   hasNextPage,
   handlePageClick
 }: PaginationProps) {
+  if (totalPages <= 1) return null; // No pagination needed for single page
   const Global = useTranslations('Global');
-
-  console.log("Pagination props:", { currentPage, totalPages, hasPreviousPage, hasNextPage });
 
   const getPages = () => {
     const pages: (number | string)[] = [];

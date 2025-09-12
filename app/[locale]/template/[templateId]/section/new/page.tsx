@@ -130,11 +130,11 @@ const SectionTypeSelectPage: React.FC = () => {
     const offsetLimit = (page - 1) * LIMIT;
 
     if (sectionType === 'org') {
-    let offsetLimit = 0;
-    if (page) {
-      setOrgPagination(prev => ({ ...prev, currentPage: page }));
-      offsetLimit = (page - 1) * LIMIT;
-    }
+      let offsetLimit = 0;
+      if (page) {
+        setOrgPagination(prev => ({ ...prev, currentPage: page }));
+        offsetLimit = (page - 1) * LIMIT;
+      }
       await fetchOrgSections({
         variables: {
           paginationOptions: {
@@ -142,16 +142,17 @@ const SectionTypeSelectPage: React.FC = () => {
             limit: LIMIT,
             type: "OFFSET",
             sortDir: "DESC",
+            bestPractice: false
           },
           term: searchTerm,
         }
       });
     } else {
-          let offsetLimit = 0;
-    if (page) {
-      setBestPracticePagination(prev => ({ ...prev, currentPage: page }));
-      offsetLimit = (page - 1) * LIMIT;
-    }
+      let offsetLimit = 0;
+      if (page) {
+        setBestPracticePagination(prev => ({ ...prev, currentPage: page }));
+        offsetLimit = (page - 1) * LIMIT;
+      }
       await fetchBestPracticeSections({
         variables: {
           paginationOptions: {
@@ -233,6 +234,16 @@ const SectionTypeSelectPage: React.FC = () => {
     ]);
   };
 
+  // Handle input changes
+  const handleInputChange = (value: string) => {
+    // Update search term immediately for UI responsiveness
+    setSearchTerm(value);
+    if (value === '') {
+      //reset search
+      resetSearch();
+    }
+  };
+
   const transformSectionsData = async (sectionsData: VersionedSectionSearchResults): Promise<{
     orgSections: SectionInterface[];
     bestPracticeSections: SectionInterface[];
@@ -255,12 +266,12 @@ const SectionTypeSelectPage: React.FC = () => {
         }
       });
 
-      const orgSections = transformedSections.filter((section:SectionInterface) => section?.bestPractice === false);
-      const bestPracticeSections = transformedSections.filter((section:SectionInterface) => section?.bestPractice === true);
+      const orgSections = transformedSections.filter((section: SectionInterface) => section?.bestPractice === false);
+      const bestPracticeSections = transformedSections.filter((section: SectionInterface) => section?.bestPractice === true);
 
       // Remove duplicates between org and best practice sections
       const filteredBestPractice = bestPracticeSections.filter(
-        (item:SectionInterface) => !orgSections.some((org:SectionInterface) => org.name === item.name)
+        (item: SectionInterface) => !orgSections.some((org: SectionInterface) => org.name === item.name)
       );
 
       return { orgSections, bestPracticeSections: filteredBestPractice };
@@ -274,12 +285,12 @@ const SectionTypeSelectPage: React.FC = () => {
   useEffect(() => {
     const processOrgSections = async () => {
       if (orgSectionsData?.publishedSections?.items) {
+        console.log("***Org sections data:", orgSectionsData);
         const transformedSections = await transformSectionsData(
           orgSectionsData.publishedSections
         );
-
         // Filter to only org sections (non-best practice)
-        const orgSections = transformedSections.orgSections.filter(section => section?.bestPractice === false);
+        const orgSections = transformedSections.orgSections;
         setOrgSections(orgSections);
 
         // Update org-specific pagination
@@ -301,8 +312,8 @@ const SectionTypeSelectPage: React.FC = () => {
   // Process best practice sections when bestPracticeData changes
   useEffect(() => {
     const processBestPracticeSections = async () => {
-      console.log("Best practice sections data changed:", bestPracticeData);
       if (bestPracticeData?.publishedSections?.items) {
+        console.log("***Best practice sections data:", bestPracticeData);
         const transformedSections = await transformSectionsData(bestPracticeData.publishedSections);
 
         // Filter to only best practice sections
@@ -313,7 +324,7 @@ const SectionTypeSelectPage: React.FC = () => {
         const totalCount = bestPracticeData?.publishedSections?.totalCount ?? 0;
         const totalPages = Math.ceil(totalCount / LIMIT);
         setBestPracticePagination({
-          currentPage: bestPracticePagination.currentPage, // Keep current page
+          currentPage: bestPracticePagination.currentPage,
           totalPages,
           hasNextPage: bestPracticeData?.publishedSections?.hasNextPage ?? false,
           hasPreviousPage: bestPracticeData?.publishedSections?.hasPreviousPage ?? false
@@ -334,6 +345,7 @@ const SectionTypeSelectPage: React.FC = () => {
     };
     load();
   }, []);
+
 
   if (initialLoading) {
     return <div>Loading...</div>; // only for the very first load, otherwise there is flapping when a user clicks on pagination buttons
@@ -369,13 +381,8 @@ const SectionTypeSelectPage: React.FC = () => {
               <Input
                 aria-describedby="search-help"
                 value={searchTerm}
-                  onChange={e => {
-                    const value = e.target.value;
-                    handleSearchInput(value);
-                    if (value === '') {
-                      resetSearch();
-                    }
-                  }}
+                onChange={e => handleInputChange(e.target.value)}
+
               />
               <Button
                 onPress={() => {

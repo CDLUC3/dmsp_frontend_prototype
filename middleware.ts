@@ -86,7 +86,12 @@ export async function middleware(request: NextRequest) {
   // Exclude paths from authentication checks
   const isExcludedPath = excludedPaths.some((path) => pathname.includes(path));
 
-  const cookies = request.headers.get('cookie') || '';
+  // Build cookie header string from NextRequest cookies
+  const cookieHeader = request.cookies
+    .getAll()
+    .map(({ name, value }) => `${name}=${value}`)
+    .join("; ");
+
   const accessToken = request.cookies.get('dmspt');
   const refreshToken = request.cookies.get('dmspr');
   const locale = await getLocale(request);
@@ -101,7 +106,23 @@ export async function middleware(request: NextRequest) {
   //Refresh tokens if necessary
   if (!accessToken && refreshToken) {
     try {
-      const refreshResult = await refreshAuthTokens(cookies);
+      const refreshResult = await refreshAuthTokens(cookieHeader);
+
+      if (refreshResult?.response) {
+        const backendResponse = refreshResult.response;
+        const nextResponse = NextResponse.next();
+
+        // Copy Set-Cookie headers from backend → NextResponse
+        const setCookie = backendResponse.headers.get("set-cookie");
+        if (setCookie) {
+          // Multiple cookies can be comma-separated, handle them individually
+          setCookie.split(",").forEach(cookie => {
+            nextResponse.headers.append("set-cookie", cookie);
+          });
+        }
+
+        return nextResponse;
+      }
 
       // If refresh helper tells us to redirect, do it now
       if (refreshResult?.shouldRedirect) {
