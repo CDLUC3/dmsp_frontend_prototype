@@ -3,7 +3,6 @@
   padding: 8px 16px;
   border-radius: 2rem;
   font-size: 1rem;
-  margin-right: 10px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
@@ -242,4 +241,11 @@ input[type="button"].danger,
 input[type="reset"].danger,
 input[type="submit"].danger {
   @include button-danger;
+}
+
+// Button size styles
+button.small {
+  padding: 6px 16px;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
 }

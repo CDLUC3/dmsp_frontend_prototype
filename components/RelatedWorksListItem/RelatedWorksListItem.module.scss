@@ -149,14 +149,6 @@
   }
 }
 
-.overviewFooterActions :global(button) {
-  padding: 6px 16px;
-  margin-right: 0;
-  // TODO: make into reusable button style
-  border-radius: 0.5rem;
-  font-size: 0.75rem;
-}
-
 .match {
   background-color: var(--purple-100);
 }

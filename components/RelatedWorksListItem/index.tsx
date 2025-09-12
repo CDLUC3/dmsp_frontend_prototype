@@ -129,7 +129,7 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
                           discardWork(work.doi);
                         }, FADEOUT_TIMEOUT);
                       }}
-                      className={item.status === Status.Pending ? "primary" : "secondary"}
+                      className={[item.status === Status.Pending ? "primary" : "secondary", "small"].join(" ")}
                   >
                     {t("buttons.reject")}
                   </Button>
@@ -143,7 +143,7 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
                           acceptWork(work.doi);
                         }, FADEOUT_TIMEOUT);
                       }}
-                      className={item.status === Status.Pending ? "primary" : "secondary"}
+                      className={[item.status === Status.Pending ? "primary" : "secondary", "small"].join(" ")}
                   >
                     {t("buttons.accept")}
                   </Button>
