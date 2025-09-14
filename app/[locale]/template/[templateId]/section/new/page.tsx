@@ -14,7 +14,6 @@ import {
 } from "react-aria-components";
 import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
-import { useToast } from '@/context/ToastContext';
 
 import {
   VersionedSectionSearchResult,
@@ -36,6 +35,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 import Pagination from '@/components/Pagination';
 
 //Other utils
+import { extractErrors } from '@/utils/errorHandler';
 import { scrollToTop } from '@/utils/general';
 import { routePath } from '@/utils/routes';
 import logECS from '@/utils/clientLogger';
@@ -93,11 +93,8 @@ const SectionTypeSelectPage: React.FC = () => {
   const topRef = useRef<HTMLDivElement>(null);
   // Get templateId param
   const params = useParams();
-  const toastState = useToast();
   const router = useRouter();
-  const { templateId: rawTemplateId } = params; // From route /template/:templateId
-  // routePath requires this to be a string but it can be either a string or an array
-  const templateId = Array.isArray(rawTemplateId) ? rawTemplateId[0] : rawTemplateId;
+  const templateId = String(params.templateId); // From route /template/:templateId
 
   // Initialize user addSection mutation
   const [addSectionMutation] = useAddSectionMutation();
@@ -127,8 +124,6 @@ const SectionTypeSelectPage: React.FC = () => {
     page = 1,
     searchTerm = ''
   }: FetchSectionsByTypeParams) => {
-    const offsetLimit = (page - 1) * LIMIT;
-
     if (sectionType === 'org') {
       let offsetLimit = 0;
       if (page) {
@@ -176,15 +171,8 @@ const SectionTypeSelectPage: React.FC = () => {
     await fetchSectionsByType({ sectionType: 'bestPractice', page, searchTerm });
   };
 
-
-  // Show Failure Message
-  const showFailureToast = () => {
-    const errorMessage = createSection('messages.errorCreatingSection');
-    toastState.add(errorMessage, { type: 'error' });
-  }
-
   // Make GraphQL mutation request to clone a section
-  const copyPublishedSection = async (section: SectionInterface): Promise<SectionInterface | null> => {
+  const copyPublishedSection = async (section: SectionInterface) => {
     if (section) {
       try {
         const response = await addSectionMutation({
@@ -198,23 +186,30 @@ const SectionTypeSelectPage: React.FC = () => {
         });
 
         if (response.data?.addSection) {
-          const errs = Array.isArray(response.data?.addSection?.errors) ? response.data.addSection.errors : {};
-          if (errs && Object.values(errs).filter((err) => err && err !== 'SectionErrors').length === 0) {
-            // redirect to the edit section page for the newly copied section
-            router.push(`/template/${templateId}/section/${response.data.addSection.id}`);
+          if (response?.data?.addSection?.errors && Object.values(response.data.addSection.errors).some(val => val != null && val !== '')) {
+            // Convert nulls to undefined before passing to extractErrors
+            const normalizedErrors = Object.fromEntries(
+              Object.entries(response?.data?.addSection?.errors ?? {}).map(([key, value]) => [key, value ?? undefined])
+            );
+            const errs = extractErrors(normalizedErrors, ['general', 'name']);
+            if (errs.length > 0) {
+              setErrors(errs);
+            }
           } else {
-            showFailureToast();
+            // redirect to the edit section page for the newly copied section
+            router.push(routePath('template.section.slug', { templateId, section_slug: String(response.data.addSection.id) }));
           }
+        } else {
+          setErrors([createSection('messages.errorCreatingSection')]);
         }
       } catch (error) {
         logECS('error', 'copyPublishedSection', {
           error,
-          url: { path: '/template/[templateId]/section/new' }
+          url: { path: routePath('template.section.new', { templateId }) }
         });
-        showFailureToast();
+        setErrors([createSection('messages.errorCreatingSection')]);
       }
     }
-    return section;
   };
 
 
@@ -248,36 +243,32 @@ const SectionTypeSelectPage: React.FC = () => {
     orgSections: SectionInterface[];
     bestPracticeSections: SectionInterface[];
   }> => {
-    if (sectionsData && sectionsData?.items?.length === 0) {
+    const publishedSections = sectionsData?.items?.filter(section => section !== null && section !== undefined) as VersionedSectionSearchResult[] || [];
+
+    if (publishedSections.length === 0) {
       return { orgSections: [], bestPracticeSections: [] };
     }
 
-    const publishedSections = sectionsData?.items?.filter(section => section !== null && section !== undefined) as VersionedSectionSearchResult[];
+    const transformedSections = publishedSections?.map((section: VersionedSectionSearchResult) => {
+      return {
+        id: section?.id ?? null,
+        name: section?.name ?? '',
+        modified: section?.modified,
+        bestPractice: section?.bestPractice ?? false,
+        templateName: section?.versionedTemplateName ?? '',
+        questionCount: section?.versionedQuestionCount
+      }
+    });
 
-    if (publishedSections.length > 0) {
-      const transformedSections = publishedSections?.map((section: VersionedSectionSearchResult) => {
-        return {
-          id: section?.id ?? null,
-          name: section?.name ?? '',
-          modified: section?.modified,
-          bestPractice: section?.bestPractice ?? false,
-          templateName: section?.versionedTemplateName ?? '',
-          questionCount: section?.versionedQuestionCount
-        }
-      });
+    const orgSections = transformedSections.filter((section: SectionInterface) => section?.bestPractice === false);
+    const bestPracticeSections = transformedSections.filter((section: SectionInterface) => section?.bestPractice === true);
 
-      const orgSections = transformedSections.filter((section: SectionInterface) => section?.bestPractice === false);
-      const bestPracticeSections = transformedSections.filter((section: SectionInterface) => section?.bestPractice === true);
+    // Remove duplicates between org and best practice sections
+    const filteredBestPractice = bestPracticeSections.filter(
+      (item: SectionInterface) => !orgSections.some((org: SectionInterface) => org.name === item.name)
+    );
 
-      // Remove duplicates between org and best practice sections
-      const filteredBestPractice = bestPracticeSections.filter(
-        (item: SectionInterface) => !orgSections.some((org: SectionInterface) => org.name === item.name)
-      );
-
-      return { orgSections, bestPracticeSections: filteredBestPractice };
-    }
-
-    return { orgSections: [], bestPracticeSections: [] };
+    return { orgSections, bestPracticeSections: filteredBestPractice };
   };
 
 
@@ -285,7 +276,6 @@ const SectionTypeSelectPage: React.FC = () => {
   useEffect(() => {
     const processOrgSections = async () => {
       if (orgSectionsData?.publishedSections?.items) {
-        console.log("***Org sections data:", orgSectionsData);
         const transformedSections = await transformSectionsData(
           orgSectionsData.publishedSections
         );
@@ -313,7 +303,6 @@ const SectionTypeSelectPage: React.FC = () => {
   useEffect(() => {
     const processBestPracticeSections = async () => {
       if (bestPracticeData?.publishedSections?.items) {
-        console.log("***Best practice sections data:", bestPracticeData);
         const transformedSections = await transformSectionsData(bestPracticeData.publishedSections);
 
         // Filter to only best practice sections
@@ -360,9 +349,9 @@ const SectionTypeSelectPage: React.FC = () => {
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.index', { templateId })}>{Global('breadcrumbs.templates')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.show', { templateId })}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.addNewSection')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -374,9 +363,8 @@ const SectionTypeSelectPage: React.FC = () => {
         <ContentContainer>
           <div className="searchSection" role="search" ref={topRef}>
             <ErrorMessages errors={errors} ref={errorRef} />
-
             {/* Search Field */}
-            <SearchField aria-label="Sections search">
+            <SearchField>
               <Label>{AddNewSection('search.label')}</Label>
               <Input
                 aria-describedby="search-help"
@@ -414,7 +402,9 @@ const SectionTypeSelectPage: React.FC = () => {
               )}
 
               <div className="card-grid-list">
-                {orgSections.length > 0 ? (
+                {orgLoading ? (
+                  <p>{Global('messaging.loading')}</p>
+                ) : orgSections.length > 0 ? (
                   orgSections.map((section, index) => (
                     <section key={index}>
                       <Card>
@@ -436,7 +426,7 @@ const SectionTypeSelectPage: React.FC = () => {
                       </Card>
                     </section>
                   ))
-                ) : (
+                ) : searchTerm.length === 0 ? null : ( // Only show "no items" message when searching
                   <p>{Global('messaging.noItemsFound')}</p>
                 )}
               </div>
@@ -459,7 +449,9 @@ const SectionTypeSelectPage: React.FC = () => {
               )}
 
               <div className="card-grid-list">
-                {bestPracticeSections.length > 0 ? (
+                {bestPracticeLoading ? (
+                  <p>{Global('messaging.loading')}</p>
+                ) : bestPracticeSections.length > 0 ? (
                   bestPracticeSections.map((section, index) => (
                     <div key={index}>
                       <Card>
@@ -503,7 +495,7 @@ const SectionTypeSelectPage: React.FC = () => {
             <p>
               {AddNewSection('newSectionDescription')}
             </p>
-            <Link href={`/template/${templateId}/section/create`}
+            <Link href={routePath('template.section.create', { templateId })}
               className="button-link secondary">{AddNewSection('buttons.createNew')}</Link>
           </div>
         </ContentContainer>

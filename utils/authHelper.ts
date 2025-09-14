@@ -51,7 +51,7 @@ export const refreshAuthTokens = async (cookies?: string) => {
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
           'X-CSRF-TOKEN': csrfToken,
-          'Cookie': cookies || '',
+          Cookie: cookies || '',
         };
 
 
