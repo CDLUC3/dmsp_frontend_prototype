@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { middleware } from '../middleware';
 import { verifyJwtToken } from '@/lib/server/auth';
 import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
+import { get } from 'http';
 
 // Mock next-intl/middleware BEFORE importing middleware
 jest.mock('next-intl/middleware', () => ({
@@ -69,6 +70,10 @@ describe('middleware', () => {
     request = {
       cookies: {
         get: jest.fn().mockReturnValue('cookie-value'),
+        getAll: jest.fn().mockReturnValue([
+          { name: 'dmspt', value: 'accessToken' },
+          { name: 'dmspr', value: 'refreshTokenValue' }
+        ]),
       },
       headers: {
         get: jest.fn().mockReturnValue('dmspr=refreshTokenValue')

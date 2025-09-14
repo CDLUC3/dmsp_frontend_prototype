@@ -21,8 +21,6 @@ export default function Pagination({
 }: PaginationProps) {
   const Global = useTranslations('Global');
 
-  if (totalPages <= 1) return null; // No pagination needed for single page
-
   const getPages = () => {
     const pages: (number | string)[] = [];
     const delta = 2; // pages around the current page
