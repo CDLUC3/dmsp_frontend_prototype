@@ -1205,7 +1205,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                     {(questionType === 'textArea' && question?.sampleText) && (
                       <Button
                         ref={openSampleTextButtonRef}
-                        className={`${styles.buttonSmall} tertiary`}
+                        className="tertiary small"
                         data-secondary
                         onPress={toggleSampleTextDrawer}
                       >
@@ -1217,7 +1217,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                     {answerId && (
                       <Button
                         ref={openCommentsButtonRef}
-                        className={`${styles.buttonSmall} ${mergedComments.length > 0 ? styles.buttonWithComments : null}`}
+                        className={`small ${mergedComments.length > 0 ? styles.buttonWithComments : null}`}
                         onPress={toggleCommentsDrawer}
                       >
                         {t('buttons.commentWithNumber', { number: mergedComments.length })}
@@ -1364,7 +1364,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 {convertToHTML(question?.sampleText)}
               </div>
               <div className="">
-                <Button className={`${styles.buttonSmall}`} onPress={() => handleUseAnswer(question?.sampleText)}>{PlanOverview('buttons.useAnswer')}</Button>
+                <Button className="small" onPress={() => handleUseAnswer(question?.sampleText)}>{PlanOverview('buttons.useAnswer')}</Button>
               </div>
             </DrawerPanel>
           )
