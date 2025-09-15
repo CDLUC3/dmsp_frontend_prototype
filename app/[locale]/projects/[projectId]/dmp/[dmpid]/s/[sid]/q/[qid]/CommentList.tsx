@@ -107,7 +107,7 @@ const CommentList = React.memo(function CommentList(props: CommentListProps) {
               </>
             )}
 
-            <div>
+            <div className={styles.buttonGroup}>
               {isEditing ? (
                 <>
                   <Button

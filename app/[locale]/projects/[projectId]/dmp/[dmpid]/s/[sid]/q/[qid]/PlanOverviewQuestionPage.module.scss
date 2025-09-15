@@ -149,6 +149,11 @@
   font-size: var(--fs-small);
 }
 
+.buttonGroup {
+  display: flex;
+  gap: 0.5rem; 
+}
+
 .drawerPanelWrapper {
   height: 100%;
   display: flex;
@@ -244,6 +249,10 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+}
+
+.commentButton {
+  margin-right: var(--space-2);
 }
 
 .tooltip {
