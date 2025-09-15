@@ -3,6 +3,7 @@
 import { DocumentNode, print } from "graphql";
 import { cookies } from "next/headers";
 import logger from "@/utils/server/logger";
+import { prepareObjectForLogs } from "@/utils/server/loggerUtils";
 import { serverRefreshAuthTokens, serverFetchCsrfToken } from "@/utils/server/serverAuthHelper";
 
 type GraphQLErrorCode = "UNAUTHENTICATED" | "FORBIDDEN" | "INTERNAL_SERVER_ERROR" | string;
@@ -128,7 +129,10 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
               const refreshResult = await serverRefreshAuthTokens();
 
               if (!refreshResult) {
-                logger.error({ error: "UNAUTHENTICATED" }, "Auth token refresh failed with no result");
+                logger.error(
+                  await prepareObjectForLogs({ error: new Error("UNAUTHENTICATED"), mutationString, variables }),
+                  "Auth token refresh failed with no result"
+                );
                 return { success: false, redirect: "/login" };
               }
 
@@ -137,7 +141,10 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
               const setCookieHeader = refreshResult?.response?.headers?.get("set-cookie");
 
               if (!setCookieHeader) {
-                logger.error({ error: "UNAUTHENTICATED" }, "No set-cookie header found in refresh response");
+                logger.error(
+                  await prepareObjectForLogs({ error: new Error("UNAUTHENTICATED"), mutationString, variables }),
+                  "No set-cookie header found in refresh response"
+                );
                 return { success: false, redirect: "/login" };
               }
 
@@ -178,7 +185,10 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
               const retryResult = await retryResponse.json();
 
               if (retryResult.errors) {
-                logger.error({ error: "GRAPHQL_ERROR" }, `[GraphQL Retry Error]: ${retryResult.errors[0]?.message}`);
+                logger.error(
+                  await prepareObjectForLogs({ error: new Error("GRAPHQL_ERROR"), mutationString, variables }),
+                  `[GraphQL Retry Error]: ${retryResult.errors[0]?.message}`
+                );
                 return {
                   success: false,
                   errors: normalizeErrors(retryResult.errors.map((err: GraphQLError) => err.message))
@@ -193,7 +203,10 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
                 data: retryData as T
               };
             } catch (error) {
-              logger.error({ error }, "Token refresh failed");
+              logger.error(
+                await prepareObjectForLogs({ error, mutationString, variables }),
+                "Token refresh failed"
+              );
               return { success: false, redirect: "/login" };
             }
 
@@ -202,16 +215,25 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
               await serverFetchCsrfToken();
               return { success: false, errors: ["Forbidden. Please check your permissions."] };
             } catch (error) {
-              logger.error({ error }, "Fetching CSRF token failed");
+              logger.error(
+                await prepareObjectForLogs({ error, mutationString, variables }),
+                "Fetching CSRF token failed"
+              );
               return { success: false, redirect: "/login" };
             }
 
           case "INTERNAL_SERVER_ERROR":
-            logger.error({ error: "INTERNAL_SERVER_ERROR" }, `[GraphQL Error]: INTERNAL_SERVER_ERROR - ${message}`);
+            logger.error(
+              await prepareObjectForLogs({ error: new Error("INTERNAL_SERVER_ERROR"), mutationString, variables }),
+              "Internal server error"
+            );
             return { success: false, redirect: "/500-error" };
 
           default:
-            logger.error({ error: "GRAPHQL_ERROR" }, `[GraphQL Error]: ${message}`);
+            logger.error(
+              await prepareObjectForLogs({ error: new Error("GRAPHQL_ERROR"), mutationString, variables }),
+              "GraphQL error"
+            );
             return { success: false, errors: normalizeErrors(message) };
         }
       }
@@ -225,7 +247,10 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
       data: responseData as T,
     };
   } catch (networkError) {
-    logger.error({ error: "NETWORK_ERROR" }, `[GraphQL Network Error]: ${networkError}`);
+    logger.error(
+      await prepareObjectForLogs({ error: networkError, mutationString, variables }),
+      "GraphQL network error"
+    );
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }

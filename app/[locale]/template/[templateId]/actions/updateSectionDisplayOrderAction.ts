@@ -2,6 +2,7 @@
 
 import { executeGraphQLMutation } from "@/utils/server/graphqlServerActionHandler";
 import logger from "@/utils/server/logger";
+import { prepareObjectForLogs } from "@/utils/server/loggerUtils";
 import { ActionResponse } from "@/app/types";
 import { UpdateSectionDisplayOrderDocument } from "@/generated/graphql";
 
@@ -21,7 +22,10 @@ export async function updateSectionDisplayOrderAction({
     });
 
   } catch (error) {
-    logger.error({ error }, `[Update Section Display Order Error]: ${error}`);
+    logger.error(
+      await prepareObjectForLogs({ error, sectionId, newDisplayOrder }),
+      "Update section display order error"
+    );
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }

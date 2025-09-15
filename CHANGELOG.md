@@ -1,4 +1,7 @@
 ### Added
+- Added `redact` to the pino logger to prevent sensitive information from being logged
+- Added `utils/server/loggerUtils.ts` with a method to `prepareLogObject` that strips out empty values and adds available JWT info to the log to assist with debugging
+- Added `SERVER_LOG_LEVEL` to the `.env.example` file to be able to set the log level for server side actions
 - `small` button CSS class.
 - Added curl to the AWS Dockerfile for session manager access
 - Added bash to the AWS Dockerfile for session manager access
@@ -21,6 +24,8 @@
 - Added description to project search page [#761](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/761)
 
 ### Updated
+- Updated all server actions to use the new `logger` and `prepareLogObject` method to log useful information for debugging
+- Updated `logger` to use the new `SERVER_LOG_LEVEL` env variable
 - Updated language used in RelatedWorks UI, moved accept and reject buttons into the cards out of the expand section and changed order of accept and reject buttons [#799]
 - Hooked up the `ProjectsProjectCollaboration` page. Added new `server actions` to handle access level changes, revoking collaborator and resending invite [#381]
 - Optimized the `graphqlServerActionHandler` so that we can normalize errors returned and simplify client-side handling [#381]

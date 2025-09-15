@@ -2,6 +2,7 @@
 
 import { executeGraphQLMutation } from "@/utils/server/graphqlServerActionHandler";
 import logger from "@/utils/server/logger";
+import { prepareObjectForLogs } from '@/utils/server/loggerUtils';
 import { CollaboratorResponse } from "@/app/types";
 import { AddProjectCollaboratorDocument } from "@/generated/graphql";
 
@@ -23,7 +24,10 @@ export async function addProjectCollaboratorAction({
     });
 
   } catch (error) {
-    logger.error({ error }, `[Add Project Collaborator Error]: ${error}`);
+    logger.error(
+      await prepareObjectForLogs({ error, projectId, email, accessLevel }),
+      "Add project collaborator error"
+    );
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }
