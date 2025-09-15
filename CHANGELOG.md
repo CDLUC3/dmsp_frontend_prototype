@@ -1,5 +1,6 @@
 ### Added
 - Added use of pagination queries to the `template/[templateId]/section/new` page [#676]
+- `small` button CSS class.
 - Added curl to the AWS Dockerfile for session manager access
 - Added bash to the AWS Dockerfile for session manager access
 - Added shared `dmptool-network` to the `docker-compose.yaml` file to allow nextJS server side actions to be able to reach the local apollo server
@@ -21,6 +22,10 @@
 - Added description to project search page [#761](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/761)
 
 ### Updated
+- Added a `beforeunload` event handler to the `PlanOverviewQuestionPage`, `CreateSectionPage`, `SectionUpdatePage` and `QuestionAdd` components to warn users when they are navigating away with unsaved changes [#758]
+- Updated `Commenting` logic on the `PlanOverviewQuestionPage` so that the `creator` or anybody with `role="OWN"` can delete anybody's comments [#321]
+- Updated to show disabled `Comment` button with a tooltip message when there is no `answer` yet. [#321]
+- Updated language used in RelatedWorks UI, moved accept and reject buttons into the cards out of the expand section and changed order of accept and reject buttons [#799]
 - Hooked up the `ProjectsProjectCollaboration` page. Added new `server actions` to handle access level changes, revoking collaborator and resending invite [#381]
 - Optimized the `graphqlServerActionHandler` so that we can normalize errors returned and simplify client-side handling [#381]
 - Updated the shared`RadioGroupComponent` and `CheckboxGroupComponent` components to be more like a wrapper to reduce duplicate of code and make it more flexible [#743]
@@ -50,6 +55,7 @@
 - Update json mocks in `__mocks__` directory to reflect changes to question and answer types [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Updated mocks in `components` to work with updated question JSON [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
+- Removed research outputs, including related pages and routes, from the demp overview [#764](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/764)
 
 ### Fixed
 - Fixed middleware issue to add `dmspt` token cookie when a refreshToken is implemented [#676]

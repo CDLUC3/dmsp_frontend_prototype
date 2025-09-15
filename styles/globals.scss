@@ -235,6 +235,10 @@ body {
   margin-bottom: var(--space-5);
 }
 
+.sidebar-section > button:not(:last-child) {
+  margin-right: var(--space-3);
+}
+
 .sidebar-section-title {
   margin-bottom: var(--space-2);
 }
