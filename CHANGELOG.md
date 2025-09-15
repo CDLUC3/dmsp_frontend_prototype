@@ -21,6 +21,8 @@
 - Added description to project search page [#761](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/761)
 
 ### Updated
+- Updated `Commenting` logic on the `PlanOverviewQuestionPage` so that the `creator` or anybody with `role="OWN"` can delete anybody's comments [#321]
+- Updated to show disabled `Comment` button with a tooltip message when there is no `answer` yet. [#321]
 - Updated language used in RelatedWorks UI, moved accept and reject buttons into the cards out of the expand section and changed order of accept and reject buttons [#799]
 - Hooked up the `ProjectsProjectCollaboration` page. Added new `server actions` to handle access level changes, revoking collaborator and resending invite [#381]
 - Optimized the `graphqlServerActionHandler` so that we can normalize errors returned and simplify client-side handling [#381]
