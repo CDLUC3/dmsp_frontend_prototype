@@ -126,7 +126,7 @@ const CommentsDrawer: React.FC<CommentsDrawerProps> = ({
               </TextField>
               <div className={styles.addCommentButton}>
                 <div>
-                  <Button type="submit" className={`${styles.buttonSmall}`}>{PlanOverview('buttons.comment')}</Button>
+                  <Button type="submit" className="small">{PlanOverview('buttons.comment')}</Button>
                 </div>
                 <p className="font-small">{PlanOverview('page.participantsWillBeNotified')}</p>
               </div>

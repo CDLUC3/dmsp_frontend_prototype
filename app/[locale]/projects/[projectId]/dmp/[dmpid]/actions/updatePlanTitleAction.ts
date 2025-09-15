@@ -21,7 +21,7 @@ export async function updatePlanTitleAction({
     });
 
   } catch (error) {
-    logger.error(`[Update Plan Title Error]: ${error}`, { error });
+    logger.error({ error }, `[Update Plan Title Error]: ${error}`);
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }

@@ -171,15 +171,11 @@ const PlanOverviewPage: React.FC = () => {
   // Set URLs
   const FUNDINGS_URL = routePath('projects.dmp.fundings', { projectId, dmpId: planId });
   const MEMBERS_URL = routePath('projects.dmp.members', { projectId, dmpId: planId });
-  const RESEARCH_OUTPUT_URL = routePath('projects.dmp.research-outputs', { projectId, dmpId: planId });
   const DOWNLOAD_URL = routePath('projects.dmp.download', { projectId, dmpId: planId });
   const FEEDBACK_URL = routePath('projects.dmp.feedback', { projectId, dmpId: planId });
   const CHANGE_PRIMARY_CONTACT_URL = routePath('projects.dmp.members', { projectId, dmpId: planId });
   const RELATED_WORKS_URL = routePath('projects.dmp.relatedWorks', { projectId, dmpId: planId });
 
-
-  //TODO: Get research output count from backend
-  const researchOutputCount = 3;
 
   //TODO: Get related works count from backend
   const relatedWorksCount = 3;
@@ -587,23 +583,6 @@ const PlanOverviewPage: React.FC = () => {
                 <Link href={MEMBERS_URL}
                   aria-label={t('members.edit')}>
                   {t('members.edit')}
-                </Link>
-              </section>
-
-              <section className={styles.planOverviewItem}
-                aria-labelledby="outputs-title">
-                <div className={styles.planOverviewItemContent}>
-                  <h2 id="outputs-title"
-                    className={styles.planOverviewItemTitle}>
-                    {t('outputs.title')}
-                  </h2>
-                  <p className={styles.planOverviewItemHeading}>
-                    {t('outputs.count', { count: researchOutputCount })}
-                  </p>
-                </div>
-                <Link href={RESEARCH_OUTPUT_URL}
-                  aria-label={t('outputs.edit')}>
-                  {t('outputs.edit')}
                 </Link>
               </section>
 

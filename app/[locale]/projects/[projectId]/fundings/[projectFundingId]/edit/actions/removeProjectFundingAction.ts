@@ -19,7 +19,7 @@ export async function removeProjectFundingAction({
     });
 
   } catch (error) {
-    logger.error(`[RemoveProjectFunding Error]: ${error}`, { error });
+    logger.error({ error }, `[RemoveProjectFunding Error]: ${error}`);
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }

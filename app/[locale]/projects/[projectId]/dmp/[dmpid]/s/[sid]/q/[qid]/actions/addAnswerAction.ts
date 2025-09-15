@@ -24,7 +24,7 @@ export async function addAnswerAction({
       dataPath: "addAnswer"
     });
   } catch (error) {
-    logger.error(`[Add new answer for question]: ${error}`, { error });
+    logger.error({ error }, `[Add new answer for question]: ${error}`);
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }

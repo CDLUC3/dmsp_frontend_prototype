@@ -20,7 +20,7 @@ export async function removeAnswerCommentAction({
       dataPath: "removeAnswerComment"
     });
   } catch (error) {
-    logger.error(`[Remove answerComment from answer]: ${error}`, { error });
+    logger.error({ error }, `[Remove answerComment from answer]: ${error}`);
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }

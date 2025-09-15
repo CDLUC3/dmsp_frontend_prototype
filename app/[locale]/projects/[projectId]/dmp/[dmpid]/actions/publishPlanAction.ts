@@ -21,7 +21,7 @@ export async function publishPlanAction({
     });
 
   } catch (error) {
-    logger.error(`[Publish Plan Error]: ${error}`, { error });
+    logger.error({ error }, `[Publish Plan Error]: ${error}`);
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }
