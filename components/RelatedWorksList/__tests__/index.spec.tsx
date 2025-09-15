@@ -223,7 +223,7 @@ describe("RelatedWorksList", () => {
     expect(listItems.length).toBe(3);
     const firstItem = listItems[0];
     const review = within(firstItem).getByRole("button", {
-      name: "buttons.review details for Quantum-Tuned Perception Systems for Next-Gen Robots",
+      name: "buttons.expand details for Quantum-Tuned Perception Systems for Next-Gen Robots",
     });
     await userEvent.click(review);
 

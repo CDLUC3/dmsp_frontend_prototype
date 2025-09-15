@@ -21,7 +21,7 @@ export async function addPlanMemberAction({
     });
 
   } catch (error) {
-    logger.error(`[Add Plan Member Error]: ${error}`, { error });
+    logger.error({ error }, `[Add Plan Member Error]: ${error}`);
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }

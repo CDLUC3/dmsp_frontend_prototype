@@ -21,7 +21,7 @@ export async function updateAnswerAction({
     });
 
   } catch (error) {
-    logger.error(`[Update answer for question]: ${error}`, { error });
+    logger.error({ error }, `[Update answer for question]: ${error}`);
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }

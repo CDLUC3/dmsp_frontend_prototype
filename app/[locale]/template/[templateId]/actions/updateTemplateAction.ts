@@ -21,7 +21,7 @@ export async function updateTemplateAction({
     });
 
   } catch (error) {
-    logger.error(`[Update Template Error]: ${error}`, { error });
+    logger.error({ error }, `[Update Template Error]: ${error}`);
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }

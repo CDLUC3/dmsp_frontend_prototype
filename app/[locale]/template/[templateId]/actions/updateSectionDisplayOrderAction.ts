@@ -21,7 +21,7 @@ export async function updateSectionDisplayOrderAction({
     });
 
   } catch (error) {
-    logger.error(`[Update Section Display Order Error]: ${error}`, { error });
+    logger.error({ error }, `[Update Section Display Order Error]: ${error}`);
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }

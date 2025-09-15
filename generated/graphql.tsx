@@ -856,6 +856,8 @@ export type Mutation = {
   removeUserEmail?: Maybe<UserEmail>;
   /** Request a round of admin feedback */
   requestFeedback?: Maybe<PlanFeedback>;
+  /** Resend an invite to a ProjectCollaborator */
+  resendInviteToProjectCollaborator?: Maybe<ProjectCollaborator>;
   /** Add an Output to a Plan */
   selectProjectOutputForPlan?: Maybe<ProjectOutput>;
   /** Designate the email as the current user's primary email address */
@@ -1243,6 +1245,11 @@ export type MutationRemoveUserEmailArgs = {
 
 export type MutationRequestFeedbackArgs = {
   planId: Scalars['Int']['input'];
+};
+
+
+export type MutationResendInviteToProjectCollaboratorArgs = {
+  projectCollaboratorId: Scalars['Int']['input'];
 };
 
 
@@ -3074,7 +3081,7 @@ export type Template = {
   latestPublishDate?: Maybe<Scalars['String']['output']>;
   /** The last published version */
   latestPublishVersion?: Maybe<Scalars['String']['output']>;
-  /** The last published visibility */
+  /** Visibility set for the last published template */
   latestPublishVisibility?: Maybe<TemplateVisibility>;
   /** The timestamp when the Object was last modifed */
   modified?: Maybe<Scalars['String']['output']>;
@@ -3163,7 +3170,7 @@ export type TemplateSearchResult = {
   latestPublishDate?: Maybe<Scalars['String']['output']>;
   /** The last published version */
   latestPublishVersion?: Maybe<Scalars['String']['output']>;
-  /** The last published visibility */
+  /** Visibility set for the last published template */
   latestPublishVisibility?: Maybe<TemplateVisibility>;
   /** The timestamp when the Template was last modified */
   modified?: Maybe<Scalars['String']['output']>;
@@ -3937,6 +3944,28 @@ export type AddAnswerCommentMutationVariables = Exact<{
 
 export type AddAnswerCommentMutation = { __typename?: 'Mutation', addAnswerComment?: { __typename?: 'AnswerComment', commentText: string, id?: number | null, answerId: number, errors?: { __typename?: 'AnswerCommentErrors', general?: string | null } | null } | null };
 
+export type UpdateProjectCollaboratorMutationVariables = Exact<{
+  projectCollaboratorId: Scalars['Int']['input'];
+  accessLevel: ProjectCollaboratorAccessLevel;
+}>;
+
+
+export type UpdateProjectCollaboratorMutation = { __typename?: 'Mutation', updateProjectCollaborator?: { __typename?: 'ProjectCollaborator', id?: number | null, accessLevel?: ProjectCollaboratorAccessLevel | null, errors?: { __typename?: 'ProjectCollaboratorErrors', accessLevel?: string | null, email?: string | null, general?: string | null, invitedById?: string | null, planId?: string | null, userId?: string | null } | null, user?: { __typename?: 'User', givenName?: string | null, id?: number | null, surName?: string | null } | null } | null };
+
+export type RemoveProjectCollaboratorMutationVariables = Exact<{
+  projectCollaboratorId: Scalars['Int']['input'];
+}>;
+
+
+export type RemoveProjectCollaboratorMutation = { __typename?: 'Mutation', removeProjectCollaborator?: { __typename?: 'ProjectCollaborator', id?: number | null, errors?: { __typename?: 'ProjectCollaboratorErrors', accessLevel?: string | null, email?: string | null, general?: string | null, invitedById?: string | null, planId?: string | null, userId?: string | null } | null, user?: { __typename?: 'User', givenName?: string | null, id?: number | null, surName?: string | null } | null } | null };
+
+export type ResendInviteToProjectCollaboratorMutationVariables = Exact<{
+  projectCollaboratorId: Scalars['Int']['input'];
+}>;
+
+
+export type ResendInviteToProjectCollaboratorMutation = { __typename?: 'Mutation', resendInviteToProjectCollaborator?: { __typename?: 'ProjectCollaborator', id?: number | null, email: string, user?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null } | null, errors?: { __typename?: 'ProjectCollaboratorErrors', accessLevel?: string | null, email?: string | null, general?: string | null, invitedById?: string | null, planId?: string | null, userId?: string | null } | null } | null };
+
 export type RemoveFeedbackCommentMutationVariables = Exact<{
   planId: Scalars['Int']['input'];
   planFeedbackCommentId: Scalars['Int']['input'];
@@ -4247,7 +4276,14 @@ export type AnswerByVersionedQuestionIdQueryVariables = Exact<{
 }>;
 
 
-export type AnswerByVersionedQuestionIdQuery = { __typename?: 'Query', answerByVersionedQuestionId?: { __typename?: 'Answer', id?: number | null, json?: string | null, modified?: string | null, created?: string | null, versionedQuestion?: { __typename?: 'VersionedQuestion', id?: number | null } | null, plan?: { __typename?: 'Plan', id?: number | null } | null, comments?: Array<{ __typename?: 'AnswerComment', id?: number | null, commentText: string, answerId: number, created?: string | null, modified?: string | null, user?: { __typename?: 'User', id?: number | null, surName?: string | null, givenName?: string | null } | null }> | null, feedbackComments?: Array<{ __typename?: 'PlanFeedbackComment', id?: number | null, commentText?: string | null, created?: string | null, answerId?: number | null, modified?: string | null, PlanFeedback?: { __typename?: 'PlanFeedback', id?: number | null } | null, user?: { __typename?: 'User', id?: number | null, surName?: string | null, givenName?: string | null } | null }> | null, errors?: { __typename?: 'AffiliationErrors', general?: string | null, planId?: string | null, versionedSectionId?: string | null, versionedQuestionId?: string | null, json?: string | null } | null } | null };
+export type AnswerByVersionedQuestionIdQuery = { __typename?: 'Query', answerByVersionedQuestionId?: { __typename?: 'Answer', id?: number | null, json?: string | null, modified?: string | null, created?: string | null, versionedQuestion?: { __typename?: 'VersionedQuestion', id?: number | null } | null, plan?: { __typename?: 'Plan', id?: number | null } | null, comments?: Array<{ __typename?: 'AnswerComment', id?: number | null, commentText: string, answerId: number, created?: string | null, createdById?: number | null, modified?: string | null, user?: { __typename?: 'User', id?: number | null, surName?: string | null, givenName?: string | null } | null }> | null, feedbackComments?: Array<{ __typename?: 'PlanFeedbackComment', id?: number | null, commentText?: string | null, created?: string | null, createdById?: number | null, answerId?: number | null, modified?: string | null, PlanFeedback?: { __typename?: 'PlanFeedback', id?: number | null } | null, user?: { __typename?: 'User', id?: number | null, surName?: string | null, givenName?: string | null } | null }> | null, errors?: { __typename?: 'AffiliationErrors', general?: string | null, planId?: string | null, versionedSectionId?: string | null, versionedQuestionId?: string | null, json?: string | null } | null } | null };
+
+export type ProjectCollaboratorsQueryVariables = Exact<{
+  projectId: Scalars['Int']['input'];
+}>;
+
+
+export type ProjectCollaboratorsQuery = { __typename?: 'Query', projectCollaborators?: Array<{ __typename?: 'ProjectCollaborator', id?: number | null, accessLevel?: ProjectCollaboratorAccessLevel | null, created?: string | null, email: string, errors?: { __typename?: 'ProjectCollaboratorErrors', accessLevel?: string | null, email?: string | null, general?: string | null, invitedById?: string | null, planId?: string | null, userId?: string | null } | null, user?: { __typename?: 'User', givenName?: string | null, surName?: string | null, email?: string | null } | null } | null> | null };
 
 export type ProjectFundingsQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4747,6 +4783,150 @@ export function useAddAnswerCommentMutation(baseOptions?: Apollo.MutationHookOpt
 export type AddAnswerCommentMutationHookResult = ReturnType<typeof useAddAnswerCommentMutation>;
 export type AddAnswerCommentMutationResult = Apollo.MutationResult<AddAnswerCommentMutation>;
 export type AddAnswerCommentMutationOptions = Apollo.BaseMutationOptions<AddAnswerCommentMutation, AddAnswerCommentMutationVariables>;
+export const UpdateProjectCollaboratorDocument = gql`
+    mutation UpdateProjectCollaborator($projectCollaboratorId: Int!, $accessLevel: ProjectCollaboratorAccessLevel!) {
+  updateProjectCollaborator(
+    projectCollaboratorId: $projectCollaboratorId
+    accessLevel: $accessLevel
+  ) {
+    id
+    errors {
+      accessLevel
+      email
+      general
+      invitedById
+      planId
+      userId
+    }
+    accessLevel
+    user {
+      givenName
+      id
+      surName
+    }
+  }
+}
+    `;
+export type UpdateProjectCollaboratorMutationFn = Apollo.MutationFunction<UpdateProjectCollaboratorMutation, UpdateProjectCollaboratorMutationVariables>;
+
+/**
+ * __useUpdateProjectCollaboratorMutation__
+ *
+ * To run a mutation, you first call `useUpdateProjectCollaboratorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateProjectCollaboratorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateProjectCollaboratorMutation, { data, loading, error }] = useUpdateProjectCollaboratorMutation({
+ *   variables: {
+ *      projectCollaboratorId: // value for 'projectCollaboratorId'
+ *      accessLevel: // value for 'accessLevel'
+ *   },
+ * });
+ */
+export function useUpdateProjectCollaboratorMutation(baseOptions?: Apollo.MutationHookOptions<UpdateProjectCollaboratorMutation, UpdateProjectCollaboratorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateProjectCollaboratorMutation, UpdateProjectCollaboratorMutationVariables>(UpdateProjectCollaboratorDocument, options);
+      }
+export type UpdateProjectCollaboratorMutationHookResult = ReturnType<typeof useUpdateProjectCollaboratorMutation>;
+export type UpdateProjectCollaboratorMutationResult = Apollo.MutationResult<UpdateProjectCollaboratorMutation>;
+export type UpdateProjectCollaboratorMutationOptions = Apollo.BaseMutationOptions<UpdateProjectCollaboratorMutation, UpdateProjectCollaboratorMutationVariables>;
+export const RemoveProjectCollaboratorDocument = gql`
+    mutation RemoveProjectCollaborator($projectCollaboratorId: Int!) {
+  removeProjectCollaborator(projectCollaboratorId: $projectCollaboratorId) {
+    id
+    errors {
+      accessLevel
+      email
+      general
+      invitedById
+      planId
+      userId
+    }
+    user {
+      givenName
+      id
+      surName
+    }
+  }
+}
+    `;
+export type RemoveProjectCollaboratorMutationFn = Apollo.MutationFunction<RemoveProjectCollaboratorMutation, RemoveProjectCollaboratorMutationVariables>;
+
+/**
+ * __useRemoveProjectCollaboratorMutation__
+ *
+ * To run a mutation, you first call `useRemoveProjectCollaboratorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveProjectCollaboratorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeProjectCollaboratorMutation, { data, loading, error }] = useRemoveProjectCollaboratorMutation({
+ *   variables: {
+ *      projectCollaboratorId: // value for 'projectCollaboratorId'
+ *   },
+ * });
+ */
+export function useRemoveProjectCollaboratorMutation(baseOptions?: Apollo.MutationHookOptions<RemoveProjectCollaboratorMutation, RemoveProjectCollaboratorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveProjectCollaboratorMutation, RemoveProjectCollaboratorMutationVariables>(RemoveProjectCollaboratorDocument, options);
+      }
+export type RemoveProjectCollaboratorMutationHookResult = ReturnType<typeof useRemoveProjectCollaboratorMutation>;
+export type RemoveProjectCollaboratorMutationResult = Apollo.MutationResult<RemoveProjectCollaboratorMutation>;
+export type RemoveProjectCollaboratorMutationOptions = Apollo.BaseMutationOptions<RemoveProjectCollaboratorMutation, RemoveProjectCollaboratorMutationVariables>;
+export const ResendInviteToProjectCollaboratorDocument = gql`
+    mutation ResendInviteToProjectCollaborator($projectCollaboratorId: Int!) {
+  resendInviteToProjectCollaborator(projectCollaboratorId: $projectCollaboratorId) {
+    id
+    email
+    user {
+      id
+      givenName
+      surName
+    }
+    errors {
+      accessLevel
+      email
+      general
+      invitedById
+      planId
+      userId
+    }
+  }
+}
+    `;
+export type ResendInviteToProjectCollaboratorMutationFn = Apollo.MutationFunction<ResendInviteToProjectCollaboratorMutation, ResendInviteToProjectCollaboratorMutationVariables>;
+
+/**
+ * __useResendInviteToProjectCollaboratorMutation__
+ *
+ * To run a mutation, you first call `useResendInviteToProjectCollaboratorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useResendInviteToProjectCollaboratorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [resendInviteToProjectCollaboratorMutation, { data, loading, error }] = useResendInviteToProjectCollaboratorMutation({
+ *   variables: {
+ *      projectCollaboratorId: // value for 'projectCollaboratorId'
+ *   },
+ * });
+ */
+export function useResendInviteToProjectCollaboratorMutation(baseOptions?: Apollo.MutationHookOptions<ResendInviteToProjectCollaboratorMutation, ResendInviteToProjectCollaboratorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ResendInviteToProjectCollaboratorMutation, ResendInviteToProjectCollaboratorMutationVariables>(ResendInviteToProjectCollaboratorDocument, options);
+      }
+export type ResendInviteToProjectCollaboratorMutationHookResult = ReturnType<typeof useResendInviteToProjectCollaboratorMutation>;
+export type ResendInviteToProjectCollaboratorMutationResult = Apollo.MutationResult<ResendInviteToProjectCollaboratorMutation>;
+export type ResendInviteToProjectCollaboratorMutationOptions = Apollo.BaseMutationOptions<ResendInviteToProjectCollaboratorMutation, ResendInviteToProjectCollaboratorMutationVariables>;
 export const RemoveFeedbackCommentDocument = gql`
     mutation RemoveFeedbackComment($planId: Int!, $planFeedbackCommentId: Int!) {
   removeFeedbackComment(
@@ -6470,6 +6650,7 @@ export const AnswerByVersionedQuestionIdDocument = gql`
       commentText
       answerId
       created
+      createdById
       modified
       user {
         id
@@ -6481,6 +6662,7 @@ export const AnswerByVersionedQuestionIdDocument = gql`
       id
       commentText
       created
+      createdById
       answerId
       modified
       PlanFeedback {
@@ -6539,6 +6721,62 @@ export type AnswerByVersionedQuestionIdQueryHookResult = ReturnType<typeof useAn
 export type AnswerByVersionedQuestionIdLazyQueryHookResult = ReturnType<typeof useAnswerByVersionedQuestionIdLazyQuery>;
 export type AnswerByVersionedQuestionIdSuspenseQueryHookResult = ReturnType<typeof useAnswerByVersionedQuestionIdSuspenseQuery>;
 export type AnswerByVersionedQuestionIdQueryResult = Apollo.QueryResult<AnswerByVersionedQuestionIdQuery, AnswerByVersionedQuestionIdQueryVariables>;
+export const ProjectCollaboratorsDocument = gql`
+    query ProjectCollaborators($projectId: Int!) {
+  projectCollaborators(projectId: $projectId) {
+    id
+    errors {
+      accessLevel
+      email
+      general
+      invitedById
+      planId
+      userId
+    }
+    accessLevel
+    created
+    email
+    user {
+      givenName
+      surName
+      email
+    }
+  }
+}
+    `;
+
+/**
+ * __useProjectCollaboratorsQuery__
+ *
+ * To run a query within a React component, call `useProjectCollaboratorsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectCollaboratorsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectCollaboratorsQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useProjectCollaboratorsQuery(baseOptions: Apollo.QueryHookOptions<ProjectCollaboratorsQuery, ProjectCollaboratorsQueryVariables> & ({ variables: ProjectCollaboratorsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProjectCollaboratorsQuery, ProjectCollaboratorsQueryVariables>(ProjectCollaboratorsDocument, options);
+      }
+export function useProjectCollaboratorsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectCollaboratorsQuery, ProjectCollaboratorsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProjectCollaboratorsQuery, ProjectCollaboratorsQueryVariables>(ProjectCollaboratorsDocument, options);
+        }
+export function useProjectCollaboratorsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectCollaboratorsQuery, ProjectCollaboratorsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProjectCollaboratorsQuery, ProjectCollaboratorsQueryVariables>(ProjectCollaboratorsDocument, options);
+        }
+export type ProjectCollaboratorsQueryHookResult = ReturnType<typeof useProjectCollaboratorsQuery>;
+export type ProjectCollaboratorsLazyQueryHookResult = ReturnType<typeof useProjectCollaboratorsLazyQuery>;
+export type ProjectCollaboratorsSuspenseQueryHookResult = ReturnType<typeof useProjectCollaboratorsSuspenseQuery>;
+export type ProjectCollaboratorsQueryResult = Apollo.QueryResult<ProjectCollaboratorsQuery, ProjectCollaboratorsQueryVariables>;
 export const ProjectFundingsDocument = gql`
     query ProjectFundings($projectId: Int!) {
   projectFundings(projectId: $projectId) {

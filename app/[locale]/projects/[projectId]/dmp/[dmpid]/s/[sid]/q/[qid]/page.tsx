@@ -13,6 +13,8 @@ import {
   Link,
   OverlayArrow,
   Popover,
+  Tooltip,
+  TooltipTrigger
 } from "react-aria-components";
 import { CalendarDate, DateValue } from "@internationalized/date";
 import DOMPurify from 'dompurify';
@@ -1121,7 +1123,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                     {(questionType === 'textArea' && question?.sampleText) && (
                       <Button
                         ref={openSampleTextButtonRef}
-                        className={`${styles.buttonSmall} tertiary`}
+                        className="tertiary small"
                         data-secondary
                         onPress={toggleSampleTextDrawer}
                       >
@@ -1129,15 +1131,30 @@ const PlanOverviewQuestionPage: React.FC = () => {
                       </Button>
                     )}
 
-                    {/**Only show comments if an answer has been saved so far */}
-                    {answerId && (
+                    {/**Only show active comment button if an answer exists, otherwise show a disabled button with message */}
+                    {answerId ? (
                       <Button
                         ref={openCommentsButtonRef}
-                        className={`${styles.buttonSmall} ${mergedComments.length > 0 ? styles.buttonWithComments : null}`}
+                        className={styles.buttonSmall}
                         onPress={toggleCommentsDrawer}
                       >
                         {t('buttons.commentWithNumber', { number: mergedComments.length })}
                       </Button>
+                    ) : (
+                      <TooltipTrigger delay={0}>
+                        <Button
+                          ref={openCommentsButtonRef}
+                          className={styles.buttonSmallDisabled}
+                        >
+                          {t('buttons.commentWithNumber', { number: mergedComments.length })}
+                        </Button>
+                        <Tooltip
+                          placement="bottom"
+                          className={`${styles.tooltip} py-2 px-2`}
+                        >
+                          {PlanOverview('page.commentTooltip')}
+                        </Tooltip>
+                      </TooltipTrigger>
                     )}
 
                   </div>
@@ -1275,7 +1292,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 {convertToHTML(question?.sampleText)}
               </div>
               <div className="">
-                <Button className={`${styles.buttonSmall}`} onPress={() => handleUseAnswer(question?.sampleText)}>{PlanOverview('buttons.useAnswer')}</Button>
+                <Button className="small" onPress={() => handleUseAnswer(question?.sampleText)}>{PlanOverview('buttons.useAnswer')}</Button>
               </div>
             </DrawerPanel>
           )
@@ -1297,6 +1314,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           handleEditComment={handleEditComment}
           handleDeleteComment={handleDeleteComment}
           me={me}
+          planOwners={plan?.planOwners}
           locale={locale}
           commentsEndRef={commentsEndRef}
           canAddComments={canAddComments}

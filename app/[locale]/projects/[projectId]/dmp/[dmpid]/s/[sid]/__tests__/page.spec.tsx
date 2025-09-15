@@ -306,7 +306,7 @@ describe('PlanOverviewSectionPage', () => {
     (useParams as jest.Mock).mockReturnValue(mockParams);
   });
 
-  it.only('should render the page with questions and section data', async () => {
+  it('should render the page with questions and section data', async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
         <PlanOverviewSectionPage />
