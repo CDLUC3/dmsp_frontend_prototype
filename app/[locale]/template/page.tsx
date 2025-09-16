@@ -15,7 +15,7 @@ import {
 import { useFormatter, useTranslations } from 'next-intl';
 
 //GraphQL
-import { useTemplatesQuery } from '@/generated/graphql';
+import { useTemplatesLazyQuery } from '@/generated/graphql';
 
 // Components
 import PageHeader from '@/components/PageHeader';
@@ -27,7 +27,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 import { useScrollToTop } from '@/hooks/scrollToTop';
 
 import { toSentenceCase } from '@/utils/general';
-import { routePath } from '@/utils/routes';
+import { logECS, routePath } from '@/utils/index';
 import {
   TemplateSearchResultInterface,
   TemplateItemProps,
@@ -35,23 +35,34 @@ import {
 } from '@/app/types';
 import styles from './orgTemplates.module.scss';
 
+// # of templates displayed per section type
+const LIMIT = 5;
+
+
 const TemplateListPage: React.FC = () => {
   const formatter = useFormatter();
   const { scrollToTop } = useScrollToTop();
 
   const errorRef = useRef<HTMLDivElement | null>(null);
-  const nextSectionRef = useRef<HTMLDivElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
 
   const [errors, setErrors] = useState<string[]>([]);
-  const [templates, setTemplates] = useState<(TemplateItemProps)[]>([]);
-  const [filteredTemplates, setFilteredTemplates] = useState<(TemplateItemProps)[] | null>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [visibleCount, setVisibleCount] = useState({
-    templates: 3,
-    filteredTemplates: 3,
-  });
+  const [searchButtonClicked, setSearchButtonClicked] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
 
+  const [totalCount, setTotalCount] = useState<number | null>(0);
+  const [searchResults, setSearchResults] = useState<TemplateItemProps[]>([]);
+  const [isSearchFetch, setIsSearchFetch] = useState(false);
+  const [firstNewIndex, setFirstNewIndex] = useState<number | null>(null);
+
+
+  // Add separate state for search pagination
+  const [searchNextCursor, setSearchNextCursor] = useState<string | null>(null);
+  const [searchTotalCount, setSearchTotalCount] = useState<number | null>(0);
+
+
+  const [templates, setTemplates] = useState<(TemplateItemProps)[]>([]);
 
   // For translations
   const t = useTranslations('OrganizationTemplates');
@@ -61,59 +72,115 @@ const TemplateListPage: React.FC = () => {
   // Set URLs
   const TEMPLATE_CREATE_URL = routePath('template.create');
 
-
-  // Make graphql request for templates under the user's affiliation
-  const { data, loading, error: queryError } = useTemplatesQuery({
-    // TODO: Adding this because the default limit is too small. We eventually want to
-    //       convert this to use the provided cursor when clicking "Load more" instead of
-    //       the local Array of initial results
-    variables: { paginationOptions: { limit: 25 } },
-    /* Force Apollo to notify React of changes. This was needed for when refetch is
-    called and a re-render of data is necessary*/
-    notifyOnNetworkStatusChange: true,
-  });
+  // Lazy query for organization templates
+  const [fetchTemplates, { data: templateData }] = useTemplatesLazyQuery();
 
   // zero out search and filters
   const resetSearch = () => {
     setSearchTerm('');
-    setFilteredTemplates(null);
-    setVisibleCount({
-      templates: 3,
-      filteredTemplates: 3,
+    setIsSearchFetch(false);
+    setTemplates([]); // Clear existing projects
+    setSearchResults([]); // Clear search results
+    setSearchButtonClicked(false);
+    setNextCursor(null); // Reset cursor
+    setSearchNextCursor(null); // Reset search cursor
+    fetchTemplates({
+      variables: {
+        paginationOptions: {
+          limit: LIMIT,
+        },
+      },
+      notifyOnNetworkStatusChange: true,
     });
     scrollToTop(topRef);
   }
 
-
-  //Update searchTerm state whenever entry in the search field changes
-  const handleSearchInput = (value: string) => {
-    setSearchTerm(value);
+  const clearErrors = () => {
+    setErrors([])
   }
 
-  // Find title, funder, content and publishStatus fields that include search term
-  const handleFiltering = (term: string) => {
-    setErrors([]);
-    const lowerCaseTerm = term.toLowerCase();
-    const filteredList = templates.filter(item => {
-      return [item.title,
-      item.funder,
-      item.publishStatus,
-      item.latestPublishVisibility,
-      item.description
-      ]
-        .filter(Boolean)
-        .some(field => field?.toLowerCase().includes(lowerCaseTerm));
-    });
+  // Handle search input
+  const handleSearchInput = async (term: string) => {
+    setSearchTerm(term);
+    clearErrors();
+  };
 
-    if (filteredList.length >= 1) {
-      setSearchTerm(term);
-      setFilteredTemplates(filteredList);
-    } else {
-      //If there are no matching results, then display an error
-      const errorMessage = t('noItemsFoundError', { term })
-      setErrors(prev => [...prev, errorMessage]);
+  // Run search for search term
+  const handleSearch = async () => {
+
+    if (!searchTerm.trim()) {
+      return;
     }
+
+    setSearchButtonClicked(true);
+    setErrors([]);
+    setIsSearchFetch(true);
+    setSearchResults([]); // Clear previous search results
+    setSearchNextCursor(null); // Reset search cursor
+
+    await fetchTemplates({
+      variables: {
+        paginationOptions: {
+          type: "CURSOR",
+          limit: LIMIT,
+        },
+        term: searchTerm.toLowerCase(),
+      },
+    });
   }
+
+  // Handler for search "Load more"
+  const handleSearchLoadMore = async () => {
+
+    if (!searchNextCursor) return;
+    setFirstNewIndex(searchResults.length);
+
+    try {
+      await fetchTemplates({
+        variables: {
+          paginationOptions: {
+            type: "CURSOR",
+            cursor: searchNextCursor,
+            limit: LIMIT,
+          },
+          term: searchTerm.toLowerCase(),
+        },
+      });
+    } catch (err) {
+      logECS('error', 'handleSearchLoadMore', {
+        errors: err,
+        url: { path: routePath('template.index') }
+      });
+      setErrors(prev => [...prev, SelectTemplate('messages.loadingError')]);
+    }
+  };
+
+
+  const handleLoadMore = async () => {
+    if (!nextCursor) return;
+
+    setFirstNewIndex(templates.length);
+
+    try {
+      await fetchTemplates({
+        variables: {
+          paginationOptions: {
+            type: "CURSOR",
+            cursor: nextCursor,
+            limit: LIMIT,
+          },
+        },
+        notifyOnNetworkStatusChange: true,
+      });
+
+    } catch (err) {
+      logECS('error', 'handleLoadMore', {
+        errors: err,
+        url: { path: routePath('template.index') }
+      });
+      setErrors(prev => [...prev, SelectTemplate('messages.loadingError')]);
+    }
+  };
 
   // Format date using next-intl date formatter
   const formatDate = (date: string) => {
@@ -127,97 +194,103 @@ const TemplateListPage: React.FC = () => {
   }
 
   useEffect(() => {
-    if (queryError) {
-      setErrors(prev => [...prev, t('somethingWentWrong')]);
-    }
-  }, [queryError]);
-
-
-  useEffect(() => {
-    (async () => {
-      // Transform templates into format expected by TemplateSelectListItem component
-      const fetchAllTemplates = async (templates: PaginatedTemplateSearchResultsInterface | null) => {
-        const items = templates?.items ?? [];
-        const transformedTemplates = await Promise.all(
-          items.map(async (template: TemplateSearchResultInterface | null) => {
-            return {
-              title: template?.name || "",
-              link: routePath('template.show', { templateId: template?.id ?? '' }) || '',
-              funder: template?.ownerDisplayName,
-              lastUpdated: (template?.modified) ? formatDate(template?.modified) : null,
-              lastRevisedBy: template?.modifiedByName,
-              publishStatus: (template?.isDirty) ? 'Unpublished' : 'Published',
-              publishDate: (template?.latestPublishDate) ? formatDate(template?.latestPublishDate) : null,
-              defaultExpanded: false,
-              latestPublishVisibility: toSentenceCase(template?.latestPublishVisibility ? template?.latestPublishVisibility?.toString() : '')
-            }
-          }));
-
-        setTemplates(transformedTemplates);
-      }
-      if (data && data.myTemplates) {
-        await fetchAllTemplates({
-          ...data.myTemplates,
-          items: (data.myTemplates.items ?? []).filter((item): item is TemplateSearchResultInterface => item !== null),
-        });
-      } else {
-        setTemplates([]);
-      }
-    })();
-  }, [data]);
-
-  useEffect(() => {
-    // Need this to set list of templates back to original, full list after filtering
+    // Need this to set list of projects back to original, full list after filtering
     if (searchTerm === '') {
-      setFilteredTemplates(null);
+      setSearchButtonClicked(false);
     }
   }, [searchTerm])
 
-  type VisibleCountKeys = keyof typeof visibleCount;
-  // When user clicks the 'Load more' button, display 3 more by default
-  const handleLoadMore = (listKey: VisibleCountKeys) => {
-    setVisibleCount((prevCounts) => ({
-      ...prevCounts,
-      [listKey]: prevCounts[listKey] + 3, // Increase the visible count for the specific list
-    }));
-
-    setTimeout(() => {
-      if (nextSectionRef.current) {
-        nextSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 0);
-  };
-
-  const renderLoadMore = (items: TemplateItemProps[], visibleCountKey: VisibleCountKeys) => {
-    if (items.length - visibleCount[visibleCountKey] > 0) {
-      const loadMoreNumber = items.length - visibleCount[visibleCountKey]; // Calculate loadMoreNumber
-      const currentlyDisplayed = visibleCount[visibleCountKey];
-      const totalAvailable = items.length;
-      return (
-        <>
-          <Button onPress={() => handleLoadMore(visibleCountKey)}>
-            {loadMoreNumber > 2
-              ? SelectTemplate('buttons.load3More')
-              : SelectTemplate('buttons.loadMore', { name: loadMoreNumber })}
-          </Button>
-          <div className={styles.remainingText}>
-            {SelectTemplate('numDisplaying', { num: currentlyDisplayed, total: totalAvailable })}
-          </div>
-        </>
-      );
+  // If page-level errors, scroll them into view
+  useEffect(() => {
+    if (errors.length > 0 && errorRef.current) {
+      errorRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
     }
-    return null;
-  };
+  }, [errors]);
+
+  // Scroll to the next set of items when user clicks "Load more"
+  useEffect(() => {
+    if (firstNewIndex !== null) {
+      const timeoutId = setTimeout(() => {
+        const element = document.querySelector(`[data-index="${firstNewIndex}"]`);
+        if (element) {
+          element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+        }
+        setFirstNewIndex(null); // reset after scroll
+      }, 150); // allow time for DOM update
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [templates, searchResults, firstNewIndex]);
 
   useEffect(() => {
-    // console.log('Filtered templates:', filteredTemplates);
-    // console.log('Templates:', templates);
-  }, [filteredTemplates, templates]);
+    if (!templateData || !templateData.myTemplates) return;
 
-  // TODO: Implement shared loading
-  if (loading) {
-    return <div>{Global('messaging.loading')}...</div>;
-  }
+    // Transform templates into format expected by TemplateSelectListItem component
+    const processTemplates = async (templates: PaginatedTemplateSearchResultsInterface | null) => {
+      const items = templates?.items ?? [];
+      const transformedTemplates = await Promise.all(
+        items.map(async (template: TemplateSearchResultInterface | null) => {
+          return {
+            title: template?.name || "",
+            link: routePath('template.show', { templateId: template?.id ?? '' }) || '',
+            funder: template?.ownerDisplayName,
+            lastUpdated: (template?.modified) ? formatDate(template?.modified) : null,
+            lastRevisedBy: template?.modifiedByName,
+            publishStatus: (template?.isDirty) ? Global('unpublished') : Global('published'),
+            publishDate: (template?.latestPublishDate) ? formatDate(template?.latestPublishDate) : null,
+            defaultExpanded: false,
+            latestPublishVisibility: toSentenceCase(template?.latestPublishVisibility ? template?.latestPublishVisibility?.toString() : '')
+          }
+        }));
+
+      if (isSearchFetch) {
+        // Handle search results - backend returns only new items for cursor pagination
+        if (searchResults.length === 0) {
+          // First search request - set all results
+          setSearchResults(transformedTemplates);
+        } else {
+          // Subsequent search requests - append new items
+          setSearchResults(prev => [...prev, ...transformedTemplates]);
+        }
+        setSearchNextCursor(templateData?.myTemplates?.nextCursor ?? null);
+        setSearchTotalCount(templateData?.myTemplates?.totalCount ?? null);
+      } else {
+        // Handle regular pagination - backend returns only new items for cursor pagination
+        if (items.length === 0) {
+          // First load - set all results
+          setTemplates(transformedTemplates);
+        } else {
+          // Subsequent loads - append new items (backend sends only new items)
+          setTemplates(prev => [...prev, ...transformedTemplates]);
+        }
+
+        setNextCursor(templateData?.myTemplates?.nextCursor ?? null);
+        setTotalCount(templateData?.myTemplates?.totalCount ?? null);
+      }
+    }
+    processTemplates({
+      ...templateData.myTemplates,
+      items: (templateData.myTemplates.items ?? []).filter((item): item is TemplateSearchResultInterface => item !== null),
+    });
+
+  }, [templateData, isSearchFetch]);
+
+  // Load templates when page loads
+  useEffect(() => {
+    fetchTemplates({
+      variables: {
+        paginationOptions: {
+          limit: LIMIT,
+        },
+      },
+    });
+  }, []);
 
   return (
     <>
@@ -245,74 +318,102 @@ const TemplateListPage: React.FC = () => {
       <LayoutContainer>
         <ContentContainer>
           <div className="searchSection" role="search" ref={topRef}>
-            <SearchField
-              onClear={() => { setFilteredTemplates(null) }}
-            >
-              <Label>{t('searchLabel')}</Label>
+            <SearchField>
+              <Label>{Global('labels.searchByKeyword')}</Label>
               <Input value={searchTerm} onChange={e => handleSearchInput(e.target.value)} />
               <Button
                 onPress={() => {
-                  // Call your filtering function without changing the input value
-                  handleFiltering(searchTerm);
+                  handleSearch();
                 }}
               >
-                {t('actionSearch')}
+                {Global('buttons.search')}
               </Button>
               <FieldError />
               <Text slot="description" className="help">
-                {t('searchHelpText')}
+                {Global('helpText.searchHelpText')}
               </Text>
             </SearchField>
-
           </div >
 
-          {filteredTemplates && filteredTemplates.length > 0 ? (
-            <div className="template-list" aria-label="Template list" role="list">
-              {
-                filteredTemplates.slice(0, visibleCount['filteredTemplates']).map((template, index) => {
-                  const isFirstInNextSection = index === visibleCount['filteredTemplates'] - 3;
-                  return (
-                    <div ref={isFirstInNextSection ? nextSectionRef : null} key={index}>
-                      <TemplateSelectListItem
-                        key={index}
-                        item={template} />
-                    </div>
-                  )
+          {isSearchFetch && (
+            <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}> {Global('links.clearFilter')}</Button>
+          )}
+          {searchResults.length > 0 ? (
+            <div className="template-list" role="list">
+              {searchResults.map((template, index) => (
+                <div
+                  key={`search-${template.link}-${index}`}
+                  data-index={index}
+                >
+                  <TemplateSelectListItem
+                    key={index}
+                    item={template} />
+                </div>
+              ))}
 
-                })
-              }
-              <div className={styles.loadBtnContainer}>
-                {renderLoadMore(filteredTemplates, 'filteredTemplates')}
-                {filteredTemplates.length > 0 && (
-                  <Link onPress={resetSearch} className={`${styles.searchMatchText} ${styles.clearFilter}`}>{SelectTemplate('clearFilter')}</Link>
-                )}
-              </div>
+              {searchTotalCount && searchTotalCount > searchResults.length && (
+                <div className={styles.loadBtnContainer}>
+                  <Button
+                    type="button"
+                    data-testid="search-load-more-btn"
+                    onPress={handleSearchLoadMore}
+                    aria-label={SelectTemplate('loadMoreSearchResults')}
+                    isDisabled={!searchNextCursor}
+                  >
+                    {Global('buttons.loadMore')}
+                  </Button>
+                  <div>
+                    {Global('messaging.numDisplaying', { num: searchResults.length, total: searchTotalCount || '' })}
+                  </div>
+                  <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}> {Global('links.clearFilter')}</Button>
 
+                </div>
+              )}
             </div>
           ) : (
-            <div className="template-list" aria-label="Template list" role="list">
-              {
-                templates.slice(0, visibleCount['templates']).map((template, index) => {
-                  const isFirstInNextSection = index === visibleCount['templates'] - 3;
-                  return (
-                    <div ref={isFirstInNextSection ? nextSectionRef : null} key={index}>
-                      <TemplateSelectListItem
-                        key={index}
-                        item={template} />
-                    </div>
-                  )
-
-                })
-              }
-              <div className={styles.loadBtnContainer}>
-                {renderLoadMore(templates, 'templates')}
+            <>
+              <div className='template-list' role="list">
+                {searchTerm && searchButtonClicked ? (
+                  <p>{Global('messaging.noItemsFound')}</p>
+                ) : (
+                  <>
+                    {templates.map((template, index) => (
+                      <div
+                        key={`project-${template.link}-${index}`}
+                        data-index={index}
+                      >
+                        <TemplateSelectListItem
+                          key={index}
+                          item={template} />
+                      </div>
+                    ))}
+                    {totalCount != null && totalCount > templates.length && (
+                      <div className={styles.loadBtnContainer}>
+                        <Button
+                          type="button"
+                          data-testid="load-more-btn"
+                          onPress={handleLoadMore}
+                          aria-label={SelectTemplate('loadMoreTemplates')}
+                          isDisabled={!nextCursor}
+                        >
+                          {Global('buttons.loadMore')}
+                        </Button>
+                        <div className={styles.remainingText}>
+                          {Global('messaging.numDisplaying', { num: templates.length, total: totalCount || '' })}
+                        </div>
+                        {isSearchFetch && (
+                          <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}> {Global('links.clearFilter')}</Button>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
-            </div>
-          )
-          }
+            </>
+          )}
 
         </ContentContainer>
-      </LayoutContainer >
+      </LayoutContainer>
     </>
   );
 }

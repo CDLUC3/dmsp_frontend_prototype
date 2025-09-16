@@ -245,7 +245,9 @@
       "noItemsFound": "No items found",
       "missingTemplateName": "Template name cannot be blank.",
       "loadingError": "Error loading templates. Please try again later."
-    }
+    },
+    "loadMoreTemplates": "Load more templates",
+    "loadMoreSearchResults": "Load more search results"
   },
   "TemplateSelectListItem": {
     "messages": {

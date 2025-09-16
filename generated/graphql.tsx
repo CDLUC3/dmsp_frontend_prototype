@@ -758,8 +758,8 @@ export type Mutation = {
   addMetadataStandard?: Maybe<MetadataStandard>;
   /** Create a plan */
   addPlan?: Maybe<Plan>;
-  /** Add a Funding information to a Plan */
-  addPlanFunding?: Maybe<PlanFunding>;
+  /** Add Funding information to a Plan */
+  addPlanFunding?: Maybe<Array<Maybe<PlanFunding>>>;
   /** Add a Member to a Plan */
   addPlanMember?: Maybe<PlanMember>;
   /** Create a project */
@@ -986,7 +986,7 @@ export type MutationAddPlanArgs = {
 
 export type MutationAddPlanFundingArgs = {
   planId: Scalars['Int']['input'];
-  projectFundingId: Scalars['Int']['input'];
+  projectFundingIds: Array<Scalars['Int']['input']>;
 };
 
 
@@ -3793,7 +3793,7 @@ export type VersionedSectionSearchResults = PaginatedQueryResults & {
   hasNextPage?: Maybe<Scalars['Boolean']['output']>;
   /** Whether or not there is a previous page */
   hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
-  /** The SectionSearchResults that match the search criteria */
+  /** The TemplateSearchResults that match the search criteria */
   items?: Maybe<Array<Maybe<VersionedSectionSearchResult>>>;
   /** The number of items returned */
   limit?: Maybe<Scalars['Int']['output']>;
@@ -4494,7 +4494,7 @@ export type TemplatesQueryVariables = Exact<{
 }>;
 
 
-export type TemplatesQuery = { __typename?: 'Query', myTemplates?: { __typename?: 'TemplateSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'TemplateSearchResult', id?: number | null, name?: string | null, description?: string | null, latestPublishVisibility?: TemplateVisibility | null, isDirty?: boolean | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, ownerId?: string | null, ownerDisplayName?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null } | null> | null } | null };
+export type TemplatesQuery = { __typename?: 'Query', myTemplates?: { __typename?: 'TemplateSearchResults', totalCount?: number | null, nextCursor?: string | null, limit?: number | null, availableSortFields?: Array<string | null> | null, currentOffset?: number | null, hasNextPage?: boolean | null, hasPreviousPage?: boolean | null, items?: Array<{ __typename?: 'TemplateSearchResult', id?: number | null, name?: string | null, description?: string | null, latestPublishVisibility?: TemplateVisibility | null, isDirty?: boolean | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, ownerId?: string | null, ownerDisplayName?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null, bestPractice?: boolean | null } | null> | null } | null };
 
 export type TemplateQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -8384,6 +8384,11 @@ export const TemplatesDocument = gql`
   myTemplates(term: $term, paginationOptions: $paginationOptions) {
     totalCount
     nextCursor
+    limit
+    availableSortFields
+    currentOffset
+    hasNextPage
+    hasPreviousPage
     items {
       id
       name
@@ -8397,6 +8402,7 @@ export const TemplatesDocument = gql`
       modified
       modifiedById
       modifiedByName
+      bestPractice
     }
   }
 }
