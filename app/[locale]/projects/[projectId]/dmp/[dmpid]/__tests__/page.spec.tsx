@@ -872,7 +872,7 @@ describe('PlanOverviewPage', () => {
     const updatedMockPlanData = {
       ...mockPlanData.plan,
       id: null,
-      dmpId: "https://doi.org/123/123",
+      dmpId: "https://doi.org/10.2312/123",
       registered: null,
       title: null,
       status: null
@@ -892,7 +892,34 @@ describe('PlanOverviewPage', () => {
     expect(sidebar).toBeInTheDocument();
     const previewLink = within(sidebar).getByRole('link', { name: 'buttons.preview' });
     expect(previewLink).toBeInTheDocument();
-    expect(previewLink).toHaveAttribute('href', 'http://localhost:3030/dmps/123/123/narrative.html?includeCoverSheet=false&includeResearchOutputs=false&includeRelatedWorks=false');
+    expect(previewLink).toHaveAttribute('href', 'http://localhost:3030/dmps/10.2312/123/narrative.html?includeCoverSheet=false&includeResearchOutputs=false&includeRelatedWorks=false');
+  });
+
+  it('should include correct link href for Preview button when DOI is not in a common format', async () => {
+    const updatedMockPlanData = {
+      ...mockPlanData.plan,
+      id: null,
+      dmpId: "doi:10.1234/abcd",
+      registered: null,
+      title: null,
+      status: null
+    };
+
+    (usePlanQuery as jest.Mock).mockReturnValue({
+      data: { plan: updatedMockPlanData },
+      loading: false,
+      error: null,
+      refetch: jest.fn()
+    });
+
+    render(<PlanOverviewPage />);
+
+    // Check sidebar items
+    const sidebar = screen.getByTestId('sidebar-panel');
+    expect(sidebar).toBeInTheDocument();
+    const previewLink = within(sidebar).getByRole('link', { name: 'buttons.preview' });
+    expect(previewLink).toBeInTheDocument();
+    expect(previewLink).toHaveAttribute('href', 'http://localhost:3030/dmps/10.1234/abcd/narrative.html?includeCoverSheet=false&includeResearchOutputs=false&includeRelatedWorks=false');
   });
 
   it('should pass accessibility tests', async () => {

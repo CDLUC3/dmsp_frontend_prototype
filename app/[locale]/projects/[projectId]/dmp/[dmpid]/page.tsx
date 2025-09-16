@@ -48,6 +48,7 @@ import {
   PlanMember,
   PlanOverviewInterface,
 } from '@/app/types';
+import { DOI_REGEX } from '@/lib/constants';
 import styles from './PlanOverviewPage.module.scss';
 
 const PUBLISHED = 'Published';
@@ -143,7 +144,11 @@ const reducer = (state: State, action: Action): State => {
 
 // Extract the dmpId from the DOI URL
 function extractDOI(value: string): string {
-  return value.replace('https://doi.org/', '');
+  if (!value) return '';
+  // decode percent-encoding if someone passed a URL-encoded DOI
+  const decoded = decodeURIComponent(value.trim());
+  const match = DOI_REGEX.exec(decoded);
+  return match ? match[1] : '';
 }
 
 // Construct the narrative URL based on environment
