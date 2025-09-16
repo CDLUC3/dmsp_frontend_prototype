@@ -141,7 +141,7 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-// Extra the dmpId from the DOI URL
+// Extract the dmpId from the DOI URL
 function extractDOI(value: string): string {
   return value.replace('https://doi.org/', '');
 }
