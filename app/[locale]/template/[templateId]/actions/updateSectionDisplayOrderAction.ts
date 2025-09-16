@@ -1,8 +1,6 @@
 "use server";
 
 import { executeGraphQLMutation } from "@/utils/server/graphqlServerActionHandler";
-import logger from "@/utils/server/logger";
-import { prepareObjectForLogs } from "@/utils/server/loggerUtils";
 import { ActionResponse } from "@/app/types";
 import { UpdateSectionDisplayOrderDocument } from "@/generated/graphql";
 
