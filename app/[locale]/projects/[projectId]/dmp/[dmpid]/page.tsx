@@ -149,12 +149,11 @@ const getNarrativeUrl = (dmpId: string) => {
   let narrativeUrl = '';
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const localBaseUrl = process.env.NEXT_PUBLIC_NARRATIVE_ENDPOINT;
-  const isLocalhost = baseUrl?.includes('localhost') || baseUrl?.includes('127.0.0.1');
+  const isLocalhost = baseUrl?.includes('localhost');
 
   narrativeUrl = isLocalhost ? localBaseUrl || '' : baseUrl || '';
-  const extension = isLocalhost ? '' : '.html';
 
-  return `${narrativeUrl}/dmps/${dmpId}/narrative${extension}?format=html&includeCoverSheet=false&includeResearchOutputs=false&includeRelatedWorks=false`;
+  return `${narrativeUrl}/dmps/${dmpId}/narrative.html?includeCoverSheet=false&includeResearchOutputs=false&includeRelatedWorks=false`;
 };
 
 
