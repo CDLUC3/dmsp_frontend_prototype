@@ -2,6 +2,7 @@
 - Added `redact` to the pino logger to prevent sensitive information from being logged
 - Added `utils/server/loggerUtils.ts` with a method to `prepareLogObject` that strips out empty values and adds available JWT info to the log to assist with debugging
 - Added `SERVER_LOG_LEVEL` to the `.env.example` file to be able to set the log level for server side actions
+- Added a link to open up a `preview` of the `plan` by using the `dmptool-narrative-generator` endpoint [#412]
 - Added use of pagination queries to the `template/[templateId]/section/new` page [#676]
 - `small` button CSS class.
 - Added curl to the AWS Dockerfile for session manager access

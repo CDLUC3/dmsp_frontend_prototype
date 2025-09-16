@@ -14,6 +14,7 @@ import {
   Form,
   Input,
   Label,
+  Link,
   ListBox,
   ListBoxItem,
   Menu,
@@ -679,6 +680,11 @@ function Page() {
                 We should try to use Next Link e.g.
 
                 <code> {`<Link href="/about">About</Link>`} </code>
+              </div>
+
+              <div className="sg-button-list">
+                <Link>Standard link</Link>
+                <Link href="/" className="button-secondary">Button Link</Link>
               </div>
             </div>
 
@@ -1461,7 +1467,7 @@ function Page() {
 
             <h2>Button Sizes</h2>
             <p>
-              Button size can be changed by adding a size modifier class, for example:<br/> <code>{'<Button className="primary small">Small Primary</Button>'}</code>.
+              Button size can be changed by adding a size modifier class, for example:<br /> <code>{'<Button className="primary small">Small Primary</Button>'}</code>.
             </p>
 
             <Example>
