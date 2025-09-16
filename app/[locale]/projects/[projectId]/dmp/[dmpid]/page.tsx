@@ -141,10 +141,13 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
+// Extra the dmpId from the DOI URL
 function extractDOI(value: string): string {
   return value.replace('https://doi.org/', '');
 }
 
+// Construct the narrative URL based on environment
+// When running narrative generator locally, it uses port 3030, so we need a separate domain for that
 const getNarrativeUrl = (dmpId: string) => {
   let narrativeUrl = '';
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;

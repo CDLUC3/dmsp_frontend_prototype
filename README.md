@@ -149,7 +149,7 @@ These variables must be set in order for the app to work.
 
 * `NEXT_PUBLIC_BASE_URL` - Base url for this app (e.g., "http://localhost:3000")
 * `NEXT_PUBLIC_SERVER_ENDPOINT` - Base url for backend server (e.g., "http://localhost:4000")
-* `NEXT_PUBLIC_NARRATIVE_ENDPOINT` - Base url for the narrative generator, used to generate the plan in different formats (html, PDF, etc)
+* `NEXT_PUBLIC_NARRATIVE_ENDPOINT` - Base url when running the narrative generator locally. The narrative generator (i.e., `dmptool-narrative-generator`) generates the plan in different formats (HTML, PDF, etc)
 * `NEXT_PUBLIC_GRAPHQL_SERVER_ENDPOINT` - Graphql server schema endpoint (e.g., "http://localhost:4000/graphql")
 * `JWT_SECRET` - Secret key for JWT authentication
 * `SERVER_ENDPOINT` - Server endpoint for backend Apollo server, used for server-side code (e.g., "http://localhost:4000")
