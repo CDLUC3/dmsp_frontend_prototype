@@ -98,10 +98,15 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
       Cookie: cookieString,
     };
 
-    console.log('server', `${process.env.SERVER_ENDPOINT}/graphql`)
-    console.log('headers', headers)
-    console.log('mutationString', mutationString)
-    console.log('variables', variables)
+    logger.debug(
+      await prepareObjectForLogs({
+        server: `${process.env.SERVER_ENDPOINT}/graphql`,
+        headers,
+        mutationString,
+        variables
+      }),
+      "graphqlServerActionHandler sending mutation"
+    );
 
     // Make the GraphQL request
     const response = await fetch(`${process.env.SERVER_ENDPOINT}/graphql`, {
@@ -113,8 +118,6 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
         variables,
       }),
     });
-
-    console.log('response', response)
 
     const result = await response.json();
 
@@ -241,6 +244,13 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
 
     // Extract data using provided path
     const responseData = getNestedValue(result.data, dataPath);
+
+    logger.debug(
+      await prepareObjectForLogs({
+        response: responseData
+      }),
+      "graphqlServerActionHandler received response"
+    );
 
     return {
       success: true,
