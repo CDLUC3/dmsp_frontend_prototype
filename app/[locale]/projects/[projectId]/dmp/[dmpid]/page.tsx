@@ -141,6 +141,24 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
+function extractDOI(value: string): string {
+  return value.replace('https://doi.org/', '');
+}
+
+const getNarrativeUrl = (dmpId: string) => {
+  let narrativeUrl = '';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const localBaseUrl = process.env.NEXT_PUBLIC_NARRATIVE_ENDPOINT;
+  const isLocalhost = baseUrl?.includes('localhost') || baseUrl?.includes('127.0.0.1');
+
+  narrativeUrl = isLocalhost ? localBaseUrl || '' : baseUrl || '';
+  const extension = isLocalhost ? '' : '.html';
+
+  return `${narrativeUrl}/dmps/${dmpId}/narrative${extension}?format=html&includeCoverSheet=false&includeResearchOutputs=false&includeRelatedWorks=false`;
+};
+
+
+
 const PlanOverviewPage: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -416,7 +434,7 @@ const PlanOverviewPage: React.FC = () => {
         type: 'SET_PLAN_DATA',
         payload: {
           id: Number(data?.plan.id) ?? null,
-          dmpId: data?.plan.dmpId ?? '',
+          dmpId: extractDOI(data?.plan.dmpId ?? ''),
           registered: data?.plan.registered ?? '',
           title: data?.plan?.title ?? '',
           status: data?.plan?.status ?? '',
@@ -656,7 +674,9 @@ const PlanOverviewPage: React.FC = () => {
         <SidebarPanel>
           <div className={`statusPanelContent sidePanel`}>
             <div className={`buttonContainer withBorder  mb-5`}>
-              <Button className="secondary">{Global('buttons.preview')}</Button>
+              <Link href={getNarrativeUrl(state.planData.dmpId)} target="_blank" rel="noopener noreferrer" className="button-secondary">
+                {Global('buttons.preview')}
+              </Link>
               <Button
                 onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: true })}
               >

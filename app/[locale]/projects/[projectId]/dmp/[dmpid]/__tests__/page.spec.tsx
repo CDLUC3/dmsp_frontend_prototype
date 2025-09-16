@@ -129,7 +129,7 @@ describe('PlanOverviewPage', () => {
     // // Check sidebar items
     const sidebar = screen.getByTestId('sidebar-panel');
     expect(sidebar).toBeInTheDocument();
-    expect(within(sidebar).getByRole('button', { name: 'buttons.preview' })).toBeInTheDocument();
+    expect(within(sidebar).getByRole('link', { name: 'buttons.preview' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('button', { name: 'buttons.publish' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('heading', { name: 'status.feedback.title' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('link', { name: 'links.request' })).toBeInTheDocument();
@@ -179,7 +179,7 @@ describe('PlanOverviewPage', () => {
     // Check sidebar items
     const sidebar = screen.getByTestId('sidebar-panel');
     expect(sidebar).toBeInTheDocument();
-    expect(within(sidebar).getByRole('button', { name: 'buttons.preview' })).toBeInTheDocument();
+    expect(within(sidebar).getByRole('link', { name: 'buttons.preview' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('button', { name: 'buttons.publish' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('heading', { name: 'status.feedback.title' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('link', { name: 'links.request' })).toBeInTheDocument();
