@@ -17,6 +17,7 @@ interface CommentListProps {
   editingCommentId: number | null | undefined;
   editingCommentText: string;
   me: MeQuery | null | undefined;
+  planOwners: number[] | null | undefined;
   handleEditComment: (comment: MergedComment) => void;
   handleUpdateComment: (comment: MergedComment) => void;
   handleCancelEdit: () => void;
@@ -31,6 +32,7 @@ const CommentList = React.memo(function CommentList(props: CommentListProps) {
     editingCommentId,
     editingCommentText,
     me,
+    planOwners,
     handleEditComment,
     handleUpdateComment,
     handleCancelEdit,
@@ -105,7 +107,7 @@ const CommentList = React.memo(function CommentList(props: CommentListProps) {
               </>
             )}
 
-            <div>
+            <div className={styles.buttonGroup}>
               {isEditing ? (
                 <>
                   <Button
@@ -136,8 +138,9 @@ const CommentList = React.memo(function CommentList(props: CommentListProps) {
                     </Button>
                   )}
 
-                  {/**Only display the delete button for the user who created the comment*/}
-                  {(comment?.user?.id === me?.me?.id) && (
+                  {/**Only display the delete button for the user who created the comment 
+                   * or a project collaborator with role 'OWN' */}
+                  {((comment?.user?.id === me?.me?.id) || planOwners?.includes(me?.me?.id as number)) && (
                     <Button
                       className={`${styles.deEmphasize} link`}
                       type="button"

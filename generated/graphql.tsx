@@ -3793,7 +3793,7 @@ export type VersionedSectionSearchResults = PaginatedQueryResults & {
   hasNextPage?: Maybe<Scalars['Boolean']['output']>;
   /** Whether or not there is a previous page */
   hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
-  /** The TemplateSearchResults that match the search criteria */
+  /** The SectionSearchResults that match the search criteria */
   items?: Maybe<Array<Maybe<VersionedSectionSearchResult>>>;
   /** The number of items returned */
   limit?: Maybe<Scalars['Int']['output']>;
@@ -4276,7 +4276,7 @@ export type AnswerByVersionedQuestionIdQueryVariables = Exact<{
 }>;
 
 
-export type AnswerByVersionedQuestionIdQuery = { __typename?: 'Query', answerByVersionedQuestionId?: { __typename?: 'Answer', id?: number | null, json?: string | null, modified?: string | null, created?: string | null, versionedQuestion?: { __typename?: 'VersionedQuestion', id?: number | null } | null, plan?: { __typename?: 'Plan', id?: number | null } | null, comments?: Array<{ __typename?: 'AnswerComment', id?: number | null, commentText: string, answerId: number, created?: string | null, modified?: string | null, user?: { __typename?: 'User', id?: number | null, surName?: string | null, givenName?: string | null } | null }> | null, feedbackComments?: Array<{ __typename?: 'PlanFeedbackComment', id?: number | null, commentText?: string | null, created?: string | null, answerId?: number | null, modified?: string | null, PlanFeedback?: { __typename?: 'PlanFeedback', id?: number | null } | null, user?: { __typename?: 'User', id?: number | null, surName?: string | null, givenName?: string | null } | null }> | null, errors?: { __typename?: 'AffiliationErrors', general?: string | null, planId?: string | null, versionedSectionId?: string | null, versionedQuestionId?: string | null, json?: string | null } | null } | null };
+export type AnswerByVersionedQuestionIdQuery = { __typename?: 'Query', answerByVersionedQuestionId?: { __typename?: 'Answer', id?: number | null, json?: string | null, modified?: string | null, created?: string | null, versionedQuestion?: { __typename?: 'VersionedQuestion', id?: number | null } | null, plan?: { __typename?: 'Plan', id?: number | null } | null, comments?: Array<{ __typename?: 'AnswerComment', id?: number | null, commentText: string, answerId: number, created?: string | null, createdById?: number | null, modified?: string | null, user?: { __typename?: 'User', id?: number | null, surName?: string | null, givenName?: string | null } | null }> | null, feedbackComments?: Array<{ __typename?: 'PlanFeedbackComment', id?: number | null, commentText?: string | null, created?: string | null, createdById?: number | null, answerId?: number | null, modified?: string | null, PlanFeedback?: { __typename?: 'PlanFeedback', id?: number | null } | null, user?: { __typename?: 'User', id?: number | null, surName?: string | null, givenName?: string | null } | null }> | null, errors?: { __typename?: 'AffiliationErrors', general?: string | null, planId?: string | null, versionedSectionId?: string | null, versionedQuestionId?: string | null, json?: string | null } | null } | null };
 
 export type ProjectCollaboratorsQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4435,10 +4435,11 @@ export type SectionsDisplayOrderQuery = { __typename?: 'Query', sections?: Array
 
 export type PublishedSectionsQueryVariables = Exact<{
   term: Scalars['String']['input'];
+  paginationOptions?: InputMaybe<PaginationOptions>;
 }>;
 
 
-export type PublishedSectionsQuery = { __typename?: 'Query', publishedSections?: { __typename?: 'VersionedSectionSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'VersionedSectionSearchResult', id?: number | null, name: string, displayOrder: number, bestPractice?: boolean | null, modified?: string | null, created?: string | null, versionedTemplateId?: number | null, versionedTemplateName?: string | null, versionedQuestionCount?: number | null } | null> | null } | null };
+export type PublishedSectionsQuery = { __typename?: 'Query', publishedSections?: { __typename?: 'VersionedSectionSearchResults', limit?: number | null, nextCursor?: string | null, totalCount?: number | null, availableSortFields?: Array<string | null> | null, currentOffset?: number | null, hasNextPage?: boolean | null, hasPreviousPage?: boolean | null, items?: Array<{ __typename?: 'VersionedSectionSearchResult', id?: number | null, name: string, displayOrder: number, bestPractice?: boolean | null, modified?: string | null, created?: string | null, versionedTemplateId?: number | null, versionedTemplateName?: string | null, versionedQuestionCount?: number | null } | null> | null } | null };
 
 export type PublishedSectionQueryVariables = Exact<{
   versionedSectionId: Scalars['Int']['input'];
@@ -6650,6 +6651,7 @@ export const AnswerByVersionedQuestionIdDocument = gql`
       commentText
       answerId
       created
+      createdById
       modified
       user {
         id
@@ -6661,6 +6663,7 @@ export const AnswerByVersionedQuestionIdDocument = gql`
       id
       commentText
       created
+      createdById
       answerId
       modified
       PlanFeedback {
@@ -7932,10 +7935,15 @@ export type SectionsDisplayOrderLazyQueryHookResult = ReturnType<typeof useSecti
 export type SectionsDisplayOrderSuspenseQueryHookResult = ReturnType<typeof useSectionsDisplayOrderSuspenseQuery>;
 export type SectionsDisplayOrderQueryResult = Apollo.QueryResult<SectionsDisplayOrderQuery, SectionsDisplayOrderQueryVariables>;
 export const PublishedSectionsDocument = gql`
-    query PublishedSections($term: String!) {
-  publishedSections(term: $term) {
-    totalCount
+    query PublishedSections($term: String!, $paginationOptions: PaginationOptions) {
+  publishedSections(term: $term, paginationOptions: $paginationOptions) {
+    limit
     nextCursor
+    totalCount
+    availableSortFields
+    currentOffset
+    hasNextPage
+    hasPreviousPage
     items {
       id
       name
@@ -7964,6 +7972,7 @@ export const PublishedSectionsDocument = gql`
  * const { data, loading, error } = usePublishedSectionsQuery({
  *   variables: {
  *      term: // value for 'term'
+ *      paginationOptions: // value for 'paginationOptions'
  *   },
  * });
  */

@@ -2,6 +2,7 @@
 - Added `redact` to the pino logger to prevent sensitive information from being logged
 - Added `utils/server/loggerUtils.ts` with a method to `prepareLogObject` that strips out empty values and adds available JWT info to the log to assist with debugging
 - Added `SERVER_LOG_LEVEL` to the `.env.example` file to be able to set the log level for server side actions
+- Added use of pagination queries to the `template/[templateId]/section/new` page [#676]
 - `small` button CSS class.
 - Added curl to the AWS Dockerfile for session manager access
 - Added bash to the AWS Dockerfile for session manager access
@@ -26,6 +27,9 @@
 ### Updated
 - Updated all server actions to use the new `logger` and `prepareLogObject` method to log useful information for debugging
 - Updated `logger` to use the new `SERVER_LOG_LEVEL` env variable
+- Added a `beforeunload` event handler to the `PlanOverviewQuestionPage`, `CreateSectionPage`, `SectionUpdatePage` and `QuestionAdd` components to warn users when they are navigating away with unsaved changes [#758]
+- Updated `Commenting` logic on the `PlanOverviewQuestionPage` so that the `creator` or anybody with `role="OWN"` can delete anybody's comments [#321]
+- Updated to show disabled `Comment` button with a tooltip message when there is no `answer` yet. [#321]
 - Updated language used in RelatedWorks UI, moved accept and reject buttons into the cards out of the expand section and changed order of accept and reject buttons [#799]
 - Hooked up the `ProjectsProjectCollaboration` page. Added new `server actions` to handle access level changes, revoking collaborator and resending invite [#381]
 - Optimized the `graphqlServerActionHandler` so that we can normalize errors returned and simplify client-side handling [#381]
@@ -59,6 +63,7 @@
 - Removed research outputs, including related pages and routes, from the demp overview [#764](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/764)
 
 ### Fixed
+- Fixed middleware issue to add `dmspt` token cookie when a refreshToken is implemented [#676]
 - Fixed some new errors related to an update in how data is passed to `logger` using `@elastic/ecs-pino-format`. Also, deleted `package-lock.json` and re-ran `npm install` to get clean packages after the npm debug and chalk compromise.
 - Make `Tab` use `cursor: pointer`.
 - Fix styling of `Toggle Switch` as toggle button was vertically off-centre.
