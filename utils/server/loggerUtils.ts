@@ -8,7 +8,7 @@ export interface LoggerContext {
   userId?: number;
 }
 
-function maskEmail(email: string): string {
+export function maskEmail(email: string): string {
   const parts = email.split('@');
   if (parts.length !== 2) {
     // Not a valid email format

@@ -52,7 +52,8 @@ describe('logger', () => {
 
     expect(output["log.level"]).toEqual("info");
     expect(output.userId).toEqual(123);
-    expect(output.email).toEqual("[MASKED]");
+    // Email masking occurs in the prepareObjectForLogs function, not in the logger itself
+    expect(output.email).toEqual("tester@example.com");
     expect(output.givenName).toEqual("[MASKED]");
     expect(output.surName).toEqual("[MASKED]");
     expect(output.password).toEqual("[MASKED]");

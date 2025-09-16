@@ -3,7 +3,6 @@ import pino from 'pino';
 
 // The fields that should be redacted from the logs
 export const REDACTION_KEYS = [
-  'email',
   'givenName',
   'surName',
   'password',

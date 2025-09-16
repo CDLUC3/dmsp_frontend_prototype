@@ -75,11 +75,11 @@ describe('prepareObjectForLogs', () => {
   it('should redact sensitive keys', async () => {
     (serverFetchAccessToken as jest.Mock).mockResolvedValue(undefined);
 
-    const obj = { password: 'supersecret', safe: 'keepme', email: 'hide' };
+    const obj = { password: 'supersecret', safe: 'keepme', email: 'hide@example.com' };
     const result: TestLog = await prepareObjectForLogs(obj);
 
     expect(result.password).toBe(REDACTION_MESSAGE);
-    expect(result.email).toBe(REDACTION_MESSAGE);
+    expect(result.email).toBe("h**e@example.com");
     expect(result.safe).toBe('keepme');
   });
 });
