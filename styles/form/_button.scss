@@ -163,6 +163,17 @@
   }
 }
 
+a.button-secondary {
+  text-decoration: none !important;
+
+  &:hover,
+  &:focus {
+    text-decoration: none;
+  }
+  @include button-base;
+  @include button-secondary;
+}
+
 // Styles for both react-aria buttons and default HTML buttons
 .react-aria-Button,
 button,

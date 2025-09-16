@@ -1,4 +1,5 @@
 ### Added
+- Added a link to open up a `preview` of the `plan` by using the `dmptool-narrative-generator` endpoint [#412]
 - Added use of pagination queries to the `template/[templateId]/section/new` page [#676]
 - `small` button CSS class.
 - Added curl to the AWS Dockerfile for session manager access

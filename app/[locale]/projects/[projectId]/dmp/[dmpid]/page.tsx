@@ -48,6 +48,7 @@ import {
   PlanMember,
   PlanOverviewInterface,
 } from '@/app/types';
+import { DOI_REGEX } from '@/lib/constants';
 import styles from './PlanOverviewPage.module.scss';
 
 const PUBLISHED = 'Published';
@@ -140,6 +141,30 @@ const reducer = (state: State, action: Action): State => {
       return state;
   }
 };
+
+// Extract the dmpId from the DOI URL
+function extractDOI(value: string): string {
+  if (!value) return '';
+  // decode percent-encoding if someone passed a URL-encoded DOI
+  const decoded = decodeURIComponent(value.trim());
+  const match = DOI_REGEX.exec(decoded);
+  return match ? match[1] : '';
+}
+
+// Construct the narrative URL based on environment
+// When running narrative generator locally, it uses port 3030, so we need a separate domain for that
+const getNarrativeUrl = (dmpId: string) => {
+  let narrativeUrl = '';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const localBaseUrl = process.env.NEXT_PUBLIC_NARRATIVE_ENDPOINT || 'http://localhost:3030';
+  const isLocalhost = baseUrl?.includes('localhost');
+
+  narrativeUrl = isLocalhost ? localBaseUrl || '' : baseUrl || '';
+
+  return `${narrativeUrl}/dmps/${dmpId}/narrative.html?includeCoverSheet=false&includeResearchOutputs=false&includeRelatedWorks=false`;
+};
+
+
 
 const PlanOverviewPage: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -416,7 +441,7 @@ const PlanOverviewPage: React.FC = () => {
         type: 'SET_PLAN_DATA',
         payload: {
           id: Number(data?.plan.id) ?? null,
-          dmpId: data?.plan.dmpId ?? '',
+          dmpId: extractDOI(data?.plan.dmpId ?? ''),
           registered: data?.plan.registered ?? '',
           title: data?.plan?.title ?? '',
           status: data?.plan?.status ?? '',
@@ -656,7 +681,9 @@ const PlanOverviewPage: React.FC = () => {
         <SidebarPanel>
           <div className={`statusPanelContent sidePanel`}>
             <div className={`buttonContainer withBorder  mb-5`}>
-              <Button className="secondary">{Global('buttons.preview')}</Button>
+              <Link href={getNarrativeUrl(state.planData.dmpId)} target="_blank" rel="noopener noreferrer" className="button-secondary">
+                {Global('buttons.preview')}
+              </Link>
               <Button
                 onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: true })}
               >
