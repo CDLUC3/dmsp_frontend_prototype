@@ -868,6 +868,33 @@ describe('PlanOverviewPage', () => {
     expect(screen.getByText('There was an error changing title')).toBeInTheDocument();
   });
 
+  it('should include correct link href for Preview button', async () => {
+    const updatedMockPlanData = {
+      ...mockPlanData.plan,
+      id: null,
+      dmpId: "https://doi.org/123/123",
+      registered: null,
+      title: null,
+      status: null
+    };
+
+    (usePlanQuery as jest.Mock).mockReturnValue({
+      data: { plan: updatedMockPlanData },
+      loading: false,
+      error: null,
+      refetch: jest.fn()
+    });
+
+    render(<PlanOverviewPage />);
+
+    // Check sidebar items
+    const sidebar = screen.getByTestId('sidebar-panel');
+    expect(sidebar).toBeInTheDocument();
+    const previewLink = within(sidebar).getByRole('link', { name: 'buttons.preview' });
+    expect(previewLink).toBeInTheDocument();
+    expect(previewLink).toHaveAttribute('href', 'http://localhost:3030/dmps/123/123/narrative.html?includeCoverSheet=false&includeResearchOutputs=false&includeRelatedWorks=false');
+  });
+
   it('should pass accessibility tests', async () => {
     const { container } = render(<PlanOverviewPage />);
     const results = await axe(container);
