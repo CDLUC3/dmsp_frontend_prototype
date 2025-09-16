@@ -12,16 +12,10 @@ export async function addPlanMemberAction({
   planId: number;
   projectMemberId: number;
 }): Promise<ActionResponse> {
-  try {
-    // Execute the mutation using the shared handler
-    return await executeGraphQLMutation({
-      document: AddPlanMemberDocument,
-      variables: { planId, projectMemberId },
-      dataPath: "addPlanMember"
-    });
-
-  } catch (error) {
-    logger.error({ error }, `[Add Plan Member Error]: ${error}`);
-    return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
-  }
+  // Execute the mutation using the shared handler
+  return await executeGraphQLMutation({
+    document: AddPlanMemberDocument,
+    variables: { planId, projectMemberId },
+    dataPath: "addPlanMember"
+  });
 }

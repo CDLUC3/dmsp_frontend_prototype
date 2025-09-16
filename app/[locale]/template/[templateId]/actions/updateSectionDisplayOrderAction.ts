@@ -13,19 +13,10 @@ export async function updateSectionDisplayOrderAction({
   sectionId: number;
   newDisplayOrder: number;
 }): Promise<ActionResponse> {
-  try {
-    // Execute the mutation using the shared handler
-    return await executeGraphQLMutation({
-      document: UpdateSectionDisplayOrderDocument,
-      variables: { sectionId, newDisplayOrder },
-      dataPath: "updateSectionDisplayOrder"
-    });
-
-  } catch (error) {
-    logger.error(
-      await prepareObjectForLogs({ error, sectionId, newDisplayOrder }),
-      "Update section display order error"
-    );
-    return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
-  }
+  // Execute the mutation using the shared handler
+  return await executeGraphQLMutation({
+    document: UpdateSectionDisplayOrderDocument,
+    variables: { sectionId, newDisplayOrder },
+    dataPath: "updateSectionDisplayOrder"
+  });
 }

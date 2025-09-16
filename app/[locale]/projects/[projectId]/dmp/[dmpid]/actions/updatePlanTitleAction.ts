@@ -12,16 +12,10 @@ export async function updatePlanTitleAction({
   planId: number;
   title: string;
 }): Promise<ActionResponse> {
-  try {
-    // Execute the mutation using the shared handler
-    return await executeGraphQLMutation({
-      document: UpdatePlanTitleDocument,
-      variables: { planId, title },
-      dataPath: "updatePlanTitle"
-    });
-
-  } catch (error) {
-    logger.error({ error }, `[Update Plan Title Error]: ${error}`);
-    return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
-  }
+  // Execute the mutation using the shared handler
+  return await executeGraphQLMutation({
+    document: UpdatePlanTitleDocument,
+    variables: { planId, title },
+    dataPath: "updatePlanTitle"
+  });
 }

@@ -16,15 +16,10 @@ export async function addFeedbackCommentAction({
   answerId: number;
   commentText: string;
 }): Promise<ActionResponse> {
-  try {
-    // Execute the mutation using the shared handler
-    return await executeGraphQLMutation({
-      document: AddFeedbackCommentDocument,
-      variables: { planId, planFeedbackId, answerId, commentText },
-      dataPath: "addFeedbackComment"
-    });
-  } catch (error) {
-    logger.error({ error }, `[Add feedbackComment from answer]: ${error}`);
-    return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
-  }
+  // Execute the mutation using the shared handler
+  return await executeGraphQLMutation({
+    document: AddFeedbackCommentDocument,
+    variables: { planId, planFeedbackId, answerId, commentText },
+    dataPath: "addFeedbackComment"
+  });
 }

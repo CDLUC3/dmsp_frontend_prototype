@@ -12,15 +12,10 @@ export async function removeFeedbackCommentAction({
   planId: number;
   planFeedbackCommentId: number;
 }): Promise<ActionResponse> {
-  try {
-    // Execute the mutation using the shared handler
-    return await executeGraphQLMutation({
-      document: RemoveFeedbackCommentDocument,
-      variables: { planId, planFeedbackCommentId },
-      dataPath: "removeFeedbackComment"
-    });
-  } catch (error) {
-    logger.error({ error }, `[Remove feedbackComment from answer]: ${error}`);
-    return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
-  }
+  // Execute the mutation using the shared handler
+  return await executeGraphQLMutation({
+    document: RemoveFeedbackCommentDocument,
+    variables: { planId, planFeedbackCommentId },
+    dataPath: "removeFeedbackComment"
+  });
 }

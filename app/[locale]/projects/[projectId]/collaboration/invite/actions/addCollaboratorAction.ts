@@ -15,19 +15,10 @@ export async function addProjectCollaboratorAction({
   email: string;
   accessLevel: string;
 }): Promise<CollaboratorResponse> {
-  try {
-    // Execute the mutation using the shared handler
-    return await executeGraphQLMutation({
-      document: AddProjectCollaboratorDocument,
-      variables: { projectId, email, accessLevel },
-      dataPath: "addProjectCollaborator"
-    });
-
-  } catch (error) {
-    logger.error(
-      await prepareObjectForLogs({ error, projectId, email, accessLevel }),
-      "Add project collaborator error"
-    );
-    return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
-  }
+  // Execute the mutation using the shared handler
+  return await executeGraphQLMutation({
+    document: AddProjectCollaboratorDocument,
+    variables: { projectId, email, accessLevel },
+    dataPath: "addProjectCollaborator"
+  });
 }
