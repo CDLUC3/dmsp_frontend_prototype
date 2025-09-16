@@ -11,12 +11,10 @@ export async function updateProjectCollaboratorAction({
   projectCollaboratorId: number;
   accessLevel: string;
 }): Promise<ActionResponse> {
-
   // Execute the mutation using the shared handler
   return await executeGraphQLMutation({
     document: UpdateProjectCollaboratorDocument,
     variables: { projectCollaboratorId, accessLevel },
     dataPath: "updateProjectCollaborator"
   });
-
 }

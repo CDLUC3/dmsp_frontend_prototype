@@ -153,7 +153,7 @@ These variables must be set in order for the app to work.
 * `NEXT_PUBLIC_GRAPHQL_SERVER_ENDPOINT` - Graphql server schema endpoint (e.g., "http://localhost:4000/graphql")
 * `JWT_SECRET` - Secret key for JWT authentication
 * `SERVER_ENDPOINT` - Server endpoint for backend Apollo server, used for server-side code (e.g., "http://localhost:4000")
-
+* `SERVER_LOG_LEVEL` - The log level for the server (e.g., "info", "debug", "error")
 
 ### Running the App
 ```bash

@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
 import { verifyJwtToken } from '@/lib/server/auth';
-import logger from '@/utils/server/logger';
+import { createLogger } from '@/utils/server/logger';
 
+const logger = createLogger();
 const LOGIN = `${process.env.NEXT_PUBLIC_BASE_URL}/login`;
 
 export async function GET() {
@@ -17,10 +18,10 @@ export async function GET() {
         } else {
           logger.error(
             {
-              error: 'User verification failed',
+              error: new Error('User verification failed'),
               token,
               route: '/api/check-auth',
-            }
+            }, 'Token verification failed'
           )
           return NextResponse.json({ authenticated: false });
         }
