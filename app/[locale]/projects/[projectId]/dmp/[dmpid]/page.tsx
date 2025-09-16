@@ -151,7 +151,7 @@ function extractDOI(value: string): string {
 const getNarrativeUrl = (dmpId: string) => {
   let narrativeUrl = '';
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  const localBaseUrl = process.env.NEXT_PUBLIC_NARRATIVE_ENDPOINT;
+  const localBaseUrl = process.env.NEXT_PUBLIC_NARRATIVE_ENDPOINT || 'http://localhost:3030';
   const isLocalhost = baseUrl?.includes('localhost');
 
   narrativeUrl = isLocalhost ? localBaseUrl || '' : baseUrl || '';
