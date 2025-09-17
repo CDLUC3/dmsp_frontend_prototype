@@ -55,7 +55,7 @@ const TemplateListPage: React.FC = () => {
   const [searchResults, setSearchResults] = useState<TemplateItemProps[]>([]);
   const [isSearchFetch, setIsSearchFetch] = useState(false);
   const [firstNewIndex, setFirstNewIndex] = useState<number | null>(null);
-
+  const [isSearching, setIsSearching] = useState(false);
 
   // Add separate state for search pagination
   const [searchNextCursor, setSearchNextCursor] = useState<string | null>(null);
@@ -73,36 +73,39 @@ const TemplateListPage: React.FC = () => {
   const TEMPLATE_CREATE_URL = routePath('template.create');
 
   // Lazy query for organization templates
-  const [fetchTemplates, { data: templateData }] = useTemplatesLazyQuery();
+  const [fetchTemplates, { data: templateData, loading, error: queryError }] = useTemplatesLazyQuery();
 
   // zero out search and filters
-  const resetSearch = () => {
+  const resetSearch = async () => {
     setSearchTerm('');
-    setIsSearchFetch(false);
-    setTemplates([]); // Clear existing projects
-    setSearchResults([]); // Clear search results
     setSearchButtonClicked(false);
-    setNextCursor(null); // Reset cursor
+    setSearchTotalCount(null);
+    setSearchResults([]);
     setSearchNextCursor(null); // Reset search cursor
-    fetchTemplates({
+    setIsSearchFetch(false);
+
+    //Reset templates
+    setTemplates([]);
+    setNextCursor(null); // Reset cursor
+    setTotalCount(0);
+    await fetchTemplates({
       variables: {
         paginationOptions: {
           limit: LIMIT,
         },
       },
-      notifyOnNetworkStatusChange: true,
     });
     scrollToTop(topRef);
-  }
-
-  const clearErrors = () => {
-    setErrors([])
   }
 
   // Handle search input
   const handleSearchInput = async (term: string) => {
     setSearchTerm(term);
-    clearErrors();
+    if (term === '') {
+      await resetSearch();
+      return;
+    }
+    setErrors([]);
   };
 
   // Run search for search term
@@ -115,6 +118,7 @@ const TemplateListPage: React.FC = () => {
     setSearchButtonClicked(true);
     setErrors([]);
     setIsSearchFetch(true);
+    setIsSearching(true); // Used to disable search button
     setSearchResults([]); // Clear previous search results
     setSearchNextCursor(null); // Reset search cursor
 
@@ -131,55 +135,34 @@ const TemplateListPage: React.FC = () => {
 
   // Handler for search "Load more"
   const handleSearchLoadMore = async () => {
-
     if (!searchNextCursor) return;
     setFirstNewIndex(searchResults.length);
-
-    try {
-      await fetchTemplates({
-        variables: {
-          paginationOptions: {
-            type: "CURSOR",
-            cursor: searchNextCursor,
-            limit: LIMIT,
-          },
-          term: searchTerm.toLowerCase(),
+    await fetchTemplates({
+      variables: {
+        paginationOptions: {
+          type: "CURSOR",
+          cursor: searchNextCursor,
+          limit: LIMIT,
         },
-      });
-    } catch (err) {
-      logECS('error', 'handleSearchLoadMore', {
-        errors: err,
-        url: { path: routePath('template.index') }
-      });
-      setErrors(prev => [...prev, SelectTemplate('messages.loadingError')]);
-    }
+        term: searchTerm.toLowerCase(),
+      },
+    });
   };
 
 
   const handleLoadMore = async () => {
     if (!nextCursor) return;
-
     setFirstNewIndex(templates.length);
 
-    try {
-      await fetchTemplates({
-        variables: {
-          paginationOptions: {
-            type: "CURSOR",
-            cursor: nextCursor,
-            limit: LIMIT,
-          },
+    await fetchTemplates({
+      variables: {
+        paginationOptions: {
+          type: "CURSOR",
+          cursor: nextCursor,
+          limit: LIMIT,
         },
-        notifyOnNetworkStatusChange: true,
-      });
-
-    } catch (err) {
-      logECS('error', 'handleLoadMore', {
-        errors: err,
-        url: { path: routePath('template.index') }
-      });
-      setErrors(prev => [...prev, SelectTemplate('messages.loadingError')]);
-    }
+      },
+    });
   };
 
   // Format date using next-intl date formatter
@@ -230,15 +213,15 @@ const TemplateListPage: React.FC = () => {
 
   useEffect(() => {
     if (!templateData || !templateData.myTemplates) return;
-
     // Transform templates into format expected by TemplateSelectListItem component
     const processTemplates = async (templates: PaginatedTemplateSearchResultsInterface | null) => {
       const items = templates?.items ?? [];
       const transformedTemplates = await Promise.all(
         items.map(async (template: TemplateSearchResultInterface | null) => {
           return {
+            id: template?.id,
             title: template?.name || "",
-            link: routePath('template.show', { templateId: template?.id ?? '' }) || '',
+            link: routePath('template.show', { templateId: Number(template?.id) }),
             funder: template?.ownerDisplayName,
             lastUpdated: (template?.modified) ? formatDate(template?.modified) : null,
             lastRevisedBy: template?.modifiedByName,
@@ -260,6 +243,7 @@ const TemplateListPage: React.FC = () => {
         }
         setSearchNextCursor(templateData?.myTemplates?.nextCursor ?? null);
         setSearchTotalCount(templateData?.myTemplates?.totalCount ?? null);
+        setIsSearching(false); // Re-enable search button
       } else {
         // Handle regular pagination - backend returns only new items for cursor pagination
         if (items.length === 0) {
@@ -292,6 +276,19 @@ const TemplateListPage: React.FC = () => {
     });
   }, []);
 
+
+  useEffect(() => {
+    // Log query errors and avoid duplicates
+    if (queryError && !errors.includes(queryError.message)) {
+      setErrors(prev => [...prev, queryError.message]);
+
+      logECS('error', 'fetchTemplates', {
+        errors: queryError,
+        url: { path: routePath('template.index') }
+      });
+    }
+  }, [queryError]);
+
   return (
     <>
       <PageHeader
@@ -308,7 +305,7 @@ const TemplateListPage: React.FC = () => {
         actions={
           <>
             <Link href={TEMPLATE_CREATE_URL}
-              className={"button-link button--primary"}>{t('actionCreate')}</Link>
+              className="button-link button--primary">{t('actionCreate')}</Link>
           </>
         }
         className="page-template-list"
@@ -319,46 +316,47 @@ const TemplateListPage: React.FC = () => {
         <ContentContainer>
           <div className="searchSection" role="search" ref={topRef}>
             <SearchField>
-              <Label>{Global('labels.searchByKeyword')}</Label>
+              <Label>{t('searchLabel')}</Label>
               <Input value={searchTerm} onChange={e => handleSearchInput(e.target.value)} />
               <Button
                 onPress={() => {
                   handleSearch();
                 }}
+                isDisabled={isSearching}
               >
                 {Global('buttons.search')}
               </Button>
               <FieldError />
               <Text slot="description" className="help">
-                {Global('helpText.searchHelpText')}
+                {t('searchHelpText')}
               </Text>
             </SearchField>
           </div >
 
+          {loading && <p>{Global('messaging.loading')}</p>}
+
           {isSearchFetch && (
             <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}> {Global('links.clearFilter')}</Button>
           )}
-          {searchResults.length > 0 ? (
-            <div className="template-list" role="list">
+          {isSearchFetch && searchResults.length > 0 ? (
+            <div className="template-list" role="list" aria-label={t('templateList')}>
               {searchResults.map((template, index) => (
                 <div
-                  key={`search-${template.link}-${index}`}
+                  key={`${template.id}-${index}`}
                   data-index={index}
                 >
                   <TemplateSelectListItem
-                    key={index}
                     item={template} />
                 </div>
               ))}
 
-              {searchTotalCount && searchTotalCount > searchResults.length && (
+              {searchNextCursor && (
                 <div className={styles.loadBtnContainer}>
                   <Button
                     type="button"
                     data-testid="search-load-more-btn"
                     onPress={handleSearchLoadMore}
                     aria-label={SelectTemplate('loadMoreSearchResults')}
-                    isDisabled={!searchNextCursor}
                   >
                     {Global('buttons.loadMore')}
                   </Button>
@@ -372,29 +370,27 @@ const TemplateListPage: React.FC = () => {
             </div>
           ) : (
             <>
-              <div className='template-list' role="list">
+              <div className='template-list' role="list" aria-label={t('templateList')}>
                 {searchTerm && searchButtonClicked ? (
                   <p>{Global('messaging.noItemsFound')}</p>
                 ) : (
                   <>
                     {templates.map((template, index) => (
                       <div
-                        key={`project-${template.link}-${index}`}
+                        key={`${template.id}-${index}`}
                         data-index={index}
                       >
                         <TemplateSelectListItem
-                          key={index}
                           item={template} />
                       </div>
                     ))}
-                    {totalCount != null && totalCount > templates.length && (
+                    {nextCursor && (
                       <div className={styles.loadBtnContainer}>
                         <Button
                           type="button"
                           data-testid="load-more-btn"
                           onPress={handleLoadMore}
                           aria-label={SelectTemplate('loadMoreTemplates')}
-                          isDisabled={!nextCursor}
                         >
                           {Global('buttons.loadMore')}
                         </Button>
@@ -413,7 +409,7 @@ const TemplateListPage: React.FC = () => {
           )}
 
         </ContentContainer>
-      </LayoutContainer>
+      </LayoutContainer >
     </>
   );
 }

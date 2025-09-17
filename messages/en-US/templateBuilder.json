@@ -14,7 +14,8 @@
     "linkExpand": "Expand",
     "linkCollapse": "Collapse",
     "details": "details",
-    "additionalInfo": "Additional information goes here..."
+    "additionalInfo": "Additional information goes here...",
+    "templateList": "List of templates"
   },
   "EditTemplates": {
     "title": "Edit template",
