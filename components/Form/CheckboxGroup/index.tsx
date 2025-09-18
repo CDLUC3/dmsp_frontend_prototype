@@ -17,8 +17,12 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
   errorMessage,
   onChange,
   isRequired = false,
-  children
+  isRequiredVisualOnly = false,
+  ariaRequired = false,
+  children,
 }) => {
+  const showRequired = isRequired || ariaRequired || isRequiredVisualOnly;
+
   return (
     <>
       <CheckboxGroup
@@ -28,8 +32,12 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
         data-testid="checkbox-group"
         onChange={onChange}
         isRequired={isRequired}
+        isInvalid={isInvalid}
+        aria-required={ariaRequired}
       >
-        <Label>{checkboxGroupLabel}</Label>
+        <Label>
+          {checkboxGroupLabel}{showRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
+        </Label>
         {isInvalid && <FieldError className='error-message'>{errorMessage}</FieldError>}
 
         {checkboxGroupDescription && (

@@ -289,11 +289,26 @@ export interface RadioButtonProps {
   onChange?: (value: string) => void;
 }
 
+export interface RadioGroupProps {
+  name?: string;
+  value?: string;
+  classes?: string;
+  description?: ReactNode;
+  radioGroupLabel?: string;
+  isInvalid?: boolean;
+  errorMessage?: string;
+  onChange?: (value: string) => void;
+  isRequired?: boolean;
+  isRequiredVisualOnly?: boolean;
+  children: ReactNode; // allow any Radio buttons or JSX
+}
+
 export interface CheckboxInterface {
   value: string;
   label: string;
   description?: string;
 }
+
 export interface CheckboxGroupProps {
   name?: string;
   checkboxGroupLabel?: string;
@@ -303,6 +318,8 @@ export interface CheckboxGroupProps {
   errorMessage?: string;
   onChange?: ((value: string[]) => void),
   isRequired?: boolean;
+  ariaRequired?: boolean;
+  isRequiredVisualOnly?: boolean;
   children: ReactNode; // allow any Checkboxes or JSX
 }
 

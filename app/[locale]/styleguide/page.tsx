@@ -6,7 +6,6 @@ import {
   Button,
   Cell,
   Checkbox,
-  CheckboxGroup,
   Column,
   Dialog,
   DialogTrigger,
@@ -77,9 +76,11 @@ import TooltipWithDialog from "@/components/TooltipWithDialog";
 import { ModalOverlayComponent } from '@/components/ModalOverlayComponent';
 import ButtonWithImage from '@/components/ButtonWithImage';
 import { useToast } from '@/context/ToastContext';
+import CheckboxGroupComponent from '@/components/Form/CheckboxGroup';
 
 import QuestionPreview from '@/components/QuestionPreview';
 import FunderSearch from '@/components/FunderSearch';
+
 
 function Page() {
   const [otherField, setOtherField] = useState(false);
@@ -1507,37 +1508,7 @@ function Page() {
                 </TextField>
 
 
-                <h3>
-                  Checkboxes
-                </h3>
-
-                <CheckboxGroup>
-                  <Label>Favorite sports</Label>
-                  <Text slot="description" className="help">This is help
-                    text</Text>
-                  <Checkbox value="soccer">
-                    <div className="checkbox">
-                      <svg viewBox="0 0 18 18" aria-hidden="true">
-                        <polyline points="1 9 7 14 15 4" />
-                      </svg>
-                    </div>
-                    Test
-                  </Checkbox>
-                  <Checkbox value="test">
-                    <div className="checkbox">
-                      <svg viewBox="0 0 18 18" aria-hidden="true">
-                        <polyline points="1 9 7 14 15 4" />
-                      </svg>
-                    </div>
-                    Test
-                  </Checkbox>
-
-                </CheckboxGroup>
-
-
-                <h3>
-                  Checkbox
-                </h3>
+                <h3>Checkbox</h3>
                 <Checkbox>
                   <div className="checkbox">
                     <svg viewBox="0 0 18 18" aria-hidden="true">
@@ -1547,9 +1518,82 @@ function Page() {
                   Unsubscribe
                 </Checkbox>
 
-                <h3>
-                  Radio
-                </h3>
+                <h3>CheckboxGroupComponent</h3>
+                <Form>
+                  <CheckboxGroupComponent
+                    checkboxGroupLabel="Favorite sprots"
+                    checkboxGroupDescription="This is help text"
+                  >
+                    <Checkbox value="soccer">
+                      <div className="checkbox">
+                        <svg viewBox="0 0 18 18" aria-hidden="true">
+                          <polyline points="1 9 7 14 15 4" />
+                        </svg>
+                      </div>
+                      Test
+                    </Checkbox>
+                    <Checkbox value="test">
+                      <div className="checkbox">
+                        <svg viewBox="0 0 18 18" aria-hidden="true">
+                          <polyline points="1 9 7 14 15 4" />
+                        </svg>
+                      </div>
+                      Test
+                    </Checkbox>
+                  </CheckboxGroupComponent>
+
+                  <p>The following checkox group is required.</p>
+
+                  <CheckboxGroupComponent
+                    checkboxGroupLabel="Favorite sprots"
+                    checkboxGroupDescription="This is help text"
+                    isRequired={true}
+                  >
+                    <Checkbox value="soccer">
+                      <div className="checkbox">
+                        <svg viewBox="0 0 18 18" aria-hidden="true">
+                          <polyline points="1 9 7 14 15 4" />
+                        </svg>
+                      </div>
+                      Test
+                    </Checkbox>
+                    <Checkbox value="test">
+                      <div className="checkbox">
+                        <svg viewBox="0 0 18 18" aria-hidden="true">
+                          <polyline points="1 9 7 14 15 4" />
+                        </svg>
+                      </div>
+                      Test
+                    </Checkbox>
+                  </CheckboxGroupComponent>
+
+                  <p>The following checkox group is not required, but we still prefer the user set it.</p>
+
+                  <CheckboxGroupComponent
+                    checkboxGroupLabel="Favorite sprots"
+                    checkboxGroupDescription="This is help text"
+                    isRequiredVisualOnly={true}
+                  >
+                    <Checkbox value="soccer">
+                      <div className="checkbox">
+                        <svg viewBox="0 0 18 18" aria-hidden="true">
+                          <polyline points="1 9 7 14 15 4" />
+                        </svg>
+                      </div>
+                      Test
+                    </Checkbox>
+                    <Checkbox value="test">
+                      <div className="checkbox">
+                        <svg viewBox="0 0 18 18" aria-hidden="true">
+                          <polyline points="1 9 7 14 15 4" />
+                        </svg>
+                      </div>
+                      Test
+                    </Checkbox>
+                  </CheckboxGroupComponent>
+                </Form>
+
+                <h3>Radio</h3>
                 <RadioGroup>
                   <Label>Favorite pet</Label>
                   <Text slot="description" className="help">This is help

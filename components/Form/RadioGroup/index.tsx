@@ -6,19 +6,9 @@ import {
   Text,
 } from "react-aria-components";
 
-interface RadioGroupComponentProps {
-  name: string;
-  value: string;
-  classes?: string;
-  description?: ReactNode;
-  radioGroupLabel: string;
-  isInvalid?: boolean;
-  errorMessage?: string;
-  onChange: (value: string) => void;
-  children: ReactNode; // allow any Radio buttons or JSX
-}
+import { RadioGroupProps } from '@/app/types';
 
-const RadioGroupComponent: React.FC<React.PropsWithChildren<RadioGroupComponentProps>> = ({
+const RadioGroupComponent: React.FC<RadioGroupProps> = ({
   name,
   value,
   classes,
@@ -27,27 +17,48 @@ const RadioGroupComponent: React.FC<React.PropsWithChildren<RadioGroupComponentP
   isInvalid,
   errorMessage,
   onChange,
+  isRequired = false,
+  isRequiredVisualOnly = false,
   children,
 }) => {
+  // Show "(required)" if isRequired OR aria-required attribute is present OR isRequiredVisualOnly is true
+  const shouldShowRequired = isRequired || ariaRequiredFromProps || isRequiredVisualOnly;
+
+  // Determine aria-required value for the RadioGroup
+  const groupAriaRequired = ariaRequiredFromProps || isRequiredVisualOnly;
+
+  const renderDescription = (desc: string | ReactNode) => {
+    // If it's a string, just render it directly
+    // If it's a ReactNode, it will be rendered as JSX
+    return desc;
+  };
+
   return (
-    <RadioGroup
-      name={name}
-      value={value}
-      className={classes}
-      onChange={onChange}
-      aria-label={radioGroupLabel || 'Radio Group'}
-    >
-      <Label>{radioGroupLabel}</Label>
-      {description && (
-        <Text slot="description" className="help">
-          {description}
-        </Text>
-      )}
-      {children}
-      {isInvalid && (
-        <FieldError className="error-message">{errorMessage}</FieldError>
-      )}
-    </RadioGroup>
+    <>
+      <RadioGroup
+        name={name}
+        value={value}
+        className={classes}
+        onChange={onChange}
+        aria-label={radioGroupLabel || 'Radio Group'}
+        isRequired={isRequired}
+        isInvalid={isInvalid}
+        {...(groupAriaRequired && { 'aria-required': true })}
+      >
+        <Label>
+          {radioGroupLabel}{shouldShowRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
+        </Label>
+        {description && (
+          <Text slot="description" className="help">
+            {description}
+          </Text>
+        )}
+        {children}
+        {isInvalid && (
+          <FieldError className="error-message">{errorMessage}</FieldError>
+        )}
+      </RadioGroup>
+    </>
   );
 };
 
