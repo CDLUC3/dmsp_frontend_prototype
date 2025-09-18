@@ -7,6 +7,10 @@ WORKDIR /app
 # to the /app working directory
 COPY package*.json ./
 
+
+# Set production environment before installing dependencies to omit devDependencies
+ENV NODE_ENV=production
+
 # Install dependencies in /app (excluding devDependencies)
 RUN npm ci
 
