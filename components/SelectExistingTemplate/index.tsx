@@ -18,15 +18,16 @@ import {
 //Components
 import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
-import { filterTemplates } from '@/utils/filterTemplates';
 import TemplateList from '@/components/TemplateList';
 import ErrorMessages from '@/components/ErrorMessages';
+import Pagination from '@/components/Pagination';
 
 //GraphQL
 import {
+  PublishedTemplateSearchResults,
   useAddTemplateMutation,
-  useMyVersionedTemplatesQuery,
-  usePublishedTemplatesQuery
+  usePublishedTemplatesLazyQuery,
+  VersionedTemplateSearchResult
 } from '@/generated/graphql';
 
 // Hooks
@@ -43,6 +44,33 @@ import { toSentenceCase } from '@/utils/general';
 import { useFormatDate } from '@/hooks/useFormatDate';
 import { useToast } from '@/context/ToastContext';
 
+// # of templates displayed
+const LIMIT = 5;
+
+type TemplateType = 'org' | 'bestPractice';
+
+interface FetchTemplateByTypeParams {
+  sectionType: TemplateType;
+  page?: number;
+  searchTerm?: string;
+}
+
+
+interface TemplateListInterface {
+  id: number | null;
+  name: string;
+  description: string;
+  latestPublishVisibility: string | null;
+  isDirty: boolean | null;
+  latestPublishedVersion: number | null;
+  latestPublishDate: string | null;
+  ownerId: number | null;
+  ownerDisplayName: string | null;
+  modified: string | null;
+  modifiedById: number | null;
+  modifiedByName: string | null;
+  bestPractice: boolean | null;
+}
 
 // Step 2 of the Create Template start pages
 const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) => {
@@ -56,10 +84,6 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   const { scrollToTop } = useScrollToTop();
 
   // State
-  const [templates, setTemplates] = useState<TemplateItemProps[]>([]);
-  const [publicTemplatesList, setPublicTemplatesList] = useState<TemplateItemProps[]>([]);
-  const [filteredTemplates, setFilteredTemplates] = useState<TemplateItemProps[] | null>([]);
-  const [filteredPublicTemplates, setFilteredPublicTemplates] = useState<TemplateItemProps[] | null>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [searchButtonClicked, setSearchButtonClicked] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -70,23 +94,35 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     filteredPublicTemplates: 3,
   });
 
+
+  const [bestPracticeTemplates, setBestPracticeTemplates] = useState<TemplateItemProps[]>([]);
+  const [orgTemplates, setOrgTemplates] = useState<TemplateItemProps[]>([]);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+
+  // Separate pagination states
+  const [orgPagination, setOrgPagination] = useState({
+    currentPage: 1,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPreviousPage: false
+  });
+
+  const [bestPracticePagination, setBestPracticePagination] = useState({
+    currentPage: 1,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPreviousPage: false
+  });
+
+
   //Localization keys
   const SelectTemplate = useTranslations('TemplateSelectTemplatePage');
   const Global = useTranslations('Global');
 
-  // Make graphql request for versionedTemplates under the user's affiliation
-  const { data = {}, loading, error: queryError } = useMyVersionedTemplatesQuery({
-    /* Force Apollo to notify React of changes. This was needed for when refetch is
-    called and a re-render of data is necessary*/
-    notifyOnNetworkStatusChange: true,
-  });
-
-  // Make graphql request for all public versionedTemplates
-  const { data: publishedTemplatesData, loading: publishedTemplatesLoading, error: publishedTemplatesError } = usePublishedTemplatesQuery({
-    /* Force Apollo to notify React of changes. This was needed for when refetch is
-    called and a re-render of data is necessary*/
-    notifyOnNetworkStatusChange: true,
-  });
+  // Separate lazy queries for published sections
+  const [fetchOrgTemplates, { data: orgTemplatesData, loading: orgLoading }] = usePublishedTemplatesLazyQuery();
+  const [fetchBestPracticeTemplates, { data: bestPracticeData, loading: bestPracticeLoading }] = usePublishedTemplatesLazyQuery();
 
   // GraphQL mutation for adding the new template
   const [addTemplateMutation] = useAddTemplateMutation({
@@ -96,6 +132,92 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   const clearErrors = () => {
     setErrors([]);
   }
+
+  const fetchTemplatesByType = async ({
+    sectionType,
+    page = 1,
+    searchTerm = ''
+  }: FetchTemplateByTypeParams) => {
+    if (sectionType === 'org') {
+      let offsetLimit = 0;
+      if (page) {
+        setOrgPagination(prev => ({ ...prev, currentPage: page }));
+        offsetLimit = (page - 1) * LIMIT;
+      }
+      await fetchOrgTemplates({
+        variables: {
+          paginationOptions: {
+            offset: offsetLimit,
+            limit: LIMIT,
+            type: "OFFSET",
+            sortDir: "DESC",
+            bestPractice: false
+          },
+          term: searchTerm,
+        }
+      });
+    } else {
+      let offsetLimit = 0;
+      if (page) {
+        setBestPracticePagination(prev => ({ ...prev, currentPage: page }));
+        offsetLimit = (page - 1) * LIMIT;
+      }
+      await fetchBestPracticeTemplates({
+        variables: {
+          paginationOptions: {
+            offset: offsetLimit,
+            limit: LIMIT,
+            type: "OFFSET",
+            sortDir: "DESC",
+            bestPractice: true
+          },
+          term: searchTerm,
+        }
+      });
+    }
+  };
+
+  // Handle page click for org sections
+  const handleOrgPageClick = async (page: number) => {
+    await fetchTemplatesByType({ sectionType: 'org', page, searchTerm });
+  };
+  // Handle page click for best practice sections
+  const handleBestPracticePageClick = async (page: number) => {
+    await fetchTemplatesByType({ sectionType: 'bestPractice', page, searchTerm });
+  };
+
+  // zero out search and filters
+  const resetSearch = () => {
+    setSearchTerm('');
+    scrollToTop(topRef);
+  }
+
+
+  // Handle input changes
+  const handleInputChange = (value: string) => {
+    // Update search term immediately for UI responsiveness
+    setSearchTerm(value);
+    if (value === '') {
+      //reset search
+      resetSearch();
+    }
+  };
+
+  // Handle search input
+  const handleSearchInput = async (term: string) => {
+    setSearchTerm(term);
+    clearErrors();
+
+    // Reset both paginations to first page
+    setOrgPagination(prev => ({ ...prev, currentPage: 1 }));
+    setBestPracticePagination(prev => ({ ...prev, currentPage: 1 }));
+
+    // Fetch both types with search term
+    await Promise.all([
+      fetchTemplatesByType({ sectionType: 'org', page: 1, searchTerm: term }),
+      fetchTemplatesByType({ sectionType: 'bestPractice', page: 1, searchTerm: term })
+    ]);
+  };
 
   // When user selects a pre-existing template, we will create the new template
   // using a copy of the pre-existing template
@@ -110,7 +232,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         const responseData = response?.data?.addTemplate;
         if (responseData && responseData.errors) {
           const errorMessages = Object.values(responseData.errors)
-                                      .filter((error) => error) as string[];
+            .filter((error) => error) as string[];
           setErrors(errorMessages);
         }
         clearErrors();
@@ -136,7 +258,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         const responseData = response?.data?.addTemplate;
         if (responseData && responseData.errors) {
           const errorMessages = Object.values(responseData.errors)
-                                      .filter((error) => error) as string[];
+            .filter((error) => error) as string[];
           setErrors(errorMessages);
         }
         clearErrors();
@@ -156,18 +278,23 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
 
   // Transform data into more easier to use properties
   const transformTemplates = async (
-    templates: PaginatedMyVersionedTemplatesInterface | PaginatedVersionedTemplateSearchResultsInterface | null
-  ) => {
-    const items = templates?.items || [];
+    templates: PublishedTemplateSearchResults | null
+  ): Promise<{ orgTemplates: TemplateItemProps[]; bestPracticeTemplates: TemplateItemProps[] }> => {
+
+    const publishedTemplates = templates?.items?.filter(template => template !== null && template !== undefined) || [];
+
+    if (publishedTemplates.length === 0) {
+      return { orgTemplates: [], bestPracticeTemplates: [] };
+    }
     const transformedTemplates = await Promise.all(
-      items.map(async (template: MyVersionedTemplatesInterface | null) => ({
+      publishedTemplates.map(async (template: VersionedTemplateSearchResult | null) => ({
         id: template?.id,
         template: {
-          id: template?.template?.id ? template?.template.id : null
+          id: template?.templateId ? template?.templateId : null
         },
         title: template?.name || "",
         description: template?.description || "",
-        link: `/template/${template?.template?.id ? template?.template.id : ''}`,
+        link: `/template/${template?.templateId ? template?.templateId : ''}`,
         content: template?.description || template?.modified ? (
           <div>
             <p>{template?.description}</p>
@@ -176,85 +303,80 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
             </p>
           </div>
         ) : null, // Set to null if no description or last modified data
-        funder: template?.template?.owner?.name || template?.name,
+        funder: template?.ownerDisplayName || template?.name,
         lastUpdated: template?.modified ? formatDate(template?.modified) : null,
         lastRevisedBy: template?.modifiedByName || null,
-        publishStatus: Global('published'), // All records returned for publishedTemplates and myVersionedTemplates are marked as 'Published'
+        publishStatus: Global('published'),// These are all published templates
         hasAdditionalGuidance: false,
         defaultExpanded: false,
-        visibility: template?.visibility ? toSentenceCase(template.visibility) : ''
+        visibility: template?.visibility ? toSentenceCase(template.visibility) : '',
+        bestPractices: template?.bestPractice || false,
       }))
     );
 
-    return transformedTemplates;
+    const orgTemplates = transformedTemplates.filter((template: TemplateItemProps) => template?.bestPractices === false);
+    const bestPracticeTemplates = transformedTemplates.filter((template: TemplateItemProps) => template?.bestPractices === true);
+
+    // Remove duplicates between org and best practice sections
+    const filteredBestPractice = bestPracticeTemplates.filter(
+      (item: TemplateItemProps) => !orgTemplates.some((org: TemplateItemProps) => org.title === item.title)
+    );
+
+    return { orgTemplates, bestPracticeTemplates: filteredBestPractice };
   };
 
-  type VisibleCountKeys = keyof typeof visibleCount;
-
-  //Update searchTerm state whenever entry in the search field changes
-  const handleSearchInput = (value: string) => {
-    setSearchTerm(value);
-  }
-
-  // Filter results when a user enters a search term and clicks "Search" button
-  const handleFiltering = (term: string) => {
-    setErrors([]);
-    setSearchButtonClicked(true);
-    // Search title, funder and description fields for terms
-    const filteredList = filterTemplates(templates, term);
-    const filteredPublicTemplatesList = filterTemplates(publicTemplatesList, term);
-
-    if (filteredList.length || filteredPublicTemplatesList.length) {
-      setSearchTerm(term);
-      setFilteredTemplates(filteredList.length > 0 ? filteredList : null);
-      setFilteredPublicTemplates(filteredPublicTemplatesList.length > 0 ? filteredPublicTemplatesList : null);
-    } else {
-      //If there are no matching results, then display an error
-      setErrors(prev => [...prev, SelectTemplate('messages.noItemsFound')]);
-    }
-  }
-
-  // When user clicks the 'Load more' button, display 3 more by default
-  const handleLoadMore = (listKey: VisibleCountKeys) => {
-    setVisibleCount((prevCounts) => ({
-      ...prevCounts,
-      [listKey]: prevCounts[listKey] + 3, // Increase the visible count for the specific list
-    }));
-
-    setTimeout(() => {
-      if (nextSectionRef.current) {
-        nextSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 0);
-  };
-
-  // zero out search and filters
-  const resetSearch = () => {
-    setSearchTerm('');
-    setFilteredTemplates(null);
-    setFilteredPublicTemplates(null);
-    scrollToTop(topRef);
-  }
-
+  // Process organization templates when orgTemplatesData changes
   useEffect(() => {
-    // Transform templates into format expected by TemplateSelectListItem component
-    const processTemplates = async () => {
-      if (data && data?.myVersionedTemplates) {
-        const templates = { items: data?.myVersionedTemplates ?? [] };
-        const transformedTemplates = await transformTemplates(templates as PaginatedMyVersionedTemplatesInterface);
-        setTemplates(transformedTemplates);
-      }
-      if (publishedTemplatesData && publishedTemplatesData?.publishedTemplates) {
-        const templates = publishedTemplatesData?.publishedTemplates ?? { items: [] };
-        const publicTemplates = await transformTemplates(templates as PaginatedVersionedTemplateSearchResultsInterface);
-        const transformedPublicTemplates = publicTemplates.filter(template => template.visibility === 'Public');
-        setPublicTemplatesList(transformedPublicTemplates);
-      }
-    }
+    const processOrgTemplates = async () => {
+      if (orgTemplatesData?.publishedTemplates?.items) {
+        const transformedTemplates = await transformTemplates(
+          orgTemplatesData.publishedTemplates
+        );
+        // Filter to only org sections (non-best practice)
+        const orgTemplates = transformedTemplates.orgTemplates;
+        setOrgTemplates(orgTemplates);
 
-    processTemplates();
+        // Update org-specific pagination
+        const totalCount = orgTemplatesData?.publishedTemplates?.totalCount ?? 0;
+        const totalPages = Math.ceil(totalCount / LIMIT);
+        setOrgPagination({
+          currentPage: orgPagination.currentPage, // Keep current page
+          totalPages,
+          hasNextPage: orgTemplatesData?.publishedTemplates?.hasNextPage ?? false,
+          hasPreviousPage: orgTemplatesData?.publishedTemplates?.hasPreviousPage ?? false
+        });
+      } else {
+        setOrgTemplates([]);
+      }
+    };
+    processOrgTemplates();
+  }, [orgTemplatesData]);
 
-  }, [data, publishedTemplatesData]);
+  // Process best practice templates when bestPracticeData changes
+  useEffect(() => {
+    const processBestPracticeTemplates = async () => {
+      if (bestPracticeData?.publishedTemplates?.items) {
+        const transformedTemplates = await transformTemplates(bestPracticeData.publishedTemplates);
+
+        // Filter to only best practice sections
+        const bpTemplates = transformedTemplates.bestPracticeTemplates.filter(template => template?.bestPractices === true);
+        setBestPracticeTemplates(bpTemplates);
+
+        // Update best practice-specific pagination
+        const totalCount = bestPracticeData?.publishedTemplates?.totalCount ?? 0;
+        const totalPages = Math.ceil(totalCount / LIMIT);
+        setBestPracticePagination({
+          currentPage: bestPracticePagination.currentPage,
+          totalPages,
+          hasNextPage: bestPracticeData?.publishedTemplates?.hasNextPage ?? false,
+          hasPreviousPage: bestPracticeData?.publishedTemplates?.hasPreviousPage ?? false
+        });
+      } else {
+        setBestPracticeTemplates([]);
+      }
+    };
+    processBestPracticeTemplates();
+  }, [bestPracticeData]);
 
   useEffect(() => {
     // Need this to set list of templates back to original, full list after filtering
@@ -265,19 +387,13 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   }, [searchTerm])
 
   useEffect(() => {
-    // If the template name entered on step 1 is missing from the page, we redirect back to step 1 with a toast message
-    if (!templateName) {
-      toastState.add(SelectTemplate('messages.missingTemplateName'), { type: 'error' })
-      router.push('/template/create?step1');
-    }
-  }, [templateName])
-
-  if (loading || publishedTemplatesLoading) {
-    return <div>{Global('messaging.loading')}...</div>;
-  }
-  if (queryError || publishedTemplatesError) {
-    return <div>{SelectTemplate('messages.loadingError')}</div>;
-  }
+    const load = async () => {
+      await fetchTemplatesByType({ sectionType: 'org', page: 1 });
+      await fetchTemplatesByType({ sectionType: 'bestPractice', page: 1 });
+      setInitialLoading(false);
+    };
+    load();
+  }, []);
 
   return (
     <>
@@ -309,11 +425,11 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
                 <Input
                   aria-describedby="search-help"
                   value={searchTerm}
-                  onChange={e => handleSearchInput(e.target.value)} />
+                  onChange={e => handleInputChange(e.target.value)} />
                 <Button
                   onPress={() => {
                     // Call your filtering function without changing the input value
-                    handleFiltering(searchTerm);
+                    handleSearchInput(searchTerm);
                   }}
                 >
                   {Global('buttons.search')}
@@ -325,97 +441,83 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
               </SearchField>
             </div>
 
-            <section className="mb-8" aria-labelledby="previously-created">
-              <h2 id="previously-created">
-                {SelectTemplate('headings.previouslyCreatedTemplates')}
-              </h2>
+
+            {/*Organization Sections */}
+            <div>
+              {orgTemplates.length > 0 && (
+                <h2 id="previously-created">
+                  {SelectTemplate('headings.previouslyCreatedTemplates')}
+                </h2>
+              )}
+
               <div className="template-list" role="list" aria-label="Your templates">
-                {(filteredTemplates && filteredTemplates.length > 0) ? (
-                  <>
+                {orgLoading ? (
+                  <p>{Global('messaging.loading')}</p>
+                ) : orgTemplates.length > 0 ? (
+
+                  <section className="mb-8" aria-labelledby="previously-created">
                     {
                       <TemplateList
-                        templates={filteredTemplates}
-                        visibleCountKey='filteredTemplates'
+                        templates={orgTemplates}
                         onSelect={onSelect}
-                        visibleCount={visibleCount}
-                        handleLoadMore={handleLoadMore}
-                        resetSearch={resetSearch}
                       />
                     }
-
-                  </>) : (
-                  <>
-                    {/**If the user is searching, and there were no results from the search
-                   * then display the message 'no results found
-                   */}
-                    {(searchTerm.length > 0 && searchButtonClicked) ? (
-                      <>
-                        {SelectTemplate('messages.noItemsFound')}
-                      </>
-                    ) : (
-                      <TemplateList
-                        templates={templates}
-                        visibleCountKey='templates'
-                        onSelect={onSelect}
-                        visibleCount={visibleCount}
-                        handleLoadMore={handleLoadMore}
-                        resetSearch={resetSearch}
-                      />
-                    )
-
-                    }
-                  </>
-                )
-                }
+                  </section>
+                ) : (
+                  <p>{Global('messaging.noItemsFound')}</p>
+                )}
               </div>
-            </section>
+              {orgTemplates.length > 0 && (
+                <Pagination
+                  currentPage={orgPagination.currentPage}
+                  totalPages={orgPagination.totalPages}
+                  hasPreviousPage={orgPagination.hasPreviousPage}
+                  hasNextPage={orgPagination.hasNextPage}
+                  handlePageClick={handleOrgPageClick}
+                />
+              )}
+            </div>
 
-            {(publicTemplatesList && publicTemplatesList.length > 0) && (
-              <section className="mb-8" aria-labelledby="public-templates">
+
+            {/*Best Practice templates */}
+            <div>
+              {bestPracticeTemplates.length > 0 && (
+
                 <h2 id="public-templates">
                   {SelectTemplate('headings.publicTemplates')}
                 </h2>
-                <div className="template-list" role="list" aria-label="Public templates">
-                  {filteredPublicTemplates && filteredPublicTemplates.length > 0 ? (
-                    <>
-                      {
-                        <TemplateList
-                          templates={filteredPublicTemplates}
-                          visibleCountKey='filteredPublicTemplates'
-                          onSelect={onSelect}
-                          visibleCount={visibleCount}
-                          handleLoadMore={handleLoadMore}
-                          resetSearch={resetSearch}
-                        />
-                      }
-                    </>
-                  ) : (
-                    <>
-                      {/**If the user is searching, and there were no results from the search
-                   * then display the message 'no results found
-                   */}
-                      {(searchTerm.length > 0 && searchButtonClicked) ? (
-                        <>
-                          {SelectTemplate('messages.noItemsFound')}
-                        </>
-                      ) : (
-                        <TemplateList
-                          templates={publicTemplatesList}
-                          visibleCountKey='publicTemplatesList'
-                          onSelect={onSelect}
-                          visibleCount={visibleCount}
-                          handleLoadMore={handleLoadMore}
-                          resetSearch={resetSearch}
-                        />
-                      )
-                      }
-                    </>
-                  )
-                  }
+              )}
 
-                </div>
-              </section>
-            )}
+              <div className="template-list" role="list" aria-label="Best practice templates">
+                {bestPracticeLoading ? (
+                  <p>{Global('messaging.loading')}</p>
+                ) : bestPracticeTemplates.length > 0 ? (
+
+
+                  <section className="mb-8" aria-labelledby="best-practice-templates">
+
+                    {
+                      <TemplateList
+                        templates={bestPracticeTemplates}
+                        onSelect={onSelect}
+                      />
+                    }
+
+                  </section>
+                ) : (
+                  <p>{Global('messaging.noItemsFound')}</p>
+                )}
+              </div>
+              {bestPracticeTemplates.length > 0 && (
+                <Pagination
+                  currentPage={bestPracticePagination.currentPage}
+                  totalPages={bestPracticePagination.totalPages}
+                  hasPreviousPage={bestPracticePagination.hasPreviousPage}
+                  hasNextPage={bestPracticePagination.hasNextPage}
+                  handlePageClick={handleBestPracticePageClick}
+                />
+              )}
+            </div>
 
             <section className="mb-8" aria-labelledby="create-new">
               <h2 id="create-new">
@@ -431,7 +533,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
             </section>
 
           </>
-        </ContentContainer>
+        </ContentContainer >
       </LayoutContainer >
     </>
   );
