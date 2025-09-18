@@ -17,7 +17,10 @@
     "cypress:run": "cypress run",
     "sanitize-translations": "node scripts/sanitizeTranslations.js",
     "crowdin:upload": "node scripts/load-env.js && crowdin upload sources --auto-update",
-    "crowdin:download": "node scripts/load-env.js && crowdin download && npm run sanitize-translations"
+    "crowdin:download": "node scripts/load-env.js && crowdin download && npm run sanitize-translations",
+    "trivy-high": "sh ./scripts/trivy-high.sh",
+    "trivy-med": "sh ./scripts/trivy-med.sh",
+    "trivy-all": "npm run trivy-high && npm run trivy-med"
   },
   "dependencies": {
     "@apollo/client": "^3.13.8",

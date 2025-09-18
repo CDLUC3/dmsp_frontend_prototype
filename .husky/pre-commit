@@ -3,7 +3,7 @@ npm test --coverage
 npm run type-check
 
 # Run Trivy to check for vulnerabilities in the filesystem
-trivy fs --exit-code 1 --severity HIGH,CRITICAL . || {
-  echo "Trivy found high/critical vulnerabilities. Commit aborted."
-  exit 1
-}
+sh ./scripts/trivy-high.sh
+
+# Run a non-blocking Trivy check for MEDIUM and LOW vulnerabilities
+sh ./scripts/trivy-med.sh
