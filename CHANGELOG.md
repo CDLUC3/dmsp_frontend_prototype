@@ -1,4 +1,14 @@
 ### Added
+- Added Trivy precommit hook to scan for vulnerabilities in package-lock.json
+- Add organization details page
+- added profile overview page
+- added "homepage" which is our temp home page just to add the admin link and made it nicer
+- Added admin overview page
+- Added component for `PageLinkCard`
+- Added  admin route definitions to `utils/routes.ts`
+- Added `redact` to the pino logger to prevent sensitive information from being logged
+- Added `utils/server/loggerUtils.ts` with a method to `prepareLogObject` that strips out empty values and adds available JWT info to the log to assist with debugging
+- Added `SERVER_LOG_LEVEL` to the `.env.example` file to be able to set the log level for server side actions
 - Added a link to open up a `preview` of the `plan` by using the `dmptool-narrative-generator` endpoint [#412]
 - Added use of pagination queries to the `template/[templateId]/section/new` page [#676]
 - `small` button CSS class.
@@ -24,6 +34,9 @@
 
 ### Updated
 - Updated the `/template` page to use the new `cursor pagination` functionality, because it was only ever loading 20 results [#812]
+- Added Admin section translations to both English (`messages/en-US/global.json`) and Portuguese (`messages/pt-BR/global.json`) language files
+- Updated all server actions to use the new `logger` and `prepareLogObject` method to log useful information for debugging
+- Updated `logger` to use the new `SERVER_LOG_LEVEL` env variable
 - Added a `beforeunload` event handler to the `PlanOverviewQuestionPage`, `CreateSectionPage`, `SectionUpdatePage` and `QuestionAdd` components to warn users when they are navigating away with unsaved changes [#758]
 - Updated `Commenting` logic on the `PlanOverviewQuestionPage` so that the `creator` or anybody with `role="OWN"` can delete anybody's comments [#321]
 - Updated to show disabled `Comment` button with a tooltip message when there is no `answer` yet. [#321]
