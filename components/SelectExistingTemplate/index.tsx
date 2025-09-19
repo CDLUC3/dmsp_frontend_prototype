@@ -43,7 +43,6 @@ import {
 } from '@/app/types';
 import { toSentenceCase } from '@/utils/general';
 import { useFormatDate } from '@/hooks/useFormatDate';
-import { useToast } from '@/context/ToastContext';
 
 // # of templates displayed
 const LIMIT = 5;

@@ -12,7 +12,6 @@ import { useRouter } from 'next/navigation';
 import logECS from '@/utils/clientLogger';
 import mockMyTemplates from '../__mocks__/mockTemplates.json';
 import mockPublishedTemplates from '../__mocks__/mockPublishedTemplates.json';
-import { mock } from "node:test";
 
 expect.extend(toHaveNoViolations);
 
@@ -77,8 +76,8 @@ jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`,
 }));
 
-let mockFetchPublishedTemplates = jest.fn();
-let mockFetchMyTemplates = jest.fn();
+const mockFetchPublishedTemplates = jest.fn();
+const mockFetchMyTemplates = jest.fn();
 
 describe('TemplateSelectTemplatePage', () => {
   let pushMock: jest.Mock;
