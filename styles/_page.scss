@@ -1,4 +1,5 @@
 @use "styles/responsive" as *;
+
 /*
  * Styles related to the overall structure of the browser page.
  * These are the core sections that make up the structure of the
@@ -194,6 +195,7 @@ footer {
 
 .template-editor-container {
   padding: 0 var(--brand-space2);
+
   @include device(lg) {
     display: flex;
     justify-content: space-between;
@@ -213,6 +215,7 @@ footer {
   .sidebar {
 
     margin-top: 2rem;
+
     @include device(lg) {
       margin-top: 0;
       margin-left: 5%;
@@ -224,12 +227,14 @@ footer {
       width: 30%;
     }
 
+
   }
 
 }
 
 .template-archive-container {
   margin-top: var(--space-10);
+
   @include device(lg) {
     max-width: 60%;
   }

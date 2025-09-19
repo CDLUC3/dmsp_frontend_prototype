@@ -23,7 +23,7 @@ function DashboardListItem({ heading, url, children }: DashboardListItemProps) {
     >
       <div className={styles.dashboardItemInner}>
         <div className={styles.dashboardItemContent}>
-          <h3 id={headingId}>
+          <h2 id={headingId}>
             <Link
               href={url}
               aria-label={`${Global("links.update")} ${heading}`}
@@ -31,7 +31,7 @@ function DashboardListItem({ heading, url, children }: DashboardListItemProps) {
             >
               {heading}
             </Link>
-          </h3>
+          </h2>
 
           <div className={styles.content}>{children}</div>
         </div>

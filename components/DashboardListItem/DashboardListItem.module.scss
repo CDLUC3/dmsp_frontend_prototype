@@ -25,10 +25,12 @@
 .dashboardItemContent {
     flex: 1;
 
+    h2,
     h3 {
         margin: 0;
         padding: 0;
         margin-bottom: var(--space-1);
+        font-size: var(--fs-lg);
     }
 }
 

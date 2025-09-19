@@ -252,7 +252,13 @@ const GuidanceTextCreatePage: React.FC = () => {
             <div className="sidePanelContent">
               <div className={`panelRow mb-5`}>
                 <div>
-                  <h3>{t("status.status")}</h3>
+                  <p
+                    className="sidebar-label"
+                    role="heading"
+                    aria-level={2}
+                  >
+                    {t("status.status")}
+                  </p>
                   <p>{t("status.draft")}</p>
                 </div>
               </div>

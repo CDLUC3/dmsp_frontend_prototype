@@ -293,7 +293,13 @@ const GuidanceTextEditPage: React.FC = () => {
             <div className="sidePanelContent">
               <div className={`panelRow mb-5`}>
                 <div>
-                  <h3>{t("status.lastUpdated")}</h3>
+                  <p
+                    className="sidebar-label"
+                    role="heading"
+                    aria-level={2}
+                  >
+                    {t("status.lastUpdated")}
+                  </p>
                   <p>July 5, 2024</p>
                 </div>
               </div>
@@ -323,7 +329,13 @@ const GuidanceTextEditPage: React.FC = () => {
               ) : (
                 <div className={`panelRow mb-5`}>
                   <div>
-                    <h3>{t("status.status")}</h3>
+                    <p
+                      className="sidebar-label"
+                      role="heading"
+                      aria-level={2}
+                    >
+                      {t("status.status")}
+                    </p>
                     <p>{guidanceText.status}</p>
                   </div>
                   <Button
