@@ -179,7 +179,8 @@
   "CreateSectionPage": {
     "title": "Create section",
     "button": {
-      "createSection": "Create section"
+      "createSection": "Create section",
+      "creatingSection": "Creating section..."
     },
     "messages": {
       "fieldLengthValidation": "Name must be at least 2 characters.",

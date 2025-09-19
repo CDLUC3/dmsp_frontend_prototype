@@ -697,9 +697,10 @@ describe("QuestionView", () => {
         path="/template/123"
       />
     );
-    expect(screen.getByTestId('card-body').textContent).toContain('Yes');
-    expect(screen.getByTestId('card-body').textContent).toContain('No');
-    expect(screen.getByRole('radio', { name: 'No' })).toBeChecked();
+
+    expect(screen.getByTestId('card-body').textContent).toContain('form.yesLabel');
+    expect(screen.getByTestId('card-body').textContent).toContain('form.noLabel');
+    expect(screen.getByRole('radio', { name: 'form.noLabel' })).toBeChecked();
 
     const radioButtons = screen.getByTestId('card-body').querySelectorAll('input[type="radio"]');
     act(() => {

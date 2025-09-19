@@ -115,6 +115,7 @@ describe("CommentsDrawer", () => {
     handleEditComment: jest.fn(),
     handleDeleteComment: jest.fn(),
     me: createMockMeQuery(),
+    planOwners: [1, 2, 3],
     locale: "en",
     commentsEndRef: { current: null },
     canAddComments: true,

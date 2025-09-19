@@ -76,6 +76,7 @@
   },
   "ProjectsCreateProject": {
     "pageTitle": "Criar um novo blog",
+    "isThisMockProject": "Este é um projeto simulado",
     "form": {
       "projectTitle": "Qual é o título do projeto? (obrigatório)",
       "projectTitleHelpText": "Você pode alterar isso a qualquer momento. Se você já solicitou financiamento, recomendamos usar o título formal do projeto para manter a consistência.",

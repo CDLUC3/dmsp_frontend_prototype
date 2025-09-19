@@ -14,6 +14,7 @@ import {
   Input,
   Label,
   Link,
+  Radio,
   Tab,
   TabList,
   TabPanel,
@@ -93,6 +94,10 @@ const QuestionAdd = ({
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
   const step1Url = routePath('template.q.new', { templateId }, { section_id: sectionId, step: 1 })
+  // Track whether there are unsaved changes
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  // Form state
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // Make sure to add questionJSON and questionType to the question object so it can be used in the QuestionView component
   const [question, setQuestion] = useState<Question>(() => ({
@@ -114,21 +119,6 @@ const QuestionAdd = ({
   // localization keys
   const Global = useTranslations('Global');
   const QuestionAdd = useTranslations('QuestionAdd');
-
-  const radioData = {
-    radioGroupLabel: Global('labels.requiredField'),
-    radioButtonData: [
-      {
-        value: 'yes',
-        label: Global('form.yesLabel'),
-      },
-      {
-        value: 'no',
-        label: Global('form.noLabel')
-      }
-    ]
-  }
-
 
   // Initialize add and update question mutations
   const [addQuestionMutation] = useAddQuestionMutation();
@@ -194,6 +184,7 @@ const QuestionAdd = ({
           ...prev,
           json: JSON.stringify(updatedParsed),
         }));
+        setHasUnsavedChanges(true);
       }
     }
   };
@@ -211,6 +202,7 @@ const QuestionAdd = ({
           ...prev,
           json: JSON.stringify(updatedParsed),
         }));
+        setHasUnsavedChanges(true);
       }
     }
   };
@@ -227,21 +219,21 @@ const QuestionAdd = ({
           ...prev,
           json: JSON.stringify(updatedParsed),
         }));
+        setHasUnsavedChanges(true);
       }
     }
   };
 
   // Handle changes from RadioGroup
   const handleRadioChange = (value: string) => {
-
     if (value) {
       const isRequired = value === 'yes' ? true : false;
       setQuestion(prev => ({
         ...prev,
         required: isRequired
       }));
+      setHasUnsavedChanges(true);
     }
-
   };
 
 
@@ -251,6 +243,7 @@ const QuestionAdd = ({
       ...prev,
       [field]: value === undefined ? '' : value, // Default to empty string if value is undefined
     }));
+    setHasUnsavedChanges(true);
   };
 
   // Prepare input for the questionTypeHandler. For options questions, we update the 
@@ -311,7 +304,9 @@ const QuestionAdd = ({
 
   // Function to add and save the new question
   const handleAdd = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault();    // Prevent double submission
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     const displayOrder = getDisplayOrder();
 
@@ -339,6 +334,8 @@ const QuestionAdd = ({
         const response = await addQuestionMutation({ variables: { input } });
 
         if (response?.data) {
+          setIsSubmitting(false);
+          setHasUnsavedChanges(false);
           toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
           // Redirect user to the Edit Question view with their new question id after successfully adding the new question
           router.push(routePath('template.show', { templateId }));
@@ -419,6 +416,21 @@ const QuestionAdd = ({
       }
     }
   }, [question]);
+
+  // Warn user of unsaved changes if they try to leave the page
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = ''; // Required for Chrome/Firefox to show the confirm dialog
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
 
   return (
     <>
@@ -567,14 +579,27 @@ const QuestionAdd = ({
                 <RadioGroupComponent
                   name="radioGroup"
                   value={question?.required ? 'yes' : 'no'}
-                  radioGroupLabel={radioData.radioGroupLabel}
-                  radioButtonData={radioData.radioButtonData}
+                  radioGroupLabel={Global('labels.requiredField')}
                   description={Global('descriptions.requiredFieldDescription')}
                   onChange={handleRadioChange}
-                />
+                >
+                  <div>
+                    <Radio value="yes">{Global('form.yesLabel')}</Radio>
+                  </div>
+
+                  <div>
+                    <Radio value="no">{Global('form.noLabel')}</Radio>
+                  </div>
+                </RadioGroupComponent>
 
                 {/**We need to set formSubmitted here, so that it is passed down to the child component QuestionOptionsComponent */}
-                <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.saveAndAdd')}</Button>
+                <Button
+                  type="submit"
+                  onPress={() => setFormSubmitted(true)}
+                  aria-disabled={isSubmitting}
+                >
+                  {isSubmitting ? Global('buttons.saving') : Global('buttons.saveAndAdd')}
+                </Button>
               </Form>
 
             </TabPanel>

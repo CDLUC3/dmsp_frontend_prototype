@@ -1,12 +1,4 @@
 ### Added
-- Add admin email text page with styling and tests
-
-### Added
-
-- Add departments and schools page
-
-### Added
-
 - Add organization details page
 
 ### Added
@@ -15,7 +7,7 @@
 - added "homepage" which is our temp home page just to add the admin link and made it nicer
 - Added admin overview page
 - Added component for `PageLinkCard`
-- Added admin route definitions to `utils/routes.ts`
+- Added  admin route definitions to `utils/routes.ts`
 
 ### Updated
 
@@ -23,6 +15,14 @@
 
 ### Added
 
+- Added `redact` to the pino logger to prevent sensitive information from being logged
+- Added `utils/server/loggerUtils.ts` with a method to `prepareLogObject` that strips out empty values and adds available JWT info to the log to assist with debugging
+- Added `SERVER_LOG_LEVEL` to the `.env.example` file to be able to set the log level for server side actions
+- Added a link to open up a `preview` of the `plan` by using the `dmptool-narrative-generator` endpoint [#412]
+- Added use of pagination queries to the `template/[templateId]/section/new` page [#676]
+- `small` button CSS class.
+- Added curl to the AWS Dockerfile for session manager access
+- Added bash to the AWS Dockerfile for session manager access
 - Added shared `dmptool-network` to the `docker-compose.yaml` file to allow nextJS server side actions to be able to reach the local apollo server
 - Static Feedback page with translation and text [#750]
 - Added `RelatedWorks` page and associated components `RelatedWorksList`, `RelatedWorksListItem`, `ExpandableNameList` and `LinkFilter`. [#672][#673]
@@ -38,9 +38,19 @@
 - Added the ability to edit the `Plan title` [#608]
 - Added the page for adding a funder manually [#497]
 - Added missing `planId` from the `PlanFundings` errors [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
+- Added descriptive text to the funding-search page [#760](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/760)
+- Added description to project search page [#761](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/761)
 
 ### Updated
-
+- Updated all server actions to use the new `logger` and `prepareLogObject` method to log useful information for debugging
+- Updated `logger` to use the new `SERVER_LOG_LEVEL` env variable
+- Added a `beforeunload` event handler to the `PlanOverviewQuestionPage`, `CreateSectionPage`, `SectionUpdatePage` and `QuestionAdd` components to warn users when they are navigating away with unsaved changes [#758]
+- Updated `Commenting` logic on the `PlanOverviewQuestionPage` so that the `creator` or anybody with `role="OWN"` can delete anybody's comments [#321]
+- Updated to show disabled `Comment` button with a tooltip message when there is no `answer` yet. [#321]
+- Updated language used in RelatedWorks UI, moved accept and reject buttons into the cards out of the expand section and changed order of accept and reject buttons [#799]
+- Hooked up the `ProjectsProjectCollaboration` page. Added new `server actions` to handle access level changes, revoking collaborator and resending invite [#381]
+- Optimized the `graphqlServerActionHandler` so that we can normalize errors returned and simplify client-side handling [#381]
+- Updated the shared`RadioGroupComponent` and `CheckboxGroupComponent` components to be more like a wrapper to reduce duplicate of code and make it more flexible [#743]
 - Project over is now using sidebar to allow for collaboration [#750]
 - Sidebar is now using global styling rather than css modules [#750]
 - Renamed collaboration components from `ProjectsProjectPlanFeedback` to `ProjectsProjectCollaboration` for better clarity and consistency: [#750]
@@ -67,9 +77,11 @@
 - Update json mocks in `__mocks__` directory to reflect changes to question and answer types [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Updated mocks in `components` to work with updated question JSON [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
+- Removed research outputs, including related pages and routes, from the demp overview [#764](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/764)
 
 ### Fixed
-
+- Fixed middleware issue to add `dmspt` token cookie when a refreshToken is implemented [#676]
+- Fixed some new errors related to an update in how data is passed to `logger` using `@elastic/ecs-pino-format`. Also, deleted `package-lock.json` and re-ran `npm install` to get clean packages after the npm debug and chalk compromise.
 - Make `Tab` use `cursor: pointer`.
 - Fix styling of `Toggle Switch` as toggle button was vertically off-centre.
 - Fix styling of `Select` by setting `overflow: auto` on `ListBox` so that the list can scroll, and make `ListBoxItem` use `cursor: pointer`.
@@ -120,7 +132,6 @@
 - Deleted `__mocks__/mockQuestionTypes.json` as it is no longer needed [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Chore
-
 - Upgraded to `NextJS v15.5.2` to remove vulnerability and added `next-env.d.ts` to the ignore list for linting. [#751]
 
 ====================================================================================================================================

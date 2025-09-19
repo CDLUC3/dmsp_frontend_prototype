@@ -158,7 +158,7 @@ describe('ProjectsCreateProject', () => {
     expect(screen.getByText(/form.projectTitleHelpText/i)).toBeInTheDocument();
     expect(screen.getByText(/form.checkboxLabel/i)).toBeInTheDocument();
     expect(screen.getByText(/form.checkboxHelpText/i)).toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: /form.checkboxLabel/i })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: "isThisMockProject" })).toBeInTheDocument();
     expect(screen.getByText(/form.checkboxGroupLabel/i)).toBeInTheDocument();
     expect(screen.getByText(/form.checkboxGroupHelpText/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /buttons.continue/i })).toBeInTheDocument();

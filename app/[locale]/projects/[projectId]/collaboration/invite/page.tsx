@@ -9,6 +9,7 @@ import {
   Form,
   Link,
   Modal,
+  Radio
 } from "react-aria-components";
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -106,15 +107,6 @@ const ProjectsProjectCollaborationInvite = () => {
   const INVITE_ROUTE = routePath('projects.collaboration.invite', { projectId });
   const MEMBERS_ROUTE = routePath('projects.members.index', { projectId });
   const COLLABORATION_ROUTE = routePath('projects.collaboration', { projectId });
-
-  // Access level ratio button data
-  const radioData = {
-    radioGroupLabel: t('radioButtons.access.label'),
-    radioButtonData: [
-      { value: 'edit', label: t('radioButtons.access.edit') },
-      { value: 'comment', label: t('radioButtons.access.comment') }
-    ]
-  }
 
   // Handle access level radio button change
   const handleRadioChange = (value: string) => {
@@ -267,10 +259,16 @@ const ProjectsProjectCollaborationInvite = () => {
                 <RadioGroupComponent
                   name="accessLevel"
                   value={state.accessLevel}
-                  radioGroupLabel={radioData.radioGroupLabel}
-                  radioButtonData={radioData.radioButtonData}
+                  radioGroupLabel={t('radioButtons.access.label')}
                   onChange={handleRadioChange}
-                />
+                >
+                  <div>
+                    <Radio value="edit">{t('radioButtons.access.edit')}</Radio>
+                  </div>
+                  <div>
+                    <Radio value="comment">{t('radioButtons.access.comment')}</Radio>
+                  </div>
+                </RadioGroupComponent>
               </div>
 
               <div>
@@ -323,7 +321,7 @@ const ProjectsProjectCollaborationInvite = () => {
 
             <p >
               {t.rich('para4', {
-                projectMember: (chunks) => <a href={MEMBERS_ROUTE}>{chunks}</a>
+                projectmember: (chunks) => <a href={MEMBERS_ROUTE}>{chunks}</a>
               })}
             </p>
             <p>
