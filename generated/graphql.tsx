@@ -758,8 +758,8 @@ export type Mutation = {
   addMetadataStandard?: Maybe<MetadataStandard>;
   /** Create a plan */
   addPlan?: Maybe<Plan>;
-  /** Add Funding information to a Plan */
-  addPlanFunding?: Maybe<Array<Maybe<PlanFunding>>>;
+  /** Add a Funding information to a Plan */
+  addPlanFunding?: Maybe<PlanFunding>;
   /** Add a Member to a Plan */
   addPlanMember?: Maybe<PlanMember>;
   /** Create a project */
@@ -986,7 +986,7 @@ export type MutationAddPlanArgs = {
 
 export type MutationAddPlanFundingArgs = {
   planId: Scalars['Int']['input'];
-  projectFundingIds: Array<Scalars['Int']['input']>;
+  projectFundingId: Scalars['Int']['input'];
 };
 
 
@@ -3793,7 +3793,7 @@ export type VersionedSectionSearchResults = PaginatedQueryResults & {
   hasNextPage?: Maybe<Scalars['Boolean']['output']>;
   /** Whether or not there is a previous page */
   hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
-  /** The TemplateSearchResults that match the search criteria */
+  /** The SectionSearchResults that match the search criteria */
   items?: Maybe<Array<Maybe<VersionedSectionSearchResult>>>;
   /** The number of items returned */
   limit?: Maybe<Scalars['Int']['output']>;
