@@ -334,6 +334,95 @@
       }
     }
   },
+  "Guidance": {
+    "title": "Guidance",
+    "description": "Manage guidance groups and texts for your organization",
+    "pages": {
+      "index": {
+        "title": "Guidance Groups",
+        "description": "Manage guidance groups that organize related guidance texts",
+        "createGroup": "Create guidance group"
+      },
+      "groupIndex": {
+        "title": "Guidance Texts",
+        "description": "Manage guidance texts within this group",
+        "createText": "Create guidance text",
+        "editGroup": "Edit group"
+      },
+      "groupCreate": {
+        "title": "Create New Guidance Group",
+        "description": "Add a new guidance group to organize related guidance texts"
+      },
+      "groupEdit": {
+        "title": "Edit guidance group",
+        "description": "Create a new guidance group below. Select one or more themes to define where plan creators will see this guidance."
+      },
+      "textCreate": {
+        "title": "Create New Guidance Text",
+        "description": "Add a new guidance text to this group"
+      },
+      "textEdit": {
+        "title": "Edit Guidance Text",
+        "description": "Edit guidance text details and content"
+      }
+    },
+    "sections": {
+      "guidanceGroup": {
+        "title": "Guidance Group"
+      },
+      "guidanceText": {
+        "title": "Guidance Text"
+      }
+    },
+    "fields": {
+      "groupName": {
+        "label": "Group Name",
+        "placeholder": "Enter group name"
+      },
+      "title": {
+        "label": "Title",
+        "placeholder": "Enter guidance text title"
+      },
+      "guidanceText": {
+        "label": "Guidance text",
+        "helpText": "Enter the guidance text content using the rich text editor"
+      },
+      "settings": {
+        "label": "Settings"
+      },
+      "themes": {
+        "label": "Themes",
+        "helpText": "Select appropriate themes below. This will determine when a plan creator sees the guidance text, for example if they are completing a part of template with the theme of \"Data Collection.\""
+      }
+    },
+    "status": {
+      "published": "Published",
+      "draft": "Draft",
+      "archived": "Archived",
+      "lastUpdated": "Last Updated",
+      "status": "Status"
+    },
+    "actions": {
+      "createGroup": "Create Group",
+      "createText": "Create Guidance Text",
+      "saveChanges": "Save Changes",
+      "publish": "Publish",
+      "edit": "Edit"
+    },
+    "breadcrumbs": {
+      "guidance": "Guidance",
+      "guidanceGroups": "Guidance Groups",
+      "createGroup": "Create Group",
+      "editGroup": "Edit group",
+      "createText": "Create Text",
+      "editText": "Edit Text",
+      "group": "Group"
+    },
+    "messages": {
+      "noGroups": "No guidance groups found",
+      "noTexts": "No guidance texts found in this group"
+    }
+  },
   "Global": {
     "breadcrumbs": {
       "navigation": "Breadcrumb navigation",
@@ -360,7 +449,14 @@
       "planFunding": "Plan funding",
       "sectionOverview": "Section overview",
       "feedback": "Feedback",
-      "questionDetails": "Question details"
+      "questionDetails": "Question details",
+      "guidance": "Guidance",
+      "guidanceGroups": "Guidance Groups",
+      "createGroup": "Create Group",
+      "editGroup": "Edit group",
+      "createText": "Create Text",
+      "editText": "Edit Text",
+      "group": "Group"
     },
     "form": {
       "yesLabel": "Yes",

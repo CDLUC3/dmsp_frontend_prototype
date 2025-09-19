@@ -1,0 +1,28 @@
+@use '@/styles/responsive.scss' as r;
+
+.editForm {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+
+
+
+
+
+
+.statusHelp {
+    font-size: var(--fs-sm);
+    color: var(--slate-600);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.learnMoreLink {
+    color: var(--blue-600);
+    text-decoration: underline;
+
+    &:hover {
+        color: var(--blue-700);
+    }
+}

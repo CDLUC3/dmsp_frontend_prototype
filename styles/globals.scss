@@ -62,6 +62,7 @@ body {
 
   // Base colors
   --background-color: #f8f8f8;
+  --white: #ffffff;
   --bg-white: var(--gray-50);
   --bg-black: #000000;
   --text-black: #000000;
@@ -235,7 +236,7 @@ body {
   margin-bottom: var(--space-5);
 }
 
-.sidebar-section > button:not(:last-child) {
+.sidebar-section>button:not(:last-child) {
   margin-right: var(--space-3);
 }
 

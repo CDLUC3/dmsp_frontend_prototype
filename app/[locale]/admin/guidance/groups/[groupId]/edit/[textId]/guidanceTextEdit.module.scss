@@ -1,0 +1,49 @@
+@use '@/styles/responsive.scss' as r;
+
+.editForm {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+
+
+
+.statusInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.statusItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    label {
+        font-size: var(--fs-sm);
+        font-weight: 500;
+        color: var(--slate-600);
+        margin: 0;
+    }
+
+    span {
+        font-size: var(--fs-base);
+        color: var(--slate-900);
+    }
+}
+
+.statusHelp {
+    font-size: var(--fs-sm);
+    color: var(--slate-600);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.learnMoreLink {
+    color: var(--blue-600);
+    text-decoration: underline;
+
+    &:hover {
+        color: var(--blue-700);
+    }
+}

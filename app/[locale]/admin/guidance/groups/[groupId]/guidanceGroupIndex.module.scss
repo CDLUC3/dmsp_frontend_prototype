@@ -1,0 +1,29 @@
+@use '@/styles/responsive.scss' as r;
+
+.guidanceContent {
+    .metadata {
+        color: var(--slate-500);
+        font-size: var(--fs-small);
+
+        span {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .separator:before {
+            content: "";
+        }
+
+        @include r.device(sm) {
+            span {
+                display: inline-block;
+                margin-bottom: 0rem;
+            }
+
+            .separator:before {
+                content: "•";
+                margin: 0 0.5rem;
+            }
+        }
+    }
+}

@@ -1,0 +1,52 @@
+@use '@/styles/responsive.scss' as r;
+
+.dashboardItem {
+    padding: 1.25rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: var(--card-border-radius);
+    background: var(--bg-white);
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--card-border);
+}
+
+.dashboardItemInner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    align-items: flex-start;
+
+    @include r.device(sm) {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+}
+
+.dashboardItemContent {
+    flex: 1;
+}
+
+.dashboardItemHeading {
+    padding: 0;
+    margin: 0 0 0.5rem;
+}
+
+.content {
+    margin-bottom: 1rem;
+}
+
+.updateLink {
+    color: var(--slate-900) !important;
+    text-decoration: underline;
+    font-size: var(--fs-base);
+    line-height: 1;
+    font-family: var(--font-sans);
+}
+
+.titleLink {
+    color: var(--slate-900) !important;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
