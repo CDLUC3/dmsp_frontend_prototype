@@ -1,4 +1,7 @@
 ### Added
+- Add organization details page
+
+### Added
 
 - added profile overview page
 - added "homepage" which is our temp home page just to add the admin link and made it nicer
