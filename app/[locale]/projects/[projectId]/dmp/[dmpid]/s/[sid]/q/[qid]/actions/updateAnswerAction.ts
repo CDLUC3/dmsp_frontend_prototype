@@ -3,8 +3,6 @@
 import { executeGraphQLMutation } from "@/utils/server/graphqlServerActionHandler";
 import { ActionResponse } from "@/app/types";
 import { UpdateAnswerDocument } from "@/generated/graphql";
-import logger from "@/utils/server/logger";
-import { prepareObjectForLogs } from "@/utils/server/loggerUtils";
 
 export async function updateAnswerAction({
   answerId,
