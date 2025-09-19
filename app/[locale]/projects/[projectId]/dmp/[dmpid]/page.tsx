@@ -13,6 +13,8 @@ import {
   Link,
   ListBoxItem,
   Modal,
+  Radio,
+  Text
 } from 'react-aria-components';
 import {
   PlanSectionProgress,
@@ -46,6 +48,7 @@ import {
   PlanMember,
   PlanOverviewInterface,
 } from '@/app/types';
+import { DOI_REGEX } from '@/lib/constants';
 import styles from './PlanOverviewPage.module.scss';
 
 const PUBLISHED = 'Published';
@@ -139,6 +142,30 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
+// Extract the dmpId from the DOI URL
+function extractDOI(value: string): string {
+  if (!value) return '';
+  // decode percent-encoding if someone passed a URL-encoded DOI
+  const decoded = decodeURIComponent(value.trim());
+  const match = DOI_REGEX.exec(decoded);
+  return match ? match[1] : '';
+}
+
+// Construct the narrative URL based on environment
+// When running narrative generator locally, it uses port 3030, so we need a separate domain for that
+const getNarrativeUrl = (dmpId: string) => {
+  let narrativeUrl = '';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const localBaseUrl = process.env.NEXT_PUBLIC_NARRATIVE_ENDPOINT || 'http://localhost:3030';
+  const isLocalhost = baseUrl?.includes('localhost');
+
+  narrativeUrl = isLocalhost ? localBaseUrl || '' : baseUrl || '';
+
+  return `${narrativeUrl}/dmps/${dmpId}/narrative.html?includeCoverSheet=false&includeResearchOutputs=false&includeRelatedWorks=false`;
+};
+
+
+
 const PlanOverviewPage: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -169,38 +196,11 @@ const PlanOverviewPage: React.FC = () => {
   // Set URLs
   const FUNDINGS_URL = routePath('projects.dmp.fundings', { projectId, dmpId: planId });
   const MEMBERS_URL = routePath('projects.dmp.members', { projectId, dmpId: planId });
-  const RESEARCH_OUTPUT_URL = routePath('projects.dmp.research-outputs', { projectId, dmpId: planId });
   const DOWNLOAD_URL = routePath('projects.dmp.download', { projectId, dmpId: planId });
   const FEEDBACK_URL = routePath('projects.dmp.feedback', { projectId, dmpId: planId });
   const CHANGE_PRIMARY_CONTACT_URL = routePath('projects.dmp.members', { projectId, dmpId: planId });
   const RELATED_WORKS_URL = routePath('projects.dmp.relatedWorks', { projectId, dmpId: planId });
 
-  // Set radio button data
-  const radioData = {
-    radioGroupLabel: t('publishModal.publish.visibilityOptionsTitle'),
-    radioButtonData: [
-      {
-        value: 'public',
-        label: t('publishModal.publish.visibilityOptions.public.label'),
-        description: <><strong>{t('publishModal.publish.visibilityOptions.public.description')}</strong></>
-      },
-      {
-        value: 'organizational',
-        label: t('publishModal.publish.visibilityOptions.organization.label'),
-        description: <>{t.rich('publishModal.publish.visibilityOptions.organization.description', {
-          strong: (chunks) => <strong>{chunks}</strong>
-        })}</>
-      },
-      {
-        value: 'private',
-        label: t('publishModal.publish.visibilityOptions.private.label'),
-        description: t('publishModal.publish.visibilityOptions.private.description')
-      }
-    ]
-  }
-
-  //TODO: Get research output count from backend
-  const researchOutputCount = 3;
 
   //TODO: Get related works count from backend
   const relatedWorksCount = 3;
@@ -441,7 +441,7 @@ const PlanOverviewPage: React.FC = () => {
         type: 'SET_PLAN_DATA',
         payload: {
           id: Number(data?.plan.id) ?? null,
-          dmpId: data?.plan.dmpId ?? '',
+          dmpId: extractDOI(data?.plan.dmpId ?? ''),
           registered: data?.plan.registered ?? '',
           title: data?.plan?.title ?? '',
           status: data?.plan?.status ?? '',
@@ -612,23 +612,6 @@ const PlanOverviewPage: React.FC = () => {
               </section>
 
               <section className={styles.planOverviewItem}
-                aria-labelledby="outputs-title">
-                <div className={styles.planOverviewItemContent}>
-                  <h2 id="outputs-title"
-                    className={styles.planOverviewItemTitle}>
-                    {t('outputs.title')}
-                  </h2>
-                  <p className={styles.planOverviewItemHeading}>
-                    {t('outputs.count', { count: researchOutputCount })}
-                  </p>
-                </div>
-                <Link href={RESEARCH_OUTPUT_URL}
-                  aria-label={t('outputs.edit')}>
-                  {t('outputs.edit')}
-                </Link>
-              </section>
-
-              <section className={styles.planOverviewItem}
                 aria-labelledby="related-works-title">
                 <div className={styles.planOverviewItemContent}>
                   <h2 id="related-works-title"
@@ -698,7 +681,9 @@ const PlanOverviewPage: React.FC = () => {
         <SidebarPanel>
           <div className={`statusPanelContent sidePanel`}>
             <div className={`buttonContainer withBorder  mb-5`}>
-              <Button className="secondary">{Global('buttons.preview')}</Button>
+              <Link href={getNarrativeUrl(state.planData.dmpId)} target="_blank" rel="noopener noreferrer" className="button-secondary">
+                {Global('buttons.preview')}
+              </Link>
               <Button
                 onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: true })}
               >
@@ -856,13 +841,43 @@ const PlanOverviewPage: React.FC = () => {
                 </p>
 
                 <Heading level={2}>{t('publishModal.publish.visibilityOptionsTitle')}</Heading>
+
+
                 <RadioGroupComponent
                   name="visibility"
                   value={state.planVisibility.toLowerCase()}
-                  radioGroupLabel={radioData.radioGroupLabel}
-                  radioButtonData={radioData.radioButtonData}
+                  radioGroupLabel={t('publishModal.publish.visibilityOptionsTitle')}
                   onChange={handleRadioChange}
-                />
+                >
+                  <div>
+                    <Radio value="public">{t('publishModal.publish.visibilityOptions.public.label')}</Radio>
+                    <Text
+                      slot="description"
+                    >
+                      <strong>{t('publishModal.publish.visibilityOptions.public.description')}</strong>
+                    </Text>
+                  </div>
+
+                  <div>
+                    <Radio value="organizational">{t('publishModal.publish.visibilityOptions.organization.label')}</Radio>
+                    <Text
+                      slot="description"
+                    >
+                      {t.rich('publishModal.publish.visibilityOptions.organization.description', {
+                        strong: (chunks) => <strong>{chunks}</strong>
+                      })}
+                    </Text>
+                  </div>
+
+                  <div>
+                    <Radio value="private">{t('publishModal.publish.visibilityOptions.private.label')}</Radio>
+                    <Text
+                      slot="description"
+                    >
+                      {t('publishModal.publish.visibilityOptions.private.description')}
+                    </Text>
+                  </div>
+                </RadioGroupComponent>
 
                 <div className="modal-actions">
                   <div>

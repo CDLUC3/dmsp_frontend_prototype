@@ -9,8 +9,8 @@
     },
     "tabs": {
       "pending": "Pending",
-      "related": "Related",
-      "discarded": "Discarded"
+      "accepted": "Accepted",
+      "rejected": "Rejected"
     }
   },
   "RelatedWorksList": {
@@ -45,11 +45,10 @@
       "title": "Open the published version of this work"
     },
     "buttons": {
-      "review": "Review",
       "expand": "Expand",
       "collapse": "Collapse",
       "accept": "Accept",
-      "discard": "Discard"
+      "reject": "Reject"
     },
     "fieldNames": {
       "confidence": "Confidence",
@@ -66,11 +65,11 @@
       "funders": "Funders"
     },
     "instructions": {
-      "review": "Review the information about this potentially related work below, and then approve it as related or reject it as unrelated.",
+      "review": "Review the information about this potentially related work below, and then accept it as related or reject it as unrelated.",
       "actions": {
-        "pending": "If you discard this related work, you can recover it later from the Discarded tab.",
-        "related": "If you discard this related work, you can recover it later from the Discarded tab.",
-        "discarded": "You can recover this related work by accepting it, you will then see it in the Related tab."
+        "pending": "If you reject this related work, you can recover it later from the Rejected tab.",
+        "related": "If you reject this related work, you can recover it later from the Rejected tab.",
+        "discarded": "You can recover this related work by accepting it, you will then see it in the Accepted tab."
       }
     }
   },

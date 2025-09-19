@@ -1,6 +1,7 @@
 import React from 'react';
 import { CheckboxesQuestionType } from '@dmptool/types';
 import { CheckboxGroupComponent } from '@/components/Form';
+import { Checkbox } from "react-aria-components";
 
 interface CheckboxesQuestionProps {
   parsedQuestion: CheckboxesQuestionType;
@@ -29,8 +30,24 @@ const CheckboxesQuestionComponent: React.FC<CheckboxesQuestionProps> = ({
       onChange={handleCheckboxGroupChange}
       checkboxGroupLabel=""
       checkboxGroupDescription={""}
-      checkboxData={checkboxData}
-    />
+    >
+      {checkboxData.map((checkbox, index) => (
+        <div key={index}>
+          <Checkbox value={checkbox.value} aria-label="checkbox">
+            <div className="checkbox">
+              <svg viewBox="0 0 18 18" aria-hidden="true">
+                <polyline points="1 9 7 14 15 4" />
+              </svg>
+            </div>
+            <div className="">
+              <span>
+                {checkbox.label}
+              </span>
+            </div>
+          </Checkbox>
+        </div>
+      ))}
+    </CheckboxGroupComponent>
   );
 };
 

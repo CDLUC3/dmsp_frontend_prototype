@@ -11,6 +11,8 @@ import {
   Button,
   Form,
   Link,
+  Radio,
+  Text
 } from "react-aria-components";
 
 //GraphQL
@@ -26,9 +28,10 @@ import { ContentContainer, LayoutContainer } from "@/components/Container";
 import {
   FormInput,
   FormTextArea,
-  RadioGroupComponent,
-  DateComponent
+  DateComponent,
+  RadioGroupComponent
 } from "@/components/Form";
+
 import ErrorMessages from '@/components/ErrorMessages';
 import ResearchDomainCascadingDropdown
   from '@/components/ResearchDomainCascadingDropdown';
@@ -90,22 +93,6 @@ const ProjectsProjectDetail = () => {
   const ProjectOverview = useTranslations('ProjectOverview');
   const ProjectDetail = useTranslations('ProjectsProjectDetail');
   const Global = useTranslations('Global');
-
-  const radioData = {
-    radioGroupLabel: ProjectDetail('labels.projectType'),
-    radioButtonData: [
-      {
-        value: 'true',
-        label: ProjectDetail('labels.mockProject'),
-        description: ProjectDetail('descriptions.mockProject')
-      },
-      {
-        value: 'false',
-        label: ProjectDetail('labels.realProject'),
-        description: ProjectDetail('descriptions.realProject')
-      }
-    ]
-  }
 
   // Initialize useUpdateProjectMutation
   const [updateProjectMutation] = useUpdateProjectMutation();
@@ -383,10 +370,27 @@ const ProjectsProjectDetail = () => {
               <RadioGroupComponent
                 name="projectType"
                 value={projectData.isTestProject.toString()}
-                radioGroupLabel={radioData.radioGroupLabel}
-                radioButtonData={radioData.radioButtonData}
+                radioGroupLabel={ProjectDetail('labels.projectType')}
                 onChange={handleRadioChange}
-              />
+              >
+                <div>
+                  <Radio value="true">{ProjectDetail('labels.mockProject')}</Radio>
+                  <Text
+                    slot="description"
+                  >
+                    {ProjectDetail('descriptions.mockProject')}
+                  </Text>
+                </div>
+
+                <div>
+                  <Radio value="false">{ProjectDetail('labels.realProject')}</Radio>
+                  <Text
+                    slot="description"
+                  >
+                    {ProjectDetail('descriptions.realProject')}
+                  </Text>
+                </div>
+              </RadioGroupComponent>
             </div>
 
             <Button type="submit" className="submit-button">{Global('buttons.save')}</Button>

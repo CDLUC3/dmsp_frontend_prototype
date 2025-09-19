@@ -65,6 +65,10 @@ const SectionUpdatePage: React.FC = () => {
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
+  // Track whether there are unsaved changes
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  // Form state
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   //For scrolling to top of page
   const topRef = useRef<HTMLDivElement | null>(null);
@@ -120,6 +124,7 @@ const SectionUpdatePage: React.FC = () => {
       ...prevContents,
       [key]: value,
     }));
+    setHasUnsavedChanges(true);
   };
 
   // Client-side validation of fields
@@ -216,6 +221,9 @@ const SectionUpdatePage: React.FC = () => {
         setErrorMessages(prevErrors => [...prevErrors, SectionUpdatePage('messages.errorUpdatingSection')]);
         return [{}, false];
       }
+    } finally {
+      setIsSubmitting(false);
+      setHasUnsavedChanges(false);
     }
   };
 
@@ -250,6 +258,7 @@ const SectionUpdatePage: React.FC = () => {
       ? prevTags.filter(selectedTag => selectedTag.id !== tag.id)
       : [...prevTags, tag]
     );
+    setHasUnsavedChanges(true);
   };
 
   // Show Success Message
@@ -260,11 +269,16 @@ const SectionUpdatePage: React.FC = () => {
 
   const handleSectionNameChange = (sectionData: SectionFormInterface) => {
     setSectionData(sectionData);
+    setHasUnsavedChanges(true);
   };
 
   // Handle form submit
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    // Prevent double submission
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     // Clear previous error messages
     clearAllFieldErrors();
@@ -286,12 +300,28 @@ const SectionUpdatePage: React.FC = () => {
         setErrorMessages([errors.general || SectionUpdatePage('messages.errorUpdatingSection')]);
 
       } else {
+        setIsSubmitting(false);
         // Show success message and redirect back to Edit Templates page
         showSuccessToast();
         router.push(TEMPLATE_URL);
       }
     }
   };
+
+  // Warn user of unsaved changes if they try to leave the page
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = ''; // Required for Chrome/Firefox to show the confirm dialog
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
 
   useEffect(() => {
     if (tagsData?.tags) {
@@ -437,8 +467,12 @@ const SectionUpdatePage: React.FC = () => {
                         })}
                       </div>
                     </CheckboxGroup>
-                    <Button type="submit">{Global('buttons.saveAndUpdate')}</Button>
-
+                    <Button
+                      type="submit"
+                      aria-disabled={isSubmitting}
+                    >
+                      {isSubmitting ? Global('buttons.saving') : Global('buttons.saveAndUpdate')}
+                    </Button>
                   </Form>
                 </TabPanel>
                 <TabPanel id="options">

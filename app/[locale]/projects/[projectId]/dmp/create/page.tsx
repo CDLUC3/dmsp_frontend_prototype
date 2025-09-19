@@ -7,6 +7,7 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
+  Checkbox,
   FieldError,
   Input,
   Label,
@@ -450,26 +451,47 @@ const PlanCreate: React.FC = () => {
                 onChange={(value) => handleCheckboxChange(value, 'funders')}
                 checkboxGroupLabel={PlanCreate('checkbox.filterByFunderLabel')}
                 checkboxGroupDescription={PlanCreate('checkbox.filterByFunderDescription')}
-                checkboxData={funders.map(funder => ({
-                  label: funder.name,
-                  value: funder.uri,
-                }))}
-              />
+              >
+                {funders.map((funder, index) => (
+                  <div key={index}>
+                    <Checkbox value={funder.uri}>
+                      <div className="checkbox">
+                        <svg viewBox="0 0 18 18" aria-hidden="true">
+                          <polyline points="1 9 7 14 15 4" />
+                        </svg>
+                      </div>
+                      <div className="">
+                        <span>
+                          {funder.name}
+                        </span>
+                      </div>
+                    </Checkbox>
+                  </div>
+                ))}
+              </CheckboxGroupComponent>
             )}
 
             {funders.length === 0 && hasBestPractice && (
               <CheckboxGroupComponent
                 name="bestPractices"
-                ariaLabel="best practices"
                 value={selectedFilterItems}
                 onChange={(value) => handleCheckboxChange(value, 'bestPractice')}
                 checkboxGroupLabel={PlanCreate('checkbox.filterByBestPracticesLabel')}
                 checkboxGroupDescription={PlanCreate('checkbox.filterByBestPracticesDescription')}
-                checkboxData={[{
-                  label: PlanCreate('labels.dmpBestPractice'),
-                  value: "DMP Best Practice",
-                }]}
-              />
+              >
+                <Checkbox value="DMP Best Practice" aria-label="best practices">
+                  <div className="checkbox">
+                    <svg viewBox="0 0 18 18" aria-hidden="true">
+                      <polyline points="1 9 7 14 15 4" />
+                    </svg>
+                  </div>
+                  <div className="">
+                    <span>
+                      {PlanCreate('labels.dmpBestPractice')}
+                    </span>
+                  </div>
+                </Checkbox>
+              </CheckboxGroupComponent>
             )}
           </div>
 
