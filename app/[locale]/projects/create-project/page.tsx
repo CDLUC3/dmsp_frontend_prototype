@@ -7,6 +7,7 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
+  Checkbox,
   Form,
   Link,
 } from "react-aria-components";
@@ -68,14 +69,6 @@ const ProjectsCreateProject = () => {
   // localization keys
   const Global = useTranslations('Global');
   const CreateProject = useTranslations('ProjectsCreateProject');
-
-  const checkboxData = [
-    {
-      value: 'checkboxGroup',
-      label: CreateProject('form.checkboxLabel'),
-      description: CreateProject('form.checkboxHelpText')
-    }
-  ]
 
   const [addProjectMutation] = useAddProjectMutation();
 
@@ -161,7 +154,7 @@ const ProjectsCreateProject = () => {
           isTestProject,
           title: formData.projectName,
         }
-      }).then(({data}) => {
+      }).then(({ data }) => {
         const result = data!.addProject;
         const [hasErrors, errs] = checkErrors(
           result?.errors as ProjectErrors,
@@ -195,10 +188,10 @@ const ProjectsCreateProject = () => {
 
   useEffect(() => {
     // Scroll to the Project name field if there is a field-level error
-    if(fieldErrors.projectName.length > 0) {
+    if (fieldErrors.projectName.length > 0) {
       scrollToTop(inputFieldRef);
     }
-  },[fieldErrors.projectName])
+  }, [fieldErrors.projectName])
 
   return (
     <>
@@ -241,11 +234,30 @@ const ProjectsCreateProject = () => {
             <CheckboxGroupComponent
               name="checkboxGroup"
               value={formData.checkboxGroup}
+              onChange={handleCheckboxChange}
+              isRequired={false}
               checkboxGroupLabel={CreateProject('form.checkboxGroupLabel')}
               checkboxGroupDescription={CreateProject('form.checkboxGroupHelpText')}
-              checkboxData={checkboxData}
-              onChange={handleCheckboxChange}
-            />
+            >
+
+              <Checkbox value="checkboxGroup" aria-label={CreateProject('isThisMockProject')}>
+                <div className="checkbox">
+                  <svg viewBox="0 0 18 18" aria-hidden="true">
+                    <polyline points="1 9 7 14 15 4" />
+                  </svg>
+                </div>
+                <div className="">
+                  <span>
+                    {CreateProject('form.checkboxLabel')}
+                  </span>
+                  <br />
+                  <span className="help">
+                    {CreateProject('form.checkboxHelpText')}
+                  </span>
+                </div>
+              </Checkbox>
+
+            </CheckboxGroupComponent>
 
             <Button
               type="submit"

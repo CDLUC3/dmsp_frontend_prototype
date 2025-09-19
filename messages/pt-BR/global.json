@@ -116,6 +116,7 @@
   },
   "FunderSearch": {
     "headerTitle": "Procurar por fragmentos",
+    "headerDescription": "Selecione o financiador a ser usado neste projeto. Pode ser o financiador ao qual você planeja se candidatar ou aquele de onde você já possui financiamento. Você poderá adicionar outros financiadores posteriormente, caso tenha mais de um.",
     "funder": "Finalizações",
     "popularTitle": "Financiadores mais populares",
     "found": "{count} erros encontrados",

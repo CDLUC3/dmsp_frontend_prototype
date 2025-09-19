@@ -13,6 +13,8 @@ import {
   Link,
   OverlayArrow,
   Popover,
+  Tooltip,
+  TooltipTrigger
 } from "react-aria-components";
 import { CalendarDate, DateValue } from "@internationalized/date";
 import DOMPurify from 'dompurify';
@@ -182,13 +184,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Form state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
-  // State variables for tracking auto-save info
+  // Track whether there are unsaved changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
-  const [isAutoSaving, setIsAutoSaving] = useState<boolean>(false);
-  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Localization
   const Global = useTranslations('Global');
@@ -369,7 +366,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       otherAffiliationName: value
     }));
-    setHasUnsavedChanges(true);
   };
 
   // Update the selected radio value when user selects different option
@@ -754,12 +750,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   };
 
   // Call Server Action updateAnswerAction or addAnswerAction to save answer
-  const addAnswer = async (isAutoSave = false) => {
-
-    if (isAutoSave) {
-      setIsAutoSaving(true);
-    }
-
+  const addAnswer = async () => {
     const jsonPayload = getAnswerJson();
     // Check is answer already exists. If so, we want to call an update mutation rather than add
     const isUpdate = Boolean(answerData?.answerByVersionedQuestionId);
@@ -794,11 +785,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
             path: routePath('projects.dmp.versionedQuestion.detail', { projectId, dmpId, versionedSectionId, versionedQuestionId })
           }
         });
-      } finally {
-        if (isAutoSave) {
-          setIsAutoSaving(false);
-          setHasUnsavedChanges(false);
-        }
       }
     }
     return {
@@ -812,14 +798,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    setErrors([]); // Clear previous errors
+
     // Prevent double submission
     if (isSubmitting) return;
     setIsSubmitting(true);
-
-    // Clear any pending auto-save
-    if (autoSaveTimeoutRef.current) {
-      clearTimeout(autoSaveTimeoutRef.current);
-    }
 
     const result = await addAnswer();
 
@@ -838,33 +821,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
       } else {
         setIsSubmitting(false);
+        setHasUnsavedChanges(false);
         // Show user a success message and redirect back to the Section page
         showSuccessToast();
         router.push(routePath('projects.dmp.versionedSection', { projectId, dmpId, versionedSectionId }))
 
       }
-    }
-  };
-
-  // Helper function to format the last saved messaging
-  const getLastSavedText = () => {
-
-    if (isAutoSaving) {
-      return `${Global('buttons.saving')}...`;
-    }
-
-    if (!lastSavedAt) {
-      return hasUnsavedChanges ? t('messages.unsavedChanges') : '';
-    }
-
-    const diffInMinutes = Math.floor(Math.abs(currentTime.getTime() - lastSavedAt.getTime()) / (1000 * 60));
-
-    if (diffInMinutes === 0) {
-      return t('messages.savedJustNow');
-    } else if (diffInMinutes === 1) {
-      return t('messages.lastSavedOneMinuteAgo');
-    } else {
-      return t('messages.lastSaves', { minutes: diffInMinutes });
     }
   };
 
@@ -972,64 +934,20 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   }, [answerData, questionType]);
 
-
-  // Auto-save logic
+  // Warn user of unsaved changes if they try to leave the page
   useEffect(() => {
-    if (!hasUnsavedChanges) return;
-    if (!versionedQuestionId || !versionedSectionId || !question) return;
-
-    // Set a timeout to auto-save after 3 seconds of inactivity
-    autoSaveTimeoutRef.current = setTimeout(async () => {
-      const { success } = await addAnswer(true);
-
-      if (success) {
-        setLastSavedAt(new Date());
-        setHasUnsavedChanges(false);
-      }
-    }, 3000);
-
-    return () => clearTimeout(autoSaveTimeoutRef.current);
-  }, [formData, versionedQuestionId, versionedSectionId, question, hasUnsavedChanges]);
-
-
-  // Auto-save on window blur and before unload
-  useEffect(() => {
-    const handleWindowBlur = () => {
-      if (hasUnsavedChanges && !isAutoSaving) {
-        if (autoSaveTimeoutRef.current) {
-          clearTimeout(autoSaveTimeoutRef.current);
-        }
-        addAnswer(true);
-      }
-    };
-
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
         e.preventDefault();
-        e.returnValue = ''; // This is required for some browsers to show the confirmation dialog
+        e.returnValue = ''; // Required for Chrome/Firefox to show the confirm dialog
       }
     };
 
-    window.addEventListener('blur', handleWindowBlur);
     window.addEventListener('beforeunload', handleBeforeUnload);
-
     return () => {
-      window.removeEventListener('blur', handleWindowBlur);
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-      }
     };
-  }, [hasUnsavedChanges, isAutoSaving]);
-
-  // Set up an interval to update the current time every minute
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60 * 1000); // Update every minute
-
-    return () => clearInterval(interval);
-  }, []);
+  }, [hasUnsavedChanges]);
 
   useEffect(() => {
     // Set whether current user can add comments based on their role and plan data
@@ -1205,7 +1123,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                     {(questionType === 'textArea' && question?.sampleText) && (
                       <Button
                         ref={openSampleTextButtonRef}
-                        className={`${styles.buttonSmall} tertiary`}
+                        className="tertiary small"
                         data-secondary
                         onPress={toggleSampleTextDrawer}
                       >
@@ -1213,25 +1131,35 @@ const PlanOverviewQuestionPage: React.FC = () => {
                       </Button>
                     )}
 
-                    {/**Only show comments if an answer has been saved so far */}
-                    {answerId && (
+                    {/**Only show active comment button if an answer exists, otherwise show a disabled button with message */}
+                    {answerId ? (
                       <Button
                         ref={openCommentsButtonRef}
-                        className={`${styles.buttonSmall} ${mergedComments.length > 0 ? styles.buttonWithComments : null}`}
+                        className={styles.buttonSmall}
                         onPress={toggleCommentsDrawer}
                       >
                         {t('buttons.commentWithNumber', { number: mergedComments.length })}
                       </Button>
+                    ) : (
+                      <TooltipTrigger delay={0}>
+                        <Button
+                          ref={openCommentsButtonRef}
+                          className={styles.buttonSmallDisabled}
+                        >
+                          {t('buttons.commentWithNumber', { number: mergedComments.length })}
+                        </Button>
+                        <Tooltip
+                          placement="bottom"
+                          className={`${styles.tooltip} py-2 px-2`}
+                        >
+                          {PlanOverview('page.commentTooltip')}
+                        </Tooltip>
+                      </TooltipTrigger>
                     )}
 
                   </div>
                   {parsed && questionField}
 
-                </div>
-                <div className="lastSaved mt-5"
-                  aria-live="polite"
-                  role="status">
-                  {getLastSavedText()}
                 </div>
               </Card>
 
@@ -1364,7 +1292,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 {convertToHTML(question?.sampleText)}
               </div>
               <div className="">
-                <Button className={`${styles.buttonSmall}`} onPress={() => handleUseAnswer(question?.sampleText)}>{PlanOverview('buttons.useAnswer')}</Button>
+                <Button className="small" onPress={() => handleUseAnswer(question?.sampleText)}>{PlanOverview('buttons.useAnswer')}</Button>
               </div>
             </DrawerPanel>
           )
@@ -1386,6 +1314,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           handleEditComment={handleEditComment}
           handleDeleteComment={handleDeleteComment}
           me={me}
+          planOwners={plan?.planOwners}
           locale={locale}
           commentsEndRef={commentsEndRef}
           canAddComments={canAddComments}

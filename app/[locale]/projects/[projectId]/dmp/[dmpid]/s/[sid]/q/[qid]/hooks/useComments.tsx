@@ -28,6 +28,7 @@ export interface AnswerComment {
   commentText: string;
   answerId: number;
   created?: string | null;
+  createdById?: number | null;
   modified?: string | null;
   user?: {
     __typename?: "User";
@@ -42,6 +43,7 @@ export interface FeedbackComment {
   id?: number | null;
   commentText?: string | null;
   created?: string | null;
+  createdById?: number | null;
   answerId?: number | null;
   modified?: string | null;
   PlanFeedback?: {
@@ -227,6 +229,7 @@ export const useComments = ({
         commentText: newComment,
         answerId,
         created: new Date().getTime().toString(),
+        createdById: me?.me?.id,
         modified: new Date().getTime().toString(),
         type: 'feedback',
         isAnswerComment: false,
@@ -246,6 +249,7 @@ export const useComments = ({
         commentText: newComment,
         answerId,
         created: new Date().getTime().toString(),
+        createdById: me?.me?.id,
         modified: new Date().getTime().toString(),
         type: 'answer',
         isAnswerComment: true,

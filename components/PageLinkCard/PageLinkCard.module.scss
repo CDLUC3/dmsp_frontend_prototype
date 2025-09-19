@@ -1,38 +1,40 @@
+@use "../../styles/responsive" as r;
+
 .adminSection {
-    margin-bottom: 3rem;
+    margin-bottom: var(--space-8);
 
     h2 {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin: 0 0 1rem 0;
-        color: #333;
-        padding-bottom: 0.5rem;
+        font-size: var(--fs-2xl);
+        font-weight: var(--fw-bold);
+        margin: 0 0 var(--space-4) 0;
+        color: var(--heading-color);
+        padding-bottom: var(--space-2);
     }
 
     .sectionDescription {
-        margin: 0 0 1rem 0;
-        color: #666;
-        line-height: 1.5;
-        font-size: 1rem;
+        margin: 0 0 var(--space-4) 0;
+        color: var(--text-color-base);
+        line-height: var(--lh-normal);
+        font-size: var(--fs-base);
     }
 }
 
 .sectionGrid {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: var(--space-4);
 }
 
 .adminCard {
     display: block;
-    background: white;
-    border: 1px solid #e5e5e5;
-    border-radius: 8px;
-    padding: 1.5rem;
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--card-border-radius);
+    padding: var(--card-padding);
     text-decoration: none;
     color: inherit;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--card-shadow);
 
     &:hover {
         transform: translateY(-1px);
@@ -40,7 +42,7 @@
     }
 
     &:focus {
-        outline: 2px solid #007bff;
+        outline: 2px solid var(--focus-ring-color);
         outline-offset: 2px;
     }
 
@@ -53,13 +55,13 @@
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 0.75rem;
+        margin-bottom: var(--space-3);
 
         h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-size: var(--fs-lg);
+            font-weight: var(--fw-bold);
             margin: 0;
-            color: #1a1a1a;
+            color: var(--heading-color);
             flex: 1;
             transition: text-decoration 0.2s ease;
         }
@@ -67,33 +69,33 @@
 
     p {
         margin: 0;
-        color: #666;
-        line-height: 1.5;
+        color: var(--text-color-base);
+        line-height: var(--lh-normal);
     }
 }
 
 .notificationBadge {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.75rem;
-    color: #dc3545;
+    gap: var(--space-2);
+    font-size: var(--fs-xsmall);
+    color: var(--red-400);
     white-space: nowrap;
-    margin-left: 0.5rem;
+    margin-left: var(--space-2);
 
     &::before {
         content: '';
         width: 8px;
         height: 8px;
-        background: #dc3545;
+        background: var(--red-400);
         border-radius: 50%;
         flex-shrink: 0;
     }
 }
 
 // Responsive adjustments
-@media (max-width: 768px) {
+@include r.device(md) {
     .sectionGrid {
-        gap: 0.75rem;
+        gap: var(--space-3);
     }
 }

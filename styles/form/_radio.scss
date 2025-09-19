@@ -58,3 +58,10 @@
     outline-offset: 2px;
   }
 }
+
+.react-aria-RadioGroup .react-aria-Radio + .react-aria-Text[slot="description"] {
+  margin: 0 0 var(--space-3) var(--space-6);
+  font-size: 1rem;
+  color: var(--slate-600);
+  display: block;
+}
