@@ -2,6 +2,11 @@ query Templates($term: String, $paginationOptions: PaginationOptions) {
   myTemplates(term: $term, paginationOptions: $paginationOptions) {
     totalCount
     nextCursor
+    limit
+    availableSortFields
+    currentOffset
+    hasNextPage
+    hasPreviousPage
     items {
       id
       name
@@ -15,6 +20,7 @@ query Templates($term: String, $paginationOptions: PaginationOptions) {
       modified
       modifiedById
       modifiedByName
+      bestPractice
     }
   }
 }
