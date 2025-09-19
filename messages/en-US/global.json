@@ -162,6 +162,7 @@
     "btnBack": "Back"
   },
   "Admin": {
+    "headingRelatedActions": "Related actions",
     "sections": {
       "organisationTemplatesAndPlans": {
         "title": "Organisation Templates and Plans",
@@ -194,6 +195,10 @@
           "editOrganizationDetails": {
             "title": "Edit organization details",
             "description": "Update your organization name, abbreviation, institution etc"
+          },
+          "departments": {
+            "title": "Departments",
+            "description": "Manage your different departments, faculties, schools or divisions"
           },
           "schoolsDepartments": {
             "title": "Schools/Departments",
@@ -307,6 +312,75 @@
       "success": {
         "organizationDetailsSaved": "Organization details saved successfully!"
       }
+    }
+  },
+  "Departments": {
+    "title": "Schools/Departments",
+    "sections": {
+      "departmentsList": {
+        "title": "Schools/Departments",
+        "description": "Manage your different departments, faculties, schools or divisions."
+      }
+    },
+    "fields": {
+      "departmentName": {
+        "label": "Name",
+        "placeholder": "Enter name"
+      },
+      "departmentAbbr": {
+        "label": "Abbreviated name", 
+        "placeholder": "Enter abbreviation"
+      }
+    },
+    "actions": {
+      "addNew": "Add new",
+      "save": "Save",
+      "delete": "Delete"
+    },
+    "deleteModal": {
+      "title": "Confirm deletion",
+      "content": "Are you sure you want to delete {name}? This action cannot be undone.",
+      "deleteButton": "Delete"
+    }
+  },
+  "FeedbackOptions": {
+    "title": "Feedback Options",
+    "description": "If this is On, users from your org can request feedback on their DMPs. It will go to your organization's contact email which is support@dmp.edu.",
+    "sections": {
+      "feedbackToggle": {
+        "title": "Turn Feedback on or off"
+      },
+      "feedbackEmail": {
+        "title": "Feedback email address"
+      },
+      "expertFeedback": {
+        "title": "Request Expert Feedback"
+      }
+    },
+    "fields": {
+      "feedbackEnabled": {
+        "label": "Turn Feedback on or off",
+        "options": {
+          "on": "On - Feedback can be requested",
+          "off": "Off - Feedback can not be requested"
+        }
+      },
+      "feedbackEmail": {
+        "label": "Feedback email address",
+        "placeholder": "Enter feedback email address",
+        "helpText": "By default this is the organisations contact email address, However, you may change the feedback email address"
+      },
+      "feedbackText": {
+        "label": "Request Expert Feedback",
+        "placeholder": "Enter feedback text"
+      }
+    },
+    "actions": {
+      "save": "Save"
+    },
+    "screenReader": {
+      "feedbackEnabled": "Feedback options are now enabled. Additional fields are available below.",
+      "feedbackDisabled": "Feedback options are now disabled. Additional fields are hidden."
     }
   },
   "Account": {
