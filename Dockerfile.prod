@@ -14,7 +14,7 @@ ENV NODE_ENV=production
 # Install dependencies in /app (excluding devDependencies)
 RUN npm ci
 
-#Stage 2: Buildergit s
+#Stage 2: Builder
 FROM public.ecr.aws/docker/library/node:22.1.0-alpine3.19 as builder
 WORKDIR /app
 

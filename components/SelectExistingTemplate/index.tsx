@@ -35,7 +35,7 @@ import {
 // Hooks
 import { useScrollToTop } from '@/hooks/scrollToTop';
 // Other
-import logECS from '@/utils/clientLogger';
+import { logECS, routePath } from '@/utils/index';
 import {
   TemplateItemProps,
   TemplateSearchResultInterface,
@@ -56,25 +56,21 @@ interface FetchTemplateByTypeParams {
   searchTerm?: string;
 }
 
-// Step 2 of the Create Template start pages
+// Step 2 of the Create Template start pages - Select existing template
 const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) => {
-  const nextSectionRef = useRef<HTMLDivElement>(null);
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
   const formatDate = useFormatDate();
   const router = useRouter();
-  const toastState = useToast();
   const { scrollToTop } = useScrollToTop();
 
   // State
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [searchButtonClicked, setSearchButtonClicked] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
   const [publishedTemplates, setPublishedTemplates] = useState<TemplateItemProps[]>([]);
   const [myTemplates, setMyTemplates] = useState<TemplateItemProps[]>([]);
-  const [initialLoading, setInitialLoading] = useState(true);
 
 
   // Separate pagination states
@@ -98,7 +94,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   const Global = useTranslations('Global');
 
   // Separate lazy queries for published sections
-  const [fetchPublishedTemplates, { data: publishedTemplatesData, loading: orgLoading }] = usePublishedTemplatesLazyQuery();
+  const [fetchPublishedTemplates, { data: publishedTemplatesData, loading: publishedTemplatesLoading }] = usePublishedTemplatesLazyQuery();
   const [fetchMyTemplates, { data: myTemplatesData, loading: myTemplatesLoading }] = useTemplatesLazyQuery();
 
   // GraphQL mutation for adding the new template
@@ -110,6 +106,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     setErrors([]);
   }
 
+  // Lazy fetch - get templates by type with pagination and search term
   const fetchTemplatesByType = async ({
     templateType,
     page = 1,
@@ -154,11 +151,11 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     }
   };
 
-  // Handle page click for published sections
+  // Handle page click for public templates
   const handlePublicPageClick = async (page: number) => {
     await fetchTemplatesByType({ templateType: 'published', page, searchTerm });
   };
-  // Handle page click for my templates sections
+  // Handle page click for org templates
   const handleMyTemplatesPageClick = async (page: number) => {
     await fetchTemplatesByType({ templateType: 'myTemplates', page, searchTerm });
   };
@@ -171,7 +168,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   }
 
 
-  // Handle input changes
+  // Handle search input changes
   const handleInputChange = (value: string) => {
     // Update search term immediately for UI responsiveness
     setSearchTerm(value);
@@ -181,7 +178,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     }
   };
 
-  // Handle search input
+  // Handle search when user presses search button
   const handleSearchInput = async (term: string) => {
     setSearchTerm(term);
     clearErrors();
@@ -254,12 +251,27 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     });
   }
 
-  // Transform published templates into easier to use properties
+  // Transform public templates into easier to use properties
   const transformPublishedTemplates = async (
     templates: PublishedTemplateSearchResults | null
   ): Promise<{ publishedTemplates: TemplateItemProps[] }> => {
 
-    const publishedTemplates = templates?.items?.filter(template => template !== null && template !== undefined) || [];
+
+    // Filter out null and undefined templates and only include PUBLIC visibility
+    let publishedTemplates = templates?.items?.filter(
+      template =>
+        template !== null &&
+        template !== undefined &&
+        template.visibility === 'PUBLIC'
+    ) || [];
+
+    // Sort so that bestPractice=true are at the top
+    publishedTemplates = publishedTemplates.sort((a, b) => {
+      // Place true before false (descending)
+      if (a?.bestPractice === b?.bestPractice) return 0;
+      if (a?.bestPractice) return -1;
+      return 1;
+    });
 
     if (publishedTemplates.length === 0) {
       return { publishedTemplates: [] };
@@ -267,34 +279,23 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     const transformedTemplates = await Promise.all(
       publishedTemplates.map(async (template: VersionedTemplateSearchResult | null) => ({
         id: template?.id,
-        template: {
-          id: template?.id ? template?.id : null
-        },
         title: template?.name || "",
         description: template?.description || "",
-        link: `/template/${template?.id ? template?.id : ''}`,
-        content: template?.description || template?.modified ? (
-          <div>
-            <p>{template?.description}</p>
-            <p>
-              {Global('lastUpdated')}: {template?.modified ? formatDate(template?.modified) : null}
-            </p>
-          </div>
-        ) : null, // Set to null if no description or last modified data
+        link: `/template/${template?.id}`,
         funder: template?.ownerDisplayName || template?.name,
         lastUpdated: template?.modified ? formatDate(template?.modified) : null,
         lastRevisedBy: template?.modifiedByName || null,
         publishStatus: Global('published'),// These are all published templates
         hasAdditionalGuidance: false,
         defaultExpanded: false,
-        visibility: template?.visibility ? toSentenceCase(template.visibility) : 'Private',
+        visibility: template?.visibility,
       }))
     );
 
     return { publishedTemplates: transformedTemplates };
   };
 
-  // Transform myTemplates into easier to use properties
+  // Transform Org Templates into easier to use properties
   const transformMyTemplates = async (
     templates: PaginatedTemplateSearchResultsInterface | null
   ): Promise<{ myTemplates: TemplateItemProps[] }> => {
@@ -307,19 +308,16 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     const transformedTemplates = await Promise.all(
       myTemplates.map(async (template: TemplateSearchResultInterface | null) => ({
         id: template?.id,
-        template: {
-          id: template?.id ? template?.id : null
-        },
         title: template?.name || "",
         description: template?.description || "",
-        link: `/template/${template?.id ? template?.id : ''}`,
+        link: `/template/${template?.id}`,
         funder: template?.ownerDisplayName || template?.name,
         lastUpdated: template?.modified ? formatDate(template?.modified) : null,
         lastRevisedBy: template?.modifiedByName || null,
-        publishStatus: Global('published'),// These are all published templates
+        publishStatus: template?.isDirty ? Global('unpublished') : Global('published'),
         hasAdditionalGuidance: false,
         defaultExpanded: false,
-        visibility: template?.latestPublishVisibility ? toSentenceCase(template.latestPublishVisibility) : 'Private',
+        visibility: template?.latestPublishVisibility ? toSentenceCase(template.latestPublishVisibility) : 'Organization',
       }))
     );
 
@@ -333,10 +331,9 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         const transformedTemplates = await transformPublishedTemplates(
           publishedTemplatesData.publishedTemplates
         );
-        // Filter to only org sections (non-best practice)
+
         const publishedTemplates = transformedTemplates.publishedTemplates;
 
-        console.log("*Published templates", publishedTemplates);
         setPublishedTemplates(publishedTemplates);
 
         // Update published template pagination
@@ -355,7 +352,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     processPublishedTemplates();
   }, [publishedTemplatesData]);
 
-  // Process myTemplates when myTemplatesData changes
+  // Process Org Templates when myTemplatesData changes
   useEffect(() => {
     const processMyTemplates = async () => {
       const safeMyTemplates = {
@@ -367,7 +364,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         const transformedTemplates = await transformMyTemplates(safeMyTemplates);
         setMyTemplates(transformedTemplates.myTemplates);
 
-        // Update best practice-specific pagination
+        // Update org templates pagination
         const totalCount = myTemplatesData?.myTemplates?.totalCount ?? 0;
         const totalPages = Math.ceil(totalCount / LIMIT);
         setMyTemplatesPagination({
@@ -384,18 +381,17 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   }, [myTemplatesData]);
 
   useEffect(() => {
-    // Need this to set list of templates back to original, full list after filtering
+    // Need this to set list of templates back to original
     if (searchTerm === '') {
       resetSearch();
-      setSearchButtonClicked(false);
     }
   }, [searchTerm])
 
+  // Fetch templates on initial load
   useEffect(() => {
     const load = async () => {
       await fetchTemplatesByType({ templateType: 'published', page: 1 });
       await fetchTemplatesByType({ templateType: 'myTemplates', page: 1 });
-      setInitialLoading(false);
     };
     load();
   }, []);
@@ -408,9 +404,9 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template/create?step=1">{Global('breadcrumbs.createTemplate')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.index')}>{Global('breadcrumbs.templates')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.create', { step: '1' })}>{Global('breadcrumbs.createTemplate')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.selectExistingTemplate')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -433,7 +429,6 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
                   onChange={e => handleInputChange(e.target.value)} />
                 <Button
                   onPress={() => {
-                    // Call your filtering function without changing the input value
                     handleSearchInput(searchTerm);
                   }}
                 >
@@ -447,29 +442,25 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
             </div>
 
 
-            {/*My Previously Created Templates */}
-            <div>
+            {/*My Org Templates */}
+            <div data-testid="my-org-templates">
               {myTemplates.length > 0 && (
-                <h2 id="previously-created">
-                  {SelectTemplate('headings.previouslyCreatedTemplates')}
+                <h2 id="org-templates">
+                  {SelectTemplate('headings.myOrgTemplates')}
                 </h2>
               )}
 
-              <div className="template-list" role="list" aria-label="My previously created templates">
+              <div className="template-list">
                 {myTemplatesLoading ? (
                   <p>{Global('messaging.loading')}</p>
                 ) : myTemplates.length > 0 ? (
-
-
-                  <section className="mb-8" aria-labelledby="my-templates">
-
+                  <section className="mb-8" role="list" aria-labelledby="org-templates">
                     {
                       <TemplateList
                         templates={myTemplates}
                         onSelect={onSelect}
                       />
                     }
-
                   </section>
                 ) : (
                   <p>{Global('messaging.noItemsFound')}</p>
@@ -486,20 +477,20 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
               )}
             </div>
 
-            {/*Published Templates */}
-            <div>
+            {/*Public Templates */}
+            <div data-testid="published-templates">
               {publishedTemplates.length > 0 && (
                 <h2 id="published-templates">
                   {SelectTemplate('headings.publicTemplates')}
                 </h2>
               )}
 
-              <div className="template-list" role="list" aria-label="Your templates">
-                {orgLoading ? (
+              <div className="template-list">
+                {publishedTemplatesLoading ? (
                   <p>{Global('messaging.loading')}</p>
                 ) : publishedTemplates.length > 0 ? (
 
-                  <section className="mb-8" aria-labelledby="previously-created">
+                  <section className="mb-8" role="list" aria-labelledby="published-templates">
                     {
                       <TemplateList
                         templates={publishedTemplates}
@@ -522,6 +513,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
               )}
             </div>
 
+            {/** Create New Template */}
             <section className="mb-8" aria-labelledby="create-new">
               <h2 id="create-new">
                 {SelectTemplate('headings.createNew')}
