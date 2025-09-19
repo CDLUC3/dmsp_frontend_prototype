@@ -1,0 +1,100 @@
+{
+  "myTemplates": {
+    "__typename": "TemplateSearchResults",
+    "totalCount": 11,
+    "nextCursor": null,
+    "limit": 5,
+    "availableSortFields": [
+      "t.name",
+      "t.created",
+      "t.latestPublishVisibility",
+      "t.bestPractice",
+      "t.latestPublishDate"
+    ],
+    "currentOffset": 0,
+    "hasNextPage": true,
+    "hasPreviousPage": false,
+    "items": [
+      {
+        "__typename": "TemplateSearchResult",
+        "id": 33,
+        "name": "Juliet's Test Template 3",
+        "description": "",
+        "latestPublishVisibility": "ORGANIZATION",
+        "isDirty": true,
+        "latestPublishVersion": "",
+        "latestPublishDate": null,
+        "ownerId": "https://ror.org/021678962",
+        "ownerDisplayName": "National Science Foundation (nsf.gov)",
+        "modified": "1758241119000",
+        "modifiedById": 15,
+        "modifiedByName": "NSF Admin",
+        "bestPractice": false
+      },
+      {
+        "__typename": "TemplateSearchResult",
+        "id": 32,
+        "name": "Juliet's Test Template 1",
+        "description": "",
+        "latestPublishVisibility": "PUBLIC",
+        "isDirty": false,
+        "latestPublishVersion": "v1",
+        "latestPublishDate": "1758239580000",
+        "ownerId": "https://ror.org/021333362",
+        "ownerDisplayName": "National Science Foundation (nsf.gov)",
+        "modified": "1758239568000",
+        "modifiedById": 15,
+        "modifiedByName": "NSF Admin",
+        "bestPractice": false
+      },
+      {
+        "__typename": "TemplateSearchResult",
+        "id": 4,
+        "name": "Computer and Information Science and Engineering",
+        "description": "",
+        "latestPublishVisibility": "PUBLIC",
+        "isDirty": false,
+        "latestPublishVersion": "v5",
+        "latestPublishDate": "1741996800000",
+        "ownerId": "https://ror.org/123456623",
+        "ownerDisplayName": "National Science Foundation (nsf.gov)",
+        "modified": "1719500709000",
+        "modifiedById": 15,
+        "modifiedByName": "NSF Admin",
+        "bestPractice": false
+      },
+      {
+        "__typename": "TemplateSearchResult",
+        "id": 5,
+        "name": "Astronomical Sciences",
+        "description": "",
+        "latestPublishVisibility": "PUBLIC",
+        "isDirty": false,
+        "latestPublishVersion": "v6",
+        "latestPublishDate": "1742428800000",
+        "ownerId": "https://ror.org/021123456",
+        "ownerDisplayName": "National Science Foundation (nsf.gov)",
+        "modified": "1719500703000",
+        "modifiedById": 15,
+        "modifiedByName": "NSF Admin",
+        "bestPractice": false
+      },
+      {
+        "__typename": "TemplateSearchResult",
+        "id": 6,
+        "name": "Engineering Template",
+        "description": "",
+        "latestPublishVisibility": "PUBLIC",
+        "isDirty": false,
+        "latestPublishVersion": "v6",
+        "latestPublishDate": "1745539200000",
+        "ownerId": "https://ror.org/456789062",
+        "ownerDisplayName": "National Science Foundation (nsf.gov)",
+        "modified": "1719500698000",
+        "modifiedById": 15,
+        "modifiedByName": "NSF Admin",
+        "bestPractice": false
+      }
+    ]
+  }
+}
