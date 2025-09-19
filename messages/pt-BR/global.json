@@ -160,6 +160,179 @@
   "Back": {
     "btnBack": "Voltar"
   },
+  "Admin": {
+    "sections": {
+      "organisationTemplatesAndPlans": {
+        "title": "Modelos e Planos da Organização",
+        "items": {
+          "notifications": {
+            "title": "Notificações",
+            "description": "Visualizar notificações atuais e passadas"
+          },
+          "organizationTemplates": {
+            "title": "Modelos da Organização",
+            "description": "Gerenciar os modelos da sua organização e publicar para o público"
+          },
+          "templateCustomizations": {
+            "title": "Personalizações de Modelos",
+            "description": "Adicionar uma sobreposição em cima dos modelos de financiadores"
+          },
+          "guidance": {
+            "title": "Orientação",
+            "description": "Adicionar orientação que se aplica a todos os modelos de financiadores"
+          },
+          "projectAndPlans": {
+            "title": "Projetos e Planos",
+            "description": "Gerenciar os projetos e planos da sua organização"
+          }
+        }
+      },
+      "organizationSettings": {
+        "title": "Configurações da Organização",
+        "items": {
+          "editOrganizationDetails": {
+            "title": "Editar detalhes da organização",
+            "description": "Atualizar o nome da sua organização, abreviação, instituição, etc"
+          },
+          "schoolsDepartments": {
+            "title": "Escolas/Departamentos",
+            "description": "Gerenciar seus diferentes departamentos, faculdades, escolas ou divisões"
+          },
+          "manageUserAccounts": {
+            "title": "Gerenciar contas de usuário",
+            "description": "Gerenciar contas de usuário"
+          },
+          "customizeEmailText": {
+            "title": "Personalizar texto de e-mail",
+            "description": "Gerenciar suas preferências de notificação"
+          },
+          "requestFeedbackOptions": {
+            "title": "Opções de solicitação de feedback",
+            "description": "Gerenciar as opções de solicitação de feedback da sua organização"
+          }
+        }
+      },
+      "reporting": {
+        "title": "Relatórios",
+        "items": {
+          "usageStatistics": {
+            "title": "Estatísticas de Uso",
+            "description": "Visualizar estatísticas de uso e relatórios"
+          }
+        }
+      }
+    }
+  },
+  "OrganizationDetails": {
+    "title": "Detalhes da Organização",
+    "description": "Visualizar detalhes da organização",
+    "sections": {
+      "organizationDetails": {
+        "title": "Editar detalhes da organização"
+      },
+      "administratorContact": {
+        "title": "Contato do administrador"
+      },
+      "branding": {
+        "title": "Identidade visual"
+      },
+      "organizationUrls": {
+        "title": "URL(s) da organização",
+        "description": "Você pode adicionar até 5 URLs da organização."
+      },
+      "identifiers": {
+        "title": "Identificadores"
+      }
+    },
+    "fields": {
+      "organizationName": {
+        "label": "Nome completo da organização",
+        "placeholder": "Digite o nome completo da organização"
+      },
+      "organizationAbbr": {
+        "label": "Nome abreviado da organização",
+        "placeholder": "Digite o nome abreviado"
+      },
+      "organizationType": {
+        "label": "Tipo de organização"
+      },
+      "contactEmail": {
+        "label": "E-mail de contato",
+        "placeholder": "Digite o e-mail de contato"
+      },
+      "linkText": {
+        "label": "Texto do e-mail de contato",
+        "placeholder": "Digite o texto do link"
+      },
+      "url": {
+        "label": "URL",
+        "placeholder": "Digite a URL da organização"
+      },
+      "urlLinkText": {
+        "label": "Texto do link para URL",
+        "placeholder": "Digite o texto do link"
+      },
+      "fundRef": {
+        "label": "Registro de Financiadores Crossref (FundRef)"
+      },
+      "ror": {
+        "label": "Registro de Organizações de Pesquisa (ROR)"
+      },
+      "shibboleth": {
+        "label": "Entrada Institucional (Shibboleth)"
+      },
+      "domains": {
+        "label": "Domínio(s)"
+      }
+    },
+    "actions": {
+      "requestChange": "Solicitar alteração",
+      "removeUrl": "Remover URL",
+      "addAnotherUrl": "Adicionar outra URL"
+    },
+    "buttons": {
+      "save": "Salvar"
+    },
+    "upload": {
+      "dropZone": {
+        "ariaLabel": "Solte um arquivo aqui para fazer upload"
+      },
+      "title": "Fazer upload do logo da sua organização",
+      "description": "Arraste e solte seu logo aqui, ou clique para navegar",
+      "fileTypes": "Suporta: PNG, JPG, SVG (Máx 5MB)",
+      "browseButton": "Navegar arquivos"
+    },
+    "messages": {
+      "success": {
+        "organizationDetailsSaved": "Detalhes da organização salvos com sucesso!"
+      }
+    }
+  },
+  "Account": {
+    "sections": {
+      "userProfile": {
+        "title": "Perfil do Usuário",
+        "items": {
+          "profile": {
+            "title": "Perfil",
+            "description": "Atualize suas informações pessoais, preferências de e-mail e configurações de idioma"
+          },
+          "password": {
+            "title": "Atualizar Senha",
+            "description": "Altere sua senha de conta e configurações de segurança"
+          },
+          "connections": {
+            "title": "Conexões",
+            "description": "Gerencie seu ORCID iD e conexões institucionais"
+          },
+          "notifications": {
+            "title": "Notificações",
+            "description": "Configure suas preferências de notificação e configurações de e-mail"
+          }
+        }
+      }
+    }
+  },
   "Global": {
     "breadcrumbs": {
       "navigation": "Navegação de Breadcrumb",
