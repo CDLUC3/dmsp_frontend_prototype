@@ -13,6 +13,7 @@
     - [Building for Production](#building-for-production)
     - [Docker Setup](#docker-setup)
 - [Localization](#localization)
+- [Checking for vulnerabilities](#scans)
 - [Environment variables](#environment-variables)
 - [Project Structure](#project-structure)
 - [Authentication](#authentication)
@@ -142,6 +143,11 @@ For more documentation on Crowdin, go to:
 - https://crowdin.com/
 - https://crowdin.github.io/crowdin-cli/
 
+### Scans
+We provide npm scripts for different scan levels: `trivy-high` runs a blocking scan for `HIGH` and `CRITICAL` vulnerabilities, `trivy-med` runs a non-blocking scan for `MEDIUM` and `LOW` vulnerabilities, and trivy-all runs both scans in sequence. 
+
+To help ensure code security, this project uses `Trivy` for vulnerability scanning. The pre-commit hook automatically runs `trivy-high` script to prevent commits with serious vulnerabilities, and also runs `trivy-med` to report (but not block) lower-severity issues. You need to install `trivy` locally for this to work.
+
 
 ### Environment Variables
 For the development environment, the environment variables are stored at `.env.local`. This is set as the default env file in jest.setup.ts.
@@ -153,7 +159,7 @@ These variables must be set in order for the app to work.
 * `NEXT_PUBLIC_GRAPHQL_SERVER_ENDPOINT` - Graphql server schema endpoint (e.g., "http://localhost:4000/graphql")
 * `JWT_SECRET` - Secret key for JWT authentication
 * `SERVER_ENDPOINT` - Server endpoint for backend Apollo server, used for server-side code (e.g., "http://localhost:4000")
-
+* `SERVER_LOG_LEVEL` - The log level for the server (e.g., "info", "debug", "error")
 
 ### Running the App
 ```bash
