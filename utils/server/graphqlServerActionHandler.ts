@@ -83,11 +83,6 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
 
   const mutationString = typeof document === "string" ? document : print(document);
 
-  logger.debug(
-    prepareObjectForLogs({ document, variables, dataPath }),
-    "graphqlServerActionHandler initialized"
-  );
-
   try {
     if (!mutationString) {
       throw new Error("No mutation string provided");

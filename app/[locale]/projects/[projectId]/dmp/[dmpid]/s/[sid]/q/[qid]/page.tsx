@@ -757,9 +757,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
     if (selectedQuestion) {
       try {
-
-        console.log(jsonPayload, "ANSWER BEFORE SUBMISSION")
-
         const response = isUpdate
           ? await updateAnswerAction({
             answerId: Number(answerData?.answerByVersionedQuestionId?.id),

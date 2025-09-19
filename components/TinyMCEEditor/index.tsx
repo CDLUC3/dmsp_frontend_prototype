@@ -48,7 +48,6 @@ const TinyMCEEditor = ({ content, setContent, onChange, error, id, labelId, help
         max_height: 400,
         min_height: 100,
         popup_container: 'body',
-        valid_elements: '*[*]',
         plugins: [
           'autoresize',
           'table',
