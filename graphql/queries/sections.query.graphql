@@ -4,10 +4,15 @@ query SectionsDisplayOrder($templateId: Int!) {
   }
 }
 
-query PublishedSections($term: String!) {
-  publishedSections(term: $term) {
-    totalCount
+query PublishedSections($term: String!, $paginationOptions: PaginationOptions) {
+  publishedSections(term: $term, paginationOptions: $paginationOptions) {
+    limit
     nextCursor
+    totalCount
+    availableSortFields
+    currentOffset
+    hasNextPage
+    hasPreviousPage
     items {
       id
       name

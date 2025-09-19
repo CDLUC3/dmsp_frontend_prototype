@@ -179,7 +179,8 @@
   "CreateSectionPage": {
     "title": "Criar seção",
     "button": {
-      "createSection": "Criar seção"
+      "createSection": "Criar seção",
+      "creatingSection": "Criando seção..."
     },
     "messages": {
       "fieldLengthValidation": "O nome precisa ter pelo menos 3 caracteres",

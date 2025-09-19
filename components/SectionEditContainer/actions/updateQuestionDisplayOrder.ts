@@ -21,7 +21,7 @@ export async function updateQuestionDisplayOrderAction({
     });
 
   } catch (error) {
-    logger.error(`[Update Question Display Order Error]: ${error}`, { error });
+    logger.error({ error }, `[Update Question Display Order Error]: ${error}`);
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }
