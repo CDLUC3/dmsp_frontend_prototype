@@ -160,6 +160,94 @@
   "Back": {
     "btnBack": "Voltar"
   },
+  "Admin": {
+    "sections": {
+      "organisationTemplatesAndPlans": {
+        "title": "Modelos e Planos da Organização",
+        "items": {
+          "notifications": {
+            "title": "Notificações",
+            "description": "Visualizar notificações atuais e passadas"
+          },
+          "organizationTemplates": {
+            "title": "Modelos da Organização",
+            "description": "Gerenciar os modelos da sua organização e publicar para o público"
+          },
+          "templateCustomizations": {
+            "title": "Personalizações de Modelos",
+            "description": "Adicionar uma sobreposição em cima dos modelos de financiadores"
+          },
+          "guidance": {
+            "title": "Orientação",
+            "description": "Adicionar orientação que se aplica a todos os modelos de financiadores"
+          },
+          "projectAndPlans": {
+            "title": "Projetos e Planos",
+            "description": "Gerenciar os projetos e planos da sua organização"
+          }
+        }
+      },
+      "organizationSettings": {
+        "title": "Configurações da Organização",
+        "items": {
+          "editOrganizationDetails": {
+            "title": "Editar detalhes da organização",
+            "description": "Atualizar o nome da sua organização, abreviação, instituição, etc"
+          },
+          "schoolsDepartments": {
+            "title": "Escolas/Departamentos",
+            "description": "Gerenciar seus diferentes departamentos, faculdades, escolas ou divisões"
+          },
+          "manageUserAccounts": {
+            "title": "Gerenciar contas de usuário",
+            "description": "Gerenciar contas de usuário"
+          },
+          "customizeEmailText": {
+            "title": "Personalizar texto de e-mail",
+            "description": "Gerenciar suas preferências de notificação"
+          },
+          "requestFeedbackOptions": {
+            "title": "Opções de solicitação de feedback",
+            "description": "Gerenciar as opções de solicitação de feedback da sua organização"
+          }
+        }
+      },
+      "reporting": {
+        "title": "Relatórios",
+        "items": {
+          "usageStatistics": {
+            "title": "Estatísticas de Uso",
+            "description": "Visualizar estatísticas de uso e relatórios"
+          }
+        }
+      }
+    }
+  },
+  "Account": {
+    "sections": {
+      "userProfile": {
+        "title": "Perfil do Usuário",
+        "items": {
+          "profile": {
+            "title": "Perfil",
+            "description": "Atualize suas informações pessoais, preferências de e-mail e configurações de idioma"
+          },
+          "password": {
+            "title": "Atualizar Senha",
+            "description": "Altere sua senha de conta e configurações de segurança"
+          },
+          "connections": {
+            "title": "Conexões",
+            "description": "Gerencie seu ORCID iD e conexões institucionais"
+          },
+          "notifications": {
+            "title": "Notificações",
+            "description": "Configure suas preferências de notificação e configurações de e-mail"
+          }
+        }
+      }
+    }
+  },
   "Global": {
     "breadcrumbs": {
       "navigation": "Navegação de Breadcrumb",
