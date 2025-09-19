@@ -1,4 +1,7 @@
 ### Added
+- Add admin email text page with styling and tests
+
+### Added
 - Add organization details page
 
 ### Added
