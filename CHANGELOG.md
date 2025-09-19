@@ -1,20 +1,11 @@
 ### Added
+- Added Trivy precommit hook to scan for vulnerabilities in package-lock.json
 - Add organization details page
-
-### Added
-
 - added profile overview page
 - added "homepage" which is our temp home page just to add the admin link and made it nicer
 - Added admin overview page
 - Added component for `PageLinkCard`
 - Added  admin route definitions to `utils/routes.ts`
-
-### Updated
-
-- Added Admin section translations to both English (`messages/en-US/global.json`) and Portuguese (`messages/pt-BR/global.json`) language files
-
-### Added
-
 - Added `redact` to the pino logger to prevent sensitive information from being logged
 - Added `utils/server/loggerUtils.ts` with a method to `prepareLogObject` that strips out empty values and adds available JWT info to the log to assist with debugging
 - Added `SERVER_LOG_LEVEL` to the `.env.example` file to be able to set the log level for server side actions
@@ -42,6 +33,7 @@
 - Added description to project search page [#761](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/761)
 
 ### Updated
+- Added Admin section translations to both English (`messages/en-US/global.json`) and Portuguese (`messages/pt-BR/global.json`) language files
 - Updated all server actions to use the new `logger` and `prepareLogObject` method to log useful information for debugging
 - Updated `logger` to use the new `SERVER_LOG_LEVEL` env variable
 - Added a `beforeunload` event handler to the `PlanOverviewQuestionPage`, `CreateSectionPage`, `SectionUpdatePage` and `QuestionAdd` components to warn users when they are navigating away with unsaved changes [#758]
