@@ -51,10 +51,10 @@ const routes = {
   'projects.show': '/projects/:projectId',
   'projects.create': '/projects/create-project',
   'projects.create.funding.search': '/projects/:projectId/funding-search',
+  'projects.create.funding.check': '/projects/:projectId/project-funding',
   'projects.create.projects.search': '/projects/:projectId/projects-search',
   'projects.project.info': '/projects/:projectId/project',
   'projects.upload': '/projects/:projectId/upload',
-  // 'projects.fundings.index': '/projects/:projectId/project-funding',
   'projects.fundings.index': '/projects/:projectId/fundings',
   'projects.fundings.show': '/projects/:projectId/fundings/:projectFundingId',
   'projects.fundings.search': '/projects/:projectId/fundings/search',
@@ -75,12 +75,13 @@ const routes = {
   'projects.dmp.members': '/projects/:projectId/dmp/:dmpId/members',
   'projects.dmp.versionedQuestion': '/projects/:projectId/dmp/:dmpId/q',
   'projects.dmp.versionedQuestion.detail': '/projects/:projectId/dmp/:dmpId/s/:versionedSectionId/q/:versionedQuestionId',
-  'projects.dmp.research-outputs': '/projects/:projectId/dmp/:dmpId/research-outputs',
-  'projects.dmp.research-outputs.edit': '/projects/:projectId/dmp/:dmpId/research-outputs/edit',
   'projects.dmp.versionedSection': '/projects/:projectId/dmp/:dmpId/s/:versionedSectionId',
   'projects.dmp.create': '/projects/:projectId/dmp/create',
+
   'projects.dmp.feedback': '/projects/:projectId/dmp/:dmpId/feedback',
-  'projects.dmp.feedback.invite': '/projects/:projectId/dmp/:dmpId/feedback/invite',
+  'projects.collaboration': '/projects/:projectId/collaboration',
+  'projects.collaboration.invite': '/projects/:projectId/collaboration/invite',
+  'projects.dmp.relatedWorks': '/projects/:projectId/dmp/:dmpId/related-works',
 
   // Template
   'template.index': '/template',

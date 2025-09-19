@@ -16,6 +16,10 @@ The Comments Drawer code was placed into its own `CommentsDrawer` component for 
 ## Comments hook
 All comments handlers and associated states were consolidated into one hook at `hooks/useComment.tsx`.
 
+## Comment button
+The comment button will be disabled when there is not yet an `answer` for the question, and a `tooltip` message will display on hover saying:
+> You need to save an answer before users can comment.
+
 ## Adding comments
 
 ### ADMIN and SUPERADMIN
@@ -31,4 +35,4 @@ If the user is a `project collaborator` they can also add comments.
 Only the user who added the comment can edit their own comment. An `edit` link will display under the user's comment, allowing them to edit it.
 
 ## Deleting comments
-The creator of the plan can `delete` any comments. Users who added the comments can delete their own.
+The creator of the plan can `delete` any comments. Users who added the comments can delete their own. User's with `role="OWN"` can also delete comments.

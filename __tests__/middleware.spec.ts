@@ -69,6 +69,10 @@ describe('middleware', () => {
     request = {
       cookies: {
         get: jest.fn().mockReturnValue('cookie-value'),
+        getAll: jest.fn().mockReturnValue([
+          { name: 'dmspt', value: 'accessToken' },
+          { name: 'dmspr', value: 'refreshTokenValue' }
+        ]),
       },
       headers: {
         get: jest.fn().mockReturnValue('dmspr=refreshTokenValue')

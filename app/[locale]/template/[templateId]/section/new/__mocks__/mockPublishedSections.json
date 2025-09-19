@@ -1,5 +1,20 @@
 {
   "publishedSections": {
+    "__typename": "VersionedSectionSearchResults",
+    "limit": 6,
+    "nextCursor": null,
+    "totalCount": 20,
+    "availableSortFields": [
+      "vs.name",
+      "vs.created",
+      "vs.bestPractice",
+      "vt.name",
+      "vs.modified",
+      "versionedQuestionCount"
+    ],
+    "currentOffset": 0,
+    "hasNextPage": true,
+    "hasPreviousPage": false,
     "items": [
       {
         "id": 201,

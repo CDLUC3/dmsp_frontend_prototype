@@ -44,6 +44,7 @@ jest.mock('@/components/QuestionAdd', () => {
 
 describe("QuestionTypeSelectPage", () => {
   let pushMock: jest.Mock;
+  let replaceMock: jest.Mock;
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
@@ -56,7 +57,8 @@ describe("QuestionTypeSelectPage", () => {
     mockUseQueryStep.mockReturnValue(1);
 
     pushMock = jest.fn();
-    (useRouter as jest.Mock).mockReturnValue({ push: pushMock });
+    replaceMock = jest.fn();
+    (useRouter as jest.Mock).mockReturnValue({ push: pushMock, replace: replaceMock });
 
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {

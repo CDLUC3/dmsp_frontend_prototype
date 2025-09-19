@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { PlanSectionProgress, TemplateVisibility, PlanFeedback } from "@/generated/graphql";
+import { PlanSectionProgress, TemplateVisibility, PlanFeedback, ProjectFundingStatus } from "@/generated/graphql";
 import { AffiliationSearchQuestionType, AnyQuestionType } from '@dmptool/types';
 
 export interface EmailInterface {
@@ -32,7 +32,7 @@ export interface TemplateSearchResultInterface {
   id?: number | null;
   name?: string | null;
   description?: string | null;
-  visibility?: TemplateVisibility | null;
+  latestPublishVisibility?: TemplateVisibility | null;
   isDirty?: boolean | null;
   latestPublishVersion?: string | null;
   latestPublishDate?: string | null;
@@ -75,7 +75,7 @@ export interface TemplateItemProps {
   publishStatus?: string | null;
   publishDate?: string | null;
   bestPractices?: boolean;
-  visibility?: string | null;
+  latestPublishVisibility?: string | null;
 }
 
 export interface PaginatedVersionedTemplateSearchResultsInterface {
@@ -298,13 +298,12 @@ export interface CheckboxGroupProps {
   name?: string;
   checkboxGroupLabel?: string;
   checkboxGroupDescription?: string;
-  checkboxData: CheckboxInterface[];
   value?: string[];
   isInvalid?: boolean;
   errorMessage?: string;
   onChange?: ((value: string[]) => void),
   isRequired?: boolean;
-  ariaLabel?: string;
+  children: ReactNode; // allow any Checkboxes or JSX
 }
 
 export interface ProjectMemberErrorInterface {
@@ -455,6 +454,7 @@ export interface MergedComment {
   commentText?: string | null;
   answerId?: number | null;
   created?: string | null;
+  createdById?: number | null;
   type: 'answer' | 'feedback';
   isAnswerComment: boolean;
   isFeedbackComment: boolean;
@@ -471,3 +471,130 @@ export type SuggestionInterface = {
   uri: string;
 }
 
+export interface ProjectFundingInterface {
+  affiliationName: string;
+  affiliationId: string;
+  otherAffiliationName: string;
+  fundingStatus: ProjectFundingStatus;
+  funderGrantId: string;
+  funderOpportunityNumber: string;
+  funderProjectNumber: string;
+}
+
+export interface Author {
+  firstInitial: string | null;
+  givenName: string | null;
+  middleInitial: string | null;
+  middleName: string | null;
+  surname: string | null;
+  full: string | null;
+  orcid: string | null;
+}
+
+export interface Institution {
+  ror: string | null;
+  name: string | null;
+}
+
+export interface Funder {
+  ror: string | null;
+  name: string | null;
+}
+
+export interface Source {
+  name: string;
+  url: string;
+}
+
+export interface Work {
+  doi: string;
+  type: WorkType;
+  title: string
+  publicationDate: Date | null;
+  containerTitle: string | null;
+  authors: Author[];
+  institutions: Institution[];
+  funders: Funder[];
+  awardIds: string[];
+  source: Source;
+}
+
+export enum Status {
+  Pending = "pending",
+  Related = "related",
+  Discarded = "discarded",
+}
+
+export enum Confidence {
+  All = "all",
+  High = "high",
+  Medium = "medium",
+  Low = "low",
+}
+
+export enum RelatedWorksSortBy {
+  ConfidenceHigh = "confidence-high",
+  ConfidenceLow = "confidence-low",
+  ReviewedNew = "reviewed-new",
+  ReviewedOld = "reviewed-old",
+  PublishedNew = "published-new",
+  PublishedOld = "published-old",
+  DateFoundNew = "date-found-new",
+  DateFoundOld = "date-found-old",
+}
+
+export enum WorkType {
+  Article = "article",
+  AudioVisual = "audio-visual",
+  Book = "book",
+  BookChapter = "book-chapter",
+  Collection = "collection",
+  DataPaper = "data-paper",
+  Dataset = "dataset",
+  Dissertation = "dissertation",
+  Editorial = "editorial",
+  Erratum = "erratum",
+  Event = "event",
+  Grant = "grant",
+  Image = "image",
+  InteractiveResource = "interactive-resource",
+  Letter = "letter",
+  Libguides = "libguides",
+  Model = "model",
+  Other = "other",
+  Paratext = "paratext",
+  PeerReview = "peer-review",
+  PhysicalObject = "physical-object",
+  Preprint = "preprint",
+  ReferenceEntry = "reference-entry",
+  Report = "report",
+  Retraction = "retraction",
+  Review = "review",
+  Service = "service",
+  Software = "software",
+  Sound = "sound",
+  Standard = "standard",
+  SupplementaryMaterials = "supplementary-materials",
+  Text = "text",
+  Workflow = "workflow",
+}
+
+export interface Match {
+  doi: boolean;
+  title: string | null;
+  abstract: string[];
+  awardIds: number[];
+  authors: number[];
+  institutions: number[];
+  funders: number[];
+}
+
+export interface RelatedWork {
+  dmpDoi: string;
+  score: number;
+  work: Work;
+  dateFound: Date;
+  dateReviewed: null | Date;
+  status: Status;
+  match: Match;
+}

@@ -21,7 +21,8 @@ export const useProjectMemberData = (projectMemberId: number) => {
   const { data, loading, error: queryError } = useProjectMemberQuery({
     variables: {
       projectMemberId: Number(projectMemberId)
-    }
+    },
+    fetchPolicy: 'network-only', // Always fetch fresh data
   })
 
   useEffect(() => {

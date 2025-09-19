@@ -117,6 +117,7 @@
   },
   "FunderSearch": {
     "headerTitle": "Search for Funders",
+    "headerDescription": "Select the funder to use for this project. This can be the funder you plan to apply to or where you already have funding from. You'll be able to add additional funders later if you have more than one.",
     "funder": "Funder",
     "popularTitle": "Most popular funders",
     "found": "{count} funders found",
@@ -125,6 +126,9 @@
     "addManuallyHeading": "Not in this list?",
     "addManuallyText": "If your project isn’t shown, you can add the details manually.",
     "addManuallyLabel": "Add funder manually",
+    "noFunderHeading": "Don't have a funder yet?",
+    "noFunderText": "If you don't have a funder yet, you can use the link below to proceed to the next step.",
+    "noFunderButtonLabel": "I don't have a funder",
     "messages": {
       "success": {
         "addProjectFunding": "Successfully added the funder to the project."
@@ -309,7 +313,9 @@
       "preview": "Preview",
       "publish": "Publish",
       "close": "Close",
-      "loadMore": "Load more"
+      "loadMore": "Load more",
+      "addAnother": "Add another",
+      "goToProject": "Go to project"
     },
     "labels": {
       "searchByKeyword": "Search by keyword",
@@ -356,7 +362,8 @@
         "questionUnexpectedFormat": "Unexpected format for question.json.",
         "questionJSONFParseFailed": "JSON.parse failed."
       },
-      "numDisplaying": "Showing {num} of {total}"
+      "numDisplaying": "Showing {num} of {total}",
+      "unsavedChangesWarning": "You have unsaved changes. Are you sure you want to leave this page?"
     },
     "tabs": {
       "editQuestion": "Edit question",

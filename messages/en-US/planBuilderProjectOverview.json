@@ -14,20 +14,20 @@
     "edit": "Edit",
     "editProject": "Edit project details",
     "fundings": "Funding sources",
-    "fundingCount": "{count} Funding Source(s)",
+    "fundingCount": "{count, plural, =0 {0 funding sources} one {1 funding source} other {{count} funding sources}}",
     "fundingInfo": "{name} ({id})",
     "editFundings": "Edit funding details",
     "editFundingDetails": "Edit funding details",
     "projectMembers": "Project members",
-    "memberCount": "{count} team members",
+    "memberCount": "{count, plural, =0 {0 team members} one {1 team member} other {{count} team members}}",
     "memberInfo": "{name} ({role})",
     "editMembers": "Edit project members",
     "editProjectMembers": "Edit project members",
     "researchOutputs": "Research outputs",
-    "outputCount": "{count} Outputs",
+    "outputCount": "{count, plural, =0 {0 outputs} one {1 output} other {{count} outputs}}",
     "editOutputs": "Edit research outputs",
     "editResearchOutputs": "Edit research outputs",
-    "plans": "Plan(s)",
+    "plans": "Plans",
     "planActions": "Plan actions",
     "upload": "Upload plan",
     "uploadPlan": "Upload a new plan",
@@ -49,6 +49,18 @@
     "created": "Created",
     "messages": {
       "errorGettingProject": "Error getting project details"
+    },
+    "status": {
+      "collaboration": {
+        "title": "Collaboration",
+        "description": "{total, plural, =0 {0 collaborators} one {1 collaborator} other {{total} collaborators}}",
+        "link_text": "Manage access"
+      },
+      "feedback": {
+        "title": "Feedback",
+        "description": "",
+        "link_text": "Request"
+      }
     }
   },
   "ProjectsListPage": {
@@ -64,14 +76,10 @@
   },
   "ProjectsCreateProject": {
     "pageTitle": "Create a new project",
+    "isThisMockProject": "Is this a mock project?",
     "form": {
       "projectTitle": "What is the title for the project? (required)",
-      "projectTitleHelpText": "This should be the formal title if you have already applied for funding, as it will be used to find your Project in the Funder’s database. This can be changed later.",
-      "newOrExisting": "New or existing project?",
-      "radioExistingLabel": "The project already exists or might exist",
-      "radioExistingHelpText": "We will search for the project and pull in associated information for you to review and edit if possible, otherwise create a brand new project",
-      "radioNewLabel": "New project",
-      "radioNewHelpText": "Enter all project details yourself.",
+      "projectTitleHelpText": "You can change this at any time. If you already applied for funding, we recommend using the formal project title for consistency.",
       "checkboxGroupLabel": "This project is mock project for testing, practice, or educational purposes",
       "checkboxGroupHelpText": "This is a mock project intended solely for testing, practice, or educational purposes. It allows you to create a project and plans, but you will not be able to receive feedback or publish them.",
       "checkboxLabel": "Yes, set this project to a mock or a test project.",
@@ -90,7 +98,11 @@
     "title": "Do you already have funding for this project?",
     "form": {
       "radioFundingLabel": "Do you already have funding for this project?",
-      "radioFundingDescription": "If yes, we will try to search for the project and pull in associated information for you to review and edit."
+      "radioFundingDescription": "You can update or remove all of this later, so don't worry if you are still waiting on final details or an award number.",
+      "radioYesLabel": "Yes - I've been awarded funding",
+      "radioYesDescription": "We'll help you link the project to a funder now. You'll be able to select a funder and, if available, we'll pull in relevant details. Everything can be reviewed or changed later.",
+      "radioNoLabel": "No - Skip for now",
+      "radioNoDescription": "You can still proceed. If you receive funding later, you'll be able to link it to this project."
     }
   },
   "ProjectsProjectDetail": {
@@ -157,16 +169,29 @@
         "projectFundingUpdateFailed": "Error updating project funding details",
         "fundingGrantId": "Invalid funder grant ID value",
         "fundingProjectNumber": "Invalid funder project number value",
-        "fundingName": "Invalid funder name value"
+        "fundingName": "Invalid funder name value",
+        "requiredOtherAffiliation": "Invalid name value"
       },
       "success": {
-        "projectFundingUpdated": "Successfully updated project funding details"
+        "projectFundingUpdated": "Successfully updated project funding details",
+        "removedFunding": "Successfully removed project funding."
+      },
+      "info": {
+        "redirectingToAddFunderPage": "Redirecting to Add Funder page."
       }
-    }
+    },
+    "buttons": {
+      "removeFunder": "Remove funder"
+    },
+    "headings": {
+      "deleteFunder": "Delete funder"
+    },
+    "para1Delete": "This funder will be deleted. It will be removed from your list and is <strong>not reversible</strong>.",
+    "para2Delete": "Deleting the funder and funding information will be deleted from all your plans."
   },
   "ProjectsProjectFundingAdd": {
     "title": "Add Funding Details",
-    "description": "Manually add a new fundting source",
+    "description": "Manually add a new funding source",
     "labels": {
       "funderName": "Funder name",
       "fundingStatus": "Funding Status",
@@ -179,7 +204,8 @@
         "projectFundingUpdateFailed": "Error updating project funding details",
         "fundingGrantId": "Invalid funder grant ID value",
         "fundingProjectNumber": "Invalid funder project number value",
-        "fundingName": "Invalid funder name value"
+        "fundingName": "Invalid funder name value",
+        "requiredOtherAffiliation": "Invalid name value"
       },
       "success": {
         "projectFundingUpdated": "Successfully updated project funding details"
@@ -252,7 +278,7 @@
       }
     }
   },
-  "ProjectsProjectPlanFeedbackInvite": {
+  "ProjectsProjectCollaborationInvite": {
     "title": "Who should have access to this plan?",
     "breadcrumbs": {
       "manageAccess": "Manage access"
@@ -271,7 +297,7 @@
     "para1": "When you click <strong>Grant access</strong> we'll send an email to this person inviting them to view your plan.",
     "para2": "If they aren't already a member of we'll invite them to join.",
     "para3": "We have sent an invite to <strong>{email}</strong>. They will have access to this project.",
-    "para4": "To also add them as a Project Member, &lt;projectmember&gt; go to the Project Members page &lt;/projectmember&gt;.",
+    "para4": "To also add them as a Project Member, <projectmember> go to the Project Members page </projectmember>.",
     "para5": "They will have access to {access} DMPs in this project.",
     "messaging": {
       "errors": {
@@ -289,6 +315,45 @@
     },
     "headings": {
       "h2InviteSent": "Invite sent"
+    }
+  },
+  "ProjectsProjectCollaboration": {
+    "title": "Invite people and manage access",
+    "description": "When you invite a person, we'll send an email to this person inviting them to view your plan.",
+    "removeCollaborator": "Removing this member means they will no longer be able to collaborate on this plan.",
+    "canEdit": "Can edit plan",
+    "canComment": "Comment only",
+    "own": "Owner",
+    "cancelRemoval": "Cancel removal of project collaborator {name}",
+    "deleteCollaborator": "Delete project collaborator {name}",
+    "canEditPlanFor": "Can edit plan for {name}",
+    "canCommentPlanFor": "Can comment on plan for {name}",
+    "canOwnPlanFor": "Own plan for {name}",
+    "revokeAccessFor": "Revoke access for {name}",
+    "deleteInviteFor": "Delete invite for {name}",
+    "resendInviteFor": "Resend invite for {name}",
+    "headings": {
+      "hasAccess": "These people currently have access to this plan",
+      "removeCollaborator": "Remove project collaborator",
+      "pendingInvites": "These people have not accepted invite yet"
+    },
+    "buttons": {
+      "invite": "Invite Collaborators",
+      "isDeleting": "is Deleting...",
+      "revoke": "Revoke",
+      "deleteInvite": "Delete Invite",
+      "resend": "Resend"
+    },
+    "links": {
+      "inviteAPerson": "Invite a person"
+    },
+    "messages": {
+      "noCollaborators": "No collaborators found",
+      "success": {
+        "resentInvite": "Successfully resent invite to {name}",
+        "revokedAccess": "Successfully revoked access for {name}",
+        "updatedAccess": "Successfully updated access for {name} to {accessLevel}"
+      }
     }
   }
 }

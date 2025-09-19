@@ -26,6 +26,7 @@
       "requiredByFunderInfo": "The funder has marked this as a required question on their template. You can leave it blank in the tool but should complete it before submitting your grant.",
       "jumpToGuidance": "Jump to additional guidance",
       "viewSampleAnswer": "View sample answer",
+      "commentTooltip": "You need to save an answer before users can comment.",
       "guidanceBy": "Guidance by {funder}",
       "funderSampleText": "{funder} sample text",
       "participantsWillBeNotified": "Participants will be notified once submitted.",
@@ -40,9 +41,9 @@
       "info": "{name} ({role})",
       "edit": "Adjust for this plan"
     },
-    "outputs": {
-      "title": "Research outputs for this plan",
-      "count": "{count} outputs",
+    "relatedWorks": {
+      "title": "Related works for this plan",
+      "count": "{count} works",
       "edit": "Adjust for this plan"
     },
     "question": {
@@ -106,7 +107,7 @@
         "checklistItem": {
           "primaryContact": "have a primary contact",
           "complete": "marked your plan as complete",
-          "percentageAnswered": "have answered at least 50% of the questions (you answered {percentage}%",
+          "percentageAnswered": "have answered at least 50% of the questions (you answered {percentage}%)",
           "fundingText": "have identified your",
           "funding": "funding source(s)",
           "requiredFields": "completed all fields marked as 'required'",
@@ -213,6 +214,45 @@
     "messages": {
       "errors": {
         "funderNumberNotFound": "Funder's project number not found."
+      }
+    }
+  },
+  "ProjectsProjectPlanFeedback": {
+    "title": "Request feedback",
+    "description": "You can get feedback from University of California support team, please read the following message from the team.",
+    "form": {
+      "label": "Send message to University of California support team",
+      "placeholder": "Can you review my plan for any mistakes",
+      "submitButton": "Request Feedback",
+      "successMessage": "Request sent"
+    },
+    "teamFeedback": {
+      "title": "Feedback from team members",
+      "description": "You can get feedback from team members by leaving comments",
+      "updateAccessButton": "Update access settings"
+    },
+    "sidebar": {
+      "universitySupport": {
+        "title": "Feedback from the University Support Team",
+        "description": "You can request feedback from your university's research support staff (such as data stewards, research facilitators, or librarians).",
+        "expertsCanTitle": "These experts can:",
+        "expertsCan": [
+          "Check that your plan meets funder requirements",
+          "Suggest improvements to data storage, sharing, or ethical handling",
+          "Help you prepare a stronger, more compliant submission"
+        ],
+        "requestInfo": "To request their feedback and they'll be notified and will review your plan when available."
+      },
+      "teamMembers": {
+        "title": "Feedback from Team Members",
+        "description": "You can invite colleagues or collaborators to review your plan and leave comments directly on specific sections.",
+        "usefulWhenTitle": "This is especially useful when:",
+        "usefulWhen": [
+          "You're co-authoring the plan with others",
+          "You want input from people familiar with your research or data",
+          "You'd like to clarify responsibilities or fill in any missing details"
+        ],
+        "encourageInfo": "Encourage your team to leave constructive comments or suggestions, this makes the collaborative process much smoother and ensures nothing is overlooked."
       }
     }
   }

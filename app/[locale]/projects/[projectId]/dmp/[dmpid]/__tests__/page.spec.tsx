@@ -115,8 +115,9 @@ describe('PlanOverviewPage', () => {
     expect(screen.getByText('members.title')).toBeInTheDocument();
     expect(screen.getByText('members.info')).toBeInTheDocument();
     expect(screen.getByText('members.edit')).toBeInTheDocument();
-    expect(screen.getByText('outputs.title')).toBeInTheDocument();
-    expect(screen.getByText('outputs.count')).toBeInTheDocument();
+    expect(screen.getByText('relatedWorks.title')).toBeInTheDocument();
+    expect(screen.getByText('relatedWorks.count')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'relatedWorks.edit' })).toBeInTheDocument();
 
     // Check that sections rendered
     expect(screen.getByRole('heading', { name: 'Roles & Responsibilities' })).toBeInTheDocument();
@@ -128,7 +129,7 @@ describe('PlanOverviewPage', () => {
     // // Check sidebar items
     const sidebar = screen.getByTestId('sidebar-panel');
     expect(sidebar).toBeInTheDocument();
-    expect(within(sidebar).getByRole('button', { name: 'buttons.preview' })).toBeInTheDocument();
+    expect(within(sidebar).getByRole('link', { name: 'buttons.preview' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('button', { name: 'buttons.publish' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('heading', { name: 'status.feedback.title' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('link', { name: 'links.request' })).toBeInTheDocument();
@@ -165,8 +166,9 @@ describe('PlanOverviewPage', () => {
     expect(screen.getByText('members.title')).toBeInTheDocument();
     expect(screen.getByText('members.info')).toBeInTheDocument();
     expect(screen.getByText('members.edit')).toBeInTheDocument();
-    expect(screen.getByText('outputs.title')).toBeInTheDocument();
-    expect(screen.getByText('outputs.count')).toBeInTheDocument();
+    expect(screen.getByText('relatedWorks.title')).toBeInTheDocument();
+    expect(screen.getByText('relatedWorks.count')).toBeInTheDocument();
+
     // Check that sections rendered
     expect(screen.getByRole('heading', { name: 'Roles & Responsibilities' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Metadata' })).toBeInTheDocument();
@@ -177,7 +179,7 @@ describe('PlanOverviewPage', () => {
     // Check sidebar items
     const sidebar = screen.getByTestId('sidebar-panel');
     expect(sidebar).toBeInTheDocument();
-    expect(within(sidebar).getByRole('button', { name: 'buttons.preview' })).toBeInTheDocument();
+    expect(within(sidebar).getByRole('link', { name: 'buttons.preview' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('button', { name: 'buttons.publish' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('heading', { name: 'status.feedback.title' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('link', { name: 'links.request' })).toBeInTheDocument();
@@ -864,6 +866,60 @@ describe('PlanOverviewPage', () => {
     })
 
     expect(screen.getByText('There was an error changing title')).toBeInTheDocument();
+  });
+
+  it('should include correct link href for Preview button', async () => {
+    const updatedMockPlanData = {
+      ...mockPlanData.plan,
+      id: null,
+      dmpId: "https://doi.org/10.2312/123",
+      registered: null,
+      title: null,
+      status: null
+    };
+
+    (usePlanQuery as jest.Mock).mockReturnValue({
+      data: { plan: updatedMockPlanData },
+      loading: false,
+      error: null,
+      refetch: jest.fn()
+    });
+
+    render(<PlanOverviewPage />);
+
+    // Check sidebar items
+    const sidebar = screen.getByTestId('sidebar-panel');
+    expect(sidebar).toBeInTheDocument();
+    const previewLink = within(sidebar).getByRole('link', { name: 'buttons.preview' });
+    expect(previewLink).toBeInTheDocument();
+    expect(previewLink).toHaveAttribute('href', 'http://localhost:3030/dmps/10.2312/123/narrative.html?includeCoverSheet=false&includeResearchOutputs=false&includeRelatedWorks=false');
+  });
+
+  it('should include correct link href for Preview button when DOI is not in a common format', async () => {
+    const updatedMockPlanData = {
+      ...mockPlanData.plan,
+      id: null,
+      dmpId: "doi:10.1234/abcd",
+      registered: null,
+      title: null,
+      status: null
+    };
+
+    (usePlanQuery as jest.Mock).mockReturnValue({
+      data: { plan: updatedMockPlanData },
+      loading: false,
+      error: null,
+      refetch: jest.fn()
+    });
+
+    render(<PlanOverviewPage />);
+
+    // Check sidebar items
+    const sidebar = screen.getByTestId('sidebar-panel');
+    expect(sidebar).toBeInTheDocument();
+    const previewLink = within(sidebar).getByRole('link', { name: 'buttons.preview' });
+    expect(previewLink).toBeInTheDocument();
+    expect(previewLink).toHaveAttribute('href', 'http://localhost:3030/dmps/10.1234/abcd/narrative.html?includeCoverSheet=false&includeResearchOutputs=false&includeRelatedWorks=false');
   });
 
   it('should pass accessibility tests', async () => {

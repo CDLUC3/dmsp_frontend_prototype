@@ -1,7 +1,7 @@
 import React from 'react';
 import { RadioButtonsQuestionType } from '@dmptool/types';
 import { RadioGroupComponent } from '@/components/Form';
-
+import { Radio } from 'react-aria-components';
 interface RadioButtonQuestionTypeProps {
   parsedQuestion: RadioButtonsQuestionType;
   selectedRadioValue: string | undefined;
@@ -26,13 +26,20 @@ const RadioButtonsQuestionComponent: React.FC<RadioButtonQuestionTypeProps> = ({
   const value = (selectedRadioValue === undefined || selectedRadioValue === '') ? initialValue : selectedRadioValue;
 
   return (
-    <RadioGroupComponent
-      name={name}
-      value={value ?? ''}
-      radioGroupLabel={radioGroupLabel}
-      radioButtonData={radioButtonData}
-      onChange={handleRadioChange}
-    />
+    <>
+      <RadioGroupComponent
+        name={name}
+        value={value ?? ''}
+        radioGroupLabel={radioGroupLabel}
+        onChange={handleRadioChange}
+      >
+        {radioButtonData.map((radioButton, index) => (
+          <div key={index}>
+            <Radio value={radioButton.value}>{radioButton.label}</Radio>
+          </div>
+        ))}
+      </RadioGroupComponent>
+    </>
   );
 };
 
