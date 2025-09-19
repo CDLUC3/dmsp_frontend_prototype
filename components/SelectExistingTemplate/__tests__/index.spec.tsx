@@ -132,7 +132,7 @@ describe('TemplateSelectTemplatePage', () => {
     const templateData = within(myOrgTemplates).getAllByTestId('template-list-item');
     const lastRevisedBy = within(templateData[0]).getByText(/lastRevisedBy.*NSF Admin/);
     const lastUpdated = within(templateData[0]).getByText(/lastUpdated.*01-01-2023/);
-    const publishStatus = within(templateData[0]).getByText('unpublished');
+    const publishStatus = within(templateData[0]).getByText('notPublished');
     const visibility = within(templateData[0]).getByText(/visibility\s*:\s*Organization/i);
     expect(lastRevisedBy).toBeInTheDocument();
     expect(lastUpdated).toBeInTheDocument();
@@ -275,7 +275,7 @@ describe('TemplateSelectTemplatePage', () => {
     const templateData = within(myOrgTemplates).getAllByTestId('template-list-item');
     const lastRevisedBy = within(templateData[0]).getByText(/lastRevisedBy.*NSF Admin/);
     const lastUpdated = within(templateData[0]).getByText(/lastUpdated.*01-01-2023/);
-    const publishStatus = within(templateData[0]).getByText('unpublished');
+    const publishStatus = within(templateData[0]).getByText('notPublished');
     const visibility = within(templateData[0]).getByText(/visibility\s*:\s*Organization/i);
     expect(lastRevisedBy).toBeInTheDocument();
     expect(lastUpdated).toBeInTheDocument();
@@ -491,7 +491,7 @@ describe('TemplateSelectTemplatePage', () => {
       'handleClick',
       expect.objectContaining({
         error: expect.anything(),
-        url: { path: '/template/create' },
+        url: { path: '/en-US/template/create' },
       })
     )
   });
@@ -573,7 +573,7 @@ describe('TemplateSelectTemplatePage', () => {
       'handleStartNew',
       expect.objectContaining({
         error: expect.anything(),
-        url: { path: '/template/create' },
+        url: { path: '/en-US/template/create' },
       })
     )
   });

@@ -42,6 +42,7 @@ import {
   PaginatedTemplateSearchResultsInterface,
 } from '@/app/types';
 import { toSentenceCase } from '@/utils/general';
+import { useToast } from '@/context/ToastContext';
 import { useFormatDate } from '@/hooks/useFormatDate';
 
 // # of templates displayed
@@ -63,6 +64,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   const formatDate = useFormatDate();
   const router = useRouter();
   const { scrollToTop } = useScrollToTop();
+  const toastState = useToast();
 
   // State
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -213,13 +215,13 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
 
         const newTemplateId = response?.data?.addTemplate?.id;
         if (newTemplateId) {
-          router.push(`/template/${newTemplateId}`)
+          router.push(routePath('template.show', { templateId: newTemplateId }));
         }
       }
     }).catch(err => {
       logECS('error', 'handleClick', {
         error: err,
-        url: { path: '/template/create' }
+        url: { path: routePath('template.create') }
       });
     });
   }
@@ -239,13 +241,13 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
 
         const newTemplateId = response?.data?.addTemplate?.id;
         if (newTemplateId) {
-          router.push(`/template/${newTemplateId}`)
+          router.push(routePath('template.show', { templateId: newTemplateId }));
         }
       }
     }).catch(err => {
       logECS('error', 'handleStartNew', {
         error: err,
-        url: { path: '/template/create' }
+        url: { path: routePath('template.create') }
       });
     });
   }
@@ -280,7 +282,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         id: template?.id,
         title: template?.name || "",
         description: template?.description || "",
-        link: `/template/${template?.id}`,
+        link: routePath('template.show', { templateId: Number(template?.id) }),
         funder: template?.ownerDisplayName || template?.name,
         lastUpdated: template?.modified ? formatDate(template?.modified) : null,
         lastRevisedBy: template?.modifiedByName || null,
@@ -309,11 +311,11 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         id: template?.id,
         title: template?.name || "",
         description: template?.description || "",
-        link: `/template/${template?.id}`,
+        link: routePath('template.show', { templateId: Number(template?.id) }),
         funder: template?.ownerDisplayName || template?.name,
         lastUpdated: template?.modified ? formatDate(template?.modified) : null,
         lastRevisedBy: template?.modifiedByName || null,
-        publishStatus: template?.isDirty ? Global('unpublished') : Global('published'),
+        publishStatus: template?.isDirty ? Global('notPublished') : Global('published'),
         hasAdditionalGuidance: false,
         defaultExpanded: false,
         visibility: template?.latestPublishVisibility ? toSentenceCase(template.latestPublishVisibility) : 'Organization',
@@ -394,6 +396,14 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     };
     load();
   }, []);
+
+  useEffect(() => {
+    // If the template name entered on step 1 is missing from the page, we redirect back to step 1 with a toast message
+    if (!templateName) {
+      toastState.add(SelectTemplate('messages.missingTemplateName'), { type: 'error' })
+      router.push(routePath('template.create', { step: '1' }));
+    }
+  }, [templateName])
 
   return (
     <>
