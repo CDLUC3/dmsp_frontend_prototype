@@ -3,7 +3,7 @@ npm test --coverage
 npm run type-check
 
 # Run Trivy to check for vulnerabilities in the filesystem
-sh ./scripts/trivy-high.sh
+npm run trivy-high
 
 # Run a non-blocking Trivy check for MEDIUM and LOW vulnerabilities
-sh ./scripts/trivy-med.sh
+npm run trivy-med
