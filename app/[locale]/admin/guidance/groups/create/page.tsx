@@ -85,7 +85,7 @@ const GuidanceGroupCreatePage: React.FC = () => {
           <form className={styles.createForm}>
             {/* Guidance Group Section */}
 
-            <div className="sectionContainer">
+            <div className="sectionContainer mt-0">
               <div className="sectionContent">
                 <div className={styles.formGroup}>
                   <FormInput

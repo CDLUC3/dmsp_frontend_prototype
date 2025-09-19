@@ -24,15 +24,23 @@
 
 .dashboardItemContent {
     flex: 1;
+
+    h3 {
+        margin: 0;
+        padding: 0;
+        margin-bottom: var(--space-1);
+    }
 }
 
 .dashboardItemHeading {
     padding: 0;
     margin: 0 0 0.5rem;
+
+
 }
 
 .content {
-    margin-bottom: 1rem;
+    margin-bottom: 0rem;
 }
 
 .updateLink {

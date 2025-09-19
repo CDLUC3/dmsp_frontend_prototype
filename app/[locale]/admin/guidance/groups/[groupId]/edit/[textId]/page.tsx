@@ -173,10 +173,7 @@ const GuidanceTextEditPage: React.FC = () => {
         <ContentContainer>
           <form className={styles.editForm}>
             {/* Guidance Text Content Section */}
-            <div className="sectionContainer">
-              <div className="sectionHeader">
-                <h2>{t("sections.guidanceText.title")}</h2>
-              </div>
+            <div className="sectionContainer mt-0">
               <div className="sectionContent">
                 <div className={styles.formGroup}>
                   <FormInput

@@ -105,7 +105,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
           <>
             <Link
               href={GROUP_EDIT_URL}
-              className={"button-link button--secondary"}
+              className="button-link button--secondary"
             >
               {t("pages.groupIndex.editGroup")}
             </Link>

@@ -121,7 +121,7 @@ const GuidanceGroupEditPage: React.FC = () => {
         <ContentContainer>
           <form className={styles.editForm}>
             {/* Guidance Group Section */}
-            <div className="sectionContainer">
+            <div className="sectionContainer mt-0">
               <div className="sectionContent">
                 <div className={styles.formGroup}>
                   <FormInput
