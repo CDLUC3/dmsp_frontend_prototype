@@ -26,3 +26,18 @@ mutation UpdateProjectFunding($input: UpdateProjectFundingInput!) {
     }
   }
 }
+
+mutation RemoveProjectFunding($projectFundingId: Int!) {
+  removeProjectFunding(projectFundingId: $projectFundingId) {
+    errors {
+      affiliationId
+      funderOpportunityNumber
+      funderProjectNumber
+      general
+      grantId
+      projectId
+      status
+    }
+    id
+  }
+}

@@ -19,6 +19,7 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
+  Checkbox,
   Form,
   Link,
 } from "react-aria-components";
@@ -236,8 +237,28 @@ const ProjectsProjectPlanAdjustFunding = () => {
               onChange={handleCheckboxChange}
               checkboxGroupLabel={t('fundingLabel')}
               checkboxGroupDescription={t('fundingDescription')}
-              checkboxData={checkboxData}
-            />
+            >
+              {checkboxData.map((checkbox, index) => (
+                <div key={index}>
+                  <Checkbox value={checkbox.value}>
+                    <div className="checkbox">
+                      <svg viewBox="0 0 18 18" aria-hidden="true">
+                        <polyline points="1 9 7 14 15 4" />
+                      </svg>
+                    </div>
+                    <div className="">
+                      <span>
+                        {checkbox.label}
+                      </span>
+                      <br />
+                      <span className="help">
+                        {checkbox.description}
+                      </span>
+                    </div>
+                  </Checkbox>
+                </div>
+              ))}
+            </CheckboxGroupComponent>
 
             <p>
               <strong>{t('changeWarning')}</strong>

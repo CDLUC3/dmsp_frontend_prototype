@@ -13,7 +13,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   margin: 0;
 }
 
@@ -29,6 +30,7 @@ html, body {
   @each $name, $size in $font-sizes {
     --fs-#{$name}: #{$size};
   }
+
   --fs-body: var(--fs-base);
 
   // Generate spacing variables from map
@@ -233,6 +235,10 @@ body {
   margin-bottom: var(--space-5);
 }
 
+.sidebar-section > button:not(:last-child) {
+  margin-right: var(--space-3);
+}
+
 .sidebar-section-title {
   margin-bottom: var(--space-2);
 }
@@ -243,6 +249,7 @@ body {
 
 .sidebar-inner {
   margin-top: var(--space-5);
+
   @include r.device(xxl) {
     position: sticky;
     top: 0;
@@ -261,4 +268,152 @@ body {
   font-size: var(--fs-small);
   margin-top: var(--space-2);
   margin-bottom: var(--space-2);
+}
+
+
+
+
+.statusPanelContent {
+  padding: var(--space-4);
+  background-color: var(--gray-75);
+  border-radius: var(--border-radius-lg);
+
+  h3 {
+    font-size: var(--fs-h5);
+    margin: 0 0 var(--space-1) 0;
+    padding: 0;
+  }
+
+  p {
+    padding: 0;
+    margin: 0 0 var(--space-2) 0;
+    font-size: var(--fs-base);
+
+    a {
+      font-size: var(--fs-base);
+      color: var(--link-color);
+      text-decoration: underline;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: var(--link-hover-color);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--focus-ring);
+        outline-offset: 2px;
+        border-radius: var(--border-radius-sm);
+      }
+    }
+  }
+}
+
+.sidePanelContent {
+  padding-top: var(--space-1);
+
+  // Optional border top - only when needed
+  &.withBorder {
+    border-top: 1px solid var(--gray-100);
+  }
+
+  .statusForm {
+    margin-bottom: var(--space-8);
+  }
+}
+
+.sidePanel {
+
+  a {
+    font-size: var(--fs-base);
+    color: var(--link-color);
+    text-decoration: underline;
+    transition: color 0.2s ease;
+    display: inline-block;
+    margin-top: 0;
+
+    &:hover {
+      color: var(--slate-900);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+      border-radius: var(--border-radius-sm);
+    }
+  }
+
+  .buttonContainer {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 0 var(--space-4) 0;
+    gap: var(--space-2);
+    border-bottom: 1px solid var(--gray-100);
+    padding-bottom: var(--space-4);
+
+    @include r.device('sm') {
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    @include r.device('md') {
+      flex-direction: row;
+      gap: var(--space-2);
+    }
+  }
+
+  .panelRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+
+
+    @include r.device('sm') {
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    @include r.device('md') {
+      flex-direction: row;
+      gap: var(--space-3);
+    }
+
+    h3,
+    .h3 {
+      font-size: var(--fs-base);
+      font-weight: 600;
+      margin: 0;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    p {
+      margin: 0;
+      font-size: var(--fs-small);
+      flex: 1;
+    }
+
+    .sidePanelLink,
+    .buttonLink {
+      font-size: var(--fs-base);
+      font-weight: 300;
+      color: var(--link-color);
+      text-decoration: underline;
+      transition: color 0.2s ease;
+      display: inline-block;
+      margin: 0;
+      flex-shrink: 0;
+
+      &:hover {
+        color: var(--slate-900);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--focus-ring);
+        outline-offset: 2px;
+        border-radius: var(--border-radius-sm);
+      }
+    }
+  }
 }

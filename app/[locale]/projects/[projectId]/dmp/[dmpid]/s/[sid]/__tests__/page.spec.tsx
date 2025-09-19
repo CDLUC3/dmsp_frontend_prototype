@@ -180,6 +180,11 @@ const planMock = {
   feedback: {
     id: 789,
     completed: null
+  },
+  progress: {
+    answeredQuestions: 0,
+    percentComplete: 0,
+    totalQuestions: 16
   }
 };
 

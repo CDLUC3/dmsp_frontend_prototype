@@ -1,0 +1,119 @@
+{
+  "RelatedWorksPage": {
+    "header": {
+      "title": "Related Works",
+      "description": "Match related works to your research project."
+    },
+    "buttons": {
+      "addRelatedWorkManually": "Add Related Work"
+    },
+    "tabs": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "rejected": "Rejected"
+    }
+  },
+  "RelatedWorksList": {
+    "filters": {
+      "filterByConfidence": "Filter by Confidence",
+      "filterByType": "Filter by Type",
+      "highlightMatches": "Highlight Matches",
+      "sort": "Sort",
+      "reset": "Reset",
+      "sortBy": {
+        "confidence-high": "Confidence: High to Low",
+        "confidence-low": "Confidence: Low to High",
+        "reviewed-new": "Reviewed: New to Old",
+        "reviewed-old": "Reviewed: Old to New",
+        "published-new": "Published: New to Old",
+        "published-old": "Published: Old to New",
+        "date-found-new": "Date Found: New to Old",
+        "date-found-old": "Date Found: Old to New"
+      }
+    },
+    "messages": {
+      "noPendingResults": "No pending works found.\n You have no pending works to review.",
+      "noPendingFilteredResults": "No pending works found.\nNo pending works match your current filters.",
+      "noRelatedResults": "No related works found.\nYou haven’t marked any works as related yet. Check the Pending tab to get started.",
+      "noRelatedFilteredResults": "No related works found.\nNo related works match your current filters.",
+      "noDiscardedResults": "No discarded works found.\nYou haven’t discarded any works.",
+      "noDiscardedFilteredResults": "No discarded works found.\nNo discarded works match your current filters."
+    }
+  },
+  "RelatedWorksListItem": {
+    "header": {
+      "title": "Open the published version of this work"
+    },
+    "buttons": {
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "accept": "Accept",
+      "reject": "Reject"
+    },
+    "fieldNames": {
+      "confidence": "Confidence",
+      "dateFound": "Date Found",
+      "dateReviewed": "Reviewed",
+      "type": "Type",
+      "source": "Source",
+      "doi": "DOI",
+      "title": "Title",
+      "abstract": "Abstract",
+      "awardIds": "Award IDs",
+      "authors": "Authors",
+      "institutions": "Institutions",
+      "funders": "Funders"
+    },
+    "instructions": {
+      "review": "Review the information about this potentially related work below, and then accept it as related or reject it as unrelated.",
+      "actions": {
+        "pending": "If you reject this related work, you can recover it later from the Rejected tab.",
+        "related": "If you reject this related work, you can recover it later from the Rejected tab.",
+        "discarded": "You can recover this related work by accepting it, you will then see it in the Accepted tab."
+      }
+    }
+  },
+  "RelatedWorksDataTypes": {
+    "confidence": {
+      "all": "All",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "workType": {
+      "article": "Article",
+      "audio-visual": "Audio Visual",
+      "book": "Book",
+      "book-chapter": "Book Chapter",
+      "collection": "Collection",
+      "data-paper": "Data Paper",
+      "dataset": "Dataset",
+      "dissertation": "Dissertation",
+      "editorial": "Editorial",
+      "erratum": "Erratum",
+      "event": "Event",
+      "grant": "Grant",
+      "image": "Image",
+      "interactive-resource": "Interactive Resource",
+      "letter": "Letter",
+      "libguides": "Libguides",
+      "model": "Model",
+      "other": "Other",
+      "paratext": "Paratext",
+      "peer-review": "Peer Review",
+      "physical-object": "Physical Object",
+      "preprint": "Preprint",
+      "reference-entry": "Reference Entry",
+      "report": "Report",
+      "retraction": "Retraction",
+      "review": "Review",
+      "service": "Service",
+      "software": "Software",
+      "sound": "Sound",
+      "standard": "Standard",
+      "supplementary-materials": "Supplementary Materials",
+      "text": "Text",
+      "workflow": "Workflow"
+    }
+  }
+}

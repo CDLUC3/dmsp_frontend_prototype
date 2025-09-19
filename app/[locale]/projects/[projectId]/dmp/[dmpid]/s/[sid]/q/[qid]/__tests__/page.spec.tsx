@@ -303,6 +303,32 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(bestPracticeDataVolume).toBeInTheDocument();
   })
 
+  it('should display disabled comment button when an answer does not exist for the question', async () => {
+
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: null,
+      loading: false,
+      error: undefined,
+    });
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    // check for comment button
+    const commentButton = screen.getByRole('button', { name: 'buttons.commentWithNumber' });
+    expect(commentButton).toBeInTheDocument();
+    expect(commentButton).toHaveClass('buttonSmallDisabled');
+  })
+
   it('should load sampleText in textArea if useSampleTextAsDefault is true and sampleText exists in question', async () => {
 
     (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
@@ -2117,8 +2143,10 @@ describe('DrawerPanel', () => {
   })
 });
 
-describe('Auto save', () => {
-  it('should call setTimeout for saving data when changes their answer', async () => {
+describe('Prevent unload when user has unsaved changes', () => {
+  let addEventListenerSpy: jest.SpyInstance;
+  let removeEventListenerSpy: jest.SpyInstance;
+  beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
 
     // Mock window.tinymce
@@ -2137,6 +2165,25 @@ describe('Auto save', () => {
       jest.fn().mockResolvedValueOnce(mockPlanData),
       { loading: false, error: undefined },
     ]);
+
+    (useMeQuery as jest.Mock).mockReturnValue({
+      data: mockMeData,
+      loading: false,
+      error: undefined
+    });
+
+    // Mock addEventListener
+    addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+    removeEventListenerSpy = jest.spyOn(window, 'removeEventListener');
+  })
+
+  afterEach(() => {
+    // Cleanup
+    removeEventListenerSpy.mockRestore();
+    addEventListenerSpy.mockRestore();
+  })
+
+  it('should prevent unload when there are unsaved changes and user tries to navigate away from page', async () => {
     (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockCheckboxQuestion,
       loading: false,
@@ -2144,7 +2191,7 @@ describe('Auto save', () => {
     });
 
     (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockCheckboxAnswer,
+      data: null,
       loading: false,
       error: undefined,
     });
@@ -2164,21 +2211,11 @@ describe('Auto save', () => {
       },
     });
 
-    (useMeQuery as jest.Mock).mockReturnValue({
-      data: mockMeData,
-      loading: false,
-      error: undefined
-    });
+    render(
+      <PlanOverviewQuestionPage />
+    );
 
-    const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
-
-
-    await act(async () => {
-      render(
-        <PlanOverviewQuestionPage />
-      );
-    });
-
+    // Make checkbox change
     const checkboxGroup = screen.getByTestId('checkbox-group');
     expect(checkboxGroup).toBeInTheDocument();
     const checkboxes = within(checkboxGroup).getAllByRole('checkbox');
@@ -2188,11 +2225,25 @@ describe('Auto save', () => {
 
     await userEvent.click(alexCheckbox!);
 
-    expect(screen.getByText('messages.unsavedChanges')).toBeInTheDocument();
+    // Wait for state update
+    await waitFor(() => {
+      // Get the last registered 'beforeunload' handler
+      const handler = addEventListenerSpy.mock.calls
+        .filter(([event]) => event === 'beforeunload')
+        .map(([, fn]) => fn)
+        .pop();
 
-    // Verify setTimeout was called with 3000ms
-    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 3000);
+      // Simulate event of navigating way from page
+      const event = new Event('beforeunload');
+      Object.defineProperty(event, 'returnValue', {
+        writable: true,
+        value: undefined,
+      });
 
-    setTimeoutSpy.mockRestore();
+      if (handler) {
+        handler(event as unknown as BeforeUnloadEvent);
+        expect(event.returnValue).toBe('');
+      }
+    });
   });
 });

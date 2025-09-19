@@ -17,6 +17,7 @@ import {
   Link,
   Modal,
   ModalOverlay,
+  Radio,
   Tab,
   TabList,
   TabPanel,
@@ -27,6 +28,7 @@ import {
 
 // GraphQL queries and mutations
 import {
+  QuestionErrors,
   useQuestionQuery,
   useUpdateQuestionMutation,
   useRemoveQuestionMutation,
@@ -43,6 +45,7 @@ import {
   RangeComponent,
   TypeAheadSearch
 } from '@/components/Form';
+
 import FormTextArea from '@/components/Form/FormTextArea';
 import ErrorMessages from '@/components/ErrorMessages';
 import QuestionView from '@/components/QuestionView';
@@ -53,8 +56,12 @@ import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
-import {getQuestionFormatInfo, getQuestionTypes, questionTypeHandlers} from '@/utils/questionTypeHandlers';
-import { QuestionTypeMap } from "@dmptool/types";
+import {
+  getQuestionFormatInfo,
+  getQuestionTypes,
+  questionTypeHandlers
+} from '@/utils/questionTypeHandlers';
+import { checkErrors } from '@/utils/errorHandler'; import { QuestionTypeMap } from "@dmptool/types";
 import {
   Question,
   QuestionOptions,
@@ -96,6 +103,10 @@ const QuestionEdit = () => {
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
+  // Track whether there are unsaved changes
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  // Form state
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // State for managing form inputs
   const [question, setQuestion] = useState<Question>();
@@ -121,21 +132,6 @@ const QuestionEdit = () => {
 
   // Set URLs
   const TEMPLATE_URL = routePath('template.show', { templateId });
-
-  const radioData = {
-    radioGroupLabel: Global('labels.requiredField'),
-    radioButtonData: [
-      {
-        value: 'yes',
-        label: Global('form.yesLabel'),
-      },
-      {
-        value: 'no',
-        label: Global('form.noLabel')
-      }
-    ]
-  }
-
 
   // Run selected question query
   const {
@@ -163,8 +159,8 @@ const QuestionEdit = () => {
           ...prev,
           json: JSON.stringify(updatedJSON.data),
         }));
+        setHasUnsavedChanges(true);
       }
-
     }
   };
 
@@ -172,8 +168,17 @@ const QuestionEdit = () => {
   const redirectToQuestionTypes = () => {
     const sectionId = selectedQuestion?.question?.sectionId;
     // questionId as query param included to let page know that user is updating an existing question
-    router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=1&questionId=${questionId}`)
+    router.push(routePath('template.q.new', { templateId }, { section_id: sectionId, step: 1, questionId }))
   }
+
+  //Handle change to Question Text
+  const handleQuestionTextChange = (value: string) => {
+    setQuestion(prev => ({
+      ...prev,
+      questionText: value
+    }));
+    setHasUnsavedChanges(true);
+  };
 
   // Handle changes from RadioGroup
   const handleRadioChange = (value: string) => {
@@ -183,8 +188,8 @@ const QuestionEdit = () => {
         ...prev,
         required: isRequired
       }));
+      setHasUnsavedChanges(true);
     }
-
   };
 
   // Handler for date range label changes
@@ -199,6 +204,7 @@ const QuestionEdit = () => {
           ...prev,
           json: JSON.stringify(updatedParsed),
         }));
+        setHasUnsavedChanges(true);
       }
     }
   };
@@ -214,6 +220,7 @@ const QuestionEdit = () => {
         ...prev,
         json: JSON.stringify(updatedParsed),
       }));
+      setHasUnsavedChanges(true);
     }
   };
 
@@ -229,6 +236,7 @@ const QuestionEdit = () => {
           ...prev,
           json: JSON.stringify(updatedParsed),
         }));
+        setHasUnsavedChanges(true);
       }
     }
   };
@@ -284,11 +292,12 @@ const QuestionEdit = () => {
   // Handle form submission to update the question
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Prevent double submission
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     // Set formSubmitted to true to indicate the form has been submitted
     setFormSubmitted(true);
-
-
 
     if (question) {
       const updatedJSON = buildUpdatedJSON(question);
@@ -314,11 +323,24 @@ const QuestionEdit = () => {
           },
         });
 
-        if (response?.data) {
-          // Show success message and redirect to Edit Template page
-          toastState.add(t('messages.success.questionUpdated'), { type: 'success' });
-          router.push(TEMPLATE_URL);
+        const responseErrors = response?.data?.updateQuestion?.errors;
+
+        if (responseErrors && typeof responseErrors === 'object') {
+          const [hasErrors, errs] = checkErrors(
+            responseErrors as QuestionErrors,
+            ['general', 'questionText']
+          );
+          if (hasErrors) {
+            setErrors([String(errs.general)]);
+            setIsSubmitting(false);
+            return;
+          }
         }
+        // Show success message and redirect to Edit Template page
+        toastState.add(t('messages.success.questionUpdated'), { type: 'success' });
+        router.push(TEMPLATE_URL);
+        setHasUnsavedChanges(false);
+        setIsSubmitting(false);
       } catch (error) {
         if (!(error instanceof ApolloError)) {
           setErrors(prevErrors => [...prevErrors, t('messages.errors.questionUpdateError')]);
@@ -466,6 +488,8 @@ const QuestionEdit = () => {
           json: JSON.stringify(qInfo.defaultJSON)
         }));
 
+        setHasUnsavedChanges(true);
+
         setQuestionType(questionTypeIdQueryParam)
 
         // Update the questionTypeName
@@ -491,6 +515,21 @@ const QuestionEdit = () => {
       setParsedQuestionJSON(parsed);
     }
   }, [question])
+
+  // Warn user of unsaved changes if they try to leave the page
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = ''; // Required for Chrome/Firefox to show the confirm dialog
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -554,10 +593,7 @@ const QuestionEdit = () => {
                   isRequired={true}
                   label={t('labels.questionText')}
                   value={question?.questionText ? question.questionText : ''}
-                  onChange={(e) => setQuestion({
-                    ...question,
-                    questionText: e.currentTarget.value
-                  })}
+                  onChange={(e) => handleQuestionTextChange(e.target.value)}
                   helpMessage={t('helpText.questionText')}
                   isInvalid={!question?.questionText}
                   errorMessage={t('messages.errors.questionTextRequired')}
@@ -575,7 +611,8 @@ const QuestionEdit = () => {
                         if (!question) return undefined;
                         const result = getParsedQuestionJSON(question, routePath('template.show', { templateId }), Global);
                         return result.parsed ? JSON.stringify(result.parsed) : undefined;
-                      })()} formSubmitted={formSubmitted}
+                      })()}
+                      formSubmitted={formSubmitted}
                       setFormSubmitted={setFormSubmitted} />
                   </div>
                 )}
@@ -607,10 +644,13 @@ const QuestionEdit = () => {
                   textAreaClasses={styles.questionFormField}
                   label={t('labels.requirementText')}
                   value={question?.requirementText ? question.requirementText : ''}
-                  onChange={(newValue) => setQuestion(prev => ({
-                    ...prev,
-                    requirementText: newValue
-                  }))}
+                  onChange={(newValue) => {
+                    setQuestion(prev => ({
+                      ...prev,
+                      requirementText: newValue
+                    }));
+                    setHasUnsavedChanges(true);
+                  }}
                 />
 
                 <FormTextArea
@@ -620,11 +660,13 @@ const QuestionEdit = () => {
                   textAreaClasses={styles.questionFormField}
                   label={t('labels.guidanceText')}
                   value={question?.guidanceText ? question.guidanceText : ''}
-                  onChange={(newValue) => setQuestion(prev => ({
-                    ...prev,
-                    guidanceText: newValue
-                  }))}
-
+                  onChange={(newValue) => {
+                    setQuestion(prev => ({
+                      ...prev,
+                      guidanceText: newValue
+                    }));
+                    setHasUnsavedChanges(true);
+                  }}
                 />
 
                 {questionType === TEXT_AREA_QUESTION_TYPE && (
@@ -636,19 +678,25 @@ const QuestionEdit = () => {
                     textAreaClasses={styles.questionFormField}
                     label={t('labels.sampleText')}
                     value={question?.sampleText ? question?.sampleText : ''}
-                    onChange={(newValue) => setQuestion(prev => ({
-                      ...prev,
-                      sampleText: newValue
-                    }))}
+                    onChange={(newValue) => {
+                      setQuestion(prev => ({
+                        ...prev,
+                        sampleText: newValue
+                      }));
+                      setHasUnsavedChanges(true);
+                    }}
                   />
                 )}
 
                 {questionType === TEXT_AREA_QUESTION_TYPE && (
                   <Checkbox
-                    onChange={() => setQuestion({
-                      ...question,
-                      useSampleTextAsDefault: !question?.useSampleTextAsDefault
-                    })}
+                    onChange={() => {
+                      setQuestion({
+                        ...question,
+                        useSampleTextAsDefault: !question?.useSampleTextAsDefault
+                      });
+                      setHasUnsavedChanges(true);
+                    }}
                     isSelected={question?.useSampleTextAsDefault || false}
                   >
                     <div className="checkbox">
@@ -664,15 +712,27 @@ const QuestionEdit = () => {
                 <RadioGroupComponent
                   name="radioGroup"
                   value={question?.required ? 'yes' : 'no'}
-                  radioGroupLabel={radioData.radioGroupLabel}
-                  radioButtonData={radioData.radioButtonData}
+                  radioGroupLabel={Global('labels.requiredField')}
                   description={Global('descriptions.requiredFieldDescription')}
                   onChange={handleRadioChange}
-                />
+                >
+                  <div>
+                    <Radio value="yes">{Global('form.yesLabel')}</Radio>
+                  </div>
+
+                  <div>
+                    <Radio value="no">{Global('form.noLabel')}</Radio>
+                  </div>
+                </RadioGroupComponent>
 
 
-                <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.saveAndUpdate')}</Button>
-
+                <Button
+                  type="submit"
+                  aria-disabled={isSubmitting}
+                  onPress={() => setFormSubmitted(true)}
+                >
+                  {isSubmitting ? Global('buttons.saving') : Global('buttons.saveAndUpdate')}
+                </Button>
               </Form>
 
 
@@ -736,7 +796,7 @@ const QuestionEdit = () => {
           <p>{t('descriptions.bestPracticePara2')}</p>
           <p>{t('descriptions.bestPracticePara3')}</p>
         </div>
-      </div>
+      </div >
     </>
 
   );

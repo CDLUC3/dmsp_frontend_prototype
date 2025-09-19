@@ -6,7 +6,7 @@ query Templates($term: String, $paginationOptions: PaginationOptions) {
       id
       name
       description
-      visibility
+      latestPublishVisibility
       isDirty
       latestPublishVersion
       latestPublishDate
@@ -58,7 +58,7 @@ query Template($templateId: Int!) {
       displayName
       id
     },
-    visibility,
+    latestPublishVisibility,
     bestPractice,
     isDirty
   }

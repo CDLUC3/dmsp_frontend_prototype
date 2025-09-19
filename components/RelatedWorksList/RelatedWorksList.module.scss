@@ -1,0 +1,70 @@
+@use "@/styles/responsive.scss" as r;
+
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.filters {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+
+  @include r.device(sm) {
+    gap: var(--space-4);
+  }
+
+  @include r.device(md) {
+    gap: var(--space-5);
+  }
+}
+
+.filter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.filterLabel {
+  font-weight: 600;
+}
+
+.spacer {
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+
+.filterByType :global(.react-aria-Select) {
+  margin-bottom: 0;
+
+  :global(.react-aria-Button) {
+    width: 13rem;
+  }
+}
+
+.sortBy :global(.react-aria-Select) {
+  margin-bottom: 0;
+
+  :global(.react-aria-Button) {
+    width: 16rem;
+  }
+}
+
+.list > *:not(:last-child) {
+  margin-bottom: var(--space-4);
+}
+
+.footer {
+  margin-top: var(--space-6);
+}
+
+.noResults {
+  text-align: center;
+  font-size: var(--fs-lg);
+  white-space: pre-line;
+  padding: var(--space-4);
+}

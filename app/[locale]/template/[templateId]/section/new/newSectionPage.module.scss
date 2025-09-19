@@ -8,3 +8,14 @@
   width: 100%;
   margin: -25px 0 25px 0;
 }
+
+.cardHeading {
+  display: -webkit-box;
+  line-clamp: 2;       // Limit to 2 lines
+  -webkit-line-clamp: 2;   // number of lines to show
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;      // ensures it wraps instead of single line
+  height: 4rem; // Fixing height so that cards are uniform in height
+}

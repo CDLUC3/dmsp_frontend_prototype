@@ -1,3 +1,4 @@
+@use "sass:meta";
 @use "variables" as *;
 @use "responsive" as *;
 // These are the spacing utilities that are generated from the spacing map.
@@ -13,7 +14,7 @@
           .#{$class-name} {
             #{$prop-value}: var(--space-#{$space-key});
           }
-        } @else if type-of($direction-value) == 'list' {
+        } @else if meta.type-of($direction-value) == 'list' {
           .#{$class-name} {
             @each $dir in $direction-value {
               #{$prop-value}#{$dir}: var(--space-#{$space-key});
