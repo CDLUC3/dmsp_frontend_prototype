@@ -1,11 +1,12 @@
 @use 'responsive' as r;
-@use 'spacing' as spacing;
+
 @use "typography";
 @use "elements";
 @use "messages";
 @use "page";
 @use "forms";
 @use "variables" as *;
+@use 'spacing' as spacing;
 
 *,
 *:before,
