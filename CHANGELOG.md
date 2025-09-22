@@ -1,4 +1,6 @@
 ### Added
+=======
+- Add departments and schools page
 - Add hostname and port to start command in AWS Dockerfile
 - Add explicit cors rules to nextJS config to allow traffic from our domain
 - Added Trivy precommit hook to scan for vulnerabilities in package-lock.json
