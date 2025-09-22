@@ -138,12 +138,12 @@ const GuidanceTextEditPage: React.FC = () => {
 
   const handleSave = () => {
     // TODO: Implement save functionality
-    console.log("Saving guidance text:", guidanceText);
+    // console.log("Saving guidance text:", guidanceText);
   };
 
   const handlePublish = () => {
-    console.log("Publishing guidance text:", guidanceText);
     // TODO: Implement publish functionality
+    // console.log("Publishing guidance text:", guidanceText);
   };
 
   return (
@@ -236,7 +236,7 @@ const GuidanceTextEditPage: React.FC = () => {
                                   <DialogTrigger>
                                     <Button
                                       className="popover-btn"
-                                      aria-label="Click for more info"
+                                      aria-label={`More information about ${tag.name}`}
                                     >
                                       <div className="icon">
                                         <DmpIcon icon="info" />

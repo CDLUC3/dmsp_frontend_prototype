@@ -12,6 +12,7 @@ import { ContentContainer, LayoutContainer } from "@/components/Container";
 
 import { routePath } from "@/utils/routes";
 import styles from "./guidanceGroupIndex.module.scss";
+import parentStyles from "../../guidance.module.scss";
 
 // Types for guidance texts
 interface GuidanceText {
@@ -105,13 +106,13 @@ const GuidanceGroupIndexPage: React.FC = () => {
           <>
             <Link
               href={GROUP_EDIT_URL}
-              className="button-link button--secondary"
+              className={`react-aria-Button--link ${styles.editGroupButton}`}
             >
               {t("pages.groupIndex.editGroup")}
             </Link>
             <Link
               href={TEXT_CREATE_URL}
-              className={"button-link button--primary"}
+              className="button-link button--primary"
             >
               {t("pages.groupIndex.createText")}
             </Link>
@@ -133,15 +134,17 @@ const GuidanceGroupIndexPage: React.FC = () => {
                 heading={text.title}
                 url={text.url}
               >
-                <div className={styles.guidanceContent}>
-                  <div className={styles.metadata}>
+                <div className={parentStyles.guidanceContent}>
+                  <div className={parentStyles.metadata}>
                     <span>
                       {Global("lastRevisedBy")}: {text.lastUpdatedBy}
                     </span>
-                    <span className={styles.separator}>
+                    <span className={parentStyles.separator}>
                       {Global("lastUpdated")}: {text.lastUpdated}
                     </span>
-                    <span className={styles.separator}>Status: {text.status}</span>
+                    <span className={parentStyles.separator}>
+                      {t("status.status")}: {text.status}
+                    </span>
                   </div>
                 </div>
               </DashboardListItem>

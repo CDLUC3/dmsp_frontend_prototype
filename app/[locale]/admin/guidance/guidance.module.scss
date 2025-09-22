@@ -1,28 +1,5 @@
 @use '@/styles/responsive.scss' as r;
 
-.loadBtnContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    margin-top: 2rem;
-}
-
-.remainingText {
-    color: var(--slate-500);
-    font-size: var(--fs-small);
-}
-
-.searchMatchText {
-    color: var(--slate-600);
-    text-decoration: underline;
-    font-size: var(--fs-small);
-}
-
-.clearFilter {
-    cursor: pointer;
-}
-
 .guidanceContent {
     .description {
         margin-bottom: 1rem;

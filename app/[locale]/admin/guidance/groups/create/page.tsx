@@ -57,7 +57,7 @@ const GuidanceGroupCreatePage: React.FC = () => {
 
   const handleSave = () => {
     // TODO: Implement save functionality
-    console.log("Creating guidance group:", guidanceGroup);
+    // console.log("Creating guidance group:", guidanceGroup);
   };
 
   return (

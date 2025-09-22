@@ -86,12 +86,12 @@ const GuidanceGroupEditPage: React.FC = () => {
 
   const handleSave = () => {
     // TODO: Implement save functionality
-    console.log("Saving guidance group:", guidanceGroup);
+    // console.log("Saving guidance group:", guidanceGroup);
   };
 
   const handlePublish = () => {
     // TODO: Implement publish functionality
-    console.log("Publishing guidance group:", guidanceGroup);
+    // console.log("Publishing guidance group:", guidanceGroup);
   };
 
   return (

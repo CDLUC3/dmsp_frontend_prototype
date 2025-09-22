@@ -12,6 +12,8 @@ import {
   DialogTrigger,
   OverlayArrow,
   Popover,
+  Form,
+  ListBoxItem,
 } from "react-aria-components";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
@@ -21,7 +23,7 @@ import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutWithPanel, SidebarPanel } from "@/components/Container";
 import TinyMCEEditor from "@/components/TinyMCEEditor";
 import { DmpIcon } from "@/components/Icons";
-import { FormInput, CheckboxGroupComponent } from "@/components/Form";
+import { FormInput, CheckboxGroupComponent, FormSelect } from "@/components/Form";
 
 import { routePath } from "@/utils/routes";
 import styles from "./guidanceTextCreate.module.scss";
@@ -30,6 +32,7 @@ interface GuidanceText {
   title: string;
   content: string;
   selectedTags: string[];
+  status: "Published" | "Draft";
 }
 
 interface Tag {
@@ -45,7 +48,20 @@ const GuidanceTextCreatePage: React.FC = () => {
     title: "",
     content: "",
     selectedTags: [],
+    status: "Draft",
   });
+
+  const [isEditingStatus, setIsEditingStatus] = useState(false);
+
+  // For translations
+  const t = useTranslations("Guidance");
+  const Global = useTranslations("Global");
+
+  // Status options for dropdown
+  const statusOptions = [
+    { id: "Published", name: t("status.published") },
+    { id: "Draft", name: t("status.draft") },
+  ];
 
   // Fake tags data (same as edit page)
   const tags: Tag[] = [
@@ -105,13 +121,19 @@ const GuidanceTextCreatePage: React.FC = () => {
     },
   ];
 
-  // For translations
-  const t = useTranslations("Guidance");
-  const Global = useTranslations("Global");
+  const handleStatusChange = () => {
+    setIsEditingStatus(true);
+  };
+
+  const handleStatusForm = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsEditingStatus(false);
+    // TODO: Implement status update functionality
+  };
 
   const handleSave = () => {
     // TODO: Implement save functionality
-    console.log("Creating guidance text:", guidanceText);
+    // console.log("Creating guidance text:", guidanceText);
   };
 
   return (
@@ -153,7 +175,7 @@ const GuidanceTextCreatePage: React.FC = () => {
                   />
                 </div>
 
-                <div className={styles.formGroup}>
+                <div>
                   <Label
                     htmlFor="content"
                     id="contentLabel"
@@ -169,7 +191,7 @@ const GuidanceTextCreatePage: React.FC = () => {
                   />
                 </div>
 
-                <div className={styles.formGroup}>
+                <div>
                   <CheckboxGroupComponent
                     name="guidanceTags"
                     checkboxGroupLabel={t("fields.themes.label")}
@@ -204,7 +226,7 @@ const GuidanceTextCreatePage: React.FC = () => {
                                   <DialogTrigger>
                                     <Button
                                       className="popover-btn"
-                                      aria-label="Click for more info"
+                                      aria-label={`More information about ${tag.name}`}
                                     >
                                       <div className="icon">
                                         <DmpIcon icon="info" />
@@ -250,18 +272,49 @@ const GuidanceTextCreatePage: React.FC = () => {
             </div>
 
             <div className="sidePanelContent">
-              <div className={`panelRow mb-5`}>
+              {isEditingStatus ? (
                 <div>
-                  <p
-                    className="sidebar-label"
-                    role="heading"
-                    aria-level={2}
+                  <Form
+                    onSubmit={handleStatusForm}
+                    className="statusForm"
                   >
-                    {t("status.status")}
-                  </p>
-                  <p>{t("status.draft")}</p>
+                    <FormSelect
+                      label={t("status.status")}
+                      ariaLabel="Select status"
+                      isRequired
+                      name="status"
+                      items={statusOptions}
+                      onChange={(selected) =>
+                        setGuidanceText({ ...guidanceText, status: selected as "Published" | "Draft" })
+                      }
+                      selectedKey={guidanceText.status}
+                    >
+                      {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
+                    </FormSelect>
+                    {isEditingStatus && <Button type="submit">Save</Button>}
+                  </Form>
                 </div>
-              </div>
+              ) : (
+                <div className={`panelRow mb-5`}>
+                  <div>
+                    <p
+                      className="sidebar-label"
+                      role="heading"
+                      aria-level={2}
+                    >
+                      {t("status.status")}
+                    </p>
+                    <p>{guidanceText.status === "Published" ? t("status.published") : t("status.draft")}</p>
+                  </div>
+                  <Button
+                    className={`buttonLink link`}
+                    onPress={handleStatusChange}
+                    aria-label="Change status"
+                  >
+                    {t("actions.edit")}
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </SidebarPanel>

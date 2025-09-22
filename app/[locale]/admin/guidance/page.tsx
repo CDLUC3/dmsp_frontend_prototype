@@ -123,7 +123,7 @@ const GuidancePage: React.FC = () => {
           <>
             <Link
               href={GUIDANCE_CREATE_URL}
-              className={"button-link button--primary"}
+              className="button-link button--primary"
             >
               {t("pages.index.createGroup")}
             </Link>
@@ -154,7 +154,9 @@ const GuidancePage: React.FC = () => {
                     <span className={styles.separator}>
                       {Global("lastUpdated")}: {group.lastUpdated}
                     </span>
-                    <span className={styles.separator}>Status: {group.status}</span>
+                    <span className={styles.separator}>
+                      {t("status.status")}: {group.status}
+                    </span>
                   </div>
                 </div>
               </DashboardListItem>
