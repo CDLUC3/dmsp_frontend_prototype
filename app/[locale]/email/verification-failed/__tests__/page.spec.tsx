@@ -31,7 +31,8 @@ describe('VerificationFailed', () => {
     const { getByTestId } = render(<VerificationFailed />);
 
     expect(getByTestId('mock-page-wrapper')).toBeInTheDocument();
-    expect(mockPageHeader).toHaveBeenCalledWith(expect.objectContaining({ title: titleProp, }), {})
+    // Check only the first argument (props) for the title prop
+    expect((mockPageHeader as jest.Mock).mock.calls[0][0]).toEqual(expect.objectContaining({ title: titleProp }));
   })
 
   it('should pass axe accessibility test', async () => {
