@@ -16,6 +16,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
 
 import {
+  SectionErrors,
   VersionedSectionSearchResult,
   VersionedSectionSearchResults,
   useAddSectionMutation,
@@ -35,7 +36,8 @@ import ErrorMessages from '@/components/ErrorMessages';
 import Pagination from '@/components/Pagination';
 
 //Other utils
-import { extractErrors } from '@/utils/errorHandler';
+import { checkErrors } from '@/utils/errorHandler';
+
 import { scrollToTop } from '@/utils/general';
 import { routePath } from '@/utils/routes';
 import logECS from '@/utils/clientLogger';
@@ -186,22 +188,23 @@ const SectionTypeSelectPage: React.FC = () => {
         });
 
         if (response.data?.addSection) {
-          if (response?.data?.addSection?.errors && Object.values(response.data.addSection.errors).some(val => val != null && val !== '')) {
-            // Convert nulls to undefined before passing to extractErrors
-            const normalizedErrors = Object.fromEntries(
-              Object.entries(response?.data?.addSection?.errors ?? {}).map(([key, value]) => [key, value ?? undefined])
-            );
-            const errs = extractErrors(normalizedErrors, ['general', 'name']);
-            if (errs.length > 0) {
-              setErrors(errs);
-            }
-          } else {
-            // redirect to the edit section page for the newly copied section
-            router.push(routePath('template.section.slug', { templateId, section_slug: String(response.data.addSection.id) }));
+
+          const [hasErrors, errs] = checkErrors(
+            response.data.addSection.errors as SectionErrors,
+            ['general', 'name']
+          );
+
+          if (hasErrors) {
+            setErrors([String(errs.general)]);
+            return;
           }
+
+          // Success redirect to the edit section page for the newly copied section
+          router.push(routePath('template.section.slug', { templateId, section_slug: String(response.data.addSection.id) }));
         } else {
           setErrors([createSection('messages.errorCreatingSection')]);
         }
+
       } catch (error) {
         logECS('error', 'copyPublishedSection', {
           error,

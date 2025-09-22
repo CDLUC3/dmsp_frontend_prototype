@@ -82,7 +82,8 @@ describe('TemplateHistory', () => {
     const { getByTestId } = render(<TemplateHistory />);
 
     expect(getByTestId('mock-page-wrapper')).toBeInTheDocument();
-    expect(mockPageHeader).toHaveBeenCalledWith(expect.objectContaining({ title: titleProp, }), {})
+    // Check only the first argument (props) for the title prop
+    expect((mockPageHeader as jest.Mock).mock.calls[0][0]).toEqual(expect.objectContaining({ title: titleProp }));
   })
 
   it('should use the templateId from the param in the call to useTemplateVersionsQuery', () => {
