@@ -7,8 +7,12 @@ WORKDIR /app
 # to the /app working directory
 COPY package*.json ./
 
+
+# Set production environment before installing dependencies to omit devDependencies
+ENV NODE_ENV=production
+
 # Install dependencies in /app (excluding devDependencies)
-RUN npm install
+RUN npm ci
 
 #Stage 2: Builder
 FROM public.ecr.aws/docker/library/node:22.1.0-alpine3.19 as builder
@@ -56,8 +60,5 @@ USER nextjs
 # Ensure port 3000 is accessible to our system
 EXPOSE 3000
 
-# Set hostname
-ENV HOSTNAME 0.0.0.0
-
 # Start the application
-CMD ["node", "server.js"]
+CMD ["node", "server.js", "--hostname", "0.0.0.0", "--port", "3000"]

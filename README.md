@@ -13,6 +13,7 @@
     - [Building for Production](#building-for-production)
     - [Docker Setup](#docker-setup)
 - [Localization](#localization)
+- [Checking for vulnerabilities](#scans)
 - [Environment variables](#environment-variables)
 - [Project Structure](#project-structure)
 - [Authentication](#authentication)
@@ -141,6 +142,11 @@ In order to upload new changes to the content, run the following scripts from pa
 For more documentation on Crowdin, go to:
 - https://crowdin.com/
 - https://crowdin.github.io/crowdin-cli/
+
+### Scans
+We provide npm scripts for different scan levels: `trivy-high` runs a blocking scan for `HIGH` and `CRITICAL` vulnerabilities, `trivy-med` runs a non-blocking scan for `MEDIUM` and `LOW` vulnerabilities, and trivy-all runs both scans in sequence. 
+
+To help ensure code security, this project uses `Trivy` for vulnerability scanning. The pre-commit hook automatically runs `trivy-high` script to prevent commits with serious vulnerabilities, and also runs `trivy-med` to report (but not block) lower-severity issues. You need to install `trivy` locally for this to work.
 
 
 ### Environment Variables
