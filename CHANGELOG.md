@@ -1,4 +1,16 @@
 ### Added
+
+- `DashboardListItem` component and some basic tests
+- guidance route definitions to `utils/routes.ts`
+- Added Guidance Dashboard page, SCSS file and tests
+- Added Guidance Group Create page, SCSS file and tests
+- Added Guidance Group Index page, SCSS file and tests
+- Added Guidance Group Edit page, SCSS file and tests
+- Added Guidance Text Create page, SCSS file and tests
+- Added Guidance Text Edit page, SCSS file and tests
+
+### Added
+
 - Add organization details page
 
 ### Added
@@ -7,7 +19,7 @@
 - added "homepage" which is our temp home page just to add the admin link and made it nicer
 - Added admin overview page
 - Added component for `PageLinkCard`
-- Added  admin route definitions to `utils/routes.ts`
+- Added admin route definitions to `utils/routes.ts`
 
 ### Updated
 
@@ -42,6 +54,7 @@
 - Added description to project search page [#761](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/761)
 
 ### Updated
+
 - Updated all server actions to use the new `logger` and `prepareLogObject` method to log useful information for debugging
 - Updated `logger` to use the new `SERVER_LOG_LEVEL` env variable
 - Added a `beforeunload` event handler to the `PlanOverviewQuestionPage`, `CreateSectionPage`, `SectionUpdatePage` and `QuestionAdd` components to warn users when they are navigating away with unsaved changes [#758]
@@ -80,6 +93,7 @@
 - Removed research outputs, including related pages and routes, from the demp overview [#764](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/764)
 
 ### Fixed
+
 - Fixed middleware issue to add `dmspt` token cookie when a refreshToken is implemented [#676]
 - Fixed some new errors related to an update in how data is passed to `logger` using `@elastic/ecs-pino-format`. Also, deleted `package-lock.json` and re-ran `npm install` to get clean packages after the npm debug and chalk compromise.
 - Make `Tab` use `cursor: pointer`.
@@ -132,6 +146,7 @@
 - Deleted `__mocks__/mockQuestionTypes.json` as it is no longer needed [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Chore
+
 - Upgraded to `NextJS v15.5.2` to remove vulnerability and added `next-env.d.ts` to the ignore list for linting. [#751]
 
 ====================================================================================================================================
