@@ -314,6 +314,15 @@
       }
     }
   },
+  "OrganizationProjects": {
+    "title": "Organization Projects",
+    "intro": "Manage DMSP projects and plans across your organization",
+    "messages": {
+      "errors": {
+        "errorRetrievingProjects": "Something went wrong with retrieving projects. Please try again later."
+      }
+    }
+  },
   "Departments": {
     "title": "Schools/Departments",
     "sections": {
@@ -372,6 +381,7 @@
     "breadcrumbs": {
       "navigation": "Breadcrumb navigation",
       "home": "Home",
+      "admin": "Admin",
       "templates": "Templates",
       "template": "Template",
       "createTemplate": "Create a template",
