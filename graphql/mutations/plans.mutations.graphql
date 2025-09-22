@@ -4,6 +4,16 @@ mutation AddPlan($projectId: Int!, $versionedTemplateId: Int!) {
   }
 }
 
+mutation AddPlanFunding($planId: Int!, $projectFundingIds: [Int!]!) {
+  addPlanFunding(planId: $planId, projectFundingIds: $projectFundingIds) {
+    errors {
+      ProjectFundingId
+      general
+      planId
+    }
+  }
+}
+
 mutation AddPlanMember($planId: Int!, $projectMemberId: Int!) {
   addPlanMember(planId: $planId, projectMemberId: $projectMemberId) {
     errors {

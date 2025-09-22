@@ -23,13 +23,16 @@ import TemplateList from '@/components/TemplateList';
 import ErrorMessages from '@/components/ErrorMessages';
 import { CheckboxGroupComponent } from '@/components/Form';
 import Pagination from '@/components/Pagination';
+import { checkErrors } from '@/utils/errorHandler';
 
 // GraphQL
 import {
   useAddPlanMutation,
+  useAddPlanFundingMutation,
   useProjectFundingsQuery,
   usePublishedTemplatesMetaDataQuery,
-  usePublishedTemplatesLazyQuery
+  usePublishedTemplatesLazyQuery,
+  PlanErrors,
 } from '@/generated/graphql';
 
 // Other
@@ -126,17 +129,13 @@ const PlanCreate: React.FC = () => {
     notifyOnNetworkStatusChange: true,
   });
 
+  const [addPlanFundingMutation] = useAddPlanFundingMutation({});
 
   const resetSearch = useCallback(() => {
     setSearchTerm('');
     handleSearchInput('');
     scrollToTop(topRef);
   }, [scrollToTop]);
-
-  const clearErrors = () => {
-    setErrors([])
-  }
-
 
   // Transform the templates data into more useable format
   const transformTemplates = async (templates: (PublicTemplatesInterface | null)[]) => {
@@ -177,7 +176,7 @@ const PlanCreate: React.FC = () => {
   };
 
   // Handle checkbox change
-  const handleCheckboxChange = async (value: string[], type: string) => {
+  const handleCheckboxChange = async (value: string[], typ: string) => {
     // Mark that user has interacted with checkboxes
     setUserHasInteracted(true);
 
@@ -193,14 +192,14 @@ const PlanCreate: React.FC = () => {
       // Default to all templates when no criteria selected
       await fetchTemplates({ page: currentPage });
 
-    } else if (type === 'funders') {
+    } else if (typ === 'funders') {
       // Always dispatch selected filter items (whether empty or not)
       setSelectedFunders(value);
       setSelectedOwnerURIs(value);
       setBestPractice(false);
       // Fetch templates for selected funders
       await fetchTemplates({ selectedOwnerURIs: value });
-    } else if (type === 'bestPractice') {
+    } else if (typ === 'bestPractice') {
       setSelectedFilterItems(value);
       setSelectedOwnerURIs([]);
       setBestPractice(true);
@@ -210,10 +209,7 @@ const PlanCreate: React.FC = () => {
   };
 
   const handlePageClick = async (page: number) => {
-    if (!userHasInteracted) {
-      setUserHasInteracted(true);
-    }
-
+    setUserHasInteracted(true);
     await fetchTemplates({
       page,
       bestPractice,
@@ -235,34 +231,46 @@ const PlanCreate: React.FC = () => {
 
   // When user selects a template, we create a plan and redirect
   const onSelect = async (versionedTemplateId: number) => {
+    const fundingIds = projectFundings.projectFundings.map((item) => item.id);
     let newPlanId;
-    //Add the new plan
-    try {
-      const response = await addPlanMutation({
-        variables: {
-          projectId: Number(projectId),
-          versionedTemplateId
-        },
-      });
-      if (response?.data) {
-        clearErrors();
-        // Get plan id of new plan so we know where to redirect
-        newPlanId = response?.data?.addPlan?.id;
+
+    setErrors([]);  // Clear the errors
+
+    // Add the new plan
+    addPlanMutation({
+      variables: {
+        projectId: Number(projectId),
+        versionedTemplateId
+      },
+    }).then(planResp => {
+      if (planResp?.data) {
+        newPlanId = planResp.data.addPlan.id;
+        return addPlanFundingMutation({
+          variables: {
+            planId: newPlanId,
+            projectFundingIds: fundingIds,
+          },
+        });
       }
-    } catch (err) {
-      logECS('error', 'handleClick', {
+    }).then(fundingResp => {
+      // NOTE:: We need to redirect to the plan index page regardless of potential
+      // errors returned by the AddPlanFundingMutation. This is because we already
+      // created the plan at this point, and it will cause confusion if we now
+      // deal with errors without redirecting to the newly created plan.
+      router.push(routePath('projects.dmp.show', {
+        projectId,
+        dmpId: newPlanId,  // newPlanId was set in the preceding promise
+      }));
+    }).catch(err => {
+      logECS('error', 'addPlanMutation', {
         error: err,
         url: {
-          path: routePath('projects.dmp.create')
+          path: routePath('projects.dmp.create', {projectId}),
         }
       });
+      toastState.add(Global("messaging.somethingWentWrong"), { type: 'error' });
       setErrors([(err as Error).message])
-    }
-
-    // Redirect to the newly created plan
-    if (newPlanId) {
-      router.push(routePath('projects.dmp.show', { projectId, dmpId: newPlanId }));
-    }
+    });
   }
 
   const fetchTemplates = async ({
@@ -318,7 +326,6 @@ const PlanCreate: React.FC = () => {
   }, [publishedTemplates]);
 
 
-
   // Single useEffect for initial data fetching
   useEffect(() => {
     // Wait until both GraphQL queries finish
@@ -331,6 +338,7 @@ const PlanCreate: React.FC = () => {
 
     const hasBestPracticeTemplates = templateMetaData?.publishedTemplatesMetaData?.hasBestPracticeTemplates ?? false;
     setHasBestPractice(hasBestPracticeTemplates);
+
     // Get matching funders directly from `projectFundings` + `uniqueAffiliations`
     let fundersData: { name: string; uri: string }[] = [];
     let funderURIs: string[] = [];
@@ -379,9 +387,7 @@ const PlanCreate: React.FC = () => {
     };
     if (!initialSelectionApplied) {
       setSelectionsAndFetch();
-
     }
-
   }, [
     loading,
     templateMetaData,
@@ -500,7 +506,6 @@ const PlanCreate: React.FC = () => {
               <div className="search-match-text"><Button data-testid="clear-filter" onPress={resetSearch} className="search-match-text link">{Global('links.clearFilter')}</Button></div>
             </div>
           )}
-
 
           {(publicTemplatesList?.length > 0) ? (
             <>
