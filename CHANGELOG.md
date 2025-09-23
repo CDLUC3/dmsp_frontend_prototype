@@ -1,23 +1,16 @@
 ### Added
+=======
 - Add admin email text page with styling and tests
-
-### Added
+- Add departments and schools page
+- Add hostname and port to start command in AWS Dockerfile
+- Add explicit cors rules to nextJS config to allow traffic from our domain
+- Added Trivy precommit hook to scan for vulnerabilities in package-lock.json
 - Add organization details page
-
-### Added
-
 - added profile overview page
 - added "homepage" which is our temp home page just to add the admin link and made it nicer
 - Added admin overview page
 - Added component for `PageLinkCard`
-- Added  admin route definitions to `utils/routes.ts`
-
-### Updated
-
-- Added Admin section translations to both English (`messages/en-US/global.json`) and Portuguese (`messages/pt-BR/global.json`) language files
-
-### Added
-
+- Added admin route definitions to `utils/routes.ts`
 - Added `redact` to the pino logger to prevent sensitive information from being logged
 - Added `utils/server/loggerUtils.ts` with a method to `prepareLogObject` that strips out empty values and adds available JWT info to the log to assist with debugging
 - Added `SERVER_LOG_LEVEL` to the `.env.example` file to be able to set the log level for server side actions
@@ -45,6 +38,10 @@
 - Added description to project search page [#761](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/761)
 
 ### Updated
+
+- Updated the `/template/create` page to use the new `offset pagination` functionality for both template sections [#817]
+- Updated the `/template` page to use the new `cursor pagination` functionality, because it was only ever loading 20 results [#812]
+- Added Admin section translations to both English (`messages/en-US/global.json`) and Portuguese (`messages/pt-BR/global.json`) language files
 - Updated all server actions to use the new `logger` and `prepareLogObject` method to log useful information for debugging
 - Updated `logger` to use the new `SERVER_LOG_LEVEL` env variable
 - Added a `beforeunload` event handler to the `PlanOverviewQuestionPage`, `CreateSectionPage`, `SectionUpdatePage` and `QuestionAdd` components to warn users when they are navigating away with unsaved changes [#758]
@@ -83,6 +80,12 @@
 - Removed research outputs, including related pages and routes, from the demp overview [#764](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/764)
 
 ### Fixed
+
+- Moved `sanitize-html` to `dependencies` now that we're removing the devDependencies in build pipeline [#823]
+- Updated `package-lock.json` to fix an issue where `npm install` was broken due to newly `pegged` packages: [#823]
+  - Ran `npm install @apollo/experimental-nextjs-app-support@0.12.2 react@19 react-dom@19` to fix
+  - Removed unused `@fontsource/material-symbols-outlined`
+  - Added a fix for a bug I discovered while on the `Add Section` page. Trying to select a pre-existing `Section` to create a new one from was broken due to `error handling` logic.
 - Fixed middleware issue to add `dmspt` token cookie when a refreshToken is implemented [#676]
 - Fixed some new errors related to an update in how data is passed to `logger` using `@elastic/ecs-pino-format`. Also, deleted `package-lock.json` and re-ran `npm install` to get clean packages after the npm debug and chalk compromise.
 - Make `Tab` use `cursor: pointer`.
@@ -135,6 +138,7 @@
 - Deleted `__mocks__/mockQuestionTypes.json` as it is no longer needed [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Chore
+
 - Upgraded to `NextJS v15.5.2` to remove vulnerability and added `next-env.d.ts` to the ignore list for linting. [#751]
 
 ====================================================================================================================================
