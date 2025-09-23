@@ -14,7 +14,8 @@
     "linkExpand": "Expand",
     "linkCollapse": "Collapse",
     "details": "details",
-    "additionalInfo": "Additional information goes here..."
+    "additionalInfo": "Additional information goes here...",
+    "templateList": "List of templates"
   },
   "EditTemplates": {
     "title": "Edit template",
@@ -237,15 +238,17 @@
       "startNew": "Start"
     },
     "headings": {
-      "previouslyCreatedTemplates": "Use one of your previously created templates",
-      "publicTemplates": "Use one of the public templates",
+      "myOrgTemplates": "My organization templates",
+      "publicTemplates": "Public templates",
       "createNew": "Build a new template"
     },
     "messages": {
       "noItemsFound": "No items found",
       "missingTemplateName": "Template name cannot be blank.",
       "loadingError": "Error loading templates. Please try again later."
-    }
+    },
+    "loadMoreTemplates": "Load more templates",
+    "loadMoreSearchResults": "Load more search results"
   },
   "TemplateSelectListItem": {
     "messages": {

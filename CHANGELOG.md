@@ -37,6 +37,8 @@
 - Added description to project search page [#761](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/761)
 
 ### Updated
+- Updated the `/template/create` page to use the new `offset pagination` functionality for both template sections [#817]
+- Updated the `/template` page to use the new `cursor pagination` functionality, because it was only ever loading 20 results [#812]
 - Added Admin section translations to both English (`messages/en-US/global.json`) and Portuguese (`messages/pt-BR/global.json`) language files
 - Updated all server actions to use the new `logger` and `prepareLogObject` method to log useful information for debugging
 - Updated `logger` to use the new `SERVER_LOG_LEVEL` env variable
@@ -76,6 +78,11 @@
 - Removed research outputs, including related pages and routes, from the demp overview [#764](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/764)
 
 ### Fixed
+- Moved `sanitize-html` to `dependencies` now that we're removing the devDependencies in build pipeline [#823]
+- Updated `package-lock.json` to fix an issue where `npm install` was broken due to newly `pegged` packages: [#823]
+  - Ran `npm install @apollo/experimental-nextjs-app-support@0.12.2 react@19 react-dom@19` to fix
+  - Removed unused `@fontsource/material-symbols-outlined`
+  - Added a fix for a bug I discovered while on the `Add Section` page. Trying to select a pre-existing `Section` to create a new one from was broken due to `error handling` logic.
 - Fixed middleware issue to add `dmspt` token cookie when a refreshToken is implemented [#676]
 - Fixed some new errors related to an update in how data is passed to `logger` using `@elastic/ecs-pino-format`. Also, deleted `package-lock.json` and re-ran `npm install` to get clean packages after the npm debug and chalk compromise.
 - Make `Tab` use `cursor: pointer`.

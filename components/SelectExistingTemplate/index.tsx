@@ -18,75 +18,85 @@ import {
 //Components
 import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
-import { filterTemplates } from '@/utils/filterTemplates';
 import TemplateList from '@/components/TemplateList';
 import ErrorMessages from '@/components/ErrorMessages';
+import Pagination from '@/components/Pagination';
 
 //GraphQL
 import {
+  PublishedTemplateSearchResults,
+  TemplateSearchResult,
   useAddTemplateMutation,
-  useMyVersionedTemplatesQuery,
-  usePublishedTemplatesQuery
+  useTemplatesLazyQuery,
+  usePublishedTemplatesLazyQuery,
+  VersionedTemplateSearchResult,
 } from '@/generated/graphql';
 
 // Hooks
 import { useScrollToTop } from '@/hooks/scrollToTop';
 // Other
-import logECS from '@/utils/clientLogger';
+import { logECS, routePath } from '@/utils/index';
 import {
-  MyVersionedTemplatesInterface,
   TemplateItemProps,
-  PaginatedMyVersionedTemplatesInterface,
-  PaginatedVersionedTemplateSearchResultsInterface
+  TemplateSearchResultInterface,
+  PaginatedTemplateSearchResultsInterface,
 } from '@/app/types';
 import { toSentenceCase } from '@/utils/general';
-import { useFormatDate } from '@/hooks/useFormatDate';
 import { useToast } from '@/context/ToastContext';
+import { useFormatDate } from '@/hooks/useFormatDate';
 
+// # of templates displayed
+const LIMIT = 5;
 
-// Step 2 of the Create Template start pages
+type TemplateType = 'published' | 'myTemplates';
+
+interface FetchTemplateByTypeParams {
+  templateType: TemplateType;
+  page?: number;
+  searchTerm?: string;
+}
+
+// Step 2 of the Create Template start pages - Select existing template
 const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) => {
-  const nextSectionRef = useRef<HTMLDivElement>(null);
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
   const formatDate = useFormatDate();
   const router = useRouter();
-  const toastState = useToast();
   const { scrollToTop } = useScrollToTop();
+  const toastState = useToast();
 
   // State
-  const [templates, setTemplates] = useState<TemplateItemProps[]>([]);
-  const [publicTemplatesList, setPublicTemplatesList] = useState<TemplateItemProps[]>([]);
-  const [filteredTemplates, setFilteredTemplates] = useState<TemplateItemProps[] | null>([]);
-  const [filteredPublicTemplates, setFilteredPublicTemplates] = useState<TemplateItemProps[] | null>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [searchButtonClicked, setSearchButtonClicked] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
-  const [visibleCount, setVisibleCount] = useState({
-    publicTemplatesList: 3,
-    templates: 3,
-    filteredTemplates: 3,
-    filteredPublicTemplates: 3,
+
+  const [publishedTemplates, setPublishedTemplates] = useState<TemplateItemProps[]>([]);
+  const [myTemplates, setMyTemplates] = useState<TemplateItemProps[]>([]);
+
+
+  // Separate pagination states
+  const [publishedPagination, setPublishedPagination] = useState({
+    currentPage: 1,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPreviousPage: false
   });
+
+  const [myTemplatesPagination, setMyTemplatesPagination] = useState({
+    currentPage: 1,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPreviousPage: false
+  });
+
 
   //Localization keys
   const SelectTemplate = useTranslations('TemplateSelectTemplatePage');
   const Global = useTranslations('Global');
 
-  // Make graphql request for versionedTemplates under the user's affiliation
-  const { data = {}, loading, error: queryError } = useMyVersionedTemplatesQuery({
-    /* Force Apollo to notify React of changes. This was needed for when refetch is
-    called and a re-render of data is necessary*/
-    notifyOnNetworkStatusChange: true,
-  });
-
-  // Make graphql request for all public versionedTemplates
-  const { data: publishedTemplatesData, loading: publishedTemplatesLoading, error: publishedTemplatesError } = usePublishedTemplatesQuery({
-    /* Force Apollo to notify React of changes. This was needed for when refetch is
-    called and a re-render of data is necessary*/
-    notifyOnNetworkStatusChange: true,
-  });
+  // Separate lazy queries for published sections
+  const [fetchPublishedTemplates, { data: publishedTemplatesData, loading: publishedTemplatesLoading }] = usePublishedTemplatesLazyQuery();
+  const [fetchMyTemplates, { data: myTemplatesData, loading: myTemplatesLoading }] = useTemplatesLazyQuery();
 
   // GraphQL mutation for adding the new template
   const [addTemplateMutation] = useAddTemplateMutation({
@@ -96,6 +106,94 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   const clearErrors = () => {
     setErrors([]);
   }
+
+  // Lazy fetch - get templates by type with pagination and search term
+  const fetchTemplatesByType = async ({
+    templateType,
+    page = 1,
+    searchTerm = ''
+  }: FetchTemplateByTypeParams) => {
+    if (templateType === 'published') {
+      let offsetLimit = 0;
+      if (page) {
+        setPublishedPagination(prev => ({ ...prev, currentPage: page }));
+        offsetLimit = (page - 1) * LIMIT;
+      }
+      await fetchPublishedTemplates({
+        variables: {
+          paginationOptions: {
+            offset: offsetLimit,
+            limit: LIMIT,
+            type: "OFFSET",
+            sortDir: "DESC",
+            bestPractice: false
+          },
+          term: searchTerm,
+        }
+      });
+    } else {
+      let offsetLimit = 0;
+      if (page) {
+        setMyTemplatesPagination(prev => ({ ...prev, currentPage: page }));
+        offsetLimit = (page - 1) * LIMIT;
+      }
+      await fetchMyTemplates({
+        variables: {
+          paginationOptions: {
+            offset: offsetLimit,
+            limit: LIMIT,
+            type: "OFFSET",
+            sortDir: "DESC",
+            bestPractice: true
+          },
+          term: searchTerm,
+        }
+      });
+    }
+  };
+
+  // Handle page click for public templates
+  const handlePublicPageClick = async (page: number) => {
+    await fetchTemplatesByType({ templateType: 'published', page, searchTerm });
+  };
+  // Handle page click for org templates
+  const handleMyTemplatesPageClick = async (page: number) => {
+    await fetchTemplatesByType({ templateType: 'myTemplates', page, searchTerm });
+  };
+
+  // zero out search and filters
+  const resetSearch = () => {
+    setSearchTerm('');
+    handleSearchInput('');
+    scrollToTop(topRef);
+  }
+
+
+  // Handle search input changes
+  const handleInputChange = (value: string) => {
+    // Update search term immediately for UI responsiveness
+    setSearchTerm(value);
+    if (value === '') {
+      //reset search
+      resetSearch();
+    }
+  };
+
+  // Handle search when user presses search button
+  const handleSearchInput = async (term: string) => {
+    setSearchTerm(term);
+    clearErrors();
+
+    // Reset both paginations to first page
+    setPublishedPagination(prev => ({ ...prev, currentPage: 1 }));
+    setMyTemplatesPagination(prev => ({ ...prev, currentPage: 1 }));
+
+    // Fetch both types with search term
+    await Promise.all([
+      fetchTemplatesByType({ templateType: 'published', page: 1, searchTerm: term }),
+      fetchTemplatesByType({ templateType: 'myTemplates', page: 1, searchTerm: term })
+    ]);
+  };
 
   // When user selects a pre-existing template, we will create the new template
   // using a copy of the pre-existing template
@@ -110,20 +208,20 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         const responseData = response?.data?.addTemplate;
         if (responseData && responseData.errors) {
           const errorMessages = Object.values(responseData.errors)
-                                      .filter((error) => error) as string[];
+            .filter((error) => error) as string[];
           setErrors(errorMessages);
         }
         clearErrors();
 
         const newTemplateId = response?.data?.addTemplate?.id;
         if (newTemplateId) {
-          router.push(`/template/${newTemplateId}`)
+          router.push(routePath('template.show', { templateId: newTemplateId }));
         }
       }
     }).catch(err => {
       logECS('error', 'handleClick', {
         error: err,
-        url: { path: '/template/create' }
+        url: { path: routePath('template.create') }
       });
     });
   }
@@ -136,148 +234,176 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         const responseData = response?.data?.addTemplate;
         if (responseData && responseData.errors) {
           const errorMessages = Object.values(responseData.errors)
-                                      .filter((error) => error) as string[];
+            .filter((error) => error) as string[];
           setErrors(errorMessages);
         }
         clearErrors();
 
         const newTemplateId = response?.data?.addTemplate?.id;
         if (newTemplateId) {
-          router.push(`/template/${newTemplateId}`)
+          router.push(routePath('template.show', { templateId: newTemplateId }));
         }
       }
     }).catch(err => {
       logECS('error', 'handleStartNew', {
         error: err,
-        url: { path: '/template/create' }
+        url: { path: routePath('template.create') }
       });
     });
   }
 
-  // Transform data into more easier to use properties
-  const transformTemplates = async (
-    templates: PaginatedMyVersionedTemplatesInterface | PaginatedVersionedTemplateSearchResultsInterface | null
-  ) => {
-    const items = templates?.items || [];
+  // Transform public templates into easier to use properties
+  const transformPublishedTemplates = async (
+    templates: PublishedTemplateSearchResults | null
+  ): Promise<{ publishedTemplates: TemplateItemProps[] }> => {
+
+
+    // Filter out null and undefined templates and only include PUBLIC visibility
+    let publishedTemplates = templates?.items?.filter(
+      template =>
+        template !== null &&
+        template !== undefined &&
+        template.visibility === 'PUBLIC'
+    ) || [];
+
+    // Sort so that bestPractice=true are at the top
+    publishedTemplates = publishedTemplates.sort((a, b) => {
+      // Place true before false (descending)
+      if (a?.bestPractice === b?.bestPractice) return 0;
+      if (a?.bestPractice) return -1;
+      return 1;
+    });
+
+    if (publishedTemplates.length === 0) {
+      return { publishedTemplates: [] };
+    }
     const transformedTemplates = await Promise.all(
-      items.map(async (template: MyVersionedTemplatesInterface | null) => ({
+      publishedTemplates.map(async (template: VersionedTemplateSearchResult | null) => ({
         id: template?.id,
-        template: {
-          id: template?.template?.id ? template?.template.id : null
-        },
         title: template?.name || "",
         description: template?.description || "",
-        link: `/template/${template?.template?.id ? template?.template.id : ''}`,
-        content: template?.description || template?.modified ? (
-          <div>
-            <p>{template?.description}</p>
-            <p>
-              {Global('lastUpdated')}: {template?.modified ? formatDate(template?.modified) : null}
-            </p>
-          </div>
-        ) : null, // Set to null if no description or last modified data
-        funder: template?.template?.owner?.name || template?.name,
+        link: routePath('template.show', { templateId: Number(template?.id) }),
+        funder: template?.ownerDisplayName || template?.name,
         lastUpdated: template?.modified ? formatDate(template?.modified) : null,
         lastRevisedBy: template?.modifiedByName || null,
-        publishStatus: Global('published'), // All records returned for publishedTemplates and myVersionedTemplates are marked as 'Published'
+        publishStatus: Global('published'),// These are all published templates
         hasAdditionalGuidance: false,
         defaultExpanded: false,
-        visibility: template?.visibility ? toSentenceCase(template.visibility) : ''
+        visibility: template?.visibility,
       }))
     );
 
-    return transformedTemplates;
+    return { publishedTemplates: transformedTemplates };
   };
 
-  type VisibleCountKeys = keyof typeof visibleCount;
+  // Transform Org Templates into easier to use properties
+  const transformMyTemplates = async (
+    templates: PaginatedTemplateSearchResultsInterface | null
+  ): Promise<{ myTemplates: TemplateItemProps[] }> => {
 
-  //Update searchTerm state whenever entry in the search field changes
-  const handleSearchInput = (value: string) => {
-    setSearchTerm(value);
-  }
+    const myTemplates = templates?.items?.filter(template => template !== null && template !== undefined) || [];
 
-  // Filter results when a user enters a search term and clicks "Search" button
-  const handleFiltering = (term: string) => {
-    setErrors([]);
-    setSearchButtonClicked(true);
-    // Search title, funder and description fields for terms
-    const filteredList = filterTemplates(templates, term);
-    const filteredPublicTemplatesList = filterTemplates(publicTemplatesList, term);
-
-    if (filteredList.length || filteredPublicTemplatesList.length) {
-      setSearchTerm(term);
-      setFilteredTemplates(filteredList.length > 0 ? filteredList : null);
-      setFilteredPublicTemplates(filteredPublicTemplatesList.length > 0 ? filteredPublicTemplatesList : null);
-    } else {
-      //If there are no matching results, then display an error
-      setErrors(prev => [...prev, SelectTemplate('messages.noItemsFound')]);
+    if (myTemplates.length === 0) {
+      return { myTemplates: [] };
     }
-  }
+    const transformedTemplates = await Promise.all(
+      myTemplates.map(async (template: TemplateSearchResultInterface | null) => ({
+        id: template?.id,
+        title: template?.name || "",
+        description: template?.description || "",
+        link: routePath('template.show', { templateId: Number(template?.id) }),
+        funder: template?.ownerDisplayName || template?.name,
+        lastUpdated: template?.modified ? formatDate(template?.modified) : null,
+        lastRevisedBy: template?.modifiedByName || null,
+        publishStatus: template?.isDirty ? Global('notPublished') : Global('published'),
+        hasAdditionalGuidance: false,
+        defaultExpanded: false,
+        visibility: template?.latestPublishVisibility ? toSentenceCase(template.latestPublishVisibility) : 'Organization',
+      }))
+    );
 
-  // When user clicks the 'Load more' button, display 3 more by default
-  const handleLoadMore = (listKey: VisibleCountKeys) => {
-    setVisibleCount((prevCounts) => ({
-      ...prevCounts,
-      [listKey]: prevCounts[listKey] + 3, // Increase the visible count for the specific list
-    }));
-
-    setTimeout(() => {
-      if (nextSectionRef.current) {
-        nextSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 0);
+    return { myTemplates: transformedTemplates };
   };
 
-  // zero out search and filters
-  const resetSearch = () => {
-    setSearchTerm('');
-    setFilteredTemplates(null);
-    setFilteredPublicTemplates(null);
-    scrollToTop(topRef);
-  }
+  // Process published templates when publishedTemplatesData changes
+  useEffect(() => {
+    const processPublishedTemplates = async () => {
+      if (publishedTemplatesData?.publishedTemplates?.items) {
+        const transformedTemplates = await transformPublishedTemplates(
+          publishedTemplatesData.publishedTemplates
+        );
+
+        const publishedTemplates = transformedTemplates.publishedTemplates;
+
+        setPublishedTemplates(publishedTemplates);
+
+        // Update published template pagination
+        const totalCount = publishedTemplatesData?.publishedTemplates?.totalCount ?? 0;
+        const totalPages = Math.ceil(totalCount / LIMIT);
+        setPublishedPagination({
+          currentPage: publishedPagination.currentPage, // Keep current page
+          totalPages,
+          hasNextPage: publishedTemplatesData?.publishedTemplates?.hasNextPage ?? false,
+          hasPreviousPage: publishedTemplatesData?.publishedTemplates?.hasPreviousPage ?? false
+        });
+      } else {
+        setPublishedTemplates([]);
+      }
+    };
+    processPublishedTemplates();
+  }, [publishedTemplatesData]);
+
+  // Process Org Templates when myTemplatesData changes
+  useEffect(() => {
+    const processMyTemplates = async () => {
+      const safeMyTemplates = {
+        ...myTemplatesData?.myTemplates,
+        items: (myTemplatesData?.myTemplates?.items ?? []).filter((t): t is TemplateSearchResult => t !== null && t !== undefined),
+      };
+
+      if (myTemplatesData?.myTemplates?.items) {
+        const transformedTemplates = await transformMyTemplates(safeMyTemplates);
+        setMyTemplates(transformedTemplates.myTemplates);
+
+        // Update org templates pagination
+        const totalCount = myTemplatesData?.myTemplates?.totalCount ?? 0;
+        const totalPages = Math.ceil(totalCount / LIMIT);
+        setMyTemplatesPagination({
+          currentPage: myTemplatesPagination.currentPage,
+          totalPages,
+          hasNextPage: myTemplatesData?.myTemplates?.hasNextPage ?? false,
+          hasPreviousPage: myTemplatesData?.myTemplates?.hasPreviousPage ?? false
+        });
+      } else {
+        setMyTemplates([]);
+      }
+    };
+    processMyTemplates();
+  }, [myTemplatesData]);
 
   useEffect(() => {
-    // Transform templates into format expected by TemplateSelectListItem component
-    const processTemplates = async () => {
-      if (data && data?.myVersionedTemplates) {
-        const templates = { items: data?.myVersionedTemplates ?? [] };
-        const transformedTemplates = await transformTemplates(templates as PaginatedMyVersionedTemplatesInterface);
-        setTemplates(transformedTemplates);
-      }
-      if (publishedTemplatesData && publishedTemplatesData?.publishedTemplates) {
-        const templates = publishedTemplatesData?.publishedTemplates ?? { items: [] };
-        const publicTemplates = await transformTemplates(templates as PaginatedVersionedTemplateSearchResultsInterface);
-        const transformedPublicTemplates = publicTemplates.filter(template => template.visibility === 'Public');
-        setPublicTemplatesList(transformedPublicTemplates);
-      }
-    }
-
-    processTemplates();
-
-  }, [data, publishedTemplatesData]);
-
-  useEffect(() => {
-    // Need this to set list of templates back to original, full list after filtering
+    // Need this to set list of templates back to original
     if (searchTerm === '') {
       resetSearch();
-      setSearchButtonClicked(false);
     }
   }, [searchTerm])
+
+  // Fetch templates on initial load
+  useEffect(() => {
+    const load = async () => {
+      await fetchTemplatesByType({ templateType: 'published', page: 1 });
+      await fetchTemplatesByType({ templateType: 'myTemplates', page: 1 });
+    };
+    load();
+  }, []);
 
   useEffect(() => {
     // If the template name entered on step 1 is missing from the page, we redirect back to step 1 with a toast message
     if (!templateName) {
       toastState.add(SelectTemplate('messages.missingTemplateName'), { type: 'error' })
-      router.push('/template/create?step1');
+      router.push(routePath('template.create', { step: '1' }));
     }
   }, [templateName])
-
-  if (loading || publishedTemplatesLoading) {
-    return <div>{Global('messaging.loading')}...</div>;
-  }
-  if (queryError || publishedTemplatesError) {
-    return <div>{SelectTemplate('messages.loadingError')}</div>;
-  }
 
   return (
     <>
@@ -287,9 +413,9 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template/create?step=1">{Global('breadcrumbs.createTemplate')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.index')}>{Global('breadcrumbs.templates')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.create', { step: '1' })}>{Global('breadcrumbs.createTemplate')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.selectExistingTemplate')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -309,11 +435,10 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
                 <Input
                   aria-describedby="search-help"
                   value={searchTerm}
-                  onChange={e => handleSearchInput(e.target.value)} />
+                  onChange={e => handleInputChange(e.target.value)} />
                 <Button
                   onPress={() => {
-                    // Call your filtering function without changing the input value
-                    handleFiltering(searchTerm);
+                    handleSearchInput(searchTerm);
                   }}
                 >
                   {Global('buttons.search')}
@@ -325,98 +450,79 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
               </SearchField>
             </div>
 
-            <section className="mb-8" aria-labelledby="previously-created">
-              <h2 id="previously-created">
-                {SelectTemplate('headings.previouslyCreatedTemplates')}
-              </h2>
-              <div className="template-list" role="list" aria-label="Your templates">
-                {(filteredTemplates && filteredTemplates.length > 0) ? (
-                  <>
+
+            {/*My Org Templates */}
+            <div data-testid="my-org-templates">
+              {myTemplates.length > 0 && (
+                <h2 id="org-templates">
+                  {SelectTemplate('headings.myOrgTemplates')}
+                </h2>
+              )}
+
+              <div className="template-list">
+                {myTemplatesLoading ? (
+                  <p>{Global('messaging.loading')}</p>
+                ) : myTemplates.length > 0 ? (
+                  <section className="mb-8" role="list" aria-labelledby="org-templates">
                     {
                       <TemplateList
-                        templates={filteredTemplates}
-                        visibleCountKey='filteredTemplates'
+                        templates={myTemplates}
                         onSelect={onSelect}
-                        visibleCount={visibleCount}
-                        handleLoadMore={handleLoadMore}
-                        resetSearch={resetSearch}
                       />
                     }
-
-                  </>) : (
-                  <>
-                    {/**If the user is searching, and there were no results from the search
-                   * then display the message 'no results found
-                   */}
-                    {(searchTerm.length > 0 && searchButtonClicked) ? (
-                      <>
-                        {SelectTemplate('messages.noItemsFound')}
-                      </>
-                    ) : (
-                      <TemplateList
-                        templates={templates}
-                        visibleCountKey='templates'
-                        onSelect={onSelect}
-                        visibleCount={visibleCount}
-                        handleLoadMore={handleLoadMore}
-                        resetSearch={resetSearch}
-                      />
-                    )
-
-                    }
-                  </>
-                )
-                }
+                  </section>
+                ) : (
+                  <p>{Global('messaging.noItemsFound')}</p>
+                )}
               </div>
-            </section>
+              {myTemplates.length > 0 && (
+                <Pagination
+                  currentPage={myTemplatesPagination.currentPage}
+                  totalPages={myTemplatesPagination.totalPages}
+                  hasPreviousPage={myTemplatesPagination.hasPreviousPage}
+                  hasNextPage={myTemplatesPagination.hasNextPage}
+                  handlePageClick={handleMyTemplatesPageClick}
+                />
+              )}
+            </div>
 
-            {(publicTemplatesList && publicTemplatesList.length > 0) && (
-              <section className="mb-8" aria-labelledby="public-templates">
-                <h2 id="public-templates">
+            {/*Public Templates */}
+            <div data-testid="published-templates">
+              {publishedTemplates.length > 0 && (
+                <h2 id="published-templates">
                   {SelectTemplate('headings.publicTemplates')}
                 </h2>
-                <div className="template-list" role="list" aria-label="Public templates">
-                  {filteredPublicTemplates && filteredPublicTemplates.length > 0 ? (
-                    <>
-                      {
-                        <TemplateList
-                          templates={filteredPublicTemplates}
-                          visibleCountKey='filteredPublicTemplates'
-                          onSelect={onSelect}
-                          visibleCount={visibleCount}
-                          handleLoadMore={handleLoadMore}
-                          resetSearch={resetSearch}
-                        />
-                      }
-                    </>
-                  ) : (
-                    <>
-                      {/**If the user is searching, and there were no results from the search
-                   * then display the message 'no results found
-                   */}
-                      {(searchTerm.length > 0 && searchButtonClicked) ? (
-                        <>
-                          {SelectTemplate('messages.noItemsFound')}
-                        </>
-                      ) : (
-                        <TemplateList
-                          templates={publicTemplatesList}
-                          visibleCountKey='publicTemplatesList'
-                          onSelect={onSelect}
-                          visibleCount={visibleCount}
-                          handleLoadMore={handleLoadMore}
-                          resetSearch={resetSearch}
-                        />
-                      )
-                      }
-                    </>
-                  )
-                  }
+              )}
 
-                </div>
-              </section>
-            )}
+              <div className="template-list">
+                {publishedTemplatesLoading ? (
+                  <p>{Global('messaging.loading')}</p>
+                ) : publishedTemplates.length > 0 ? (
 
+                  <section className="mb-8" role="list" aria-labelledby="published-templates">
+                    {
+                      <TemplateList
+                        templates={publishedTemplates}
+                        onSelect={onSelect}
+                      />
+                    }
+                  </section>
+                ) : (
+                  <p>{Global('messaging.noItemsFound')}</p>
+                )}
+              </div>
+              {publishedTemplates.length > 0 && (
+                <Pagination
+                  currentPage={publishedPagination.currentPage}
+                  totalPages={publishedPagination.totalPages}
+                  hasPreviousPage={publishedPagination.hasPreviousPage}
+                  hasNextPage={publishedPagination.hasNextPage}
+                  handlePageClick={handlePublicPageClick}
+                />
+              )}
+            </div>
+
+            {/** Create New Template */}
             <section className="mb-8" aria-labelledby="create-new">
               <h2 id="create-new">
                 {SelectTemplate('headings.createNew')}
@@ -431,7 +537,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
             </section>
 
           </>
-        </ContentContainer>
+        </ContentContainer >
       </LayoutContainer >
     </>
   );
