@@ -1,4 +1,8 @@
 ### Added
+=======
+- Add departments and schools page
+- Add hostname and port to start command in AWS Dockerfile
+- Add explicit cors rules to nextJS config to allow traffic from our domain
 - Added Trivy precommit hook to scan for vulnerabilities in package-lock.json
 - Add organization details page
 - added profile overview page
@@ -74,6 +78,11 @@
 - Removed research outputs, including related pages and routes, from the demp overview [#764](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/764)
 
 ### Fixed
+- Moved `sanitize-html` to `dependencies` now that we're removing the devDependencies in build pipeline [#823]
+- Updated `package-lock.json` to fix an issue where `npm install` was broken due to newly `pegged` packages: [#823]
+  - Ran `npm install @apollo/experimental-nextjs-app-support@0.12.2 react@19 react-dom@19` to fix
+  - Removed unused `@fontsource/material-symbols-outlined`
+  - Added a fix for a bug I discovered while on the `Add Section` page. Trying to select a pre-existing `Section` to create a new one from was broken due to `error handling` logic.
 - Fixed middleware issue to add `dmspt` token cookie when a refreshToken is implemented [#676]
 - Fixed some new errors related to an update in how data is passed to `logger` using `@elastic/ecs-pino-format`. Also, deleted `package-lock.json` and re-ran `npm install` to get clean packages after the npm debug and chalk compromise.
 - Make `Tab` use `cursor: pointer`.

@@ -24,10 +24,9 @@
   },
   "dependencies": {
     "@apollo/client": "3.13.8",
-    "@apollo/experimental-nextjs-app-support": "0.11.2",
-    "@dmptool/types": "1.1.2",
+    "@apollo/experimental-nextjs-app-support": "0.12.2",
+    "@dmptool/types": "1.2.3",
     "@elastic/ecs-pino-format": "1.5.0",
-    "@fontsource/material-symbols-outlined": "5.1.12",
     "@fortawesome/fontawesome-svg-core": "6.6.0",
     "@fortawesome/free-solid-svg-icons": "6.6.0",
     "@fortawesome/react-fontawesome": "0.2.2",
@@ -52,9 +51,10 @@
     "node-fetch": "3.3.1",
     "pino": "9.7.0",
     "prop-types": "15.8.1",
-    "react": "18",
+    "react": "19.1.1",
     "react-aria-components": "1.10.1",
-    "react-dom": "18",
+    "react-dom": "19.1.1",
+    "sanitize-html": "2.17.0",
     "tinymce": "7.9.1",
     "zod": "3.24.4"
   },
@@ -81,7 +81,6 @@
     "jest-axe": "10.0.0",
     "jest-environment-jsdom": "30.0.0",
     "prettier": "3.6.2",
-    "sanitize-html": "2.17.0",
     "sass": "1.89.2",
     "ts-node": "10.9.2",
     "typescript": "5.8.3"

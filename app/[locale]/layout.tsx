@@ -17,7 +17,6 @@ import { AuthProvider } from "@/context/AuthContext";
 import { CsrfProvider } from "@/context/CsrfContext";
 
 //Styles
-import '@fontsource/material-symbols-outlined';
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import "@/styles/globals.scss";
 
