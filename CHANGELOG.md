@@ -1,5 +1,8 @@
 ### Added
+
 =======
+
+- Add static page for Org admin projects dashboard
 - Add departments and schools page
 - Add hostname and port to start command in AWS Dockerfile
 - Add explicit cors rules to nextJS config to allow traffic from our domain
@@ -9,7 +12,7 @@
 - added "homepage" which is our temp home page just to add the admin link and made it nicer
 - Added admin overview page
 - Added component for `PageLinkCard`
-- Added  admin route definitions to `utils/routes.ts`
+- Added admin route definitions to `utils/routes.ts`
 - Added `redact` to the pino logger to prevent sensitive information from being logged
 - Added `utils/server/loggerUtils.ts` with a method to `prepareLogObject` that strips out empty values and adds available JWT info to the log to assist with debugging
 - Added `SERVER_LOG_LEVEL` to the `.env.example` file to be able to set the log level for server side actions
@@ -37,6 +40,7 @@
 - Added description to project search page [#761](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/761)
 
 ### Updated
+
 - Updated the `/template/create` page to use the new `offset pagination` functionality for both template sections [#817]
 - Updated the `/template` page to use the new `cursor pagination` functionality, because it was only ever loading 20 results [#812]
 - Added Admin section translations to both English (`messages/en-US/global.json`) and Portuguese (`messages/pt-BR/global.json`) language files
@@ -78,6 +82,7 @@
 - Removed research outputs, including related pages and routes, from the demp overview [#764](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/764)
 
 ### Fixed
+
 - Moved `sanitize-html` to `dependencies` now that we're removing the devDependencies in build pipeline [#823]
 - Updated `package-lock.json` to fix an issue where `npm install` was broken due to newly `pegged` packages: [#823]
   - Ran `npm install @apollo/experimental-nextjs-app-support@0.12.2 react@19 react-dom@19` to fix
@@ -135,6 +140,7 @@
 - Deleted `__mocks__/mockQuestionTypes.json` as it is no longer needed [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Chore
+
 - Upgraded to `NextJS v15.5.2` to remove vulnerability and added `next-env.d.ts` to the ignore list for linting. [#751]
 
 ====================================================================================================================================
