@@ -266,14 +266,7 @@ button.small {
   // Button container for two buttons
   .button-container {
     display: flex;
-    gap: 8px; // Space between buttons
+    gap: 10px; // Space between buttons
     align-items: flex-start;
-    
-    // Mobile styles
-    margin-top: 8px;
-    align-self: flex-end; // Right-align on mobile
-    
-    @include r.device(md) {
-      margin-top: 24px; // Align with the input field's bottom
-    }
+  
   }
