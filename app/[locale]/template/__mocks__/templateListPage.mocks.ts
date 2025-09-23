@@ -108,6 +108,62 @@ export const mocks = [
       },
     },
   },
+  {
+    request: {
+      query: TemplatesDocument,
+      variables: {
+        paginationOptions: {
+          limit: 5,
+          type: "CURSOR",
+          cursor: 1,
+        },
+        term: 'missing',
+      },
+    },
+    result: {
+      data: {
+        myTemplates: {
+          totalCount: 2,
+          nextCursor: null,
+          availableSortFields: {},
+          currentOffset: 0,
+          hasNextPage: false,
+          hasPreviousPage: false,
+          limit: 5,
+          items: [{
+            name: 'UCOP',
+            description: 'University of California Office of the President',
+            modified: '2024-11-20 00:00:00',
+            modifiedByName: 'Test User',
+            latestPublishVisibility: 'ORGANIZATION',
+            latestPublishVersion: 'v1',
+            latestPublishDate: '2024-11-20 00:00:00',
+            id: 1,
+            ownerId: 'http://example.com/user/1',
+            ownerDisplayName: 'Test Affiliation',
+            modifiedById: 1,
+            isDirty: false,
+            bestPractice: false
+          },
+          {
+            name: 'CDL',
+            description: 'California Digital Library',
+            modified: '2024-11-20 00:00:00',
+            modifiedByName: 'Test User',
+            latestPublishVisibility: 'ORGANIZATION',
+            latestPublishVersion: 'v1',
+            latestPublishDate: '2024-11-20 00:00:00',
+            id: 1,
+            ownerId: 'http://example.com/user/1',
+            ownerDisplayName: 'Test Affiliation',
+            modifiedById: 1,
+            isDirty: false,
+            bestPractice: false
+          }]
+        }
+      },
+    },
+  },
   // Search mock for 'UCOP'
   {
     request: {
