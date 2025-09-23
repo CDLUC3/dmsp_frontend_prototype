@@ -89,6 +89,41 @@
       }
     }
   },
+  "UpdatePassword": {
+    "breadcrumbHome": "Home",
+    "breadcrumbProfile": "Perfil",
+    "title": "Atualizar sua senha",
+    "headingPasswordRequirements": "As senhas devem:",
+    "requirementLength": "ter mais de 8 caracteres;",
+    "requirementNumber": "conter pelo menos um número;",
+    "requirementUppercase": "conter pelo menos uma letra maiúscula;",
+    "requirementLowercase": "conter pelo menos uma letra minúscula;",
+    "requirementSpecialChars": "conter pelo menos um dos seguintes caracteres especiais: ( ) ! @ # $ % ^ & * - _ = + ? ~",
+    "currentPassword": "Senha atual",
+    "newPassword": "Nova senha",
+    "confirmPassword": "Confirmar nova senha",
+    "btnChangePassword": "Alterar senha",
+    "btnChangingPassword": "Alterando senha...",
+    "headingRelatedActions": "Ações relacionadas",
+    "linkUpdateConnections": "Atualizar conexões",
+    "linkManageNotifications": "Gerenciar notificações",
+    "messages": {
+      "passwordUpdateSuccess": "Sua senha foi atualizada com sucesso.",
+      "errors": {
+        "currentPasswordRequired": "Senha atual é obrigatória",
+        "newPasswordRequired": "Nova senha é obrigatória",
+        "confirmPasswordRequired": "Por favor, confirme sua nova senha",
+        "passwordsDoNotMatch": "As senhas não coincidem",
+        "passwordTooShort": "A senha deve ter pelo menos 8 caracteres",
+        "passwordMissingNumber": "A senha deve conter pelo menos um número",
+        "passwordMissingUppercase": "A senha deve conter pelo menos uma letra maiúscula",
+        "passwordMissingLowercase": "A senha deve conter pelo menos uma letra minúscula",
+        "passwordMissingSpecialChar": "A senha deve conter pelo menos um caractere especial",
+        "incorrectCurrentPassword": "Senha atual está incorreta",
+        "errorUpdatingPassword": "Erro ao atualizar a senha"
+      }
+    }
+  },
   "UserConnections": {
     "breadcrumbHome": "Home",
     "breadcrumbProfile": "Perfil de usuário",
