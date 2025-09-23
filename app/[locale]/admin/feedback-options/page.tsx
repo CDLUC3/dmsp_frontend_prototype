@@ -5,7 +5,7 @@ import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutWithPanel, SidebarPanel } from "@/components/Container";
 import { FormInput, FormTextArea } from "@/components/Form";
 import RadioGroupComponent from "@/components/Form/RadioGroup";
-import { Button } from "react-aria-components";
+import { Button, Radio } from "react-aria-components";
 
 import { useTranslations } from "next-intl";
 import styles from "./feedbackOptions.module.scss";
@@ -54,10 +54,15 @@ const FeedbackOptions: React.FC = () => {
                 <RadioGroupComponent
                   name="feedbackEnabled"
                   radioGroupLabel={t("fields.feedbackEnabled.label")}
-                  radioButtonData={radioButtonData}
                   value={feedbackEnabled}
                   onChange={setFeedbackEnabled}
-                />
+                >
+                  {radioButtonData.map((radioButton, index) => (
+                    <div key={index}>
+                      <Radio value={radioButton.value}>{radioButton.label}</Radio>
+                    </div>
+                  ))}
+                </RadioGroupComponent>
 
                 {/* Screen reader announcement for state changes */}
                 <div
