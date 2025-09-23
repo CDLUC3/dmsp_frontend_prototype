@@ -238,8 +238,8 @@
       "startNew": "Start"
     },
     "headings": {
-      "previouslyCreatedTemplates": "Use one of your previously created templates",
-      "publicTemplates": "Use one of the public templates",
+      "myOrgTemplates": "My organization templates",
+      "publicTemplates": "Public templates",
       "createNew": "Build a new template"
     },
     "messages": {
