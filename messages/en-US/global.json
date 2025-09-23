@@ -90,6 +90,34 @@
       }
     }
   },
+  "Notifications": {
+    "title": "Notifications",
+    "description": "Configure your notification preferences and email settings",
+    "introText": "Choose the events that you'd like to be notified about from the list below",
+    "headingRelatedActions": "Related actions",
+    "linkUpdateProfile": "Update profile",
+    "linkUpdatePassword": "Update password",
+    "linkUpdateConnections": "Update connections",
+    "notificationTypes": {
+      "commentAdded": "A new comment has been added to my DMP",
+      "planShared": "A plan has been shared with me",
+      "adminPrivileges": "Admin privileges granted to me",
+      "planUpdated": "A plan I'm collaborating on has been updated",
+      "feedbackRequested": "Feedback has been requested on my plan",
+      "templatePublished": "A new template has been published by my organization",
+      "accountActivity": "Unusual activity detected on my account",
+      "weeklyDigest": "Weekly summary of activity"
+    },
+    "actions": {
+      "save": "Save preferences"
+    },
+    "messages": {
+      "preferencesUpdateSuccess": "Your notification preferences have been updated successfully.",
+      "errors": {
+        "errorUpdatingPreferences": "Error when updating notification preferences"
+      }
+    }
+  },
   "UserConnections": {
     "breadcrumbHome": "Home",
     "breadcrumbProfile": "User profile",
