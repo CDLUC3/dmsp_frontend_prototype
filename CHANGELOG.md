@@ -37,6 +37,7 @@
 - Added description to project search page [#761](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/761)
 
 ### Updated
+- Updated the `/template` page to use the new `cursor pagination` functionality, because it was only ever loading 20 results [#812]
 - Added Admin section translations to both English (`messages/en-US/global.json`) and Portuguese (`messages/pt-BR/global.json`) language files
 - Updated all server actions to use the new `logger` and `prepareLogObject` method to log useful information for debugging
 - Updated `logger` to use the new `SERVER_LOG_LEVEL` env variable
