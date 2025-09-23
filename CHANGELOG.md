@@ -79,6 +79,7 @@
 
 ### Fixed
 - Returned changes that were initially part of PR `#816` related to `/template` pagination [#812]
+- Fixed issue in `Dockerfile.dev` where `package-lock.json` was not being copied over and breaking build.
 - Moved `sanitize-html` to `dependencies` now that we're removing the devDependencies in build pipeline [#823]
 - Updated `package-lock.json` to fix an issue where `npm install` was broken due to newly `pegged` packages: [#823]
   - Ran `npm install @apollo/experimental-nextjs-app-support@0.12.2 react@19 react-dom@19` to fix
