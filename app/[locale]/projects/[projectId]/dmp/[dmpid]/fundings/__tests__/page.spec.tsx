@@ -129,7 +129,7 @@ const MOCKS = [
               __typename: "PlanFundingErrors",
               ProjectFundingId: null,
               general: null,
-              planId: null, 
+              planId: null,
             },
             projectFunding: {
               __typename: "ProjectFunding",
@@ -172,7 +172,7 @@ const MOCKS = [
               __typename: "PlanFundingErrors",
               ProjectFundingId: null,
               general: "This should throw an error",
-              planId: null, 
+              planId: null,
             },
             projectFunding: {
               __typename: "ProjectFunding",
@@ -214,7 +214,7 @@ const MOCKS = [
               __typename: "PlanFundingErrors",
               ProjectFundingId: null,
               general: "This should throw an error",
-              planId: null, 
+              planId: null,
             },
             projectFunding: {
               __typename: "ProjectFunding",
@@ -345,6 +345,11 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
       </MockedProvider>
     );
 
+    //MockedProvider is async, so need to wait for the data to be in
+    await waitFor(() => {
+      expect(screen.getByRole('checkbox', { name: 'Project Funder A' })).toBeInTheDocument();
+    });
+
     await waitFor(() => {
       const option = screen.getByRole('checkbox', { name: 'Project Funder A' });
       expect(option).toBeInTheDocument();
@@ -388,6 +393,11 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
         <ProjectsProjectPlanAdjustFunding />
       </MockedProvider>
     );
+
+    // MockedProvider is async, so need to wait for the data to be in
+    await waitFor(() => {
+      expect(screen.getByRole('checkbox', { name: 'Project Funder C' })).toBeInTheDocument();
+    });
 
     await waitFor(() => {
       const option = screen.getByRole('checkbox', { name: 'Project Funder C' });

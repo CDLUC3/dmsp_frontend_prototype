@@ -162,6 +162,7 @@
     "btnBack": "Back"
   },
   "Admin": {
+    "headingRelatedActions": "Related actions",
     "sections": {
       "organisationTemplatesAndPlans": {
         "title": "Organisation Templates and Plans",
@@ -194,6 +195,10 @@
           "editOrganizationDetails": {
             "title": "Edit organization details",
             "description": "Update your organization name, abbreviation, institution etc"
+          },
+          "departments": {
+            "title": "Departments",
+            "description": "Manage your different departments, faculties, schools or divisions"
           },
           "schoolsDepartments": {
             "title": "Schools/Departments",
@@ -307,6 +312,35 @@
       "success": {
         "organizationDetailsSaved": "Organization details saved successfully!"
       }
+    }
+  },
+  "Departments": {
+    "title": "Schools/Departments",
+    "sections": {
+      "departmentsList": {
+        "title": "Schools/Departments",
+        "description": "Manage your different departments, faculties, schools or divisions."
+      }
+    },
+    "fields": {
+      "departmentName": {
+        "label": "Name",
+        "placeholder": "Enter name"
+      },
+      "departmentAbbr": {
+        "label": "Abbreviated name", 
+        "placeholder": "Enter abbreviation"
+      }
+    },
+    "actions": {
+      "addNew": "Add new",
+      "save": "Save",
+      "delete": "Delete"
+    },
+    "deleteModal": {
+      "title": "Confirm deletion",
+      "content": "Are you sure you want to delete {name}? This action cannot be undone.",
+      "deleteButton": "Delete"
     }
   },
   "Account": {
