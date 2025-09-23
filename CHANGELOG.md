@@ -78,6 +78,7 @@
 - Removed research outputs, including related pages and routes, from the demp overview [#764](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/764)
 
 ### Fixed
+- Returned changes that were initially part of PR `#816` related to `/template` pagination [#812]
 - Moved `sanitize-html` to `dependencies` now that we're removing the devDependencies in build pipeline [#823]
 - Updated `package-lock.json` to fix an issue where `npm install` was broken due to newly `pegged` packages: [#823]
   - Ran `npm install @apollo/experimental-nextjs-app-support@0.12.2 react@19 react-dom@19` to fix

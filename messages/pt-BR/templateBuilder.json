@@ -14,7 +14,8 @@
     "linkExpand": "Expandir",
     "linkCollapse": "Retrair",
     "details": "Detalhes",
-    "additionalInfo": "Informações adicionais vão aqui..."
+    "additionalInfo": "Informações adicionais vão aqui...",
+    "templateList": "Lista de modelos"
   },
   "EditTemplates": {
     "title": "Editar modelo",
@@ -245,7 +246,9 @@
       "noItemsFound": "Nenhum “item” encontrado",
       "missingTemplateName": "Nome do modelo não pode ser vazio.",
       "loadingError": "Erro ao carregar modelos. Tente novamente mais tarde."
-    }
+    },
+    "loadMoreTemplates": "Carregar mais modelos",
+    "loadMoreSearchResults": "Carregar mais resultados de pesquisa"
   },
   "TemplateSelectListItem": {
     "messages": {
