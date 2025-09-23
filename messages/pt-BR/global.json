@@ -327,7 +327,7 @@
         "placeholder": "Digite o nome do departamento"
       },
       "departmentAbbr": {
-        "label": "Nome abreviado do departamento", 
+        "label": "Nome abreviado do departamento",
         "placeholder": "Digite a abreviação"
       }
     },
@@ -431,7 +431,8 @@
       "preview": "Pré-visualizar",
       "publish": "Publicar",
       "close": "Fechar",
-      "loadMore": "Carregar mais"
+      "loadMore": "Carregar mais",
+      "back": "Voltar"
     },
     "labels": {
       "searchByKeyword": "Pesquisar por palavra-chave",
