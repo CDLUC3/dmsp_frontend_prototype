@@ -1,3 +1,5 @@
+@use '@/styles/responsive' as r;
+
 .sectionHeader {
     margin-top: 0;
     margin-bottom: var(--space-4);
@@ -32,12 +34,12 @@
     grid-template-columns: 1fr;
     margin-bottom: var(--space-4);
 
-    @media (min-width: 768px) {
+    @include r.device('md') {
         grid-template-columns: 1fr 1fr;
         gap: var(--space-6);
     }
 
-    @media (min-width: 1024px) {
+    @include r.device('lg') {
         gap: var(--space-8);
     }
 }

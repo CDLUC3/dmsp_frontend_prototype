@@ -45,9 +45,6 @@ async function buildLogContext(): Promise<LoggerContext> {
 // Inspect the keys and values of the object and recursively mask any sensitive information
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function redactSensitiveInfo(obj: any): any {
-
-  console.log("REDACTING:", obj)
-
   if (Array.isArray(obj)) {
     return obj.map(redactSensitiveInfo);
   } else if (obj !== null && typeof obj === 'object') {

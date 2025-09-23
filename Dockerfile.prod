@@ -1,23 +1,13 @@
-# Stage 1: Dependencies
+# Stage 1: Builder (all dependencies)
 # preferred node version chosen here (Active LTS = 22 as of 10/2024)
-FROM public.ecr.aws/docker/library/node:22.1.0-alpine3.19 as deps
-WORKDIR /app
-
-# Copy package.json and package-lock.json
-# to the /app working directory
-COPY package*.json ./
-
-# Install dependencies in /app (excluding devDependencies)
-RUN npm install
-
-#Stage 2: Builder
 FROM public.ecr.aws/docker/library/node:22.1.0-alpine3.19 as builder
 WORKDIR /app
 
 # Copy dependencies from deps stage
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY package*.json ./
+RUN npm ci
 
+COPY . .
 # Set production environment
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV NODE_ENV=production
@@ -29,7 +19,9 @@ ENV NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL
 # Build the application
 RUN npm run build
 
-# Stage 3: Runner
+RUN npm prune --omit=dev
+
+# Stage 2: Runner
 FROM public.ecr.aws/docker/library/node:22.1.0-alpine3.19 as runner
 WORKDIR /app
 
@@ -56,8 +48,5 @@ USER nextjs
 # Ensure port 3000 is accessible to our system
 EXPOSE 3000
 
-# Set hostname
-ENV HOSTNAME 0.0.0.0
-
 # Start the application
-CMD ["node", "server.js"]
+CMD ["node", "server.js", "--hostname", "0.0.0.0", "--port", "3000"]
