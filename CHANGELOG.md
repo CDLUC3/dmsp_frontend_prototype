@@ -79,6 +79,7 @@
 - Removed research outputs, including related pages and routes, from the demp overview [#764](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/764)
 
 ### Fixed
+- Updated `ResearchDomainCascadingDropdown` to not require Research domain fields [#763] 
 - Added missing `relatedWorks` translation keys since it was breaking the pages when locale=pt-BR.
 - Returned changes that were initially part of PR `#816` related to `/template` pagination [#812]
 - Fixed issue in `Dockerfile.dev` where `package-lock.json` was not being copied over and breaking build.

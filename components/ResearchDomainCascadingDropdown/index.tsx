@@ -150,7 +150,6 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
       <div className="form-group">
         <FormSelect
           label={ProjectDetail('labels.researchDomain')}
-          isRequired
           name="researchDomain"
           items={rDomains}
           selectClasses={styles.researchDomainSelect}
@@ -170,7 +169,6 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
       <div className="form-group">
         <FormSelect
           label={(selectedParent && myResearchDomains?.topLevelResearchDomains) ? ProjectDetail('labels.childDomain', { name: selectedParentDomain?.description || '' }) : ProjectDetail('labels.item')}
-          isRequired
           isDisabled={isChildDisabled}
           name="childDomain"
           items={childOptionsList}
