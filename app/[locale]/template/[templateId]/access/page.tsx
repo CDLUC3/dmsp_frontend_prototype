@@ -246,7 +246,7 @@ const TemplateAccessPage: React.FC = () => {
     <div>
       <PageHeader
         title={AccessPage('title')}
-        description=""
+        description={AccessPage('intro', { orgName: organization?.name ?? '' })}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
@@ -266,9 +266,6 @@ const TemplateAccessPage: React.FC = () => {
           <div className="template-editor-container" ref={errorRef}>
             <div className="main-content">
               <ErrorMessages errors={errorMessages} ref={errorRef} />
-              <p>
-                {AccessPage('intro', { orgName: organization?.name ?? '' })}
-              </p>
               <section className="sectionContainer"
                 aria-labelledby="org-access-heading">
                 <div className={`sectionHeader  mt-0`}>

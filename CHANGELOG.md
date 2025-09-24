@@ -37,6 +37,7 @@
 - Added description to project search page [#761](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/761)
 
 ### Updated
+- Updated description on `template/[templateId]/access` and visibility text on template publish modal [#482]
 - Updated `/signup` form so that the `email` field is grayed out on step 2, and added a `Back` button on step 2 [#769]
 - Updated the `/template/create` page to use the new `offset pagination` functionality for both template sections [#817]
 - Updated the `/template` page to use the new `cursor pagination` functionality, because it was only ever loading 20 results [#812]

@@ -75,8 +75,8 @@
     "radioBtn": {
       "public": "Público",
       "organizationOnly": "Apenas organização",
-      "publicHelpText": "Isto estará disponível e disponível pelos construtores do plano.",
-      "orgOnlyHelpText": "Somente sua organização poderá ver e usar esse modelo."
+      "publicHelpText": "Este modelo pode ser usado por todos os redatores de planos.",
+      "orgOnlyHelpText": "Somente redatores de planos de sua organização poderão ver e usar este modelo."
     },
     "descPublishedTemplate": "Você pode controlar quem pode usar este modelo publicado.",
     "bullet": {
@@ -376,7 +376,7 @@
   },
   "TemplateAccessPage": {
     "title": "Gerenciar acesso",
-    "intro": "Este modelo é acessível para todos no NSF com visualização completa e edição de permissões. Ele também pode ser compartilhado com pessoas fora da sua organização.",
+    "intro": "Este modelo pode ser editado por todos em {orgName}. Ele também pode ser compartilhado com pessoas fora da sua organização para permitir que elas tenham acesso de edição.",
     "headings": {
       "h3OrgAccess": "Dentro da organização",
       "externalPeople": "Pessoas externas",
