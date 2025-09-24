@@ -130,6 +130,7 @@
 - Fixed a bug on the funding-search page, to make sure that popular funders are hidden when the user actions a search. [#596]
 - Allow for tags in the checkbox group to wrap when the screen size is small. [#489]
 - Changed the create-project flow [#681]
+- Creating a new DMP should pre-select all project funders for the project. [#683]
 
 ### Removed
 
