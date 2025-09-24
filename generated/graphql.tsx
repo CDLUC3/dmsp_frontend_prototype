@@ -759,7 +759,7 @@ export type Mutation = {
   /** Create a plan */
   addPlan?: Maybe<Plan>;
   /** Add Funding information to a Plan */
-  addPlanFunding?: Maybe<Array<Maybe<PlanFunding>>>;
+  addPlanFunding?: Maybe<Plan>;
   /** Add a Member to a Plan */
   addPlanMember?: Maybe<PlanMember>;
   /** Create a project */
@@ -4007,7 +4007,7 @@ export type AddPlanFundingMutationVariables = Exact<{
 }>;
 
 
-export type AddPlanFundingMutation = { __typename?: 'Mutation', addPlanFunding?: Array<{ __typename?: 'PlanFunding', errors?: { __typename?: 'PlanFundingErrors', ProjectFundingId?: string | null, general?: string | null, planId?: string | null } | null } | null> | null };
+export type AddPlanFundingMutation = { __typename?: 'Mutation', addPlanFunding?: { __typename?: 'Plan', errors?: { __typename?: 'PlanErrors', general?: string | null } | null } | null };
 
 export type AddPlanMemberMutationVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -5106,9 +5106,7 @@ export const AddPlanFundingDocument = gql`
     mutation AddPlanFunding($planId: Int!, $projectFundingIds: [Int!]!) {
   addPlanFunding(planId: $planId, projectFundingIds: $projectFundingIds) {
     errors {
-      ProjectFundingId
       general
-      planId
     }
   }
 }

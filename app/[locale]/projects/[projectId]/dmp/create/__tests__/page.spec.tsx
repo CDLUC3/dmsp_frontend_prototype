@@ -623,16 +623,12 @@ const addPlanMocks = [
         projectFundingIds: [1, 2, 3],
       }
     },
-    // We don't really need to do anything with the response, so we just leave
-    // it empty for now.
     result: {
       data: {
         addPlanFunding: {
           __typename: "AddPlanFunding",
           errors: {
             __typename: "PlanFundingErrors",
-            ProjectFundingId: null,
-            planId: null,
             general: null,
           },
         },
