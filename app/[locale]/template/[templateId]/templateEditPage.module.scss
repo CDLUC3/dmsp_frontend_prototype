@@ -12,4 +12,8 @@
   color: var(--gray-600);
   display: inline-block;
   text-decoration: underline;
+
+  &:visited {
+    color: var(--gray-600);
+  }
 }
