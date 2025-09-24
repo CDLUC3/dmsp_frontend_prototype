@@ -490,7 +490,8 @@
       "collapse": "Recolher",
       "editTitle": "Editar título",
       "prev": "Voltar",
-      "next": "Seguinte"
+      "next": "Seguinte",
+      "viewHistory": "Ver histórico"
     },
     "messaging": {
       "loading": "Baixar",

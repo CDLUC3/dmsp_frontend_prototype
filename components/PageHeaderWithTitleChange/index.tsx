@@ -15,6 +15,8 @@ interface PageHeaderProps {
   title: string;
   /** Optional description text below the title */
   description?: string;
+  /** Optional JSX elements to append to the description */
+  descriptionAppend?: ReactNode;
   /** Required link text, such as 'Edit template title' */
   linkText: string;
   /** Required text for label */
@@ -36,6 +38,7 @@ interface PageHeaderProps {
 const PageHeaderWithTitleChange: React.FC<PageHeaderProps> = ({
   title,
   description,
+  descriptionAppend,
   linkText,
   labelText,
   placeholder,
@@ -120,6 +123,7 @@ const PageHeaderWithTitleChange: React.FC<PageHeaderProps> = ({
             )}
             <p className="pageheader-intro">
               {description}
+              {descriptionAppend && <>{' '}{descriptionAppend}</>}
             </p>
           </Form>
         </div>

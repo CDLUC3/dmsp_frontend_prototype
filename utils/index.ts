@@ -2,7 +2,7 @@ export { refreshAuthTokens, fetchCsrfToken } from './authHelper';
 export { createAuthLink } from './authLink';
 export { default as logECS } from './clientLogger';
 export { deleteCookie } from './cookiesUtil';
-export { getCalendarDateValue, formatShortMonthDayYear, formatWithTimeAndDate } from './dateUtils';
+export { getCalendarDateValue, formatWithTimeAndDate } from './dateUtils';
 export { handleErrors } from './errorHandler';
 export { filterTemplates } from './filterTemplates';
 export { scrollToTop } from './general';
