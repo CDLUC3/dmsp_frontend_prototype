@@ -356,7 +356,7 @@
         "placeholder": "Enter name"
       },
       "departmentAbbr": {
-        "label": "Abbreviated name", 
+        "label": "Abbreviated name",
         "placeholder": "Enter abbreviation"
       }
     },
@@ -462,7 +462,8 @@
       "close": "Close",
       "loadMore": "Load more",
       "addAnother": "Add another",
-      "goToProject": "Go to project"
+      "goToProject": "Go to project",
+      "back": "Back"
     },
     "labels": {
       "searchByKeyword": "Search by keyword",
