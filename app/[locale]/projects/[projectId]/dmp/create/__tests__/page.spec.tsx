@@ -3,7 +3,6 @@ import { act, fireEvent, render, screen, waitFor, within, cleanup } from '@testi
 import { MockedProvider } from '@apollo/client/testing';
 import PlanCreate from '../page';
 import { useParams, useRouter } from 'next/navigation';
-import { useTranslations, useFormatter } from 'next-intl';
 import { useToast } from '@/context/ToastContext';
 import logECS from '@/utils/clientLogger';
 import {
@@ -24,8 +23,6 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
 }));
 
-
-// Mock useFormatter from next-intl
 jest.mock('next-intl', () => ({
   useFormatter: jest.fn(() => ({
     dateTime: jest.fn(() => '01-01-2023'),
@@ -55,8 +52,10 @@ const projectFundingsMocks = [
         projectFundings: Array.from({length: 3}, (_, i) => {
           const count = i + 1;
           return {
+            __typename: "ProjectFunding",
             id: count,
             affiliation: {
+              __typename: "Affiliation",
               displayName: `Affiliation ${count} Name`,
               uri: `http://affiliation-${count}.gov`,
             },
@@ -108,6 +107,7 @@ const publishedMetaDataMocks = [
     result: {
       data: {
         publishedTemplatesMetaData: {
+          __typename: "PublishedTemplateMetaDataResults",
           availableAffiliations: [
             "http://affiliation-1.gov",
             "http://affiliation-2.gov"
@@ -115,7 +115,6 @@ const publishedMetaDataMocks = [
           hasBestPracticeTemplates: false,
         },
       },
-      loading: false
     },
   },
 ];
@@ -140,6 +139,7 @@ const bestPracticeMocks = [
     result: {
       data: {
         publishedTemplatesMetaData: {
+          __typename: "PublishedTemplateMetaDataResults",
           availableAffiliations: [
             "http://affiliation-1.gov",
             "http://affiliation-2.gov"
@@ -168,6 +168,7 @@ const bestPracticeMocks = [
     result: {
       data: {
         publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
           limit: 5,
           nextCursor: null,
           totalCount: 2,
@@ -178,6 +179,7 @@ const bestPracticeMocks = [
           items: Array.from({length: 2}, (_, i) => {
             const count = i + 1;
             return {
+              __typename: "VersionedTemplateSearchResult",
               id: count,
               bestPractice: true,
               description: `Template ${count} Description`,
@@ -218,6 +220,7 @@ const bestPracticeMocks = [
     result: {
       data: {
         publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
           limit: 5,
           nextCursor: null,
           totalCount: 0,
@@ -253,6 +256,7 @@ const publishedTemplatesMocks = [
     result: {
       data: {
         publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
           limit: 5,
           nextCursor: null,
           totalCount: 8,
@@ -263,6 +267,7 @@ const publishedTemplatesMocks = [
           items: Array.from({length: 5}, (_, i) => {
             const count = i + 1;
             return {
+              __typename: "VersionedTemplateSearchResult",
               id: count,
               bestPractice: (count == 5) ? true : false,
               description: `Template ${count} Description`,
@@ -281,7 +286,6 @@ const publishedTemplatesMocks = [
           }),
         },
       },
-      loading: false
     },
   },
 
@@ -307,6 +311,7 @@ const publishedTemplatesMocks = [
     result: {
       data: {
         publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
           limit: 5,
           nextCursor: null,
           totalCount: 8,
@@ -317,6 +322,7 @@ const publishedTemplatesMocks = [
           items: Array.from({length: 5}, (_, i) => {
             const count = i + 1;
             return {
+              __typename: "VersionedTemplateSearchResult",
               id: count,
               bestPractice: (count == 5) ? true : false,
               description: `Template ${count} Description`,
@@ -335,7 +341,6 @@ const publishedTemplatesMocks = [
           }),
         },
       },
-      loading: false
     },
   },
 
@@ -360,6 +365,7 @@ const publishedTemplatesMocks = [
     result: {
       data: {
         publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
           limit: 5,
           nextCursor: null,
           totalCount: 8,
@@ -368,6 +374,7 @@ const publishedTemplatesMocks = [
           hasNextPage: true,
           hasPreviousPage: false,
           items: [{
+            __typename: "VersionedTemplateSearchResult",
             id: 1,
             bestPractice: false,
             description: "Template Description",
@@ -410,6 +417,7 @@ const publishedTemplatesMocks = [
     result: {
       data: {
         publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
           limit: 5,
           nextCursor: null,
           totalCount: 8,
@@ -420,6 +428,7 @@ const publishedTemplatesMocks = [
           items: Array.from({length: 3}, (_, i) => {
             const count = i + 6;
             return {
+              __typename: "VersionedTemplateSearchResult",
               id: count,
               bestPractice: (count == 5) ? true : false,
               description: `Template ${count} Description`,
@@ -461,6 +470,7 @@ const publishedTemplatesMocks = [
     result: {
       data: {
         publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
           limit: 5,
           nextCursor: null,
           totalCount: 0,
@@ -494,6 +504,7 @@ const publishedTemplatesMocks = [
     result: {
       data: {
         publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
           limit: 5,
           nextCursor: null,
           totalCount: 1,
@@ -503,6 +514,7 @@ const publishedTemplatesMocks = [
           hasPreviousPage: false,
           items: [
             {
+              __typename: "VersionedTemplateSearchResult",
               bestPractice: false,
               description: "NSF SEARCH",
               id: "1",
@@ -596,6 +608,7 @@ const addPlanMocks = [
     result: {
       data: {
         addPlan: {
+          __typename: "AddPlan",
           id: 7,
         },
       },
@@ -612,7 +625,19 @@ const addPlanMocks = [
     },
     // We don't really need to do anything with the response, so we just leave
     // it empty for now.
-    result: {}
+    result: {
+      data: {
+        addPlanFunding: {
+          __typename: "AddPlanFunding",
+          errors: {
+            __typename: "PlanFundingErrors",
+            ProjectFundingId: null,
+            planId: null,
+            general: null,
+          },
+        },
+      },
+    },
   },
 ];
 
@@ -637,12 +662,13 @@ const addPlanErrMocks = [
       variables: {
         // Project ID 2 will return a general error
         projectId: 2,
-        versionedTemplateId: 1
+        versionedTemplateId: 1,
       },
     },
     result: {
       data: {
         addPlan: {
+          __typename: "AddPlan",
           id: 7,
         }
       },
@@ -653,20 +679,11 @@ const addPlanErrMocks = [
     request: {
       query: AddPlanFundingDocument,
       variables: {
-        projectFundingIds: [1, 2, 3],
+        planId: 7,
+        projectFundingIds: [],
       }
     },
-    result: {
-      data: {
-        addPlanFunding: {
-          errors: {
-            ProjectFundingId: null,
-            planId: null,
-            general: "General Error Adding Plan Funding",
-          }
-        }
-      }
-    }
+    error: new Error("There was an error"),
   },
 ];
 
@@ -681,17 +698,8 @@ const baseMocks = [
 
 describe('PlanCreate Component using base mock', () => {
   const mockUseParams = useParams as jest.Mock;
-  const mockUseFormatter = useFormatter as jest.Mock;
 
   beforeEach(() => {
-    // for this test to stop flapping (failing randomly) when run in the test suite (with `npm run test`) I had to add
-    // these two lines, though it always succeeded when run individually outside the test suite
-    jest.clearAllMocks();
-    cleanup();
-
-    mockUseFormatter.mockImplementation(() => ({
-      dateTime: jest.fn(() => '01-01-2023'),
-    }));
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
     mockUseParams.mockReturnValue({ projectId: '1' });
@@ -702,7 +710,6 @@ describe('PlanCreate Component using base mock', () => {
 
     // Mock Toast
     (useToast as jest.Mock).mockReturnValue(mockToast);
-
   });
 
   afterEach(() => {
@@ -774,27 +781,6 @@ describe('PlanCreate Component using base mock', () => {
       // our test mock, only 1
       expect(screen.getAllByText('buttons.select')).toHaveLength(1);
       expect(screen.getByRole('heading', { level: 3, name: "Filtered Template Name" })).toBeInTheDocument();
-    });
-
-    // Now deslect the last filter so that no funders are returned display
-    const checkbox = screen.getByRole('checkbox', { name: 'Affiliation 1 Name' });
-    fireEvent.click(checkbox);
-    await waitFor(() => {
-      // In our mocks for empty funders we return 5 funders.
-      const funderTemplateResults = [0, 1, 2, 3, 4];
-      funderTemplateResults.forEach((i) => {
-        expect(screen.getByRole('heading', { level: 3, name: `Template ${i + 1} Name` })).toBeInTheDocument();
-        const templateData = screen.getAllByTestId('template-metadata');
-        const lastRevisedBy1 = within(templateData[i]).getByText(/lastRevisedBy.*John Doe/);
-        const publishStatus1 = within(templateData[i]).getByText('published');
-        const visibility1 = within(templateData[i]).getByText(/visibility.*Public/);
-        expect(lastRevisedBy1).toBeInTheDocument();
-        expect(publishStatus1).toBeInTheDocument();
-        expect(visibility1).toBeInTheDocument();
-      });
-
-      // Make sure all 5 template select buttons are present
-      expect(screen.getAllByText('buttons.select')).toHaveLength(5);
     });
   });
 

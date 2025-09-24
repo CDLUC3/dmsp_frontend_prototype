@@ -23,7 +23,6 @@ import TemplateList from '@/components/TemplateList';
 import ErrorMessages from '@/components/ErrorMessages';
 import { CheckboxGroupComponent } from '@/components/Form';
 import Pagination from '@/components/Pagination';
-import { checkErrors } from '@/utils/errorHandler';
 
 // GraphQL
 import {
@@ -32,7 +31,6 @@ import {
   useProjectFundingsQuery,
   usePublishedTemplatesMetaDataQuery,
   usePublishedTemplatesLazyQuery,
-  PlanErrors,
 } from '@/generated/graphql';
 
 // Other
@@ -231,10 +229,13 @@ const PlanCreate: React.FC = () => {
 
   // When user selects a template, we create a plan and redirect
   const onSelect = async (versionedTemplateId: number) => {
-    const fundingIds = projectFundings.projectFundings.map((item) => item.id);
-    let newPlanId;
-
     setErrors([]);  // Clear the errors
+
+    let newPlanId: number;
+    const fundingIds: number[] = projectFundings
+      ?.projectFundings
+      ?.filter((item): item is { id: number } => !!item?.id)
+      .map(item => item.id) ?? [];
 
     // Add the new plan
     addPlanMutation({
@@ -243,8 +244,8 @@ const PlanCreate: React.FC = () => {
         versionedTemplateId
       },
     }).then(planResp => {
-      if (planResp?.data) {
-        newPlanId = planResp.data.addPlan.id;
+      if (planResp?.data && planResp.data.addPlan!.id) {
+        newPlanId = planResp.data.addPlan!.id;
         return addPlanFundingMutation({
           variables: {
             planId: newPlanId,
@@ -252,7 +253,7 @@ const PlanCreate: React.FC = () => {
           },
         });
       }
-    }).then(fundingResp => {
+    }).then(() => {
       // NOTE:: We need to redirect to the plan index page regardless of potential
       // errors returned by the AddPlanFundingMutation. This is because we already
       // created the plan at this point, and it will cause confusion if we now
