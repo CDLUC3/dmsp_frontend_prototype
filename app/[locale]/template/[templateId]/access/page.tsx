@@ -192,15 +192,15 @@ const TemplateAccessPage: React.FC = () => {
       return <div>{AccessPage('messages.errors.errorLoadingCollaborators')}</div>;
     }
 
-    const collaborators = templateCollaboratorData?.template?.collaborators ?? [];
+    const collaborators = templateCollaboratorData?.template?.collaborators;
 
-    if (collaborators.length === 0) {
+    if (collaborators?.length === 0) {
       return <div className={styles.emptyState} role="status">{AccessPage('messages.info.noCollaborators')}</div>;
     }
 
     return (
       <ul className={styles.peopleList} role="list">
-        {collaborators.map((person) => (
+        {collaborators?.map((person) => (
           <li key={person.id ?? person.email} className={styles.personItem}>
             <div className={styles.personInfo}>
               <div className={styles.personName}>{person.user?.givenName} {person.user?.surName}</div>
@@ -246,7 +246,7 @@ const TemplateAccessPage: React.FC = () => {
     <div>
       <PageHeader
         title={AccessPage('title')}
-        description=""
+        description={AccessPage('intro', { orgName: organization?.name ?? '' })}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
@@ -266,9 +266,6 @@ const TemplateAccessPage: React.FC = () => {
           <div className="template-editor-container" ref={errorRef}>
             <div className="main-content">
               <ErrorMessages errors={errorMessages} ref={errorRef} />
-              <p>
-                {AccessPage('intro', { orgName: organization?.name ?? '' })}
-              </p>
               <section className="sectionContainer"
                 aria-labelledby="org-access-heading">
                 <div className={`sectionHeader  mt-0`}>

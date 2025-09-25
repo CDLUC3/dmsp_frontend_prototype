@@ -37,6 +37,7 @@
 - Added description to project search page [#761](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/761)
 
 ### Updated
+- Updated description on `template/[templateId]/access` and visibility text on template publish modal [#482]
 - Updated `/template/[templateId]` to include the `View history` link in the header description [#430]
 - Updated `PageHeaderWithTitleChange` component to pass a `descriptionAppend` in order to append the `View history` JSX [#430]
 - Updated `/template/[templateId]/history` to fix how the `description` was being displayed. Updated to use Intl date formatting [#430]
