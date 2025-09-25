@@ -415,45 +415,39 @@ const TemplateEditPage: React.FC = () => {
     updateLocalSectionOrder(sectionId, newDisplayOrder);
     setIsReordering(true);
 
-    try {
-      const result = await updateSectionDisplayOrder(sectionId, newDisplayOrder);
 
-      if (!result.success) {
-        // Revert optimistic update on failure
-        await refetch();
-        const errors = result.errors;
-        if (Array.isArray(errors)) {
-          setErrorMessages(errors.length > 0 ? errors : [EditTemplate('errors.updateDisplayOrderError')]);
-        }
-      } else if (result.data?.errors?.general) {
-        // Revert on server errors
-        await refetch();
-        setErrorMessages(prev => [...prev, result.data?.errors?.general || EditTemplate('errors.updateDisplayOrderError')]);
-      }
-      // After successful update
+    const result = await updateSectionDisplayOrder(sectionId, newDisplayOrder);
 
-      // Scroll user to the reordered section
-      const focusedElement = document.activeElement;
-
-      // Check if an element is actually focused
-      if (focusedElement) {
-        // Scroll the focused element into view
-        focusedElement.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-          inline: 'nearest'
-        });
-      }
-      // Set accessible announcement
-      const message = EditTemplate('messages.sectionMoved', { displayOrder: newDisplayOrder })
-      setAnnouncement(message);
-    } catch {
-      // Revert optimistic update on network error
+    if (!result.success) {
+      // Revert optimistic update on failure
       await refetch();
-      setErrorMessages(prev => [...prev, EditTemplate('errors.updateDisplayOrderError')]);
-    } finally {
-      setIsReordering(false);
+      const errors = result.errors;
+      if (Array.isArray(errors)) {
+        setErrorMessages(prev => [...prev, ...errors]);
+      }
+    } else if (result.data?.errors?.general) {
+      // Revert on server errors
+      await refetch();
+      setErrorMessages(prev => [...prev, result.data?.errors?.general || '']);
     }
+    // After successful update
+
+    // Scroll user to the reordered section
+    const focusedElement = document.activeElement;
+
+    // Check if an element is actually focused
+    if (focusedElement) {
+      // Scroll the focused element into view
+      focusedElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'nearest'
+      });
+    }
+    // Set accessible announcement
+    const accessibleMessage = EditTemplate('messages.sectionMoved', { displayOrder: newDisplayOrder })
+    setAnnouncement(accessibleMessage);
+    setIsReordering(false);
   };
 
   // Need to set this info to update template title
@@ -495,9 +489,9 @@ const TemplateEditPage: React.FC = () => {
   const sectionsToRender = localSections.length > 0 ? localSections :
     (template.sections ? sortSections(template.sections.filter((section): section is Section => section !== null)) : []);
 
-  const description = `by ${template?.name}` +
+  const description = `by ${template?.owner?.displayName}` +
     (template?.latestPublishVersion ? ` - ${Global('version')}: ${template.latestPublishVersion}` : '') +
-    (template?.latestPublishDate || formattedPublishDate ? ` - ${Global('lastUpdated')}: ${formattedPublishDate || template.latestPublishDate}` : '');
+    (formattedPublishDate ? ` - ${Global('lastUpdated')}: ${formattedPublishDate}` : '');
 
 
 
@@ -506,6 +500,13 @@ const TemplateEditPage: React.FC = () => {
       <PageHeaderWithTitleChange
         title={templateInfo.name}
         description={description}
+        descriptionAppend={
+          <>
+            - <Link className={styles.templateHistoryLink} href={routePath('template.history', { templateId })}>
+              {Global('links.viewHistory')}
+            </Link>
+          </>
+        }
         linkText={EditTemplate('links.editTemplateTitle')}
         labelText={EditTemplate('templateTitleLabel')}
         showBackButton={false}

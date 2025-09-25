@@ -493,7 +493,8 @@
       "collapse": "Collapse",
       "editTitle": "Edit title",
       "prev": "Previous",
-      "next": "Next"
+      "next": "Next",
+      "viewHistory": "View history"
     },
     "messaging": {
       "loading": "Loading",
