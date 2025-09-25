@@ -610,10 +610,40 @@ const addPlanMocks = [
         addPlan: {
           __typename: "AddPlan",
           id: 7,
+          errors: {
+            general: null,
+            versionedTemplateId: null,
+            projectId: null,
+          }
         },
       },
     },
   },
+
+  // AddPlan with general errors
+  {
+    request: {
+      query: AddPlanDocument,
+      variables: {
+        projectId: 2,
+        versionedTemplateId: 1
+      },
+    },
+    result: {
+      data: {
+        addPlan: {
+          __typename: "AddPlan",
+          id: 7,
+          errors: {
+            general: "General error",
+            versionedTemplateId: null,
+            projectId: null,
+          },
+        },
+      },
+    },
+  },
+
 
   {
     request: {
@@ -666,6 +696,11 @@ const addPlanErrMocks = [
         addPlan: {
           __typename: "AddPlan",
           id: 7,
+          errors: {
+            general: null,
+            versionedTemplateId: null,
+            projectId: null,
+          },
         }
       },
     },
@@ -997,6 +1032,32 @@ describe('PlanCreate Component using base mock', () => {
 
     await waitFor(() => {
       expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/1/dmp/7');
+    });
+  });
+
+  it('should handle general error from addPlan mutation', async () => {
+    // Project 2 will return errors
+    mockUseParams.mockReturnValue({ projectId: '2' });
+
+    await act(async () => {
+      render(
+        <MockedProvider mocks={baseMocks}>
+          <PlanCreate />
+        </MockedProvider>
+      );
+    });
+
+    // Find the first template and select it
+    await waitFor(() => {
+      expect(screen.getAllByText('buttons.select')).toHaveLength(5);
+    });
+
+    const btn = screen.getAllByText('buttons.select')[0];
+    fireEvent.click(btn);
+
+    await waitFor(() => {
+      expect(screen.getByText("General error")).toBeInTheDocument();
+      expect(mockToast.add).toHaveBeenCalledWith('messaging.somethingWentWrong', { type: 'error' });
     });
   });
 

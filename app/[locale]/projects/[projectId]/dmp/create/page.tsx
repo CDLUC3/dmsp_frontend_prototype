@@ -27,6 +27,7 @@ import Pagination from '@/components/Pagination';
 // GraphQL
 import {
   useAddPlanMutation,
+  PlanErrors,
   useAddPlanFundingMutation,
   useProjectFundingsQuery,
   usePublishedTemplatesMetaDataQuery,
@@ -40,6 +41,7 @@ import { routePath } from '@/utils/routes';
 import { useToast } from '@/context/ToastContext';
 import { useFormatDate } from '@/hooks/useFormatDate';
 import { TemplateItemProps } from '@/app/types';
+import { checkErrors } from '@/utils/errorHandler';
 
 // # of templates displayed per page
 const LIMIT = 5;
@@ -216,7 +218,6 @@ const PlanCreate: React.FC = () => {
     });
   };
 
-
   const handleFiltering = async (term: string) => {
     setErrors([]);
     setSearchTerm(term);
@@ -244,16 +245,37 @@ const PlanCreate: React.FC = () => {
         versionedTemplateId
       },
     }).then(planResp => {
-      if (planResp?.data && planResp.data.addPlan!.id) {
-        newPlanId = planResp.data.addPlan!.id;
+      const [hasErrors, errs] = checkErrors(
+        planResp?.data?.addPlan?.errors as PlanErrors,
+        ['general', 'versionedTemplateId', 'projectId']
+      );
+
+      if (hasErrors) {
+        setErrors([String(errs.general)]);
+        toastState.add(Global("messaging.somethingWentWrong"), { type: 'error' });
+      } else if (planResp?.data?.addPlan?.id) {
+        newPlanId = planResp.data.addPlan.id;
         return addPlanFundingMutation({
           variables: {
             planId: newPlanId,
             projectFundingIds: fundingIds,
           },
         });
+      } else {
+        setErrors([Global("messaging.somethingWentWrong")]);
+        toastState.add(Global("messaging.somethingWentWrong"), { type: 'error' });
+        logECS('error', 'addPlanMutation', {
+          error: "Invalid plan response data",
+          url: {
+            path: routePath('projects.dmp.create', {projectId}),
+          }
+        });
       }
     }).then(() => {
+      // Early return if we don't have a plan ID set in the previous promise
+      // callback
+      if (!newPlanId) return;
+
       // NOTE:: We need to redirect to the plan index page regardless of potential
       // errors returned by the AddPlanFundingMutation. This is because we already
       // created the plan at this point, and it will cause confusion if we now

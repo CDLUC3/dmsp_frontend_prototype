@@ -3999,7 +3999,7 @@ export type AddPlanMutationVariables = Exact<{
 }>;
 
 
-export type AddPlanMutation = { __typename?: 'Mutation', addPlan?: { __typename?: 'Plan', id?: number | null } | null };
+export type AddPlanMutation = { __typename?: 'Mutation', addPlan?: { __typename?: 'Plan', id?: number | null, errors?: { __typename?: 'PlanErrors', general?: string | null, versionedTemplateId?: string | null, projectId?: string | null } | null } | null };
 
 export type AddPlanFundingMutationVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -5072,6 +5072,11 @@ export const AddPlanDocument = gql`
     mutation AddPlan($projectId: Int!, $versionedTemplateId: Int!) {
   addPlan(projectId: $projectId, versionedTemplateId: $versionedTemplateId) {
     id
+    errors {
+      general
+      versionedTemplateId
+      projectId
+    }
   }
 }
     `;
