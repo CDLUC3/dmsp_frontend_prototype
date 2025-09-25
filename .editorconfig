@@ -5,7 +5,7 @@
 # top-most EditorConfig file
 root = true
 
-[*.{tsx,ts,js,jsx}]
+[*]
 charset = utf-8
 # Unix-style newlines with a newline ending every file
 end_of_line = lf
@@ -14,6 +14,9 @@ indent_size = 2
 indent_style = space
 max_line_length = 80
 trim_trailing_whitespace = true
+
+[*.{tsx,ts,js,jsx}]
+indent_size = 2
 
 [*.md]
 max_line_length = 0
