@@ -38,6 +38,9 @@
 
 ### Updated
 - Updated description on `template/[templateId]/access` and visibility text on template publish modal [#482]
+- Updated `/template/[templateId]` to include the `View history` link in the header description [#430]
+- Updated `PageHeaderWithTitleChange` component to pass a `descriptionAppend` in order to append the `View history` JSX [#430]
+- Updated `/template/[templateId]/history` to fix how the `description` was being displayed. Updated to use Intl date formatting [#430]
 - Updated `/signup` form so that the `email` field is grayed out on step 2, and added a `Back` button on step 2 [#769]
 - Updated the `/template/create` page to use the new `offset pagination` functionality for both template sections [#817]
 - Updated the `/template` page to use the new `cursor pagination` functionality, because it was only ever loading 20 results [#812]
@@ -133,6 +136,7 @@
 - Fixed a bug on the funding-search page, to make sure that popular funders are hidden when the user actions a search. [#596]
 - Allow for tags in the checkbox group to wrap when the screen size is small. [#489]
 - Changed the create-project flow [#681]
+- Creating a new DMP should pre-select all project funders for the project. [#683]
 
 ### Removed
 
