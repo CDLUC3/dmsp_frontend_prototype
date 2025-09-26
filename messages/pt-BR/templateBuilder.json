@@ -279,8 +279,8 @@
       "sampleText": "Pesquisadores poderão copiar o texto de amostra para o campo como ponto de partida, como uma maneira de acelerar a entrada de conteúdo."
     },
     "labels": {
-      "type": "Tipo (obrigatório)",
-      "questionText": "Conjunto de perguntas (obrigatório)",
+      "type": "Tipo",
+      "questionText": "Conjunto de perguntas",
       "requirementText": "Escritor do plano de requisitos deve atender (opcional, mas recomendado)",
       "guidanceText": "Orientação para perguntas (opcional mas recomendado)",
       "sampleText": "Texto de amostra"
@@ -306,7 +306,7 @@
   "QuestionOptionsComponent": {
     "labels": {
       "order": "Ordem",
-      "text": "Texto (obrigatório)",
+      "text": "Texto",
       "default": "Padrão"
     },
     "buttons": {
@@ -339,10 +339,10 @@
     },
     "labels": {
       "order": "Ordem",
-      "text": "Texto (obrigatório)",
+      "text": "Texto",
       "default": "Padrão",
-      "type": "Tipo (obrigatório)",
-      "questionText": "Conjunto de perguntas (obrigatório)",
+      "type": "Tipo",
+      "questionText": "Conjunto de perguntas",
       "requirementText": "Escritor do plano de requisitos deve atender (opcional, mas recomendado)",
       "guidanceText": "Orientação para perguntas (opcional mas recomendado)",
       "sampleText": "Texto de amostra"

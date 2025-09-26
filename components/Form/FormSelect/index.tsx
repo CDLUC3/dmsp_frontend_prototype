@@ -1,4 +1,5 @@
 import React, { forwardRef, Key } from 'react';
+import { useTranslations } from "next-intl";
 import type {
   SelectProps,
   ValidationResult
@@ -52,6 +53,7 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
     ...rest
   } = props;
   const showRequired = isRequired || isRequiredVisualOnly;
+  const t = useTranslations('Global.labels');
 
   const handleSelectionChange = (key: Key | null) => {
     if (onChange) {
@@ -74,7 +76,7 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
       {(state) => (
         <>
           <Label>
-            {label}{showRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
+            {label}{showRequired && <span className="is-required" aria-hidden="true"> ({t('required')})</span>}
           </Label>
           <Text slot="description" className="help">
             {description}</Text>

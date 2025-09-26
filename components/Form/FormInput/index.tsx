@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslations } from "next-intl";
 import {
   FieldError,
   Input,
@@ -58,6 +59,7 @@ const FormInput = React.forwardRef<HTMLInputElement, InputProps & React.InputHTM
   ...rest
 }, ref) => {
   const showRequired = isRequired || isRequiredVisualOnly;
+  const t = useTranslations('Global.labels');
 
   return (
     <>
@@ -70,7 +72,7 @@ const FormInput = React.forwardRef<HTMLInputElement, InputProps & React.InputHTM
         data-testid="field-wrapper"
       >
         <Label htmlFor={id} className={labelClasses}>
-          {label}{showRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
+        {label}{showRequired && <span className="is-required" aria-hidden="true"> ({t('required')})</span>}
         </Label>
         <Text slot="description" className="help">
           {description}

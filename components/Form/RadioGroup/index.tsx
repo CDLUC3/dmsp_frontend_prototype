@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslations } from "next-intl";
 import {
   FieldError,
   Label,
@@ -22,6 +23,7 @@ const RadioGroupComponent: React.FC<RadioGroupProps> = ({
   children,
 }) => {
   const showRequired = isRequired || isRequiredVisualOnly;
+  const t = useTranslations('Global.labels');
 
   return (
     <>
@@ -36,7 +38,7 @@ const RadioGroupComponent: React.FC<RadioGroupProps> = ({
         aria-required={isRequired}
       >
         <Label>
-          {radioGroupLabel}{showRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
+          {radioGroupLabel}{showRequired && <span className="is-required" aria-hidden="true"> ({t('required')})</span>}
         </Label>
         {description && (
           <Text slot="description" className="help">

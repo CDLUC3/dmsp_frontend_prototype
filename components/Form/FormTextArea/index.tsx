@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react'; // Import useCallback
+import { useTranslations } from "next-intl";
 import {
   FieldError,
   Label,
@@ -56,6 +57,7 @@ const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
   richText = false,
 }) => {
   const showRequired = isRequired || isRequiredVisualOnly;
+  const t = useTranslations('Global.labels');
   const sanitizeId = (id: string) => id.replace(/[^a-zA-Z0-9-_]/g, ''); // Remove invalid characters
 
   // Generate unique IDs for accessibility. SanitizeId removes invalid characters that cannot be used with
@@ -86,7 +88,7 @@ const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
       data-testid="field-wrapper"
     >
       <Label id={labelId} className={labelClasses}>
-        {label}{showRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
+        {label}{showRequired && <span className="is-required" aria-hidden="true"> ({t('required')})</span>}
       </Label>
 
       {description && (
