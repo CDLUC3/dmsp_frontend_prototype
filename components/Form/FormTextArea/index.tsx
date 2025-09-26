@@ -27,6 +27,7 @@ interface FormTextInputAreaProps {
 
   disabled?: boolean;
   isRequired?: boolean;
+  isRequiredVisualOnly?: boolean;
   isInvalid?: boolean;
   errorMessage?: string;
   helpMessage?: string;
@@ -48,12 +49,13 @@ const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
   editorWrapperClasses = '',
   disabled = false,
   isRequired = false,
+  isRequiredVisualOnly = false,
   isInvalid = false,
   errorMessage = '',
   helpMessage = '',
   richText = false,
 }) => {
-
+  const showRequired = isRequired || isRequiredVisualOnly;
   const sanitizeId = (id: string) => id.replace(/[^a-zA-Z0-9-_]/g, ''); // Remove invalid characters
 
   // Generate unique IDs for accessibility. SanitizeId removes invalid characters that cannot be used with
@@ -83,7 +85,9 @@ const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
       isDisabled={disabled}
       data-testid="field-wrapper"
     >
-      <Label id={labelId} className={labelClasses}>{label}</Label>
+      <Label id={labelId} className={labelClasses}>
+        {label}{showRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
+      </Label>
 
       {description && (
         <Text slot="description" className="help-text">
@@ -115,6 +119,7 @@ const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
           value={value}
           disabled={disabled}
           aria-describedby={helpMessage ? `${inputId}-help` : undefined}
+          aria-required={isRequired}
         />
       )}
 
