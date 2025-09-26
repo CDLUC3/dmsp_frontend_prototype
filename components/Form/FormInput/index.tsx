@@ -24,6 +24,7 @@ interface InputProps {
   disabled?: boolean;
   isRequired?: boolean;
   ariaRequired?: boolean;
+  isRequiredVisualOnly?: boolean;
   isInvalid?: boolean;
   errorMessage?: string;
   helpMessage?: string;
@@ -49,6 +50,7 @@ const FormInput = React.forwardRef<HTMLInputElement, InputProps & React.InputHTM
   disabled = false,
   isRequired = false,
   ariaRequired = false,
+  isRequiredVisualOnly = false,
   isInvalid = false,
   errorMessage = '',
   helpMessage = '',
@@ -57,6 +59,7 @@ const FormInput = React.forwardRef<HTMLInputElement, InputProps & React.InputHTM
   pattern,
   ...rest
 }, ref) => {
+  const showRequired = isRequired || ariaRequired || isRequiredVisualOnly;
 
   return (
     <>
@@ -68,7 +71,9 @@ const FormInput = React.forwardRef<HTMLInputElement, InputProps & React.InputHTM
         isInvalid={isInvalid}
         data-testid="field-wrapper"
       >
-        <Label htmlFor={id} className={labelClasses}>{label}</Label>
+        <Label htmlFor={id} className={labelClasses}>
+          {label}{showRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
+        </Label>
         <Text slot="description" className="help">
           {description}
         </Text>

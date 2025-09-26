@@ -318,7 +318,6 @@ export interface CheckboxGroupProps {
   errorMessage?: string;
   onChange?: ((value: string[]) => void),
   isRequired?: boolean;
-  ariaRequired?: boolean;
   isRequiredVisualOnly?: boolean;
   children: ReactNode; // allow any Checkboxes or JSX
 }

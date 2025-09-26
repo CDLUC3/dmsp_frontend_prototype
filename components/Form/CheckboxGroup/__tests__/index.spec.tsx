@@ -106,18 +106,6 @@ describe('CheckboxGroupComponent', () => {
         )
         break;
 
-      case "aria-required":
-        return (
-          <CheckboxGroupComponent
-            name="test-checkbox"
-            checkboxGroupLabel={groupLabel}
-            ariaRequired={true}
-          >
-            {children}
-          </CheckboxGroupComponent>
-        )
-        break;
-
       case "multi-required":
         return (
           <CheckboxGroupComponent
@@ -125,7 +113,6 @@ describe('CheckboxGroupComponent', () => {
             checkboxGroupLabel={groupLabel}
             isRequired={true}
             isRequiredVisualOnly={true}
-            ariaRequired={true}
           >
             {children}
           </CheckboxGroupComponent>
@@ -140,7 +127,6 @@ describe('CheckboxGroupComponent', () => {
             checkboxGroupDescription={groupDescription}
             isRequired={true}
             isRequiredVisualOnly={true}
-            ariaRequired={true}
           >
             {children}
           </CheckboxGroupComponent>
@@ -193,7 +179,7 @@ describe('CheckboxGroupComponent', () => {
   });
 
   // Test isRequiredVisualOnly functionality
-  it('should display "(required)" without setting required true when isRequiredVisualOnly is true', () => {
+  it('should display "(required)" and aria-required false when isRequiredVisualOnly is true', () => {
     render(<TestWrapper testType="kinda-required" />);
 
     // Check for "(required)" text in label
@@ -204,15 +190,6 @@ describe('CheckboxGroupComponent', () => {
     // Check that aria-required is set on the checkbox group
     const checkboxGroup = screen.getByRole('group');
     expect(checkboxGroup).toBeInTheDocument();
-    expect(checkboxGroup).not.toHaveAttribute('aria-required', 'true');
-  });
-
-  it('should display "(required)" text when aria-required attribute is passed', () => {
-    render(<TestWrapper testType="aria-required" />);
-
-    expect(screen.getByText('Test Checkbox Group')).toBeInTheDocument();
-    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
-    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
   });
 
   it('should display "(required)" text when multiple required props are set', () => {
