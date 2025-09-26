@@ -52,7 +52,9 @@ body {
 
 
   --fw-normal: 400;
-  --fw-bold: 600;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
 
   --border-radius-sm: 0.125rem;
   --border-radius-md: 0.25rem;
@@ -235,7 +237,7 @@ body {
   margin-bottom: var(--space-5);
 }
 
-.sidebar-section > button:not(:last-child) {
+.sidebar-section>button:not(:last-child) {
   margin-right: var(--space-3);
 }
 
@@ -290,21 +292,89 @@ body {
     font-size: var(--fs-base);
 
     a {
+      // Uses default text-link styling from above
       font-size: var(--fs-base);
-      color: var(--link-color);
-      text-decoration: underline;
-      transition: color 0.2s ease;
-
-      &:hover {
-        color: var(--link-hover-color);
-      }
-
-      &:focus-visible {
-        outline: 2px solid var(--focus-ring);
-        outline-offset: 2px;
-        border-radius: var(--border-radius-sm);
-      }
     }
+  }
+}
+
+// Default link styling - text-link style for all links
+a {
+  color: var(--blue-500);
+  font-weight: var(--fw-semibold);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+
+  &:hover {
+    color: var(--blue-900);
+  }
+
+  &:focus {
+    outline: 2px solid var(--yellow-400);
+    outline-offset: 2px;
+  }
+}
+
+// Explicit text-link class for when you want to be specific
+.text-link {
+  color: var(--blue-500);
+  font-weight: var(--fw-semibold);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+
+  &:hover {
+    color: var(--blue-900);
+  }
+
+  &:focus {
+    outline: 2px solid var(--yellow-400);
+    outline-offset: 2px;
+  }
+}
+
+// Override default for button-style links and special components
+.button-link,
+.btn,
+.dmpui-frontend-btn,
+.card-link,
+.plan-link,
+.link,
+// Component-specific .link classes
+button[type="button"] a,
+button[type="submit"] a,
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  font-weight: var(--fw-normal);
+  text-decoration: none;
+  text-underline-offset: unset;
+  text-decoration-thickness: unset;
+
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+// Override for header navigation links
+header a,
+.dmpui-frontend-header a,
+nav a {
+  font-weight: var(--fw-normal);
+
+  // Let individual components handle their own styling
+  &.text-link {
+    font-weight: var(--fw-semibold);
+  }
+}
+
+// Override for footer links - they have their own white styling
+footer a {
+  font-weight: var(--fw-normal);
+
+  &.text-link {
+    font-weight: var(--fw-semibold);
   }
 }
 
@@ -324,10 +394,8 @@ body {
 .sidePanel {
 
   a {
+    // Uses default text-link styling from above
     font-size: var(--fs-base);
-    color: var(--link-color);
-    text-decoration: underline;
-    transition: color 0.2s ease;
     display: inline-block;
     margin-top: 0;
 

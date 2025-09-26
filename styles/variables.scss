@@ -1,15 +1,23 @@
-
 // Configurations
 $spacing: (
-  0: 0, // 0px
-  1: 0.25rem, // 4px
-  2: 0.5rem, // 8px
-  3: 0.75rem, // 12px
-  4: 1rem, // 16px
-  5: 1.5rem, // 24px
-  6: 2rem, // 32px
-  8: 3rem, // 48px
-  10: 4rem, // 64px
+  0: 0,
+  // 0px
+  1: 0.25rem,
+  // 4px
+  2: 0.5rem,
+  // 8px
+  3: 0.75rem,
+  // 12px
+  4: 1rem,
+  // 16px
+  5: 1.5rem,
+  // 24px
+  6: 2rem,
+  // 32px
+  8: 3rem,
+  // 48px
+  10: 4rem,
+  // 64px
   12: 6rem // 96px
 );
 
@@ -19,23 +27,36 @@ $spacing-properties: (
 );
 
 $spacing-directions: (
-  '': '', // all sides - m-4
-  't': '-top', // mt-4
-  'b': '-bottom', // mb-4
-  's': '-left', // ms-4 (using left)
-  'e': '-right', // me-4 (using right)
-  'x': '-left' '-right', // mx-4
+  '': '',
+  // all sides - m-4
+  't': '-top',
+  // mt-4
+  'b': '-bottom',
+  // mb-4
+  's': '-left',
+  // ms-4 (using left)
+  'e': '-right',
+  // me-4 (using right)
+  'x': '-left' '-right',
+  // mx-4
   'y': '-top' '-bottom' // my-4
 );
 
 $font-sizes: (
-  'xsmall': 0.75rem, // 12px micro text
-  'small': 0.875rem, // 14px h5 - "special heading" and small text
-  'base': 1rem, // 16px h4 and p tag
-  'lg': 1.125rem, // 18px h3
-  'xl': 1.25rem, // 20px h2
-  '2xl': 1.5rem, // 24px  h1
-  '3xl': 1.875rem, // 30px
+  'xsmall': 0.75rem,
+  // 12px micro text
+  'small': 0.875rem,
+  // 14px h5 - "special heading" and small text
+  'base': 1rem,
+  // 16px h4 and p tag
+  'lg': 1.125rem,
+  // 18px h3
+  'xl': 1.25rem,
+  // 20px h2
+  '2xl': 1.5rem,
+  // 24px  h1
+  '3xl': 1.875rem,
+  // 30px
   '4xl': 2.25rem // 36px
 );
 
@@ -44,37 +65,32 @@ $colors: (
     'primary': rgb(0, 85, 129),
     'secondary': #444444,
     'tertiary': rgb(207, 72, 23)
-  ),
-  'blue': (
-    50: #f2fbff,
+    ),
+  'blue': (50: #f2fbff,
     100: #e4f7ff,
     200: #b9e9ff,
-    300: #8ddaff,
+    300: #54D8FF, // cyan blue
     400: #77d8ff,
     500: #004EAA, // mid
     600: #254eab, // dark blue
     700: #254d9f,
+    900: #05042E, // dark navy
   ),
-  'gray': (
-    50: #ffffff,
+  'gray': (50: #ffffff,
     75: #eee,
     100: #e0e0e0,
     200: #afafaf,
     300: #8f8f8f,
     400: #717171,
     500: #555555,
-    600: #393939
-  ),
-  'purple': (
-    100: #d5c9fa,
+    600: #393939),
+  'purple': (100: #d5c9fa,
     200: #b8a3f6,
     300: #997cf2,
     400: #7a54ef,
     500: #582ddc,
-    600: #3c1e95
-  ),
-  'red': (
-    100: #f7c4ba,
+    600: #3c1e95),
+  'red': (100: #f7c4ba,
     200: #f29887,
     300: #eb664d,
     400: #D3273E,
@@ -82,8 +98,11 @@ $colors: (
     600: #731200,
     700: #ef4444 //Brighter red that pops for notifications like for Comments button
   ),
-  'slate': (
-    100: #F1F5F9,
+  'yellow': (400: #FFCB45,
+  ),
+  'green': (600: #006C6C,
+  ),
+  'slate': (100: #F1F5F9,
     200: #E2E8F0,
     300: #CBD5E1,
     400: #94A3B8,
@@ -91,10 +110,8 @@ $colors: (
     600: #475569,
     700: #334155,
     800: #1E293B,
-    900: #0F172A
-  ),
-  'messaging': (
-    'info': #e1e4ff,
+    900: #0F172A),
+  'messaging': ('info': #e1e4ff,
     'success':#dcfbe5,
     'error': #fce2e4,
   ),
