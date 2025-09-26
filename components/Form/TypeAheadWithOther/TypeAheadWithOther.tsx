@@ -20,6 +20,7 @@ export type TypeAheadInputProps = {
   setOtherField: (value: boolean) => void;
   fieldName: string;
   required: boolean;
+  requiredVisualOnly?: boolean;
   error?: string;
   updateFormData: (id: string, value: string) => void; //Function to update the typeahead field value in the parent form data
   value?: string;
@@ -41,9 +42,12 @@ const TypeAheadWithOther = ({
   className,
   suggestions,
   onSearch,
+  required=false,
+  requiredVisualOnly=false,
   otherText = "Other",
 }: TypeAheadInputProps) => {
 
+  const showRequired = required || requiredVisualOnly;
   const [inputValue, setInputValue] = useState<string>(value ?? "");
   const [showSuggestionSpinner, setShowSuggestionSpinner] = useState(false);
   const [currentListItemFocused, setCurrentListItemFocused] = useState(-1);
@@ -197,7 +201,9 @@ const TypeAheadWithOther = ({
         className={(!!error) ? styles.fieldError : ''}
         isInvalid={!!error}
       >
-        <Label>{label}</Label>
+        <Label>
+          {label}{showRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
+        </Label>
         <Input
           name={fieldName}
           type="text"
@@ -205,6 +211,7 @@ const TypeAheadWithOther = ({
           role="textbox"
           aria-controls="results"
           aria-activedescendant={activeDescendentId}
+          aria-required={required}
           className={classNames('react-aria-Input', styles.searchInput)}
           onChange={handleUpdate}
           onClick={handleInputClick}

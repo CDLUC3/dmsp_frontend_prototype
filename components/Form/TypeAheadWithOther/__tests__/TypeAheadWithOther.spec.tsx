@@ -362,4 +362,48 @@ describe('TypeAheadWithOther', () => {
 
     expect(input).toHaveValue('Test University');
   });
+
+  it('should display "(required)" text when field is required', () => {
+    render(
+      <TypeAheadWithOther
+        label="Institution"
+        helpText="Search for an institution"
+        setOtherField={mockSetOtherField}
+        fieldName="test"
+        required={false}
+        error=""
+        updateFormData={() => true}
+        value="input value"
+        suggestions={mocksAffiliations}
+        onSearch={mockOnSearch}
+        required={true}
+      />
+    );
+
+    expect(screen.getByText('Institution')).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
+  });
+
+  it('should allow for requiredVisualOnly', () => {
+    render(
+      <TypeAheadWithOther
+        label="Institution"
+        helpText="Search for an institution"
+        setOtherField={mockSetOtherField}
+        fieldName="test"
+        required={false}
+        error=""
+        updateFormData={() => true}
+        value="input value"
+        suggestions={mocksAffiliations}
+        onSearch={mockOnSearch}
+        requiredVisualOnly={true}
+      />
+    );
+
+    expect(screen.getByText('Institution')).toBeInTheDocument();
+    expect(screen.queryByText(/\(required\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
+  });
 });

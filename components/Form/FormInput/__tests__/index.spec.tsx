@@ -147,24 +147,6 @@ describe('FormInput', () => {
     expect(input).toHaveAttribute('aria-required', 'false');
   });
 
-  it('should display "(required)" text when ariaRequired attribute is passed', () => {
-    render(
-      <FormInput
-        name="email"
-        type="email"
-        label="Email"
-        ariaRequired={true}
-      />
-    );
-
-    expect(screen.getByText('Email')).toBeInTheDocument();
-    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
-    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
-
-    const input = screen.getByRole('textbox', { name: 'Email' });
-    expect(input).toHaveAttribute('aria-required', 'true');
-  });
-
   it('should display "(required)" text when multiple required props are set', () => {
     render(
       <FormInput

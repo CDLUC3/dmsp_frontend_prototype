@@ -23,7 +23,6 @@ interface InputProps {
   inputClasses?: string;
   disabled?: boolean;
   isRequired?: boolean;
-  ariaRequired?: boolean;
   isRequiredVisualOnly?: boolean;
   isInvalid?: boolean;
   errorMessage?: string;
@@ -49,7 +48,6 @@ const FormInput = React.forwardRef<HTMLInputElement, InputProps & React.InputHTM
   inputClasses = '',
   disabled = false,
   isRequired = false,
-  ariaRequired = false,
   isRequiredVisualOnly = false,
   isInvalid = false,
   errorMessage = '',
@@ -59,7 +57,7 @@ const FormInput = React.forwardRef<HTMLInputElement, InputProps & React.InputHTM
   pattern,
   ...rest
 }, ref) => {
-  const showRequired = isRequired || ariaRequired || isRequiredVisualOnly;
+  const showRequired = isRequired || isRequiredVisualOnly;
 
   return (
     <>
@@ -92,7 +90,7 @@ const FormInput = React.forwardRef<HTMLInputElement, InputProps & React.InputHTM
           minLength={minLength}
           maxLength={maxLength}
           pattern={pattern}
-          aria-required={ariaRequired}
+          aria-required={isRequired}
           {...rest}
         />
 
