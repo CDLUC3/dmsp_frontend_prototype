@@ -21,17 +21,7 @@ const RadioGroupComponent: React.FC<RadioGroupProps> = ({
   isRequiredVisualOnly = false,
   children,
 }) => {
-  // Show "(required)" if isRequired OR aria-required attribute is present OR isRequiredVisualOnly is true
-  const shouldShowRequired = isRequired || ariaRequiredFromProps || isRequiredVisualOnly;
-
-  // Determine aria-required value for the RadioGroup
-  const groupAriaRequired = ariaRequiredFromProps || isRequiredVisualOnly;
-
-  const renderDescription = (desc: string | ReactNode) => {
-    // If it's a string, just render it directly
-    // If it's a ReactNode, it will be rendered as JSX
-    return desc;
-  };
+  const showRequired = isRequired || isRequiredVisualOnly;
 
   return (
     <>
@@ -40,13 +30,13 @@ const RadioGroupComponent: React.FC<RadioGroupProps> = ({
         value={value}
         className={classes}
         onChange={onChange}
-        aria-label={radioGroupLabel || 'Radio Group'}
+        aria-label={radioGroupLabel}
         isRequired={isRequired}
         isInvalid={isInvalid}
-        {...(groupAriaRequired && { 'aria-required': true })}
+        aria-required={isRequired}
       >
         <Label>
-          {radioGroupLabel}{shouldShowRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
+          {radioGroupLabel}{showRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
         </Label>
         {description && (
           <Text slot="description" className="help">
