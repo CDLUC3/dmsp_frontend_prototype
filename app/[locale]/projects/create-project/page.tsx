@@ -223,7 +223,7 @@ const ProjectsCreateProject = () => {
               value={formData.projectName}
               label={CreateProject('form.projectTitle')}
               helpMessage={CreateProject('form.projectTitleHelpText')}
-              isRequiredVisualOnly={true}
+              isRequired={true}
               onChange={handleInputChange}
               isInvalid={(!formData.projectName || !!fieldErrors.projectName) && formSubmitted}
               errorMessage={fieldErrors.projectName.length > 0 ? fieldErrors.projectName : CreateProject('messages.errors.title')}
