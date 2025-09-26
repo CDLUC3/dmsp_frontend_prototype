@@ -202,7 +202,8 @@ const TypeAheadWithOther = ({
         isInvalid={!!error}
       >
         <Label>
-          {label}{showRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
+          {label}
+          {showRequired && <span className="is-required" aria-hidden="true">(required)</span>}
         </Label>
         <Input
           name={fieldName}
@@ -211,7 +212,6 @@ const TypeAheadWithOther = ({
           role="textbox"
           aria-controls="results"
           aria-activedescendant={activeDescendentId}
-          aria-required={required}
           className={classNames('react-aria-Input', styles.searchInput)}
           onChange={handleUpdate}
           onClick={handleInputClick}
