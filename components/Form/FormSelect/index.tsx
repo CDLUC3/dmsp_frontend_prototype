@@ -29,6 +29,8 @@ interface MySelectProps<T extends SelectItem>
   helpMessage?: string;
   description?: string;
   selectClasses?: string;
+  isRequired?: boolean;
+  isRequiredVisualOnly?: boolean;
   onChange?: (value: string) => void;
   items?: T[];
   placeHolder?: string;
@@ -43,11 +45,14 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
     helpMessage,
     description,
     selectClasses,
+    isRequired = false,
+    isRequiredVisualOnly = false,
     onChange,
     items,
     placeholder,
     ...rest
   } = props;
+  const showRequired = isRequired || isRequiredVisualOnly;
 
   const handleSelectionChange = (key: Key | null) => {
     if (onChange) {
@@ -63,12 +68,15 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
       data-invalid={errorMessage}
       className={`${selectClasses} ${styles.mySelect} react-aria-Select`}
       aria-label={ariaLabel}
+      aria-required={isRequired}
       onSelectionChange={handleSelectionChange}
       placeholder={placeholder}
     >
       {(state) => (
         <>
-          <Label>{label}</Label>
+          <Label>
+            {label}{showRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
+          </Label>
           <Text slot="description" className="help">
             {description}</Text>
           <Button className='react-aria-Button' ref={ref} data-testid="select-button">
@@ -107,13 +115,3 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
 });
 
 FormSelect.displayName = 'FormSelect';
-
-
-export function MyItem(props: ListBoxItemProps) {
-  return (
-    <ListBoxItem
-      {...props}
-    />
-  );
-}
-

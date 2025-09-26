@@ -10,16 +10,73 @@ const sampleItems = [
 ];
 
 describe('FormSelect', () => {
+  const onSelectionChange = jest.fn();
+
+  function TestWrapper({testType="basic"}) {
+    switch (testType) {
+      case "basic":
+        return (
+          <FormSelect
+            label="Select an option"
+            items={sampleItems}
+            selectedKey="1"
+          >
+          </FormSelect>
+        );
+        break;
+
+      case "on-change":
+        return (
+          <FormSelect
+            label="Select an option"
+            items={sampleItems}
+            selectedKey="1"
+            onChange={onSelectionChange}
+          >
+          </FormSelect>
+        );
+        break;
+
+      case "with-help":
+        return (
+          <FormSelect
+            label="Select an option"
+            items={sampleItems}
+            selectedKey="1"
+            helpMessage="Choose from the available options"
+          >
+          </FormSelect>
+        );
+        break;
+
+      case "required":
+        return (
+          <FormSelect
+            label="Select an option"
+            items={sampleItems}
+            selectedKey="1"
+            isRequired={true}
+          >
+          </FormSelect>
+        )
+        break;
+
+      case "kinda-required":
+        return (
+          <FormSelect
+            label="Select an option"
+            items={sampleItems}
+            selectedKey="1"
+            isRequiredVisualOnly={false}
+          >
+          </FormSelect>
+        );
+        break;
+    }
+  }
 
   it('should render the component correctly', () => {
-
-    const { getByTestId } = render(<FormSelect
-      label="Select an option"
-      items={sampleItems}
-      selectedKey="1"
-    >
-      {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
-    </FormSelect>);
+    const { getByTestId } = render(<TestWrapper />);
     const container = getByTestId('hidden-select-container');
     const select = container.querySelector('select')!;
 
@@ -32,18 +89,7 @@ describe('FormSelect', () => {
   });
 
   it('should open the popover and selects an option', async () => {
-    const onSelectionChange = jest.fn();
-
-    render(
-      <FormSelect
-        label="Select an option"
-        items={sampleItems}
-        selectedKey="1"
-        onChange={onSelectionChange}
-      >
-        {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
-      </FormSelect>
-    );
+    render(<TestWrapper testType="on-change" />);
 
     // Click the button to open the popover
     const button = screen.getByRole('button');
@@ -58,18 +104,23 @@ describe('FormSelect', () => {
   });
 
   it('should render the helpMessage', () => {
-    render(
-      <FormSelect
-        label="Select an option"
-        items={sampleItems}
-        selectedKey="1"
-        helpMessage="Choose from the available options"
-      >
-        {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
-      </FormSelect>
-    );
-
+    render(<TestWrapper testType="with-help" />);
     const helpText = screen.getAllByText('Choose from the available options');
     expect(helpText).toHaveLength(2);
+  });
+
+  it('should display "(required)" text when field is required', () => {
+    render(<TestWrapper testType="required" />);
+
+    expect(screen.getByText('Select an option')).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
+  });
+
+  it('should allow for requiredVisualOnly', () => {
+    render(<TestWrapper testType="kinda-required" />);
+
+    expect(screen.getByText('Select an option')).toBeInTheDocument();
+    expect(screen.queryByText(/\(required\)/)).not.toBeInTheDocument();
   });
 });
