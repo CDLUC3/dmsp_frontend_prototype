@@ -678,8 +678,8 @@ export default function FormElementsPage() {
           <div className="component-example">
             <h3 className="sg-section-heading">Toast Messages</h3>
             <p>
-              Toast messages provide temporary feedback to users about actions they've taken. Built with React Aria for
-              accessibility and proper focus management.
+              Toast messages provide temporary feedback to users about actions they&apos;ve taken. Built with React Aria
+              for accessibility and proper focus management.
             </p>
 
             <div className="example-demo">
@@ -807,7 +807,7 @@ function MyComponent() {
                   <strong>Consider timing:</strong> Error messages may need longer timeouts than success messages
                 </li>
                 <li>
-                  <strong>Avoid overuse:</strong> Don't show toasts for every minor interaction
+                  <strong>Avoid overuse:</strong> Don&apos;t show toasts for every minor interaction
                 </li>
               </ul>
 

@@ -12,7 +12,7 @@ import "../../shared/styleguide.scss";
 
 export default function ModalsPage() {
   // State for modal examples
-  const [showConfirmModal, setShowConfirmModal] = React.useState(false);
+  const [_showConfirmModal, _setShowConfirmModal] = React.useState(false);
   const [showOverlayModal, setShowOverlayModal] = React.useState(false);
 
   return (
@@ -95,7 +95,7 @@ export default function ModalsPage() {
 
             <h4>Features</h4>
             <ul>
-              <li>Built-in trigger button with localized "Remove" text</li>
+              <li>Built-in trigger button with localized &quot;Remove&quot; text</li>
               <li>Email-specific confirmation message</li>
               <li>Localized cancel and confirm buttons</li>
               <li>Automatic modal state management</li>

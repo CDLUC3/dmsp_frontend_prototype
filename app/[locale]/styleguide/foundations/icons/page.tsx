@@ -23,8 +23,8 @@ export default function IconsPage() {
 
         <h1>Icons</h1>
         <p className="lead">
-          While our application doesn't heavily rely on icons, we maintain consistency in the few places where they are
-          used.
+          While our application doesn&apos;t heavily rely on icons, we maintain consistency in the few places where they
+          are used.
         </p>
 
         {/* Table of Contents */}
@@ -76,7 +76,7 @@ export default function IconsPage() {
               <h4 className="sg-sub-heading">Why We Minimize Icon Usage</h4>
               <ul>
                 <li>
-                  <strong>Clarity:</strong> Text is universally understood and doesn't require interpretation
+                  <strong>Clarity:</strong> Text is universally understood and doesn&apos;t require interpretation
                 </li>
                 <li>
                   <strong>Accessibility:</strong> Screen readers handle text better than icon descriptions
@@ -88,7 +88,7 @@ export default function IconsPage() {
                   <strong>Maintenance:</strong> Fewer icons mean less visual debt and easier updates
                 </li>
                 <li>
-                  <strong>Cognitive Load:</strong> Users don't need to learn icon meanings
+                  <strong>Cognitive Load:</strong> Users don&apos;t need to learn icon meanings
                 </li>
               </ul>
 
@@ -105,7 +105,7 @@ export default function IconsPage() {
                   <strong>Navigation aids:</strong> Breadcrumb separators, external link indicators
                 </li>
                 <li>
-                  <strong>Space constraints:</strong> Mobile interfaces where text doesn't fit
+                  <strong>Space constraints:</strong> Mobile interfaces where text doesn&apos;t fit
                 </li>
               </ul>
             </div>
@@ -168,7 +168,7 @@ export default function IconsPage() {
                     <span style={{ fontSize: "1.25rem" }}>↗</span>
                     <strong>External Link Indicator</strong>
                   </div>
-                  <p style={{ margin: 0, fontSize: "0.875rem" }}>Warns users they're leaving the application</p>
+                  <p style={{ margin: 0, fontSize: "0.875rem" }}>Warns users they&apos;re leaving the application</p>
                 </div>
               </div>
 
@@ -202,7 +202,7 @@ export default function IconsPage() {
                     <strong>Decorative Icons</strong>
                   </div>
                   <p style={{ margin: 0, fontSize: "0.875rem" }}>
-                    Visual noise that doesn't serve a functional purpose
+                    Visual noise that doesn&apos;t serve a functional purpose
                   </p>
                 </div>
 
@@ -219,7 +219,7 @@ export default function IconsPage() {
                     <strong>Settings/Config Icons</strong>
                   </div>
                   <p style={{ margin: 0, fontSize: "0.875rem" }}>
-                    Better served by clear labels like "Settings" or "Configure"
+                    Better served by clear labels like &quot;Settings&quot; or &quot;Configure&quot;
                   </p>
                 </div>
               </div>
@@ -278,7 +278,7 @@ export default function IconsPage() {
               </pre>
 
               <h4 className="sg-sub-heading">SVG Icons (Rare)</h4>
-              <p>Only when Unicode or CSS won't work:</p>
+              <p>Only when Unicode or CSS won&apos;t work:</p>
               <pre>
                 <code>{`<svg 
   width="16" 
@@ -310,7 +310,8 @@ export default function IconsPage() {
                   <strong>Use aria-label:</strong> When icons are used alone, provide descriptive labels
                 </li>
                 <li>
-                  <strong>Hide decorative icons:</strong> Use <code>aria-hidden="true"</code> for purely visual elements
+                  <strong>Hide decorative icons:</strong> Use <code>aria-hidden=&quot;true&quot;</code> for purely
+                  visual elements
                 </li>
                 <li>
                   <strong>Ensure color contrast:</strong> Icons must meet WCAG contrast requirements
