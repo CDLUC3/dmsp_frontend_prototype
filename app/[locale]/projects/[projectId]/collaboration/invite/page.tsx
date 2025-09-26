@@ -247,7 +247,7 @@ const ProjectsProjectCollaborationInvite = () => {
                   type="email"
                   value={state.email}
                   onChange={handleInputChange}
-                  aria-required="true"
+                  isRequired={true}
                   label={t('formLabels.email')}
                   placeholder={t('placeHolders.email')}
                   isInvalid={!state.emailError ? false : true}
@@ -340,4 +340,3 @@ const ProjectsProjectCollaborationInvite = () => {
 };
 
 export default ProjectsProjectCollaborationInvite;
-

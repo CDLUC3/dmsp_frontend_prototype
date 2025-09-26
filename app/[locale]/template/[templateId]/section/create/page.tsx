@@ -367,7 +367,7 @@ const CreateSectionPage: React.FC = () => {
                       name="sectionName"
                       id="sectionName"
                       type="text"
-                      aria-required={true}
+                      isRequired={true}
                       label={Section('labels.sectionName')}
                       value={formData.sectionName}
                       onChange={e => {

@@ -308,7 +308,6 @@ const TemplateAccessPage: React.FC = () => {
                         value={addCollaboratorEmail}
                         onChange={handleEmailChange}
                         isRequired={true}
-                        aria-required="true"
                         label={AccessPage('labels.email')}
                         isInvalid={!isValidEmail(addCollaboratorEmail) && addCollaboratorEmail !== ''}
                         errorMessage="Please enter a valid email address"
