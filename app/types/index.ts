@@ -277,30 +277,19 @@ export interface RadioButtonInterface {
   label: string;
   description?: string | ReactNode;
 }
-export interface RadioButtonProps {
-  name: string;
-  description?: string | ReactNode;
-  classes?: string;
-  radioGroupLabel?: string;
-  radioButtonData: RadioButtonInterface[];
-  value: string;
-  isInvalid?: boolean;
-  errorMessage?: string;
-  onChange?: (value: string) => void;
-}
 
 export interface RadioGroupProps {
-  name?: string;
+  name: string;
   value?: string;
   classes?: string;
-  description?: ReactNode;
+  description?: string | ReactNode;
   radioGroupLabel?: string;
   isInvalid?: boolean;
   errorMessage?: string;
   onChange?: (value: string) => void;
   isRequired?: boolean;
   isRequiredVisualOnly?: boolean;
-  children: ReactNode; // allow any Radio buttons or JSX
+  children?: ReactNode; // allow any Radio buttons or JSX
 }
 
 export interface CheckboxInterface {
@@ -319,7 +308,7 @@ export interface CheckboxGroupProps {
   onChange?: ((value: string[]) => void),
   isRequired?: boolean;
   isRequiredVisualOnly?: boolean;
-  children: ReactNode; // allow any Checkboxes or JSX
+  children?: ReactNode; // allow any Checkboxes or JSX
 }
 
 export interface ProjectMemberErrorInterface {

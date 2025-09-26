@@ -1,6 +1,5 @@
 import React, { forwardRef, Key } from 'react';
 import type {
-  ListBoxItemProps,
   SelectProps,
   ValidationResult
 } from 'react-aria-components';
@@ -34,7 +33,7 @@ interface MySelectProps<T extends SelectItem>
   onChange?: (value: string) => void;
   items?: T[];
   placeHolder?: string;
-  children: React.ReactNode | ((item: T) => React.ReactNode);
+  children?: React.ReactNode | ((item: T) => React.ReactNode);
 }
 
 export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem>>((props, ref) => {

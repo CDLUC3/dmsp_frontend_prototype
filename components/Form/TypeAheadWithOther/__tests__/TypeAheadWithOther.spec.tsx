@@ -370,7 +370,6 @@ describe('TypeAheadWithOther', () => {
         helpText="Search for an institution"
         setOtherField={mockSetOtherField}
         fieldName="test"
-        required={false}
         error=""
         updateFormData={() => true}
         value="input value"

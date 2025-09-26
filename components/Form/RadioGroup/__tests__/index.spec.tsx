@@ -2,12 +2,12 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import RadioGroupComponent from '@/components/Form/RadioGroup';
-import { RadioButtonProps } from '@/app/types';
+import { RadioGroupProps } from '@/app/types';
 import { Radio } from "react-aria-components";
 
 expect.extend(toHaveNoViolations);
 
-const defaultProps: RadioButtonProps = {
+const defaultProps: RadioGroupProps = {
   name: "test-radio",
   value: 'option1',
   radioGroupLabel: "Test Radio Group",
@@ -67,7 +67,9 @@ describe('RadioGroupComponent', () => {
         {...defaultProps}
         isInvalid={true}
         errorMessage="This field is required"
-      />
+      >
+        {options}
+      </RadioGroupComponent>
     );
 
     expect(screen.getByText('This field is required')).toBeInTheDocument();
@@ -78,7 +80,9 @@ describe('RadioGroupComponent', () => {
       <RadioGroupComponent
         {...defaultProps}
         isRequired={true}
-      />
+      >
+        {options}
+      </RadioGroupComponent>
     );
 
     expect(screen.getByText('Test Radio Group')).toBeInTheDocument();
@@ -91,7 +95,9 @@ describe('RadioGroupComponent', () => {
       <RadioGroupComponent
         {...defaultProps}
         isRequiredVisualOnly={true}
-      />
+      >
+        {options}
+      </RadioGroupComponent>
     );
 
     expect(screen.getByText('Test Radio Group')).toBeInTheDocument();
@@ -104,7 +110,9 @@ describe('RadioGroupComponent', () => {
       <RadioGroupComponent
         {...defaultProps}
         description="Please select your preference"
-      />
+      >
+        {options}
+      </RadioGroupComponent>
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();

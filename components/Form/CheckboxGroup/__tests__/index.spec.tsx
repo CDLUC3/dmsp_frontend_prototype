@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import CheckboxGroupComponent from '@/components/Form/CheckboxGroup';
@@ -9,9 +9,9 @@ import { Checkbox } from "react-aria-components";
 expect.extend(toHaveNoViolations);
 
 
-const defaultProps: RadioButtonProps = {
+const defaultProps: CheckboxGroupProps = {
   name: "test-radio",
-  value: 'option1',
+  value: ['option1'],
   checkboxGroupLabel: "Test Checkbox Group",
 };
 

@@ -81,7 +81,7 @@ import QuestionPreview from '@/components/QuestionPreview';
 import FunderSearch from '@/components/FunderSearch';
 import FormInput from '@/components/Form/FormInput';
 import FormTextArea from '@/components/Form/FormTextArea';
-import { FormSelect, MyItem } from '@/components/Form/FormSelect';
+import { FormSelect } from '@/components/Form/FormSelect';
 import RadioGroupComponent from '@/components/Form/RadioGroup';
 import CheckboxGroupComponent from '@/components/Form/CheckboxGroup';
 
@@ -115,20 +115,26 @@ function Page() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  function radioOptions(data) {
+  type optionData = {
+    value: string;
+    label: string;
+    description?: string;
+  };
+
+  function radioOptions(data: optionData[]) {
     return (
       <>
-        {data.map((item, i) => (
+        {data.map((item: optionData, i: number) => (
           <Radio key={i} value={item.value}>{item.label}</Radio>
         ))}
       </>
     );
   }
 
-  function checkboxOptions(data) {
+  function checkboxOptions(data: optionData[]) {
     return (
       <>
-        {data.map((item, i) => (
+        {data.map((item: optionData, i: number) => (
           <Checkbox key={i} value={item.value}>
             <div className="checkbox">
               <svg viewBox="0 0 18 18" aria-hidden="true">
@@ -1520,9 +1526,7 @@ function Page() {
               selectedKey={formData.researchDomain}
               onSelectionChange={(key) => handleInputChange('researchDomain', key as string)}
               isRequired={true}
-            >
-              {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
-            </FormSelect>
+            />
 
             <FormSelect
               label="Secondary Domain"
@@ -1535,9 +1539,7 @@ function Page() {
               selectedKey={formData.secondaryDomain}
               onSelectionChange={(key) => handleInputChange('secondaryDomain', key as string)}
               isRequired={false}
-            >
-              {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
-            </FormSelect>
+            />
 
             <h3>
               Using RadioGroup
@@ -1613,6 +1615,8 @@ function Page() {
               helpText="Search for your primary institution"
               updateFormData={(id, value) => handleInputChange('institution', value)}
               value={formData.institution}
+              suggestions={suggestions}
+              onSearch={handleSearch}
             />
 
             <TypeAheadWithOther
@@ -1623,6 +1627,8 @@ function Page() {
               helpText="Search for any collaborating institutions (optional)"
               updateFormData={(id, value) => handleInputChange('collaboratingInstitution', value)}
               value={formData.collaboratingInstitution}
+              suggestions={suggestions}
+              onSearch={handleSearch}
             />
 
             <h3>

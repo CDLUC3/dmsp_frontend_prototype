@@ -1,82 +1,23 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { FormSelect, MyItem } from '@/components/Form/FormSelect';
+import { FormSelect } from '@/components/Form/FormSelect';
 
-const sampleItems = [
-  { id: '1', name: 'Option 1' },
-  { id: '2', name: 'Option 2' },
-  { id: '3', name: 'Option 3' },
-];
 
 describe('FormSelect', () => {
   const onSelectionChange = jest.fn();
-
-  function TestWrapper({testType="basic"}) {
-    switch (testType) {
-      case "basic":
-        return (
-          <FormSelect
-            label="Select an option"
-            items={sampleItems}
-            selectedKey="1"
-          >
-          </FormSelect>
-        );
-        break;
-
-      case "on-change":
-        return (
-          <FormSelect
-            label="Select an option"
-            items={sampleItems}
-            selectedKey="1"
-            onChange={onSelectionChange}
-          >
-          </FormSelect>
-        );
-        break;
-
-      case "with-help":
-        return (
-          <FormSelect
-            label="Select an option"
-            items={sampleItems}
-            selectedKey="1"
-            helpMessage="Choose from the available options"
-          >
-          </FormSelect>
-        );
-        break;
-
-      case "required":
-        return (
-          <FormSelect
-            label="Select an option"
-            items={sampleItems}
-            selectedKey="1"
-            isRequired={true}
-          >
-          </FormSelect>
-        )
-        break;
-
-      case "kinda-required":
-        return (
-          <FormSelect
-            label="Select an option"
-            items={sampleItems}
-            selectedKey="1"
-            isRequiredVisualOnly={false}
-          >
-          </FormSelect>
-        );
-        break;
-    }
-  }
+  const defaultProps = {
+    label: "Select an option",
+    items: [
+      { id: '1', name: 'Option 1' },
+      { id: '2', name: 'Option 2' },
+      { id: '3', name: 'Option 3' },
+    ],
+    selectedKey: "1",
+  };
 
   it('should render the component correctly', () => {
-    const { getByTestId } = render(<TestWrapper />);
+    const { getByTestId } = render(<FormSelect {...defaultProps} />);
     const container = getByTestId('hidden-select-container');
     const select = container.querySelector('select')!;
 
@@ -85,11 +26,12 @@ describe('FormSelect', () => {
 
     expect(option).toBeTruthy();
     expect(option?.value).toBe('1');
-
   });
 
   it('should open the popover and selects an option', async () => {
-    render(<TestWrapper testType="on-change" />);
+    render(
+      <FormSelect {...defaultProps} onChange={onSelectionChange} />
+    );
 
     // Click the button to open the popover
     const button = screen.getByRole('button');
@@ -104,13 +46,18 @@ describe('FormSelect', () => {
   });
 
   it('should render the helpMessage', () => {
-    render(<TestWrapper testType="with-help" />);
+    render(
+      <FormSelect
+        {...defaultProps}
+        helpMessage="Choose from the available options"
+      />
+    );
     const helpText = screen.getAllByText('Choose from the available options');
     expect(helpText).toHaveLength(2);
   });
 
   it('should display "(required)" text when field is required', () => {
-    render(<TestWrapper testType="required" />);
+    render(<FormSelect {...defaultProps} isRequired={true} />);
 
     expect(screen.getByText('Select an option')).toBeInTheDocument();
     expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
@@ -118,9 +65,9 @@ describe('FormSelect', () => {
   });
 
   it('should allow for requiredVisualOnly', () => {
-    render(<TestWrapper testType="kinda-required" />);
+    render(<FormSelect {...defaultProps} isRequiredVisualOnly={true} />);
 
     expect(screen.getByText('Select an option')).toBeInTheDocument();
-    expect(screen.queryByText(/\(required\)/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/\(required\)/)).toBeInTheDocument();
   });
 });
