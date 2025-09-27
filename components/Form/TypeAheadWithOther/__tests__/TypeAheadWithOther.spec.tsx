@@ -26,7 +26,7 @@ describe('TypeAheadWithOther', () => {
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
     jest.useRealTimers();
   })
 
