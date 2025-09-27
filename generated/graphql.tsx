@@ -481,8 +481,14 @@ export type AnswerCommentErrors = {
 /** The result of the findCollaborator query */
 export type CollaboratorSearchResult = {
   __typename?: 'CollaboratorSearchResult';
-  /** The collaborator's affiliation */
-  affiliation?: Maybe<Affiliation>;
+  /** The collaborator's affiliation name */
+  affiliationName?: Maybe<Scalars['String']['output']>;
+  /** The affiliation's ROR ID */
+  affiliationRORId?: Maybe<Scalars['String']['output']>;
+  /** The affiliation's ROR URL */
+  affiliationURL?: Maybe<Scalars['String']['output']>;
+  /** The collaborator's email */
+  email?: Maybe<Scalars['String']['output']>;
   /** The collaborator's first/given name */
   givenName?: Maybe<Scalars['String']['output']>;
   /** The unique identifier for the Object */
@@ -491,6 +497,26 @@ export type CollaboratorSearchResult = {
   orcid?: Maybe<Scalars['String']['output']>;
   /** The collaborator's last/sur name */
   surName?: Maybe<Scalars['String']['output']>;
+};
+
+export type CollaboratorSearchResults = PaginatedQueryResults & {
+  __typename?: 'CollaboratorSearchResults';
+  /** The sortFields that are available for this query (for standard offset pagination only!) */
+  availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The current offset of the results (for standard offset pagination) */
+  currentOffset?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not there is a next page */
+  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
+  /** Whether or not there is a previous page */
+  hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
+  /** The TemplateSearchResults that match the search criteria */
+  items?: Maybe<Array<Maybe<CollaboratorSearchResult>>>;
+  /** The number of items returned */
+  limit?: Maybe<Scalars['Int']['output']>;
+  /** The cursor to use for the next page of results (for infinite scroll/load more) */
+  nextCursor?: Maybe<Scalars['String']['output']>;
+  /** The total number of possible items */
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type ExternalFunding = {
@@ -2259,7 +2285,7 @@ export type Query = {
   /** Get all of the research domains related to the specified top level domain (more nuanced ones) */
   childResearchDomains?: Maybe<Array<Maybe<ResearchDomain>>>;
   /** Search for a User to add as a collaborator */
-  findCollaborator?: Maybe<Array<Maybe<CollaboratorSearchResult>>>;
+  findCollaborator?: Maybe<CollaboratorSearchResults>;
   /** Get all of the supported Languages */
   languages?: Maybe<Array<Maybe<Language>>>;
   /** Fetch a specific license */
@@ -2415,7 +2441,8 @@ export type QueryChildResearchDomainsArgs = {
 
 
 export type QueryFindCollaboratorArgs = {
-  term?: InputMaybe<Scalars['String']['input']>;
+  options?: InputMaybe<PaginationOptions>;
+  term: Scalars['String']['input'];
 };
 
 
@@ -3793,7 +3820,7 @@ export type VersionedSectionSearchResults = PaginatedQueryResults & {
   hasNextPage?: Maybe<Scalars['Boolean']['output']>;
   /** Whether or not there is a previous page */
   hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
-  /** The TemplateSearchResults that match the search criteria */
+  /** The SectionSearchResults that match the search criteria */
   items?: Maybe<Array<Maybe<VersionedSectionSearchResult>>>;
   /** The number of items returned */
   limit?: Maybe<Scalars['Int']['output']>;
