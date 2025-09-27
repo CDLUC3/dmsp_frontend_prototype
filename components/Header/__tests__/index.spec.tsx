@@ -36,11 +36,21 @@ jest.mock("@/components/LanguageSelector", () => {
 });
 
 jest.mock("@fortawesome/react-fontawesome", () => ({
-  FontAwesomeIcon: ({ icon }: { icon: any }) => <span data-testid="fontawesome-icon">{icon?.iconName || "icon"}</span>,
+  FontAwesomeIcon: ({ icon }: { icon: { iconName?: string } }) => (
+    <span data-testid="fontawesome-icon">{icon?.iconName || "icon"}</span>
+  ),
 }));
 
 jest.mock("react-aria-components", () => ({
-  Button: ({ children, onPress, ...props }: any) => (
+  Button: ({
+    children,
+    onPress,
+    ...props
+  }: {
+    children: React.ReactNode;
+    onPress?: () => void;
+    [key: string]: unknown;
+  }) => (
     <button
       onClick={onPress}
       {...props}
