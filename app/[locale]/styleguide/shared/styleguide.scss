@@ -552,56 +552,11 @@ table {
   }
 }
 
-/* 
- * DEPRECATED: These styles are being replaced by CSS modules
- * .toc-grid -> SGTocGrid, .component-example -> SGComponentExample
- * Remove once all pages are refactored to use SG components
- */
-
-// Table of Contents for component pages
-.toc-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--space-4);
-  margin: var(--space-4) 0;
-  padding: var(--space-4);
-  background: var(--gray-75);
-  border-radius: var(--border-radius);
-}
-
-.toc-section {
-  h3 {
-    margin: 0 0 var(--space-2) 0;
-    font-size: var(--fs-lg);
-    color: var(--blue-900);
-  }
-
-  ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-
-    li {
-      margin: var(--space-1) 0;
-    }
-
-    a {
-      font-size: var(--fs-small);
-      color: var(--blue-500);
-      text-decoration: none;
-
-      &:hover {
-        color: var(--blue-900);
-        text-decoration: underline;
-      }
-    }
-  }
-}
 
 // Component examples
 .component-example {
   margin: var(--space-6) 0;
-  border: 1px solid var(--gray-100);
+  border: 1px solid var(--red-500);
   border-radius: var(--border-radius);
   overflow: hidden;
 
@@ -615,37 +570,7 @@ table {
     font-weight: var(--fw-medium);
   }
 
-  // Styleguide-specific sub-heading (not real component headings)
-  .sg-sub-heading {
-    margin: var(--space-4) 0 var(--space-2) 0;
-    font-size: var(--fs-base);
-    color: var(--blue-900);
-    font-weight: var(--fw-medium);
-  }
 
-  // Legacy support - but these should be replaced with .sg-section-heading
-  // Use :not(.sg-preserve) to exclude real component headings
-  h3:not(.sg-preserve) {
-    margin: 0;
-    padding: var(--space-3);
-    background: var(--gray-75);
-    border-bottom: 1px solid var(--gray-100);
-    font-size: var(--fs-lg);
-  }
-
-  h4:not(.sg-preserve) {
-    margin: var(--space-4) 0 var(--space-2) 0;
-    font-size: var(--fs-base);
-    color: var(--blue-900);
-  }
-
-  h5:not(.sg-preserve) {
-    margin: var(--space-3) 0 var(--space-1) 0;
-    font-size: var(--fs-small);
-    color: var(--blue-900);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
 
   pre {
     margin: var(--space-3) 0;
@@ -659,19 +584,6 @@ table {
       background: none;
       padding: 0;
     }
-  }
-
-  >p,
-  >h4,
-  >pre {
-    margin-left: var(--space-4);
-    margin-right: var(--space-4);
-  }
-
-  >p:last-child,
-  >h4:last-child,
-  >pre:last-child {
-    margin-bottom: var(--space-4);
   }
 }
 

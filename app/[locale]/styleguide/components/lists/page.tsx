@@ -70,32 +70,119 @@ export default function ListsDataCardsPage() {
   ];
 
   const mockProjects = [
+    // Perfect data example - Multiple plans and funders
     {
-      title: "Climate Change Impact Study",
-      link: "/projects/climate-study",
-      startDate: "2024-01-01",
-      endDate: "2026-12-31",
-      funding: "$500,000",
-      grantId: "NSF-2024-001",
+      title: "Coastal Ocean Processes of North Greenland",
+      link: "/projects/coastal-ocean-greenland",
+      startDate: "July 1st 2025",
+      endDate: "June 30 2028",
+      funding: "National Science Foundation (nsf.gov), European Research Council",
+      grantId: "252552-255",
       defaultExpanded: false,
+      modified: "04-01-2024",
       members: [
-        { name: "Dr. Alice Brown", roles: "Principal Investigator" },
-        { name: "Dr. Bob Wilson", roles: "Co-Investigator" },
-        { name: "Dr. Carol Davis", roles: "Research Associate" },
+        { name: "Dr. Erik Lindström", roles: "Principal Investigator" },
+        { name: "Dr. Anna Bergqvist", roles: "Co-Investigator" },
+        { name: "Dr. Magnus Carlsson", roles: "Research Associate" },
+        { name: "Dr. Astrid Johansson", roles: "Postdoctoral Researcher" },
+      ],
+      plans: [
+        {
+          name: "Ocean Processes of Greenland",
+          dmpId: "10.4832/DIB57N",
+          link: "/projects/coastal-ocean-greenland/plans/1",
+        },
+        {
+          name: "Arctic Marine Data Collection Protocol",
+          dmpId: null, // No DMP ID for second plan
+          link: "/projects/coastal-ocean-greenland/plans/2",
+        },
+        {
+          name: "Climate Change Impact Assessment",
+          dmpId: "10.1038/s41597-024-03456",
+          link: "/projects/coastal-ocean-greenland/plans/3",
+        },
       ],
     },
+    // Single plan, single funder - most common case
     {
-      title: "Machine Learning for Healthcare",
-      link: "/projects/ml-healthcare",
-      startDate: "2024-02-01",
-      endDate: "2025-08-31",
-      funding: "$750,000",
-      grantId: "NIH-2024-002",
+      title: "Arctic Marine Ecosystem Dynamics",
+      link: "/projects/arctic-marine-ecosystem",
+      startDate: "January 15 2025",
+      endDate: "December 31 2027",
+      funding: "National Science Foundation (nsf.gov)",
+      grantId: "NSF-2024-789",
+      defaultExpanded: false,
+      modified: "15-03-2024",
+      members: [
+        { name: "Dr. Björn Andersson", roles: "Principal Investigator" },
+        { name: "Dr. Ingrid Nilsson", roles: "Co-Investigator" },
+      ],
+      plans: [
+        {
+          name: "Marine Ecosystem Data Management Plan",
+          dmpId: "10.5194/essd-2024-123",
+          link: "/projects/arctic-marine-ecosystem/plans/1",
+        },
+      ],
+    },
+    // Multiple funders, single plan
+    {
+      title: "Nordic Climate Research Initiative",
+      link: "/projects/nordic-climate-research",
+      startDate: "March 1st 2025",
+      endDate: "February 28 2029",
+      funding: "Swedish Research Council, Norwegian Research Council, Danish National Research Foundation",
+      grantId: "VR-2024-001",
+      defaultExpanded: false,
+      modified: "22-02-2024",
+      members: [
+        { name: "Dr. Lars Pettersson", roles: "Principal Investigator" },
+        { name: "Dr. Karin Svensson", roles: "Co-Investigator" },
+        { name: "Dr. Nils Eriksson", roles: "Co-Investigator" },
+        { name: "Dr. Maja Andersson", roles: "Research Associate" },
+        { name: "Dr. Olof Gustafsson", roles: "Postdoctoral Researcher" },
+        { name: "Dr. Astrid Blomberg", roles: "Research Assistant" },
+      ],
+      plans: [
+        {
+          name: "Climate Data Integration Framework",
+          dmpId: "10.1002/climate.2024.567",
+          link: "/projects/nordic-climate-research/plans/1",
+        },
+      ],
+    },
+    // Single plan, no DMP ID, minimal members
+    {
+      title: "Polar Bear Population Study",
+      link: "/projects/polar-bear-study",
+      startDate: "June 1st 2025",
+      endDate: "May 31 2027",
+      funding: "Arctic Council Research Program",
+      grantId: null, // No grant ID
+      defaultExpanded: false,
+      members: [{ name: "Dr. Gunnar Holm", roles: "Principal Investigator" }],
+      plans: [
+        {
+          name: "Wildlife Monitoring Data Plan",
+          dmpId: null, // No DMP ID
+          link: "/projects/polar-bear-study/plans/1",
+        },
+      ],
+    },
+    // Minimal data example - only required fields
+    {
+      title: "Greenland Ice Sheet Monitoring",
+      link: "/projects/greenland-ice-monitoring",
+      startDate: "", // No start date
+      endDate: "", // No end date
+      funding: "", // No funding info
+      grantId: null,
       defaultExpanded: false,
       members: [
-        { name: "Dr. David Lee", roles: "Principal Investigator" },
-        { name: "Dr. Emma Garcia", roles: "Co-Investigator" },
+        { name: "", roles: "" }, // Empty member data
       ],
+      plans: [], // No plans
     },
   ];
 
@@ -216,14 +303,7 @@ export default function ListsDataCardsPage() {
             />
             <SGComponentExampleContent>
               <SGComponentExampleDemo>
-                <div
-                  style={{
-                    border: "1px solid var(--gray-300)",
-                    borderRadius: "4px",
-                    padding: "1.5rem",
-                    background: "var(--white)",
-                  }}
-                >
+                <div>
                   <h4 style={{ margin: "0 0 1rem 0" }}>Available Templates</h4>
                   <TemplateList
                     templates={mockTemplates}
@@ -298,65 +378,78 @@ const templates = [
           <h2>Project List Item</h2>
           <p>Expandable list item component for displaying project information with collapsible details.</p>
 
-          <div className="component-example">
-            <h3>Project List with Expandable Details</h3>
-            <div className="example-demo">
-              <div
-                style={{
-                  border: "1px solid var(--gray-300)",
-                  borderRadius: "4px",
-                  padding: "1.5rem",
-                  background: "var(--white)",
-                }}
-              >
-                <h4 style={{ margin: "0 0 1rem 0" }}>Active Projects</h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                  {mockProjects.map((project, index) => (
-                    <ProjectListItem
-                      key={index}
-                      item={project}
-                    />
-                  ))}
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Project List with Expandable Details" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
+                <div>
+                  <h4 style={{ margin: "0 0 1rem 0" }}>Active Projects</h4>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    {mockProjects.map((project, index) => (
+                      <ProjectListItem
+                        key={index}
+                        item={project}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </div>
+              </SGComponentExampleDemo>
 
-            <h4>Usage</h4>
-            <pre>
-              <code>{`import ProjectListItem from '@/components/ProjectListItem';
+              <h4>Usage</h4>
+              <SGCodeBlock>{`import ProjectListItem from '@/components/ProjectListItem';
 
-const project = {
-  title: "Project Title",
-  link: "/projects/project-id",
-  startDate: "2024-01-01",
-  endDate: "2026-12-31",
-  funding: "$500,000",
-  grantId: "NSF-2024-001",
+// Perfect data example
+const perfectProject = {
+  title: "Coastal Ocean Processes of North Greenland",
+  link: "/projects/coastal-ocean-greenland",
+  startDate: "July 1st 2025",
+  endDate: "June 30 2028",
+  funding: "National Science Foundation (nsf.gov), PD 98-1610 - Physical Oceanography",
+  grantId: "252552-255",
   defaultExpanded: false,
   members: [
-    { name: "Dr. Jane Smith", roles: "Principal Investigator" }
+    { name: "Dr. Erik Lindström", roles: "Principal Investigator" },
+    { name: "Dr. Anna Bergqvist", roles: "Co-Investigator" },
+    { name: "Dr. Magnus Carlsson", roles: "Research Associate" },
+    { name: "Dr. Astrid Johansson", roles: "Postdoctoral Researcher" }
   ]
 };
 
-<ProjectListItem item={project} />`}</code>
-            </pre>
+// Partial data example
+const partialProject = {
+  title: "Arctic Marine Ecosystem Dynamics",
+  link: "/projects/arctic-marine-ecosystem",
+  startDate: "January 15 2025",
+  endDate: "December 31 2027",
+  funding: "National Science Foundation (nsf.gov)",
+  grantId: null, // Missing grant ID
+  defaultExpanded: false,
+  members: [
+    { name: "Dr. Björn Andersson", roles: "Principal Investigator" },
+    { name: "Dr. Ingrid Nilsson", roles: "Co-Investigator" }
+  ]
+};
 
-            <h4>Features</h4>
-            <ul>
-              <li>
-                <strong>Expandable content:</strong> Click to show/hide project details
-              </li>
-              <li>
-                <strong>Rich metadata:</strong> Dates, funding, collaborators, and grant information
-              </li>
-              <li>
-                <strong>Navigation links:</strong> Direct links to project pages
-              </li>
-              <li>
-                <strong>Accessibility:</strong> Proper ARIA labels and keyboard navigation
-              </li>
-            </ul>
-          </div>
+<ProjectListItem item={perfectProject} />
+<ProjectListItem item={partialProject} />`}</SGCodeBlock>
+
+              <h4>Features</h4>
+              <ul>
+                <li>
+                  <strong>Expandable content:</strong> Click to show/hide project details
+                </li>
+                <li>
+                  <strong>Rich metadata:</strong> Dates, funding, collaborators, and grant information
+                </li>
+                <li>
+                  <strong>Navigation links:</strong> Direct links to project pages
+                </li>
+                <li>
+                  <strong>Accessibility:</strong> Proper ARIA labels and keyboard navigation
+                </li>
+              </ul>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Template Select List */}
@@ -364,36 +457,29 @@ const project = {
           <h2>Template Select List Item</h2>
           <p>Individual template item component with selection capabilities and rich metadata display.</p>
 
-          <div className="component-example">
-            <h3>Template Selection Items</h3>
-            <div className="example-demo">
-              <div
-                style={{
-                  border: "1px solid var(--gray-300)",
-                  borderRadius: "4px",
-                  padding: "1.5rem",
-                  background: "var(--white)",
-                }}
-              >
-                <h4 style={{ margin: "0 0 1rem 0" }}>Template Selection</h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                  {mockTemplates.map((template, index) => (
-                    <TemplateSelectListItem
-                      key={index}
-                      item={template}
-                      onSelect={async (versionedTemplateId) => {
-                        setSelectedTemplate(versionedTemplateId);
-                        console.log("Selected template:", versionedTemplateId);
-                      }}
-                    />
-                  ))}
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Template Selection Items" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
+                <div>
+                  <h4 style={{ margin: "0 0 1rem 0" }}>Template Selection</h4>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    {mockTemplates.map((template, index) => (
+                      <TemplateSelectListItem
+                        key={index}
+                        item={template}
+                        onSelect={async (versionedTemplateId) => {
+                          setSelectedTemplate(versionedTemplateId);
+                          console.log("Selected template:", versionedTemplateId);
+                        }}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </div>
+              </SGComponentExampleDemo>
 
-            <h4>Usage</h4>
-            <pre>
-              <code>{`import TemplateSelectListItem from '@/components/TemplateSelectListItem';
+              <h4>Usage</h4>
+              <SGCodeBlock>{`import TemplateSelectListItem from '@/components/TemplateSelectListItem';
 
 const template = {
   id: 1,
@@ -412,25 +498,25 @@ const template = {
   onSelect={async (versionedTemplateId) => {
     // Handle selection
   }}
-/>`}</code>
-            </pre>
+/>`}</SGCodeBlock>
 
-            <h4>Features</h4>
-            <ul>
-              <li>
-                <strong>Rich metadata:</strong> Funder, revision info, publish status, visibility
-              </li>
-              <li>
-                <strong>Guidance indicators:</strong> Visual indicators for additional guidance
-              </li>
-              <li>
-                <strong>Selection states:</strong> Clear selection and action buttons
-              </li>
-              <li>
-                <strong>Status display:</strong> Publication status and visibility information
-              </li>
-            </ul>
-          </div>
+              <h4>Features</h4>
+              <ul>
+                <li>
+                  <strong>Rich metadata:</strong> Funder, revision info, publish status, visibility
+                </li>
+                <li>
+                  <strong>Guidance indicators:</strong> Visual indicators for additional guidance
+                </li>
+                <li>
+                  <strong>Selection states:</strong> Clear selection and action buttons
+                </li>
+                <li>
+                  <strong>Status display:</strong> Publication status and visibility information
+                </li>
+              </ul>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Section Header Edit */}
@@ -438,36 +524,29 @@ const template = {
           <h2>Section Header Edit</h2>
           <p>Editable section header component with reordering capabilities for template management.</p>
 
-          <div className="component-example">
-            <h3>Section Management Interface</h3>
-            <div className="example-demo">
-              <div
-                style={{
-                  border: "1px solid var(--gray-300)",
-                  borderRadius: "4px",
-                  padding: "1.5rem",
-                  background: "var(--white)",
-                }}
-              >
-                <h4 style={{ margin: "0 0 1rem 0" }}>Template Sections</h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                  {mockSections.map((section, index) => (
-                    <SectionHeaderEdit
-                      key={index}
-                      title={section.title}
-                      sectionNumber={section.sectionNumber}
-                      editUrl={section.editUrl}
-                      onMoveUp={index > 0 ? () => console.log("Move up") : undefined}
-                      onMoveDown={index < mockSections.length - 1 ? () => console.log("Move down") : undefined}
-                    />
-                  ))}
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Section Management Interface" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
+                <div>
+                  <h4 style={{ margin: "0 0 1rem 0" }}>Template Sections</h4>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    {mockSections.map((section, index) => (
+                      <SectionHeaderEdit
+                        key={index}
+                        title={section.title}
+                        sectionNumber={section.sectionNumber}
+                        editUrl={section.editUrl}
+                        onMoveUp={index > 0 ? () => console.log("Move up") : undefined}
+                        onMoveDown={index < mockSections.length - 1 ? () => console.log("Move down") : undefined}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </div>
+              </SGComponentExampleDemo>
 
-            <h4>Usage</h4>
-            <pre>
-              <code>{`import SectionHeaderEdit from '@/components/SectionHeaderEdit';
+              <h4>Usage</h4>
+              <SGCodeBlock>{`import SectionHeaderEdit from '@/components/SectionHeaderEdit';
 
 <SectionHeaderEdit
   title="Data Collection and Management"
@@ -479,25 +558,25 @@ const template = {
   onMoveDown={() => {
     // Handle move down
   }}
-/>`}</code>
-            </pre>
+/>`}</SGCodeBlock>
 
-            <h4>Features</h4>
-            <ul>
-              <li>
-                <strong>Section numbering:</strong> Automatic section numbering display
-              </li>
-              <li>
-                <strong>Edit links:</strong> Direct links to section editing pages
-              </li>
-              <li>
-                <strong>Reordering controls:</strong> Move up/down buttons with proper state management
-              </li>
-              <li>
-                <strong>Accessibility:</strong> Proper ARIA labels for reordering actions
-              </li>
-            </ul>
-          </div>
+              <h4>Features</h4>
+              <ul>
+                <li>
+                  <strong>Section numbering:</strong> Automatic section numbering display
+                </li>
+                <li>
+                  <strong>Edit links:</strong> Direct links to section editing pages
+                </li>
+                <li>
+                  <strong>Reordering controls:</strong> Move up/down buttons with proper state management
+                </li>
+                <li>
+                  <strong>Accessibility:</strong> Proper ARIA labels for reordering actions
+                </li>
+              </ul>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Question Edit Card */}
@@ -505,39 +584,32 @@ const template = {
           <h2>Question Edit Card</h2>
           <p>Editable question card component with reordering capabilities for template question management.</p>
 
-          <div className="component-example">
-            <h3>Question Management Interface</h3>
-            <div className="example-demo">
-              <div
-                style={{
-                  border: "1px solid var(--gray-300)",
-                  borderRadius: "4px",
-                  padding: "1.5rem",
-                  background: "var(--white)",
-                }}
-              >
-                <h4 style={{ margin: "0 0 1rem 0" }}>Section Questions</h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                  {mockQuestions.map((question, index) => (
-                    <QuestionEditCard
-                      key={question.id}
-                      id={question.id}
-                      text={question.text}
-                      link={question.link}
-                      name={question.name}
-                      displayOrder={question.displayOrder}
-                      handleDisplayOrderChange={(questionId, newOrder) => {
-                        console.log("Change order:", questionId, newOrder);
-                      }}
-                    />
-                  ))}
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Question Management Interface" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
+                <div>
+                  <h4 style={{ margin: "0 0 1rem 0" }}>Section Questions</h4>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    {mockQuestions.map((question, index) => (
+                      <QuestionEditCard
+                        key={question.id}
+                        id={question.id}
+                        text={question.text}
+                        link={question.link}
+                        name={question.name}
+                        displayOrder={question.displayOrder}
+                        handleDisplayOrderChange={(questionId, newOrder) => {
+                          console.log("Change order:", questionId, newOrder);
+                        }}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </div>
+              </SGComponentExampleDemo>
 
-            <h4>Usage</h4>
-            <pre>
-              <code>{`import QuestionEditCard from '@/components/QuestionEditCard';
+              <h4>Usage</h4>
+              <SGCodeBlock>{`import QuestionEditCard from '@/components/QuestionEditCard';
 
 <QuestionEditCard
   id="1"
@@ -548,25 +620,25 @@ const template = {
   handleDisplayOrderChange={(questionId, newOrder) => {
     // Handle order change
   }}
-/>`}</code>
-            </pre>
+/>`}</SGCodeBlock>
 
-            <h4>Features</h4>
-            <ul>
-              <li>
-                <strong>Question display:</strong> Clean display of question text with HTML stripping
-              </li>
-              <li>
-                <strong>Edit links:</strong> Direct links to question editing pages
-              </li>
-              <li>
-                <strong>Reordering controls:</strong> Move up/down buttons for question ordering
-              </li>
-              <li>
-                <strong>Accessibility:</strong> Proper ARIA labels and keyboard navigation
-              </li>
-            </ul>
-          </div>
+              <h4>Features</h4>
+              <ul>
+                <li>
+                  <strong>Question display:</strong> Clean display of question text with HTML stripping
+                </li>
+                <li>
+                  <strong>Edit links:</strong> Direct links to question editing pages
+                </li>
+                <li>
+                  <strong>Reordering controls:</strong> Move up/down buttons for question ordering
+                </li>
+                <li>
+                  <strong>Accessibility:</strong> Proper ARIA labels and keyboard navigation
+                </li>
+              </ul>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Dashboard Layouts */}
@@ -574,65 +646,60 @@ const template = {
           <h2>Dashboard Layouts</h2>
           <p>Common patterns for organizing lists and data cards in dashboard interfaces.</p>
 
-          <div className="component-example">
-            <h3>Template Dashboard Layout</h3>
-            <div className="example-demo">
-              <div
-                style={{
-                  border: "1px solid var(--gray-300)",
-                  borderRadius: "4px",
-                  padding: "1.5rem",
-                  background: "var(--white)",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "1.5rem",
-                  }}
-                >
-                  <h4 style={{ margin: 0 }}>Template Management</h4>
-                  <button
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Template Dashboard Layout" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
+                <div>
+                  <div
                     style={{
-                      padding: "0.5rem 1rem",
-                      background: "var(--blue-500)",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: "1.5rem",
                     }}
                   >
-                    Create New Template
-                  </button>
+                    <h4 style={{ margin: 0 }}>Template Management</h4>
+                    <button
+                      style={{
+                        padding: "0.5rem 1rem",
+                        background: "var(--blue-500)",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Create New Template
+                    </button>
+                  </div>
+
+                  <TemplateList
+                    templates={mockTemplates}
+                    onSelect={async (versionedTemplateId) => {
+                      setSelectedTemplate(versionedTemplateId);
+                    }}
+                  />
                 </div>
+              </SGComponentExampleDemo>
 
-                <TemplateList
-                  templates={mockTemplates}
-                  onSelect={async (versionedTemplateId) => {
-                    setSelectedTemplate(versionedTemplateId);
-                  }}
-                />
-              </div>
-            </div>
-
-            <h4>Dashboard Layout Patterns</h4>
-            <ul>
-              <li>
-                <strong>Header with actions:</strong> Page title with primary action buttons
-              </li>
-              <li>
-                <strong>Filtered lists:</strong> Search and filter capabilities for large datasets
-              </li>
-              <li>
-                <strong>Pagination:</strong> Load more functionality for performance
-              </li>
-              <li>
-                <strong>Status indicators:</strong> Visual status and metadata display
-              </li>
-            </ul>
-          </div>
+              <h4>Dashboard Layout Patterns</h4>
+              <ul>
+                <li>
+                  <strong>Header with actions:</strong> Page title with primary action buttons
+                </li>
+                <li>
+                  <strong>Filtered lists:</strong> Search and filter capabilities for large datasets
+                </li>
+                <li>
+                  <strong>Pagination:</strong> Load more functionality for performance
+                </li>
+                <li>
+                  <strong>Status indicators:</strong> Visual status and metadata display
+                </li>
+              </ul>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Content Management */}
@@ -640,181 +707,114 @@ const template = {
           <h2>Content Management</h2>
           <p>Specialized interfaces for managing template content, sections, and questions.</p>
 
-          <div className="component-example">
-            <h3>Template Content Management</h3>
-            <div className="example-demo">
-              <div
-                style={{
-                  border: "1px solid var(--gray-300)",
-                  borderRadius: "4px",
-                  padding: "1.5rem",
-                  background: "var(--white)",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "1.5rem",
-                  }}
-                >
-                  <h4 style={{ margin: 0 }}>Template Structure</h4>
-                  <button
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Template Content Management" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
+                <div>
+                  <div
                     style={{
-                      padding: "0.5rem 1rem",
-                      background: "var(--green-500)",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: "1.5rem",
                     }}
                   >
-                    Add Section
-                  </button>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                  {mockSections.map((section, sectionIndex) => (
-                    <div
-                      key={sectionIndex}
-                      style={{ border: "1px solid var(--gray-200)", borderRadius: "4px", padding: "1rem" }}
+                    <h4 style={{ margin: 0 }}>Template Structure</h4>
+                    <button
+                      style={{
+                        padding: "0.5rem 1rem",
+                        background: "var(--green-500)",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                      }}
                     >
-                      <SectionHeaderEdit
-                        title={section.title}
-                        sectionNumber={section.sectionNumber}
-                        editUrl={section.editUrl}
-                        onMoveUp={sectionIndex > 0 ? () => console.log("Move up") : undefined}
-                        onMoveDown={sectionIndex < mockSections.length - 1 ? () => console.log("Move down") : undefined}
-                      />
+                      Add Section
+                    </button>
+                  </div>
 
-                      <div style={{ marginTop: "1rem", paddingLeft: "1rem" }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            marginBottom: "0.5rem",
-                          }}
-                        >
-                          <h5 style={{ margin: 0, fontSize: "0.875rem", color: "var(--gray-600)" }}>Questions</h5>
-                          <button
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    {mockSections.map((section, sectionIndex) => (
+                      <div
+                        key={sectionIndex}
+                        style={{ border: "1px solid var(--gray-200)", borderRadius: "4px", padding: "1rem" }}
+                      >
+                        <SectionHeaderEdit
+                          title={section.title}
+                          sectionNumber={section.sectionNumber}
+                          editUrl={section.editUrl}
+                          onMoveUp={sectionIndex > 0 ? () => console.log("Move up") : undefined}
+                          onMoveDown={
+                            sectionIndex < mockSections.length - 1 ? () => console.log("Move down") : undefined
+                          }
+                        />
+
+                        <div style={{ marginTop: "1rem", paddingLeft: "1rem" }}>
+                          <div
                             style={{
-                              padding: "0.25rem 0.5rem",
-                              background: "var(--blue-500)",
-                              color: "white",
-                              border: "none",
-                              borderRadius: "4px",
-                              cursor: "pointer",
-                              fontSize: "0.75rem",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              marginBottom: "0.5rem",
                             }}
                           >
-                            Add Question
-                          </button>
-                        </div>
-
-                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                          {mockQuestions.slice(0, 2).map((question, questionIndex) => (
-                            <QuestionEditCard
-                              key={question.id}
-                              id={question.id}
-                              text={question.text}
-                              link={question.link}
-                              name={question.name}
-                              displayOrder={question.displayOrder}
-                              handleDisplayOrderChange={(questionId, newOrder) => {
-                                console.log("Change order:", questionId, newOrder);
+                            <h5 style={{ margin: 0, fontSize: "0.875rem", color: "var(--gray-600)" }}>Questions</h5>
+                            <button
+                              style={{
+                                padding: "0.25rem 0.5rem",
+                                background: "var(--blue-500)",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "4px",
+                                cursor: "pointer",
+                                fontSize: "0.75rem",
                               }}
-                            />
-                          ))}
+                            >
+                              Add Question
+                            </button>
+                          </div>
+
+                          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                            {mockQuestions.slice(0, 2).map((question, questionIndex) => (
+                              <QuestionEditCard
+                                key={question.id}
+                                id={question.id}
+                                text={question.text}
+                                link={question.link}
+                                name={question.name}
+                                displayOrder={question.displayOrder}
+                                handleDisplayOrderChange={(questionId, newOrder) => {
+                                  console.log("Change order:", questionId, newOrder);
+                                }}
+                              />
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </div>
+              </SGComponentExampleDemo>
 
-            <h4>Content Management Features</h4>
-            <ul>
-              <li>
-                <strong>Hierarchical organization:</strong> Sections containing questions with proper nesting
-              </li>
-              <li>
-                <strong>Drag and drop:</strong> Visual reordering of sections and questions
-              </li>
-              <li>
-                <strong>Bulk operations:</strong> Select multiple items for batch operations
-              </li>
-              <li>
-                <strong>Preview modes:</strong> Switch between edit and preview modes
-              </li>
-            </ul>
-          </div>
-        </section>
-
-        {/* Implementation Guidelines */}
-        <section id="implementation">
-          <h2>Implementation Guidelines</h2>
-
-          <div className="guidelines-grid">
-            <div className="guideline-item">
-              <h3>Performance</h3>
-              <p>
-                Use pagination and virtualization for large lists. Implement proper loading states and error handling.
-              </p>
-            </div>
-            <div className="guideline-item">
-              <h3>Accessibility</h3>
-              <p>All components include proper ARIA labels, keyboard navigation, and screen reader support.</p>
-            </div>
-            <div className="guideline-item">
-              <h3>State Management</h3>
-              <p>Handle selection states, expansion states, and reordering operations with proper state management.</p>
-            </div>
-            <div className="guideline-item">
-              <h3>Responsive Design</h3>
-              <p>Components adapt to different screen sizes with appropriate touch targets and layout adjustments.</p>
-            </div>
-          </div>
-
-          <h3>Best Practices</h3>
-          <ul>
-            <li>
-              <strong>Consistent spacing:</strong> Use consistent margins and padding throughout lists
-            </li>
-            <li>
-              <strong>Loading states:</strong> Show appropriate loading indicators for async operations
-            </li>
-            <li>
-              <strong>Error handling:</strong> Provide graceful error states and recovery options
-            </li>
-            <li>
-              <strong>Selection feedback:</strong> Clear visual feedback for selected items
-            </li>
-            <li>
-              <strong>Keyboard navigation:</strong> Full keyboard support for all interactive elements
-            </li>
-          </ul>
-
-          <h3>Common Use Cases</h3>
-          <ul>
-            <li>
-              <strong>Template selection:</strong> Choose from available DMP templates
-            </li>
-            <li>
-              <strong>Project management:</strong> View and manage research projects
-            </li>
-            <li>
-              <strong>Content editing:</strong> Manage template sections and questions
-            </li>
-            <li>
-              <strong>Dashboard views:</strong> Organize and display various data types
-            </li>
-            <li>
-              <strong>Search results:</strong> Display filtered and searchable content
-            </li>
-          </ul>
+              <h4>Content Management Features</h4>
+              <ul>
+                <li>
+                  <strong>Hierarchical organization:</strong> Sections containing questions with proper nesting
+                </li>
+                <li>
+                  <strong>Drag and drop:</strong> Visual reordering of sections and questions
+                </li>
+                <li>
+                  <strong>Bulk operations:</strong> Select multiple items for batch operations
+                </li>
+                <li>
+                  <strong>Preview modes:</strong> Switch between edit and preview modes
+                </li>
+              </ul>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
       </ContentContainer>
     </LayoutContainer>
