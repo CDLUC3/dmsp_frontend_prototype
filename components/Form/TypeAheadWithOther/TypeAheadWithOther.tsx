@@ -11,7 +11,7 @@ import Spinner from '@/components/Spinner';
 import { SuggestionInterface } from '@/app/types';
 import classNames from 'classnames';
 import styles from './typeaheadWithOther.module.scss';
-import { useTranslations } from "next-intl";
+// import { useTranslations } from "next-intl";
 
 
 export type TypeAheadInputProps = {
@@ -52,6 +52,9 @@ const TypeAheadWithOther = ({
 
   // TODO::FIXME:: For some reason the useTranslations function below returns
   // undefined (or something else)
+  // When we use it anywhere in the code we get "Global is not a function"
+  // NOTE:: I ucommented this line, the import at the top and the tranlation
+  // call in the <Label> to hide the linting errors for now.
   // const Global = useTranslations('Global.labels');
 
   const [inputValue, setInputValue] = useState<string>(value ?? "");
