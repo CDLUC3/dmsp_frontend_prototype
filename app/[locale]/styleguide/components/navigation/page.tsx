@@ -9,6 +9,17 @@ import Pagination from "@/components/Pagination";
 import PageLinkCard from "@/components/PageLinkCard";
 import LinkFilter from "@/components/LinkFilter";
 
+import {
+  SGComponentExample,
+  SGComponentExampleHeader,
+  SGComponentExampleContent,
+  SGComponentExampleDemo,
+  SGCodeBlock,
+  SGTocGrid,
+  SGTocSection,
+  SGGuidelinesGrid,
+  SGGuidelineItem,
+} from "../../shared/components";
 import "../../shared/styleguide.scss";
 
 export default function NavigationPage() {
@@ -68,9 +79,8 @@ export default function NavigationPage() {
         {/* Table of Contents */}
         <section id="table-of-contents">
           <h2>Contents</h2>
-          <div className="toc-grid">
-            <div className="toc-section">
-              <h3>Page Navigation</h3>
+          <SGTocGrid>
+            <SGTocSection title="Page Navigation">
               <ul>
                 <li>
                   <a href="#pagination">Pagination</a>
@@ -79,9 +89,8 @@ export default function NavigationPage() {
                   <a href="#page-link-card">Page Link Card</a>
                 </li>
               </ul>
-            </div>
-            <div className="toc-section">
-              <h3>Content Filtering</h3>
+            </SGTocSection>
+            <SGTocSection title="Content Filtering">
               <ul>
                 <li>
                   <a href="#link-filter">Link Filter</a>
@@ -90,8 +99,8 @@ export default function NavigationPage() {
                   <a href="#navigation-patterns">Navigation Patterns</a>
                 </li>
               </ul>
-            </div>
-          </div>
+            </SGTocSection>
+          </SGTocGrid>
         </section>
 
         {/* Pagination */}
@@ -99,24 +108,24 @@ export default function NavigationPage() {
           <h2>Pagination</h2>
           <p>Navigate through multiple pages of content with clear page indicators and controls.</p>
 
-          <div className="component-example">
-            <h3>Interactive Pagination Example</h3>
-            <div className="example-demo">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={10}
-                hasPreviousPage={currentPage > 1}
-                hasNextPage={currentPage < 10}
-                handlePageClick={setCurrentPage}
-              />
-              <p style={{ marginTop: "1rem" }}>
-                <small>Current page: {currentPage} of 10</small>
-              </p>
-            </div>
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Interactive Pagination Example" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={10}
+                  hasPreviousPage={currentPage > 1}
+                  hasNextPage={currentPage < 10}
+                  handlePageClick={setCurrentPage}
+                />
+                <p style={{ marginTop: "1rem" }}>
+                  <small>Current page: {currentPage} of 10</small>
+                </p>
+              </SGComponentExampleDemo>
 
-            <h4>Usage</h4>
-            <pre>
-              <code>{`import Pagination from '@/components/Pagination';
+              <h4>Usage</h4>
+              <SGCodeBlock>{`import Pagination from '@/components/Pagination';
 
 const [currentPage, setCurrentPage] = useState(1);
 
@@ -126,23 +135,23 @@ const [currentPage, setCurrentPage] = useState(1);
   hasPreviousPage={currentPage > 1}
   hasNextPage={currentPage < totalPages}
   handlePageClick={setCurrentPage}
-/>`}</code>
-            </pre>
+/>`}</SGCodeBlock>
 
-            <h4>Features</h4>
-            <ul>
-              <li>Previous/Next navigation</li>
-              <li>Direct page number access</li>
-              <li>Ellipsis for large page ranges</li>
-              <li>Keyboard navigation support</li>
-              <li>Responsive design for mobile devices</li>
-            </ul>
+              <h4>Features</h4>
+              <ul>
+                <li>Previous/Next navigation</li>
+                <li>Direct page number access</li>
+                <li>Ellipsis for large page ranges</li>
+                <li>Keyboard navigation support</li>
+                <li>Responsive design for mobile devices</li>
+              </ul>
 
-            <h4>React Aria Base</h4>
-            <p>
-              Built using React Aria&apos;s navigation primitives with proper ARIA labels and keyboard interactions.
-            </p>
-          </div>
+              <h4>React Aria Base</h4>
+              <p>
+                Built using React Aria&apos;s navigation primitives with proper ARIA labels and keyboard interactions.
+              </p>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Page Link Card */}
@@ -150,15 +159,15 @@ const [currentPage, setCurrentPage] = useState(1);
           <h2>Page Link Card</h2>
           <p>Card-based navigation links for organizing and presenting navigation options with descriptions.</p>
 
-          <div className="component-example">
-            <h3>Page Link Card Examples</h3>
-            <div className="example-demo">
-              <PageLinkCard sections={[sampleLinkSection]} />
-            </div>
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Page Link Card Examples" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
+                <PageLinkCard sections={[sampleLinkSection]} />
+              </SGComponentExampleDemo>
 
-            <h4>Usage</h4>
-            <pre>
-              <code>{`import { PageLinkCard } from '@/components/PageLinkCard';
+              <h4>Usage</h4>
+              <SGCodeBlock>{`import { PageLinkCard } from '@/components/PageLinkCard';
 
 const sections = [
   {
@@ -179,21 +188,19 @@ const sections = [
   }
 ];
 
-<PageLinkCard sections={sections} />`}</code>
-            </pre>
+<PageLinkCard sections={sections} />`}</SGCodeBlock>
 
-            <h4>Use Cases</h4>
-            <ul>
-              <li>Dashboard navigation</li>
-              <li>Section overviews</li>
-              <li>Feature discovery</li>
-              <li>Onboarding flows</li>
-              <li>Help and documentation navigation</li>
-            </ul>
+              <h4>Use Cases</h4>
+              <ul>
+                <li>Dashboard navigation</li>
+                <li>Section overviews</li>
+                <li>Feature discovery</li>
+                <li>Onboarding flows</li>
+                <li>Help and documentation navigation</li>
+              </ul>
 
-            <h4>Layout Patterns</h4>
-            <pre>
-              <code>{`// PageLinkCard handles its own grid layout
+              <h4>Layout Patterns</h4>
+              <SGCodeBlock>{`// PageLinkCard handles its own grid layout
 const sections = [
   {
     title: "Navigation Section",
@@ -202,9 +209,9 @@ const sections = [
   }
 ];
 
-<PageLinkCard sections={sections} />`}</code>
-            </pre>
-          </div>
+<PageLinkCard sections={sections} />`}</SGCodeBlock>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Link Filter */}
@@ -212,25 +219,25 @@ const sections = [
           <h2>Link Filter</h2>
           <p>Filter navigation component for categorizing and organizing content by different criteria.</p>
 
-          <div className="component-example">
-            <h3>Interactive Filter Navigation</h3>
-            <div className="example-demo">
-              <LinkFilter
-                items={filterOptions}
-                selected={selectedFilter}
-                setSelected={setSelectedFilter}
-                label="Filter by status"
-              />
-              <p style={{ marginTop: "1rem" }}>
-                <small>
-                  Selected filter: <strong>{filterOptions.find((opt) => opt.id === selectedFilter)?.label}</strong>
-                </small>
-              </p>
-            </div>
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Interactive Filter Navigation" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
+                <LinkFilter
+                  items={filterOptions}
+                  selected={selectedFilter}
+                  setSelected={setSelectedFilter}
+                  label="Filter by status"
+                />
+                <p style={{ marginTop: "1rem" }}>
+                  <small>
+                    Selected filter: <strong>{filterOptions.find((opt) => opt.id === selectedFilter)?.label}</strong>
+                  </small>
+                </p>
+              </SGComponentExampleDemo>
 
-            <h4>Usage</h4>
-            <pre>
-              <code>{`import LinkFilter from '@/components/LinkFilter';
+              <h4>Usage</h4>
+              <SGCodeBlock>{`import LinkFilter from '@/components/LinkFilter';
 
 const filterOptions = [
   { id: "all", label: "All Items" },
@@ -245,34 +252,34 @@ const [selectedFilter, setSelectedFilter] = useState("all");
   selected={selectedFilter}
   setSelected={setSelectedFilter}
   label="Filter by status"
-/>`}</code>
-            </pre>
+/>`}</SGCodeBlock>
 
-            <h4>Features</h4>
-            <ul>
-              <li>Tab-style navigation interface</li>
-              <li>Active state indication</li>
-              <li>Keyboard navigation</li>
-              <li>Customizable filter options</li>
-              <li>Accessible labeling</li>
-            </ul>
+              <h4>Features</h4>
+              <ul>
+                <li>Tab-style navigation interface</li>
+                <li>Active state indication</li>
+                <li>Keyboard navigation</li>
+                <li>Customizable filter options</li>
+                <li>Accessible labeling</li>
+              </ul>
 
-            <h4>Common Patterns</h4>
-            <ul>
-              <li>
-                <strong>Status Filtering:</strong> Active, Inactive, Pending
-              </li>
-              <li>
-                <strong>Type Filtering:</strong> All, Documents, Images, Videos
-              </li>
-              <li>
-                <strong>Date Filtering:</strong> Recent, This Week, This Month
-              </li>
-              <li>
-                <strong>Category Filtering:</strong> Research, Admin, Templates
-              </li>
-            </ul>
-          </div>
+              <h4>Common Patterns</h4>
+              <ul>
+                <li>
+                  <strong>Status Filtering:</strong> Active, Inactive, Pending
+                </li>
+                <li>
+                  <strong>Type Filtering:</strong> All, Documents, Images, Videos
+                </li>
+                <li>
+                  <strong>Date Filtering:</strong> Recent, This Week, This Month
+                </li>
+                <li>
+                  <strong>Category Filtering:</strong> Research, Admin, Templates
+                </li>
+              </ul>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Navigation Patterns */}
@@ -280,78 +287,76 @@ const [selectedFilter, setSelectedFilter] = useState("all");
           <h2>Navigation Patterns</h2>
           <p>Common navigation patterns and their recommended usage.</p>
 
-          <div className="component-example">
-            <h3>Combined Navigation Example</h3>
-            <div className="example-demo">
-              {/* Filter Navigation */}
-              <div style={{ marginBottom: "2rem" }}>
-                <h4>Filter Navigation</h4>
-                <LinkFilter
-                  items={filterOptions}
-                  selected={selectedFilter}
-                  setSelected={setSelectedFilter}
-                  label="Content type"
-                />
-              </div>
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Combined Navigation Example" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
+                {/* Filter Navigation */}
+                <div style={{ marginBottom: "2rem" }}>
+                  <h4>Filter Navigation</h4>
+                  <LinkFilter
+                    items={filterOptions}
+                    selected={selectedFilter}
+                    setSelected={setSelectedFilter}
+                    label="Content type"
+                  />
+                </div>
 
-              {/* Content Grid */}
-              <div style={{ marginBottom: "2rem" }}>
-                <h4>Content Cards</h4>
-                <PageLinkCard
-                  sections={[
-                    {
-                      title: "Filtered Content",
-                      description: "Content matching the selected filter criteria",
-                      items: [
-                        {
-                          title: "Filtered Content 1",
-                          description: "First item in the filtered results",
-                          href: "#",
-                        },
-                        {
-                          title: "Filtered Content 2",
-                          description: "Second item in the filtered results",
-                          href: "#",
-                        },
-                      ],
-                    },
-                  ]}
-                />
-              </div>
+                {/* Content Grid */}
+                <div style={{ marginBottom: "2rem" }}>
+                  <h4>Content Cards</h4>
+                  <PageLinkCard
+                    sections={[
+                      {
+                        title: "Filtered Content",
+                        description: "Content matching the selected filter criteria",
+                        items: [
+                          {
+                            title: "Filtered Content 1",
+                            description: "First item in the filtered results",
+                            href: "#",
+                          },
+                          {
+                            title: "Filtered Content 2",
+                            description: "Second item in the filtered results",
+                            href: "#",
+                          },
+                        ],
+                      },
+                    ]}
+                  />
+                </div>
 
-              {/* Pagination */}
-              <div>
-                <h4>Page Navigation</h4>
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={5}
-                  hasPreviousPage={currentPage > 1}
-                  hasNextPage={currentPage < 5}
-                  handlePageClick={setCurrentPage}
-                />
-              </div>
-            </div>
+                {/* Pagination */}
+                <div>
+                  <h4>Page Navigation</h4>
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={5}
+                    hasPreviousPage={currentPage > 1}
+                    hasNextPage={currentPage < 5}
+                    handlePageClick={setCurrentPage}
+                  />
+                </div>
+              </SGComponentExampleDemo>
 
-            <h4>Pattern Guidelines</h4>
-            <div className="guidelines-grid">
-              <div className="guideline-item">
-                <h3>Hierarchy</h3>
-                <p>Use filters for categorization, cards for content preview, and pagination for large datasets.</p>
-              </div>
-              <div className="guideline-item">
-                <h3>Consistency</h3>
-                <p>Maintain consistent navigation patterns across similar pages and sections.</p>
-              </div>
-              <div className="guideline-item">
-                <h3>Context</h3>
-                <p>Provide clear context about current location and available navigation options.</p>
-              </div>
-              <div className="guideline-item">
-                <h3>Responsiveness</h3>
-                <p>Ensure navigation works well on all device sizes with appropriate touch targets.</p>
-              </div>
-            </div>
-          </div>
+              <h4>Pattern Guidelines</h4>
+              <SGGuidelinesGrid>
+                <SGGuidelineItem title="Hierarchy">
+                  <p>Use filters for categorization, cards for content preview, and pagination for large datasets.</p>
+                </SGGuidelineItem>
+                <SGGuidelineItem title="Consistency">
+                  <p>Maintain consistent navigation patterns across similar pages and sections.</p>
+                </SGGuidelineItem>
+                <SGGuidelineItem title="Context">
+                  <p>Provide clear context about current location and available navigation options.</p>
+                </SGGuidelineItem>
+                <SGGuidelineItem title="Responsiveness">
+                  <p>Ensure navigation works well on all device sizes with appropriate touch targets.</p>
+                </SGGuidelineItem>
+              </SGGuidelinesGrid>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Implementation Guidelines */}

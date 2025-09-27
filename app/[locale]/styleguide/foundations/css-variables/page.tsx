@@ -4,6 +4,15 @@ import React from "react";
 import Link from "next/link";
 import { ContentContainer, LayoutContainer } from "@/components/Container";
 
+import {
+  SGComponentExample,
+  SGComponentExampleHeader,
+  SGComponentExampleContent,
+  SGComponentExampleDemo,
+  SGCodeBlock,
+  SGTocGrid,
+  SGTocSection,
+} from "../../shared/components";
 import "../../shared/styleguide.scss";
 
 export default function CSSVariablesPage() {
@@ -30,9 +39,8 @@ export default function CSSVariablesPage() {
         {/* Table of Contents */}
         <section id="table-of-contents">
           <h2>Contents</h2>
-          <div className="toc-grid">
-            <div className="toc-section">
-              <h3>Color Variables</h3>
+          <SGTocGrid>
+            <SGTocSection title="Color Variables">
               <ul>
                 <li>
                   <a href="#color-tokens">Color Tokens</a>
@@ -44,9 +52,8 @@ export default function CSSVariablesPage() {
                   <a href="#messaging-colors">Messaging Colors</a>
                 </li>
               </ul>
-            </div>
-            <div className="toc-section">
-              <h3>Typography Variables</h3>
+            </SGTocSection>
+            <SGTocSection title="Typography Variables">
               <ul>
                 <li>
                   <a href="#font-sizes">Font Sizes</a>
@@ -58,9 +65,8 @@ export default function CSSVariablesPage() {
                   <a href="#line-heights">Line Heights</a>
                 </li>
               </ul>
-            </div>
-            <div className="toc-section">
-              <h3>Spacing & Layout</h3>
+            </SGTocSection>
+            <SGTocSection title="Spacing & Layout">
               <ul>
                 <li>
                   <a href="#spacing-scale">Spacing Scale</a>
@@ -72,8 +78,8 @@ export default function CSSVariablesPage() {
                   <a href="#usage-examples">Usage Examples</a>
                 </li>
               </ul>
-            </div>
-          </div>
+            </SGTocSection>
+          </SGTocGrid>
         </section>
 
         {/* Color Tokens */}

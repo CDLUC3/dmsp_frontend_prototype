@@ -23,6 +23,18 @@ import { Checkbox, Radio, ListBoxItem } from "react-aria-components";
 
 // Import React Aria components for comparison
 
+import {
+  SGComponentExample,
+  SGComponentExampleHeader,
+  SGComponentExampleContent,
+  SGComponentExampleDemo,
+  SGCodeBlock,
+  SGPropsTable,
+  SGTocGrid,
+  SGTocSection,
+  SGGuidelinesGrid,
+  SGGuidelineItem,
+} from "../../shared/components";
 import "../../shared/styleguide.scss";
 
 export default function FormElementsPage() {
@@ -68,9 +80,8 @@ export default function FormElementsPage() {
         {/* Table of Contents */}
         <section id="table-of-contents">
           <h2>Contents</h2>
-          <div className="toc-grid">
-            <div className="toc-section">
-              <h3>Text Inputs</h3>
+          <SGTocGrid>
+            <SGTocSection title="Text Inputs">
               <ul>
                 <li>
                   <a href="#text-input">Text Input</a>
@@ -82,9 +93,8 @@ export default function FormElementsPage() {
                   <a href="#number-input">Number Input</a>
                 </li>
               </ul>
-            </div>
-            <div className="toc-section">
-              <h3>Selection</h3>
+            </SGTocSection>
+            <SGTocSection title="Selection">
               <ul>
                 <li>
                   <a href="#select">Select Dropdown</a>
@@ -96,9 +106,8 @@ export default function FormElementsPage() {
                   <a href="#typeahead">Type-ahead Search</a>
                 </li>
               </ul>
-            </div>
-            <div className="toc-section">
-              <h3>Choice Controls</h3>
+            </SGTocSection>
+            <SGTocSection title="Choice Controls">
               <ul>
                 <li>
                   <a href="#checkboxes">Checkboxes</a>
@@ -107,9 +116,8 @@ export default function FormElementsPage() {
                   <a href="#radio-buttons">Radio Buttons</a>
                 </li>
               </ul>
-            </div>
-            <div className="toc-section">
-              <h3>Specialized</h3>
+            </SGTocSection>
+            <SGTocSection title="Specialized">
               <ul>
                 <li>
                   <a href="#date-picker">Date Picker</a>
@@ -118,11 +126,14 @@ export default function FormElementsPage() {
                   <a href="#range-input">Range Input Fields</a>
                 </li>
                 <li>
+                  <a href="#messages">Messages</a>
+                </li>
+                <li>
                   <a href="#toast-messages">Toast Messages</a>
                 </li>
               </ul>
-            </div>
-          </div>
+            </SGTocSection>
+          </SGTocGrid>
         </section>
 
         {/* Text Input */}
@@ -130,20 +141,20 @@ export default function FormElementsPage() {
           <h2>Text Input</h2>
           <p>Standard text input field with label, validation, and help text support.</p>
 
-          <div className="component-example">
-            <h3>Interactive Text Input Example</h3>
-            <div className="example-demo">
-              <FormInput
-                name="example-input"
-                label="Full Name"
-                placeholder="Enter your full name"
-                description="This will be displayed on your profile"
-              />
-            </div>
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Interactive Text Input Example" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
+                <FormInput
+                  name="example-input"
+                  label="Full Name"
+                  placeholder="Enter your full name"
+                  description="This will be displayed on your profile"
+                />
+              </SGComponentExampleDemo>
 
-            <h4>Usage</h4>
-            <pre>
-              <code>{`import { FormInput } from '@/components/Form';
+              <h4>Usage</h4>
+              <SGCodeBlock>{`import { FormInput } from '@/components/Form';
 
 <FormInput
   name="fullName"
@@ -151,15 +162,15 @@ export default function FormElementsPage() {
   placeholder="Enter your full name"
   description="This will be displayed on your profile"
   required
-/>`}</code>
-            </pre>
+/>`}</SGCodeBlock>
 
-            <h4>React Aria Base</h4>
-            <p>
-              Built using React Aria&apos;s <code>TextField</code>, <code>Input</code>, and <code>Label</code>{" "}
-              components.
-            </p>
-          </div>
+              <h4>React Aria Base</h4>
+              <p>
+                Built using React Aria&apos;s <code>TextField</code>, <code>Input</code>, and <code>Label</code>{" "}
+                components.
+              </p>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Text Area */}
@@ -742,7 +753,7 @@ function MyComponent() {
               </pre>
 
               <h4 className="sg-sub-heading">Toast Options</h4>
-              <table className="props-table">
+              <SGPropsTable>
                 <thead>
                   <tr>
                     <th>Option</th>
@@ -789,7 +800,7 @@ function MyComponent() {
                     <td>Display order priority</td>
                   </tr>
                 </tbody>
-              </table>
+              </SGPropsTable>
 
               <h4 className="sg-sub-heading">Best Practices</h4>
               <ul>
@@ -835,35 +846,31 @@ function MyComponent() {
         <section id="implementation">
           <h2>Implementation Guidelines</h2>
 
-          <div className="guidelines-grid">
-            <div className="guideline-item">
-              <h3>Accessibility First</h3>
+          <SGGuidelinesGrid>
+            <SGGuidelineItem title="Accessibility First">
               <p>
                 All form components are built on React Aria for robust keyboard navigation, screen reader support, and
                 ARIA compliance.
               </p>
-            </div>
-            <div className="guideline-item">
-              <h3>Consistent API</h3>
+            </SGGuidelineItem>
+            <SGGuidelineItem title="Consistent API">
               <p>
                 Our custom components provide a unified interface while leveraging React Aria&apos;s powerful primitives
                 underneath.
               </p>
-            </div>
-            <div className="guideline-item">
-              <h3>Validation Ready</h3>
+            </SGGuidelineItem>
+            <SGGuidelineItem title="Validation Ready">
               <p>
                 Built-in support for validation states, error messages, and help text to guide users through form
                 completion.
               </p>
-            </div>
-            <div className="guideline-item">
-              <h3>Responsive Design</h3>
+            </SGGuidelineItem>
+            <SGGuidelineItem title="Responsive Design">
               <p>
                 Form elements adapt to different screen sizes and input methods (touch, mouse, keyboard) automatically.
               </p>
-            </div>
-          </div>
+            </SGGuidelineItem>
+          </SGGuidelinesGrid>
 
           <h3>Common Props</h3>
           <p>Most form components share these common properties:</p>

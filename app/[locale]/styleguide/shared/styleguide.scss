@@ -552,6 +552,12 @@ table {
   }
 }
 
+/* 
+ * DEPRECATED: These styles are being replaced by CSS modules
+ * .toc-grid -> SGTocGrid, .component-example -> SGComponentExample
+ * Remove once all pages are refactored to use SG components
+ */
+
 // Table of Contents for component pages
 .toc-grid {
   display: grid;
@@ -639,33 +645,6 @@ table {
     color: var(--blue-900);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-  }
-
-  .example-demo {
-    padding: var(--space-4);
-    background: white;
-    border-bottom: 1px solid var(--gray-100);
-
-    // Give form components some space (but not layout components)
-    >* {
-      max-width: 400px;
-    }
-
-    // Full-width examples for layout components, navigation, etc.
-    &.full-width {
-      >* {
-        max-width: none;
-      }
-    }
-
-    // Remove padding for full-bleed layout examples
-    &.full-bleed {
-      padding: 0;
-
-      >* {
-        max-width: none;
-      }
-    }
   }
 
   pre {

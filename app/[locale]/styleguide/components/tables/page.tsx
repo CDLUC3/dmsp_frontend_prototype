@@ -5,6 +5,17 @@ import Link from "next/link";
 import { ContentContainer, LayoutContainer } from "@/components/Container";
 import { Table, TableHeader, TableBody, Column, Row, Cell, Button } from "react-aria-components";
 
+import {
+  SGComponentExample,
+  SGComponentExampleHeader,
+  SGComponentExampleContent,
+  SGComponentExampleDemo,
+  SGCodeBlock,
+  SGTocGrid,
+  SGTocSection,
+  SGGuidelinesGrid,
+  SGGuidelineItem,
+} from "../../shared/components";
 import "../../shared/styleguide.scss";
 
 export default function TablesPage() {
@@ -72,9 +83,8 @@ export default function TablesPage() {
         {/* Table of Contents */}
         <section id="table-of-contents">
           <h2>Contents</h2>
-          <div className="toc-grid">
-            <div className="toc-section">
-              <h3>Basic Tables</h3>
+          <SGTocGrid>
+            <SGTocSection title="Basic Tables">
               <ul>
                 <li>
                   <a href="#basic-table">Basic Table</a>
@@ -86,9 +96,8 @@ export default function TablesPage() {
                   <a href="#interactive-table">Interactive Table</a>
                 </li>
               </ul>
-            </div>
-            <div className="toc-section">
-              <h3>Table Features</h3>
+            </SGTocSection>
+            <SGTocSection title="Table Features">
               <ul>
                 <li>
                   <a href="#table-styling">Styling & Layout</a>
@@ -100,42 +109,42 @@ export default function TablesPage() {
                   <a href="#table-patterns">Usage Patterns</a>
                 </li>
               </ul>
-            </div>
-          </div>
+            </SGTocSection>
+          </SGTocGrid>
         </section>
 
         {/* Basic Table */}
         <section id="basic-table">
-          <div className="component-example">
-            <h3 className="sg-section-heading">Basic Table</h3>
-            <div className="example-demo full-width">
-              <Table aria-label="DMP Sections">
-                <TableHeader>
-                  <Column isRowHeader>Section Name</Column>
-                  <Column>Template</Column>
-                  <Column>Questions</Column>
-                  <Column>Status</Column>
-                  <Column>Last Modified</Column>
-                </TableHeader>
-                <TableBody>
-                  {sampleData.map((item) => (
-                    <Row key={item.id}>
-                      <Cell>{item.name}</Cell>
-                      <Cell>{item.template}</Cell>
-                      <Cell>{item.questions}</Cell>
-                      <Cell>
-                        <span className={`status-badge status-${item.status.toLowerCase()}`}>{item.status}</span>
-                      </Cell>
-                      <Cell>{item.lastModified}</Cell>
-                    </Row>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Basic Table" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
+                <Table aria-label="DMP Sections">
+                  <TableHeader>
+                    <Column isRowHeader>Section Name</Column>
+                    <Column>Template</Column>
+                    <Column>Questions</Column>
+                    <Column>Status</Column>
+                    <Column>Last Modified</Column>
+                  </TableHeader>
+                  <TableBody>
+                    {sampleData.map((item) => (
+                      <Row key={item.id}>
+                        <Cell>{item.name}</Cell>
+                        <Cell>{item.template}</Cell>
+                        <Cell>{item.questions}</Cell>
+                        <Cell>
+                          <span className={`status-badge status-${item.status.toLowerCase()}`}>{item.status}</span>
+                        </Cell>
+                        <Cell>{item.lastModified}</Cell>
+                      </Row>
+                    ))}
+                  </TableBody>
+                </Table>
+              </SGComponentExampleDemo>
 
-            <h4 className="sg-sub-heading">Usage</h4>
-            <pre>
-              <code>{`import { Table, TableHeader, TableBody, Column, Row, Cell } from 'react-aria-components';
+              <h4 className="sg-sub-heading">Usage</h4>
+              <SGCodeBlock>{`import { Table, TableHeader, TableBody, Column, Row, Cell } from 'react-aria-components';
 
 <Table aria-label="Data table">
   <TableHeader>
@@ -150,16 +159,17 @@ export default function TablesPage() {
       <Cell>Active</Cell>
     </Row>
   </TableBody>
-</Table>`}</code>
-            </pre>
-          </div>
+</Table>`}</SGCodeBlock>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Sortable Table */}
         <section id="sortable-table">
-          <div className="component-example">
-            <h3 className="sg-section-heading">Sortable Table</h3>
-            <div className="example-demo full-width">
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Sortable Table" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
               <Table
                 aria-label="Sortable DMP Sections"
                 sortDescriptor={sortDescriptor}
@@ -212,11 +222,10 @@ export default function TablesPage() {
                   ))}
                 </TableBody>
               </Table>
-            </div>
+              </SGComponentExampleDemo>
 
-            <h4 className="sg-sub-heading">Usage</h4>
-            <pre>
-              <code>{`const [sortDescriptor, setSortDescriptor] = useState({
+              <h4>Usage</h4>
+              <SGCodeBlock>{`const [sortDescriptor, setSortDescriptor] = useState({
   column: undefined,
   direction: undefined,
 });
@@ -232,32 +241,33 @@ export default function TablesPage() {
   <TableBody>
     {/* Table rows */}
   </TableBody>
-</Table>`}</code>
-            </pre>
+</Table>`}</SGCodeBlock>
 
-            <h4 className="sg-sub-heading">Sorting Features</h4>
-            <ul>
-              <li>
-                <strong>Click column headers</strong> to sort ascending/descending
-              </li>
-              <li>
-                <strong>Visual indicators</strong> show current sort direction
-              </li>
-              <li>
-                <strong>Keyboard navigation</strong> with arrow keys and Enter
-              </li>
-              <li>
-                <strong>Accessible</strong> with proper ARIA attributes
-              </li>
-            </ul>
-          </div>
+              <h4>Sorting Features</h4>
+              <ul>
+                <li>
+                  <strong>Click column headers</strong> to sort ascending/descending
+                </li>
+                <li>
+                  <strong>Visual indicators</strong> show current sort direction
+                </li>
+                <li>
+                  <strong>Keyboard navigation</strong> with arrow keys and Enter
+                </li>
+                <li>
+                  <strong>Accessible</strong> with proper ARIA attributes
+                </li>
+              </ul>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Interactive Table */}
         <section id="interactive-table">
-          <div className="component-example">
-            <h3 className="sg-section-heading">Interactive Table with Actions</h3>
-            <div className="example-demo full-width">
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Interactive Table with Actions" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
               <Table aria-label="DMP Sections with Actions">
                 <TableHeader>
                   <Column isRowHeader>Section Name</Column>
@@ -285,31 +295,33 @@ export default function TablesPage() {
                   ))}
                 </TableBody>
               </Table>
-            </div>
+              </SGComponentExampleDemo>
 
-            <h4 className="sg-sub-heading">Interactive Features</h4>
-            <ul>
-              <li>
-                <strong>Action buttons</strong> in table cells
-              </li>
-              <li>
-                <strong>Status badges</strong> with semantic colors
-              </li>
-              <li>
-                <strong>Consistent button sizing</strong> with small variants
-              </li>
-              <li>
-                <strong>Proper focus management</strong> for accessibility
-              </li>
-            </ul>
-          </div>
+              <h4>Interactive Features</h4>
+              <ul>
+                <li>
+                  <strong>Action buttons</strong> in table cells
+                </li>
+                <li>
+                  <strong>Status badges</strong> with semantic colors
+                </li>
+                <li>
+                  <strong>Consistent button sizing</strong> with small variants
+                </li>
+                <li>
+                  <strong>Proper focus management</strong> for accessibility
+                </li>
+              </ul>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Table Styling */}
         <section id="table-styling">
-          <div className="component-example">
-            <h3 className="sg-section-heading">Styling & Layout</h3>
-            <div className="example-demo">
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Styling & Layout" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
               <h4 className="sg-sub-heading">Status Badge Styles</h4>
               <div style={{ display: "flex", gap: "1rem", alignItems: "center", marginBottom: "2rem" }}>
                 <span className="status-badge status-active">Active</span>
@@ -317,9 +329,8 @@ export default function TablesPage() {
                 <span className="status-badge status-archived">Archived</span>
               </div>
 
-              <h4 className="sg-sub-heading">CSS Classes</h4>
-              <pre>
-                <code>{`.status-badge {
+              <h4>CSS Classes</h4>
+              <SGCodeBlock>{`.status-badge {
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
@@ -344,17 +355,18 @@ export default function TablesPage() {
   background: var(--gray-100);
   color: var(--gray-600);
   border: 1px solid var(--gray-200);
-}`}</code>
-              </pre>
-            </div>
-          </div>
+}`}</SGCodeBlock>
+              </SGComponentExampleDemo>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Responsive Tables */}
         <section id="responsive-tables">
-          <div className="component-example">
-            <h3 className="sg-section-heading">Responsive Behavior</h3>
-            <div className="example-demo">
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Responsive Behavior" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
               <h4 className="sg-sub-heading">Mobile Considerations</h4>
               <ul>
                 <li>
@@ -371,7 +383,7 @@ export default function TablesPage() {
                 </li>
               </ul>
 
-              <h4 className="sg-sub-heading">Best Practices</h4>
+              <h4>Best Practices</h4>
               <ul>
                 <li>
                   Use <code>isRowHeader</code> on the primary identifier column
@@ -383,15 +395,17 @@ export default function TablesPage() {
                 <li>Use semantic colors for status indicators</li>
                 <li>Consider pagination for large datasets</li>
               </ul>
-            </div>
-          </div>
+              </SGComponentExampleDemo>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Usage Patterns */}
         <section id="table-patterns">
-          <div className="component-example">
-            <h3 className="sg-section-heading">Common Usage Patterns</h3>
-            <div className="example-demo">
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Common Usage Patterns" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
               <h4 className="sg-sub-heading">When to Use Tables</h4>
               <ul>
                 <li>
@@ -421,7 +435,7 @@ export default function TablesPage() {
                 </li>
               </ul>
 
-              <h4 className="sg-sub-heading">Implementation Checklist</h4>
+              <h4>Implementation Checklist</h4>
               <ul>
                 <li>✅ Proper semantic HTML structure with React Aria</li>
                 <li>✅ Accessible column headers and row identifiers</li>
@@ -430,35 +444,32 @@ export default function TablesPage() {
                 <li>✅ Clear visual hierarchy and spacing</li>
                 <li>✅ Consistent action button placement</li>
               </ul>
-            </div>
-          </div>
+              </SGComponentExampleDemo>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Implementation Guidelines */}
         <section id="implementation">
           <h2>Implementation Guidelines</h2>
 
-          <div className="guidelines-grid">
-            <div className="guideline-item">
-              <h3>Accessibility First</h3>
+          <SGGuidelinesGrid>
+            <SGGuidelineItem title="Accessibility First">
               <p>
                 Always use React Aria Table components for proper keyboard navigation, screen reader support, and ARIA
                 attributes.
               </p>
-            </div>
-            <div className="guideline-item">
-              <h3>Performance</h3>
+            </SGGuidelineItem>
+            <SGGuidelineItem title="Performance">
               <p>For large datasets, implement virtual scrolling or pagination to maintain good performance.</p>
-            </div>
-            <div className="guideline-item">
-              <h3>Consistency</h3>
+            </SGGuidelineItem>
+            <SGGuidelineItem title="Consistency">
               <p>Use consistent button sizes, status colors, and spacing throughout all table implementations.</p>
-            </div>
-            <div className="guideline-item">
-              <h3>Mobile Experience</h3>
+            </SGGuidelineItem>
+            <SGGuidelineItem title="Mobile Experience">
               <p>Test tables on mobile devices and consider alternative layouts for complex data on small screens.</p>
-            </div>
-          </div>
+            </SGGuidelineItem>
+          </SGGuidelinesGrid>
         </section>
       </ContentContainer>
     </LayoutContainer>

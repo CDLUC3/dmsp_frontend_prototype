@@ -41,7 +41,8 @@ export default function StyleGuidePage() {
       items: [
         {
           title: "Form Elements",
-          description: "Text inputs, selects, checkboxes, radio buttons, date pickers, and specialized form controls",
+          description:
+            "Text inputs, selects, checkboxes, radio buttons, date pickers, rich text editing, typeahead search, and validation messages",
           href: "/styleguide/components/form-elements",
         },
       ],
@@ -75,6 +76,11 @@ export default function StyleGuidePage() {
           description: "Container and ExpandableContentSection components for content organization",
           href: "/styleguide/components/layout",
         },
+        {
+          title: "Feedback & Loading",
+          description: "Spinners, loading states, and user feedback components for async operations",
+          href: "/styleguide/components/feedback",
+        },
       ],
     },
     {
@@ -88,18 +94,13 @@ export default function StyleGuidePage() {
         },
         {
           title: "Lists",
-          description: "Structured lists for displaying related items and content collections",
+          description: "Template lists, project lists, and structured content collections with interactive features",
           href: "/styleguide/components/lists",
         },
         {
           title: "Data Cards",
-          description: "Specialized cards for displaying data items and interactive content",
+          description: "Template selection cards, project cards, and specialized data display components",
           href: "/styleguide/components/data-cards",
-        },
-        {
-          title: "Tables",
-          description: "Data tables with sorting, filtering, and responsive behavior",
-          href: "/styleguide/components/tables",
         },
       ],
     },

@@ -9,6 +9,17 @@ import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
 import Header from "@/components/Header";
 import SubHeader from "@/components/SubHeader";
 
+import {
+  SGComponentExample,
+  SGComponentExampleHeader,
+  SGComponentExampleContent,
+  SGComponentExampleDemo,
+  SGCodeBlock,
+  SGTocGrid,
+  SGTocSection,
+  SGGuidelinesGrid,
+  SGGuidelineItem,
+} from "../../shared/components";
 import "../../shared/styleguide.scss";
 
 export default function HeadersPage() {
@@ -35,9 +46,8 @@ export default function HeadersPage() {
         {/* Table of Contents */}
         <section id="table-of-contents">
           <h2>Contents</h2>
-          <div className="toc-grid">
-            <div className="toc-section">
-              <h3>Page Headers</h3>
+          <SGTocGrid>
+            <SGTocSection title="Page Headers">
               <ul>
                 <li>
                   <a href="#page-header-with-title-change">Page Header with Title Change</a>
@@ -46,9 +56,8 @@ export default function HeadersPage() {
                   <a href="#header">Header</a>
                 </li>
               </ul>
-            </div>
-            <div className="toc-section">
-              <h3>Section Headers</h3>
+            </SGTocSection>
+            <SGTocSection title="Section Headers">
               <ul>
                 <li>
                   <a href="#sub-header">Sub Header</a>
@@ -57,8 +66,8 @@ export default function HeadersPage() {
                   <a href="#header-patterns">Header Patterns</a>
                 </li>
               </ul>
-            </div>
-          </div>
+            </SGTocSection>
+          </SGTocGrid>
         </section>
 
         {/* Page Header with Title Change */}
@@ -66,38 +75,38 @@ export default function HeadersPage() {
           <h2>Page Header with Title Change</h2>
           <p>Dynamic page header component that allows inline editing of page titles with proper state management.</p>
 
-          <div className="component-example">
-            <h3>Interactive Title Editing Header</h3>
-            <div className="example-demo">
-              <div
-                style={{
-                  border: "1px solid var(--gray-300)",
-                  borderRadius: "4px",
-                  overflow: "hidden",
-                  background: "white",
-                }}
-              >
-                <PageHeaderWithTitleChange
-                  title={pageTitle}
-                  onTitleChange={setPageTitle}
-                  subtitle="Manage your research data and documentation"
-                  breadcrumbs={[
-                    { label: "Dashboard", href: "/dashboard" },
-                    { label: "Projects", href: "/projects" },
-                    { label: "Current Project", href: "#", current: true },
-                  ]}
-                />
-              </div>
-              <p style={{ marginTop: "1rem" }}>
-                <small>
-                  Current title: <strong>{pageTitle}</strong>
-                </small>
-              </p>
-            </div>
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Interactive Title Editing Header" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
+                <div
+                  style={{
+                    border: "1px solid var(--gray-300)",
+                    borderRadius: "4px",
+                    overflow: "hidden",
+                    background: "white",
+                  }}
+                >
+                  <PageHeaderWithTitleChange
+                    title={pageTitle}
+                    onTitleChange={setPageTitle}
+                    subtitle="Manage your research data and documentation"
+                    breadcrumbs={[
+                      { label: "Dashboard", href: "/dashboard" },
+                      { label: "Projects", href: "/projects" },
+                      { label: "Current Project", href: "#", current: true },
+                    ]}
+                  />
+                </div>
+                <p style={{ marginTop: "1rem" }}>
+                  <small>
+                    Current title: <strong>{pageTitle}</strong>
+                  </small>
+                </p>
+              </SGComponentExampleDemo>
 
-            <h4>Usage</h4>
-            <pre>
-              <code>{`import PageHeaderWithTitleChange from '@/components/PageHeaderWithTitleChange';
+              <h4>Usage</h4>
+              <SGCodeBlock>{`import PageHeaderWithTitleChange from '@/components/PageHeaderWithTitleChange';
 
 const [title, setTitle] = useState("Page Title");
 
@@ -110,27 +119,27 @@ const [title, setTitle] = useState("Page Title");
     { label: "Section", href: "/section" },
     { label: "Current Page", href: "#", current: true }
   ]}
-/>`}</code>
-            </pre>
+/>`}</SGCodeBlock>
 
-            <h4>Features</h4>
-            <ul>
-              <li>Inline title editing with click-to-edit functionality</li>
-              <li>Breadcrumb navigation integration</li>
-              <li>Optional subtitle support</li>
-              <li>Keyboard navigation (Enter to save, Escape to cancel)</li>
-              <li>Automatic title validation and state management</li>
-              <li>Responsive design for mobile and desktop</li>
-            </ul>
+              <h4>Features</h4>
+              <ul>
+                <li>Inline title editing with click-to-edit functionality</li>
+                <li>Breadcrumb navigation integration</li>
+                <li>Optional subtitle support</li>
+                <li>Keyboard navigation (Enter to save, Escape to cancel)</li>
+                <li>Automatic title validation and state management</li>
+                <li>Responsive design for mobile and desktop</li>
+              </ul>
 
-            <h4>Use Cases</h4>
-            <ul>
-              <li>Project management pages</li>
-              <li>Document editing interfaces</li>
-              <li>User-customizable dashboards</li>
-              <li>Content management systems</li>
-            </ul>
-          </div>
+              <h4>Use Cases</h4>
+              <ul>
+                <li>Project management pages</li>
+                <li>Document editing interfaces</li>
+                <li>User-customizable dashboards</li>
+                <li>Content management systems</li>
+              </ul>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Header */}
@@ -138,9 +147,10 @@ const [title, setTitle] = useState("Page Title");
           <h2>Header</h2>
           <p>Standard page header component for consistent page titles and navigation structure.</p>
 
-          <div className="component-example">
-            <h3>Standard Page Header</h3>
-            <div className="example-demo">
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Standard Page Header" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
               <div
                 style={{
                   border: "1px solid var(--gray-300)",
@@ -182,11 +192,10 @@ const [title, setTitle] = useState("Page Title");
                   }
                 />
               </div>
-            </div>
+              </SGComponentExampleDemo>
 
-            <h4>Usage</h4>
-            <pre>
-              <code>{`import Header from '@/components/Header';
+              <h4>Usage</h4>
+              <SGCodeBlock>{`import Header from '@/components/Header';
 
 <Header
   title="Page Title"
@@ -197,8 +206,7 @@ const [title, setTitle] = useState("Page Title");
       <button>Secondary Action</button>
     </div>
   }
-/>`}</code>
-            </pre>
+/>`}</SGCodeBlock>
 
             <h4>Features</h4>
             <ul>
@@ -209,50 +217,51 @@ const [title, setTitle] = useState("Page Title");
               <li>Typography integration with design system</li>
             </ul>
 
-            <h4>Variants</h4>
-            <div style={{ marginTop: "1rem" }}>
-              {/* Minimal Header */}
-              <div
-                style={{
-                  border: "1px solid var(--gray-300)",
-                  borderRadius: "4px",
-                  overflow: "hidden",
-                  background: "white",
-                  marginBottom: "1rem",
-                }}
-              >
-                <Header title="Simple Header" />
-              </div>
+              <h4>Variants</h4>
+              <div style={{ marginTop: "1rem" }}>
+                {/* Minimal Header */}
+                <div
+                  style={{
+                    border: "1px solid var(--gray-300)",
+                    borderRadius: "4px",
+                    overflow: "hidden",
+                    background: "white",
+                    marginBottom: "1rem",
+                  }}
+                >
+                  <Header title="Simple Header" />
+                </div>
 
-              {/* Header with Actions Only */}
-              <div
-                style={{
-                  border: "1px solid var(--gray-300)",
-                  borderRadius: "4px",
-                  overflow: "hidden",
-                  background: "white",
-                }}
-              >
-                <Header
-                  title="Header with Actions"
-                  actions={
-                    <button
-                      style={{
-                        padding: "0.5rem 1rem",
-                        background: "var(--green-500)",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Save Changes
-                    </button>
-                  }
-                />
+                {/* Header with Actions Only */}
+                <div
+                  style={{
+                    border: "1px solid var(--gray-300)",
+                    borderRadius: "4px",
+                    overflow: "hidden",
+                    background: "white",
+                  }}
+                >
+                  <Header
+                    title="Header with Actions"
+                    actions={
+                      <button
+                        style={{
+                          padding: "0.5rem 1rem",
+                          background: "var(--green-500)",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Save Changes
+                      </button>
+                    }
+                  />
+                </div>
               </div>
-            </div>
-          </div>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Sub Header */}
@@ -260,9 +269,10 @@ const [title, setTitle] = useState("Page Title");
           <h2>Sub Header</h2>
           <p>Secondary header component for section titles and sub-navigation within pages.</p>
 
-          <div className="component-example">
-            <h3>Section Sub Headers</h3>
-            <div className="example-demo">
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Section Sub Headers" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
               <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                 {/* Basic Sub Header */}
                 <div
@@ -324,11 +334,10 @@ const [title, setTitle] = useState("Page Title");
                   />
                 </div>
               </div>
-            </div>
+              </SGComponentExampleDemo>
 
-            <h4>Usage</h4>
-            <pre>
-              <code>{`import SubHeader from '@/components/SubHeader';
+              <h4>Usage</h4>
+              <SGCodeBlock>{`import SubHeader from '@/components/SubHeader';
 
 // Basic sub header
 <SubHeader
@@ -349,8 +358,7 @@ const [title, setTitle] = useState("Page Title");
 <SubHeader
   title="Section Title"
   compact={true}
-/>`}</code>
-            </pre>
+/>`}</SGCodeBlock>
 
             <h4>Use Cases</h4>
             <ul>
@@ -360,7 +368,8 @@ const [title, setTitle] = useState("Page Title");
               <li>Dashboard widget headers</li>
               <li>Tab content headers</li>
             </ul>
-          </div>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Header Patterns */}
@@ -368,9 +377,10 @@ const [title, setTitle] = useState("Page Title");
           <h2>Header Patterns</h2>
           <p>Common patterns for organizing headers and creating clear page hierarchy.</p>
 
-          <div className="component-example">
-            <h3>Hierarchical Header Structure</h3>
-            <div className="example-demo">
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Hierarchical Header Structure" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
               <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
                 {/* Main Page Header */}
                 <div
@@ -434,28 +444,25 @@ const [title, setTitle] = useState("Page Title");
                   />
                 </div>
               </div>
-            </div>
+              </SGComponentExampleDemo>
 
-            <h4>Pattern Guidelines</h4>
-            <div className="guidelines-grid">
-              <div className="guideline-item">
-                <h3>Hierarchy</h3>
-                <p>Use Header for main page titles and SubHeader for section organization within pages.</p>
-              </div>
-              <div className="guideline-item">
-                <h3>Actions Placement</h3>
-                <p>Place primary actions in the main Header, secondary actions in SubHeaders.</p>
-              </div>
-              <div className="guideline-item">
-                <h3>Content Flow</h3>
-                <p>Headers should guide users through the page structure and available actions.</p>
-              </div>
-              <div className="guideline-item">
-                <h3>Responsive Behavior</h3>
-                <p>Headers adapt to mobile screens by stacking elements and adjusting action layouts.</p>
-              </div>
-            </div>
-          </div>
+              <h4>Pattern Guidelines</h4>
+              <SGGuidelinesGrid>
+                <SGGuidelineItem title="Hierarchy">
+                  <p>Use Header for main page titles and SubHeader for section organization within pages.</p>
+                </SGGuidelineItem>
+                <SGGuidelineItem title="Actions Placement">
+                  <p>Place primary actions in the main Header, secondary actions in SubHeaders.</p>
+                </SGGuidelineItem>
+                <SGGuidelineItem title="Content Flow">
+                  <p>Headers should guide users through the page structure and available actions.</p>
+                </SGGuidelineItem>
+                <SGGuidelineItem title="Responsive Behavior">
+                  <p>Headers adapt to mobile screens by stacking elements and adjusting action layouts.</p>
+                </SGGuidelineItem>
+              </SGGuidelinesGrid>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Implementation Guidelines */}

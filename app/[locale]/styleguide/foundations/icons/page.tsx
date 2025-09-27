@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { ContentContainer, LayoutContainer } from "@/components/Container";
 
+import { SGTocGrid, SGTocSection } from "../../shared/components";
 import "../../shared/styleguide.scss";
 
 export default function IconsPage() {
@@ -30,9 +31,8 @@ export default function IconsPage() {
         {/* Table of Contents */}
         <section id="table-of-contents">
           <h2>Contents</h2>
-          <div className="toc-grid">
-            <div className="toc-section">
-              <h3>Icon Usage</h3>
+          <SGTocGrid>
+            <SGTocSection title="Icon Usage">
               <ul>
                 <li>
                   <a href="#icon-philosophy">Our Philosophy</a>
@@ -44,9 +44,8 @@ export default function IconsPage() {
                   <a href="#implementation">Implementation</a>
                 </li>
               </ul>
-            </div>
-            <div className="toc-section">
-              <h3>Guidelines</h3>
+            </SGTocSection>
+            <SGTocSection title="Guidelines">
               <ul>
                 <li>
                   <a href="#accessibility">Accessibility</a>
@@ -58,8 +57,8 @@ export default function IconsPage() {
                   <a href="#alternatives">Alternatives to Icons</a>
                 </li>
               </ul>
-            </div>
-          </div>
+            </SGTocSection>
+          </SGTocGrid>
         </section>
 
         {/* Icon Philosophy */}

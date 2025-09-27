@@ -9,6 +9,15 @@ import ExpandableContentSection from "@/components/ExpandableContentSection";
 import { LayoutWithPanel, SidebarPanel, DrawerPanel, ToolbarContainer } from "@/components/Container";
 import { Button } from "react-aria-components";
 
+import {
+  SGComponentExample,
+  SGComponentExampleHeader,
+  SGComponentExampleContent,
+  SGComponentExampleDemo,
+  SGCodeBlock,
+  SGTocGrid,
+  SGTocSection,
+} from "../../shared/components";
 import "../../shared/styleguide.scss";
 
 export default function LayoutPage() {
@@ -40,115 +49,115 @@ export default function LayoutPage() {
           <h2>Most Common Layout Patterns</h2>
           <p>These are the most frequently used layout patterns in the application, showcasing real-world usage.</p>
 
-          <div className="component-example">
-            <h3 className="sg-section-heading">Standard Page with Sidebar (Most Common)</h3>
-            <div className="example-demo full-bleed">
-              <div
-                style={{
-                  border: "1px solid var(--gray-300)",
-                  borderRadius: "4px",
-                  overflow: "hidden",
-                  minHeight: "500px",
-                }}
-              >
-                <LayoutWithPanel>
-                  <ContentContainer>
-                    <div style={{ padding: "2rem 0" }}>
-                      <h3 className="sg-preserve">Main Content Area</h3>
-                      <p>
-                        This is the most common layout pattern used throughout the application. It combines a main
-                        content area with a sidebar for navigation, tools, or contextual information.
-                      </p>
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Standard Page with Sidebar (Most Common)" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
+                <div
+                  style={{
+                    border: "1px solid var(--gray-300)",
+                    borderRadius: "4px",
+                    overflow: "hidden",
+                    minHeight: "500px",
+                  }}
+                >
+                  <LayoutWithPanel>
+                    <ContentContainer>
+                      <div style={{ padding: "2rem 0" }}>
+                        <h3 className="sg-preserve">Main Content Area</h3>
+                        <p>
+                          This is the most common layout pattern used throughout the application. It combines a main
+                          content area with a sidebar for navigation, tools, or contextual information.
+                        </p>
 
-                      <div style={{ marginTop: "2rem" }}>
-                        <h4 className="sg-preserve">Key Features:</h4>
-                        <ul>
-                          <li>
-                            <strong>Responsive:</strong> Sidebar becomes drawer on mobile
-                          </li>
-                          <li>
-                            <strong>Flexible:</strong> Content adapts to available space
-                          </li>
-                          <li>
-                            <strong>Consistent:</strong> Used across admin, account, template pages
-                          </li>
-                          <li>
-                            <strong>Accessible:</strong> Proper focus management and ARIA labels
-                          </li>
-                        </ul>
-                      </div>
+                        <div style={{ marginTop: "2rem" }}>
+                          <h4 className="sg-preserve">Key Features:</h4>
+                          <ul>
+                            <li>
+                              <strong>Responsive:</strong> Sidebar becomes drawer on mobile
+                            </li>
+                            <li>
+                              <strong>Flexible:</strong> Content adapts to available space
+                            </li>
+                            <li>
+                              <strong>Consistent:</strong> Used across admin, account, template pages
+                            </li>
+                            <li>
+                              <strong>Accessible:</strong> Proper focus management and ARIA labels
+                            </li>
+                          </ul>
+                        </div>
 
-                      <div
-                        style={{
-                          marginTop: "2rem",
-                          padding: "1.5rem",
-                          background: "var(--gray-75)",
-                          borderRadius: "4px",
-                        }}
-                      >
-                        <h5 className="sg-preserve">Real Usage Examples:</h5>
-                        <ul style={{ margin: "0.5rem 0 0 0" }}>
-                          <li>Admin dashboard pages</li>
-                          <li>Account settings pages</li>
-                          <li>Template management</li>
-                          <li>Project overview pages</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </ContentContainer>
-
-                  <SidebarPanel isOpen={true}>
-                    <div style={{ padding: "2rem 0" }}>
-                      <h4 className="sg-preserve">Sidebar Content</h4>
-                      <p>Typical sidebar contains navigation, quick actions, or contextual information.</p>
-
-                      <div style={{ marginTop: "1.5rem" }}>
-                        <h5 className="sg-preserve">Navigation</h5>
-                        <ul style={{ listStyle: "none", padding: 0, margin: "0.5rem 0" }}>
-                          <li style={{ padding: "0.5rem 0" }}>
-                            <a
-                              href="#"
-                              style={{ color: "var(--blue-600)", textDecoration: "none", fontSize: "0.875rem" }}
-                            >
-                              Dashboard
-                            </a>
-                          </li>
-                          <li style={{ padding: "0.5rem 0" }}>
-                            <a
-                              href="#"
-                              style={{ color: "var(--blue-600)", textDecoration: "none", fontSize: "0.875rem" }}
-                            >
-                              Projects
-                            </a>
-                          </li>
-                          <li style={{ padding: "0.5rem 0" }}>
-                            <a
-                              href="#"
-                              style={{ color: "var(--blue-600)", textDecoration: "none", fontSize: "0.875rem" }}
-                            >
-                              Templates
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-
-                      <div style={{ marginTop: "1.5rem" }}>
-                        <h5 className="sg-preserve">Quick Actions</h5>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                          <Button className="secondary small">New Project</Button>
-                          <Button className="secondary small">Import Data</Button>
-                          <Button className="secondary small">Export Report</Button>
+                        <div
+                          style={{
+                            marginTop: "2rem",
+                            padding: "1.5rem",
+                            background: "var(--gray-75)",
+                            borderRadius: "4px",
+                          }}
+                        >
+                          <h5 className="sg-preserve">Real Usage Examples:</h5>
+                          <ul style={{ margin: "0.5rem 0 0 0" }}>
+                            <li>Admin dashboard pages</li>
+                            <li>Account settings pages</li>
+                            <li>Template management</li>
+                            <li>Project overview pages</li>
+                          </ul>
                         </div>
                       </div>
-                    </div>
-                  </SidebarPanel>
-                </LayoutWithPanel>
-              </div>
-            </div>
+                    </ContentContainer>
 
-            <h4>Implementation Code</h4>
-            <pre>
-              <code>{`import { LayoutWithPanel, ContentContainer, SidebarPanel } from '@/components/Container';
+                    <SidebarPanel isOpen={true}>
+                      <div style={{ padding: "2rem 0" }}>
+                        <h4 className="sg-preserve">Sidebar Content</h4>
+                        <p>Typical sidebar contains navigation, quick actions, or contextual information.</p>
+
+                        <div style={{ marginTop: "1.5rem" }}>
+                          <h5 className="sg-preserve">Navigation</h5>
+                          <ul style={{ listStyle: "none", padding: 0, margin: "0.5rem 0" }}>
+                            <li style={{ padding: "0.5rem 0" }}>
+                              <a
+                                href="#"
+                                style={{ color: "var(--blue-600)", textDecoration: "none", fontSize: "0.875rem" }}
+                              >
+                                Dashboard
+                              </a>
+                            </li>
+                            <li style={{ padding: "0.5rem 0" }}>
+                              <a
+                                href="#"
+                                style={{ color: "var(--blue-600)", textDecoration: "none", fontSize: "0.875rem" }}
+                              >
+                                Projects
+                              </a>
+                            </li>
+                            <li style={{ padding: "0.5rem 0" }}>
+                              <a
+                                href="#"
+                                style={{ color: "var(--blue-600)", textDecoration: "none", fontSize: "0.875rem" }}
+                              >
+                                Templates
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+
+                        <div style={{ marginTop: "1.5rem" }}>
+                          <h5 className="sg-preserve">Quick Actions</h5>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                            <Button className="secondary small">New Project</Button>
+                            <Button className="secondary small">Import Data</Button>
+                            <Button className="secondary small">Export Report</Button>
+                          </div>
+                        </div>
+                      </div>
+                    </SidebarPanel>
+                  </LayoutWithPanel>
+                </div>
+              </SGComponentExampleDemo>
+
+              <h4>Implementation Code</h4>
+              <SGCodeBlock>{`import { LayoutWithPanel, ContentContainer, SidebarPanel } from '@/components/Container';
 
 // This is the most common pattern used across the app
 <LayoutWithPanel>
@@ -175,9 +184,9 @@ export default function LayoutPage() {
       <Button>Settings</Button>
     </div>
   </SidebarPanel>
-</LayoutWithPanel>`}</code>
-            </pre>
-          </div>
+</LayoutWithPanel>`}</SGCodeBlock>
+            </SGComponentExampleContent>
+          </SGComponentExample>
 
           <div className="component-example">
             <h3>Full-Width Content (No Sidebar)</h3>
@@ -265,9 +274,8 @@ export default function LayoutPage() {
         {/* Table of Contents */}
         <section id="table-of-contents">
           <h2>Contents</h2>
-          <div className="toc-grid">
-            <div className="toc-section">
-              <h3>Basic Containers</h3>
+          <SGTocGrid>
+            <SGTocSection title="Basic Containers">
               <ul>
                 <li>
                   <a href="#layout-container">Layout Container</a>
@@ -279,9 +287,8 @@ export default function LayoutPage() {
                   <a href="#toolbar-container">Toolbar Container</a>
                 </li>
               </ul>
-            </div>
-            <div className="toc-section">
-              <h3>Panel Layouts</h3>
+            </SGTocSection>
+            <SGTocSection title="Panel Layouts">
               <ul>
                 <li>
                   <a href="#layout-with-panel">Layout With Panel</a>
@@ -293,9 +300,8 @@ export default function LayoutPage() {
                   <a href="#drawer-panel">Drawer Panel</a>
                 </li>
               </ul>
-            </div>
-            <div className="toc-section">
-              <h3>Content Organization</h3>
+            </SGTocSection>
+            <SGTocSection title="Content Organization">
               <ul>
                 <li>
                   <a href="#expandable-content">Expandable Content Section</a>
@@ -304,8 +310,8 @@ export default function LayoutPage() {
                   <a href="#layout-patterns">Complete Layout Examples</a>
                 </li>
               </ul>
-            </div>
-          </div>
+            </SGTocSection>
+          </SGTocGrid>
         </section>
 
         {/* Layout Container */}
