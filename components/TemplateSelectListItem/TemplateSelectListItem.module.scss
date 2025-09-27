@@ -2,8 +2,8 @@
 
 
 .templateItem {
-  padding: 1.25rem 1rem;
-  margin-bottom: 1rem;
+  padding: var(--space-5) var(--space-4);
+  margin-bottom: var(--space-4);
   border-radius: var(--card-border-radius);
   background: var(--bg-white);
   box-shadow: var(--card-shadow);
@@ -29,44 +29,51 @@
 }
 
 .funder {
-  color: var(--slate-500);
+  color: var(--text-color-base);
   font-size: var(--fs-small);
   margin-bottom: var(--space-2);
+  font-weight: var(--fw-medium);
 }
 
 .TemplateItemHeading {
   padding: 0;
-  margin: 0 0 0.5rem;
-
+  margin: 0 0 var(--space-2);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  color: var(--heading-color);
+  line-height: var(--lh-tight);
 }
 
 .description {
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
+  color: var(--text-color);
+  font-size: var(--fs-base);
+  line-height: var(--lh-normal);
 }
 
 .metadata {
-  color: var(--slate-500);
+  color: var(--text-color-base);
   font-size: var(--fs-small);
+  line-height: var(--lh-normal);
 
   span {
     display: block;
-    margin-bottom: 0.25rem;
+    margin-bottom: var(--space-1);
   }
 
   .separator:before {
     content: "";
   }
 
-
   @include r.device(sm) {
     span {
       display: inline-block;
-      margin-bottom: 0rem;
+      margin-bottom: 0;
     }
 
     .separator:before {
       content: "•";
-      margin: 0 0.5rem;
+      margin: 0 var(--space-2);
     }
   }
 }
@@ -74,22 +81,93 @@
 .guidance {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-  color: var(--slate-900);
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  color: var(--heading-color);
+  font-size: var(--fs-small);
+  font-weight: var(--fw-medium);
 }
 
 .updateLink {
-  color: var(--slate-900) !important;
+  color: var(--link-color) !important;
   text-decoration: underline;
   font-size: var(--fs-base);
-  line-height: 1;
-  font-family: var(--font-sans);
+  line-height: var(--lh-normal);
+  font-family: var(--font-family-body);
+  font-weight: var(--fw-medium);
+
+  &:hover {
+    color: var(--link-hover-color) !important;
+  }
+
+  &:focus {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
 }
 
 .titleLink {
-  color: var(--slate-900) !important;
+  color: var(--link-color) !important;
+  text-decoration: none;
+
   &:hover {
+    color: var(--link-hover-color) !important;
     text-decoration: underline;
+  }
+
+  &:focus {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// Button styling for the select button
+.TemplateItemActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  @include r.device(sm) {
+    flex-shrink: 0;
+  }
+}
+
+// Ensure the select button uses proper styling
+.selectButton {
+  display: inline-flex;
+  padding: var(--space-2) var(--space-4);
+  border-radius: 2rem;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: none;
+  position: relative;
+  background: var(--slate-900);
+  color: var(--bg-white);
+  align-items: center;
+  font-family: var(--font-family-body);
+
+  &:visited {
+    color: var(--bg-white);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(1.05);
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--blue-500);
+    color: var(--bg-white);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &[data-focus-visible] {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: -1px;
   }
 }

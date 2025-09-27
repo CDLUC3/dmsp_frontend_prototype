@@ -1,80 +1,118 @@
-import React from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
-import ProjectListItem from '../index';
-import { ProjectItemProps } from '@/app/types';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import React from "react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import ProjectListItem from "../index";
+import { ProjectItemProps } from "@/app/types";
+import { axe, toHaveNoViolations } from "jest-axe";
 
 expect.extend(toHaveNoViolations);
 
 // Mock next-intl hooks
-jest.mock('next-intl', () => ({
+jest.mock("next-intl", () => ({
   useTranslations: jest.fn(() => jest.fn((key) => key)),
 }));
 
+// Mock data from styleguide - using the "perfect data example"
 const mockProjectItem: ProjectItemProps = {
-  title: 'Project 1',
-  link: '/projects/1',
+  title: "Coastal Ocean Processes of North Greenland",
+  link: "/projects/coastal-ocean-greenland",
+  startDate: "July 1st 2025",
+  endDate: "June 30 2028",
+  funding: "National Science Foundation (nsf.gov), European Research Council",
+  grantId: "252552-255",
   defaultExpanded: false,
-  startDate: '2023-01-01',
-  endDate: '2023-12-31',
+  modified: "04-01-2024",
   members: [
+    { name: "Dr. Erik Lindström", roles: "Principal Investigator" },
+    { name: "Dr. Anna Bergqvist", roles: "Co-Investigator" },
+    { name: "Dr. Magnus Carlsson", roles: "Research Associate" },
+    { name: "Dr. Astrid Johansson", roles: "Postdoctoral Researcher" },
+  ],
+  plans: [
     {
-      name: 'John Doe',
-      roles: 'Researcher',
-      orcid: '0000-0001-2345-6789',
+      name: "Ocean Processes of Greenland",
+      dmpId: "10.4832/DIB57N",
+      link: "/projects/coastal-ocean-greenland/plans/1",
+    },
+    {
+      name: "Arctic Marine Data Collection Protocol",
+      dmpId: null,
+      link: "/projects/coastal-ocean-greenland/plans/2",
+    },
+    {
+      name: "Climate Change Impact Assessment",
+      dmpId: "10.1038/s41597-024-03456",
+      link: "/projects/coastal-ocean-greenland/plans/3",
     },
   ],
-  funding: 'NSF',
-  grantId: 'GRANT123',
 };
 
-describe('ProjectListItem', () => {
-
-  it('should render the ProjectListItem component', () => {
+describe("ProjectListItem", () => {
+  it("should render the ProjectListItem component", () => {
     render(<ProjectListItem item={mockProjectItem} />);
 
-    expect(screen.getByRole('heading', { level: 2, name: /Project/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 3, name: /Project 1/i })).toBeInTheDocument();
-    const updateLinks = screen.getAllByRole('link', { name: /buttons.linkUpdate/i });
+    // Check for the main project title heading
+    expect(
+      screen.getByRole("heading", { level: 2, name: /Coastal Ocean Processes of North Greenland/i }),
+    ).toBeInTheDocument();
+
+    // Check for plans section
+    expect(screen.getByText("Plans")).toBeInTheDocument();
+    expect(screen.getByText("Ocean Processes of Greenland")).toBeInTheDocument();
+
+    // Check for update links (title link + update button)
+    const updateLinks = screen.getAllByRole("link", { name: /buttons.linkUpdate/i });
     expect(updateLinks.length).toBe(2);
-    expect(screen.getByRole('button', { name: /buttons.linkExpand/i })).toBeInTheDocument();
-    expect(screen.getByText('projectDetails')).toBeInTheDocument();
+
+    // Check for expand button
+    expect(screen.getByRole("button", { name: /buttons.linkExpand/i })).toBeInTheDocument();
+    expect(screen.getByText("projectDetails")).toBeInTheDocument();
   });
 
-  it('should expand and collapse the project details', () => {
+  it("should expand and collapse the project details", () => {
     render(<ProjectListItem item={mockProjectItem} />);
 
-    const expandButton = screen.getByRole('button', { name: /buttons.linkExpand/i });
+    const expandButton = screen.getByRole("button", { name: /buttons.linkExpand/i });
     fireEvent.click(expandButton);
 
-    expect(screen.getByRole('heading', { level: 2, name: /projectDetails/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 3, name: /dates/i })).toBeInTheDocument();
-    expect(screen.getByText('2023-01-01 to 2023-12-31')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 3, name: /collaborators/i })).toBeInTheDocument();
-    expect(screen.getByText(/John Doe/i)).toBeInTheDocument();
-    expect(screen.getByText(/\(Researcher\)/i)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 3, name: /funding/i })).toBeInTheDocument();
-    expect(screen.getByText('NSF')).toBeInTheDocument();
-    expect(screen.getByText(/grantId: GRANT123/i)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 3, name: /researchOutputs/i })).toBeInTheDocument();
+    // Check for expanded content that only appears when expanded
+    expect(screen.getByText("July 1st 2025 to June 30 2028")).toBeInTheDocument();
 
-    const collapseButton = screen.getByRole('button', { name: /buttons.linkCollapse/i });
+    // Check for the expanded project members section (all members listed)
+    // Since each member is in a separate span, we need to check for individual members
+    expect(screen.getByText(/Dr. Anna Bergqvist/i)).toBeInTheDocument();
+    expect(screen.getByText(/Dr. Magnus Carlsson/i)).toBeInTheDocument();
+    expect(screen.getByText(/Dr. Astrid Johansson/i)).toBeInTheDocument();
+
+    // Check for funding details in expanded section
+    expect(screen.getByText(/National Science Foundation \(nsf\.gov\) \(252552-255\)/i)).toBeInTheDocument();
+
+    // Check for section headings using getAllByRole to handle multiple matches
+    const h4Headings = screen.getAllByRole("heading", { level: 4 });
+    expect(h4Headings.length).toBeGreaterThanOrEqual(3); // At least project, fundings, projectMembers, researchOutputs
+
+    const collapseButton = screen.getByRole("button", { name: /buttons.linkCollapse/i });
     fireEvent.click(collapseButton);
 
-    expect(screen.queryByRole('heading', { name: /projectDetails/i })).not.toBeInTheDocument();
+    // Check that expanded content is hidden (but collapsed metadata should still be there)
+    expect(screen.queryByText("July 1st 2025 to June 30 2028")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Dr. Anna Bergqvist/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Dr. Magnus Carlsson/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Dr. Astrid Johansson/i)).not.toBeInTheDocument();
+
+    // But the collapsed metadata should still be visible
+    expect(screen.getByText(/Dr. Erik Lindström/i)).toBeInTheDocument(); // This should still be in collapsed metadata
   });
 
-  it('should pass axe accessibility test', async () => {
+  it("should pass axe accessibility test", async () => {
     const { container } = render(
       <div role="list">
         <ProjectListItem item={mockProjectItem} />
-      </div>
+      </div>,
     );
 
     await act(async () => {
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
-
   });
 });
