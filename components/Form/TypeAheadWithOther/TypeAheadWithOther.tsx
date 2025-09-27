@@ -20,8 +20,8 @@ export type TypeAheadInputProps = {
   helpText?: string;
   setOtherField: (value: boolean) => void;
   fieldName: string;
-  required: boolean;
-  requiredVisualOnly?: boolean;
+  isRequired?: boolean;
+  isRequiredVisualOnly?: boolean;
   error?: string;
   updateFormData: (id: string, value: string) => void; //Function to update the typeahead field value in the parent form data
   value?: string;
@@ -43,13 +43,17 @@ const TypeAheadWithOther = ({
   className,
   suggestions,
   onSearch,
-  required=false,
-  requiredVisualOnly=false,
+  isRequired=false,
+  isRequiredVisualOnly=false,
   otherText = "Other",
 }: TypeAheadInputProps) => {
 
-  const t = useTranslations('Global.labels');
-  const showRequired = required || requiredVisualOnly;
+  const showRequired = isRequired || isRequiredVisualOnly;
+
+  // TODO::FIXME:: For some reason the useTranslations function below returns
+  // undefined (or something else)
+  // const Global = useTranslations('Global.labels');
+
   const [inputValue, setInputValue] = useState<string>(value ?? "");
   const [showSuggestionSpinner, setShowSuggestionSpinner] = useState(false);
   const [currentListItemFocused, setCurrentListItemFocused] = useState(-1);
@@ -205,7 +209,7 @@ const TypeAheadWithOther = ({
       >
         <Label>
           {label}
-          {showRequired && <span className="is-required" aria-hidden="true">({t('required')})</span>}
+          {showRequired && <span className="is-required" aria-hidden="true">(required{/*Global('required')*/})</span>}
         </Label>
         <Input
           name={fieldName}

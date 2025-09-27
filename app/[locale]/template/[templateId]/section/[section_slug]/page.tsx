@@ -380,7 +380,7 @@ const SectionUpdatePage: React.FC = () => {
                       name="sectionName"
                       id="sectionName"
                       type="text"
-                      isRequired={true}
+                      isRequiredVisualOnly={true}
                       label={Section('labels.sectionName')}
                       value={sectionData.sectionName ? sectionData.sectionName : ''}
                       onChange={(e) => handleSectionNameChange({

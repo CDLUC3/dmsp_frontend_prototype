@@ -1611,7 +1611,7 @@ function Page() {
               label="Institution"
               fieldName="institution"
               setOtherField={setOtherField}
-              required={true}
+              isRequired={true}
               helpText="Search for your primary institution"
               updateFormData={(id, value) => handleInputChange('institution', value)}
               value={formData.institution}
@@ -1623,7 +1623,6 @@ function Page() {
               label="Collaborating Institution"
               fieldName="collaboratingInstitution"
               setOtherField={setOtherField}
-              required={false}
               helpText="Search for any collaborating institutions (optional)"
               updateFormData={(id, value) => handleInputChange('collaboratingInstitution', value)}
               value={formData.collaboratingInstitution}
@@ -1948,7 +1947,7 @@ function Page() {
                 label="Institution"
                 fieldName="institution"
                 setOtherField={setOtherField}
-                required={true}
+                isRequired={true}
                 helpText="Search for your institution"
                 updateFormData={() => console.log('updating form')}
                 value="UCOP"

@@ -1,10 +1,14 @@
 import React from 'react';
-import "@testing-library/jest-dom";
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+
+import { render, screen, fireEvent, waitFor, act } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 
 import { TypeAheadWithOther } from '@/components/Form/TypeAheadWithOther';
 import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
+
+
+expect.extend(toHaveNoViolations);
+
 
 jest.mock('@/lib/graphql/client/apollo-client');
 jest.mock('@/utils/clientLogger', () => ({
@@ -12,12 +16,11 @@ jest.mock('@/utils/clientLogger', () => ({
   default: jest.fn(),
 }));
 
-expect.extend(toHaveNoViolations);
 const mockSetOtherField = jest.fn();
 const mockOnSearch = jest.fn();
 
-describe('TypeAheadWithOther', () => {
 
+describe('TypeAheadWithOther', () => {
   beforeEach(() => {
     jest.useFakeTimers();
   });
@@ -34,7 +37,6 @@ describe('TypeAheadWithOther', () => {
         helpText="Search for an institution"
         setOtherField={mockSetOtherField}
         fieldName="test"
-        required={false}
         error=""
         updateFormData={() => true}
         value="text"
@@ -43,7 +45,7 @@ describe('TypeAheadWithOther', () => {
       />
     );
 
-    expect(screen.getByLabelText('Institution')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Institution/)).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Type to search...')).toBeInTheDocument();
     expect(screen.getByText('Search for an institution')).toBeInTheDocument();
   });
@@ -55,7 +57,6 @@ describe('TypeAheadWithOther', () => {
         helpText="Search for an institution"
         setOtherField={mockSetOtherField}
         fieldName="test"
-        required={false}
         error=""
         updateFormData={() => true}
         value="input value"
@@ -76,7 +77,6 @@ describe('TypeAheadWithOther', () => {
         helpText="Search for an institution"
         setOtherField={mockSetOtherField}
         fieldName="test"
-        required={false}
         error=""
         updateFormData={() => true}
         value="input value"
@@ -85,7 +85,7 @@ describe('TypeAheadWithOther', () => {
       />
     );
 
-    const input = screen.getByLabelText('Institution');
+    const input = screen.getByLabelText(/Institution/);
 
     act(() => { //make sure all updates related to React are completed
       fireEvent.change(input, { target: { value: 'Test' } });
@@ -109,7 +109,7 @@ describe('TypeAheadWithOther', () => {
         helpText="Search for an institution"
         setOtherField={mockSetOtherField}
         fieldName="test"
-        required={false}
+        isRequired={true}
         error="Institution field is required"
         updateFormData={() => true}
         value="input value"
@@ -118,7 +118,7 @@ describe('TypeAheadWithOther', () => {
       />
     );
 
-    const input = screen.getByLabelText('Institution');
+    const input = screen.getByLabelText(/Institution/);
 
     act(() => { //make sure all updates related to React are completed
       fireEvent.change(input, { target: { value: '  ' } });
@@ -139,7 +139,6 @@ describe('TypeAheadWithOther', () => {
         helpText="Search for an institution"
         setOtherField={mockSetOtherField}
         fieldName="test"
-        required={false}
         error=""
         updateFormData={mockUpdateFormData}
         value="Initial Value" // Start with a value
@@ -175,7 +174,6 @@ describe('TypeAheadWithOther', () => {
         label="Institution"
         setOtherField={mockSetOtherField}
         fieldName="test"
-        required={false}
         updateFormData={mockUpdateFormData}
         suggestions={mocksAffiliations}
         onSearch={mockOnSearch}
@@ -202,7 +200,6 @@ describe('TypeAheadWithOther', () => {
         label="Institution"
         setOtherField={mockSetOtherField}
         fieldName="test"
-        required={false}
         updateFormData={mockUpdateFormData}
         suggestions={mocksAffiliations}
         onSearch={mockOnSearch}
@@ -246,7 +243,6 @@ describe('TypeAheadWithOther', () => {
         helpText="Search for an institution"
         setOtherField={mockSetOtherField}
         fieldName="test"
-        required={false}
         error=""
         updateFormData={mockUpdateFormData}
         value="input value"
@@ -284,7 +280,6 @@ describe('TypeAheadWithOther', () => {
         helpText="Search for an institution"
         setOtherField={mockSetOtherField}
         fieldName="test"
-        required={false}
         error=""
         updateFormData={() => true}
         otherText="Other(organization not listed)"
@@ -324,7 +319,6 @@ describe('TypeAheadWithOther', () => {
           helpText="Search for an institution"
           setOtherField={mockSetOtherField}
           fieldName="test"
-          required={false}
           error=""
           updateFormData={() => true}
           value="input value"
@@ -375,13 +369,13 @@ describe('TypeAheadWithOther', () => {
         value="input value"
         suggestions={mocksAffiliations}
         onSearch={mockOnSearch}
-        required={true}
+        isRequired={true}
       />
     );
 
     expect(screen.getByText('Institution')).toBeInTheDocument();
-    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
-    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
+    expect(screen.getByText(/required/)).toBeInTheDocument();
+    expect(screen.getByText(/required/)).toHaveClass('is-required');
   });
 
   it('should allow for requiredVisualOnly', () => {
@@ -391,18 +385,17 @@ describe('TypeAheadWithOther', () => {
         helpText="Search for an institution"
         setOtherField={mockSetOtherField}
         fieldName="test"
-        required={false}
         error=""
         updateFormData={() => true}
         value="input value"
         suggestions={mocksAffiliations}
         onSearch={mockOnSearch}
-        requiredVisualOnly={true}
+        isRequiredVisualOnly={true}
       />
     );
 
     expect(screen.getByText('Institution')).toBeInTheDocument();
-    expect(screen.queryByText(/\(required\)/)).toBeInTheDocument();
-    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
+    expect(screen.queryByText(/required/)).toBeInTheDocument();
+    expect(screen.getByText(/required/)).toHaveClass('is-required');
   });
 });
