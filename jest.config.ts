@@ -15,6 +15,10 @@ const customJestConfig = {
     '^@fortawesome/.*$': '<rootDir>/__mocks__/styleMock.js',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/app/\\[locale\\]/styleguide/'
+  ],
   collectCoverage: true,
   collectCoverageFrom: [
     "app/**",  // Include all pages
