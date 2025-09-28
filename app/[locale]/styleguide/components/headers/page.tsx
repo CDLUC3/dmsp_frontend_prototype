@@ -6,8 +6,7 @@ import { ContentContainer, LayoutContainer } from "@/components/Container";
 
 // Import header components
 import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
-import Header from "@/components/Header";
-import SubHeader from "@/components/SubHeader";
+import PageHeader from "@/components/PageHeader";
 
 import {
   SGComponentExample,
@@ -90,12 +89,22 @@ export default function HeadersPage() {
                   <PageHeaderWithTitleChange
                     title={pageTitle}
                     onTitleChange={setPageTitle}
-                    subtitle="Manage your research data and documentation"
-                    breadcrumbs={[
-                      { label: "Dashboard", href: "/dashboard" },
-                      { label: "Projects", href: "/projects" },
-                      { label: "Current Project", href: "#", current: true },
-                    ]}
+                    description="Manage your research data and documentation"
+                    linkText="Edit title"
+                    labelText="Page title"
+                    showBackButton={false}
+                    breadcrumbs={
+                      <nav
+                        className="breadcrumbs"
+                        aria-label="Breadcrumb"
+                      >
+                        <Link href="/dashboard">Dashboard</Link>
+                        <span aria-hidden="true"> / </span>
+                        <Link href="/projects">Projects</Link>
+                        <span aria-hidden="true"> / </span>
+                        <span aria-current="page">Current Project</span>
+                      </nav>
+                    }
                   />
                 </div>
                 <p style={{ marginTop: "1rem" }}>
@@ -113,12 +122,19 @@ const [title, setTitle] = useState("Page Title");
 <PageHeaderWithTitleChange
   title={title}
   onTitleChange={setTitle}
-  subtitle="Optional page description"
-  breadcrumbs={[
-    { label: "Home", href: "/" },
-    { label: "Section", href: "/section" },
-    { label: "Current Page", href: "#", current: true }
-  ]}
+  description="Optional page description"
+  linkText="Edit title"
+  labelText="Page title"
+  showBackButton={false}
+  breadcrumbs={
+    <nav className="breadcrumbs" aria-label="Breadcrumb">
+      <Link href="/">Home</Link>
+      <span aria-hidden="true"> / </span>
+      <Link href="/section">Section</Link>
+      <span aria-hidden="true"> / </span>
+      <span aria-current="page">Current Page</span>
+    </nav>
+  }
 />`}</SGCodeBlock>
 
               <h4>Features</h4>
@@ -151,55 +167,35 @@ const [title, setTitle] = useState("Page Title");
             <SGComponentExampleHeader title="Standard Page Header" />
             <SGComponentExampleContent>
               <SGComponentExampleDemo>
-              <div
-                style={{
-                  border: "1px solid var(--gray-300)",
-                  borderRadius: "4px",
-                  overflow: "hidden",
-                  background: "white",
-                }}
-              >
-                <Header
-                  title="Data Management Plans"
-                  subtitle="Create and manage your research data management plans"
-                  actions={
-                    <div style={{ display: "flex", gap: "0.5rem" }}>
-                      <button
-                        style={{
-                          padding: "0.5rem 1rem",
-                          background: "var(--blue-500)",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                        }}
-                      >
-                        New Plan
-                      </button>
-                      <button
-                        style={{
-                          padding: "0.5rem 1rem",
-                          background: "transparent",
-                          color: "var(--blue-500)",
-                          border: "1px solid var(--blue-500)",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Import
-                      </button>
-                    </div>
-                  }
-                />
-              </div>
+                <div
+                  style={{
+                    border: "1px solid var(--gray-300)",
+                    borderRadius: "4px",
+                    overflow: "hidden",
+                    background: "white",
+                  }}
+                >
+                  <PageHeader
+                    title="Data Management Plans"
+                    description="Create and manage your research data management plans"
+                    showBackButton={false}
+                    actions={
+                      <div style={{ display: "flex", gap: "0.5rem" }}>
+                        <button className="primary">New Plan</button>
+                        <button className="secondary">Import</button>
+                      </div>
+                    }
+                  />
+                </div>
               </SGComponentExampleDemo>
 
               <h4>Usage</h4>
-              <SGCodeBlock>{`import Header from '@/components/Header';
+              <SGCodeBlock>{`import PageHeader from '@/components/PageHeader';
 
-<Header
+<PageHeader
   title="Page Title"
-  subtitle="Optional page description or context"
+  description="Optional page description or context"
+  showBackButton={false}
   actions={
     <div>
       <button>Primary Action</button>
@@ -208,14 +204,14 @@ const [title, setTitle] = useState("Page Title");
   }
 />`}</SGCodeBlock>
 
-            <h4>Features</h4>
-            <ul>
-              <li>Clean, consistent header layout</li>
-              <li>Optional subtitle for additional context</li>
-              <li>Flexible actions area for buttons and controls</li>
-              <li>Responsive design with proper spacing</li>
-              <li>Typography integration with design system</li>
-            </ul>
+              <h4>Features</h4>
+              <ul>
+                <li>Clean, consistent header layout</li>
+                <li>Optional subtitle for additional context</li>
+                <li>Flexible actions area for buttons and controls</li>
+                <li>Responsive design with proper spacing</li>
+                <li>Typography integration with design system</li>
+              </ul>
 
               <h4>Variants</h4>
               <div style={{ marginTop: "1rem" }}>
@@ -229,7 +225,10 @@ const [title, setTitle] = useState("Page Title");
                     marginBottom: "1rem",
                   }}
                 >
-                  <Header title="Simple Header" />
+                  <PageHeader
+                    title="Simple Header"
+                    showBackButton={false}
+                  />
                 </div>
 
                 {/* Header with Actions Only */}
@@ -241,8 +240,9 @@ const [title, setTitle] = useState("Page Title");
                     background: "white",
                   }}
                 >
-                  <Header
+                  <PageHeader
                     title="Header with Actions"
+                    showBackButton={false}
                     actions={
                       <button
                         style={{
@@ -273,101 +273,101 @@ const [title, setTitle] = useState("Page Title");
             <SGComponentExampleHeader title="Section Sub Headers" />
             <SGComponentExampleContent>
               <SGComponentExampleDemo>
-              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                {/* Basic Sub Header */}
-                <div
-                  style={{
-                    border: "1px solid var(--gray-300)",
-                    borderRadius: "4px",
-                    overflow: "hidden",
-                    background: "white",
-                  }}
-                >
-                  <SubHeader
-                    title="Project Settings"
-                    description="Configure project preferences and team access"
-                  />
-                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                  {/* Basic Sub Header */}
+                  <div
+                    style={{
+                      border: "1px solid var(--gray-300)",
+                      borderRadius: "4px",
+                      overflow: "hidden",
+                      background: "white",
+                    }}
+                  >
+                    <div style={{ padding: "1rem", borderBottom: "1px solid var(--gray-200)" }}>
+                      <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "1.125rem", fontWeight: "600" }}>
+                        Project Settings
+                      </h3>
+                      <p style={{ margin: "0", color: "var(--gray-600)", fontSize: "0.875rem" }}>
+                        Configure project preferences and team access
+                      </p>
+                    </div>
+                  </div>
 
-                {/* Sub Header with Actions */}
-                <div
-                  style={{
-                    border: "1px solid var(--gray-300)",
-                    borderRadius: "4px",
-                    overflow: "hidden",
-                    background: "white",
-                  }}
-                >
-                  <SubHeader
-                    title="Team Members"
-                    description="Manage project collaborators and permissions"
-                    actions={
-                      <button
-                        style={{
-                          padding: "0.5rem 1rem",
-                          background: "var(--blue-500)",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                          fontSize: "0.875rem",
-                        }}
-                      >
-                        Add Member
-                      </button>
-                    }
-                  />
-                </div>
+                  {/* Sub Header with Actions */}
+                  <div
+                    style={{
+                      border: "1px solid var(--gray-300)",
+                      borderRadius: "4px",
+                      overflow: "hidden",
+                      background: "white",
+                    }}
+                  >
+                    <div
+                      style={{
+                        padding: "1rem",
+                        borderBottom: "1px solid var(--gray-200)",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <div>
+                        <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "1.125rem", fontWeight: "600" }}>
+                          Team Members
+                        </h3>
+                        <p style={{ margin: "0", color: "var(--gray-600)", fontSize: "0.875rem" }}>
+                          Manage project collaborators and permissions
+                        </p>
+                      </div>
+                      <button className="primary small">Add Member</button>
+                    </div>
+                  </div>
 
-                {/* Compact Sub Header */}
-                <div
-                  style={{
-                    border: "1px solid var(--gray-300)",
-                    borderRadius: "4px",
-                    overflow: "hidden",
-                    background: "white",
-                  }}
-                >
-                  <SubHeader
-                    title="Quick Actions"
-                    compact={true}
-                  />
+                  {/* Compact Sub Header */}
+                  <div
+                    style={{
+                      border: "1px solid var(--gray-300)",
+                      borderRadius: "4px",
+                      overflow: "hidden",
+                      background: "white",
+                    }}
+                  >
+                    <div style={{ padding: "0.75rem 1rem", borderBottom: "1px solid var(--gray-200)" }}>
+                      <h3 style={{ margin: "0", fontSize: "1rem", fontWeight: "600" }}>Quick Actions</h3>
+                    </div>
+                  </div>
                 </div>
-              </div>
               </SGComponentExampleDemo>
 
               <h4>Usage</h4>
-              <SGCodeBlock>{`import SubHeader from '@/components/SubHeader';
-
-// Basic sub header
-<SubHeader
-  title="Section Title"
-  description="Optional section description"
-/>
+              <SGCodeBlock>{`// Basic sub header
+<div style={{ padding: "1rem", borderBottom: "1px solid var(--gray-200)" }}>
+  <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "1.125rem", fontWeight: "600" }}>Section Title</h3>
+  <p style={{ margin: "0", color: "var(--gray-600)", fontSize: "0.875rem" }}>Optional section description</p>
+</div>
 
 // Sub header with actions
-<SubHeader
-  title="Section Title"
-  description="Section description"
-  actions={
-    <button>Section Action</button>
-  }
-/>
+<div style={{ padding: "1rem", borderBottom: "1px solid var(--gray-200)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+  <div>
+    <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "1.125rem", fontWeight: "600" }}>Section Title</h3>
+    <p style={{ margin: "0", color: "var(--gray-600)", fontSize: "0.875rem" }}>Section description</p>
+  </div>
+  <button>Section Action</button>
+</div>
 
 // Compact variant
-<SubHeader
-  title="Section Title"
-  compact={true}
-/>`}</SGCodeBlock>
+<div style={{ padding: "0.75rem 1rem", borderBottom: "1px solid var(--gray-200)" }}>
+  <h3 style={{ margin: "0", fontSize: "1rem", fontWeight: "600" }}>Section Title</h3>
+</div>`}</SGCodeBlock>
 
-            <h4>Use Cases</h4>
-            <ul>
-              <li>Form section headers</li>
-              <li>Content area titles</li>
-              <li>Settings page sections</li>
-              <li>Dashboard widget headers</li>
-              <li>Tab content headers</li>
-            </ul>
+              <h4>Use Cases</h4>
+              <ul>
+                <li>Form section headers</li>
+                <li>Content area titles</li>
+                <li>Settings page sections</li>
+                <li>Dashboard widget headers</li>
+                <li>Tab content headers</li>
+              </ul>
             </SGComponentExampleContent>
           </SGComponentExample>
         </section>
@@ -381,51 +381,52 @@ const [title, setTitle] = useState("Page Title");
             <SGComponentExampleHeader title="Hierarchical Header Structure" />
             <SGComponentExampleContent>
               <SGComponentExampleDemo>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
-                {/* Main Page Header */}
-                <div
-                  style={{
-                    border: "1px solid var(--gray-300)",
-                    borderBottom: "none",
-                    borderRadius: "4px 4px 0 0",
-                    overflow: "hidden",
-                    background: "white",
-                  }}
-                >
-                  <Header
-                    title="Research Data Management"
-                    subtitle="Comprehensive data management for your research projects"
-                    actions={
-                      <button
-                        style={{
-                          padding: "0.5rem 1rem",
-                          background: "var(--blue-500)",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                        }}
-                      >
-                        New Project
-                      </button>
-                    }
-                  />
-                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
+                  {/* Main Page Header */}
+                  <div
+                    style={{
+                      border: "1px solid var(--gray-300)",
+                      borderBottom: "none",
+                      borderRadius: "4px 4px 0 0",
+                      overflow: "hidden",
+                      background: "white",
+                    }}
+                  >
+                    <PageHeader
+                      title="Research Data Management"
+                      description="Comprehensive data management for your research projects"
+                      showBackButton={false}
+                      actions={<button className="primary">New Project</button>}
+                    />
+                  </div>
 
-                {/* Sub Header */}
-                <div
-                  style={{
-                    border: "1px solid var(--gray-300)",
-                    borderTop: "1px solid var(--gray-200)",
-                    borderRadius: "0 0 4px 4px",
-                    overflow: "hidden",
-                    background: "var(--gray-25)",
-                  }}
-                >
-                  <SubHeader
-                    title="Active Projects"
-                    description="Projects currently in progress"
-                    actions={
+                  {/* Sub Header */}
+                  <div
+                    style={{
+                      border: "1px solid var(--gray-300)",
+                      borderTop: "1px solid var(--gray-200)",
+                      borderRadius: "0 0 4px 4px",
+                      overflow: "hidden",
+                      background: "var(--gray-25)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        padding: "1rem",
+                        borderBottom: "1px solid var(--gray-200)",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <div>
+                        <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "1.125rem", fontWeight: "600" }}>
+                          Active Projects
+                        </h3>
+                        <p style={{ margin: "0", color: "var(--gray-600)", fontSize: "0.875rem" }}>
+                          Projects currently in progress
+                        </p>
+                      </div>
                       <div style={{ display: "flex", gap: "0.5rem" }}>
                         <select
                           style={{
@@ -440,10 +441,9 @@ const [title, setTitle] = useState("Page Title");
                           <option>Completed</option>
                         </select>
                       </div>
-                    }
-                  />
+                    </div>
+                  </div>
                 </div>
-              </div>
               </SGComponentExampleDemo>
 
               <h4>Pattern Guidelines</h4>

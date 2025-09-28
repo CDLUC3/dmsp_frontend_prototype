@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { ContentContainer, LayoutContainer } from "@/components/Container";
-import { BrandColor } from "../../shared/components";
+import { BrandColor, SGGuidelinesGrid, SGGuidelineItem } from "../../shared/components";
 
 import "../../shared/styleguide.scss";
 
@@ -343,43 +343,38 @@ export default function ColoursPage() {
 
         <section id="usage-guidelines">
           <h2>Usage Guidelines</h2>
-          <div className="guidelines-grid">
-            <div className="guideline-item">
-              <h3>Accessibility</h3>
+          <SGGuidelinesGrid>
+            <SGGuidelineItem title="Accessibility">
               <p>
                 All color combinations meet WCAG 2.1 AA contrast requirements. Always test color combinations for
                 sufficient contrast, especially for text and interactive elements.
               </p>
-            </div>
-            <div className="guideline-item">
-              <h3>Brand Colors</h3>
+            </SGGuidelineItem>
+            <SGGuidelineItem title="Brand Colors">
               <p>
                 Use brand colors sparingly to maintain their impact. Reserve primary brand colors for the most important
                 actions and navigation elements.
               </p>
-            </div>
-            <div className="guideline-item">
-              <h3>Interactive Elements</h3>
+            </SGGuidelineItem>
+            <SGGuidelineItem title="Interactive Elements">
               <p>
                 Purple scale is reserved for interactive elements, focus states, and hover effects. This helps users
                 understand what they can interact with.
               </p>
-            </div>
-            <div className="guideline-item">
-              <h3>Error Handling</h3>
+            </SGGuidelineItem>
+            <SGGuidelineItem title="Error Handling">
               <p>
                 Red scale should only be used for errors, warnings, and destructive actions. This maintains the semantic
                 meaning users expect.
               </p>
-            </div>
-            <div className="guideline-item">
-              <h3>Neutral Foundation</h3>
+            </SGGuidelineItem>
+            <SGGuidelineItem title="Neutral Foundation">
               <p>
                 Gray and slate scales form the foundation of the interface. Use these for most UI elements, with colored
                 accents for emphasis.
               </p>
-            </div>
-          </div>
+            </SGGuidelineItem>
+          </SGGuidelinesGrid>
         </section>
 
         <section id="color-tokens">

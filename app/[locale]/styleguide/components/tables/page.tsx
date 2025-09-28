@@ -143,7 +143,7 @@ export default function TablesPage() {
                 </Table>
               </SGComponentExampleDemo>
 
-              <h4 className="sg-sub-heading">Usage</h4>
+              <h4>Usage</h4>
               <SGCodeBlock>{`import { Table, TableHeader, TableBody, Column, Row, Cell } from 'react-aria-components';
 
 <Table aria-label="Data table">
@@ -170,58 +170,58 @@ export default function TablesPage() {
             <SGComponentExampleHeader title="Sortable Table" />
             <SGComponentExampleContent>
               <SGComponentExampleDemo>
-              <Table
-                aria-label="Sortable DMP Sections"
-                sortDescriptor={sortDescriptor}
-                onSortChange={setSortDescriptor}
-              >
-                <TableHeader>
-                  <Column
-                    id="name"
-                    isRowHeader
-                    allowsSorting
-                  >
-                    Section Name
-                  </Column>
-                  <Column
-                    id="template"
-                    allowsSorting
-                  >
-                    Template
-                  </Column>
-                  <Column
-                    id="questions"
-                    allowsSorting
-                  >
-                    Questions
-                  </Column>
-                  <Column
-                    id="status"
-                    allowsSorting
-                  >
-                    Status
-                  </Column>
-                  <Column
-                    id="lastModified"
-                    allowsSorting
-                  >
-                    Last Modified
-                  </Column>
-                </TableHeader>
-                <TableBody>
-                  {sampleData.map((item) => (
-                    <Row key={item.id}>
-                      <Cell>{item.name}</Cell>
-                      <Cell>{item.template}</Cell>
-                      <Cell>{item.questions}</Cell>
-                      <Cell>
-                        <span className={`status-badge status-${item.status.toLowerCase()}`}>{item.status}</span>
-                      </Cell>
-                      <Cell>{item.lastModified}</Cell>
-                    </Row>
-                  ))}
-                </TableBody>
-              </Table>
+                <Table
+                  aria-label="Sortable DMP Sections"
+                  sortDescriptor={sortDescriptor}
+                  onSortChange={setSortDescriptor}
+                >
+                  <TableHeader>
+                    <Column
+                      id="name"
+                      isRowHeader
+                      allowsSorting
+                    >
+                      Section Name
+                    </Column>
+                    <Column
+                      id="template"
+                      allowsSorting
+                    >
+                      Template
+                    </Column>
+                    <Column
+                      id="questions"
+                      allowsSorting
+                    >
+                      Questions
+                    </Column>
+                    <Column
+                      id="status"
+                      allowsSorting
+                    >
+                      Status
+                    </Column>
+                    <Column
+                      id="lastModified"
+                      allowsSorting
+                    >
+                      Last Modified
+                    </Column>
+                  </TableHeader>
+                  <TableBody>
+                    {sampleData.map((item) => (
+                      <Row key={item.id}>
+                        <Cell>{item.name}</Cell>
+                        <Cell>{item.template}</Cell>
+                        <Cell>{item.questions}</Cell>
+                        <Cell>
+                          <span className={`status-badge status-${item.status.toLowerCase()}`}>{item.status}</span>
+                        </Cell>
+                        <Cell>{item.lastModified}</Cell>
+                      </Row>
+                    ))}
+                  </TableBody>
+                </Table>
               </SGComponentExampleDemo>
 
               <h4>Usage</h4>
@@ -268,33 +268,33 @@ export default function TablesPage() {
             <SGComponentExampleHeader title="Interactive Table with Actions" />
             <SGComponentExampleContent>
               <SGComponentExampleDemo>
-              <Table aria-label="DMP Sections with Actions">
-                <TableHeader>
-                  <Column isRowHeader>Section Name</Column>
-                  <Column>Template</Column>
-                  <Column>Questions</Column>
-                  <Column>Status</Column>
-                  <Column>Actions</Column>
-                </TableHeader>
-                <TableBody>
-                  {sampleData.map((item) => (
-                    <Row key={item.id}>
-                      <Cell>{item.name}</Cell>
-                      <Cell>{item.template}</Cell>
-                      <Cell>{item.questions}</Cell>
-                      <Cell>
-                        <span className={`status-badge status-${item.status.toLowerCase()}`}>{item.status}</span>
-                      </Cell>
-                      <Cell>
-                        <div style={{ display: "flex", gap: "0.5rem" }}>
-                          <Button className="secondary small">Edit</Button>
-                          <Button className="tertiary small">Delete</Button>
-                        </div>
-                      </Cell>
-                    </Row>
-                  ))}
-                </TableBody>
-              </Table>
+                <Table aria-label="DMP Sections with Actions">
+                  <TableHeader>
+                    <Column isRowHeader>Section Name</Column>
+                    <Column>Template</Column>
+                    <Column>Questions</Column>
+                    <Column>Status</Column>
+                    <Column>Actions</Column>
+                  </TableHeader>
+                  <TableBody>
+                    {sampleData.map((item) => (
+                      <Row key={item.id}>
+                        <Cell>{item.name}</Cell>
+                        <Cell>{item.template}</Cell>
+                        <Cell>{item.questions}</Cell>
+                        <Cell>
+                          <span className={`status-badge status-${item.status.toLowerCase()}`}>{item.status}</span>
+                        </Cell>
+                        <Cell>
+                          <div style={{ display: "flex", gap: "0.5rem" }}>
+                            <Button className="secondary small">Edit</Button>
+                            <Button className="tertiary small">Delete</Button>
+                          </div>
+                        </Cell>
+                      </Row>
+                    ))}
+                  </TableBody>
+                </Table>
               </SGComponentExampleDemo>
 
               <h4>Interactive Features</h4>
@@ -322,15 +322,15 @@ export default function TablesPage() {
             <SGComponentExampleHeader title="Styling & Layout" />
             <SGComponentExampleContent>
               <SGComponentExampleDemo>
-              <h4 className="sg-sub-heading">Status Badge Styles</h4>
-              <div style={{ display: "flex", gap: "1rem", alignItems: "center", marginBottom: "2rem" }}>
-                <span className="status-badge status-active">Active</span>
-                <span className="status-badge status-draft">Draft</span>
-                <span className="status-badge status-archived">Archived</span>
-              </div>
+                <h4>Status Badge Styles</h4>
+                <div style={{ display: "flex", gap: "1rem", alignItems: "center", marginBottom: "2rem" }}>
+                  <span className="status-badge status-active">Active</span>
+                  <span className="status-badge status-draft">Draft</span>
+                  <span className="status-badge status-archived">Archived</span>
+                </div>
 
-              <h4>CSS Classes</h4>
-              <SGCodeBlock>{`.status-badge {
+                <h4>CSS Classes</h4>
+                <SGCodeBlock>{`.status-badge {
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
@@ -367,34 +367,34 @@ export default function TablesPage() {
             <SGComponentExampleHeader title="Responsive Behavior" />
             <SGComponentExampleContent>
               <SGComponentExampleDemo>
-              <h4 className="sg-sub-heading">Mobile Considerations</h4>
-              <ul>
-                <li>
-                  <strong>Horizontal scrolling:</strong> Tables scroll horizontally on small screens
-                </li>
-                <li>
-                  <strong>Essential columns:</strong> Keep most important columns visible first
-                </li>
-                <li>
-                  <strong>Action consolidation:</strong> Consider dropdown menus for multiple actions
-                </li>
-                <li>
-                  <strong>Touch targets:</strong> Ensure buttons and links are touch-friendly
-                </li>
-              </ul>
+                <h4>Mobile Considerations</h4>
+                <ul>
+                  <li>
+                    <strong>Horizontal scrolling:</strong> Tables scroll horizontally on small screens
+                  </li>
+                  <li>
+                    <strong>Essential columns:</strong> Keep most important columns visible first
+                  </li>
+                  <li>
+                    <strong>Action consolidation:</strong> Consider dropdown menus for multiple actions
+                  </li>
+                  <li>
+                    <strong>Touch targets:</strong> Ensure buttons and links are touch-friendly
+                  </li>
+                </ul>
 
-              <h4>Best Practices</h4>
-              <ul>
-                <li>
-                  Use <code>isRowHeader</code> on the primary identifier column
-                </li>
-                <li>
-                  Provide meaningful <code>aria-label</code> for screen readers
-                </li>
-                <li>Keep action buttons consistent in size and spacing</li>
-                <li>Use semantic colors for status indicators</li>
-                <li>Consider pagination for large datasets</li>
-              </ul>
+                <h4>Best Practices</h4>
+                <ul>
+                  <li>
+                    Use <code>isRowHeader</code> on the primary identifier column
+                  </li>
+                  <li>
+                    Provide meaningful <code>aria-label</code> for screen readers
+                  </li>
+                  <li>Keep action buttons consistent in size and spacing</li>
+                  <li>Use semantic colors for status indicators</li>
+                  <li>Consider pagination for large datasets</li>
+                </ul>
               </SGComponentExampleDemo>
             </SGComponentExampleContent>
           </SGComponentExample>
@@ -406,44 +406,44 @@ export default function TablesPage() {
             <SGComponentExampleHeader title="Common Usage Patterns" />
             <SGComponentExampleContent>
               <SGComponentExampleDemo>
-              <h4 className="sg-sub-heading">When to Use Tables</h4>
-              <ul>
-                <li>
-                  <strong>Data comparison:</strong> When users need to compare values across rows
-                </li>
-                <li>
-                  <strong>Structured data:</strong> For displaying tabular information with multiple attributes
-                </li>
-                <li>
-                  <strong>Bulk actions:</strong> When users need to perform actions on multiple items
-                </li>
-                <li>
-                  <strong>Sorting/filtering:</strong> When data needs to be organized or searched
-                </li>
-              </ul>
+                <h4>When to Use Tables</h4>
+                <ul>
+                  <li>
+                    <strong>Data comparison:</strong> When users need to compare values across rows
+                  </li>
+                  <li>
+                    <strong>Structured data:</strong> For displaying tabular information with multiple attributes
+                  </li>
+                  <li>
+                    <strong>Bulk actions:</strong> When users need to perform actions on multiple items
+                  </li>
+                  <li>
+                    <strong>Sorting/filtering:</strong> When data needs to be organized or searched
+                  </li>
+                </ul>
 
-              <h4 className="sg-sub-heading">Alternatives to Consider</h4>
-              <ul>
-                <li>
-                  <strong>Cards:</strong> For content-rich items with fewer comparable attributes
-                </li>
-                <li>
-                  <strong>Lists:</strong> For simple, single-attribute collections
-                </li>
-                <li>
-                  <strong>Data visualization:</strong> For trends and patterns in large datasets
-                </li>
-              </ul>
+                <h4>Alternatives to Consider</h4>
+                <ul>
+                  <li>
+                    <strong>Cards:</strong> For content-rich items with fewer comparable attributes
+                  </li>
+                  <li>
+                    <strong>Lists:</strong> For simple, single-attribute collections
+                  </li>
+                  <li>
+                    <strong>Data visualization:</strong> For trends and patterns in large datasets
+                  </li>
+                </ul>
 
-              <h4>Implementation Checklist</h4>
-              <ul>
-                <li>✅ Proper semantic HTML structure with React Aria</li>
-                <li>✅ Accessible column headers and row identifiers</li>
-                <li>✅ Keyboard navigation support</li>
-                <li>✅ Responsive design for mobile devices</li>
-                <li>✅ Clear visual hierarchy and spacing</li>
-                <li>✅ Consistent action button placement</li>
-              </ul>
+                <h4>Implementation Checklist</h4>
+                <ul>
+                  <li>✅ Proper semantic HTML structure with React Aria</li>
+                  <li>✅ Accessible column headers and row identifiers</li>
+                  <li>✅ Keyboard navigation support</li>
+                  <li>✅ Responsive design for mobile devices</li>
+                  <li>✅ Clear visual hierarchy and spacing</li>
+                  <li>✅ Consistent action button placement</li>
+                </ul>
               </SGComponentExampleDemo>
             </SGComponentExampleContent>
           </SGComponentExample>

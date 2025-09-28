@@ -12,6 +12,8 @@ import {
   SGCodeBlock,
   SGTocGrid,
   SGTocSection,
+  SGGuidelinesGrid,
+  SGGuidelineItem,
 } from "../../shared/components";
 import "../../shared/styleguide.scss";
 
@@ -84,615 +86,629 @@ export default function CSSVariablesPage() {
 
         {/* Color Tokens */}
         <section id="color-tokens">
-          <div className="component-example">
-            <h3 className="sg-section-heading">Color Tokens</h3>
-            <p>All colors are defined as CSS custom properties and follow a systematic naming convention.</p>
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Color Tokens" />
+            <SGComponentExampleContent>
+              <p>All colors are defined as CSS custom properties and follow a systematic naming convention.</p>
 
-            <div className="example-demo">
-              <h4 className="sg-sub-heading">Primary Color Scale</h4>
-              <div
-                className="color-variable-grid"
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                  gap: "1rem",
-                  marginBottom: "2rem",
-                }}
-              >
-                <div className="color-variable-item">
-                  <div
-                    className="color-swatch"
-                    style={{
-                      background: "var(--blue-900)",
-                      height: "60px",
-                      borderRadius: "4px",
-                      marginBottom: "0.5rem",
-                    }}
-                  ></div>
-                  <code>--blue-900</code>
-                  <div style={{ fontSize: "0.875rem", color: "var(--gray-600)" }}>#05042E</div>
+              <SGComponentExampleDemo>
+                <h4>Primary Color Scale</h4>
+                <div
+                  className="color-variable-grid"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                    gap: "1rem",
+                    marginBottom: "2rem",
+                  }}
+                >
+                  <div className="color-variable-item">
+                    <div
+                      className="color-swatch"
+                      style={{
+                        background: "var(--blue-900)",
+                        height: "60px",
+                        borderRadius: "4px",
+                        marginBottom: "0.5rem",
+                      }}
+                    ></div>
+                    <code>--blue-900</code>
+                    <div style={{ fontSize: "0.875rem", color: "var(--gray-600)" }}>#05042E</div>
+                  </div>
+                  <div className="color-variable-item">
+                    <div
+                      className="color-swatch"
+                      style={{
+                        background: "var(--blue-700)",
+                        height: "60px",
+                        borderRadius: "4px",
+                        marginBottom: "0.5rem",
+                      }}
+                    ></div>
+                    <code>--blue-700</code>
+                    <div style={{ fontSize: "0.875rem", color: "var(--gray-600)" }}>#004EAA</div>
+                  </div>
+                  <div className="color-variable-item">
+                    <div
+                      className="color-swatch"
+                      style={{
+                        background: "var(--blue-50)",
+                        height: "60px",
+                        borderRadius: "4px",
+                        marginBottom: "0.5rem",
+                        border: "1px solid var(--gray-200)",
+                      }}
+                    ></div>
+                    <code>--blue-50</code>
+                    <div style={{ fontSize: "0.875rem", color: "var(--gray-600)" }}>#F0FBFF</div>
+                  </div>
                 </div>
-                <div className="color-variable-item">
-                  <div
-                    className="color-swatch"
-                    style={{
-                      background: "var(--blue-700)",
-                      height: "60px",
-                      borderRadius: "4px",
-                      marginBottom: "0.5rem",
-                    }}
-                  ></div>
-                  <code>--blue-700</code>
-                  <div style={{ fontSize: "0.875rem", color: "var(--gray-600)" }}>#004EAA</div>
-                </div>
-                <div className="color-variable-item">
-                  <div
-                    className="color-swatch"
-                    style={{
-                      background: "var(--blue-50)",
-                      height: "60px",
-                      borderRadius: "4px",
-                      marginBottom: "0.5rem",
-                      border: "1px solid var(--gray-200)",
-                    }}
-                  ></div>
-                  <code>--blue-50</code>
-                  <div style={{ fontSize: "0.875rem", color: "var(--gray-600)" }}>#F0FBFF</div>
-                </div>
-              </div>
 
-              <h4 className="sg-sub-heading">Gray Scale</h4>
-              <div
-                className="color-variable-grid"
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-                  gap: "1rem",
-                  marginBottom: "2rem",
-                }}
-              >
-                <div className="color-variable-item">
-                  <div
-                    className="color-swatch"
-                    style={{
-                      background: "var(--gray-900)",
-                      height: "40px",
-                      borderRadius: "4px",
-                      marginBottom: "0.5rem",
-                    }}
-                  ></div>
-                  <code>--gray-900</code>
+                <h4>Gray Scale</h4>
+                <div
+                  className="color-variable-grid"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+                    gap: "1rem",
+                    marginBottom: "2rem",
+                  }}
+                >
+                  <div className="color-variable-item">
+                    <div
+                      className="color-swatch"
+                      style={{
+                        background: "var(--gray-900)",
+                        height: "40px",
+                        borderRadius: "4px",
+                        marginBottom: "0.5rem",
+                      }}
+                    ></div>
+                    <code>--gray-900</code>
+                  </div>
+                  <div className="color-variable-item">
+                    <div
+                      className="color-swatch"
+                      style={{
+                        background: "var(--gray-600)",
+                        height: "40px",
+                        borderRadius: "4px",
+                        marginBottom: "0.5rem",
+                      }}
+                    ></div>
+                    <code>--gray-600</code>
+                  </div>
+                  <div className="color-variable-item">
+                    <div
+                      className="color-swatch"
+                      style={{
+                        background: "var(--gray-400)",
+                        height: "40px",
+                        borderRadius: "4px",
+                        marginBottom: "0.5rem",
+                      }}
+                    ></div>
+                    <code>--gray-400</code>
+                  </div>
+                  <div className="color-variable-item">
+                    <div
+                      className="color-swatch"
+                      style={{
+                        background: "var(--gray-200)",
+                        height: "40px",
+                        borderRadius: "4px",
+                        marginBottom: "0.5rem",
+                      }}
+                    ></div>
+                    <code>--gray-200</code>
+                  </div>
+                  <div className="color-variable-item">
+                    <div
+                      className="color-swatch"
+                      style={{
+                        background: "var(--gray-100)",
+                        height: "40px",
+                        borderRadius: "4px",
+                        marginBottom: "0.5rem",
+                        border: "1px solid var(--gray-200)",
+                      }}
+                    ></div>
+                    <code>--gray-100</code>
+                  </div>
+                  <div className="color-variable-item">
+                    <div
+                      className="color-swatch"
+                      style={{
+                        background: "var(--gray-75)",
+                        height: "40px",
+                        borderRadius: "4px",
+                        marginBottom: "0.5rem",
+                        border: "1px solid var(--gray-200)",
+                      }}
+                    ></div>
+                    <code>--gray-75</code>
+                  </div>
                 </div>
-                <div className="color-variable-item">
-                  <div
-                    className="color-swatch"
-                    style={{
-                      background: "var(--gray-600)",
-                      height: "40px",
-                      borderRadius: "4px",
-                      marginBottom: "0.5rem",
-                    }}
-                  ></div>
-                  <code>--gray-600</code>
-                </div>
-                <div className="color-variable-item">
-                  <div
-                    className="color-swatch"
-                    style={{
-                      background: "var(--gray-400)",
-                      height: "40px",
-                      borderRadius: "4px",
-                      marginBottom: "0.5rem",
-                    }}
-                  ></div>
-                  <code>--gray-400</code>
-                </div>
-                <div className="color-variable-item">
-                  <div
-                    className="color-swatch"
-                    style={{
-                      background: "var(--gray-200)",
-                      height: "40px",
-                      borderRadius: "4px",
-                      marginBottom: "0.5rem",
-                    }}
-                  ></div>
-                  <code>--gray-200</code>
-                </div>
-                <div className="color-variable-item">
-                  <div
-                    className="color-swatch"
-                    style={{
-                      background: "var(--gray-100)",
-                      height: "40px",
-                      borderRadius: "4px",
-                      marginBottom: "0.5rem",
-                      border: "1px solid var(--gray-200)",
-                    }}
-                  ></div>
-                  <code>--gray-100</code>
-                </div>
-                <div className="color-variable-item">
-                  <div
-                    className="color-swatch"
-                    style={{
-                      background: "var(--gray-75)",
-                      height: "40px",
-                      borderRadius: "4px",
-                      marginBottom: "0.5rem",
-                      border: "1px solid var(--gray-200)",
-                    }}
-                  ></div>
-                  <code>--gray-75</code>
-                </div>
-              </div>
 
-              <h4 className="sg-sub-heading">Accent Colors</h4>
-              <div
-                className="color-variable-grid"
-                style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1rem" }}
-              >
-                <div className="color-variable-item">
-                  <div
-                    className="color-swatch"
-                    style={{
-                      background: "var(--yellow-400)",
-                      height: "50px",
-                      borderRadius: "4px",
-                      marginBottom: "0.5rem",
-                    }}
-                  ></div>
-                  <code>--yellow-400</code>
-                  <div style={{ fontSize: "0.875rem", color: "var(--gray-600)" }}>#FFC845</div>
+                <h4>Accent Colors</h4>
+                <div
+                  className="color-variable-grid"
+                  style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1rem" }}
+                >
+                  <div className="color-variable-item">
+                    <div
+                      className="color-swatch"
+                      style={{
+                        background: "var(--yellow-400)",
+                        height: "50px",
+                        borderRadius: "4px",
+                        marginBottom: "0.5rem",
+                      }}
+                    ></div>
+                    <code>--yellow-400</code>
+                    <div style={{ fontSize: "0.875rem", color: "var(--gray-600)" }}>#FFC845</div>
+                  </div>
+                  <div className="color-variable-item">
+                    <div
+                      className="color-swatch"
+                      style={{
+                        background: "var(--green-600)",
+                        height: "50px",
+                        borderRadius: "4px",
+                        marginBottom: "0.5rem",
+                      }}
+                    ></div>
+                    <code>--green-600</code>
+                    <div style={{ fontSize: "0.875rem", color: "var(--gray-600)" }}>#006C6C</div>
+                  </div>
+                  <div className="color-variable-item">
+                    <div
+                      className="color-swatch"
+                      style={{
+                        background: "var(--red-600)",
+                        height: "50px",
+                        borderRadius: "4px",
+                        marginBottom: "0.5rem",
+                      }}
+                    ></div>
+                    <code>--red-600</code>
+                    <div style={{ fontSize: "0.875rem", color: "var(--gray-600)" }}>#D3273E</div>
+                  </div>
                 </div>
-                <div className="color-variable-item">
-                  <div
-                    className="color-swatch"
-                    style={{
-                      background: "var(--green-600)",
-                      height: "50px",
-                      borderRadius: "4px",
-                      marginBottom: "0.5rem",
-                    }}
-                  ></div>
-                  <code>--green-600</code>
-                  <div style={{ fontSize: "0.875rem", color: "var(--gray-600)" }}>#006C6C</div>
-                </div>
-                <div className="color-variable-item">
-                  <div
-                    className="color-swatch"
-                    style={{
-                      background: "var(--red-600)",
-                      height: "50px",
-                      borderRadius: "4px",
-                      marginBottom: "0.5rem",
-                    }}
-                  ></div>
-                  <code>--red-600</code>
-                  <div style={{ fontSize: "0.875rem", color: "var(--gray-600)" }}>#D3273E</div>
-                </div>
-              </div>
-            </div>
-          </div>
+              </SGComponentExampleDemo>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Semantic Colors */}
         <section id="semantic-colors">
-          <div className="component-example">
-            <h3 className="sg-section-heading">Semantic Colors</h3>
-            <p>
-              Semantic color tokens provide meaning and context, making it easier to maintain consistent color usage
-              across components.
-            </p>
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Semantic Colors" />
+            <SGComponentExampleContent>
+              <p>
+                Semantic color tokens provide meaning and context, making it easier to maintain consistent color usage
+                across components.
+              </p>
 
-            <div className="example-demo">
-              <h4 className="sg-sub-heading">Text Colors</h4>
-              <div style={{ display: "grid", gap: "1rem", marginBottom: "2rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "200px" }}>
-                    <code>--text-color</code>
+              <SGComponentExampleDemo>
+                <h4>Text Colors</h4>
+                <div style={{ display: "grid", gap: "1rem", marginBottom: "2rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "200px" }}>
+                      <code>--text-color</code>
+                    </div>
+                    <div style={{ color: "var(--text-color)" }}>Primary text content</div>
                   </div>
-                  <div style={{ color: "var(--text-color)" }}>Primary text content</div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "200px" }}>
-                    <code>--text-color-secondary</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "200px" }}>
+                      <code>--text-color-secondary</code>
+                    </div>
+                    <div style={{ color: "var(--text-color-secondary)" }}>Secondary text content</div>
                   </div>
-                  <div style={{ color: "var(--text-color-secondary)" }}>Secondary text content</div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "200px" }}>
-                    <code>--text-color-muted</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "200px" }}>
+                      <code>--text-color-muted</code>
+                    </div>
+                    <div style={{ color: "var(--text-color-muted)" }}>Muted text content</div>
                   </div>
-                  <div style={{ color: "var(--text-color-muted)" }}>Muted text content</div>
                 </div>
-              </div>
 
-              <h4 className="sg-sub-heading">Background Colors</h4>
-              <div style={{ display: "grid", gap: "1rem", marginBottom: "2rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "200px" }}>
-                    <code>--background-color</code>
+                <h4>Background Colors</h4>
+                <div style={{ display: "grid", gap: "1rem", marginBottom: "2rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "200px" }}>
+                      <code>--background-color</code>
+                    </div>
+                    <div
+                      style={{
+                        background: "var(--background-color)",
+                        padding: "0.5rem",
+                        border: "1px solid var(--gray-200)",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      Main background
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      background: "var(--background-color)",
-                      padding: "0.5rem",
-                      border: "1px solid var(--gray-200)",
-                      borderRadius: "4px",
-                    }}
-                  >
-                    Main background
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "200px" }}>
+                      <code>--surface-color</code>
+                    </div>
+                    <div
+                      style={{
+                        background: "var(--surface-color)",
+                        padding: "0.5rem",
+                        border: "1px solid var(--gray-200)",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      Surface background
+                    </div>
                   </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "200px" }}>
-                    <code>--surface-color</code>
-                  </div>
-                  <div
-                    style={{
-                      background: "var(--surface-color)",
-                      padding: "0.5rem",
-                      border: "1px solid var(--gray-200)",
-                      borderRadius: "4px",
-                    }}
-                  >
-                    Surface background
-                  </div>
-                </div>
-              </div>
 
-              <h4 className="sg-sub-heading">Border Colors</h4>
-              <div style={{ display: "grid", gap: "1rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "200px" }}>
-                    <code>--border-color</code>
+                <h4>Border Colors</h4>
+                <div style={{ display: "grid", gap: "1rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "200px" }}>
+                      <code>--border-color</code>
+                    </div>
+                    <div style={{ border: "2px solid var(--border-color)", padding: "0.5rem", borderRadius: "4px" }}>
+                      Default border
+                    </div>
                   </div>
-                  <div style={{ border: "2px solid var(--border-color)", padding: "0.5rem", borderRadius: "4px" }}>
-                    Default border
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "200px" }}>
+                      <code>--border-color-focus</code>
+                    </div>
+                    <div
+                      style={{ border: "2px solid var(--border-color-focus)", padding: "0.5rem", borderRadius: "4px" }}
+                    >
+                      Focus border
+                    </div>
                   </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "200px" }}>
-                    <code>--border-color-focus</code>
-                  </div>
-                  <div
-                    style={{ border: "2px solid var(--border-color-focus)", padding: "0.5rem", borderRadius: "4px" }}
-                  >
-                    Focus border
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+              </SGComponentExampleDemo>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Messaging Colors */}
         <section id="messaging-colors">
-          <div className="component-example">
-            <h3 className="sg-section-heading">Messaging Colors</h3>
-            <p>Specialized color tokens for user feedback, alerts, and status indicators.</p>
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Messaging Colors" />
+            <SGComponentExampleContent>
+              <p>Specialized color tokens for user feedback, alerts, and status indicators.</p>
 
-            <div className="example-demo">
-              <div style={{ display: "grid", gap: "1rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "200px" }}>
-                    <code>--messaging-success</code>
+              <SGComponentExampleDemo>
+                <div style={{ display: "grid", gap: "1rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "200px" }}>
+                      <code>--messaging-success</code>
+                    </div>
+                    <div
+                      style={{
+                        background: "var(--messaging-success)",
+                        color: "white",
+                        padding: "0.5rem",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      Success message
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      background: "var(--messaging-success)",
-                      color: "white",
-                      padding: "0.5rem",
-                      borderRadius: "4px",
-                    }}
-                  >
-                    Success message
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "200px" }}>
+                      <code>--messaging-error</code>
+                    </div>
+                    <div
+                      style={{
+                        background: "var(--messaging-error)",
+                        color: "white",
+                        padding: "0.5rem",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      Error message
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "200px" }}>
+                      <code>--messaging-warning</code>
+                    </div>
+                    <div
+                      style={{
+                        background: "var(--messaging-warning)",
+                        color: "white",
+                        padding: "0.5rem",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      Warning message
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "200px" }}>
+                      <code>--messaging-info</code>
+                    </div>
+                    <div
+                      style={{
+                        background: "var(--messaging-info)",
+                        color: "white",
+                        padding: "0.5rem",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      Info message
+                    </div>
                   </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "200px" }}>
-                    <code>--messaging-error</code>
-                  </div>
-                  <div
-                    style={{
-                      background: "var(--messaging-error)",
-                      color: "white",
-                      padding: "0.5rem",
-                      borderRadius: "4px",
-                    }}
-                  >
-                    Error message
-                  </div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "200px" }}>
-                    <code>--messaging-warning</code>
-                  </div>
-                  <div
-                    style={{
-                      background: "var(--messaging-warning)",
-                      color: "white",
-                      padding: "0.5rem",
-                      borderRadius: "4px",
-                    }}
-                  >
-                    Warning message
-                  </div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "200px" }}>
-                    <code>--messaging-info</code>
-                  </div>
-                  <div
-                    style={{
-                      background: "var(--messaging-info)",
-                      color: "white",
-                      padding: "0.5rem",
-                      borderRadius: "4px",
-                    }}
-                  >
-                    Info message
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+              </SGComponentExampleDemo>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Font Sizes */}
         <section id="font-sizes">
-          <div className="component-example">
-            <h3 className="sg-section-heading">Font Size Tokens</h3>
-            <p>Typography scale using CSS custom properties for consistent text sizing across the application.</p>
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Font Size Tokens" />
+            <SGComponentExampleContent>
+              <p>Typography scale using CSS custom properties for consistent text sizing across the application.</p>
 
-            <div className="example-demo">
-              <div style={{ display: "grid", gap: "1.5rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-                  <div style={{ minWidth: "150px" }}>
-                    <code>--fs-4xl</code>
+              <SGComponentExampleDemo>
+                <div style={{ display: "grid", gap: "1.5rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+                    <div style={{ minWidth: "150px" }}>
+                      <code>--fs-4xl</code>
+                    </div>
+                    <div style={{ fontSize: "var(--fs-4xl)", fontWeight: "var(--fw-bold)" }}>Heading 1</div>
                   </div>
-                  <div style={{ fontSize: "var(--fs-4xl)", fontWeight: "var(--fw-bold)" }}>Heading 1</div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-                  <div style={{ minWidth: "150px" }}>
-                    <code>--fs-3xl</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+                    <div style={{ minWidth: "150px" }}>
+                      <code>--fs-3xl</code>
+                    </div>
+                    <div style={{ fontSize: "var(--fs-3xl)", fontWeight: "var(--fw-semibold)" }}>Heading 2</div>
                   </div>
-                  <div style={{ fontSize: "var(--fs-3xl)", fontWeight: "var(--fw-semibold)" }}>Heading 2</div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-                  <div style={{ minWidth: "150px" }}>
-                    <code>--fs-2xl</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+                    <div style={{ minWidth: "150px" }}>
+                      <code>--fs-2xl</code>
+                    </div>
+                    <div style={{ fontSize: "var(--fs-2xl)", fontWeight: "var(--fw-semibold)" }}>Heading 3</div>
                   </div>
-                  <div style={{ fontSize: "var(--fs-2xl)", fontWeight: "var(--fw-semibold)" }}>Heading 3</div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-                  <div style={{ minWidth: "150px" }}>
-                    <code>--fs-xl</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+                    <div style={{ minWidth: "150px" }}>
+                      <code>--fs-xl</code>
+                    </div>
+                    <div style={{ fontSize: "var(--fs-xl)", fontWeight: "var(--fw-medium)" }}>Heading 4</div>
                   </div>
-                  <div style={{ fontSize: "var(--fs-xl)", fontWeight: "var(--fw-medium)" }}>Heading 4</div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-                  <div style={{ minWidth: "150px" }}>
-                    <code>--fs-lg</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+                    <div style={{ minWidth: "150px" }}>
+                      <code>--fs-lg</code>
+                    </div>
+                    <div style={{ fontSize: "var(--fs-lg)" }}>Large text</div>
                   </div>
-                  <div style={{ fontSize: "var(--fs-lg)" }}>Large text</div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-                  <div style={{ minWidth: "150px" }}>
-                    <code>--fs-base</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+                    <div style={{ minWidth: "150px" }}>
+                      <code>--fs-base</code>
+                    </div>
+                    <div style={{ fontSize: "var(--fs-base)" }}>Base text (16px)</div>
                   </div>
-                  <div style={{ fontSize: "var(--fs-base)" }}>Base text (16px)</div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-                  <div style={{ minWidth: "150px" }}>
-                    <code>--fs-small</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+                    <div style={{ minWidth: "150px" }}>
+                      <code>--fs-small</code>
+                    </div>
+                    <div style={{ fontSize: "var(--fs-small)" }}>Small text</div>
                   </div>
-                  <div style={{ fontSize: "var(--fs-small)" }}>Small text</div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-                  <div style={{ minWidth: "150px" }}>
-                    <code>--fs-xs</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+                    <div style={{ minWidth: "150px" }}>
+                      <code>--fs-xs</code>
+                    </div>
+                    <div style={{ fontSize: "var(--fs-xs)" }}>Extra small text</div>
                   </div>
-                  <div style={{ fontSize: "var(--fs-xs)" }}>Extra small text</div>
                 </div>
-              </div>
-            </div>
-          </div>
+              </SGComponentExampleDemo>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Font Weights */}
         <section id="font-weights">
-          <div className="component-example">
-            <h3 className="sg-section-heading">Font Weight Tokens</h3>
-            <p>Consistent font weights using semantic naming for better maintainability.</p>
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Font Weight Tokens" />
+            <SGComponentExampleContent>
+              <p>Consistent font weights using semantic naming for better maintainability.</p>
 
-            <div className="example-demo">
-              <div style={{ display: "grid", gap: "1rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-                  <div style={{ minWidth: "150px" }}>
-                    <code>--fw-light</code>
+              <SGComponentExampleDemo>
+                <div style={{ display: "grid", gap: "1rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+                    <div style={{ minWidth: "150px" }}>
+                      <code>--fw-light</code>
+                    </div>
+                    <div style={{ fontWeight: "var(--fw-light)" }}>Light weight (300)</div>
                   </div>
-                  <div style={{ fontWeight: "var(--fw-light)" }}>Light weight (300)</div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-                  <div style={{ minWidth: "150px" }}>
-                    <code>--fw-regular</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+                    <div style={{ minWidth: "150px" }}>
+                      <code>--fw-regular</code>
+                    </div>
+                    <div style={{ fontWeight: "var(--fw-regular)" }}>Regular weight (400)</div>
                   </div>
-                  <div style={{ fontWeight: "var(--fw-regular)" }}>Regular weight (400)</div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-                  <div style={{ minWidth: "150px" }}>
-                    <code>--fw-medium</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+                    <div style={{ minWidth: "150px" }}>
+                      <code>--fw-medium</code>
+                    </div>
+                    <div style={{ fontWeight: "var(--fw-medium)" }}>Medium weight (500)</div>
                   </div>
-                  <div style={{ fontWeight: "var(--fw-medium)" }}>Medium weight (500)</div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-                  <div style={{ minWidth: "150px" }}>
-                    <code>--fw-semibold</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+                    <div style={{ minWidth: "150px" }}>
+                      <code>--fw-semibold</code>
+                    </div>
+                    <div style={{ fontWeight: "var(--fw-semibold)" }}>Semibold weight (600)</div>
                   </div>
-                  <div style={{ fontWeight: "var(--fw-semibold)" }}>Semibold weight (600)</div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-                  <div style={{ minWidth: "150px" }}>
-                    <code>--fw-bold</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+                    <div style={{ minWidth: "150px" }}>
+                      <code>--fw-bold</code>
+                    </div>
+                    <div style={{ fontWeight: "var(--fw-bold)" }}>Bold weight (700)</div>
                   </div>
-                  <div style={{ fontWeight: "var(--fw-bold)" }}>Bold weight (700)</div>
                 </div>
-              </div>
-            </div>
-          </div>
+              </SGComponentExampleDemo>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Line Heights */}
         <section id="line-heights">
-          <div className="component-example">
-            <h3 className="sg-section-heading">Line Height Tokens</h3>
-            <p>Line height values optimized for readability and visual hierarchy.</p>
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Line Height Tokens" />
+            <SGComponentExampleContent>
+              <p>Line height values optimized for readability and visual hierarchy.</p>
 
-            <div className="example-demo">
-              <div style={{ display: "grid", gap: "2rem" }}>
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "2rem", marginBottom: "0.5rem" }}>
-                    <div style={{ minWidth: "150px" }}>
-                      <code>--lh-tight</code>
+              <SGComponentExampleDemo>
+                <div style={{ display: "grid", gap: "2rem" }}>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "2rem", marginBottom: "0.5rem" }}>
+                      <div style={{ minWidth: "150px" }}>
+                        <code>--lh-tight</code>
+                      </div>
+                      <div style={{ fontSize: "0.875rem", color: "var(--gray-600)" }}>1.25</div>
                     </div>
-                    <div style={{ fontSize: "0.875rem", color: "var(--gray-600)" }}>1.25</div>
+                    <div
+                      style={{
+                        lineHeight: "var(--lh-tight)",
+                        background: "var(--gray-50)",
+                        padding: "1rem",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      Tight line height for headings and compact text. This creates a more condensed appearance that
+                      works well for titles and short text blocks.
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      lineHeight: "var(--lh-tight)",
-                      background: "var(--gray-50)",
-                      padding: "1rem",
-                      borderRadius: "4px",
-                    }}
-                  >
-                    Tight line height for headings and compact text. This creates a more condensed appearance that works
-                    well for titles and short text blocks.
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "2rem", marginBottom: "0.5rem" }}>
+                      <div style={{ minWidth: "150px" }}>
+                        <code>--lh-normal</code>
+                      </div>
+                      <div style={{ fontSize: "0.875rem", color: "var(--gray-600)" }}>1.5</div>
+                    </div>
+                    <div
+                      style={{
+                        lineHeight: "var(--lh-normal)",
+                        background: "var(--gray-50)",
+                        padding: "1rem",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      Normal line height for body text and general content. This provides good readability for longer
+                      text passages while maintaining a comfortable reading experience.
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "2rem", marginBottom: "0.5rem" }}>
+                      <div style={{ minWidth: "150px" }}>
+                        <code>--lh-relaxed</code>
+                      </div>
+                      <div style={{ fontSize: "0.875rem", color: "var(--gray-600)" }}>1.625</div>
+                    </div>
+                    <div
+                      style={{
+                        lineHeight: "var(--lh-relaxed)",
+                        background: "var(--gray-50)",
+                        padding: "1rem",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      Relaxed line height for improved readability in dense content areas. This spacing helps with
+                      comprehension and reduces visual fatigue when reading longer passages.
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "2rem", marginBottom: "0.5rem" }}>
-                    <div style={{ minWidth: "150px" }}>
-                      <code>--lh-normal</code>
-                    </div>
-                    <div style={{ fontSize: "0.875rem", color: "var(--gray-600)" }}>1.5</div>
-                  </div>
-                  <div
-                    style={{
-                      lineHeight: "var(--lh-normal)",
-                      background: "var(--gray-50)",
-                      padding: "1rem",
-                      borderRadius: "4px",
-                    }}
-                  >
-                    Normal line height for body text and general content. This provides good readability for longer text
-                    passages while maintaining a comfortable reading experience.
-                  </div>
-                </div>
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "2rem", marginBottom: "0.5rem" }}>
-                    <div style={{ minWidth: "150px" }}>
-                      <code>--lh-relaxed</code>
-                    </div>
-                    <div style={{ fontSize: "0.875rem", color: "var(--gray-600)" }}>1.625</div>
-                  </div>
-                  <div
-                    style={{
-                      lineHeight: "var(--lh-relaxed)",
-                      background: "var(--gray-50)",
-                      padding: "1rem",
-                      borderRadius: "4px",
-                    }}
-                  >
-                    Relaxed line height for improved readability in dense content areas. This spacing helps with
-                    comprehension and reduces visual fatigue when reading longer passages.
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+              </SGComponentExampleDemo>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Spacing Scale */}
         <section id="spacing-scale">
-          <div className="component-example">
-            <h3 className="sg-section-heading">Spacing Scale</h3>
-            <p>Consistent spacing system using a geometric progression for visual harmony and predictable layouts.</p>
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Spacing Scale" />
+            <SGComponentExampleContent>
+              <p>Consistent spacing system using a geometric progression for visual harmony and predictable layouts.</p>
 
-            <div className="example-demo">
-              <div style={{ display: "grid", gap: "1rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "120px" }}>
-                    <code>--space-1</code>
+              <SGComponentExampleDemo>
+                <div style={{ display: "grid", gap: "1rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "120px" }}>
+                      <code>--space-1</code>
+                    </div>
+                    <div style={{ fontSize: "0.875rem", color: "var(--gray-600)", minWidth: "60px" }}>0.25rem</div>
+                    <div style={{ background: "var(--blue-200)", height: "20px", width: "var(--space-1)" }}></div>
                   </div>
-                  <div style={{ fontSize: "0.875rem", color: "var(--gray-600)", minWidth: "60px" }}>0.25rem</div>
-                  <div style={{ background: "var(--blue-200)", height: "20px", width: "var(--space-1)" }}></div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "120px" }}>
-                    <code>--space-2</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "120px" }}>
+                      <code>--space-2</code>
+                    </div>
+                    <div style={{ fontSize: "0.875rem", color: "var(--gray-600)", minWidth: "60px" }}>0.5rem</div>
+                    <div style={{ background: "var(--blue-200)", height: "20px", width: "var(--space-2)" }}></div>
                   </div>
-                  <div style={{ fontSize: "0.875rem", color: "var(--gray-600)", minWidth: "60px" }}>0.5rem</div>
-                  <div style={{ background: "var(--blue-200)", height: "20px", width: "var(--space-2)" }}></div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "120px" }}>
-                    <code>--space-3</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "120px" }}>
+                      <code>--space-3</code>
+                    </div>
+                    <div style={{ fontSize: "0.875rem", color: "var(--gray-600)", minWidth: "60px" }}>0.75rem</div>
+                    <div style={{ background: "var(--blue-200)", height: "20px", width: "var(--space-3)" }}></div>
                   </div>
-                  <div style={{ fontSize: "0.875rem", color: "var(--gray-600)", minWidth: "60px" }}>0.75rem</div>
-                  <div style={{ background: "var(--blue-200)", height: "20px", width: "var(--space-3)" }}></div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "120px" }}>
-                    <code>--space-4</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "120px" }}>
+                      <code>--space-4</code>
+                    </div>
+                    <div style={{ fontSize: "0.875rem", color: "var(--gray-600)", minWidth: "60px" }}>1rem</div>
+                    <div style={{ background: "var(--blue-200)", height: "20px", width: "var(--space-4)" }}></div>
                   </div>
-                  <div style={{ fontSize: "0.875rem", color: "var(--gray-600)", minWidth: "60px" }}>1rem</div>
-                  <div style={{ background: "var(--blue-200)", height: "20px", width: "var(--space-4)" }}></div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "120px" }}>
-                    <code>--space-6</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "120px" }}>
+                      <code>--space-6</code>
+                    </div>
+                    <div style={{ fontSize: "0.875rem", color: "var(--gray-600)", minWidth: "60px" }}>1.5rem</div>
+                    <div style={{ background: "var(--blue-200)", height: "20px", width: "var(--space-6)" }}></div>
                   </div>
-                  <div style={{ fontSize: "0.875rem", color: "var(--gray-600)", minWidth: "60px" }}>1.5rem</div>
-                  <div style={{ background: "var(--blue-200)", height: "20px", width: "var(--space-6)" }}></div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "120px" }}>
-                    <code>--space-8</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "120px" }}>
+                      <code>--space-8</code>
+                    </div>
+                    <div style={{ fontSize: "0.875rem", color: "var(--gray-600)", minWidth: "60px" }}>2rem</div>
+                    <div style={{ background: "var(--blue-200)", height: "20px", width: "var(--space-8)" }}></div>
                   </div>
-                  <div style={{ fontSize: "0.875rem", color: "var(--gray-600)", minWidth: "60px" }}>2rem</div>
-                  <div style={{ background: "var(--blue-200)", height: "20px", width: "var(--space-8)" }}></div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "120px" }}>
-                    <code>--space-12</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "120px" }}>
+                      <code>--space-12</code>
+                    </div>
+                    <div style={{ fontSize: "0.875rem", color: "var(--gray-600)", minWidth: "60px" }}>3rem</div>
+                    <div style={{ background: "var(--blue-200)", height: "20px", width: "var(--space-12)" }}></div>
                   </div>
-                  <div style={{ fontSize: "0.875rem", color: "var(--gray-600)", minWidth: "60px" }}>3rem</div>
-                  <div style={{ background: "var(--blue-200)", height: "20px", width: "var(--space-12)" }}></div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ minWidth: "120px" }}>
-                    <code>--space-16</code>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ minWidth: "120px" }}>
+                      <code>--space-16</code>
+                    </div>
+                    <div style={{ fontSize: "0.875rem", color: "var(--gray-600)", minWidth: "60px" }}>4rem</div>
+                    <div style={{ background: "var(--blue-200)", height: "20px", width: "var(--space-16)" }}></div>
                   </div>
-                  <div style={{ fontSize: "0.875rem", color: "var(--gray-600)", minWidth: "60px" }}>4rem</div>
-                  <div style={{ background: "var(--blue-200)", height: "20px", width: "var(--space-16)" }}></div>
                 </div>
-              </div>
-            </div>
-          </div>
+              </SGComponentExampleDemo>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Usage Examples */}
         <section id="usage-examples">
-          <div className="component-example">
-            <h3 className="sg-section-heading">Usage Examples</h3>
-            <p>Practical examples of how to use CSS variables in your components and styles.</p>
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Usage Examples" />
+            <SGComponentExampleContent>
+              <p>Practical examples of how to use CSS variables in your components and styles.</p>
 
-            <div className="example-demo">
-              <h4 className="sg-sub-heading">Component Styling</h4>
-              <pre>
-                <code>{`.my-component {
+              <SGComponentExampleDemo>
+                <h4>Component Styling</h4>
+                <SGCodeBlock>{`.my-component {
   /* Use semantic color tokens */
   color: var(--text-color);
   background: var(--surface-color);
@@ -712,12 +728,10 @@ export default function CSSVariablesPage() {
   border-color: var(--border-color-focus);
   outline: 2px solid var(--yellow-400);
   outline-offset: 2px;
-}`}</code>
-              </pre>
+}`}</SGCodeBlock>
 
-              <h4 className="sg-sub-heading">Utility Classes</h4>
-              <pre>
-                <code>{`/* Spacing utilities using CSS variables */
+                <h4>Utility Classes</h4>
+                <SGCodeBlock>{`/* Spacing utilities using CSS variables */
 .p-4 { padding: var(--space-4); }
 .px-6 { padding-left: var(--space-6); padding-right: var(--space-6); }
 .mb-8 { margin-bottom: var(--space-8); }
@@ -730,12 +744,10 @@ export default function CSSVariablesPage() {
 /* Color utilities */
 .text-primary { color: var(--blue-700); }
 .text-muted { color: var(--text-color-muted); }
-.bg-surface { background: var(--surface-color); }`}</code>
-              </pre>
+.bg-surface { background: var(--surface-color); }`}</SGCodeBlock>
 
-              <h4 className="sg-sub-heading">React Inline Styles</h4>
-              <pre>
-                <code>{`// Using CSS variables in React inline styles
+                <h4>React Inline Styles</h4>
+                <SGCodeBlock>{`// Using CSS variables in React inline styles
 const cardStyle = {
   padding: 'var(--space-6)',
   backgroundColor: 'var(--surface-color)',
@@ -757,59 +769,55 @@ const cardStyle = {
   <p style={{ color: 'var(--text-color-secondary)' }}>
     Card content using design tokens
   </p>
-</div>`}</code>
-              </pre>
+</div>`}</SGCodeBlock>
 
-              <h4 className="sg-sub-heading">Best Practices</h4>
-              <ul>
-                <li>
-                  <strong>Use semantic tokens first:</strong> Prefer <code>--text-color</code> over{" "}
-                  <code>--gray-900</code> when possible
-                </li>
-                <li>
-                  <strong>Consistent spacing:</strong> Use the spacing scale rather than arbitrary values
-                </li>
-                <li>
-                  <strong>Avoid hardcoded values:</strong> Use CSS variables instead of magic numbers
-                </li>
-                <li>
-                  <strong>Theme compatibility:</strong> Variables make it easier to implement dark modes or themes
-                </li>
-                <li>
-                  <strong>Maintainability:</strong> Changes to design tokens automatically update all components
-                </li>
-              </ul>
-            </div>
-          </div>
+                <h4>Best Practices</h4>
+                <ul>
+                  <li>
+                    <strong>Use semantic tokens first:</strong> Prefer <code>--text-color</code> over{" "}
+                    <code>--gray-900</code> when possible
+                  </li>
+                  <li>
+                    <strong>Consistent spacing:</strong> Use the spacing scale rather than arbitrary values
+                  </li>
+                  <li>
+                    <strong>Avoid hardcoded values:</strong> Use CSS variables instead of magic numbers
+                  </li>
+                  <li>
+                    <strong>Theme compatibility:</strong> Variables make it easier to implement dark modes or themes
+                  </li>
+                  <li>
+                    <strong>Maintainability:</strong> Changes to design tokens automatically update all components
+                  </li>
+                </ul>
+              </SGComponentExampleDemo>
+            </SGComponentExampleContent>
+          </SGComponentExample>
         </section>
 
         {/* Implementation Guidelines */}
         <section id="implementation">
           <h2>Implementation Guidelines</h2>
 
-          <div className="guidelines-grid">
-            <div className="guideline-item">
-              <h3>Naming Conventions</h3>
+          <SGGuidelinesGrid>
+            <SGGuidelineItem title="Naming Conventions">
               <p>
                 Use consistent, semantic names that describe purpose rather than appearance. Follow the pattern:{" "}
                 <code>--category-variant-state</code>
               </p>
-            </div>
-            <div className="guideline-item">
-              <h3>Fallback Values</h3>
+            </SGGuidelineItem>
+            <SGGuidelineItem title="Fallback Values">
               <p>
                 Always provide fallback values when using CSS variables: <code>color: var(--text-color, #000)</code>
               </p>
-            </div>
-            <div className="guideline-item">
-              <h3>Documentation</h3>
+            </SGGuidelineItem>
+            <SGGuidelineItem title="Documentation">
               <p>Document the purpose and usage context for custom properties, especially semantic tokens.</p>
-            </div>
-            <div className="guideline-item">
-              <h3>Testing</h3>
+            </SGGuidelineItem>
+            <SGGuidelineItem title="Testing">
               <p>Test components with different themes and ensure variables work correctly across browsers.</p>
-            </div>
-          </div>
+            </SGGuidelineItem>
+          </SGGuidelinesGrid>
         </section>
       </ContentContainer>
     </LayoutContainer>
