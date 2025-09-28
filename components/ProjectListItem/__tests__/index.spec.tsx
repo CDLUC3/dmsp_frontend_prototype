@@ -56,7 +56,7 @@ describe("ProjectListItem", () => {
     ).toBeInTheDocument();
 
     // Check for plans section
-    expect(screen.getByText("Plans")).toBeInTheDocument();
+    expect(screen.getByText("plans")).toBeInTheDocument();
     expect(screen.getByText("Ocean Processes of Greenland")).toBeInTheDocument();
 
     // Check for update links (title link + update button)

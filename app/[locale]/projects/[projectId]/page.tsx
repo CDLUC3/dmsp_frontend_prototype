@@ -12,6 +12,7 @@ import { routePath } from "@/utils/routes";
 import PageHeader from "@/components/PageHeader";
 import { Card } from "@/components/Card/card";
 import { ContentContainer, LayoutWithPanel, SidebarPanel } from "@/components/Container";
+import OverviewSection from "@/components/OverviewSection";
 
 interface FundingInterface {
   name: string;
@@ -173,36 +174,34 @@ const ProjectOverviewPage: React.FC = () => {
       <LayoutWithPanel>
         <ContentContainer>
           <div className="project-overview">
-            <section
-              className="project-overview-item project-header"
-              aria-labelledby="project-title"
+            <OverviewSection
+              heading={ProjectOverview("project")}
+              headingId="project-title"
+              linkHref={routePath("projects.project.info", { projectId })}
+              linkText={ProjectOverview("edit")}
+              linkAriaLabel={ProjectOverview("editProject")}
             >
-              <h2 id="project-title">{ProjectOverview("project")}</h2>
-              <p className="project-overview-item-heading">
+              <p>
                 <strong>{project.title}</strong>
               </p>
-              <p>
-                {project.startDate &&
-                  project.endDate &&
-                  ProjectOverview("dateRange", {
+              {project.startDate && project.endDate && (
+                <p>
+                  {ProjectOverview("dateRange", {
                     startDate: formatDate(project.startDate),
                     endDate: formatDate(project.endDate),
                   })}
-              </p>
-              <Link
-                href={`/projects/${projectId}/project`}
-                aria-label={ProjectOverview("editProject")}
-              >
-                {ProjectOverview("edit")}
-              </Link>
-            </section>
+                </p>
+              )}
+            </OverviewSection>
 
-            <section
-              className="project-overview-item project-fundings"
-              aria-labelledby="fundings-title"
+            <OverviewSection
+              heading={ProjectOverview("fundings")}
+              headingId="fundings-title"
+              linkHref={routePath("projects.fundings.index", { projectId })}
+              linkText={ProjectOverview("editFundingDetails")}
+              linkAriaLabel={ProjectOverview("editFundings")}
             >
-              <h2 id="fundings-title">{ProjectOverview("fundings")}</h2>
-              <p className="project-overview-item-heading">
+              <p>
                 <strong>{ProjectOverview("fundingCount", { count: project.fundings.length })}</strong>
               </p>
               <p>
@@ -221,20 +220,16 @@ const ProjectOverviewPage: React.FC = () => {
                   </span>
                 ))}
               </p>
-              <Link
-                href={`/projects/${projectId}/fundings`}
-                aria-label={ProjectOverview("editFundings")}
-              >
-                {ProjectOverview("editFundingDetails")}
-              </Link>
-            </section>
+            </OverviewSection>
 
-            <section
-              className="project-overview-item project-members"
-              aria-labelledby="members-title"
+            <OverviewSection
+              heading={ProjectOverview("projectMembers")}
+              headingId="members-title"
+              linkHref={routePath("projects.members.index", { projectId })}
+              linkText={ProjectOverview("editProjectMembers")}
+              linkAriaLabel={ProjectOverview("editMembers")}
             >
-              <h2 id="members-title">{ProjectOverview("projectMembers")}</h2>
-              <p className="project-overview-item-heading">
+              <p>
                 <strong>{ProjectOverview("memberCount", { count: project.projectMembers.length })}</strong>
               </p>
               <p>
@@ -248,29 +243,19 @@ const ProjectOverviewPage: React.FC = () => {
                   </span>
                 ))}
               </p>
-              <Link
-                href={`/projects/${projectId}/members`}
-                aria-label={ProjectOverview("editMembers")}
-              >
-                {ProjectOverview("editProjectMembers")}
-              </Link>
-            </section>
+            </OverviewSection>
 
-            <section
-              className="project-overview-item research-outputs"
-              aria-labelledby="outputs-title"
+            <OverviewSection
+              heading={ProjectOverview("researchOutputs")}
+              headingId="outputs-title"
+              linkHref={routePath("projects.outputs.index", { projectId })}
+              linkText={ProjectOverview("editOutputs")}
+              linkAriaLabel={ProjectOverview("editOutputs")}
             >
-              <h2 id="outputs-title">{ProjectOverview("researchOutputs")}</h2>
-              <p className="project-overview-item-heading">
+              <p>
                 <strong>{ProjectOverview("outputCount", { count: project.researchOutputs.length })}</strong>
               </p>
-              <Link
-                href={`/projects/${projectId}/research-outputs`}
-                aria-label={ProjectOverview("editOutputs")}
-              >
-                {ProjectOverview("editOutputs")}
-              </Link>
-            </section>
+            </OverviewSection>
           </div>
 
           <section

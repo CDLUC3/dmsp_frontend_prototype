@@ -694,19 +694,31 @@
 
 // project overview
 .project-overview {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-8);
+
   .project-overview-item {
-    margin-top: var(--space-0);
-    margin-bottom: var(--space-6);
-    font-size: var(--fs-small);
+    border-radius: 0;
+    padding: var(--space-2) var(--space-4);
+    background-color: var(--color-background-subtle);
+    border-bottom: 1px solid var(--gray-100);
+
+    display: grid;
+    grid-template-columns: 1fr auto;
+    /* Content takes available space, button takes needed space */
+    gap: var(--space-3);
+    align-items: center;
+
+    /* Make the content area span full width on mobile */
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
 
     h2 {
-      font-size: var(--fs-base);
-      color: var(--blue-600);
-      font-weight: 600;
-
-      padding: var(--space-0);
-      margin: var(--space-0);
-      margin-bottom: var(--space-1);
+      font-size: var(--fs-h4);
+      margin: 0 0 var(--space-2) 0;
+      padding: 0;
     }
 
     h3 {
@@ -720,22 +732,23 @@
     }
 
     p {
-      font-size: var(--fs-small);
-      padding: var(--space-0);
-      margin: var(--space-0);
+      font-size: var(--fs-base);
+      padding: 0;
+      margin: 0;
     }
 
     .project-overview-item-heading {
-      font-size: var(--fs-lg);
+      font-size: var(--fs-base);
+      font-weight: 400;
     }
 
     .react-aria-Link {
       // Card/content area links - intentionally muted styling
-      font-size: var(--fs-small);
+      font-size: var(--fs-base);
       color: var(--slate-800);
       margin-top: var(--space-1);
       display: inline-block;
-      font-weight: var(--fw-normal); // Override default semibold
+      font-weight: 700;
       text-decoration: none; // Override default underline
     }
   }
