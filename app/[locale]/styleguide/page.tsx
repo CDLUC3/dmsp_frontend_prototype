@@ -33,6 +33,16 @@ export default function StyleGuidePage() {
           description: "Code style guidelines, CSS naming patterns, and component structure conventions",
           href: "/styleguide/foundations/naming-conventions",
         },
+        {
+          title: "CSS Variables",
+          description: "Design tokens, CSS custom properties, and theming system for consistent styling",
+          href: "/styleguide/foundations/css-variables",
+        },
+        {
+          title: "Icons",
+          description: "Icon usage philosophy, implementation approaches, and accessibility guidelines",
+          href: "/styleguide/foundations/icons",
+        },
       ],
     },
     {
@@ -70,6 +80,11 @@ export default function StyleGuidePage() {
           title: "Layout",
           description: "Container and ExpandableContentSection components for content organization",
           href: "/styleguide/components/layout",
+        },
+        {
+          title: "Headers",
+          description: "Page headers, sub-headers, and navigation components for page structure",
+          href: "/styleguide/components/headers",
         },
         {
           title: "Tables",
