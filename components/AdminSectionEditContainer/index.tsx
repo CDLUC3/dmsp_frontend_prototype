@@ -102,7 +102,7 @@ const AdminSectionEditContainer: React.FC<AdminSectionEditContainerProps> = ({
   };
 
   // Mock update function (no server call)
-  const updateDisplayOrder = async (questionId: string, newDisplayOrder: number) => {
+  const updateDisplayOrder = async (_questionId: string, _newDisplayOrder: number) => {
     // Simulate server delay
     await new Promise((resolve) => setTimeout(resolve, 500));
 

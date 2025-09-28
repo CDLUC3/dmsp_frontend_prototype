@@ -76,7 +76,7 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
           </span>
           {title}
         </h2>
-        {checklist && (
+        {sectionAuthorType && checklist && (
           <div
             className={styles.sectionChecklist}
             role="group"

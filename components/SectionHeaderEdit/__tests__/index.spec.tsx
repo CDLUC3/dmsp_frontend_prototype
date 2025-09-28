@@ -100,6 +100,7 @@ describe("SectionHeaderEdit", () => {
     render(
       <SectionHeaderEdit
         {...defaultProps}
+        sectionAuthorType="funder"
         checklist={checklist}
       />,
     );
@@ -124,6 +125,7 @@ describe("SectionHeaderEdit", () => {
     render(
       <SectionHeaderEdit
         {...defaultProps}
+        sectionAuthorType="funder"
         checklist={checklist}
       />,
     );
@@ -174,6 +176,7 @@ describe("SectionHeaderEdit", () => {
     const { container } = render(
       <SectionHeaderEdit
         {...defaultProps}
+        sectionAuthorType="funder"
         checklist={checklist}
         onMoveUp={jest.fn()}
         onMoveDown={jest.fn()}
