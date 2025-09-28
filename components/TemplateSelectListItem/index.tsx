@@ -97,7 +97,7 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
 
           {onSelect ? (
             <Button
-              className={styles.selectButton}
+              className="primary"
               onPress={async () => {
                 if (typeof item?.id === "number") {
                   await onSelect(item.id);
