@@ -47,7 +47,7 @@ function ProjectListItem({ item }: { item: ProjectItemProps }) {
             {/* Plans section */}
             {item.plans && item.plans.length > 0 && (
               <div className={styles.plansSection}>
-                <h3 className={styles.plansHeading}>{item.plans.length === 1 ? "Plan" : "Plans"}</h3>
+                <h3 className={styles.plansHeading}>{item.plans.length === 1 ? t("plan") : t("plans")}</h3>
                 {item.plans.map((plan, index) => (
                   <div
                     key={index}

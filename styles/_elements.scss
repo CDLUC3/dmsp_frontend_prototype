@@ -769,9 +769,18 @@
     }
   }
 
+  .plan-section-heading {
+    font-size: var(--fs-xxs);
+    font-weight: var(--fw-semibold);
+    color: var(--slate-600);
+    margin: 0 0 2px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
   .plan-sections-list {
     padding: 0;
-    margin: var(space-4) 0;
+    margin: 0 0 var(--space-4) 0;
     list-style: none;
   }
 
@@ -781,8 +790,8 @@
     margin: var(--space-2) 0;
 
     a {
-      font-size: var(--fs-base);
-      color: var(--text-black);
+      font-size: var(--fs-sm);
+      color: var(--blue-500);
       text-decoration: underline;
       text-underline-offset: 2px;
     }

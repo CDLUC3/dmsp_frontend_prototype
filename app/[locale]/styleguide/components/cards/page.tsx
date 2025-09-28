@@ -14,7 +14,6 @@ import {
   SGComponentExampleContent,
   SGComponentExampleDemo,
   SGCodeBlock,
-  SGPropsTable,
   SGTocGrid,
   SGTocSection,
   SGGuidelinesGrid,
@@ -61,6 +60,9 @@ export default function CardsPage() {
               <ul>
                 <li>
                   <a href="#full-featured-card">Full Featured Card</a>
+                </li>
+                <li>
+                  <a href="#plan-card">Plan Card</a>
                 </li>
                 <li>
                   <a href="#card-variants">Card Variants</a>
@@ -212,6 +214,156 @@ import { Button } from 'react-aria-components';
     <div>Footer content, actions, or metadata</div>
   </CardFooter>
 </Card>`}</SGCodeBlock>
+            </SGComponentExampleContent>
+          </SGComponentExample>
+        </section>
+
+        {/* Plan Card */}
+        <section id="plan-card">
+          <h2>Plan Card</h2>
+          <p>Specialized card layout for displaying data management plans with sections, metadata, and actions.</p>
+
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Data Management Plan Card" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
+                <div className="plans">
+                  <Card className="plan-item">
+                    <p className="mb-1">Funding: National Science Foundation</p>
+                    <h3 className="mt-0">Standard Research Template</h3>
+                    <div className="plan-sections mb-4">
+                      <h4 className="plan-section-heading">Sections</h4>
+                      <ul
+                        className="plan-sections-list"
+                        aria-label="Plan sections"
+                      >
+                        <li className="plan-sections-list-item">
+                          <Link
+                            href="#research-methodology"
+                            className="text-link"
+                          >
+                            Research Methodology
+                          </Link>
+                          <span className="plan-sections-list-item-progress">Progress: 3/5</span>
+                        </li>
+                        <li className="plan-sections-list-item">
+                          <Link
+                            href="#data-collection"
+                            className="text-link"
+                          >
+                            Data Collection
+                          </Link>
+                          <span className="plan-sections-list-item-progress">Progress: 2/4</span>
+                        </li>
+                        <li className="plan-sections-list-item">
+                          <Link
+                            href="#data-storage"
+                            className="text-link"
+                          >
+                            Data Storage
+                          </Link>
+                          <span className="plan-sections-list-item-progress">Progress: 1/3</span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="plan-meta">
+                      <p>
+                        DOI: 10.1234/example.dmp <br />
+                        Last Updated: 15-12-2024
+                        <br />
+                        Created: 01-11-2024
+                      </p>
+                    </div>
+                    <div className="plan-footer">
+                      <div className="plan-links">
+                        <Link
+                          href="#download"
+                          className="text-link"
+                          aria-label="Download plan"
+                        >
+                          Download
+                        </Link>
+                      </div>
+                      <div className="plan-action">
+                        <Link
+                          href="#update"
+                          className="react-aria-Button react-aria-Button--primary"
+                          aria-label="Update plan"
+                        >
+                          Update
+                        </Link>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+              </SGComponentExampleDemo>
+
+              <h4>Usage</h4>
+              <SGCodeBlock>{`import { Card } from '@/components/Card/card';
+import Link from 'next/link';
+
+<div className="plans">
+  <Card className="plan-item">
+    <p className="mb-1">Funding: {fundingSource}</p>
+    <h3 className="mt-0">{templateTitle}</h3>
+    <div className="plan-sections mb-4">
+      <h4 className="plan-section-heading">Sections</h4>
+      <ul className="plan-sections-list" aria-label="Plan sections">
+        {sections.map((section) => (
+          <li key={section.id} className="plan-sections-list-item">
+            <Link href={section.url} className="text-link">{section.title}</Link>
+            <span className="plan-sections-list-item-progress">
+              Progress: {section.answered}/{section.total}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div className="plan-meta">
+      <p>
+        DOI: {plan.doi} <br />
+        Last Updated: {lastUpdated}<br />
+        Created: {created}
+      </p>
+    </div>
+    <div className="plan-footer">
+      <div className="plan-links">
+        <Link href={downloadUrl} className="text-link">
+          Download
+        </Link>
+      </div>
+      <div className="plan-action">
+        <Link href={updateUrl} className="react-aria-Button react-aria-Button--primary">
+          Update
+        </Link>
+      </div>
+    </div>
+  </Card>
+</div>`}</SGCodeBlock>
+
+              <h4>Key Features</h4>
+              <ul>
+                <li>
+                  <strong>Section Progress:</strong> Shows completion status for each plan section
+                </li>
+                <li>
+                  <strong>Metadata Display:</strong> DOI, creation and modification dates
+                </li>
+                <li>
+                  <strong>Standard Link Styling:</strong> All links use consistent text-link styling with blue color and
+                  underlines
+                </li>
+                <li>
+                  <strong>Primary Action:</strong> Update button for plan editing
+                </li>
+                <li>
+                  <strong>Accessibility:</strong> Proper ARIA labels and semantic structure
+                </li>
+                <li>
+                  <strong>Required Wrapper:</strong> Must be wrapped in a <code>.plans</code> container for proper
+                  styling
+                </li>
+              </ul>
             </SGComponentExampleContent>
           </SGComponentExample>
         </section>
