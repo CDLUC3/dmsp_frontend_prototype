@@ -692,7 +692,6 @@ const PlanOverviewPage: React.FC = () => {
                   <h3>{t("status.feedback.title")}</h3>
                 </div>
                 <Link
-                  className="sidePanelLink"
                   href={FEEDBACK_URL}
                   aria-label={Global("links.request")}
                 >
@@ -726,7 +725,7 @@ const PlanOverviewPage: React.FC = () => {
                     <p>{toTitleCase(state.planData.status)}</p>
                   </div>
                   <Button
-                    className={`buttonLink link`}
+                    className="button-as-link"
                     data-testid="updateLink"
                     onPress={handlePlanStatusChange}
                     aria-label={t("status.select.changeLabel")}
