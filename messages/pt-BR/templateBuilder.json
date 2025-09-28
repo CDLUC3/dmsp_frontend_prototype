@@ -97,10 +97,13 @@
   },
   "EditQuestion": {
     "label": {
-      "question": "Pergunta"
+      "question": "Pergunta",
+      "funderQuestion": "Pergunta do Financiador",
+      "organizationQuestion": "Pergunta da Organização"
     },
     "links": {
       "editQuestion": "Editar pergunta",
+      "customizeQuestion": "Personalizar",
       "addQuestion": "Adicionar pergunta"
     },
     "buttons": {
@@ -109,6 +112,13 @@
     },
     "messages": {
       "questionMoved": "Seção movida para a posição {displayOrder}"
+    },
+    "checklist": {
+      "requirements": "Requisitos",
+      "guidance": "Orientação",
+      "sampleText": "Texto de Exemplo",
+      "completed": " concluído",
+      "notCompleted": " não concluído"
     }
   },
   "Sections": {
@@ -134,6 +144,12 @@
       },
       "questionMoved": "Seção movida para a posição {displayOrder}",
       "sectionMoved": "Seção movida para a posição {displayOrder}"
+    },
+    "checklist": {
+      "requirements": "Requisitos",
+      "guidance": "Orientação",
+      "completed": " concluído",
+      "notCompleted": " não concluído"
     }
   },
   "SectionTypeSelectPage": {

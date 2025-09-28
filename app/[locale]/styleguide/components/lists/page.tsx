@@ -9,6 +9,8 @@ import ProjectListItem from "@/components/ProjectListItem";
 import TemplateSelectListItem from "@/components/TemplateSelectListItem";
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
 import QuestionEditCard from "@/components/QuestionEditCard";
+import AdminSectionEditContainer from "@/components/AdminSectionEditContainer";
+import { mockSections as adminMockSections } from "@/components/AdminSectionEditContainer/mockData";
 
 import "../../shared/styleguide.scss";
 import {
@@ -273,6 +275,9 @@ export default function ListsDataCardsPage() {
                 </li>
                 <li>
                   <a href="#question-edit-card">Question Edit Card</a>
+                </li>
+                <li>
+                  <a href="#admin-section-edit-container">Admin Section Edit Container</a>
                 </li>
               </ul>
             </SGTocSection>
@@ -638,6 +643,138 @@ const template = {
                   <strong>Accessibility:</strong> Proper ARIA labels and keyboard navigation
                 </li>
               </ul>
+            </SGComponentExampleContent>
+          </SGComponentExample>
+        </section>
+
+        {/* Admin Section Edit Container */}
+        <section id="admin-section-edit-container">
+          <h2>Admin Section Edit Container</h2>
+          <p>
+            Complete section management component with nested questions for admin template customization interfaces.
+          </p>
+
+          <SGComponentExample>
+            <SGComponentExampleHeader
+              title="Admin Template Customization Interface"
+              description="Full section and question management with reordering capabilities and mock data"
+            />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
+                <div>
+                  <h4 style={{ margin: "0 0 1rem 0" }}>Template Customization</h4>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    {adminMockSections.map((section) => (
+                      <AdminSectionEditContainer
+                        key={section.id}
+                        section={section}
+                        templateId="1"
+                        setErrorMessages={() => {}}
+                        onMoveUp={
+                          section.sectionNumber > 1 ? () => console.log(`Move section ${section.id} up`) : undefined
+                        }
+                        onMoveDown={
+                          section.sectionNumber < adminMockSections.length
+                            ? () => console.log(`Move section ${section.id} down`)
+                            : undefined
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+              </SGComponentExampleDemo>
+
+              <h4>Usage</h4>
+              <SGCodeBlock>{`import AdminSectionEditContainer from '@/components/AdminSectionEditContainer';
+import { mockSections } from '@/components/AdminSectionEditContainer/mockData';
+
+const [errorMessages, setErrorMessages] = useState<string[]>([]);
+
+// Mock section move handlers
+const handleSectionMove = (sectionId: number, newDisplayOrder: number) => {
+  console.log(\`Moving section \${sectionId} to position \${newDisplayOrder}\`);
+};
+
+{mockSections.map((section) => (
+  <AdminSectionEditContainer
+    key={section.id}
+    section={section}
+    templateId="1"
+    setErrorMessages={setErrorMessages}
+    onMoveUp={
+      section.sectionNumber > 1
+        ? () => handleSectionMove(section.id, section.sectionNumber - 1)
+        : undefined
+    }
+    onMoveDown={
+      section.sectionNumber < mockSections.length
+        ? () => handleSectionMove(section.id, section.sectionNumber + 1)
+        : undefined
+    }
+  />
+))}`}</SGCodeBlock>
+
+              <h4>Features</h4>
+              <ul>
+                <li>
+                  <strong>Complete section management:</strong> Section headers with nested questions
+                </li>
+                <li>
+                  <strong>Mock data support:</strong> Uses static mock data instead of GraphQL
+                </li>
+                <li>
+                  <strong>Question reordering:</strong> Move questions up/down within sections
+                </li>
+                <li>
+                  <strong>Section reordering:</strong> Move entire sections up/down
+                </li>
+                <li>
+                  <strong>Optimistic updates:</strong> Immediate UI feedback with error handling
+                </li>
+                <li>
+                  <strong>Accessibility:</strong> Full ARIA support and screen reader announcements
+                </li>
+                <li>
+                  <strong>Error handling:</strong> Toast notifications and error state management
+                </li>
+              </ul>
+
+              <h4>Mock Data Structure</h4>
+              <SGCodeBlock>{`interface MockSection {
+  id: number;
+  title: string;
+  sectionNumber: number;
+  editUrl: string;
+  questions: MockQuestion[];
+}
+
+interface MockQuestion {
+  id: string;
+  text: string;
+  link: string;
+  name: string;
+  displayOrder: number;
+}
+
+const mockSections: MockSection[] = [
+  {
+    id: 1,
+    title: "Data Collection and Management",
+    sectionNumber: 1,
+    editUrl: "/template/1/section/1/edit",
+    questions: [
+      {
+        id: "1",
+        text: "What types of data will be collected?",
+        link: "/template/1/section/1/question/1/edit",
+        name: "data-types",
+        displayOrder: 1,
+      },
+      // ... more questions
+    ],
+  },
+  // ... more sections
+];`}</SGCodeBlock>
             </SGComponentExampleContent>
           </SGComponentExample>
         </section>
