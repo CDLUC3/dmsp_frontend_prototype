@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { ContentContainer, LayoutContainer } from "@/components/Container";
-import { Table, TableHeader, TableBody, Column, Row, Cell, Button } from "react-aria-components";
+import { Table, TableHeader, TableBody, Column, Row, Cell, Button, SortDescriptor } from "react-aria-components";
 
 import {
   SGComponentExample,
@@ -20,10 +20,7 @@ import "../../shared/styleguide.scss";
 
 export default function TablesPage() {
   // Sample data for table examples
-  const [sortDescriptor, setSortDescriptor] = React.useState({
-    column: undefined,
-    direction: undefined,
-  });
+  const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor | undefined>(undefined);
 
   const sampleData = [
     {
