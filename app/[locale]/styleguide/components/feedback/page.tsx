@@ -248,8 +248,8 @@ if (loading) {
                     <td>
                       <code>variant</code>
                     </td>
-                    <td>"page" | "inline" | "minimal" | "fullscreen"</td>
-                    <td>"page"</td>
+                    <td>&quot;page&quot; | &quot;inline&quot; | &quot;minimal&quot; | &quot;fullscreen&quot;</td>
+                    <td>&quot;page&quot;</td>
                     <td>Loading variant style</td>
                   </tr>
                   <tr>
@@ -257,7 +257,7 @@ if (loading) {
                       <code>message</code>
                     </td>
                     <td>string</td>
-                    <td>Global('messaging.loading')</td>
+                    <td>Global(&apos;messaging.loading&apos;)</td>
                     <td>Custom loading message</td>
                   </tr>
                   <tr>
@@ -273,7 +273,7 @@ if (loading) {
                       <code>className</code>
                     </td>
                     <td>string</td>
-                    <td>""</td>
+                    <td>&quot;&quot;</td>
                     <td>Additional CSS classes</td>
                   </tr>
                   <tr>

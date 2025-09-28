@@ -24,7 +24,7 @@ import {
 export default function ListsDataCardsPage() {
   // State for interactive examples
   const [selectedTemplate, setSelectedTemplate] = React.useState<number | null>(null);
-  const [expandedProject, setExpandedProject] = React.useState<string | null>(null);
+  const [_expandedProject, _setExpandedProject] = React.useState<string | null>(null);
 
   // Mock data for examples
   const mockTemplates = [
@@ -592,7 +592,7 @@ const template = {
                 <div>
                   <h4 style={{ margin: "0 0 1rem 0" }}>Section Questions</h4>
                   <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                    {mockQuestions.map((question, index) => (
+                    {mockQuestions.map((question, _index) => (
                       <QuestionEditCard
                         key={question.id}
                         id={question.id}
@@ -744,7 +744,7 @@ const template = {
                           </div>
 
                           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                            {mockQuestions.slice(0, 2).map((question, questionIndex) => (
+                            {mockQuestions.slice(0, 2).map((question, _questionIndex) => (
                               <QuestionEditCard
                                 key={question.id}
                                 id={question.id}
