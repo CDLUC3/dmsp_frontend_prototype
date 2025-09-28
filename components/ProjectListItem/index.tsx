@@ -148,9 +148,11 @@ function ProjectListItem({ item }: { item: ProjectItemProps }) {
               <div className={styles.detailSection}>
                 <h4 className={styles.sectionTitle}>{t("project")}</h4>
                 {(item.startDate || item.endDate) && (
-                  <p className={styles.contentText}>
-                    <strong>{t("dates")}:</strong> {item.startDate || "Not set"} to {item.endDate || "Not set"}
-                  </p>
+                  <>
+                    <p className={styles.contentText}>
+                      <strong>{t("dates")}:</strong> {item.startDate || "Not set"} to {item.endDate || "Not set"}
+                    </p>
+                  </>
                 )}
               </div>
 
