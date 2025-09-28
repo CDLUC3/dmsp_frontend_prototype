@@ -26,6 +26,7 @@
     background: var(--blue-500);
     color: var(--bg-white);
   }
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -172,6 +173,7 @@ a.button-secondary {
   &:focus {
     text-decoration: none;
   }
+
   @include button-base;
   @include button-secondary;
 }
@@ -206,7 +208,7 @@ a.button-link {
 .react-aria-Button.primary,
 .react-aria-Button--primary,
 button.primary,
-button--primary,
+.button--primary,
 input[type="submit"],
 input[type="button"].primary,
 input[type="reset"].primary {
@@ -217,7 +219,7 @@ input[type="reset"].primary {
 .react-aria-Button.secondary,
 .react-aria-Button--secondary,
 button.secondary,
-button--secondary,
+.button--secondary,
 input[type="button"].secondary,
 input[type="reset"].secondary,
 input[type="submit"].secondary {
@@ -228,7 +230,7 @@ input[type="submit"].secondary {
 .react-aria-Button.tertiary,
 .react-aria-Button--tertiary,
 button.tertiary,
-button--tertiary,
+.button--tertiary,
 input[type="button"].tertiary,
 input[type="reset"].tertiary,
 input[type="submit"].tertiary {
@@ -239,7 +241,7 @@ input[type="submit"].tertiary {
 .react-aria-Button.link,
 .react-aria-Button--link,
 button.link,
-button--link,
+.button--link,
 input[type="button"].link,
 input[type="reset"].link,
 input[type="submit"].link {
@@ -249,7 +251,7 @@ input[type="submit"].link {
 .react-aria-Button.danger,
 .react-aria-Button--danger,
 button.danger,
-button--danger,
+.button--danger,
 input[type="button"].danger,
 input[type="reset"].danger,
 input[type="submit"].danger {
@@ -263,10 +265,10 @@ button.small {
   font-size: 0.75rem;
 }
 
-  // Button container for two buttons
-  .button-container {
-    display: flex;
-    gap: 10px; // Space between buttons
-    align-items: flex-start;
-  
-  }
+// Button container for two buttons
+.button-container {
+  display: flex;
+  gap: 10px; // Space between buttons
+  align-items: flex-start;
+
+}

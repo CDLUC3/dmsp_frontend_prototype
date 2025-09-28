@@ -414,7 +414,7 @@ dd {
   text-align: center;
 
   p {
-    color: var(--text-color-disabled);
+    color: var(--gray-600);
     font-style: italic;
     margin: 0;
   }
@@ -590,4 +590,45 @@ table {
 // Component principles grid
 .component-principles {
   margin: var(--space-6) 0;
+}
+
+// Spinner demo styles
+.spinner-demo-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.spinner-demo-area {
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gray-300);
+  border-radius: 4px;
+  background: var(--gray-50);
+  width: 100%;
+}
+
+.spinner-demo-text {
+  color: var(--gray-600);
+  margin: 0;
+}
+
+// Implementation notes and accessibility guidelines
+.implementation-notes {
+  padding: 1.5rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 8px;
+  background: var(--gray-75);
+  margin-top: 2rem;
+
+  h3 {
+    margin: 0 0 1rem 0;
+  }
+}
+
+.accessibility-guidelines {
+  margin: 2rem 0;
 }

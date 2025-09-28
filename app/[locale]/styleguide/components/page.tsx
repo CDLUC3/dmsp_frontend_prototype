@@ -82,11 +82,6 @@ export default function ComponentsPage() {
           href: "/styleguide/components/lists",
         },
         {
-          title: "Data Cards",
-          description: "Specialized cards for displaying data items and interactive content",
-          href: "/styleguide/components/data-cards",
-        },
-        {
           title: "Tables",
           description: "Data tables with sorting, filtering, and responsive behavior",
           href: "/styleguide/components/tables",

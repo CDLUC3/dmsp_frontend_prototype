@@ -48,7 +48,7 @@ export default function StyleGuidePage() {
       ],
     },
     {
-      title: "Core UI Components",
+      title: "Components",
       description: "Essential reusable interface elements for building consistent user experiences",
       items: [
         {
@@ -67,26 +67,10 @@ export default function StyleGuidePage() {
           href: "/styleguide/components/modals",
         },
         {
-          title: "Misc. Navigation",
-          description: "Pagination, PageLinkCard, and LinkFilter components for site navigation",
-          href: "/styleguide/components/navigation",
-        },
-        {
           title: "Layout",
           description: "Container and ExpandableContentSection components for content organization",
           href: "/styleguide/components/layout",
         },
-        {
-          title: "Feedback & Loading",
-          description: "Spinners, loading states, and user feedback components for async operations",
-          href: "/styleguide/components/feedback",
-        },
-      ],
-    },
-    {
-      title: "Data Display",
-      description: "Components for presenting and organizing information effectively",
-      items: [
         {
           title: "Tables",
           description: "Data tables with sorting, selection, and responsive behavior",
@@ -98,26 +82,14 @@ export default function StyleGuidePage() {
           href: "/styleguide/components/lists",
         },
         {
-          title: "Data Cards",
-          description: "Template selection cards, project cards, and specialized data display components",
-          href: "/styleguide/components/data-cards",
-        },
-      ],
-    },
-    {
-      title: "Patterns",
-      description:
-        "Common interface patterns and page templates that combine multiple components into cohesive experiences",
-      items: [
-        {
-          title: "Layout Patterns",
-          description: "Page layouts, sidebar patterns, dashboard structures, and container systems",
-          href: "/styleguide/patterns/layouts",
+          title: "Misc. Navigation",
+          description: "Pagination, PageLinkCard, and LinkFilter components for site navigation",
+          href: "/styleguide/components/navigation",
         },
         {
-          title: "Question Patterns",
-          description: "Question editing interfaces, preview patterns, and form building components",
-          href: "/styleguide/patterns/question-patterns",
+          title: "Feedback & Loading",
+          description: "Spinners, loading states, and user feedback components for async operations",
+          href: "/styleguide/components/feedback",
         },
       ],
     },
@@ -130,117 +102,64 @@ export default function StyleGuidePage() {
 
         <PageLinkCard sections={sections} />
 
+        <div className="implementation-notes">
+          <h3>Implementation Notes</h3>
+          <ul>
+            <li>
+              <strong>React Aria:</strong> We use React Aria components which provide accessibility features out of the
+              box{" "}
+              <a
+                href="https://react-spectrum.adobe.com/react-aria/getting-started.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://react-spectrum.adobe.com/react-aria/getting-started.html
+              </a>
+            </li>
+            <li>
+              <strong>Testing:</strong> Test with keyboard navigation and screen readers during development
+            </li>
+          </ul>
+        </div>
+
         {/* Accessibility Guidelines */}
         <section id="accessibility-guidelines">
           <h2>Accessibility Guidelines</h2>
           <p>
-            Our design system prioritizes inclusive design and WCAG 2.1 AA compliance to ensure all users can access and
-            use our applications effectively.
+            Our design system prioritizes inclusive design and WCAG 2.1 AA compliance. Ensure your implementation meets
+            these standards:
           </p>
 
-          <div
-            className="accessibility-grid"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-              gap: "1.5rem",
-              margin: "2rem 0",
-            }}
-          >
-            <div
-              style={{
-                padding: "1.5rem",
-                border: "1px solid var(--blue-200)",
-                borderRadius: "8px",
-                background: "var(--blue-50)",
-              }}
-            >
-              <h3 style={{ margin: "0 0 1rem 0", color: "var(--blue-900)" }}>🎯 Focus Management</h3>
-              <ul style={{ margin: 0 }}>
-                <li>All interactive elements are keyboard accessible</li>
-                <li>Focus indicators are clearly visible</li>
-                <li>Tab order follows logical content flow</li>
-                <li>Focus trapping in modals and drawers</li>
-              </ul>
-            </div>
-
-            <div
-              style={{
-                padding: "1.5rem",
-                border: "1px solid var(--green-200)",
-                borderRadius: "8px",
-                background: "var(--green-50)",
-              }}
-            >
-              <h3 style={{ margin: "0 0 1rem 0", color: "var(--green-900)" }}>🏷️ Semantic HTML</h3>
-              <ul style={{ margin: 0 }}>
-                <li>Proper heading hierarchy (h1, h2, h3...)</li>
-                <li>Meaningful link text and button labels</li>
-                <li>Form labels associated with inputs</li>
-                <li>Landmark regions for navigation</li>
-              </ul>
-            </div>
-
-            <div
-              style={{
-                padding: "1.5rem",
-                border: "1px solid var(--purple-200)",
-                borderRadius: "8px",
-                background: "var(--purple-50)",
-              }}
-            >
-              <h3 style={{ margin: "0 0 1rem 0", color: "var(--purple-900)" }}>🎨 Visual Design</h3>
-              <ul style={{ margin: 0 }}>
-                <li>4.5:1 contrast ratio for normal text</li>
-                <li>3:1 contrast ratio for large text</li>
-                <li>Color is not the only visual indicator</li>
-                <li>Text remains readable at 200% zoom</li>
-              </ul>
-            </div>
-
-            <div
-              style={{
-                padding: "1.5rem",
-                border: "1px solid var(--orange-200)",
-                borderRadius: "8px",
-                background: "var(--orange-50)",
-              }}
-            >
-              <h3 style={{ margin: "0 0 1rem 0", color: "var(--orange-900)" }}>📱 Responsive Design</h3>
-              <ul style={{ margin: 0 }}>
-                <li>Touch targets minimum 44px × 44px</li>
-                <li>Content reflows at different screen sizes</li>
-                <li>No horizontal scrolling at 320px width</li>
-                <li>Mobile-friendly navigation patterns</li>
-              </ul>
-            </div>
-          </div>
-
-          <div
-            style={{
-              padding: "1.5rem",
-              border: "1px solid var(--gray-300)",
-              borderRadius: "8px",
-              background: "var(--gray-75)",
-              marginTop: "2rem",
-            }}
-          >
-            <h3 style={{ margin: "0 0 1rem 0" }}>🛠️ Implementation Notes</h3>
+          <div className="accessibility-guidelines">
+            <h4>Focus Management</h4>
             <ul>
-              <li>
-                <strong>React Aria:</strong> We use React Aria components which provide accessibility features out of
-                the box
-              </li>
-              <li>
-                <strong>Testing:</strong> Test with keyboard navigation and screen readers during development
-              </li>
-              <li>
-                <strong>Documentation:</strong> Each component page includes accessibility considerations
-              </li>
-              <li>
-                <strong>Continuous Improvement:</strong> Regular accessibility audits and user testing inform our
-                improvements
-              </li>
+              <li>Verify all interactive elements are keyboard accessible</li>
+              <li>Ensure focus indicators are clearly visible</li>
+              <li>Check that tab order follows logical content flow</li>
+              <li>Implement focus trapping in modals and drawers</li>
+            </ul>
+
+            <h4>Semantic HTML</h4>
+            <ul>
+              <li>Maintain proper heading hierarchy (h1, h2, h3...)</li>
+              <li>Use meaningful and descriptive link text and button labels</li>
+              <li>Associate form labels properly with inputs</li>
+              <li>Implement landmark regions for navigation structure</li>
+            </ul>
+
+            <h4>Visual Design</h4>
+            <ul>
+              <li>Ensure normal text meets 4.5:1 contrast ratio requirement</li>
+              <li>Verify large text meets 3:1 contrast ratio requirement</li>
+              <li>Ensure color is not the only visual indicator for important information</li>
+              <li>Test that text remains readable when zoomed to 200%</li>
+            </ul>
+
+            <h4>Responsive Design</h4>
+            <ul>
+              <li>Make touch targets minimum 44px × 44px</li>
+              <li>Ensure content reflows appropriately at different screen sizes</li>
+              <li>Implement mobile-friendly navigation patterns</li>
             </ul>
           </div>
         </section>
