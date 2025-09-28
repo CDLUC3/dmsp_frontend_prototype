@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { ContentContainer, LayoutContainer } from "@/components/Container";
+import { Button } from "react-aria-components";
 import TemplateList from "@/components/TemplateList";
 import ProjectListItem from "@/components/ProjectListItem";
 import TemplateSelectListItem from "@/components/TemplateSelectListItem";
@@ -660,18 +661,7 @@ const template = {
                     }}
                   >
                     <h4 style={{ margin: 0 }}>Template Management</h4>
-                    <button
-                      style={{
-                        padding: "0.5rem 1rem",
-                        background: "var(--blue-500)",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Create New Template
-                    </button>
+                    <Button className="primary">Create New Template</Button>
                   </div>
 
                   <TemplateList
@@ -721,18 +711,7 @@ const template = {
                     }}
                   >
                     <h4 style={{ margin: 0 }}>Template Structure</h4>
-                    <button
-                      style={{
-                        padding: "0.5rem 1rem",
-                        background: "var(--green-500)",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Add Section
-                    </button>
+                    <Button className="primary">Add Section</Button>
                   </div>
 
                   <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
@@ -761,19 +740,7 @@ const template = {
                             }}
                           >
                             <h5 style={{ margin: 0, fontSize: "0.875rem", color: "var(--gray-600)" }}>Questions</h5>
-                            <button
-                              style={{
-                                padding: "0.25rem 0.5rem",
-                                background: "var(--blue-500)",
-                                color: "white",
-                                border: "none",
-                                borderRadius: "4px",
-                                cursor: "pointer",
-                                fontSize: "0.75rem",
-                              }}
-                            >
-                              Add Question
-                            </button>
+                            <Button className="secondary small">Add Question</Button>
                           </div>
 
                           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
