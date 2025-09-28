@@ -2,12 +2,15 @@
 
 
 .templateItem {
-  padding: var(--space-5) var(--space-4);
   margin-bottom: var(--space-4);
   border-radius: var(--card-border-radius);
   background: var(--bg-white);
   box-shadow: var(--card-shadow);
   border: 1px solid var(--card-border);
+}
+
+.templateItemWrapper {
+  padding: 1.25rem var(--space-5);
 }
 
 
@@ -29,7 +32,7 @@
 }
 
 .funder {
-  color: var(--text-color-base);
+  color: var(--text-color);
   font-size: var(--fs-small);
   margin-bottom: var(--space-2);
   font-weight: var(--fw-medium);
@@ -45,9 +48,10 @@
 }
 
 .description {
+  margin-top: var(--space-1);
   margin-bottom: var(--space-4);
   color: var(--text-color);
-  font-size: var(--fs-base);
+  font-size: var(--fs-small);
   line-height: var(--lh-normal);
 }
 
@@ -80,12 +84,15 @@
 
 .guidance {
   display: flex;
-  align-items: center;
+  align-items: left;
+  justify-content: left;
   gap: var(--space-2);
-  margin-top: var(--space-3);
+  padding: var(--space-2) var(--space-5);
+  background-color: var(--blue-100);
+  border-radius: var(--border-radius-md);
   color: var(--heading-color);
   font-size: var(--fs-small);
-  font-weight: var(--fw-medium);
+  font-weight: var(--fw-normal);
 }
 
 .updateLink {
