@@ -13,6 +13,7 @@ import PageHeader from "@/components/PageHeader";
 import { Card } from "@/components/Card/card";
 import { ContentContainer, LayoutWithPanel, SidebarPanel } from "@/components/Container";
 import OverviewSection from "@/components/OverviewSection";
+import Loading from "@/components/Loading";
 
 interface FundingInterface {
   name: string;
@@ -140,7 +141,7 @@ const ProjectOverviewPage: React.FC = () => {
   }, [data]);
 
   if (loading) {
-    return <div>{Global("messaging.loading")}...</div>;
+    return <Loading variant="page" />;
   }
 
   if (error) {

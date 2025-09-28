@@ -616,6 +616,36 @@ table {
   margin: 0;
 }
 
+// Loading demo styles
+.loading-demo-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.loading-demo-area {
+  width: 100%;
+
+  .demo-section {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border: 1px solid var(--gray-300);
+    border-radius: 4px;
+    background: var(--gray-50);
+
+    h4 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      color: var(--gray-700);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
+}
+
 // Implementation notes and accessibility guidelines
 .implementation-notes {
   padding: 1.5rem;

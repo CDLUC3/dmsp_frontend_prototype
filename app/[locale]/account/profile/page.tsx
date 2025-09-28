@@ -1,58 +1,38 @@
-'use client'
+"use client";
 
-import React, { useEffect, useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import { useLocale, useTranslations } from 'next-intl';
-import { usePathname } from '@/i18n/routing';
-import {
-  Breadcrumb,
-  Breadcrumbs,
-  Button,
-  Form,
-  ListBoxItem,
-  Text,
-} from "react-aria-components";
+import React, { useEffect, useRef, useState } from "react";
+import { ApolloError } from "@apollo/client";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { usePathname } from "@/i18n/routing";
+import { Breadcrumb, Breadcrumbs, Button, Form, ListBoxItem, Text } from "react-aria-components";
 
 // GraphQL queries and mutations
-import {
-  useLanguagesQuery,
-  useMeQuery,
-  UserErrors,
-  useUpdateUserProfileMutation
-} from '@/generated/graphql';
+import { useLanguagesQuery, useMeQuery, UserErrors, useUpdateUserProfileMutation } from "@/generated/graphql";
 
 // Components
-import PageHeader from '@/components/PageHeader';
-import UpdateEmailAddress from '@/components/UpdateEmailAddress';
-import { TypeAheadWithOther, useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
-import { FormSelect } from '@/components/Form/FormSelect';
-import FormInput from '@/components/Form/FormInput';
-import {
-  ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel,
-} from '@/components/Container';
-import ErrorMessages from '@/components/ErrorMessages';
+import PageHeader from "@/components/PageHeader";
+import UpdateEmailAddress from "@/components/UpdateEmailAddress";
+import { TypeAheadWithOther, useAffiliationSearch } from "@/components/Form/TypeAheadWithOther";
+import { FormSelect } from "@/components/Form/FormSelect";
+import FormInput from "@/components/Form/FormInput";
+import { ContentContainer, LayoutWithPanel, SidebarPanel } from "@/components/Container";
+import ErrorMessages from "@/components/ErrorMessages";
+import Loading from "@/components/Loading";
 
 // Interfaces
-import {
-  EmailInterface,
-  LanguageInterface,
-  ProfileDataInterface
-} from '@/app/types';
+import { EmailInterface, LanguageInterface, ProfileDataInterface } from "@/app/types";
 
 // Utils and other
-import logECS from '@/utils/clientLogger';
+import logECS from "@/utils/clientLogger";
 import { refreshAuthTokens } from "@/utils/authHelper";
-import { useToast } from '@/context/ToastContext';
-import styles from './profile.module.scss';
-import { routePath } from '@/utils/routes';
-
+import { useToast } from "@/context/ToastContext";
+import styles from "./profile.module.scss";
+import { routePath } from "@/utils/routes";
 
 const ProfilePage: React.FC = () => {
-  const t = useTranslations('UserProfile');
+  const t = useTranslations("UserProfile");
   const toastState = useToast(); // Access the toast state from context
   const pathname = usePathname();
   const currentLocale = useLocale();
@@ -68,14 +48,14 @@ const ProfilePage: React.FC = () => {
   // We need to save the original data for when users cancel their form updates
   const [originalData, setOriginalData] = useState<ProfileDataInterface>();
   const [formData, setFormData] = useState<ProfileDataInterface>({
-    givenName: '',
-    surName: '',
-    affiliationName: '',
-    affiliationId: '',
-    otherAffiliationName: '',
-    languageId: '',
-    languageName: '',
-  })
+    givenName: "",
+    surName: "",
+    affiliationName: "",
+    affiliationId: "",
+    otherAffiliationName: "",
+    languageId: "",
+    languageName: "",
+  });
   const { suggestions, handleSearch } = useAffiliationSearch();
   const [isEditing, setIsEditing] = useState(false);
   // Errors returned from request
@@ -89,7 +69,7 @@ const ProfilePage: React.FC = () => {
       // There was an issue with the toast message disappearing when switching languages,
       // so we added a query parameter to the URL to indicate that the profile was updated
       if (showToast) {
-        params.set('profileUpdated', 'true');
+        params.set("profileUpdated", "true");
       }
       const queryString = params.toString();
       const basePath = `/${newLocale}${pathname}`;
@@ -107,39 +87,39 @@ const ProfilePage: React.FC = () => {
 
   // Client-side validation of fields
   const validateField = (name: string, value: string) => {
-    let error = '';
+    let error = "";
     switch (name) {
-      case 'givenName':
+      case "givenName":
         if (!value || value.length <= 2) {
-          error = t('messages.errors.givenNameValidation');
+          error = t("messages.errors.givenNameValidation");
         }
         break;
-      case 'surName':
+      case "surName":
         if (!value || value.length <= 2) {
-          error = t('messages.errors.surNameValidation');
+          error = t("messages.errors.surNameValidation");
         }
         break;
-      case 'affiliationId':
-        if (formData['affiliationName'] !== 'Other' && (!value || value.length <= 2)) {
-          error = t('messages.errors.affiliationValidation');
+      case "affiliationId":
+        if (formData["affiliationName"] !== "Other" && (!value || value.length <= 2)) {
+          error = t("messages.errors.affiliationValidation");
         }
         break;
-      case 'otherAffiliationName':
+      case "otherAffiliationName":
         // We only want to validate this field if the user specifically selected this 'Other' option
-        if (formData['affiliationName'] === 'Other') {
+        if (formData["affiliationName"] === "Other") {
           if (!value || value.length <= 2) {
-            error = t('messages.errors.otherAffiliationValidation');
+            error = t("messages.errors.otherAffiliationValidation");
           }
           break;
         }
     }
 
-    setErrors(prevErrors => ({
+    setErrors((prevErrors) => ({
       ...prevErrors,
-      [name]: error
+      [name]: error,
     }));
     return error;
-  }
+  };
 
   const profileUpdateMutation = async () => {
     const response = await updateUserProfileMutation({
@@ -150,12 +130,12 @@ const ProfilePage: React.FC = () => {
           affiliationId: formData.affiliationId,
           otherAffiliationName: formData.otherAffiliationName,
           languageId: formData.languageId,
-        }
+        },
       },
     });
 
     return response.data;
-  }
+  };
 
   // Update Profile info
   const updateProfile = async () => {
@@ -174,9 +154,9 @@ const ProfilePage: React.FC = () => {
         setIsEditing(false);
       } else {
         // Handle other types of errors
-        setErrors(prevErrors => ({
+        setErrors((prevErrors) => ({
           ...prevErrors,
-          general: t('messages.errors.errorUpdatingProfile')
+          general: t("messages.errors.errorUpdatingProfile"),
         }));
       }
     }
@@ -184,9 +164,9 @@ const ProfilePage: React.FC = () => {
 
   // Show Success Message
   const showSuccessToast = () => {
-    const successMessage = t('messages.profileUpdateSuccess');
-    toastState.add(successMessage, { type: 'success', timeout: 3000 });
-  }
+    const successMessage = t("messages.profileUpdateSuccess");
+    toastState.add(successMessage, { type: "success", timeout: 3000 });
+  };
 
   // Handle form submit
   const handleProfileSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -203,16 +183,16 @@ const ProfilePage: React.FC = () => {
   const clearErrors = () => {
     //Remove all field errors
     setErrors({});
-  }
+  };
 
   // Clear any errors for the current active field
   const clearActiveFieldError = (name: string) => {
     // Clear error for active field
-    setErrors(prevErrors => ({
+    setErrors((prevErrors) => ({
       ...prevErrors,
-      [name]: ''
+      [name]: "",
     }));
-  }
+  };
 
   const cancelEdit = () => {
     // Revert back to original data
@@ -225,7 +205,7 @@ const ProfilePage: React.FC = () => {
 
     //Remove all field errors
     clearErrors();
-  }
+  };
 
   // Check whether form is valid before submitting
   const isFormValid = (): boolean => {
@@ -251,13 +231,13 @@ const ProfilePage: React.FC = () => {
   /* This function is called by the child component, UpdateEmailAddress
   when affiliation/institution is changed */
   const updateAffiliationFormData = async (id: string, value: string) => {
-    clearActiveFieldError('affiliationId');
+    clearActiveFieldError("affiliationId");
     return setFormData({
       ...formData,
       affiliationName: value,
-      affiliationId: id
-    })
-  }
+      affiliationId: id,
+    });
+  };
 
   useEffect(() => {
     const handleLanguageLoad = async () => {
@@ -267,13 +247,13 @@ const ProfilePage: React.FC = () => {
           setLanguages(languages);
         }
       } catch (err) {
-        logECS('error', 'loading languages', {
+        logECS("error", "loading languages", {
           error: err,
-          url: { path: routePath('account.profile') }
+          url: { path: routePath("account.profile") },
         });
-        setErrors(prevErrors => ({
+        setErrors((prevErrors) => ({
           ...prevErrors,
-          general: 'Something went wrong. Please try again.'
+          general: "Something went wrong. Please try again.",
         }));
       }
     };
@@ -289,8 +269,8 @@ const ProfilePage: React.FC = () => {
 
         // Find the selected language or fallback
         const selectedLanguage = loadedLanguages.find((lang) => lang.id === data?.me?.languageId) || {
-          id: '',
-          name: '',
+          id: "",
+          name: "",
           isDefault: false,
         };
 
@@ -311,11 +291,11 @@ const ProfilePage: React.FC = () => {
 
         // Update originalData and formData
         const newOriginalData = {
-          givenName: data.me.givenName ?? '',
-          surName: data.me.surName ?? '',
-          affiliationName: data.me.affiliation?.name ?? '',
-          affiliationId: data.me.affiliation?.uri ?? '',
-          otherAffiliationName: '',
+          givenName: data.me.givenName ?? "",
+          surName: data.me.surName ?? "",
+          affiliationName: data.me.affiliation?.name ?? "",
+          affiliationId: data.me.affiliation?.uri ?? "",
+          otherAffiliationName: "",
           languageId: data.me.languageId,
           languageName: selectedLanguage.name,
         };
@@ -323,7 +303,7 @@ const ProfilePage: React.FC = () => {
         setOriginalData(newOriginalData);
 
         // 👇 derive whether "Other" field should be shown
-        if (newOriginalData.affiliationName === 'Other') {
+        if (newOriginalData.affiliationName === "Other") {
           setOtherField(true);
         } else {
           setOtherField(false);
@@ -344,11 +324,11 @@ const ProfilePage: React.FC = () => {
     const { name, value } = e.target;
     clearActiveFieldError(name);
     setFormData({ ...formData, [name]: value });
-  }
+  };
 
   const handleEdit = () => {
-    setIsEditing(!isEditing)
-  }
+    setIsEditing(!isEditing);
+  };
 
   // Handle any changes to form field values
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -360,16 +340,16 @@ const ProfilePage: React.FC = () => {
     // Check if the toast has already been shown
     if (hasShownToastRef.current) return;
 
-    const profileUpdated = searchParams.get('profileUpdated');
+    const profileUpdated = searchParams.get("profileUpdated");
     // If the profile was updated, show the success toast once
-    if (profileUpdated === 'true') {
+    if (profileUpdated === "true") {
       hasShownToastRef.current = true; // Prevent showing the toast again
       showSuccessToast();
       // Clean up the URL parameter
       const newParams = new URLSearchParams(searchParams);
-      newParams.delete('profileUpdated');
+      newParams.delete("profileUpdated");
       const basePath = `/${currentLocale}${pathname}`;
-      const newUrl = `${basePath}${newParams.toString() ? `?${newParams.toString()}` : ''}`;
+      const newUrl = `${basePath}${newParams.toString() ? `?${newParams.toString()}` : ""}`;
       router.replace(newUrl);
     }
   }, [searchParams, currentLocale, pathname]);
@@ -384,18 +364,20 @@ const ProfilePage: React.FC = () => {
   // Show loading message on first page load when getting user
   const loading = queryLoading;
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading variant="page" />;
   }
 
   return (
     <>
       <PageHeader
-        title={t('headingUpdateProfile')}
+        title={t("headingUpdateProfile")}
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{t('breadcrumbHome')}</Link></Breadcrumb>
-            <Breadcrumb>{t('headingUpdateProfile')}</Breadcrumb>
+            <Breadcrumb>
+              <Link href="/">{t("breadcrumbHome")}</Link>
+            </Breadcrumb>
+            <Breadcrumb>{t("headingUpdateProfile")}</Breadcrumb>
           </Breadcrumbs>
         }
         className="page-template-list"
@@ -404,26 +386,34 @@ const ProfilePage: React.FC = () => {
         <div className={styles.mainContent}>
           <LayoutWithPanel>
             <ContentContainer className={styles.layoutContentContainer}>
-              <h2>{t('yourProfile')}</h2>
+              <h2>{t("yourProfile")}</h2>
               <div className="sectionContainer">
                 <div className={`sectionContent`}>
                   <Form onSubmit={handleProfileSubmit}>
-                    <ErrorMessages errors={errors} ref={errorRef} />
-                    <div className={`${isEditing ? styles.formEditingRow : styles.formRow} ${`${isEditing ? styles.twoItemRowIsEditing : styles.twoItemRow}`}`}>
+                    <ErrorMessages
+                      errors={errors}
+                      ref={errorRef}
+                    />
+                    <div
+                      className={`${isEditing ? styles.formEditingRow : styles.formRow} ${`${isEditing ? styles.twoItemRowIsEditing : styles.twoItemRow}`}`}
+                    >
                       {isEditing ? (
                         <FormInput
                           name="givenName"
                           type="text"
-                          label={t('givenName')}
+                          label={t("givenName")}
                           placeholder={formData.givenName}
                           value={formData.givenName}
                           onChange={handleInputChange}
-                          isInvalid={!!errors['givenName']}
-                          errorMessage={errors['givenName'] ?? ''}
+                          isInvalid={!!errors["givenName"]}
+                          errorMessage={errors["givenName"] ?? ""}
                         />
                       ) : (
-                        <Text slot="givenName" className={styles.readOnlyField}>
-                          <div className="field-label">{t('givenName')}</div>
+                        <Text
+                          slot="givenName"
+                          className={styles.readOnlyField}
+                        >
+                          <div className="field-label">{t("givenName")}</div>
                           <p className={"py-0 my-2"}>{formData.givenName}</p>
                         </Text>
                       )}
@@ -432,32 +422,34 @@ const ProfilePage: React.FC = () => {
                         <FormInput
                           name="surName"
                           type="text"
-                          label={t('surName')}
+                          label={t("surName")}
                           placeholder={formData.surName}
                           value={formData.surName}
                           onChange={handleInputChange}
-                          isInvalid={!!errors['surName']}
-                          errorMessage={errors['surName'] ?? ''}
+                          isInvalid={!!errors["surName"]}
+                          errorMessage={errors["surName"] ?? ""}
                         />
                       ) : (
-                        <Text slot="surName" className={styles.readOnlyField}>
-                          <div className="field-label">{t('surName')}</div>
+                        <Text
+                          slot="surName"
+                          className={styles.readOnlyField}
+                        >
+                          <div className="field-label">{t("surName")}</div>
                           <p className={"py-0 my-2"}>{formData.surName}</p>
                         </Text>
                       )}
-
                     </div>
 
                     <div className={`${styles.formRow} ${styles.oneItemRow}`}>
                       {isEditing ? (
                         <>
                           <TypeAheadWithOther
-                            label={t('institution')}
+                            label={t("institution")}
                             fieldName="institution"
                             setOtherField={setOtherField}
                             required={true}
-                            error={errors['affiliationId'] ?? ''}
-                            helpText={t('helpTextSearchForInstitution')}
+                            error={errors["affiliationId"] ?? ""}
+                            helpText={t("helpTextSearchForInstitution")}
                             updateFormData={updateAffiliationFormData}
                             value={formData.affiliationName}
                             suggestions={suggestions}
@@ -468,20 +460,22 @@ const ProfilePage: React.FC = () => {
                               <FormInput
                                 name="otherAffiliationName"
                                 type="text"
-                                label={t('otherInstitution')}
+                                label={t("otherInstitution")}
                                 placeholder={formData.otherAffiliationName}
                                 value={formData.otherAffiliationName}
                                 onChange={handleInputChange}
-                                isInvalid={!!errors['otherAffiliationName']}
-                                errorMessage={errors['otherAffiliationName'] ?? ''}
+                                isInvalid={!!errors["otherAffiliationName"]}
+                                errorMessage={errors["otherAffiliationName"] ?? ""}
                               />
-
                             </div>
                           )}
                         </>
                       ) : (
-                        <Text slot="institution" className={styles.readOnlyField}>
-                          <div className="field-label">{t('institution')}</div>
+                        <Text
+                          slot="institution"
+                          className={styles.readOnlyField}
+                        >
+                          <div className="field-label">{t("institution")}</div>
                           <p className={"py-0 my-2"}>{formData.affiliationName?.trim() || "Affiliation not set"}</p>
                         </Text>
                       )}
@@ -490,60 +484,81 @@ const ProfilePage: React.FC = () => {
                     <div className={`${styles.formRow} ${styles.oneItemRow}`}>
                       {isEditing ? (
                         <FormSelect
-                          label={t('language')}
+                          label={t("language")}
                           isRequired
                           name="institution"
                           items={languages}
                           errorMessage="A selection is required"
-                          helpMessage={t('helpTextSelectYourLanguage')}
-                          onChange={selected => setFormData({ ...formData, languageId: selected as string })}
+                          helpMessage={t("helpTextSelectYourLanguage")}
+                          onChange={(selected) => setFormData({ ...formData, languageId: selected as string })}
                           selectedKey={formData.languageId.trim()}
                         >
-                          {languages && languages.map((language) => {
-                            return (
-                              <ListBoxItem key={language.id}>{language.id}</ListBoxItem>
-                            )
-
-                          })}
+                          {languages &&
+                            languages.map((language) => {
+                              return <ListBoxItem key={language.id}>{language.id}</ListBoxItem>;
+                            })}
                         </FormSelect>
                       ) : (
-                        <Text slot="language" className={styles.readOnlyField}>
-                          <div className="field-label">{t('language')}</div>
+                        <Text
+                          slot="language"
+                          className={styles.readOnlyField}
+                        >
+                          <div className="field-label">{t("language")}</div>
                           <p className={"py-0 my-2"}>{formData.languageName}</p>
                         </Text>
                       )}
                     </div>
                     {isEditing ? (
                       <div className={styles.btnContainer}>
-                        <Button className="secondary" onPress={() => cancelEdit()}>{t('btnCancel')}</Button>
-                        <Button type="submit" isDisabled={updateUserProfileLoading} className={styles.btn}>{updateUserProfileLoading ? t('btnUpdating') : t('btnUpdate')}</Button>
+                        <Button
+                          className="secondary"
+                          onPress={() => cancelEdit()}
+                        >
+                          {t("btnCancel")}
+                        </Button>
+                        <Button
+                          type="submit"
+                          isDisabled={updateUserProfileLoading}
+                          className={styles.btn}
+                        >
+                          {updateUserProfileLoading ? t("btnUpdating") : t("btnUpdate")}
+                        </Button>
                       </div>
                     ) : (
                       <div className={styles.btnContainer}>
-                        <Button onPress={() => handleEdit()} className={styles.btnEdit}>{t('btnEdit')}</Button>
+                        <Button
+                          onPress={() => handleEdit()}
+                          className={styles.btnEdit}
+                        >
+                          {t("btnEdit")}
+                        </Button>
                       </div>
                     )}
                   </Form>
                 </div>
               </div>
 
-              <UpdateEmailAddress
-                emailAddresses={emailAddresses}
-              />
+              <UpdateEmailAddress emailAddresses={emailAddresses} />
             </ContentContainer>
             <SidebarPanel className={styles.layoutSidebarPanel}>
-              <h2 className={styles.relatedItemsHeaading}>{t('headingRelatedActions')}</h2>
+              <h2 className={styles.relatedItemsHeaading}>{t("headingRelatedActions")}</h2>
               <ul className={styles.relatedItems}>
-                <li><Link href={routePath('account.password')}>{t('linkUpdatePassword')}</Link></li>
-                <li><Link href={routePath('account.connections')}>{t('linkUpdateConnections')}</Link></li>
-                <li><Link href={routePath('account.notifications')}>{t('linkManageNotifications')}</Link></li>
+                <li>
+                  <Link href={routePath("account.password")}>{t("linkUpdatePassword")}</Link>
+                </li>
+                <li>
+                  <Link href={routePath("account.connections")}>{t("linkUpdateConnections")}</Link>
+                </li>
+                <li>
+                  <Link href={routePath("account.notifications")}>{t("linkManageNotifications")}</Link>
+                </li>
               </ul>
             </SidebarPanel>
           </LayoutWithPanel>
         </div>
-      </div >
+      </div>
     </>
-  )
-}
+  );
+};
 
 export default ProfilePage;
