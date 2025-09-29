@@ -83,6 +83,7 @@
 - Removed research outputs, including related pages and routes, from the demp overview [#764](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/764)
 
 ### Fixed
+- Update middleware to redirect back to same URL when tokens have been refreshed [#848]
 - Updated `ResearchDomainCascadingDropdown` to not require Research domain fields [#763] 
 - Added missing `relatedWorks` translation keys since it was breaking the pages when locale=pt-BR.
 - Returned changes that were initially part of PR `#816` related to `/template` pagination [#812]
