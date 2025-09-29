@@ -1,5 +1,6 @@
 ### Added
 =======
+- Added dependabot config
 - Add departments and schools page
 - Add hostname and port to start command in AWS Dockerfile
 - Add explicit cors rules to nextJS config to allow traffic from our domain
