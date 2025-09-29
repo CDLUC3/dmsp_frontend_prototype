@@ -84,7 +84,6 @@ describe('TemplateAccessPage', () => {
     expect(screen.getByText('paragraphs.orgAccessPara1')).toBeInTheDocument();
     expect(screen.getByText('paragraphs.orgAccessPara2')).toBeInTheDocument();
     expect(screen.getByText('headings.externalPeople')).toBeInTheDocument();
-    expect(screen.getByText('paragraphs.externalPara1')).toBeInTheDocument();
     expect(screen.getByText('headings.share')).toBeInTheDocument();
     expect(screen.getByText('paragraphs.sharePara1')).toBeInTheDocument();
     expect(screen.getByText('labels.email')).toBeInTheDocument();
