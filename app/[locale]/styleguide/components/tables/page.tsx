@@ -22,9 +22,6 @@ export default function TablesPage() {
   // Sample data for table examples
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor | undefined>(undefined);
 
-  // Generate sample data with badge variants
-  const badgeVariants = ["yellow", "blue-light", "blue-900", "green", "red", "gray", "neutral"];
-
   const sampleData = [
     {
       id: 1,
