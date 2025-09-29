@@ -110,6 +110,7 @@ export async function middleware(request: NextRequest) {
 
       if (refreshResult?.response) {
         const backendResponse = refreshResult.response;
+        // We need to redirect to the same URL to ensure cookies are set properly in browser
         const newResponse = NextResponse.redirect(request.url);
 
         // Copy Set-Cookie headers from backend → NextResponse
