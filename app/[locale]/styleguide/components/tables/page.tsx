@@ -22,6 +22,9 @@ export default function TablesPage() {
   // Sample data for table examples
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor | undefined>(undefined);
 
+  // Generate sample data with badge variants
+  const badgeVariants = ["yellow", "blue-light", "blue-900", "green", "red", "gray", "neutral"];
+
   const sampleData = [
     {
       id: 1,
@@ -29,6 +32,7 @@ export default function TablesPage() {
       template: "NSF Template",
       questions: 12,
       status: "Active",
+      badgeVariant: "green",
       lastModified: "2024-01-15",
     },
     {
@@ -37,6 +41,7 @@ export default function TablesPage() {
       template: "NIH Template",
       questions: 8,
       status: "Draft",
+      badgeVariant: "neutral",
       lastModified: "2024-01-10",
     },
     {
@@ -44,7 +49,8 @@ export default function TablesPage() {
       name: "Data Sharing Plan",
       template: "EU Template",
       questions: 15,
-      status: "Active",
+      status: "Completed",
+      badgeVariant: "green",
       lastModified: "2024-01-05",
     },
     {
@@ -53,7 +59,53 @@ export default function TablesPage() {
       template: "Custom",
       questions: 6,
       status: "Archived",
+      badgeVariant: "gray",
       lastModified: "2023-12-20",
+    },
+    {
+      id: 5,
+      name: "Security Assessment",
+      template: "Security Template",
+      questions: 10,
+      status: "Security",
+      badgeVariant: "blue-900",
+      lastModified: "2024-01-12",
+    },
+    {
+      id: 6,
+      name: "Recommended Practices",
+      template: "Best Practices",
+      questions: 7,
+      status: "Recommended",
+      badgeVariant: "green",
+      lastModified: "2024-01-08",
+    },
+    {
+      id: 7,
+      name: "Future Planning",
+      template: "Planning Template",
+      questions: 5,
+      status: "Not Started",
+      badgeVariant: "blue-900",
+      lastModified: "2024-01-01",
+    },
+    {
+      id: 8,
+      name: "Error Handling",
+      template: "Error Template",
+      questions: 3,
+      status: "Error",
+      badgeVariant: "red",
+      lastModified: "2024-01-20",
+    },
+    {
+      id: 9,
+      name: "Neutral Process",
+      template: "Standard Template",
+      questions: 9,
+      status: "Neutral",
+      badgeVariant: "neutral",
+      lastModified: "2024-01-18",
     },
   ];
 
@@ -131,7 +183,7 @@ export default function TablesPage() {
                         <Cell>{item.template}</Cell>
                         <Cell>{item.questions}</Cell>
                         <Cell>
-                          <span className={`status-badge status-${item.status.toLowerCase()}`}>{item.status}</span>
+                          <span className={`badge badge--${item.badgeVariant}`}>{item.status}</span>
                         </Cell>
                         <Cell>{item.lastModified}</Cell>
                       </Row>
@@ -212,7 +264,7 @@ export default function TablesPage() {
                         <Cell>{item.template}</Cell>
                         <Cell>{item.questions}</Cell>
                         <Cell>
-                          <span className={`status-badge status-${item.status.toLowerCase()}`}>{item.status}</span>
+                          <span className={`badge badge--${item.badgeVariant}`}>{item.status}</span>
                         </Cell>
                         <Cell>{item.lastModified}</Cell>
                       </Row>
@@ -280,7 +332,7 @@ export default function TablesPage() {
                         <Cell>{item.template}</Cell>
                         <Cell>{item.questions}</Cell>
                         <Cell>
-                          <span className={`status-badge status-${item.status.toLowerCase()}`}>{item.status}</span>
+                          <span className={`badge badge--${item.badgeVariant}`}>{item.status}</span>
                         </Cell>
                         <Cell>
                           <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -319,40 +371,177 @@ export default function TablesPage() {
             <SGComponentExampleHeader title="Styling & Layout" />
             <SGComponentExampleContent>
               <SGComponentExampleDemo>
-                <h4>Status Badge Styles</h4>
-                <div style={{ display: "flex", gap: "1rem", alignItems: "center", marginBottom: "2rem" }}>
-                  <span className="status-badge status-active">Active</span>
-                  <span className="status-badge status-draft">Draft</span>
-                  <span className="status-badge status-archived">Archived</span>
+                <h4>Badge Variants</h4>
+                <div
+                  style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center", marginBottom: "2rem" }}
+                >
+                  <span className="badge badge--yellow">Security</span>
+                  <span className="badge badge--blue-light">Recommended</span>
+                  <span className="badge badge--blue-900">Not Started</span>
+                  <span className="badge badge--green">Completed</span>
+                  <span className="badge badge--red">Error</span>
+                  <span className="badge badge--gray">Disabled</span>
                 </div>
 
-                <h4>CSS Classes</h4>
-                <SGCodeBlock>{`.status-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
+                <h4>Badge Sizes</h4>
+                <div style={{ display: "flex", gap: "1rem", alignItems: "center", marginBottom: "2rem" }}>
+                  <span className="badge badge--yellow badge--small">Small</span>
+                  <span className="badge badge--blue-light badge--medium">Medium</span>
+                  <span className="badge badge--blue-900 badge--large">Large</span>
+                </div>
 
-.status-active {
-  background: var(--green-100);
-  color: var(--green-800);
-  border: 1px solid var(--green-200);
-}
+                <h4>Table Utility Classes</h4>
+                <div style={{ display: "flex", flexDirection: "column", gap: "2rem", marginBottom: "2rem" }}>
+                  <div>
+                    <h5>Bordered Table</h5>
+                    <table
+                      className="table-bordered"
+                      style={{ width: "100%", marginBottom: "1rem" }}
+                    >
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Status</th>
+                          <th>Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Project A</td>
+                          <td>
+                            <span className="badge badge--green">Completed</span>
+                          </td>
+                          <td>2024-01-15</td>
+                        </tr>
+                        <tr>
+                          <td>Project B</td>
+                          <td>
+                            <span className="badge badge--blue-900">Not Started</span>
+                          </td>
+                          <td>2024-01-20</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <SGCodeBlock>{`<table className="table-bordered">`}</SGCodeBlock>
+                  </div>
 
-.status-draft {
-  background: var(--yellow-100);
-  color: var(--yellow-800);
-  border: 1px solid var(--yellow-200);
-}
+                  <div>
+                    <h5>Compact Table with Hover</h5>
+                    <table
+                      className="table-sm table-hover table-bordered"
+                      style={{ width: "100%", marginBottom: "1rem" }}
+                    >
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Name</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>001</td>
+                          <td>Task A</td>
+                          <td>Done</td>
+                        </tr>
+                        <tr>
+                          <td>002</td>
+                          <td>Task B</td>
+                          <td>Pending</td>
+                        </tr>
+                        <tr>
+                          <td>003</td>
+                          <td>Task C</td>
+                          <td>Done</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <SGCodeBlock>{`<table className="table-sm table-hover table-bordered">`}</SGCodeBlock>
+                  </div>
 
-.status-archived {
-  background: var(--gray-100);
-  color: var(--gray-600);
-  border: 1px solid var(--gray-200);
-}`}</SGCodeBlock>
+                  <div>
+                    <h5>Center-Aligned Borderless Table</h5>
+                    <table
+                      className="table-center table-borderless"
+                      style={{ width: "100%", marginBottom: "1rem" }}
+                    >
+                      <thead>
+                        <tr>
+                          <th>Metric</th>
+                          <th>Value</th>
+                          <th>Change</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Users</td>
+                          <td>1,234</td>
+                          <td>+12%</td>
+                        </tr>
+                        <tr>
+                          <td>Revenue</td>
+                          <td>$5,678</td>
+                          <td>+8%</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <SGCodeBlock>{`<table className="table-center table-borderless">`}</SGCodeBlock>
+                  </div>
+
+                  <div>
+                    <h5>Solid Color Table (No Stripes)</h5>
+                    <table
+                      className="table-solid table-bordered"
+                      style={{ width: "100%", marginBottom: "1rem" }}
+                    >
+                      <thead>
+                        <tr>
+                          <th>Category</th>
+                          <th>Count</th>
+                          <th>Percentage</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Active</td>
+                          <td>45</td>
+                          <td>75%</td>
+                        </tr>
+                        <tr>
+                          <td>Inactive</td>
+                          <td>15</td>
+                          <td>25%</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <SGCodeBlock>{`<table className="table-solid table-bordered">`}</SGCodeBlock>
+                  </div>
+                </div>
+
+                <h4>Available Utility Classes</h4>
+                <SGCodeBlock>{`<!-- Border Options -->
+<table className="table-bordered">     <!-- Full borders -->
+<table className="table-minimal">      <!-- Only horizontal lines -->
+<table className="table-borderless">   <!-- No borders -->
+
+<!-- Row Styling -->
+<table className="table-striped">      <!-- Alternating row colors -->
+<table className="table-solid">        <!-- Single color rows -->
+<table className="table-hover">        <!-- Hover effects -->
+
+<!-- Spacing -->
+<table className="table-sm">           <!-- Compact padding -->
+<table className="table-lg">           <!-- Large padding -->
+
+<!-- Themes -->
+<table className="table-light">        <!-- Light theme (default) -->
+
+<!-- Text Alignment -->
+<table className="table-center">       <!-- Center-aligned text -->
+<table className="table-right">        <!-- Right-aligned text -->
+
+<!-- Combine multiple classes -->
+<table className="table-bordered table-sm table-hover">`}</SGCodeBlock>
               </SGComponentExampleDemo>
             </SGComponentExampleContent>
           </SGComponentExample>

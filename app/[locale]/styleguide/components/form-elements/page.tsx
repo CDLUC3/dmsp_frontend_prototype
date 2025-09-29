@@ -51,6 +51,12 @@ export default function FormElementsPage() {
   const [rangeStart, setRangeStart] = React.useState<string>("Minimum Value");
   const [rangeEnd, setRangeEnd] = React.useState<string>("Maximum Value");
 
+  // State for text input examples
+  const [textInputValue, setTextInputValue] = React.useState<string>("");
+  const [emailInputValue, setEmailInputValue] = React.useState<string>("");
+  const [showTextError, setShowTextError] = React.useState<boolean>(false);
+  const [showEmailError, setShowEmailError] = React.useState<boolean>(false);
+
   // Data for FormSelect
   const countries = [
     { id: "us", name: "United States" },
@@ -145,29 +151,101 @@ export default function FormElementsPage() {
             <SGComponentExampleHeader title="Interactive Text Input Example" />
             <SGComponentExampleContent>
               <SGComponentExampleDemo>
+                <h4>Standard Text Input</h4>
                 <FormInput
                   name="example-input"
                   label="Full Name"
                   placeholder="Enter your full name"
                   description="This will be displayed on your profile"
                 />
+
+                <h4>Text Input with Error State</h4>
+                <FormInput
+                  name="example-input-error"
+                  label="Required Field"
+                  placeholder="This field is required"
+                  description="Try leaving this empty and clicking the button below"
+                  value={textInputValue}
+                  onChange={(e) => setTextInputValue(e.target.value)}
+                  isInvalid={showTextError}
+                  errorMessage="This field is required and cannot be empty"
+                  isRequired={true}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowTextError(!textInputValue.trim())}
+                  style={{ marginTop: "0.5rem", padding: "0.5rem 1rem" }}
+                >
+                  {showTextError ? "Clear Error" : "Validate Field"}
+                </button>
+
+                <h4>Email Input with Validation</h4>
+                <FormInput
+                  name="example-email"
+                  type="email"
+                  label="Email Address"
+                  placeholder="Enter your email address"
+                  description="We'll use this to send you updates"
+                  value={emailInputValue}
+                  onChange={(e) => {
+                    setEmailInputValue(e.target.value);
+                    // Auto-validate email format
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    setShowEmailError(e.target.value.length > 0 && !emailRegex.test(e.target.value));
+                  }}
+                  isInvalid={showEmailError}
+                  errorMessage="Please enter a valid email address"
+                />
+                {emailInputValue && !showEmailError && (
+                  <p style={{ color: "green", fontSize: "0.875rem", marginTop: "0.25rem" }}>✓ Valid email format</p>
+                )}
               </SGComponentExampleDemo>
 
               <h4>Usage</h4>
               <SGCodeBlock>{`import { FormInput } from '@/components/Form';
 
+// Standard text input
 <FormInput
   name="fullName"
   label="Full Name"
   placeholder="Enter your full name"
   description="This will be displayed on your profile"
-  required
+  isRequired
+/>
+
+// Text input with error state
+<FormInput
+  name="requiredField"
+  label="Required Field"
+  placeholder="This field is required"
+  value={inputValue}
+  onChange={(e) => setInputValue(e.target.value)}
+  isInvalid={showError}
+  errorMessage="This field is required and cannot be empty"
+  isRequired
+/>
+
+// Email input with validation
+<FormInput
+  name="email"
+  type="email"
+  label="Email Address"
+  placeholder="Enter your email address"
+  value={emailValue}
+  onChange={(e) => {
+    setEmailValue(e.target.value);
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    setShowEmailError(e.target.value.length > 0 && !emailRegex.test(e.target.value));
+  }}
+  isInvalid={showEmailError}
+  errorMessage="Please enter a valid email address"
 />`}</SGCodeBlock>
 
               <h4>React Aria Base</h4>
               <p>
-                Built using React Aria&apos;s <code>TextField</code>, <code>Input</code>, and <code>Label</code>{" "}
-                components.
+                Built using React Aria&apos;s <code>TextField</code>, <code>Input</code>, <code>Label</code>, and{" "}
+                <code>FieldError</code> components for comprehensive form validation and accessibility.
               </p>
             </SGComponentExampleContent>
           </SGComponentExample>

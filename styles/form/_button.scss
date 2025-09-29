@@ -82,7 +82,7 @@
   }
 
   &:disabled {
-    background: var(--blue-500);
+    background: transparent;
     opacity: 0.5;
   }
 }
@@ -221,6 +221,7 @@ input[type="submit"],
 input[type="reset"],
 input[type="button"] {
   @include button-base;
+  font-weight: 600; // Ensure consistent font-weight for all buttons
 
   &[data-focus-visible] {
     outline: 2px solid var(--focus-ring);
