@@ -195,7 +195,7 @@ const TemplateAccessPage: React.FC = () => {
     const collaborators = templateCollaboratorData?.template?.collaborators;
 
     if (collaborators?.length === 0) {
-      return <p role="status">{AccessPage('messages.info.noCollaborators')}</p>;
+      return <p className={styles.emptyState} role="status">{AccessPage('messages.info.noCollaborators')}</p>;
     }
 
     return (
