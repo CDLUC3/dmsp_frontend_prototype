@@ -43,6 +43,7 @@
 
 
 ### Updated
+- Removed some duplicate text from `template/[templateId]/access` under `External people` [#482]
 - Updated description on `template/[templateId]/access` and visibility text on template publish modal [#482]
 - Updated `/template/[templateId]` to include the `View history` link in the header description [#430]
 - Updated `PageHeaderWithTitleChange` component to pass a `descriptionAppend` in order to append the `View history` JSX [#430]
