@@ -94,11 +94,11 @@ describe('ProjectsProjectDetail', () => {
     ]);
     render(<ProjectsProjectDetail />);
 
-    expect(screen.getByLabelText('labels.projectName')).toBeInTheDocument();
-    expect(screen.getByLabelText('labels.projectAbstract')).toBeInTheDocument();
+    expect(screen.getByLabelText(/labels.projectName/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/labels.projectAbstract/)).toBeInTheDocument();
     expect(screen.getByText('labels.startDate')).toBeInTheDocument();
     expect(screen.getByText('labels.endDate')).toBeInTheDocument();
-    expect(screen.getByLabelText('labels.researchDomain')).toBeInTheDocument();
+    expect(screen.getByLabelText(/labels.researchDomain/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1, name: /title/i })).toBeInTheDocument();
   });
 
@@ -129,7 +129,7 @@ describe('ProjectsProjectDetail', () => {
       { loading: false, error: { message: 'There was an error' } },
     ]);
     render(<ProjectsProjectDetail />);
-    fireEvent.change(screen.getByLabelText('labels.projectName'), { target: { value: '' } });
+    fireEvent.change(screen.getByLabelText(/labels.projectName/), { target: { value: '' } });
     fireEvent.submit(screen.getByRole('button', { name: /save/i }));
     const alert = await screen.findByRole('alert');
     expect(alert).toBeInTheDocument();
@@ -149,7 +149,7 @@ describe('ProjectsProjectDetail', () => {
 
 
     render(<ProjectsProjectDetail />);
-    fireEvent.change(screen.getByLabelText('labels.projectName'), { target: { value: 'Updated Project' } });
+    fireEvent.change(screen.getByLabelText(/labels.projectName/), { target: { value: 'Updated Project' } });
     fireEvent.submit(screen.getByRole('button', { name: /save/i }));
 
     expect(mockUpdateProjectMutation).toHaveBeenCalledWith({
@@ -175,7 +175,7 @@ describe('ProjectsProjectDetail', () => {
 
 
     render(<ProjectsProjectDetail />);
-    fireEvent.change(screen.getByLabelText('labels.projectName'), { target: { value: 'Updated Project' } });
+    fireEvent.change(screen.getByLabelText(/labels.projectName/), { target: { value: 'Updated Project' } });
     fireEvent.submit(screen.getByRole('button', { name: /save/i }));
 
     // //Check that error logged
@@ -213,7 +213,7 @@ describe('ProjectsProjectDetail', () => {
     render(<ProjectsProjectDetail />);
 
     act(() => {
-      fireEvent.change(screen.getByLabelText('labels.projectName'), { target: { value: 'Updated Project' } });
+      fireEvent.change(screen.getByLabelText(/labels.projectName/), { target: { value: 'Updated Project' } });
       fireEvent.submit(screen.getByRole('button', { name: /save/i }));
     })
 
@@ -241,7 +241,7 @@ describe('ProjectsProjectDetail', () => {
 
 
     render(<ProjectsProjectDetail />);
-    fireEvent.change(screen.getByLabelText('labels.projectName'), { target: { value: 'Updated Project' } });
+    fireEvent.change(screen.getByLabelText(/labels.projectName/), { target: { value: 'Updated Project' } });
     fireEvent.submit(screen.getByRole('button', { name: /save/i }));
 
     // Assert that refetch was called

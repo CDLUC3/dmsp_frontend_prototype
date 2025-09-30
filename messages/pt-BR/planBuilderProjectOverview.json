@@ -78,7 +78,7 @@
     "pageTitle": "Criar um novo blog",
     "isThisMockProject": "Este é um projeto simulado",
     "form": {
-      "projectTitle": "Qual é o título do projeto? (obrigatório)",
+      "projectTitle": "Qual é o título do projeto?",
       "projectTitleHelpText": "Você pode alterar isso a qualquer momento. Se você já solicitou financiamento, recomendamos usar o título formal do projeto para manter a consistência.",
       "checkboxGroupLabel": "Este projeto é uma simulação (mock, em inglês) para fins de teste, prática ou educacional",
       "checkboxGroupHelpText": "Este é um projeto simulado (mock, em inglês) destinado exclusivamente a testes, práticas ou propósitos educativos. Isso permite que você crie um projeto e planos, mas você não poderá receber comentários ou publicá-los.",

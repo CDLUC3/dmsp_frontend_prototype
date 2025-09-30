@@ -87,7 +87,7 @@ describe('ProjectsProjectFundingEdit', () => {
     });
 
     expect(screen.getByLabelText('labels.funderName')).toBeInTheDocument();
-    expect(screen.getByLabelText('labels.fundingStatus')).toBeInTheDocument();
+    expect(screen.getByLabelText(/labels.fundingStatus/)).toBeInTheDocument();
     // Find the "denied" text within a <span> element
     const deniedSpan = screen.getByText((content, element) => {
       return element?.tagName.toLowerCase() === 'span' && content === 'denied';
@@ -109,8 +109,8 @@ describe('ProjectsProjectFundingEdit', () => {
     expect(options[3]).toHaveTextContent('granted');
 
     expect(screen.getByText('labels.grantNumber')).toBeInTheDocument();
-    expect(screen.getByLabelText('labels.projectNumber')).toBeInTheDocument();
-    expect(screen.getByLabelText('labels.opportunity')).toBeInTheDocument();
+    expect(screen.getByLabelText(/labels.projectNumber/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/labels.opportunity/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /buttons.saveChanges/i })).toBeInTheDocument();
 
     // breadcrumbs
@@ -153,7 +153,7 @@ describe('ProjectsProjectFundingEdit', () => {
       );
     });
 
-    const fundingStatusSelect = screen.getByLabelText('labels.fundingStatus');
+    const fundingStatusSelect = screen.getByLabelText(/labels.fundingStatus/);
     fireEvent.change(fundingStatusSelect, { target: { value: 'GRANTED' } });
 
     expect(fundingStatusSelect).toHaveValue('GRANTED');
@@ -171,7 +171,7 @@ describe('ProjectsProjectFundingEdit', () => {
       );
     });
 
-    const grantNumberInput = screen.getByLabelText('labels.grantNumber');
+    const grantNumberInput = screen.getByLabelText(/labels.grantNumber/);
     fireEvent.change(grantNumberInput, { target: { value: 'New-grantNumber-123' } });
 
     expect(grantNumberInput).toHaveValue('New-grantNumber-123');
@@ -189,7 +189,7 @@ describe('ProjectsProjectFundingEdit', () => {
       );
     });
 
-    const projectNumberInput = screen.getByLabelText('labels.projectNumber');
+    const projectNumberInput = screen.getByLabelText(/labels.projectNumber/);
     fireEvent.change(projectNumberInput, { target: { value: 'New-projectNumber-123' } });
 
     expect(projectNumberInput).toHaveValue('New-projectNumber-123');
@@ -208,7 +208,7 @@ describe('ProjectsProjectFundingEdit', () => {
       );
     });
 
-    const opportunityInput = screen.getByLabelText('labels.opportunity');
+    const opportunityInput = screen.getByLabelText(/labels.opportunity/);
     fireEvent.change(opportunityInput, { target: { value: 'New-opportunity-123' } });
 
     expect(opportunityInput).toHaveValue('New-opportunity-123');
@@ -365,7 +365,7 @@ describe('ProjectsProjectFundingEdit', () => {
       );
     });
 
-    const input = screen.getByLabelText("labels.funderName");
+    const input = screen.getByLabelText(/labels.funderName/);
     expect(input).toBeDisabled();
   });
 

@@ -100,7 +100,7 @@ describe('TemplateAccessPage', () => {
 
   it('should handle form submission', async () => {
     render(<TemplateAccessPage />);
-    const emailInput = screen.getByLabelText('labels.email');
+    const emailInput = screen.getByLabelText(/labels.email/);
     const inviteButton = screen.getByText('buttons.invite');
 
     fireEvent.change(emailInput, { target: { value: 'newuser@example.com' } });

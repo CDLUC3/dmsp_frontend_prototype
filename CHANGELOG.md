@@ -36,6 +36,11 @@
 - Added missing `planId` from the `PlanFundings` errors [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Added descriptive text to the funding-search page [#760](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/760)
 - Added description to project search page [#761](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/761)
+- Required field indicators to FormInput, FormTextArea, FormSelect, RadioGroup, CheckboxGroup, and TypeAheadWithOther components [#503]
+- Added test suites for CheckboxGroup and RadioGroup components that seemed to be missing [#503]
+- Interactive form examples to the styleguide showing required and non-required
+  states [#503]
+
 
 ### Updated
 - Updated description on `template/[templateId]/access` and visibility text on template publish modal [#482]
