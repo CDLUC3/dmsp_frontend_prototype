@@ -255,6 +255,21 @@
           }
         }
       }
+    },
+    "users": {
+      "title": "User Accounts",
+      "description": "Below is a list of users registered for your organization",
+      "buttons": {
+        "createUserLabel": "Create User",
+        "searchLabel": "Search"
+      },
+      "tools": {
+        "searchLabel": "Search by name or email",
+        "permissionLabel": "Permission"
+      },
+      "userTable": {
+        "label": "User List"
+      }
     }
   },
   "OrganizationDetails": {

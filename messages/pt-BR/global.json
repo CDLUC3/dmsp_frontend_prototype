@@ -254,6 +254,21 @@
           }
         }
       }
+    },
+    "users": {
+      "title": "Contas de usuário",
+      "description": "Abaixo está uma lista de usuários registrados para sua organização",
+      "buttons": {
+        "createUserLabel": "Criar usuário",
+        "searchLabel": "Procurar"
+      },
+      "tools": {
+        "searchLabel": "Pesquisar por nome ou e-mail",
+        "permissionLabel": "Permissão"
+      },
+      "userTable": {
+        "label": "Lista de usuários"
+      }
     }
   },
   "OrganizationDetails": {

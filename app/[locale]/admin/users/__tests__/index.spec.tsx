@@ -1,0 +1,48 @@
+import React, { useState } from 'react';
+
+import "@testing-library/jest-dom";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+} from '@testing-library/react';
+import { axe, toHaveNoViolations } from 'jest-axe';
+
+import { useParams, useRouter } from 'next/navigation';
+
+import OrgUserAccountsPage from '../page';
+
+
+expect.extend(toHaveNoViolations);
+
+
+jest.mock('@/components/PageHeader', () => ({
+  __esModule: true,
+  default: () => <div data-testid="mock-page-header" />
+}));
+
+
+describe("Admin - User Accounts Dashboard", () => {
+
+  it("should render the page", async () => {
+    render(
+      <OrgUserAccountsPage />
+    );
+
+    expect(screen.getByText('User Accounts')).toBeInTheDocument();
+  });
+
+  it('should pass accessibility tests', async () => {
+    const { container } = render(
+      <OrgUserAccountsPage />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("User Accounts")).toBeInTheDocument();
+    });
+
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+});
