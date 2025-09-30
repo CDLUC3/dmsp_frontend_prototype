@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
+import { useQuery } from '@apollo/client/react';
 
 import {
   Table,
@@ -14,6 +15,11 @@ import {
   Collection,
   useTableOptions,
 } from 'react-aria-components';
+import {
+  SortDescriptor,
+} from '@react-types/table';
+
+import { DmpIcon } from '@/components/Icons';
 
 import styles from './table.module.scss';
 
@@ -22,17 +28,18 @@ export type DmpTableColumn = {
   id: string;
   name: string;
   isRowHeader: boolean;
-  allowSorting: boolean;
+  allowsSorting: boolean;
 }
 
 export type DmpTableProps = TableProps & {
   columns: DmpTableColumn[];
-  rows: any[];
+  rows: Array<Record<string, any>>;
   label: string;
   id?: string;
   className?: string;
-  onSortChange?: (() => void),
-  onSortChange?: ((value: string[]) => void),
+
+  // Callbacks
+  onSortChange?: (SortDescriptor) => void;
 }
 
 
@@ -57,7 +64,6 @@ export function DmpTableRow<T extends object>({
   children,
   ...otherProps
 }: RowProps<T>) {
-
   return (
     <Row
       id={id}
@@ -81,17 +87,37 @@ export function DmpTable({
   onSortChange,
 }: DmpTableProps): React.ReactElement {
 
+  const [sorting, setSorting] = useState<SortDescriptor>({
+    column: "",
+    direction: "ascending",
+  });
+
+  function handleOnSortChange(descriptor: SortDescriptor) {
+    setSorting(descriptor);
+    if (onSortChange) onSortChange(descriptor);
+  }
+
+  // FIXME::TODO:: Columns each have their own sort direction!
+  // So our approach below will not work as expected.
+  //
+  // {col.allowsSorting && sorting?.direction && (
+  //   <>
+  //   {sorting.direction == "ascending" && (<DmpIcon icon="up_arrow" />)}
+  //   {sorting.direction == "descending" && (<DmpIcon icon="down_arrow" />)}
+  //   </>
+  // )}
+
   return (
     <Table
       id={id}
       aria-label={label}
       className={classNames(styles.dmpTable, className)}
-      sortDescriptor={"test"}
-      onSortChange={onSortChange}
+      onSortChange={handleOnSortChange}
+      sortDescriptor={sorting}
     >
-      <DmpTableHeader columns={columns}>
+      <DmpTableHeader className={styles.dmpTableHeader} columns={columns}>
         {(col) => (
-          <Column isRowHeader={col.isRowHeader} allowSorting={col.allowSorting}>
+          <Column isRowHeader={col.isRowHeader} allowsSorting={col.allowsSorting}>
             {col.name}
           </Column>
         )}

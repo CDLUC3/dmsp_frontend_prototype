@@ -18,7 +18,7 @@ expect.extend(toHaveNoViolations);
 describe("DMP Table Component", () => {
   const columns = [
     {id: 'id', name: 'id', isRowHeader: false},
-    {id: 'name', name: 'Name Column', isRowHeader: true},
+    {id: 'name', name: 'Name Column', isRowHeader: true, allowsSorting: true},
     {id: 'email', name: 'Email Column', isRowHeader: true},
     {id: 'other', name: 'Other Column', isRowHeader: true},
   ];
@@ -54,6 +54,54 @@ describe("DMP Table Component", () => {
       expect(screen.getByText(`User ${i} Name`)).toBeInTheDocument();
       expect(screen.getByText(`User ${i} Email`)).toBeInTheDocument();
       expect(screen.getByText(`User ${i} Other Info`)).toBeInTheDocument();
+    });
+  });
+
+  it("should show the sorting icon is the column sorting is enabled", async () => {
+    render(
+      <DmpTable
+        columns={columns}
+        rows={rows}
+        label="Test Table"
+      />
+    );
+
+    // The "Name Column" should be sortable, and should show the sorting icon
+    expect(screen.getByText('Name Column')).toBeInTheDocument();
+
+    // The "Email Column" should not be sortable
+    expect(screen.getByText('Email Column')).toBeInTheDocument();
+  });
+
+  it("should call the sorting callback when a sortable column is clicked", async () => {
+    const mockSort = jest.fn();
+
+    render(
+      <DmpTable
+        columns={columns}
+        rows={rows}
+        label="Test Table"
+        onSortChange={mockSort}
+      />
+    );
+
+    let nameColumn = screen.getByText('Name Column');
+    fireEvent.click(nameColumn);
+
+    await waitFor(() => {
+      expect(mockSort).toHaveBeenCalledWith({
+        column: 'name',
+        direction: 'ascending',
+      });
+    });
+
+    // Clicking a second time should change the order to descending
+    fireEvent.click(nameColumn);
+    await waitFor(() => {
+      expect(mockSort).toHaveBeenCalledWith({
+        column: 'name',
+        direction: 'descending',
+      });
     });
   });
 

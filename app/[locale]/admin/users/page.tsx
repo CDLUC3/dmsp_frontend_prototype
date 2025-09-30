@@ -60,14 +60,14 @@ const StaticUserList = Array.from({ length: 8 }, (_, i) => {
 
 const userTableColumns = [
   {id: 'id', name: 'id', isRowHeader: false},
-  {id: 'name', name: 'Name', isRowHeader: true, allowSorting: true},
-  {id: 'email', name: 'Email', isRowHeader: true, allowSorting: true},
-  {id: 'school', name: 'School', isRowHeader: true, allowSorting: true},
-  {id: 'plans', name: 'Plans', isRowHeader: true, allowSorting: true},
-  {id: 'active', name: 'Active', isRowHeader: true, allowSorting: true},
-  {id: 'permission', name: 'Permission', isRowHeader: true, allowSorting: true},
-  {id: 'created', name: 'Created', isRowHeader: true, allowSorting: true},
-  {id: 'activity', name: 'Activity', isRowHeader: true, allowSorting: true},
+  {id: 'name', name: 'Name', isRowHeader: true, allowsSorting: true},
+  {id: 'email', name: 'Email', isRowHeader: true, allowsSorting: true},
+  {id: 'school', name: 'School', isRowHeader: true, allowsSorting: true},
+  {id: 'plans', name: 'Plans', isRowHeader: true, allowsSorting: true},
+  {id: 'active', name: 'Active', isRowHeader: true, allowsSorting: true},
+  {id: 'permission', name: 'Permission', isRowHeader: true, allowsSorting: true},
+  {id: 'created', name: 'Created', isRowHeader: true, allowsSorting: true},
+  {id: 'activity', name: 'Activity', isRowHeader: true, allowsSorting: true},
 ]
 
 const paginationProps = {
@@ -160,6 +160,10 @@ function OrgUserAccountsPage(): React.FC {
             className={styles.userList}
             columns={userTableColumns}
             rows={StaticUserList}
+            onSortChange={(tmp) => {
+              console.log('Hello sort direction change?');
+              console.log(tmp);
+            }}
           />
 
           <Pagination {...paginationProps} />
