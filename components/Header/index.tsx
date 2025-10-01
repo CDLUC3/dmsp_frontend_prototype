@@ -74,7 +74,7 @@ function Header() {
         <div className={`${styles.headerLogo} ${styles.grow}`}>
           <Link href={routePath("app.home")}>
             <Image
-              src="/images/DMP-logo.svg"
+              src="/images/dmplogo.svg"
               width={200}
               height={28}
               alt="DMP Tool"
