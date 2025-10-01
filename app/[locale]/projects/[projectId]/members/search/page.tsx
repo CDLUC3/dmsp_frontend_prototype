@@ -24,7 +24,7 @@ import {
 
 import {
   addProjectMemberAction
-} from './actions';
+} from '@/app/actions';
 
 // Types
 import { AddProjectMemberResponse } from '@/app/types';
@@ -85,6 +85,8 @@ const ProjectsProjectMembersSearch = () => {
 
   // To track last processed cursor to avoid duplicate processing
   const lastProcessedCursorRef = useRef<string | null>(null);
+  // To track if we've processed the initial results
+  const hasProcessedInitialResults = useRef(false);
 
   const { scrollToTop } = useScrollToTop();
 
@@ -114,6 +116,7 @@ const ProjectsProjectMembersSearch = () => {
     setSearchNextCursor(null); // Reset search cursor
     setSearchTotalCount(0); // Reset search total count
     lastProcessedCursorRef.current = null; // Reset last processed cursor
+    hasProcessedInitialResults.current = false; // Reset initial results flag
     scrollToTop(topRef);
   }
 
@@ -133,6 +136,7 @@ const ProjectsProjectMembersSearch = () => {
     setSearchResults([]); // Clear previous search results
     setSearchNextCursor(null); // Reset search cursor
     lastProcessedCursorRef.current = null; // Reset processed cursor tracking
+    hasProcessedInitialResults.current = false; // Reset initial results flag
 
     await fetchCollaborators({
       variables: {
@@ -257,8 +261,15 @@ const ProjectsProjectMembersSearch = () => {
 
     const currentCursor = collaboratorData.findCollaborator?.nextCursor ?? null;
 
-    // Check if we've already processed this data.
-    if (lastProcessedCursorRef.current === currentCursor) {
+    // For initial search (cursor is null), check if we've already processed initial results
+    // For pagination (cursor is not null), check if we've already processed this cursor
+    if (currentCursor === null && hasProcessedInitialResults.current) {
+      console.log("Early return - initial results already processed");
+      return;
+    }
+
+    if (currentCursor !== null && lastProcessedCursorRef.current === currentCursor) {
+      console.log("Early return - cursor already processed");
       return;
     }
 
@@ -279,8 +290,11 @@ const ProjectsProjectMembersSearch = () => {
       setSearchNextCursor(currentCursor);
     }
 
-    // Update the last processed cursor
+    // Update the last processed cursor and mark initial results as processed
     lastProcessedCursorRef.current = currentCursor;
+    if (currentCursor === null) {
+      hasProcessedInitialResults.current = true;
+    }
 
   }, [collaboratorData, loading, isSearchFetch]);
 
@@ -293,6 +307,7 @@ const ProjectsProjectMembersSearch = () => {
       setSearchNextCursor(null);
       setSearchTotalCount(0);
       lastProcessedCursorRef.current = null;
+      hasProcessedInitialResults.current = false;
     }
   }, [searchTerm])
 

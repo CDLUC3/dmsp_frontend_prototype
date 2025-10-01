@@ -59,6 +59,7 @@ const ProjectsProjectMemberCreate: React.FC = () => {
 
   //Routes
   const PROJECT_MEMBERS_ROUTE = routePath('projects.members.index', { projectId });
+  const PROJECT_MEMBER_SEARCH = routePath('projects.members.search', { projectId });
 
   // Hooks for toast, router and scroll to top
   const toastState = useToast();
@@ -107,7 +108,7 @@ const ProjectsProjectMemberCreate: React.FC = () => {
 
   // Show Success Message for updating member
   const showSuccessToast = () => {
-    const successMessage = t('form.success.memberUpdated');
+    const successMessage = CreateMember('messaging.success.memberAdded');
     toastState.add(successMessage, { type: 'success' });
   }
 
@@ -154,13 +155,17 @@ const ProjectsProjectMemberCreate: React.FC = () => {
         url: { path: PROJECT_MEMBERS_ROUTE }
       });
     } else {
+
       // If there are field-specific errors, set them
       if (response.data?.errors) {
-
         const errors = response.data.errors as AddProjectMemberErrors | null;
 
-        // Check if there are any errors (always exclude the GraphQL `_typename` entry)
-        if (errors && Object.keys(errors).some(key => key !== '__typename')) {
+        // Check if there are any actual error values (not null/undefined and not __typename)
+        const hasErrors = errors && Object.entries(errors).some(([key, value]) =>
+          key !== '__typename' && value !== null && value !== undefined && value !== ''
+        );
+
+        if (hasErrors) {
           setFieldErrors({
             givenName: errors.givenName || '',
             surName: errors.surName || '',
@@ -264,15 +269,14 @@ const ProjectsProjectMemberCreate: React.FC = () => {
     <>
       <PageHeader
         title={CreateMember('title')}
-        description={CreateMember('description')}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.project')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={PROJECT_MEMBERS_ROUTE}>{t('breadcrumbs.projectMembers')}</Link></Breadcrumb>
-            <Breadcrumb>{t('title')}</Breadcrumb>
+            <Breadcrumb><Link href={PROJECT_MEMBER_SEARCH}>{CreateMember('breadcrumbs.projectMemberSearch')}</Link></Breadcrumb>
+            <Breadcrumb>{CreateMember('breadcrumbs.addProjectMember')}</Breadcrumb>
           </Breadcrumbs>
         }
         className="page-member-edit"
@@ -367,7 +371,11 @@ const ProjectsProjectMemberCreate: React.FC = () => {
                 >
                   {roles.map((role, index) => (
                     <div key={index}>
-                      <Checkbox value={role?.id?.toString() ?? ''} aria-label="project roles option">
+                      <Checkbox
+                        value={role?.id?.toString() ?? ''}
+                        aria-label={CreateMember('projectRolesOptions') + ' ' + role.label}
+                        data-testid={`role-checkbox-${role?.id}`}
+                      >
                         <div className="checkbox">
                           <svg viewBox="0 0 18 18" aria-hidden="true">
                             <polyline points="1 9 7 14 15 4" />

@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor, within } from '@testing-library/rea
 import { MockedProvider } from '@apollo/client/testing';
 import '@testing-library/jest-dom';
 import { useParams, useRouter } from 'next/navigation';
-import { addProjectMemberAction } from '../actions';
+import { addProjectMemberAction } from '@/app/actions';
 import findCollaboratorMock from '../__mocks__/searchCollaboratorsMock.json';
 import loadMoreCollaboratorsMock from '../__mocks__/loadMoreCollaboratorsMock.json';
 
@@ -22,7 +22,7 @@ jest.mock('next/navigation', () => ({
   useParams: jest.fn()
 }));
 
-jest.mock('../actions', () => ({
+jest.mock('@/app/actions', () => ({
   addProjectMemberAction: jest.fn()
 }));
 

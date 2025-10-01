@@ -384,10 +384,18 @@
   "ProjectsProjectMemberCreate": {
     "title": "Add a new project member",
     "description": "Add a new member to this project by filling in their details below.",
+    "projectRolesOptions": "Project roles options",
     "messaging": {
       "errors": {
         "errorAddingMember": "Error adding member"
+      },
+      "success": {
+        "memberAdded": "Successfully added project member"
       }
+    },
+    "breadcrumbs": {
+      "addProjectMember": "Add project member",
+      "projectMemberSearch": "Project member search"
     }
   }
 }
