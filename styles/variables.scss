@@ -61,11 +61,9 @@ $font-sizes: (
 );
 
 $colors: (
-  'brand': (
-    'primary': rgb(0, 85, 129),
+  'brand': ('primary': #05042E,
     'secondary': #444444,
-    'tertiary': rgb(207, 72, 23)
-    ),
+    'tertiary': rgb(207, 72, 23)),
   'blue': (50: #f2fbff,
     100: #e4f7ff,
     200: #b9e9ff,
@@ -74,7 +72,8 @@ $colors: (
     500: #004EAA, // mid
     600: #254eab, // dark blue
     700: #254d9f,
-    900: #05042E, // dark navy
+    800: #020057,
+    900: #05042E,
   ),
   'gray': (25: #fafafa,
     50: #ffffff,

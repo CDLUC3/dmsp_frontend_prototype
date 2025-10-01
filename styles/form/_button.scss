@@ -10,7 +10,7 @@
   transition: all 0.2s ease-in-out;
   border: none;
   position: relative;
-  background: var(--slate-900);
+  background: var(--blue-900);
   color: var(--bg-white);
   align-items: center;
 
@@ -39,7 +39,7 @@
 }
 
 @mixin button-primary {
-  background: var(--slate-900);
+  background: var(--blue-900);
   color: var(--bg-white);
 
 
@@ -59,14 +59,14 @@
   // box-shadow makes border appear on the inside of button, keeping it same size as primary button, as opposed to
   // border, which renders the border on the outside of the button, making secondary larger than primary. An
   // alternative is setting box-sizing, but a height must be set.
-  box-shadow: 0 0 0 2px var(--slate-900) inset;
+  box-shadow: 0 0 0 2px var(--blue-900) inset;
 
-  color: var(--slate-900);
+  color: var(--blue-900);
   font-weight: bold;
 
   &:active,
   &:visited {
-    color: var(--slate-900);
+    color: var(--blue-900);
   }
 
   &:hover:not(:disabled) {
@@ -89,12 +89,12 @@
 
 @mixin button-tertiary {
   background: var(--gray-100);
-  color: var(--slate-900);
+  color: var(--blue-900);
   border: 1px solid var(--slate-100);
 
   &:active,
   &:visited {
-    color: var(--slate-900);
+    color: var(--blue-900);
   }
 
   &:hover:not(:disabled) {
@@ -112,7 +112,7 @@
 @mixin button-link {
   background: none;
   border: none;
-  color: var(--slate-900);
+  color: var(--blue-900);
   text-decoration: underline;
   cursor: pointer;
   padding: 0;
@@ -120,7 +120,7 @@
 
   &:active,
   &:visited {
-    color: var(--slate-900);
+    color: var(--blue-900);
   }
 
   &:hover:not(:disabled) {
@@ -150,18 +150,18 @@
   }
 
   &:hover:not(:disabled) {
-    background: var(--slate-900);
+    background: var(--blue-900);
     color: #fff;
     text-decoration: none;
   }
 
   &:active:not(:disabled),
   &[data-pressed]:not(:disabled) {
-    background: var(--slate-900);
+    background: var(--blue-900);
   }
 
   &:disabled {
-    background: var(--slate-900);
+    background: var(--blue-900);
     opacity: 0.5;
   }
 }
@@ -226,6 +226,10 @@ input[type="button"] {
   &[data-focus-visible] {
     outline: 2px solid var(--focus-ring);
     outline-offset: var(--focus-ring-offset);
+  }
+
+  &:focus {
+  color: var(--blue-900);
   }
 
 }
