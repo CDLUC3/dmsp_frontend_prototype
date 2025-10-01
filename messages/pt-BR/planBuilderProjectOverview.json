@@ -359,11 +359,11 @@
   "ProjectsProjectMembersSearch": {
     "title": "Quem são os membros do projeto?",
     "searchLabel": "Pesquisar por nome, organização ou ORCID",
-    "searchDescription": "Pesquisar por uma pessoa'nome, organização e/ou ORCiD. O fornecimento de mais informações ajudará a limitar a pesquisa, por exemplo, Frederick Cook 0427.",
+    "searchDescription": "Pesquisar por nome, organização e/ou ORCiD de uma pessoa. A introdução de mais informações ajudará a limitar a pesquisa, por exemplo, Frederick Cook 0427.",
     "ariaSearchInput": "Pesquisa",
     "ariaSearchItemName": "Membro: {name}",
     "ariaAddMemberButton": "Adicionar {name} como membro do projeto",
-    "createCollaboratorDescription": "Se o seu colaborador for mostrado \"'\", você pode adicionar os detalhes manualmente",
+    "createCollaboratorDescription": "Se seu colaborador não estiver mostrado, você pode adicionar seus detalhes manualmente",
     "buttons": {
       "createMember": "Criar membro"
     },
@@ -384,10 +384,18 @@
   "ProjectsProjectMemberCreate": {
     "title": "Adicionar um novo membro ao projeto",
     "description": "Adicionar um novo membro a este projeto, preenchendo seus detalhes abaixo.",
+    "projectRolesOptions": "Opções dos papéis do projeto",
     "messaging": {
       "errors": {
         "errorAddingMember": "Erro ao adicionar membro"
+      },
+      "success": {
+        "memberAdded": "Membro do projeto adicionado com sucesso"
       }
+    },
+    "breadcrumbs": {
+      "addProjectMember": "Adicionar membro",
+      "projectMemberSearch": "Busca de membros"
     }
   }
 }
