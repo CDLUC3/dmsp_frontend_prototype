@@ -30,3 +30,27 @@ mutation RemoveProjectMember($projectMemberId: Int!) {
     }
   }
 }
+
+
+mutation AddProjectMember($input: AddProjectMemberInput!) {
+  addProjectMember(input: $input) {
+    id
+    givenName
+    surName
+    email
+    affiliation {
+      id
+      name
+      uri
+    }
+    orcid
+    errors {
+      email
+      surName
+      general
+      givenName
+      orcid
+      memberRoleIds 
+    }
+  }
+}

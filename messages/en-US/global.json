@@ -463,7 +463,8 @@
       "loadMore": "Load more",
       "addAnother": "Add another",
       "goToProject": "Go to project",
-      "back": "Back"
+      "back": "Back",
+      "add": "Add"
     },
     "labels": {
       "required": "required",
