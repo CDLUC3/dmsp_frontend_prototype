@@ -45,23 +45,24 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
         <div className={styles.TemplateItemInner}>
           <div className={styles.TemplateItemContent}>
             <div className={styles.funder}>{item.funder}</div>
-            {onSelect ? (
-              <h3 className={styles.TemplateItemHeading}>{item.title}</h3>
-            ) : (
-              <h3 id={headingId}>
-                {item.link ? (
-                  <Link
-                    href={item.link}
-                    aria-label={`${Global("links.update")} ${item.title}`}
-                    className={styles.titleLink}
-                  >
-                    {item.title}
-                  </Link>
-                ) : (
-                  item.title
-                )}
-              </h3>
-            )}
+            <h3
+              className={styles.TemplateItemHeading}
+              id={headingId}
+            >
+              {onSelect ? (
+                item.title
+              ) : item.link ? (
+                <Link
+                  href={item.link}
+                  aria-label={`${Global("links.update")} ${item.title}`}
+                  className={styles.titleLink}
+                >
+                  {item.title}
+                </Link>
+              ) : (
+                item.title
+              )}
+            </h3>
             {item.description && <p className={styles.description}>{item.description}</p>}
 
             <div
@@ -116,7 +117,7 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
                 <Link
                   href={item.link}
                   aria-label={`${Global("links.update")} ${item.title}`}
-                  className={styles.updateLink}
+                  className="button-link button--primary"
                 >
                   {Global("links.update")}
                 </Link>
