@@ -31,9 +31,9 @@
     "links": {
       "addSection": "Adicionar seção",
       "edit": "Alterar",
-      "manageAccess": "Gerenciar acesso",
-      "templateHistory": "Histórico do modelo",
-      "editTemplateTitle": "Editar título do modelo"
+      "manageAccess": "Gerenciar",
+      "templateHistory": "Histórico",
+      "editTemplateTitle": "Editar"
     },
     "button": {
       "archiveTemplate": "Template de arquivo",

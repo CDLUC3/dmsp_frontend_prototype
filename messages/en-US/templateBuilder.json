@@ -31,9 +31,9 @@
     "links": {
       "addSection": "Add section",
       "edit": "Edit",
-      "manageAccess": "Manage access",
-      "templateHistory": "Template history",
-      "editTemplateTitle": "Edit template title"
+      "manageAccess": "Manage",
+      "templateHistory": "History",
+      "editTemplateTitle": "Edit"
     },
     "button": {
       "archiveTemplate": "Archive template",

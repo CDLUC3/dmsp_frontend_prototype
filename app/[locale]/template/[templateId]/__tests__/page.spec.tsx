@@ -1,37 +1,36 @@
 // Mock useFormatter and useTranslations from next-intl
-jest.mock('next-intl', () => ({
+jest.mock("next-intl", () => ({
   useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`,
 }));
 import React from "react";
-import { act, fireEvent, render, screen, waitFor, within } from '@/utils/test-utils';
+import { act, fireEvent, render, screen, waitFor, within } from "@/utils/test-utils";
 import {
   useArchiveTemplateMutation,
   useCreateTemplateVersionMutation,
   useTemplateQuery,
-  useSectionQuery
-} from '@/generated/graphql';
-import { useToast } from '@/context/ToastContext';
-import { useParams, useRouter } from 'next/navigation';
-import logECS from '@/utils/clientLogger';
-import TemplateEditPage from '../page';
-import { updateTemplateAction, updateSectionDisplayOrderAction } from '../actions';
+  useSectionQuery,
+} from "@/generated/graphql";
+import { useToast } from "@/context/ToastContext";
+import { useParams, useRouter } from "next/navigation";
+import logECS from "@/utils/clientLogger";
+import TemplateEditPage from "../page";
+import { updateTemplateAction, updateSectionDisplayOrderAction } from "../actions";
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { axe, toHaveNoViolations } from "jest-axe";
 
 expect.extend(toHaveNoViolations);
 
-jest.mock('next/link', () => {
+jest.mock("next/link", () => {
   /* eslint-disable @typescript-eslint/no-explicit-any */
   const MockLink = ({ children, href }: any) => <a href={href}>{children}</a>;
-  MockLink.displayName = 'MockNextLink';
+  MockLink.displayName = "MockNextLink";
   return MockLink;
 });
 
-
 // Mock useFormatter and useTranslations from next-intl
-jest.mock('next-intl', () => ({
+jest.mock("next-intl", () => ({
   useFormatter: jest.fn(() => ({
-    dateTime: jest.fn(() => '01-01-2023'),
+    dateTime: jest.fn(() => "01-01-2023"),
   })),
   useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`,
 }));
@@ -42,19 +41,19 @@ jest.mock("@/generated/graphql", () => ({
   useTemplateQuery: jest.fn(),
   useArchiveTemplateMutation: jest.fn(),
   useCreateTemplateVersionMutation: jest.fn(),
-  TemplateVersionType: { Draft: 'DRAFT', Published: 'PUBLISHED' },
-  TemplateVisibility: { Organization: 'ORGANIZATION', Public: 'PUBLIC' },
+  TemplateVersionType: { Draft: "DRAFT", Published: "PUBLISHED" },
+  TemplateVisibility: { Organization: "ORGANIZATION", Public: "PUBLIC" },
 }));
 
-jest.mock('../actions/index', () => ({
+jest.mock("../actions/index", () => ({
   updateTemplateAction: jest.fn(),
-  updateSectionDisplayOrderAction: jest.fn()
+  updateSectionDisplayOrderAction: jest.fn(),
 }));
 
-jest.mock('next/navigation', () => ({
+jest.mock("next/navigation", () => ({
   useParams: jest.fn(),
   useRouter: jest.fn(),
-}))
+}));
 
 const mockToast = {
   add: jest.fn(),
@@ -62,8 +61,7 @@ const mockToast = {
 
 const mockUseRouter = useRouter as jest.Mock;
 
-
-jest.mock('@/components/BackButton', () => {
+jest.mock("@/components/BackButton", () => {
   return {
     __esModule: true,
     default: () => <div>Mocked Back Button</div>,
@@ -82,26 +80,25 @@ const mockArchiveTemplateData = {
       },
     },
   },
-}
+};
 
 const mockSectionData = {
   id: 79,
-  name: 'Data Description',
+  name: "Data Description",
   displayOrder: 1,
   questions: [
     {
       id: 1,
       displayOrder: 1,
       questionText: "Email field",
-
     },
     {
       id: 2,
       displayOrder: 2,
-      questionText: "Process and Procedures"
-    }
-  ]
-}
+      questionText: "Process and Procedures",
+    },
+  ],
+};
 
 const mockTemplateData: {
   name: string;
@@ -142,11 +139,12 @@ const mockTemplateData: {
         {
           errors: null,
           displayOrder: 1,
-          guidanceText: "<p><br><a href=\"http://thedata.org/book/data-management-plan\">Dataverse page on DMPs</a></p>",
+          guidanceText: '<p><br><a href="http://thedata.org/book/data-management-plan">Dataverse page on DMPs</a></p>',
           id: 67,
-          questionText: "Briefly describe nature &amp; scale of data {simulated, observed, experimental information; samples; publications; physical collections; software; models} generated or collected."
-        }
-      ]
+          questionText:
+            "Briefly describe nature &amp; scale of data {simulated, observed, experimental information; samples; publications; physical collections; software; models} generated or collected.",
+        },
+      ],
     },
     {
       id: 68,
@@ -158,11 +156,11 @@ const mockTemplateData: {
           displayOrder: 1,
           guidanceText: "Guidance text",
           id: 67,
-          questionText: "National Science Foundation"
-        }
-      ]
+          questionText: "National Science Foundation",
+        },
+      ],
     },
-  ]
+  ],
 };
 
 describe("TemplateEditPage", () => {
@@ -183,26 +181,24 @@ describe("TemplateEditPage", () => {
     (useToast as jest.Mock).mockReturnValue(mockToast);
 
     (useArchiveTemplateMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      jest.fn().mockResolvedValueOnce({ data: { key: "value" } }),
       { loading: false, error: undefined },
     ]);
 
     (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      jest.fn().mockResolvedValueOnce({ data: { key: "value" } }),
       { loading: false, error: undefined },
     ]);
 
     (useSectionQuery as jest.Mock).mockReturnValue({
       data: {
-        section: mockSectionData
+        section: mockSectionData,
       },
       loading: false,
       error: null,
       refetch: jest.fn(),
     });
-
   });
-
 
   it("should render loading state", async () => {
     // Mock graphql requests
@@ -213,9 +209,7 @@ describe("TemplateEditPage", () => {
     });
 
     await act(async () => {
-      render(
-        <TemplateEditPage />
-      );
+      render(<TemplateEditPage />);
     });
 
     expect(screen.getByText(/loading.../i)).toBeInTheDocument();
@@ -233,8 +227,8 @@ describe("TemplateEditPage", () => {
       render(<TemplateEditPage />);
     });
 
-    const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading).toHaveTextContent('DMP Template from Dataverse');
+    const heading = screen.getByRole("heading", { level: 1 });
+    expect(heading).toHaveTextContent("DMP Template from Dataverse");
 
     const versionText = screen.getByText(/version: v1/i);
     expect(versionText).toBeInTheDocument();
@@ -242,29 +236,24 @@ describe("TemplateEditPage", () => {
     const lastUpdatedText = screen.getByText(/lastUpdated: 01-01-2023/i);
     expect(lastUpdatedText).toBeInTheDocument();
 
-    const viewHistory = screen.getByRole('link', { name: 'links.viewHistory' });
-    expect(viewHistory).toHaveAttribute('href', '/en-US/template/123/history');
+    const viewHistory = screen.getByRole("link", { name: "links.viewHistory" });
+    expect(viewHistory).toHaveAttribute("href", "/en-US/template/123/history");
 
     // Find all section cards
-    const sectionCards = screen.getAllByTestId('section-edit-card');
+    const sectionCards = screen.getAllByTestId("section-edit-card");
 
     // Find the card that contains 'Data description'
-    const sectionCard1 = sectionCards.find(card =>
-      within(card).queryByText('Data Description')
-    );
+    const sectionCard1 = sectionCards.find((card) => within(card).queryByText("Data Description"));
 
     expect(sectionCard1).toBeInTheDocument();
 
-    const questionCards = screen.getAllByTestId('question-edit-card');
+    const questionCards = screen.getAllByTestId("question-edit-card");
 
-    const questionCard1 = questionCards.find(card =>
-      within(card).queryByText('Process and Procedures')
-    )
+    const questionCard1 = questionCards.find((card) => within(card).queryByText("Process and Procedures"));
     expect(questionCard1).toBeInTheDocument();
   });
 
-
-  it('should close dialog when \'Publish template\' form submitted', async () => {
+  it("should close dialog when 'Publish template' form submitted", async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
       loading: false,
@@ -275,87 +264,81 @@ describe("TemplateEditPage", () => {
         data: {
           createTemplateVersion: {
             errors: {
-              general: null
-            }
-          }
-        }
+              general: null,
+            },
+          },
+        },
       }), // Correct way to mock a resolved promise
       { loading: false, error: undefined },
     ]);
 
     await act(async () => {
-      render(
-        <TemplateEditPage />
-      );
+      render(<TemplateEditPage />);
     });
 
     // Open publish modal
-    const publishTemplateButton = screen.getByRole('button', { name: 'button.publishTemplate' });
+    const publishTemplateButton = screen.getByRole("button", { name: "button.publishTemplate" });
 
     // Click to open publish modal
     await act(async () => {
       fireEvent.click(publishTemplateButton);
     });
 
-
     // Should show visibility "Organization" as selected, since the template was previously published with that visibility setting
-    const privateOption = screen.getByTestId('visPrivate');
-    expect(privateOption).toHaveAttribute('data-selected', 'true');
-
+    const privateOption = screen.getByTestId("visPrivate");
+    expect(privateOption).toHaveAttribute("data-selected", "true");
 
     // Fill in change log
-    const textarea = screen.getByTestId('changeLog');
+    const textarea = screen.getByTestId("changeLog");
     await act(async () => {
-      fireEvent.change(textarea, { target: { value: 'Some change log' } });
-    })
+      fireEvent.change(textarea, { target: { value: "Some change log" } });
+    });
 
     // To select the "public" radio button:
-    const publicRadio = screen.getByDisplayValue('public');
+    const publicRadio = screen.getByDisplayValue("public");
 
     await act(async () => {
       fireEvent.click(publicRadio);
-    })
+    });
 
     // Submit the publish form
-    const saveAndPublishButton = screen.getByRole('button', { name: 'button.saveAndPublish' });
+    const saveAndPublishButton = screen.getByRole("button", { name: "button.saveAndPublish" });
     await act(async () => {
       fireEvent.click(saveAndPublishButton);
-    })
+    });
 
     // Wait for mutation response
     await waitFor(() => {
       //Should have hidden the dialog window again
-      const modalElement = screen.queryByTestId('modal');
+      const modalElement = screen.queryByTestId("modal");
       expect(modalElement).toBeNull();
     });
-  })
+  });
 
-  it('should update the visibility text when publish visibility changes', async () => {
+  it("should update the visibility text when publish visibility changes", async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
       loading: false,
       error: null,
     });
     (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
+      jest.fn().mockResolvedValueOnce({ data: { key: "value" } }), // Correct way to mock a resolved promise
       { loading: false, error: undefined },
     ]);
 
     await act(async () => {
-      render(
-        <TemplateEditPage />
-      );
+      render(<TemplateEditPage />);
     });
 
     // Simulate the user triggering the publishTemplate button
-    const publishTemplateButton = screen.getByRole('button', { name: /button.publishtemplate/i });
+    const publishTemplateButton = screen.getByRole("button", { name: /button.publishtemplate/i });
     fireEvent.click(publishTemplateButton);
     await waitFor(() => {
-      expect(screen.getByTestId('visPublic')).toBeInTheDocument();
+      expect(screen.getByTestId("visPublic")).toBeInTheDocument();
     });
 
-    const publicOption = screen.getByTestId('visPublic');
-    const privateOption = screen.getByTestId('visPrivate');
+    const publicOption = screen.getByTestId("visPublic");
+    const privateOption = screen.getByTestId("visPrivate");
 
     expect(publicOption).toBeInTheDocument();
     expect(privateOption).toBeInTheDocument();
@@ -363,21 +346,21 @@ describe("TemplateEditPage", () => {
     // Test the public option
     fireEvent.click(publicOption);
     await waitFor(() => {
-      const visBullet = screen.getByTestId('visText');
+      const visBullet = screen.getByTestId("visText");
       expect(visBullet).toBeInTheDocument();
-      expect(visBullet).toHaveTextContent('bullet.publishingTemplate3');
+      expect(visBullet).toHaveTextContent("bullet.publishingTemplate3");
     });
 
     // Test the Private Option
     fireEvent.click(privateOption);
     await waitFor(() => {
-      const visBullet = screen.getByTestId('visText');
+      const visBullet = screen.getByTestId("visText");
       expect(visBullet).toBeInTheDocument();
-      expect(visBullet).toHaveTextContent('bullet.publishingTemplate3Private');
+      expect(visBullet).toHaveTextContent("bullet.publishingTemplate3Private");
     });
   });
 
-  it('should display errors.saveTemplate error message if no result when calling saveTemplate', async () => {
+  it("should display errors.saveTemplate error message if no result when calling saveTemplate", async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
       loading: false,
@@ -385,85 +368,80 @@ describe("TemplateEditPage", () => {
     });
     (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({
-        data: null
+        data: null,
       }), // Correct way to mock a resolved promise
       { loading: false, error: undefined },
     ]);
 
     await act(async () => {
-      render(
-        <TemplateEditPage />
-      );
+      render(<TemplateEditPage />);
     });
 
     // Open publish modal
-    const publishTemplateButton = screen.getByRole('button', { name: 'button.publishTemplate' });
+    const publishTemplateButton = screen.getByRole("button", { name: "button.publishTemplate" });
     await act(async () => {
       fireEvent.click(publishTemplateButton);
     });
 
-
     // Fill in change log
-    const textarea = screen.getByTestId('changeLog');
+    const textarea = screen.getByTestId("changeLog");
     await act(async () => {
-      fireEvent.change(textarea, { target: { value: 'Some change log' } });
-    })
+      fireEvent.change(textarea, { target: { value: "Some change log" } });
+    });
 
     // To select the "public" radio button:
-    const publicRadio = screen.getByDisplayValue('public');
+    const publicRadio = screen.getByDisplayValue("public");
 
     await act(async () => {
       fireEvent.click(publicRadio);
-    })
+    });
 
     // Submit the publish form
-    const saveAndPublishButton = screen.getByRole('button', { name: 'button.saveAndPublish' });
+    const saveAndPublishButton = screen.getByRole("button", { name: "button.saveAndPublish" });
     await act(async () => {
       fireEvent.click(saveAndPublishButton);
-    })
+    });
 
     // Wait for the error to be added to the page
     await waitFor(() => {
-      expect(screen.getByText('errors.saveTemplateError')).toBeInTheDocument();
+      expect(screen.getByText("errors.saveTemplateError")).toBeInTheDocument();
     });
-  })
+  });
 
-  it('should set correct error when useCreate returns error', async () => {
+  it("should set correct error when useCreate returns error", async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
       loading: false,
       error: null,
     });
     (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
-      jest.fn(() => Promise.reject(new Error('Mutation failed'))), // Mock the mutation function
+      jest.fn(() => Promise.reject(new Error("Mutation failed"))), // Mock the mutation function
     ]);
 
     await act(async () => {
-      render(
-        <TemplateEditPage />
-      );
+      render(<TemplateEditPage />);
     });
 
     // Simulate the user triggering the publishTemplate button
-    const publishTemplateButton = screen.getByRole('button', { name: /button.publishtemplate/i });
+    const publishTemplateButton = screen.getByRole("button", { name: /button.publishtemplate/i });
     fireEvent.click(publishTemplateButton);
 
     // Locate the textarea using data-testid
-    const textarea = screen.getByTestId('changeLog');
+    const textarea = screen.getByTestId("changeLog");
 
     // Simulate user typing into the textarea
-    fireEvent.change(textarea, { target: { value: 'This is a test comment.' } });
+    fireEvent.change(textarea, { target: { value: "This is a test comment." } });
 
-    const saveAndPublishButton = screen.getByRole('button', { name: /button.saveandpublish/i });
+    const saveAndPublishButton = screen.getByRole("button", { name: /button.saveandpublish/i });
     fireEvent.click(saveAndPublishButton);
 
     // Wait for the error to be added to the page
     await waitFor(() => {
-      expect(screen.getByText('errors.saveTemplateError')).toBeInTheDocument();
+      expect(screen.getByText("errors.saveTemplateError")).toBeInTheDocument();
     });
-  })
+  });
 
-  it('should call useArchiveTemplateMutation when user clicks on the Archive Template button', async () => {
+  it("should call useArchiveTemplateMutation when user clicks on the Archive Template button", async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
       loading: false,
@@ -476,18 +454,16 @@ describe("TemplateEditPage", () => {
     ]);
 
     (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
+      jest.fn().mockResolvedValueOnce({ data: { key: "value" } }), // Correct way to mock a resolved promise
       { loading: false, error: undefined },
     ]);
 
     await act(async () => {
-      render(
-        <TemplateEditPage />
-      );
+      render(<TemplateEditPage />);
     });
 
     // Locate the Archive Template button
-    const archiveTemplateBtn = screen.getByTestId('archive-template');
+    const archiveTemplateBtn = screen.getByTestId("archive-template");
     //Click the button
     fireEvent.click(archiveTemplateBtn);
 
@@ -497,11 +473,11 @@ describe("TemplateEditPage", () => {
     });
 
     await waitFor(() => {
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/template/123');
+      expect(mockUseRouter().push).toHaveBeenCalledWith("/en-US/template/123");
     });
-  })
+  });
 
-  it('should set errors when handleTitleChange is called and returns a general error', async () => {
+  it("should set errors when handleTitleChange is called and returns a general error", async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
       loading: false,
@@ -513,78 +489,74 @@ describe("TemplateEditPage", () => {
       success: true,
       data: {
         errors: {
-          general: 'There was an error changing title',
+          general: "There was an error changing title",
           email: null,
         },
         id: 15,
-        name: 'Changed title',
-        latestPublishVisibility: 'ORGANIZATION',
+        name: "Changed title",
+        latestPublishVisibility: "ORGANIZATION",
       },
     });
-
 
     await act(async () => {
       render(<TemplateEditPage />);
     });
 
-    const editButton = screen.getByRole('button', { name: 'links.editTemplateTitle' });
+    const editButton = screen.getByRole("button", { name: "links.editTemplateTitle" });
 
     await act(async () => {
       fireEvent.click(editButton);
-    })
+    });
 
-    const input = screen.getByPlaceholderText('editTitle');
-    fireEvent.change(input, { target: { value: 'New template name' } });
+    const input = screen.getByPlaceholderText("editTitle");
+    fireEvent.change(input, { target: { value: "New template name" } });
 
-    const saveButton = screen.getByTestId('save-button');
+    const saveButton = screen.getByTestId("save-button");
     await act(async () => {
       fireEvent.click(saveButton);
-    })
+    });
 
-    expect(screen.getByText('There was an error changing title')).toBeInTheDocument();
+    expect(screen.getByText("There was an error changing title")).toBeInTheDocument();
   });
 
-  it('should display correct error when archving template fails', async () => {
+  it("should display correct error when archving template fails", async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
       loading: false,
       error: null,
     });
     (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
+      jest.fn().mockResolvedValueOnce({ data: { key: "value" } }), // Correct way to mock a resolved promise
       { loading: false, error: undefined },
     ]);
 
     (useArchiveTemplateMutation as jest.Mock).mockReturnValue([
-      jest.fn(() => Promise.reject(new Error('Mutation failed'))), // Mock the mutation function
+      jest.fn(() => Promise.reject(new Error("Mutation failed"))), // Mock the mutation function
     ]);
 
     await act(async () => {
-      render(
-        <TemplateEditPage />
-      );
+      render(<TemplateEditPage />);
     });
 
     // Locate the Archive Template button
-    const archiveTemplateBtn = screen.getByTestId('archive-template');
+    const archiveTemplateBtn = screen.getByTestId("archive-template");
     //Click the button
     fireEvent.click(archiveTemplateBtn);
 
     // Wait until error is displayed
     await waitFor(() => {
-      expect(screen.getByText('errors.archiveTemplateError')).toBeInTheDocument();
+      expect(screen.getByText("errors.archiveTemplateError")).toBeInTheDocument();
     });
-  })
+  });
 
-  it('should display the general error if it is returned from the archiveTemplateMutation', async () => {
-
+  it("should display the general error if it is returned from the archiveTemplateMutation", async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
       loading: false,
       error: null,
     });
     (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
+      jest.fn().mockResolvedValueOnce({ data: { key: "value" } }), // Correct way to mock a resolved promise
       { loading: false, error: undefined },
     ]);
 
@@ -597,33 +569,30 @@ describe("TemplateEditPage", () => {
     ]);
 
     await act(async () => {
-      render(
-        <TemplateEditPage />
-      );
+      render(<TemplateEditPage />);
     });
 
     // Locate the Archive Template button
-    const archiveTemplateBtn = screen.getByTestId('archive-template');
+    const archiveTemplateBtn = screen.getByTestId("archive-template");
     //Click the button
     await act(async () => {
       fireEvent.click(archiveTemplateBtn);
-    })
+    });
 
     // Wait until error is displayed
     await waitFor(() => {
-      expect(screen.getByText('Template could not be archived')).toBeInTheDocument();
+      expect(screen.getByText("Template could not be archived")).toBeInTheDocument();
     });
-  })
+  });
 
-  it('should not display error if there are response errors, but no error.general error from calling archiveTemplateMutation', async () => {
-
+  it("should not display error if there are response errors, but no error.general error from calling archiveTemplateMutation", async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
       loading: false,
       error: null,
     });
     (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
+      jest.fn().mockResolvedValueOnce({ data: { key: "value" } }), // Correct way to mock a resolved promise
       { loading: false, error: undefined },
     ]);
 
@@ -639,7 +608,7 @@ describe("TemplateEditPage", () => {
           },
         },
       },
-    }
+    };
     const mockArchiveTemplate = jest.fn().mockResolvedValue(mockWithNoGeneralError);
 
     // Use it in your test:
@@ -649,57 +618,52 @@ describe("TemplateEditPage", () => {
     ]);
 
     await act(async () => {
-      render(
-        <TemplateEditPage />
-      );
+      render(<TemplateEditPage />);
     });
 
     // Locate the Archive Template button
-    const archiveTemplateBtn = screen.getByTestId('archive-template');
+    const archiveTemplateBtn = screen.getByTestId("archive-template");
     //Click the button
     fireEvent.click(archiveTemplateBtn);
 
     // Wait until error is displayed
     await waitFor(() => {
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     });
-  })
+  });
 
-  it('should display Template Title input field when user clicks on Edit Template', async () => {
+  it("should display Template Title input field when user clicks on Edit Template", async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
       loading: false,
       error: null,
     });
     (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
+      jest.fn().mockResolvedValueOnce({ data: { key: "value" } }), // Correct way to mock a resolved promise
       { loading: false, error: undefined },
     ]);
 
     await act(async () => {
-      render(
-        <TemplateEditPage />
-      );
+      render(<TemplateEditPage />);
     });
 
-
-    const editTemplateButton = screen.getByRole('button', { name: 'links.editTemplateTitle' });
+    const editTemplateButton = screen.getByRole("button", { name: "links.editTemplateTitle" });
     fireEvent.click(editTemplateButton);
 
     // Check if the input field is displayed
-    const inputField = screen.getByPlaceholderText('editTitle');
+    const inputField = screen.getByPlaceholderText("editTitle");
     expect(inputField).toBeInTheDocument();
   });
 
-  it('should call updateTemplateAction when user enters a new title and clicks save', async () => {
+  it("should call updateTemplateAction when user enters a new title and clicks save", async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
       loading: false,
       error: null,
-      refetch: jest.fn()
+      refetch: jest.fn(),
     });
     (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      jest.fn().mockResolvedValueOnce({ data: { key: "value" } }),
       { loading: false, error: undefined },
     ]);
 
@@ -711,8 +675,8 @@ describe("TemplateEditPage", () => {
           email: null,
         },
         id: 15,
-        name: 'New Template Title',
-        latestPublishVisibility: 'ORGANIZATION',
+        name: "New Template Title",
+        latestPublishVisibility: "ORGANIZATION",
       },
     });
 
@@ -721,19 +685,19 @@ describe("TemplateEditPage", () => {
     });
 
     // Simulate clicking the "Edit template name" button
-    const editTemplateButton = screen.getByRole('button', { name: 'links.editTemplateTitle' });
+    const editTemplateButton = screen.getByRole("button", { name: "links.editTemplateTitle" });
     await act(async () => {
       fireEvent.click(editTemplateButton);
     });
 
     // Simulate typing a new title into the input field
-    const inputField = screen.getByPlaceholderText('editTitle');
+    const inputField = screen.getByPlaceholderText("editTitle");
     await act(async () => {
-      fireEvent.change(inputField, { target: { value: 'New Template Title' } });
+      fireEvent.change(inputField, { target: { value: "New Template Title" } });
     });
 
     // Simulate clicking the "Save" button
-    const saveButton = screen.getByTestId('save-button');
+    const saveButton = screen.getByTestId("save-button");
     await act(async () => {
       fireEvent.click(saveButton);
     });
@@ -742,23 +706,23 @@ describe("TemplateEditPage", () => {
     await waitFor(() => {
       expect(updateTemplateAction).toHaveBeenCalledWith({
         templateId: 15,
-        name: 'New Template Title', // Ensure the updated title is passed
+        name: "New Template Title", // Ensure the updated title is passed
       });
     });
   });
 
-  it('should log error if updateTemplate is called with no templateId', async () => {
+  it("should log error if updateTemplate is called with no templateId", async () => {
     mockTemplateData.id = null; // Set templateId to null
 
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
       loading: false,
       error: null,
-      refetch: jest.fn()
+      refetch: jest.fn(),
     });
 
     (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      jest.fn().mockResolvedValueOnce({ data: { key: "value" } }),
       { loading: false, error: undefined },
     ]);
 
@@ -770,8 +734,8 @@ describe("TemplateEditPage", () => {
           email: null,
         },
         id: 15,
-        name: 'New Template Title',
-        latestPublishVisibility: 'ORGANIZATION',
+        name: "New Template Title",
+        latestPublishVisibility: "ORGANIZATION",
       },
     });
 
@@ -780,19 +744,19 @@ describe("TemplateEditPage", () => {
     });
 
     // Simulate clicking the "Edit template name" button
-    const editTemplateButton = screen.getByRole('button', { name: 'links.editTemplateTitle' });
+    const editTemplateButton = screen.getByRole("button", { name: "links.editTemplateTitle" });
     await act(async () => {
       fireEvent.click(editTemplateButton);
     });
 
     // Simulate typing a new title into the input field
-    const inputField = screen.getByPlaceholderText('editTitle');
+    const inputField = screen.getByPlaceholderText("editTitle");
     await act(async () => {
-      fireEvent.change(inputField, { target: { value: 'New Template Title' } });
+      fireEvent.change(inputField, { target: { value: "New Template Title" } });
     });
 
     // Simulate clicking the "Save" button
-    const saveButton = screen.getByTestId('save-button');
+    const saveButton = screen.getByTestId("save-button");
     await act(async () => {
       fireEvent.click(saveButton);
     });
@@ -800,18 +764,17 @@ describe("TemplateEditPage", () => {
     // Wait for the updateTemplateAction to be called
     await waitFor(() => {
       expect(logECS).toHaveBeenCalledWith(
-        'error',
-        'updateTemplate',
+        "error",
+        "updateTemplate",
         expect.objectContaining({
           error: "templateId is null",
-          url: { path: '/en-US/template/unknown' },
-        })
-      )
-    })
+          url: { path: "/en-US/template/unknown" },
+        }),
+      );
+    });
   });
 
-
-  it('should call updateSectionDisplayOrderAction when a section is moved', async () => {
+  it("should call updateSectionDisplayOrderAction when a section is moved", async () => {
     const mockTemplateId = 123;
     const mockUseParams = useParams as jest.Mock;
 
@@ -831,13 +794,15 @@ describe("TemplateEditPage", () => {
               general: null,
             },
             displayOrder: 1,
-            guidanceText: "<ul>  <li><a href=\"http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf\">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF\">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j\">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041\">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  </ul>",
+            guidanceText:
+              '<ul>  <li><a href="http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href="https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  </ul>',
             id: 104,
-            questionText: "<p>Describe the types of data and products that will be generated in the research, such as images of astronomical objects, spectra, data tables, time series, theoretical formalisms, computational strategies, software, and curriculum materials.</p>",
+            questionText:
+              "<p>Describe the types of data and products that will be generated in the research, such as images of astronomical objects, spectra, data tables, time series, theoretical formalisms, computational strategies, software, and curriculum materials.</p>",
             sectionId: 25,
-            templateId: 5
-          }
-        ]
+            templateId: 5,
+          },
+        ],
       },
       {
         id: 26,
@@ -851,15 +816,17 @@ describe("TemplateEditPage", () => {
               general: null,
             },
             displayOrder: 1,
-            guidanceText: "<ul>  <li><a href=\"http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf\">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF\">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j\">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041\">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  <li><a title=\"Ten Simple Rules for the Care and Feeding of Scientific Data&nbsp;\" href=\"https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003542\">Ten Simple Rules for the Care and Feeding of Scientific Data </a>&nbsp;(Suggestions on effective methods for sharing astronomical data)</li>  </ul>",
+            guidanceText:
+              '<ul>  <li><a href="http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href="https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  <li><a title="Ten Simple Rules for the Care and Feeding of Scientific Data&nbsp;" href="https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003542">Ten Simple Rules for the Care and Feeding of Scientific Data </a>&nbsp;(Suggestions on effective methods for sharing astronomical data)</li>  </ul>',
             id: 105,
-            questionText: "<p>Describe the format in which the data or products are stored (e.g., ASCII, html, FITS, <span style=\"font-weight: 400;\">HD5, Virtual Observatory-compliant</span> tables, XML files, etc.). Include a description of <span style=\"font-weight: 400;\">any</span> metadata that will make the actual data products useful to the general researcher. Where data are stored in unusual or not generally accessible formats, explain how the data may be converted to a more accessible format or otherwise made available to interested parties. In general, solutions and remedies should be provided.</p>",
+            questionText:
+              '<p>Describe the format in which the data or products are stored (e.g., ASCII, html, FITS, <span style="font-weight: 400;">HD5, Virtual Observatory-compliant</span> tables, XML files, etc.). Include a description of <span style="font-weight: 400;">any</span> metadata that will make the actual data products useful to the general researcher. Where data are stored in unusual or not generally accessible formats, explain how the data may be converted to a more accessible format or otherwise made available to interested parties. In general, solutions and remedies should be provided.</p>',
             sectionId: 26,
-            templateId: 5
-          }
-        ]
+            templateId: 5,
+          },
+        ],
       },
-    ]
+    ];
 
     // Arrange: mock template with two sections
     const mockTemplateWithSections = {
@@ -876,7 +843,7 @@ describe("TemplateEditPage", () => {
 
     (useSectionQuery as jest.Mock).mockReturnValue({
       data: {
-        section: mockedSections
+        section: mockedSections,
       },
       loading: false,
       error: null,
@@ -896,7 +863,7 @@ describe("TemplateEditPage", () => {
 
     // Find the "Move Down" button for the first section
     // SectionEditContainer should render a button for moving down
-    const moveDownButtons = screen.getAllByLabelText('buttons.moveUp');
+    const moveDownButtons = screen.getAllByLabelText("buttons.moveUp");
     expect(moveDownButtons.length).toBeGreaterThan(0);
 
     // Act: Click the first "Move Down" button
@@ -913,7 +880,7 @@ describe("TemplateEditPage", () => {
     });
   });
 
-  it('should display error if calling updateSectionDisplayOrderAction returns errors', async () => {
+  it("should display error if calling updateSectionDisplayOrderAction returns errors", async () => {
     const mockTemplateId = 123;
     const mockUseParams = useParams as jest.Mock;
 
@@ -933,13 +900,15 @@ describe("TemplateEditPage", () => {
               general: null,
             },
             displayOrder: 1,
-            guidanceText: "<ul>  <li><a href=\"http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf\">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF\">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j\">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041\">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  </ul>",
+            guidanceText:
+              '<ul>  <li><a href="http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href="https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  </ul>',
             id: 104,
-            questionText: "<p>Describe the types of data and products that will be generated in the research, such as images of astronomical objects, spectra, data tables, time series, theoretical formalisms, computational strategies, software, and curriculum materials.</p>",
+            questionText:
+              "<p>Describe the types of data and products that will be generated in the research, such as images of astronomical objects, spectra, data tables, time series, theoretical formalisms, computational strategies, software, and curriculum materials.</p>",
             sectionId: 25,
-            templateId: 5
-          }
-        ]
+            templateId: 5,
+          },
+        ],
       },
       {
         id: 26,
@@ -953,15 +922,17 @@ describe("TemplateEditPage", () => {
               general: null,
             },
             displayOrder: 1,
-            guidanceText: "<ul>  <li><a href=\"http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf\">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF\">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j\">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041\">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  <li><a title=\"Ten Simple Rules for the Care and Feeding of Scientific Data&nbsp;\" href=\"https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003542\">Ten Simple Rules for the Care and Feeding of Scientific Data </a>&nbsp;(Suggestions on effective methods for sharing astronomical data)</li>  </ul>",
+            guidanceText:
+              '<ul>  <li><a href="http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href="https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  <li><a title="Ten Simple Rules for the Care and Feeding of Scientific Data&nbsp;" href="https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003542">Ten Simple Rules for the Care and Feeding of Scientific Data </a>&nbsp;(Suggestions on effective methods for sharing astronomical data)</li>  </ul>',
             id: 105,
-            questionText: "<p>Describe the format in which the data or products are stored (e.g., ASCII, html, FITS, <span style=\"font-weight: 400;\">HD5, Virtual Observatory-compliant</span> tables, XML files, etc.). Include a description of <span style=\"font-weight: 400;\">any</span> metadata that will make the actual data products useful to the general researcher. Where data are stored in unusual or not generally accessible formats, explain how the data may be converted to a more accessible format or otherwise made available to interested parties. In general, solutions and remedies should be provided.</p>",
+            questionText:
+              '<p>Describe the format in which the data or products are stored (e.g., ASCII, html, FITS, <span style="font-weight: 400;">HD5, Virtual Observatory-compliant</span> tables, XML files, etc.). Include a description of <span style="font-weight: 400;">any</span> metadata that will make the actual data products useful to the general researcher. Where data are stored in unusual or not generally accessible formats, explain how the data may be converted to a more accessible format or otherwise made available to interested parties. In general, solutions and remedies should be provided.</p>',
             sectionId: 26,
-            templateId: 5
-          }
-        ]
+            templateId: 5,
+          },
+        ],
       },
-    ]
+    ];
 
     // Arrange: mock template with two sections
     const mockTemplateWithSections = {
@@ -978,7 +949,7 @@ describe("TemplateEditPage", () => {
 
     (useSectionQuery as jest.Mock).mockReturnValue({
       data: {
-        section: mockedSections
+        section: mockedSections,
       },
       loading: false,
       error: null,
@@ -988,7 +959,7 @@ describe("TemplateEditPage", () => {
     // Mock updateSectionDisplayOrderAction to resolve successfully
     (updateSectionDisplayOrderAction as jest.Mock).mockResolvedValue({
       success: false,
-      errors: ['There was an error moving the section'],
+      errors: ["There was an error moving the section"],
       data: {},
     });
 
@@ -998,7 +969,7 @@ describe("TemplateEditPage", () => {
 
     // Find the "Move Down" button for the first section
     // SectionEditContainer should render a button for moving down
-    const moveDownButtons = screen.getAllByLabelText('buttons.moveUp');
+    const moveDownButtons = screen.getAllByLabelText("buttons.moveUp");
     expect(moveDownButtons.length).toBeGreaterThan(0);
 
     // Act: Click the first "Move Down" button
@@ -1008,11 +979,11 @@ describe("TemplateEditPage", () => {
 
     // Assert: updateSectionDisplayOrderAction called with correct args
     await waitFor(() => {
-      expect(screen.getByText('There was an error moving the section')).toBeInTheDocument();
+      expect(screen.getByText("There was an error moving the section")).toBeInTheDocument();
     });
   });
 
-  it('should display error if updateSectionDisplayOrderAction returns general error', async () => {
+  it("should display error if updateSectionDisplayOrderAction returns general error", async () => {
     const mockTemplateId = 123;
     const mockUseParams = useParams as jest.Mock;
 
@@ -1032,13 +1003,15 @@ describe("TemplateEditPage", () => {
               general: null,
             },
             displayOrder: 1,
-            guidanceText: "<ul>  <li><a href=\"http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf\">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF\">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j\">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041\">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  </ul>",
+            guidanceText:
+              '<ul>  <li><a href="http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href="https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  </ul>',
             id: 104,
-            questionText: "<p>Describe the types of data and products that will be generated in the research, such as images of astronomical objects, spectra, data tables, time series, theoretical formalisms, computational strategies, software, and curriculum materials.</p>",
+            questionText:
+              "<p>Describe the types of data and products that will be generated in the research, such as images of astronomical objects, spectra, data tables, time series, theoretical formalisms, computational strategies, software, and curriculum materials.</p>",
             sectionId: 25,
-            templateId: 5
-          }
-        ]
+            templateId: 5,
+          },
+        ],
       },
       {
         id: 26,
@@ -1052,15 +1025,17 @@ describe("TemplateEditPage", () => {
               general: null,
             },
             displayOrder: 1,
-            guidanceText: "<ul>  <li><a href=\"http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf\">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF\">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j\">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041\">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  <li><a title=\"Ten Simple Rules for the Care and Feeding of Scientific Data&nbsp;\" href=\"https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003542\">Ten Simple Rules for the Care and Feeding of Scientific Data </a>&nbsp;(Suggestions on effective methods for sharing astronomical data)</li>  </ul>",
+            guidanceText:
+              '<ul>  <li><a href="http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href="https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  <li><a title="Ten Simple Rules for the Care and Feeding of Scientific Data&nbsp;" href="https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003542">Ten Simple Rules for the Care and Feeding of Scientific Data </a>&nbsp;(Suggestions on effective methods for sharing astronomical data)</li>  </ul>',
             id: 105,
-            questionText: "<p>Describe the format in which the data or products are stored (e.g., ASCII, html, FITS, <span style=\"font-weight: 400;\">HD5, Virtual Observatory-compliant</span> tables, XML files, etc.). Include a description of <span style=\"font-weight: 400;\">any</span> metadata that will make the actual data products useful to the general researcher. Where data are stored in unusual or not generally accessible formats, explain how the data may be converted to a more accessible format or otherwise made available to interested parties. In general, solutions and remedies should be provided.</p>",
+            questionText:
+              '<p>Describe the format in which the data or products are stored (e.g., ASCII, html, FITS, <span style="font-weight: 400;">HD5, Virtual Observatory-compliant</span> tables, XML files, etc.). Include a description of <span style="font-weight: 400;">any</span> metadata that will make the actual data products useful to the general researcher. Where data are stored in unusual or not generally accessible formats, explain how the data may be converted to a more accessible format or otherwise made available to interested parties. In general, solutions and remedies should be provided.</p>',
             sectionId: 26,
-            templateId: 5
-          }
-        ]
+            templateId: 5,
+          },
+        ],
       },
-    ]
+    ];
 
     // Arrange: mock template with two sections
     const mockTemplateWithSections = {
@@ -1077,7 +1052,7 @@ describe("TemplateEditPage", () => {
 
     (useSectionQuery as jest.Mock).mockReturnValue({
       data: {
-        section: mockedSections
+        section: mockedSections,
       },
       loading: false,
       error: null,
@@ -1090,8 +1065,8 @@ describe("TemplateEditPage", () => {
       errors: [],
       data: {
         errors: {
-          general: 'There was an error moving the section',
-        }
+          general: "There was an error moving the section",
+        },
       },
     });
 
@@ -1101,7 +1076,7 @@ describe("TemplateEditPage", () => {
 
     // Find the "Move Down" button for the first section
     // SectionEditContainer should render a button for moving down
-    const moveDownButtons = screen.getAllByLabelText('buttons.moveUp');
+    const moveDownButtons = screen.getAllByLabelText("buttons.moveUp");
     expect(moveDownButtons.length).toBeGreaterThan(0);
 
     // Act: Click the first "Move Down" button
@@ -1111,11 +1086,11 @@ describe("TemplateEditPage", () => {
 
     // Assert: updateSectionDisplayOrderAction called with correct args
     await waitFor(() => {
-      expect(screen.getByText('There was an error moving the section')).toBeInTheDocument();
+      expect(screen.getByText("There was an error moving the section")).toBeInTheDocument();
     });
   });
 
-  it('should not call server action when display order would be less than 1', async () => {
+  it("should not call server action when display order would be less than 1", async () => {
     const mockTemplateId = 123;
     const mockUseParams = useParams as jest.Mock;
 
@@ -1135,13 +1110,15 @@ describe("TemplateEditPage", () => {
               general: null,
             },
             displayOrder: 1,
-            guidanceText: "<ul>  <li><a href=\"http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf\">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF\">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j\">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041\">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  </ul>",
+            guidanceText:
+              '<ul>  <li><a href="http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href="https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  </ul>',
             id: 104,
-            questionText: "<p>Describe the types of data and products that will be generated in the research, such as images of astronomical objects, spectra, data tables, time series, theoretical formalisms, computational strategies, software, and curriculum materials.</p>",
+            questionText:
+              "<p>Describe the types of data and products that will be generated in the research, such as images of astronomical objects, spectra, data tables, time series, theoretical formalisms, computational strategies, software, and curriculum materials.</p>",
             sectionId: 25,
-            templateId: 5
-          }
-        ]
+            templateId: 5,
+          },
+        ],
       },
       {
         id: 68,
@@ -1155,15 +1132,17 @@ describe("TemplateEditPage", () => {
               general: null,
             },
             displayOrder: 1,
-            guidanceText: "<ul>  <li><a href=\"http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf\">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF\">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j\">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041\">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  <li><a title=\"Ten Simple Rules for the Care and Feeding of Scientific Data&nbsp;\" href=\"https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003542\">Ten Simple Rules for the Care and Feeding of Scientific Data </a>&nbsp;(Suggestions on effective methods for sharing astronomical data)</li>  </ul>",
+            guidanceText:
+              '<ul>  <li><a href="http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href="https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  <li><a title="Ten Simple Rules for the Care and Feeding of Scientific Data&nbsp;" href="https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003542">Ten Simple Rules for the Care and Feeding of Scientific Data </a>&nbsp;(Suggestions on effective methods for sharing astronomical data)</li>  </ul>',
             id: 105,
-            questionText: "<p>Describe the format in which the data or products are stored (e.g., ASCII, html, FITS, <span style=\"font-weight: 400;\">HD5, Virtual Observatory-compliant</span> tables, XML files, etc.). Include a description of <span style=\"font-weight: 400;\">any</span> metadata that will make the actual data products useful to the general researcher. Where data are stored in unusual or not generally accessible formats, explain how the data may be converted to a more accessible format or otherwise made available to interested parties. In general, solutions and remedies should be provided.</p>",
+            questionText:
+              '<p>Describe the format in which the data or products are stored (e.g., ASCII, html, FITS, <span style="font-weight: 400;">HD5, Virtual Observatory-compliant</span> tables, XML files, etc.). Include a description of <span style="font-weight: 400;">any</span> metadata that will make the actual data products useful to the general researcher. Where data are stored in unusual or not generally accessible formats, explain how the data may be converted to a more accessible format or otherwise made available to interested parties. In general, solutions and remedies should be provided.</p>',
             sectionId: 26,
-            templateId: 5
-          }
-        ]
+            templateId: 5,
+          },
+        ],
       },
-    ]
+    ];
 
     // Arrange: mock template with two sections
     const mockTemplateWithSections = {
@@ -1180,7 +1159,7 @@ describe("TemplateEditPage", () => {
 
     (useSectionQuery as jest.Mock).mockReturnValueOnce({
       data: {
-        section: mockedSections
+        section: mockedSections,
       },
       loading: false,
       error: null,
@@ -1199,18 +1178,16 @@ describe("TemplateEditPage", () => {
     });
 
     // Find all section cards
-    const sectionCards = screen.getAllByTestId('section-edit-card');
+    const sectionCards = screen.getAllByTestId("section-edit-card");
 
     // Find the card that contains 'Data Description'
-    const sectionCard1 = sectionCards.find(card =>
-      within(card).queryByText('Data Description')
-    );
+    const sectionCard1 = sectionCards.find((card) => within(card).queryByText("Data Description"));
 
     expect(sectionCard1).toBeTruthy(); // Ensure it's found
 
     // Get the move up button inside that card
-    const moveUpButton = within(sectionCard1!).getByRole('button', {
-      name: 'buttons.moveUp',
+    const moveUpButton = within(sectionCard1!).getByRole("button", {
+      name: "buttons.moveUp",
     });
 
     // Click the "Move Up" button
@@ -1220,24 +1197,22 @@ describe("TemplateEditPage", () => {
 
     expect(updateSectionDisplayOrderAction).not.toHaveBeenCalled();
 
-    expect(mockToast.add).toHaveBeenCalledWith('errors.displayOrderAlreadyAtTop', { type: 'error' });
-
+    expect(mockToast.add).toHaveBeenCalledWith("errors.displayOrderAlreadyAtTop", { type: "error" });
   });
 
-
-  it('should optimistically update section order when a section is moved (updateLocalSectionOrder)', async () => {
+  it("should optimistically update section order when a section is moved (updateLocalSectionOrder)", async () => {
     const mockTemplateId = 123;
     const mockUseParams = useParams as jest.Mock;
 
     const sectionA = {
       id: 1,
-      name: 'Section A',
+      name: "Section A",
       displayOrder: 1,
       questions: [],
     };
     const sectionB = {
       id: 2,
-      name: 'Section B',
+      name: "Section B",
       displayOrder: 2,
       questions: [],
     };
@@ -1246,7 +1221,6 @@ describe("TemplateEditPage", () => {
       ...mockTemplateData,
       sections: [sectionA, sectionB],
     };
-
 
     mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
 
@@ -1288,32 +1262,25 @@ describe("TemplateEditPage", () => {
     });
 
     // Find all section headings in order
-    const getSectionHeadings = () =>
-      screen.getAllByRole('heading', { level: 2 }).map(h => h.textContent);
+    const getSectionHeadings = () => screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
 
     // Check that both "Section A" and "Section B" are present in the headings
-    expect(getSectionHeadings()).toEqual(expect.arrayContaining([
-      'labels.section 1 Section A',
-      'labels.section 2 Section B',
-      'titleStatus',
-      'heading.archiveTemplate',
-    ]));
+    expect(getSectionHeadings()).toEqual(
+      expect.arrayContaining(["labels.section 1 Section A", "labels.section 2 Section B", "heading.archiveTemplate"]),
+    );
     // Find the "Move Down" button for Section A and click it
-    const moveDownButtons = screen.getAllByLabelText('buttons.moveDown');
+    const moveDownButtons = screen.getAllByLabelText("buttons.moveDown");
     await act(async () => {
       fireEvent.click(moveDownButtons[0]);
     });
 
     // After click, order should be: Section B, Section A (optimistic update)
-    expect(getSectionHeadings()).toEqual(expect.arrayContaining([
-      'labels.section 1 Section B',
-      'labels.section 2 Section A',
-      'titleStatus',
-      'heading.archiveTemplate',
-    ]));
+    expect(getSectionHeadings()).toEqual(
+      expect.arrayContaining(["labels.section 1 Section B", "labels.section 2 Section A", "heading.archiveTemplate"]),
+    );
   });
 
-  it('should set pageErrors when createTemplateVersionMutation returns a general error', async () => {
+  it("should set pageErrors when createTemplateVersionMutation returns a general error", async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
       loading: false,
@@ -1325,9 +1292,9 @@ describe("TemplateEditPage", () => {
       jest.fn().mockResolvedValueOnce({
         data: {
           createTemplateVersion: {
-            errors: { general: 'General publish error' }
-          }
-        }
+            errors: { general: "General publish error" },
+          },
+        },
       }),
       { loading: false, error: undefined },
     ]);
@@ -1337,38 +1304,35 @@ describe("TemplateEditPage", () => {
     });
 
     // Open publish modal
-    const publishTemplateButton = screen.getByRole('button', { name: 'button.publishTemplate' });
+    const publishTemplateButton = screen.getByRole("button", { name: "button.publishTemplate" });
     await act(async () => {
       fireEvent.click(publishTemplateButton);
     });
 
-
     // Fill in change log
-    const textarea = screen.getByTestId('changeLog');
+    const textarea = screen.getByTestId("changeLog");
     await act(async () => {
-      fireEvent.change(textarea, { target: { value: 'Some change log' } });
-    })
+      fireEvent.change(textarea, { target: { value: "Some change log" } });
+    });
 
     // To select the "public" radio button:
-    const publicRadio = screen.getByDisplayValue('public');
+    const publicRadio = screen.getByDisplayValue("public");
 
     await act(async () => {
       fireEvent.click(publicRadio);
-    })
-
+    });
 
     // Submit the publish form
-    const saveAndPublishButton = screen.getByRole('button', { name: 'button.saveAndPublish' });
+    const saveAndPublishButton = screen.getByRole("button", { name: "button.saveAndPublish" });
     await act(async () => {
       fireEvent.click(saveAndPublishButton);
-    })
+    });
 
     // Wait for the general error to appear in the page error area
-    expect(screen.getByText('General publish error')).toBeInTheDocument();
+    expect(screen.getByText("General publish error")).toBeInTheDocument();
   });
 
-
-  it('should set no errors if createTemplateVersionMutation does not return errors.general', async () => {
+  it("should set no errors if createTemplateVersionMutation does not return errors.general", async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
       loading: false,
@@ -1380,9 +1344,9 @@ describe("TemplateEditPage", () => {
       jest.fn().mockResolvedValueOnce({
         data: {
           createTemplateVersion: {
-            errors: { general: null }
-          }
-        }
+            errors: { general: null },
+          },
+        },
       }),
       { loading: false, error: undefined },
     ]);
@@ -1392,36 +1356,34 @@ describe("TemplateEditPage", () => {
     });
 
     // Open publish modal
-    const publishTemplateButton = screen.getByRole('button', { name: 'button.publishTemplate' });
+    const publishTemplateButton = screen.getByRole("button", { name: "button.publishTemplate" });
     await act(async () => {
       fireEvent.click(publishTemplateButton);
     });
 
-
     // Fill in change log
-    const textarea = screen.getByTestId('changeLog');
+    const textarea = screen.getByTestId("changeLog");
     await act(async () => {
-      fireEvent.change(textarea, { target: { value: 'Some change log' } });
-    })
+      fireEvent.change(textarea, { target: { value: "Some change log" } });
+    });
 
     // To select the "public" radio button:
-    const publicRadio = screen.getByDisplayValue('public');
+    const publicRadio = screen.getByDisplayValue("public");
 
     await act(async () => {
       fireEvent.click(publicRadio);
-    })
-
+    });
 
     // Submit the publish form
-    const saveAndPublishButton = screen.getByRole('button', { name: 'button.saveAndPublish' });
+    const saveAndPublishButton = screen.getByRole("button", { name: "button.saveAndPublish" });
     await act(async () => {
       fireEvent.click(saveAndPublishButton);
-    })
+    });
 
-    expect(screen.queryByText('General publish error')).not.toBeInTheDocument();
+    expect(screen.queryByText("General publish error")).not.toBeInTheDocument();
   });
 
-  it('should pass accessibility tests', async () => {
+  it("should pass accessibility tests", async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
       loading: false,
@@ -1430,9 +1392,7 @@ describe("TemplateEditPage", () => {
 
     let container: HTMLElement;
     await act(async () => {
-      const renderResult = render(
-        <TemplateEditPage />
-      );
+      const renderResult = render(<TemplateEditPage />);
       container = renderResult.container;
       const results = await axe(container);
       expect(results).toHaveNoViolations();
