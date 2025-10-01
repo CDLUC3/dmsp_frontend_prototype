@@ -32,7 +32,6 @@ import ErrorMessages from '@/components/ErrorMessages';
 //Other
 import logECS from '@/utils/clientLogger';
 import { ProjectMemberFormInterface, ProjectMemberErrorInterface } from '@/app/types';
-import styles from './ProjectsProjectMemberCreate.module.scss';
 import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/routes';
 
@@ -287,8 +286,8 @@ const ProjectsProjectMemberCreate: React.FC = () => {
       <LayoutContainer>
         <ContentContainer>
           <div ref={topRef}>
-            <Form onSubmit={handleFormSubmit} className={styles.editForm}>
-              <div className={styles.formSection}>
+            <Form onSubmit={handleFormSubmit}>
+              <div>
                 <FormInput
                   name="givenName"
                   type="text"
