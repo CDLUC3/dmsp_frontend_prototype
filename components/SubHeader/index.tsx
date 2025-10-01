@@ -27,22 +27,58 @@ function SubHeader() {
             <li>
               <a
                 href="http://www.ucop.edu/"
-                className={styles.cLinksOrgUcop}
+                className={styles.cLinksOrgHomepage}
                 target="_blank"
                 rel="noreferrer"
                 aria-label="UCOP homepage - Opens in a new window"
               >
-                UCOP homepage
+                UCOP Homepage
+              </a>
+            </li>
+
+            <li>
+              <a
+                href="http://www.ucop.edu/services/"
+                className={styles.cLinksOrgIntranet}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="UCOP services - Opens in a new window"
+              >
+                Services
+              </a>
+            </li>
+
+            <li>
+              <a
+                href="http://www.ucop.edu/uc-library/"
+                className={styles.cLinksOrgLibrary}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="UCOP library - Opens in a new window"
+              >
+                UC Library
               </a>
             </li>
 
             <li>
               <a
                 href="mailto:dmptool@ucop.edu"
-                className={styles.cLinksOrgUc3Helpdesk}
+                className={styles.cLinksOrgHelpdesk}
                 aria-label="Contact UC3 Helpdesk via email"
               >
-                UC3 Helpdesk
+                Helpdesk
+              </a>
+            </li>
+
+            <li>
+              <a
+                href="http://www.ucop.edu/academic-affairs/"
+                className={styles.cLinksOrgPolicies}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="UCOP Academic Affairs - Opens in a new window"
+              >
+                Academic Affairs
               </a>
             </li>
           </ul>

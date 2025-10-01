@@ -1,35 +1,50 @@
+@use "../../styles/responsive" as *;
+
 // SubHeader Container
 .cSubheader {
   max-width: 1200px;
   margin: 0 auto;
   margin-top: -1px;
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: var(--space-4);
+  justify-content: center; // Mobile first
+  margin-bottom: var(--space-2);
+  padding: 0 var(--space-1);
+
+  // Tablet and up
+  @include device('md') {
+    justify-content: flex-end;
+    margin-bottom: var(--space-4);
+    padding: 0 var(--space-2);
+  }
 }
 
 .cSubheaderInner {
   display: flex;
-  width: fit-content;
-  padding: var(--space-2) var(--space-4);
+  flex-direction: column; // Mobile first - stack vertically
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  padding: var(--space-3) var(--space-2);
   background-color: var(--bg-white);
-  border-bottom-left-radius: var(--border-radius-lg);
-  border-bottom-right-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-md);
   border: 1px solid var(--border-color);
-  border-top: 1px solid var(--bg-white);
+  margin-top: var(--space-2); // Add top margin on mobile
+  gap: var(--space-3);
 
-}
-
-
-.cSubheaderInner {
-  gap: var(--space-6);
-
-  .cLinksOrg {
-    order: 2;
+  // Tablet and up
+  @include device('md') {
     flex-direction: row;
-    align-items: center;
+    width: fit-content;
+    padding: var(--space-2) var(--space-4);
+    border-bottom-left-radius: var(--border-radius-lg);
+    border-bottom-right-radius: var(--border-radius-lg);
+    border-top: 1px solid var(--bg-white);
+    margin-top: 0; // Remove top margin on desktop
+    gap: var(--space-6);
   }
 }
+
+
 
 
 // Logo Styling
@@ -53,10 +68,24 @@
 .cLinksOrg {
   list-style: none;
   display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+  flex-wrap: wrap; // Allow wrapping like tags
+  justify-content: flex-start; // Left align on all screen sizes
+  gap: var(--space-3); // More spacing on mobile
   margin: 0;
   padding: 0;
+  text-align: left;
+
+  // Tablet and up - add dots and reduce spacing
+  @include device('md') {
+    gap: var(--space-2);
+
+    li:not(:last-child)::after {
+      content: "•";
+      color: var(--text-color-muted, #666);
+      font-size: var(--fs-small);
+      margin-left: var(--space-2);
+    }
+  }
 }
 
 .cLinksOrgUcop,
