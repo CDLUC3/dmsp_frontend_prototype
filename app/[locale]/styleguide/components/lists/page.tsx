@@ -11,6 +11,7 @@ import SectionHeaderEdit from "@/components/SectionHeaderEdit";
 import QuestionEditCard from "@/components/QuestionEditCard";
 import AdminSectionEditContainer from "@/components/AdminSectionEditContainer";
 import { mockSections as adminMockSections } from "@/components/AdminSectionEditContainer/mockData";
+import ProjectMemberListItem from "@/components/ProjectMemberListItem";
 
 import "../../shared/styleguide.scss";
 import {
@@ -231,6 +232,37 @@ export default function ListsDataCardsPage() {
     },
   ];
 
+  const mockProjectMembers = [
+    {
+      id: 1,
+      fullName: "Dr. Erik Lindström",
+      affiliation: "University of Gothenburg, Department of Marine Sciences",
+      orcid: "0000-0001-2345-6789",
+      role: "Principal Investigator",
+    },
+    {
+      id: 2,
+      fullName: "Dr. Anna Bergqvist",
+      affiliation: "Stockholm University, Department of Environmental Science",
+      orcid: "0000-0002-3456-7890",
+      role: "Co-Investigator",
+    },
+    {
+      id: 3,
+      fullName: "Dr. Magnus Carlsson",
+      affiliation: "Uppsala University, Department of Earth Sciences",
+      orcid: "0000-0003-4567-8901",
+      role: "Research Associate",
+    },
+    {
+      id: 4,
+      fullName: "Dr. Astrid Johansson",
+      affiliation: "Lund University, Department of Biology",
+      orcid: "0000-0004-5678-9012",
+      role: "Postdoctoral Researcher",
+    },
+  ];
+
   return (
     <LayoutContainer>
       <ContentContainer>
@@ -265,6 +297,9 @@ export default function ListsDataCardsPage() {
                 </li>
                 <li>
                   <a href="#template-select-list">Template Select List</a>
+                </li>
+                <li>
+                  <a href="#project-members-list">Project Members List</a>
                 </li>
               </ul>
             </SGTocSection>
@@ -521,6 +556,68 @@ const template = {
                   <strong>Status display:</strong> Publication status and visibility information
                 </li>
               </ul>
+            </SGComponentExampleContent>
+          </SGComponentExample>
+        </section>
+
+        {/* Project Members List */}
+        <section id="project-members-list">
+          <h2>Project Members List</h2>
+          <p>List component for displaying project team members with their roles, affiliations, and ORCID profiles.</p>
+
+          <SGComponentExample>
+            <SGComponentExampleHeader title="Project Members List" />
+            <SGComponentExampleContent>
+              <SGComponentExampleDemo>
+                <div>
+                  <h4 style={{ margin: "0 0 1rem 0" }}>Project Team Members</h4>
+                  <section
+                    aria-label="Project members list"
+                    role="region"
+                  >
+                    <div
+                      role="list"
+                      style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
+                    >
+                      {mockProjectMembers.map((member) => (
+                        <ProjectMemberListItem
+                          key={member.id}
+                          member={member}
+                          onEdit={(memberId) => console.log(`Edit member ${memberId}`)}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                </div>
+              </SGComponentExampleDemo>
+
+              <h4>Usage</h4>
+              <SGCodeBlock>{`import ProjectMemberListItem from '@/components/ProjectMemberListItem';
+
+// Project members data structure
+const projectMembers = [
+  {
+    id: 1,
+    fullName: "Dr. Erik Lindström",
+    affiliation: "University of Gothenburg, Department of Marine Sciences",
+    orcid: "0000-0001-2345-6789",
+    role: "Principal Investigator",
+  },
+  // ... more members
+];
+
+// Component usage
+<section aria-label="Project members list" role="region">
+  <div role="list" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+    {projectMembers.map((member) => (
+      <ProjectMemberListItem
+        key={member.id}
+        member={member}
+        onEdit={(memberId) => handleEdit(memberId)}
+      />
+    ))}
+  </div>
+</section>`}</SGCodeBlock>
             </SGComponentExampleContent>
           </SGComponentExample>
         </section>

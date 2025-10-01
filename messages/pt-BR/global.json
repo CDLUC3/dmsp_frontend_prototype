@@ -539,5 +539,14 @@
       "table": "Tabela",
       "affiliationSearch": "Affiliation search"
     }
+  },
+  "ProjectMemberListItem": {
+    "buttons": {
+      "edit": "Editar"
+    },
+    "ariaLabels": {
+      "editMember": "Editar detalhes de {name}",
+      "orcidProfile": "Perfil ORCID de {name}"
+    }
   }
 }
