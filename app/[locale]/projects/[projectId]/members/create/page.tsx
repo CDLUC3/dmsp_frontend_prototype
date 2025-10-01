@@ -239,7 +239,7 @@ const ProjectsProjectMemberCreate: React.FC = () => {
     setErrorMessages([]);
 
     if (isFormValid()) {
-      // Create new section
+      // Add new project member
       await addProjectMember();
     } else {
       setErrorMessages([CreateMember('messaging.errors.errorAddingMember')])

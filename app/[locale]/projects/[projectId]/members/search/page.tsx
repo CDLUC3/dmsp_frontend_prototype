@@ -67,6 +67,8 @@ type ProjectMemberInfo = {
 }
 
 
+const LIMIT = 5;
+
 const ProjectsProjectMembersSearch = () => {
   const params = useParams();
   const router = useRouter();
@@ -74,7 +76,7 @@ const ProjectsProjectMembersSearch = () => {
 
   const projectId = String(params.projectId);
 
-  // Top scroll to top when search is reset
+  // Scroll to top when search is reset
   const topRef = useRef<HTMLDivElement>(null);
 
   //For scrolling to error in modal window
@@ -105,8 +107,6 @@ const ProjectsProjectMembersSearch = () => {
   const t = useTranslations('ProjectsProjectMembersSearch');
 
   const [fetchCollaborators, { data: collaboratorData, loading }] = useFindCollaboratorLazyQuery();
-
-  const LIMIT = 5;
 
   // zero out search and filters
   const resetSearch = () => {

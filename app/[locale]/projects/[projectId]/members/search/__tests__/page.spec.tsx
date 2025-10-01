@@ -364,7 +364,7 @@ describe('ProjectsProjectMembersSearch', () => {
     });
   });
 
-  it('should not run search whensearch button is clicked with an empty input', async () => {
+  it('should not run search when search button is clicked with an empty input', async () => {
     render(
       <MockedProvider mocks={MOCKS}>
         <ProjectsProjectMembersSearch />
@@ -636,7 +636,7 @@ describe('ProjectsProjectMembersSearch', () => {
     fireEvent.click(createCollaboratorButton);
 
     await waitFor(() => {
-      // Should redirect to the Feeback page when modal is closed
+      // Should redirect to the create member page
       expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/6/members/create');
     });
   });
