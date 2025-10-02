@@ -1,5 +1,6 @@
 ### Added
 
+- Add admin feedback options page
 - Add admin email text page with styling and tests
 - Add static page for Org admin projects dashboard
 - Add static update password page
