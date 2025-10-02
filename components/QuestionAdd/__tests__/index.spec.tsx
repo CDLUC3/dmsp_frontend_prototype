@@ -358,7 +358,7 @@ describe("QuestionAdd", () => {
     });
 
     // Get the question text input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // add text to question text field
     fireEvent.change(input, { target: { value: 'New Question' } });
@@ -438,7 +438,7 @@ describe("QuestionAdd", () => {
     });
 
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to 'New Question'
     fireEvent.change(input, { target: { value: 'New Question' } });
@@ -504,7 +504,7 @@ describe("QuestionAdd", () => {
     });
 
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to 'New Question'
     fireEvent.change(input, { target: { value: 'New Question' } });
@@ -573,7 +573,7 @@ describe("QuestionAdd", () => {
     });
 
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to 'New Question'
     fireEvent.change(input, { target: { value: 'New Question' } });
@@ -635,7 +635,7 @@ describe("QuestionAdd", () => {
     });
 
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to 'New Question'
     fireEvent.change(input, { target: { value: 'New Question' } });
@@ -698,7 +698,7 @@ describe("QuestionAdd", () => {
     });
 
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to 'New Question'
     fireEvent.change(input, { target: { value: 'New Question' } });
@@ -760,7 +760,7 @@ describe("QuestionAdd", () => {
     });
 
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to 'New Question'
     fireEvent.change(input, { target: { value: 'New Question' } });
@@ -823,9 +823,9 @@ describe("QuestionAdd", () => {
     });
 
     // Radio button info with order, text and checkbox should be in document
-    expect(screen.getByLabelText('labels.order')).toBeInTheDocument();
-    expect(screen.getByLabelText('labels.text')).toBeInTheDocument();
-    expect(screen.getByLabelText('labels.default')).toBeInTheDocument();
+    expect(screen.getByLabelText(/labels.order/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/labels.text/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/labels.default/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'buttons.addRow' })).toBeInTheDocument();
   })
 
@@ -847,12 +847,12 @@ describe("QuestionAdd", () => {
     });
 
     // Enter Question text
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to empty
     fireEvent.change(input, { target: { value: 'Testing adding new row' } });
 
-    const radioInput = screen.getByLabelText('labels.text');
+    const radioInput = screen.getByLabelText(/labels.text/);
     fireEvent.change(radioInput, { target: { value: 'Yes' } });
 
     const addButton = screen.getByRole('button', { name: /buttons.addRow/i });
@@ -1017,7 +1017,7 @@ describe("QuestionAdd", () => {
       />);
 
     // Find the input rendered by RangeComponent
-    const rangeStartInput = screen.getByLabelText('range start');
+    const rangeStartInput = screen.getByLabelText(/range start/);
 
     // Simulate user typing
     fireEvent.change(rangeStartInput, { target: { value: 'New Range Label' } });
@@ -1071,7 +1071,7 @@ describe("QuestionAdd", () => {
       />);
 
     // Find the input rendered by RangeComponent
-    const rangeStartInput = screen.getByLabelText('range start');
+    const rangeStartInput = screen.getByLabelText(/range start/);
 
     // Simulate user typing
     fireEvent.change(rangeStartInput, { target: { value: 'New Range Label' } });
@@ -1122,7 +1122,7 @@ describe("QuestionAdd", () => {
     });
 
     // Get the question text input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // add text to question text field
     fireEvent.change(input, { target: { value: 'New Question' } });
@@ -1471,7 +1471,7 @@ describe("Error handling", () => {
     });
 
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to empty
     fireEvent.change(input, { target: { value: '' } });
@@ -1517,7 +1517,7 @@ describe("Error handling", () => {
     });
 
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to 'New Question'
     fireEvent.change(input, { target: { value: 'New Question' } });
@@ -1658,7 +1658,7 @@ describe("Error handling", () => {
     });
 
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to empty
     fireEvent.change(input, { target: { value: 'Test' } });

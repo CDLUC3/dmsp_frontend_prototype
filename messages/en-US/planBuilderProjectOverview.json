@@ -78,7 +78,7 @@
     "pageTitle": "Create a new project",
     "isThisMockProject": "Is this a mock project?",
     "form": {
-      "projectTitle": "What is the title for the project? (required)",
+      "projectTitle": "What is the title for the project?",
       "projectTitleHelpText": "You can change this at any time. If you already applied for funding, we recommend using the formal project title for consistency.",
       "checkboxGroupLabel": "This project is mock project for testing, practice, or educational purposes",
       "checkboxGroupHelpText": "This is a mock project intended solely for testing, practice, or educational purposes. It allows you to create a project and plans, but you will not be able to receive feedback or publish them.",

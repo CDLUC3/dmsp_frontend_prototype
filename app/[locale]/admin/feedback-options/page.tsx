@@ -6,12 +6,14 @@ import { ContentContainer, LayoutWithPanel, SidebarPanel } from "@/components/Co
 import { FormInput, FormTextArea } from "@/components/Form";
 import RadioGroupComponent from "@/components/Form/RadioGroup";
 import { Button, Radio } from "react-aria-components";
-
+import Link from "next/link";
+import { routePath } from "@/utils/routes";
 import { useTranslations } from "next-intl";
 import styles from "./feedbackOptions.module.scss";
 
 const FeedbackOptions: React.FC = () => {
   const t = useTranslations("FeedbackOptions");
+  const Admin = useTranslations("Admin");
 
   const [feedbackEnabled, setFeedbackEnabled] = useState<string>("on");
   const [feedbackEmail, setFeedbackEmail] = useState<string>("helpdesk@ucop.edu");
@@ -68,7 +70,7 @@ const FeedbackOptions: React.FC = () => {
                 <div
                   aria-live="polite"
                   aria-atomic="true"
-                  className={styles.srOnly}
+                  className={"hidden-accessibly"}
                 >
                   {feedbackEnabled === "on" ? t("screenReader.feedbackEnabled") : t("screenReader.feedbackDisabled")}
                 </div>
@@ -124,7 +126,31 @@ const FeedbackOptions: React.FC = () => {
         </ContentContainer>
 
         <SidebarPanel>
-          <div>{/* TODO: Add sidebar content */}</div>
+          <div>
+            <h2 className={styles.relatedItemsHeading}>{Admin("headingRelatedActions")}</h2>
+            <ul className={styles.relatedItems}>
+              <li>
+                <Link href={routePath("admin.organizationDetails")}>
+                  {Admin("sections.organizationSettings.items.editOrganizationDetails.title")}
+                </Link>
+              </li>
+              <li>
+                <Link href={routePath("admin.users")}>
+                  {Admin("sections.organizationSettings.items.manageUserAccounts.title")}
+                </Link>
+              </li>
+              <li>
+                <Link href={routePath("admin.emailPreferences")}>
+                  {Admin("sections.organizationSettings.items.customizeEmailText.title")}
+                </Link>
+              </li>
+              <li>
+                <Link href={routePath("admin.feedbackOptions")}>
+                  {Admin("sections.organizationSettings.items.requestFeedbackOptions.title")}
+                </Link>
+              </li>
+            </ul>
+          </div>
         </SidebarPanel>
       </LayoutWithPanel>
     </>

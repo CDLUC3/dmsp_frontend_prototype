@@ -133,7 +133,7 @@ export function checkErrors<T extends Record<string, string | null | undefined>>
   errs: T,
   keys: (keyof T)[],
 ): [boolean, T] {
-  const noErrors = Object.values(errs).every(val => val === null);
+  const noErrors = Object.values(errs).every(val => !val);
   if (noErrors) return [false, errs];
   return [keys.some((k) => !!errs[k]), errs];
 }
