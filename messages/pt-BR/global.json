@@ -85,27 +85,28 @@
         "givenNameValidation": "O nome deve ter pelo menos 2 caracteres",
         "surNameValidation": "O nome deve ter pelo menos 2 caracteres",
         "affiliationValidation": "O nome da instituição não pode ficar em branco e deve ter pelo menos 2 caracteres",
-        "otherAffiliationValidation": "Outro nome de instituição não pode estar em branco e deve ter pelo menos 2 caracteres"
+        "otherAffiliationValidation": "Outro nome de instituição não pode estar em branco e deve ter pelo menos 2 caracteres",
+        "errorUpdatingProfile": "Erro ao atualizar perfil"
       }
     }
   },
   "Notifications": {
     "title": "Notificações",
     "description": "Configure suas preferências de notificação e configurações de e-mail",
-    "introText": "Escolha os eventos sobre os quais você gostaria de ser notificado na lista abaixo",
+    "introText": "Escolha os eventos que você gostaria de ser notificado na lista abaixo",
     "headingRelatedActions": "Ações relacionadas",
-    "linkUpdateProfile": "Atualizar perfil",
+    "linkUpdateProfile": "Atulizar perfil",
     "linkUpdatePassword": "Atualizar senha",
-    "linkUpdateConnections": "Atualizar conexões",
+    "linkUpdateConnections": "Atualizar conexão?",
     "notificationTypes": {
       "commentAdded": "Um novo comentário foi adicionado ao meu DMP",
       "planShared": "Um plano foi compartilhado comigo",
-      "adminPrivileges": "Privilégios de administrador concedidos a mim",
+      "adminPrivileges": "Privilégios de administração concedidos a mim",
       "planUpdated": "Um plano em que estou colaborando foi atualizado",
       "feedbackRequested": "Feedback foi solicitado no meu plano",
       "templatePublished": "Um novo modelo foi publicado pela minha organização",
       "accountActivity": "Atividade incomum detectada na minha conta",
-      "weeklyDigest": "Resumo semanal de atividades"
+      "weeklyDigest": "Resumo semanal da atividade"
     },
     "actions": {
       "save": "Salvar preferências"
@@ -179,7 +180,7 @@
   },
   "FunderSearch": {
     "headerTitle": "Procurar por fragmentos",
-    "headerDescription": "Selecione o financiador a ser usado neste projeto. Pode ser o financiador ao qual você planeja se candidatar ou aquele de onde você já possui financiamento. Você poderá adicionar outros financiadores posteriormente, caso tenha mais de um.",
+    "headerDescription": "Selecione o fundo para usar neste projeto. Este pode ser o financiador que você planeja aplicar ou de onde você já tem financiamento. Você poderá adicionar fundos adicionais mais tarde, se tiver mais de um.",
     "funder": "Finalizações",
     "popularTitle": "Financiadores mais populares",
     "found": "{count} erros encontrados",
@@ -189,8 +190,8 @@
     "addManuallyText": "Se o seu projeto não for exibido, você pode adicionar os detalhes manualmente.",
     "addManuallyLabel": "Adicionar professor manualmente",
     "noFunderHeading": "Ainda não tem um financiador?",
-    "noFunderText": "Se você ainda não tem um financiador, pode usar o link abaixo para prosseguir para a próxima etapa.",
-    "noFunderButtonLabel": "Eu não tenho um financiador",
+    "noFunderText": "Se você ainda não tem um fundo, você pode usar o link abaixo para prosseguir para a próxima etapa.",
+    "noFunderButtonLabel": "Não tenho um fundador",
     "messages": {
       "success": {
         "addProjectFunding": "O financiador foi adicionado ao projeto com sucesso."
@@ -227,73 +228,73 @@
     "headingRelatedActions": "Ações relacionadas",
     "sections": {
       "organisationTemplatesAndPlans": {
-        "title": "Modelos e Planos da Organização",
+        "title": "Modelos e planos de organização",
         "items": {
           "notifications": {
             "title": "Notificações",
-            "description": "Visualizar notificações atuais e passadas"
+            "description": "Ver notificações atuais e anteriores"
           },
           "organizationTemplates": {
-            "title": "Modelos da Organização",
-            "description": "Gerenciar os modelos da sua organização e publicar para o público"
+            "title": "Modelos de organização",
+            "description": "Gerencie seus modelos de organização e publique para o público"
           },
           "templateCustomizations": {
-            "title": "Personalizações de Modelos",
-            "description": "Adicionar uma sobreposição em cima dos modelos de financiadores"
+            "title": "Customização dos Temas",
+            "description": "Adicionar uma sobreposição em cima dos modelos de financiador"
           },
           "guidance": {
             "title": "Orientação",
             "description": "Adicionar orientação que se aplica a todos os modelos de financiadores"
           },
           "projectAndPlans": {
-            "title": "Projetos e Planos",
-            "description": "Gerenciar os projetos e planos da sua organização"
+            "title": "Projeto e Planos",
+            "description": "Gerencie seus projetos e planos da organização"
           }
         }
       },
       "organizationSettings": {
-        "title": "Configurações da Organização",
+        "title": "Configurações da organização",
         "items": {
           "editOrganizationDetails": {
             "title": "Editar detalhes da organização",
             "description": "Atualizar o nome da sua organização, abreviação, instituição, etc"
           },
           "departments": {
-            "title": "Departamentos",
-            "description": "Gerenciar seus diferentes departamentos, faculdades, escolas ou divisões"
+            "title": "pgr_departments",
+            "description": "Administre seus diferentes departamentos, faculdades, escolas ou divisões"
           },
           "schoolsDepartments": {
-            "title": "Schools/Departments",
-            "description": "Gerenciar seus diferentes departamentos, faculdades, escolas ou divisões"
+            "title": "Escolas/Departamentos",
+            "description": "Gerencie seus diferentes departamentos, faculdades, escolas ou divisões"
           },
           "manageUserAccounts": {
-            "title": "Gerenciar contas de usuário",
+            "title": "Gerenciar contas de usuários",
             "description": "Gerenciar contas de usuário"
           },
           "customizeEmailText": {
             "title": "Personalizar texto de e-mail",
-            "description": "Gerenciar suas preferências de notificação"
+            "description": "Gerencie suas preferências de notificação"
           },
           "requestFeedbackOptions": {
-            "title": "Opções de solicitação de feedback",
-            "description": "Gerenciar as opções de solicitação de feedback da sua organização"
+            "title": "Solicitar opções de feedback",
+            "description": "Gerencie suas organizações que solicitam opções de feedback"
           }
         }
       },
       "reporting": {
-        "title": "Relatórios",
+        "title": "Denunciando",
         "items": {
           "usageStatistics": {
-            "title": "Estatísticas de Uso",
-            "description": "Visualizar estatísticas de uso e relatórios"
+            "title": "Estatísticas de uso",
+            "description": "Ver estatísticas de uso e relatórios"
           }
         }
       }
     }
   },
   "OrganizationDetails": {
-    "title": "Detalhes da Organização",
-    "description": "Visualizar detalhes da organização",
+    "title": "Detalhes da oganização",
+    "description": "Ver detalhes da organização",
     "sections": {
       "organizationDetails": {
         "title": "Editar detalhes da organização"
@@ -302,11 +303,11 @@
         "title": "Contato do administrador"
       },
       "branding": {
-        "title": "Identidade visual"
+        "title": "Marca"
       },
       "organizationUrls": {
         "title": "URL(s) da organização",
-        "description": "Você pode adicionar até 5 URLs da organização."
+        "description": "Você pode adicionar até 5 URLs organizacionais."
       },
       "identifiers": {
         "title": "Identificadores"
@@ -315,21 +316,21 @@
     "fields": {
       "organizationName": {
         "label": "Nome completo da organização",
-        "placeholder": "Digite o nome completo da organização"
+        "placeholder": "Insira o nome completo da organização"
       },
       "organizationAbbr": {
         "label": "Nome abreviado da organização",
-        "placeholder": "Digite o nome abreviado"
+        "placeholder": "Digite um nome abreviado"
       },
       "organizationType": {
-        "label": "Tipo de organização"
+        "label": "Tipo de Organização"
       },
       "contactEmail": {
-        "label": "E-mail de contato",
-        "placeholder": "Digite o e-mail de contato"
+        "label": "E-mail para contato",
+        "placeholder": "Digite um e-mail de contato"
       },
       "linkText": {
-        "label": "Texto do e-mail de contato",
+        "label": "Contato texto de e-mail",
         "placeholder": "Digite o texto do link"
       },
       "url": {
@@ -338,23 +339,23 @@
       },
       "urlLinkText": {
         "label": "Texto do link para URL",
-        "placeholder": "Digite o texto do link"
+        "placeholder": "Inserir texto do link"
       },
       "fundRef": {
-        "label": "Registro de Financiadores Crossref (FundRef)"
+        "label": "Registro Funder de Crossref (FundRef)"
       },
       "ror": {
-        "label": "Registro de Organizações de Pesquisa (ROR)"
+        "label": "Pesquisa do Registro da Organização (ROR)"
       },
       "shibboleth": {
-        "label": "Entrada Institucional (Shibboleth)"
+        "label": "Login Institucional (Shibboleth)"
       },
       "domains": {
         "label": "Domínio(s)"
       }
     },
     "actions": {
-      "requestChange": "Solicitar alteração",
+      "requestChange": "Solicitar alteraçaõ",
       "removeUrl": "Remover URL",
       "addAnotherUrl": "Adicionar outra URL"
     },
@@ -363,12 +364,12 @@
     },
     "upload": {
       "dropZone": {
-        "ariaLabel": "Solte um arquivo aqui para fazer upload"
+        "ariaLabel": "Solte o arquivo aqui para para enviá-lo"
       },
-      "title": "Fazer upload do logo da sua organização",
-      "description": "Arraste e solte seu logo aqui, ou clique para navegar",
-      "fileTypes": "Suporta: PNG, JPG, SVG (Máx 5MB)",
-      "browseButton": "Navegar arquivos"
+      "title": "Envie o logotipo da sua organização",
+      "description": "Arraste e solte seu logotipo aqui, ou clique para procurar",
+      "fileTypes": "Suporte: PNG, JPG, SVG (Max 5MB)",
+      "browseButton": "Navegar pelos Arquivos"
     },
     "messages": {
       "success": {
@@ -410,38 +411,38 @@
     }
   },
   "Departments": {
-    "title": "Departamentos",
+    "title": "Escolas/Departamentos",
     "sections": {
       "departmentsList": {
-        "title": "Departamentos",
+        "title": "Escolas/Departamentos",
         "description": "Gerencie seus diferentes departamentos, faculdades, escolas ou divisões."
       }
     },
     "fields": {
       "departmentName": {
-        "label": "Nome do Departamento",
-        "placeholder": "Digite o nome do departamento"
+        "label": "Nome da encomenda",
+        "placeholder": "Inserir nome"
       },
       "departmentAbbr": {
-        "label": "Nome abreviado do departamento",
-        "placeholder": "Digite a abreviação"
+        "label": "Nome abreviado",
+        "placeholder": "Inserir abreviação"
       }
     },
     "actions": {
       "addNew": "Adicionar novo",
       "save": "Salvar",
-      "delete": "Excluir"
+      "delete": "Deletar"
     },
     "deleteModal": {
       "title": "Confirmar exclusão",
-      "content": "Tem certeza de que deseja excluir {name}? Esta ação não pode ser desfeita.",
-      "deleteButton": "Excluir"
+      "content": "Tem certeza de que deseja excluir %{name}? Esta ação não pode ser desfeita.",
+      "deleteButton": "Deletar"
     }
   },
   "Account": {
     "sections": {
       "userProfile": {
-        "title": "Perfil do Usuário",
+        "title": "Perfil do usuário",
         "items": {
           "profile": {
             "title": "Perfil",
@@ -449,11 +450,11 @@
           },
           "password": {
             "title": "Atualizar Senha",
-            "description": "Altere sua senha de conta e configurações de segurança"
+            "description": "Altere as configurações de segurança e senha de sua conta"
           },
           "connections": {
             "title": "Conexões",
-            "description": "Gerencie seu ORCID iD e conexões institucionais"
+            "description": "Gerencie suas conexões ORCID iD e institucionais"
           },
           "notifications": {
             "title": "Notificações",
@@ -486,13 +487,12 @@
       "projectFunding": "Orçamento do projeto",
       "projectFundingSearch": "Pesquisa de financiamento de projeto",
       "planOverview": "Resumo do plano",
-      "sectionOverview": "Visão geral da seção",
       "planFunding": "Financiamento do plano",
+      "sectionOverview": "Visão geral da seção",
       "feedback": "Registrar",
       "questionDetails": "Detalhes da pergunta"
     },
     "form": {
-      "required": "obrigatório",
       "yesLabel": "Sim",
       "noLabel": "Não"
     },
@@ -524,14 +524,18 @@
       "linkCollapse": "Retrair",
       "continue": "Avançar",
       "edit": "Alterar",
-      "delete": "Excluir",
+      "delete": "Apagar",
       "preview": "Pré-visualizar",
       "publish": "Publicar",
       "close": "Fechar",
       "loadMore": "Carregar mais",
-      "back": "Voltar"
+      "addAnother": "Adicionar mais",
+      "goToProject": "Ir para o projeto",
+      "back": "Voltar",
+      "add": "Adicionar"
     },
     "labels": {
+      "required": "Obrigatório",
       "searchByKeyword": "Pesquisar por palavra-chave",
       "startDate": "Data de início",
       "endDate": "Data final",
@@ -577,7 +581,8 @@
         "questionUnexpectedFormat": "Formato inesperado para question.json.",
         "questionJSONFParseFailed": "JSON.parse falhou."
       },
-      "numDisplaying": "Mostrando {num} de {total}"
+      "numDisplaying": "Mostrando {num} de {total}",
+      "unsavedChangesWarning": "Você tem alterações não salvas. Tem certeza que deseja sair desta página?"
     },
     "tabs": {
       "editQuestion": "Editar pergunta",
@@ -605,7 +610,7 @@
       "dateRange": "Intervalo de datas",
       "filteredSearch": "Pesquisa com filtros",
       "table": "Tabela",
-      "affiliationSearch": "Affiliation search"
+      "affiliationSearch": "Busca de afiliação"
     }
   }
 }

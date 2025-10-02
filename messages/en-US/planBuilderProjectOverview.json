@@ -355,5 +355,47 @@
         "updatedAccess": "Successfully updated access for {name} to {accessLevel}"
       }
     }
+  },
+  "ProjectsProjectMembersSearch": {
+    "title": "Who are the project members?",
+    "searchLabel": "Search by name, organization or ORCID",
+    "searchDescription": "Search by a person's name, organization and/or ORCiD. Entering more information will help narrow the search, for exampleFrederick Cook 0427.",
+    "ariaSearchInput": "Search",
+    "ariaSearchItemName": "Member: {name}",
+    "ariaAddMemberButton": "Add {name} as project member",
+    "createCollaboratorDescription": "If your collaborator isn't shown you can add their details manually",
+    "buttons": {
+      "createMember": "Create member"
+    },
+    "headings": {
+      "searchResultsHeader": "Showing 1-{length} of {total} results",
+      "createCollaboratorHeader": "Not in the list?"
+    },
+    "messaging": {
+      "errors": {
+        "failedToLoadCollaborators": "Failed to load more collaborators",
+        "failedToAddProjectMember": "Failed to add member. Please try again."
+      },
+      "success": {
+        "addedProjectMember": "Successfully added {name} as project member"
+      }
+    }
+  },
+  "ProjectsProjectMemberCreate": {
+    "title": "Add a new project member",
+    "description": "Add a new member to this project by filling in their details below.",
+    "projectRolesOptions": "Project roles options",
+    "messaging": {
+      "errors": {
+        "errorAddingMember": "Error adding member"
+      },
+      "success": {
+        "memberAdded": "Successfully added project member"
+      }
+    },
+    "breadcrumbs": {
+      "addProjectMember": "Add project member",
+      "projectMemberSearch": "Project member search"
+    }
   }
 }

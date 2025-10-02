@@ -15,7 +15,7 @@
     "linkCollapse": "Retrair",
     "details": "Detalhes",
     "additionalInfo": "Informações adicionais vão aqui...",
-    "templateList": "Lista de modelos"
+    "templateList": "Lista de templates"
   },
   "EditTemplates": {
     "title": "Editar modelo",
@@ -75,8 +75,8 @@
     "radioBtn": {
       "public": "Público",
       "organizationOnly": "Apenas organização",
-      "publicHelpText": "Este modelo pode ser usado por todos os redatores de planos.",
-      "orgOnlyHelpText": "Somente redatores de planos de sua organização poderão ver e usar este modelo."
+      "publicHelpText": "Este modelo pode ser usado por todos os autores do plano.",
+      "orgOnlyHelpText": "Apenas planejar autores de sua organização poderão ver e usar esse modelo."
     },
     "descPublishedTemplate": "Você pode controlar quem pode usar este modelo publicado.",
     "bullet": {
@@ -172,8 +172,8 @@
     },
     "helpText": {
       "bestPracticeTagsDesc": "Selecione uma ou mais tags para associar a orientação de boas práticas globais escrita pela Ferramenta DMP.",
-      "sectionIntroduction": "Insira uma introdução curta e concisa para a seção.",
-      "sectionRequirements": "Descreva os requisitos que um usuário deve considerar nesta seção.",
+      "sectionIntroduction": "Enter a short, concise introduction to the section.",
+      "sectionRequirements": "Esboça os requisitos que um usuário deve considerar nesta seção.",
       "sectionGuidance": "Forneça aos usuários orientações úteis para ajudá-los a responder às perguntas da seção."
     }
   },
@@ -238,8 +238,8 @@
       "startNew": "Iniciar"
     },
     "headings": {
-      "previouslyCreatedTemplates": "Use uma de suas seções criadas anteriormente",
-      "publicTemplates": "Use um dos modelos públicos",
+      "myOrgTemplates": "Meus modelos de organização",
+      "publicTemplates": "Templates públicos",
       "createNew": "Construir um novo template"
     },
     "messages": {
@@ -280,7 +280,7 @@
     },
     "labels": {
       "type": "Tipo",
-      "questionText": "Conjunto de perguntas",
+      "questionText": "Texto da questão",
       "requirementText": "Escritor do plano de requisitos deve atender (opcional, mas recomendado)",
       "guidanceText": "Orientação para perguntas (opcional mas recomendado)",
       "sampleText": "Texto de amostra"
@@ -342,7 +342,7 @@
       "text": "Texto",
       "default": "Padrão",
       "type": "Tipo",
-      "questionText": "Conjunto de perguntas",
+      "questionText": "Texto da pergunta",
       "requirementText": "Escritor do plano de requisitos deve atender (opcional, mas recomendado)",
       "guidanceText": "Orientação para perguntas (opcional mas recomendado)",
       "sampleText": "Texto de amostra"
@@ -376,7 +376,7 @@
   },
   "TemplateAccessPage": {
     "title": "Gerenciar acesso",
-    "intro": "Este modelo pode ser editado por todos em {orgName}. Ele também pode ser compartilhado com pessoas fora da sua organização para permitir que elas tenham acesso de edição.",
+    "intro": "Este modelo é editável por todos em {orgName}. Ele também pode ser compartilhado com pessoas fora da sua organização para permitir que eles editem o acesso.",
     "headings": {
       "h3OrgAccess": "Dentro da organização",
       "externalPeople": "Pessoas externas",

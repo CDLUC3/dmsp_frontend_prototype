@@ -1,0 +1,66 @@
+{
+  "findCollaborator": {
+    "__typename": "CollaboratorSearchResults",
+    "limit": 5,
+    "items": [
+      {
+        "__typename": "CollaboratorSearchResult",
+        "id": 1,
+        "givenName": "Super",
+        "email": null,
+        "affiliationId": "https://ror.org/03y123456",
+        "affiliationURL": null,
+        "orcid": null,
+        "surName": "Admin",
+        "affiliationName": "California Digital Library"
+      },
+      {
+        "__typename": "CollaboratorSearchResult",
+        "id": 6,
+        "givenName": "Universidade de São Paulo",
+        "email": null,
+        "affiliationId": "https://ror.org/036123457",
+        "affiliationURL": null,
+        "orcid": null,
+        "surName": "Admin",
+        "affiliationName": "Universidade de São Paulo"
+      },
+      {
+        "__typename": "CollaboratorSearchResult",
+        "id": 16,
+        "givenName": "USGS",
+        "email": null,
+        "affiliationId": "https://ror.org/035123458",
+        "affiliationURL": null,
+        "orcid": "https://orcid.org/0000-0002-1825-1234",
+        "surName": "Admin",
+        "affiliationName": "United States Geological Survey"
+      },
+      {
+        "__typename": "CollaboratorSearchResult",
+        "id": 4,
+        "givenName": "USC",
+        "email": null,
+        "affiliationId": "https://ror.org/03t123460",
+        "affiliationURL": null,
+        "orcid": null,
+        "surName": "Admin",
+        "affiliationName": "University of Southern California"
+      },
+      {
+        "__typename": "CollaboratorSearchResult",
+        "id": 3,
+        "givenName": "UCD",
+        "email": null,
+        "affiliationId": "https://ror.org/05r123461",
+        "affiliationURL": null,
+        "orcid": null,
+        "surName": "Admin",
+        "affiliationName": "University of California, Davis"
+      }
+    ],
+    "availableSortFields": [],
+    "nextCursor": "admin@stanford.edu5",
+    "totalCount": 12
+  }
+}
