@@ -89,6 +89,34 @@
       }
     }
   },
+  "Notifications": {
+    "title": "Notificações",
+    "description": "Configure suas preferências de notificação e configurações de e-mail",
+    "introText": "Escolha os eventos sobre os quais você gostaria de ser notificado na lista abaixo",
+    "headingRelatedActions": "Ações relacionadas",
+    "linkUpdateProfile": "Atualizar perfil",
+    "linkUpdatePassword": "Atualizar senha",
+    "linkUpdateConnections": "Atualizar conexões",
+    "notificationTypes": {
+      "commentAdded": "Um novo comentário foi adicionado ao meu DMP",
+      "planShared": "Um plano foi compartilhado comigo",
+      "adminPrivileges": "Privilégios de administrador concedidos a mim",
+      "planUpdated": "Um plano em que estou colaborando foi atualizado",
+      "feedbackRequested": "Feedback foi solicitado no meu plano",
+      "templatePublished": "Um novo modelo foi publicado pela minha organização",
+      "accountActivity": "Atividade incomum detectada na minha conta",
+      "weeklyDigest": "Resumo semanal de atividades"
+    },
+    "actions": {
+      "save": "Salvar preferências"
+    },
+    "messages": {
+      "preferencesUpdateSuccess": "Suas preferências de notificação foram atualizadas com sucesso.",
+      "errors": {
+        "errorUpdatingPreferences": "Erro ao atualizar as preferências de notificação"
+      }
+    }
+  },
   "UserConnections": {
     "breadcrumbHome": "Home",
     "breadcrumbProfile": "Perfil de usuário",
@@ -351,7 +379,7 @@
         "placeholder": "Digite o nome do departamento"
       },
       "departmentAbbr": {
-        "label": "Nome abreviado do departamento", 
+        "label": "Nome abreviado do departamento",
         "placeholder": "Digite a abreviação"
       }
     },
@@ -455,7 +483,8 @@
       "preview": "Pré-visualizar",
       "publish": "Publicar",
       "close": "Fechar",
-      "loadMore": "Carregar mais"
+      "loadMore": "Carregar mais",
+      "back": "Voltar"
     },
     "labels": {
       "searchByKeyword": "Pesquisar por palavra-chave",
@@ -485,7 +514,8 @@
       "collapse": "Recolher",
       "editTitle": "Editar título",
       "prev": "Voltar",
-      "next": "Seguinte"
+      "next": "Seguinte",
+      "viewHistory": "Ver histórico"
     },
     "messaging": {
       "loading": "Baixar",
