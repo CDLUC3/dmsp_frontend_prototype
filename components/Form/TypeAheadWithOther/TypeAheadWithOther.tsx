@@ -11,6 +11,7 @@ import Spinner from '@/components/Spinner';
 import { SuggestionInterface } from '@/app/types';
 import classNames from 'classnames';
 import styles from './typeaheadWithOther.module.scss';
+import { useTranslations } from "next-intl";
 
 
 export type TypeAheadInputProps = {
@@ -19,7 +20,8 @@ export type TypeAheadInputProps = {
   helpText?: string;
   setOtherField: (value: boolean) => void;
   fieldName: string;
-  required: boolean;
+  isRequired?: boolean;
+  isRequiredVisualOnly?: boolean;
   error?: string;
   updateFormData: (id: string, value: string) => void; //Function to update the typeahead field value in the parent form data
   value?: string;
@@ -41,8 +43,13 @@ const TypeAheadWithOther = ({
   className,
   suggestions,
   onSearch,
+  isRequired=false,
+  isRequiredVisualOnly=false,
   otherText = "Other",
 }: TypeAheadInputProps) => {
+
+  const showRequired = isRequired || isRequiredVisualOnly;
+  const Global = useTranslations('Global.labels');
 
   const [inputValue, setInputValue] = useState<string>(value ?? "");
   const [showSuggestionSpinner, setShowSuggestionSpinner] = useState(false);
@@ -197,7 +204,10 @@ const TypeAheadWithOther = ({
         className={(!!error) ? styles.fieldError : ''}
         isInvalid={!!error}
       >
-        <Label>{label}</Label>
+        <Label>
+          {label}
+          {showRequired && <span className="is-required" aria-hidden="true">({Global('required')})</span>}
+        </Label>
         <Input
           name={fieldName}
           type="text"

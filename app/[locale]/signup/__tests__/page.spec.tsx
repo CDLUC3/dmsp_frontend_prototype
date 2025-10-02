@@ -15,7 +15,7 @@ import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
 // Mock TypeAheadWithOther component
 jest.mock('@/components/Form/TypeAheadWithOther', () => ({
   __esModule: true,
-  TypeAheadWithOther: ({ updateFormData }: { updateFormData: (name: string, value: string) => void }) => (
+  TypeAheadWithOther: ({ updateFormData, error }: { updateFormData: (name: string, value: string) => void, error: string }) => (
     <div data-testid="type-ahead">
       <input
         data-testid="institution"
@@ -29,6 +29,7 @@ jest.mock('@/components/Form/TypeAheadWithOther', () => ({
         name="otherAffiliation"
         onChange={(e) => updateFormData("otherAffiliation", e.target.value)}
       />
+      {error && <div className="error">{error}</div>}
     </div>
   ),
   useAffiliationSearch: jest.fn(() => ({
@@ -176,6 +177,29 @@ describe('SignUpPage', () => {
     });
   });
 
+  it("should go back to step 1 if user clicks \'Back\' button", async () => {
+    act(() => {
+      render(<SignUpPage />);
+    });
+
+    fireEvent.change(screen.getByLabelText("emailAddress"), {
+      target: { value: "test@example.com" }
+    });
+    fireEvent.click(screen.getByTestId("continue"));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("firstName")).toBeInTheDocument();
+    });
+
+    const backBtn = screen.getByText('buttons.back');
+    fireEvent.click(backBtn);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("emailAddress")).toBeInTheDocument();
+      expect(screen.getByTestId("continue")).toBeInTheDocument();
+    });
+  });
+
   it("submit button is disabled till terms accepted", async () => {
     // renderWithProviders(<SignUpPage />);
     render(<SignUpPage />);
@@ -235,6 +259,102 @@ describe('SignUpPage', () => {
         },
         body: JSON.stringify(signupData),
       });
+    });
+  });
+
+  it("should display error if password does not equal confirmPassword", async () => {
+
+    render(<SignUpPage />);
+
+    // Step 1
+    fireEvent.change(screen.getByLabelText("emailAddress"), {
+      target: { value: signupData.email },
+    });
+    fireEvent.click(screen.getByTestId("continue"));
+
+    expect(screen.getByTestId("signup")).toBeInTheDocument();
+
+    // Step 2
+    fireEvent.change(screen.getByLabelText("firstName"), {
+      target: { value: signupData.givenName },
+    });
+    fireEvent.change(screen.getByLabelText("lastName"), {
+      target: { value: signupData.surName },
+    });
+
+    fireEvent.change(screen.getByTestId("institution"), {
+      target: { value: "InstitutionID" },
+    });
+
+    fireEvent.change(screen.getByTestId("otherinst"), {
+      target: { value: "Test" },
+    });
+
+    fireEvent.change(screen.getByTestId("pass"), {
+      target: { value: signupData.password },
+    });
+
+    fireEvent.change(screen.getByTestId("confirmpass"), {
+      target: { value: "DifferentPassword" },
+    });
+
+    const termsCheckbox = screen.getByLabelText("acceptTerms");
+    fireEvent.click(termsCheckbox);
+    expect(termsCheckbox).toBeChecked();
+
+    const signupBtn = screen.getByTestId("signup");
+    fireEvent.click(signupBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText('passMissMatch')).toBeInTheDocument();
+    });
+  });
+
+  it("should display error if institution or affiliation is missing", async () => {
+
+    render(<SignUpPage />);
+
+    // Step 1
+    fireEvent.change(screen.getByLabelText("emailAddress"), {
+      target: { value: signupData.email },
+    });
+    fireEvent.click(screen.getByTestId("continue"));
+
+    expect(screen.getByTestId("signup")).toBeInTheDocument();
+
+    // Step 2
+    fireEvent.change(screen.getByLabelText("firstName"), {
+      target: { value: signupData.givenName },
+    });
+    fireEvent.change(screen.getByLabelText("lastName"), {
+      target: { value: signupData.surName },
+    });
+
+    fireEvent.change(screen.getByTestId("institution"), {
+      target: { value: "" },
+    });
+
+    fireEvent.change(screen.getByTestId("otherinst"), {
+      target: { value: "" },
+    });
+
+    fireEvent.change(screen.getByTestId("pass"), {
+      target: { value: signupData.password },
+    });
+
+    fireEvent.change(screen.getByTestId("confirmpass"), {
+      target: { value: signupData.password },
+    });
+
+    const termsCheckbox = screen.getByLabelText("acceptTerms");
+    fireEvent.click(termsCheckbox);
+    expect(termsCheckbox).toBeChecked();
+
+    const signupBtn = screen.getByTestId("signup");
+    fireEvent.click(signupBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText('institutionRequired')).toBeInTheDocument();
     });
   });
 

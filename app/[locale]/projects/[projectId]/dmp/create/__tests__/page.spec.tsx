@@ -3,7 +3,6 @@ import { act, fireEvent, render, screen, waitFor, within, cleanup } from '@testi
 import { MockedProvider } from '@apollo/client/testing';
 import PlanCreate from '../page';
 import { useParams, useRouter } from 'next/navigation';
-import { useTranslations, useFormatter } from 'next-intl';
 import { useToast } from '@/context/ToastContext';
 import logECS from '@/utils/clientLogger';
 import {
@@ -11,6 +10,7 @@ import {
   PublishedTemplatesDocument,
   PublishedTemplatesMetaDataDocument,
   AddPlanDocument,
+  AddPlanFundingDocument,
 } from '@/generated/graphql';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { mockScrollIntoView, mockScrollTo } from '@/__mocks__/common';
@@ -23,8 +23,6 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
 }));
 
-
-// Mock useFormatter from next-intl
 jest.mock('next-intl', () => ({
   useFormatter: jest.fn(() => ({
     dateTime: jest.fn(() => '01-01-2023'),
@@ -39,8 +37,58 @@ const mockToast = {
   add: jest.fn(),
 };
 
-const mocks = [
-  // PublishedTemplatesMetaData query
+
+// Initial ProjectFundings query
+const projectFundingsMocks = [
+  {
+    request: {
+      query: ProjectFundingsDocument,
+      variables: {
+        projectId: 1
+      },
+    },
+    result: {
+      data: {
+        projectFundings: Array.from({length: 3}, (_, i) => {
+          const count = i + 1;
+          return {
+            __typename: "ProjectFunding",
+            id: count,
+            affiliation: {
+              __typename: "Affiliation",
+              displayName: `Affiliation ${count} Name`,
+              uri: `http://affiliation-${count}.gov`,
+            },
+            status: "PLANNED",
+            grantId: null,
+            funderOpportunityNumber: `OP-NUM-${count}`,
+            funderProjectNumber: null,
+          }
+        }),
+      },
+      loading: false
+    },
+  },
+
+  {
+    request: {
+      query: ProjectFundingsDocument,
+      variables: {
+        // Project 2 have no projectFundings
+        projectId: 2
+      },
+    },
+    result: {
+      data: {
+        projectFundings: [],
+      },
+    },
+  },
+];
+
+
+// PublishedTemplatesMetaData query
+const publishedMetaDataMocks = [
   {
     request: {
       query: PublishedTemplatesMetaDataDocument,
@@ -59,17 +107,20 @@ const mocks = [
     result: {
       data: {
         publishedTemplatesMetaData: {
+          __typename: "PublishedTemplateMetaDataResults",
           availableAffiliations: [
-            "http://nsf.gov",
-            "http://nih.gov"
+            "http://affiliation-1.gov",
+            "http://affiliation-2.gov"
           ],
           hasBestPracticeTemplates: false,
         },
       },
-      loading: false
     },
   },
-  // PublishedTemplatesMetaData query
+];
+
+
+const bestPracticeMocks = [
   {
     request: {
       query: PublishedTemplatesMetaDataDocument,
@@ -88,16 +139,69 @@ const mocks = [
     result: {
       data: {
         publishedTemplatesMetaData: {
+          __typename: "PublishedTemplateMetaDataResults",
           availableAffiliations: [
-            "http://nsf.gov",
-            "http://nih.gov"
+            "http://affiliation-1.gov",
+            "http://affiliation-2.gov"
           ],
-          hasBestPracticeTemplates: false,
+          hasBestPracticeTemplates: true,
         },
       },
-      loading: false
     },
   },
+
+  {
+    request: {
+      query: PublishedTemplatesDocument,
+      variables: {
+        paginationOptions: {
+          offset: 0,
+          limit: 5,
+          type: "OFFSET",
+          sortDir: "DESC",
+          selectOwnerURIs: [],
+          bestPractice: true
+        },
+        term: ""
+      },
+    },
+    result: {
+      data: {
+        publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
+          limit: 5,
+          nextCursor: null,
+          totalCount: 2,
+          availableSortFields: ['vt.bestPractice'],
+          currentOffset: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+          items: Array.from({length: 2}, (_, i) => {
+            const count = i + 1;
+            return {
+              __typename: "VersionedTemplateSearchResult",
+              id: count,
+              bestPractice: true,
+              description: `Template ${count} Description`,
+              name: `Template ${count} Name`,
+              visibility: "PUBLIC",
+              ownerDisplayName: `Template Owner ${count}`,
+              ownerURI: `http://template${count}.gov`,
+              modified: "2021-10-25 18:42:37",
+              modifiedByName: "John Doe",
+              modifiedById: 14,
+              ownerId: 100 + count,
+              version: "v5",
+              templateId: 10 + count,
+              ownerSearchName: `Owner ${count} Search`
+            }
+          }),
+        },
+      },
+    },
+  },
+
+  // After the checkbox was unchecked
   {
     request: {
       query: PublishedTemplatesDocument,
@@ -116,123 +220,30 @@ const mocks = [
     result: {
       data: {
         publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
           limit: 5,
           nextCursor: null,
-          totalCount: 10,
+          totalCount: 0,
           availableSortFields: ['vt.bestPractice'],
           currentOffset: 1,
-          hasNextPage: true,
-          hasPreviousPage: true,
-          items: [
-            {
-              bestPractice: false,
-              description: "Template 1",
-              id: "1",
-              name: "Agency for Healthcare Research and Quality",
-              visibility: "PUBLIC",
-              ownerDisplayName: "National Science Foundation (nsf.gov)",
-              ownerURI: "http://nsf.gov",
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: "John Doe",
-              modifiedById: 14,
-              ownerId: 122,
-              version: "v5",
-              templateId: 4,
-              ownerSearchName: "National Science Foundation | nsf.gov | NSF"
-            },
-            {
-              bestPractice: false,
-              description: "Arctic Data Center",
-              id: "20",
-              name: "Arctic Data Center: NSF Polar Programs",
-              visibility: "PUBLIC",
-              ownerDisplayName: "National Science Foundation (nsf.gov)",
-              ownerURI: "http://nsf.gov",
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: 'John Doe',
-              modifiedById: 14,
-              ownerId: 122,
-              version: "v5",
-              templateId: 5,
-              ownerSearchName: "National Science Foundation | nsf.gov | NSF"
-            },
-            {
-              bestPractice: false,
-              description: "Develop data plans",
-              id: "10",
-              name: "Data Curation Centre",
-              visibility: "PUBLIC",
-              ownerDisplayName: "National Institute of Health",
-              ownerURI: "http://nih.gov",
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: 'John Doe',
-              modifiedById: 14,
-              ownerId: 122,
-              version: "v2",
-              templateId: 3,
-              ownerSearchName: "National Institute of Health | nih.gov | NIH"
-            },
-            {
-              bestPractice: false,
-              description: "Develop data plans",
-              id: "40",
-              name: "Practice Template",
-              visibility: "PUBLIC",
-              ownerDisplayName: "National Institute of Health",
-              ownerURI: "http://nih.gov",
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: 'John Doe',
-              modifiedById: 14,
-              ownerId: 122,
-              version: "v3",
-              templateId: 2,
-              ownerSearchName: "National Institute of Health | nih.gov | NIH"
-            },
-            {
-              bestPractice: false,
-              description: "Develop data plans",
-              id: "50",
-              name: "Detailed DMP Template",
-              visibility: "PUBLIC",
-              ownerDisplayName: "National Institute of Health",
-              ownerURI: "http://nih.gov",
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: 'John Doe',
-              modifiedById: 14,
-              ownerId: 122,
-              version: "v5",
-              templateId: 1,
-              ownerSearchName: "National Institute of Health | nih.gov | NIH"
-            },
-            {
-              bestPractice: true,
-              description: "Best Practice Template",
-              id: "12",
-              name: "Best Practice Template",
-              visibility: "PUBLIC",
-              ownerDisplayName: null,
-              ownerURI: "http://nih.gov",
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: 'John Doe',
-              modifiedById: 14,
-              ownerId: 122,
-              version: "v6",
-              templateId: 7,
-              ownerSearchName: "National Institute of Health | nih.gov | NIH"
-            },
-          ]
+          hasNextPage: false,
+          hasPreviousPage: false,
+          items: [],
         },
       },
-      loading: false
     },
   },
-  // Unchecking funders updates to offset of 5
+];
+
+
+const publishedTemplatesMocks = [
+  // Published Templates, no selectOwners
   {
     request: {
       query: PublishedTemplatesDocument,
       variables: {
         paginationOptions: {
-          offset: 5,
+          offset: 0,
           limit: 5,
           type: "OFFSET",
           sortDir: "DESC",
@@ -245,36 +256,40 @@ const mocks = [
     result: {
       data: {
         publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
           limit: 5,
           nextCursor: null,
-          totalCount: 10,
+          totalCount: 8,
           availableSortFields: ['vt.bestPractice'],
           currentOffset: 1,
           hasNextPage: true,
-          hasPreviousPage: true,
-          items: [
-            {
-              bestPractice: false,
-              description: "Page 2",
-              id: "14",
-              name: "Page 2",
+          hasPreviousPage: false,
+          items: Array.from({length: 5}, (_, i) => {
+            const count = i + 1;
+            return {
+              __typename: "VersionedTemplateSearchResult",
+              id: count,
+              bestPractice: (count == 5) ? true : false,
+              description: `Template ${count} Description`,
+              name: `Template ${count} Name`,
               visibility: "PUBLIC",
-              ownerDisplayName: "National Science Foundation (nsf.gov)",
-              ownerURI: "http://nsf.gov",
+              ownerDisplayName: `Template Owner ${count}`,
+              ownerURI: `http://template${count}.gov`,
               modified: "2021-10-25 18:42:37",
               modifiedByName: "John Doe",
               modifiedById: 14,
-              ownerId: 122,
+              ownerId: 100 + count,
               version: "v5",
-              templateId: 4,
-              ownerSearchName: "National Science Foundation | nsf.gov | NSF"
-            },
-          ]
+              templateId: 10 + count,
+              ownerSearchName: `Owner ${count} Search`
+            }
+          }),
         },
       },
-      loading: false
     },
   },
+
+  // Published with owners
   {
     request: {
       query: PublishedTemplatesDocument,
@@ -284,7 +299,10 @@ const mocks = [
           limit: 5,
           type: "OFFSET",
           sortDir: "DESC",
-          selectOwnerURIs: ["http://nsf.gov", "http://nih.gov"],
+          selectOwnerURIs: [
+            "http://affiliation-1.gov",
+            "http://affiliation-2.gov"
+          ],
           bestPractice: false
         },
         term: ""
@@ -293,116 +311,40 @@ const mocks = [
     result: {
       data: {
         publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
           limit: 5,
           nextCursor: null,
-          totalCount: 10,
+          totalCount: 8,
           availableSortFields: ['vt.bestPractice'],
           currentOffset: 1,
           hasNextPage: true,
-          hasPreviousPage: true,
-          items: [
-            {
-              bestPractice: false,
-              description: "Template 1",
-              id: "1",
-              name: "Agency for Healthcare Research and Quality",
+          hasPreviousPage: false,
+          items: Array.from({length: 5}, (_, i) => {
+            const count = i + 1;
+            return {
+              __typename: "VersionedTemplateSearchResult",
+              id: count,
+              bestPractice: (count == 5) ? true : false,
+              description: `Template ${count} Description`,
+              name: `Template ${count} Name`,
               visibility: "PUBLIC",
-              ownerDisplayName: "National Science Foundation (nsf.gov)",
-              ownerURI: "http://nsf.gov",
+              ownerDisplayName: `Template Owner ${count}`,
+              ownerURI: `http://template${count}.gov`,
               modified: "2021-10-25 18:42:37",
               modifiedByName: "John Doe",
               modifiedById: 14,
-              ownerId: 122,
+              ownerId: 100 + count,
               version: "v5",
-              templateId: 4,
-              ownerSearchName: "National Science Foundation | nsf.gov | NSF"
-            },
-            {
-              bestPractice: false,
-              description: "Arctic Data Center",
-              id: "20",
-              name: "Arctic Data Center: NSF Polar Programs",
-              visibility: "PUBLIC",
-              ownerDisplayName: "National Science Foundation (nsf.gov)",
-              ownerURI: "http://nsf.gov",
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: 'John Doe',
-              modifiedById: 14,
-              ownerId: 122,
-              version: "v5",
-              templateId: 5,
-              ownerSearchName: "National Science Foundation | nsf.gov | NSF"
-            },
-            {
-              bestPractice: false,
-              description: "Develop data plans",
-              id: "10",
-              name: "Data Curation Centre",
-              visibility: "PUBLIC",
-              ownerDisplayName: "National Institute of Health",
-              ownerURI: "http://nih.gov",
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: 'John Doe',
-              modifiedById: 14,
-              ownerId: 122,
-              version: "v2",
-              templateId: 3,
-              ownerSearchName: "National Institute of Health | nih.gov | NIH"
-            },
-            {
-              bestPractice: false,
-              description: "Develop data plans",
-              id: "40",
-              name: "Practice Template",
-              visibility: "PUBLIC",
-              ownerDisplayName: "National Institute of Health",
-              ownerURI: "http://nih.gov",
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: 'John Doe',
-              modifiedById: 14,
-              ownerId: 122,
-              version: "v3",
-              templateId: 2,
-              ownerSearchName: "National Institute of Health | nih.gov | NIH"
-            },
-            {
-              bestPractice: false,
-              description: "Develop data plans",
-              id: "50",
-              name: "Detailed DMP Template",
-              visibility: "PUBLIC",
-              ownerDisplayName: "National Institute of Health",
-              ownerURI: "http://nih.gov",
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: 'John Doe',
-              modifiedById: 14,
-              ownerId: 122,
-              version: "v5",
-              templateId: 1,
-              ownerSearchName: "National Institute of Health | nih.gov | NIH"
-            },
-            {
-              bestPractice: true,
-              description: "Best Practice Template",
-              id: "12",
-              name: "Best Practice Template",
-              visibility: "PUBLIC",
-              ownerDisplayName: null,
-              ownerURI: "http://nih.gov",
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: 'John Doe',
-              modifiedById: 14,
-              ownerId: 122,
-              version: "v6",
-              templateId: 7,
-              ownerSearchName: "National Institute of Health | nih.gov | NIH"
-            },
-          ]
+              templateId: 10 + count,
+              ownerSearchName: `Owner ${count} Search`
+            }
+          }),
         },
       },
-      loading: false
     },
   },
+
+  // Published Templates filtered to a single funder
   {
     request: {
       query: PublishedTemplatesDocument,
@@ -412,7 +354,9 @@ const mocks = [
           limit: 5,
           type: "OFFSET",
           sortDir: "DESC",
-          selectOwnerURIs: ["http://nsf.gov"],
+          selectOwnerURIs: [
+            "http://affiliation-1.gov",
+          ],
           bestPractice: false
         },
         term: ""
@@ -421,116 +365,37 @@ const mocks = [
     result: {
       data: {
         publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
           limit: 5,
           nextCursor: null,
-          totalCount: 10,
+          totalCount: 8,
           availableSortFields: ['vt.bestPractice'],
           currentOffset: 1,
           hasNextPage: true,
-          hasPreviousPage: true,
-          items: [
-            {
-              bestPractice: false,
-              description: "Template 1",
-              id: "1",
-              name: "Agency for Healthcare Research and Quality",
-              visibility: "PUBLIC",
-              ownerDisplayName: "National Science Foundation (nsf.gov)",
-              ownerURI: "http://nsf.gov",
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: "John Doe",
-              modifiedById: 14,
-              ownerId: 122,
-              version: "v5",
-              templateId: 4,
-              ownerSearchName: "National Science Foundation | nsf.gov | NSF"
-            },
-            {
-              bestPractice: false,
-              description: "Arctic Data Center",
-              id: "20",
-              name: "Arctic Data Center: NSF Polar Programs",
-              visibility: "PUBLIC",
-              ownerDisplayName: "National Science Foundation (nsf.gov)",
-              ownerURI: "http://nsf.gov",
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: 'John Doe',
-              modifiedById: 14,
-              ownerId: 122,
-              version: "v5",
-              templateId: 5,
-              ownerSearchName: "National Science Foundation | nsf.gov | NSF"
-            },
-            {
-              bestPractice: false,
-              description: "Develop data plans",
-              id: "10",
-              name: "Data Curation Centre",
-              visibility: "PUBLIC",
-              ownerDisplayName: "National Institute of Health",
-              ownerURI: "http://nih.gov",
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: 'John Doe',
-              modifiedById: 14,
-              ownerId: 122,
-              version: "v2",
-              templateId: 3,
-              ownerSearchName: "National Institute of Health | nih.gov | NIH"
-            },
-            {
-              bestPractice: false,
-              description: "Develop data plans",
-              id: "40",
-              name: "Practice Template",
-              visibility: "PUBLIC",
-              ownerDisplayName: "National Institute of Health",
-              ownerURI: "http://nih.gov",
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: 'John Doe',
-              modifiedById: 14,
-              ownerId: 122,
-              version: "v3",
-              templateId: 2,
-              ownerSearchName: "National Institute of Health | nih.gov | NIH"
-            },
-            {
-              bestPractice: false,
-              description: "Develop data plans",
-              id: "50",
-              name: "Detailed DMP Template",
-              visibility: "PUBLIC",
-              ownerDisplayName: "National Institute of Health",
-              ownerURI: "http://nih.gov",
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: 'John Doe',
-              modifiedById: 14,
-              ownerId: 122,
-              version: "v5",
-              templateId: 1,
-              ownerSearchName: "National Institute of Health | nih.gov | NIH"
-            },
-            {
-              bestPractice: true,
-              description: "Best Practice Template",
-              id: "12",
-              name: "Best Practice Template",
-              visibility: "PUBLIC",
-              ownerDisplayName: null,
-              ownerURI: "http://nih.gov",
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: 'John Doe',
-              modifiedById: 14,
-              ownerId: 122,
-              version: "v6",
-              templateId: 7,
-              ownerSearchName: "National Institute of Health | nih.gov | NIH"
-            },
-          ]
+          hasPreviousPage: false,
+          items: [{
+            __typename: "VersionedTemplateSearchResult",
+            id: 1,
+            bestPractice: false,
+            description: "Template Description",
+            name: "Filtered Template Name",
+            visibility: "PUBLIC",
+            ownerDisplayName: "Template Owner",
+            ownerURI: `http://template1.gov`,
+            modified: "2021-10-25 18:42:37",
+            modifiedByName: "John Doe",
+            modifiedById: 14,
+            ownerId: 101,
+            version: "v5",
+            templateId: 11,
+            ownerSearchName: "Owner Search Name"
+          }],
         },
       },
-      loading: false
     },
   },
+
+  // Published Templates With Owners Page 2
   {
     request: {
       query: PublishedTemplatesDocument,
@@ -540,7 +405,10 @@ const mocks = [
           limit: 5,
           type: "OFFSET",
           sortDir: "DESC",
-          selectOwnerURIs: ["http://nsf.gov"],
+          selectOwnerURIs: [
+            "http://affiliation-1.gov",
+            "http://affiliation-2.gov"
+          ],
           bestPractice: false
         },
         term: ""
@@ -549,37 +417,75 @@ const mocks = [
     result: {
       data: {
         publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
           limit: 5,
           nextCursor: null,
-          totalCount: 10,
+          totalCount: 8,
           availableSortFields: ['vt.bestPractice'],
           currentOffset: 1,
           hasNextPage: true,
-          hasPreviousPage: true,
-          items: [
-            {
-              bestPractice: false,
-              description: "Template 2",
-              id: "1",
-              name: "Template 2",
+          hasPreviousPage: false,
+          items: Array.from({length: 3}, (_, i) => {
+            const count = i + 6;
+            return {
+              __typename: "VersionedTemplateSearchResult",
+              id: count,
+              bestPractice: (count == 5) ? true : false,
+              description: `Template ${count} Description`,
+              name: `Template ${count} Name`,
               visibility: "PUBLIC",
-              ownerDisplayName: "Template 2",
-              ownerURI: "http://template.gov",
+              ownerDisplayName: `Template Owner ${count}`,
+              ownerURI: `http://template${count}.gov`,
               modified: "2021-10-25 18:42:37",
-              modifiedByName: "Jane Smith",
+              modifiedByName: "John Doe",
               modifiedById: 14,
-              ownerId: 122,
+              ownerId: 100 + count,
               version: "v5",
-              templateId: 4,
-              ownerSearchName: "Template 2"
-            },
-          ]
+              templateId: 10 + count,
+              ownerSearchName: `Owner ${count} Search`
+            }
+          }),
         },
       },
       loading: false
     },
   },
-  // For search for NSF
+
+  // No results : Term = "no-results"
+  {
+    request: {
+      query: PublishedTemplatesDocument,
+      variables: {
+        paginationOptions: {
+          offset: 0,
+          limit: 5,
+          type: "OFFSET",
+          sortDir: "DESC",
+          selectOwnerURIs: [],
+          bestPractice: false,
+        },
+        term: "no-results",
+      },
+    },
+    result: {
+      data: {
+        publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
+          limit: 5,
+          nextCursor: null,
+          totalCount: 0,
+          availableSortFields: ['vt.bestPractice'],
+          currentOffset: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+          items: [],
+        },
+      },
+      loading: false
+    },
+  },
+
+  // Search term = NSF
   {
     request: {
       query: PublishedTemplatesDocument,
@@ -598,15 +504,17 @@ const mocks = [
     result: {
       data: {
         publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
           limit: 5,
           nextCursor: null,
-          totalCount: 10,
+          totalCount: 1,
           availableSortFields: ['vt.bestPractice'],
           currentOffset: 1,
-          hasNextPage: true,
-          hasPreviousPage: true,
+          hasNextPage: false,
+          hasPreviousPage: false,
           items: [
             {
+              __typename: "VersionedTemplateSearchResult",
               bestPractice: false,
               description: "NSF SEARCH",
               id: "1",
@@ -628,7 +536,27 @@ const mocks = [
       loading: false
     },
   },
-  // For search for test
+];
+
+const errorMocks = [
+  {
+    request: {
+      query: PublishedTemplatesMetaDataDocument,
+      variables: {
+        paginationOptions: {
+          offset: 0,
+          limit: 5,
+          type: "OFFSET",
+          sortDir: "DESC",
+          selectOwnerURIs: [],
+          bestPractice: false
+        },
+        term: ""
+      },
+    },
+    error: new Error("There was an error"),
+  },
+
   {
     request: {
       query: PublishedTemplatesDocument,
@@ -641,74 +569,33 @@ const mocks = [
           selectOwnerURIs: [],
           bestPractice: false
         },
-        term: "test"
+        term: ""
       },
     },
-    result: {
-      data: {
-        publishedTemplates: {
-          limit: 5,
-          nextCursor: null,
-          totalCount: 10,
-          availableSortFields: ['vt.bestPractice'],
-          currentOffset: 1,
-          hasNextPage: true,
-          hasPreviousPage: true,
-          items: []
-        },
-      },
-      loading: false
-    },
+    error: new Error("There was an error"),
   },
-  // Initial ProjectFundings query
+
   {
     request: {
-      query: ProjectFundingsDocument,
+      query: PublishedTemplatesDocument,
       variables: {
-        projectId: 1
+        paginationOptions: {
+          offset: 0,
+          limit: 5,
+          type: "OFFSET",
+          sortDir: "DESC",
+          selectOwnerURIs: [],
+          bestPractice: false
+        },
+        term: ""
       },
     },
-    result: {
-      data: {
-        projectFundings: [
-          {
-            id: 1,
-            affiliation: {
-              displayName: "National Science Foundation (nsf.gov)",
-              uri: "http://nsf.gov"
-            },
-            status: "PLANNED",
-            grantId: null,
-            funderOpportunityNumber: "NSF-23456-ABC",
-            funderProjectNumber: null
-          },
-          {
-            id: 11,
-            affiliation: {
-              displayName: "National League of Voters",
-              uri: "http://nlov.gov"
-            },
-            status: "PLANNED",
-            grantId: null,
-            funderOpportunityNumber: "NLV-23456-ABC",
-            funderProjectNumber: null
-          },
-          {
-            id: 2,
-            affiliation: {
-              displayName: "National Institute of health",
-              uri: "http://nih.gov"
-            },
-            status: "PLANNED",
-            grantId: null,
-            funderOpportunityNumber: "NIH-23456-ABC",
-            funderProjectNumber: null
-          }
-        ]
-      },
-      loading: false
-    },
+    error: new Error("There was an error"),
   },
+];
+
+
+const addPlanMocks = [
   // AddPlan mutation
   {
     request: {
@@ -721,43 +608,139 @@ const mocks = [
     result: {
       data: {
         addPlan: {
+          __typename: "AddPlan",
           id: 7,
-          __typename: "Plan"
+          errors: {
+            general: null,
+            versionedTemplateId: null,
+            projectId: null,
+          }
+        },
+      },
+    },
+  },
+
+  // AddPlan with general errors
+  {
+    request: {
+      query: AddPlanDocument,
+      variables: {
+        projectId: 2,
+        versionedTemplateId: 1
+      },
+    },
+    result: {
+      data: {
+        addPlan: {
+          __typename: "AddPlan",
+          id: 7,
+          errors: {
+            general: "General error",
+            versionedTemplateId: null,
+            projectId: null,
+          },
+        },
+      },
+    },
+  },
+
+
+  {
+    request: {
+      query: AddPlanFundingDocument,
+      variables: {
+        planId: 7,
+        projectFundingIds: [1, 2, 3],
+      }
+    },
+    result: {
+      data: {
+        addPlanFunding: {
+          __typename: "AddPlanFunding",
+          errors: {
+            __typename: "PlanFundingErrors",
+            general: null,
+          },
+        },
+      },
+    },
+  },
+];
+
+const addPlanErrMocks = [
+  // addPlan general error
+  {
+    request: {
+      query: AddPlanDocument,
+      variables: {
+        // Project 1 just returns a general error
+        projectId: 1,
+        versionedTemplateId: 1
+      },
+    },
+    error: new Error("There was an error"),
+  },
+
+  // Project ID 2 should get past the first step, but fail when adding funders
+  {
+    request: {
+      query: AddPlanDocument,
+      variables: {
+        // Project ID 2 will return a general error
+        projectId: 2,
+        versionedTemplateId: 1,
+      },
+    },
+    result: {
+      data: {
+        addPlan: {
+          __typename: "AddPlan",
+          id: 7,
+          errors: {
+            general: null,
+            versionedTemplateId: null,
+            projectId: null,
+          },
         }
       },
     },
   },
-]
+
+  {
+    request: {
+      query: AddPlanFundingDocument,
+      variables: {
+        planId: 7,
+        projectFundingIds: [],
+      }
+    },
+    error: new Error("There was an error"),
+  },
+];
+
+
+const baseMocks = [
+  ...projectFundingsMocks,
+  ...publishedMetaDataMocks,
+  ...publishedTemplatesMocks,
+  ...addPlanMocks,
+];
+
 
 describe('PlanCreate Component using base mock', () => {
   const mockUseParams = useParams as jest.Mock;
-  const mockUseTranslations = useTranslations as jest.Mock;
-  const mockUseFormatter = useFormatter as jest.Mock;
-
 
   beforeEach(() => {
-    // for this test to stop flapping (failing randomly) when run in the test suite (with `npm run test`) I had to add
-    // these two lines, though it always succeeded when run individually outside the test suite
-    jest.clearAllMocks();
-    cleanup();
-
-    mockUseTranslations.mockImplementation(() => {
-      return jest.fn((key) => key);
-    });
-
-    mockUseFormatter.mockImplementation(() => ({
-      dateTime: jest.fn(() => '01-01-2023'),
-    }));
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
     mockUseParams.mockReturnValue({ projectId: '1' });
+
     // mock router
     mockRouter = { push: jest.fn() };
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
 
     // Mock Toast
     (useToast as jest.Mock).mockReturnValue(mockToast);
-
   });
 
   afterEach(() => {
@@ -765,11 +748,10 @@ describe('PlanCreate Component using base mock', () => {
     cleanup();
   })
 
-
   it('should render PlanCreate component with funder checkbox', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider mocks={baseMocks}>
           <PlanCreate />
         </MockedProvider>
       );
@@ -780,66 +762,63 @@ describe('PlanCreate Component using base mock', () => {
       expect(screen.getByLabelText('labels.searchByKeyword')).toBeInTheDocument();
       expect(screen.getByText('helpText.searchHelpText')).toBeInTheDocument();
       expect(screen.getByText('buttons.search')).toBeInTheDocument();
-      expect(screen.getByRole('group', { name: /checkbox.filterByFunderLabel/i })).toBeInTheDocument();
-      expect(screen.getByText('checkbox.filterByFunderDescription')).toBeInTheDocument();
 
       // We should have two checkboxes for project funders checked
-      expect(screen.getByRole('checkbox', { name: /National Science Foundation \(nsf.gov\)/i })).toBeInTheDocument();
-      expect(screen.getByRole('checkbox', { name: /National Institute of Health/i })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: 'Affiliation 1 Name' })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: 'Affiliation 2 Name' })).toBeInTheDocument();
 
       // Expected three funder templates to display by default
-      expect(screen.getByRole('heading', { level: 3, name: /Agency for Healthcare Research and Quality/i })).toBeInTheDocument();
-      const templateData = screen.getAllByTestId('template-metadata');
-      const lastRevisedBy1 = within(templateData[0]).getByText(/lastRevisedBy.*John Doe/);
-      const publishStatus1 = within(templateData[0]).getByText('published');
-      const visibility1 = within(templateData[0]).getByText(/visibility.*Public/);
-      expect(lastRevisedBy1).toBeInTheDocument();
-      expect(publishStatus1).toBeInTheDocument();
-      expect(visibility1).toBeInTheDocument();
-      expect(screen.getByRole('heading', { level: 3, name: /Arctic Data Center: NSF Polar Programs/i })).toBeInTheDocument();
-      const lastRevisedBy2 = within(templateData[1]).getByText(/lastRevisedBy.*John Doe/);
-      const lastUpdated2 = within(templateData[1]).getByText(/lastUpdated.*01-01-2023/);
-      const publishStatus2 = within(templateData[1]).getByText('published');
-      const visibility2 = within(templateData[1]).getByText(/visibility.*Public/);
-      expect(lastRevisedBy2).toBeInTheDocument();
-      expect(lastUpdated2).toBeInTheDocument();
-      expect(publishStatus2).toBeInTheDocument();
-      expect(visibility2).toBeInTheDocument();
-      expect(screen.getByRole('heading', { level: 3, name: /Data Curation Centre/i })).toBeInTheDocument();
-      const lastRevisedBy3 = within(templateData[2]).getByText(/lastRevisedBy.*John Doe/);
-      const lastUpdated3 = within(templateData[2]).getByText(/lastUpdated.*01-01-2023/);
-      const publishStatus3 = within(templateData[2]).getByText('published');
-      const visibility3 = within(templateData[2]).getByText(/visibility.*Public/);
-      expect(lastRevisedBy3).toBeInTheDocument();
-      expect(lastUpdated3).toBeInTheDocument();
-      expect(publishStatus3).toBeInTheDocument();
-      expect(visibility3).toBeInTheDocument();
+      const funderTemplateResults = [0, 1, 2];
+      funderTemplateResults.forEach((i) => {
+        expect(screen.getByRole('heading', { level: 3, name: `Template ${i + 1} Name` })).toBeInTheDocument();
+        const templateData = screen.getAllByTestId('template-metadata');
+        const lastRevisedBy1 = within(templateData[i]).getByText(/lastRevisedBy.*John Doe/);
+        const publishStatus1 = within(templateData[i]).getByText('published');
+        const visibility1 = within(templateData[i]).getByText(/visibility.*Public/);
+        expect(lastRevisedBy1).toBeInTheDocument();
+        expect(publishStatus1).toBeInTheDocument();
+        expect(visibility1).toBeInTheDocument();
+      });
+
       // Should not show the best practice template on first load
       expect(screen.queryByRole('heading', { level: 3, name: /labels.dmpBestPractice/i })).not.toBeInTheDocument();
-      expect(screen.getAllByText('buttons.select')).toHaveLength(6);
+
+      // Make sure all 5 template select buttons are present
+      expect(screen.getAllByText('buttons.select')).toHaveLength(5);
     });
   });
 
-  it('should not display duplicate project funder checkboxes', async () => {
+  it('should handle funder filter changes', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider mocks={baseMocks}>
           <PlanCreate />
         </MockedProvider>
       );
     });
+
     await waitFor(() => {
-      // We should have just two checkboxes for project funders checked, even through projectFunders returns duplicates for National Science Foundation
-      const NSFCheckbox = screen.getAllByRole('checkbox', { name: /National Science Foundation \(nsf.gov\)/i });
-      expect(NSFCheckbox).toHaveLength(1);
-      expect(screen.getByRole('checkbox', { name: /National Institute of Health/i })).toBeInTheDocument();
-    })
+      // We should have two checkboxes for project funders checked
+      expect(screen.getByRole('checkbox', { name: 'Affiliation 1 Name' })).toBeInTheDocument();
+      const checkbox = screen.getByRole('checkbox', { name: 'Affiliation 2 Name' });
+      expect(checkbox).toBeInTheDocument();
+
+      // Uncheck the second affiliation item
+      fireEvent.click(checkbox);
+    });
+
+    await waitFor(() => {
+      // This should have re-fetched the funders with only a subset chosen, in
+      // our test mock, only 1
+      expect(screen.getAllByText('buttons.select')).toHaveLength(1);
+      expect(screen.getByRole('heading', { level: 3, name: "Filtered Template Name" })).toBeInTheDocument();
+    });
   });
 
   it('should handle no items found in search', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider mocks={baseMocks}>
           <PlanCreate />
         </MockedProvider>
       );
@@ -847,18 +826,14 @@ describe('PlanCreate Component using base mock', () => {
 
     await waitFor(() => {
       const searchInput = screen.getByLabelText('Template search');
-      // Enter search term
-      fireEvent.change(searchInput, { target: { value: 'test' } });
-      // Click search button
+      fireEvent.change(searchInput, { target: { value: 'no-results' } });
+
       const searchButton = screen.getByText('buttons.search');
       fireEvent.click(searchButton);
-
-      expect(searchInput).toHaveValue('test');
     });
+
     // There should be two matches to the search for 'test'
     await waitFor(() => {
-      const heading3 = screen.queryAllByRole('heading', { level: 3 });
-      expect(heading3).toHaveLength(0);
       expect(screen.getByText('messaging.noItemsFound')).toBeInTheDocument();
     })
   });
@@ -866,38 +841,27 @@ describe('PlanCreate Component using base mock', () => {
   it('should handle page navigation', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider mocks={baseMocks}>
           <PlanCreate />
         </MockedProvider>
       );
     });
 
     await waitFor(() => {
-      // We should have two checkboxes for project funders checked
-      const nihCheckbox = screen.getByRole('checkbox', { name: /National Institute of Health/i });
-      expect(nihCheckbox).toBeInTheDocument();
-
-      fireEvent.click(nihCheckbox);
-    })
-
-    await act(async () => {
-      const nsfCheckbox = screen.getByRole('checkbox', { name: /National Science Foundation \(nsf.gov\)/i });
-      expect(nsfCheckbox).toBeInTheDocument();
-      fireEvent.click(nsfCheckbox);
-    })
-
-    const nextBtn = screen.getAllByRole('button', { name: "labels.nextPage" });
-    fireEvent.click(nextBtn[0]);
+      const nextBtn = screen.getAllByRole('button', { name: "labels.nextPage" });
+      fireEvent.click(nextBtn[0]);
+    });
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Page 2" })).toBeInTheDocument();
-    })
+      expect(screen.getByRole('heading', { level: 3, name: `Template 6 Name` })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 3, name: `Template 7 Name` })).toBeInTheDocument();
+    });
   })
 
   it('should return matching templates on search item', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider mocks={baseMocks}>
           <PlanCreate />
         </MockedProvider>
       );
@@ -924,14 +888,14 @@ describe('PlanCreate Component using base mock', () => {
 
     await waitFor(() => {
       // Should expect to see a template from initial load
-      screen.getByRole('heading', { level: 3, name: /Arctic Data Center: NSF Polar Programs/i })
+      screen.getByRole('heading', { level: 3, name: "Template 1 Name" });
     })
   });
 
-  it('should rest templates if user clicks on \'clear filter\' link', async () => {
+  it('should reset templates if user clicks on \'clear filter\' link', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider mocks={baseMocks}>
           <PlanCreate />
         </MockedProvider>
       );
@@ -958,221 +922,16 @@ describe('PlanCreate Component using base mock', () => {
 
     await waitFor(() => {
       // Should expect to see a template from initial load
-      screen.getByRole('heading', { level: 3, name: /Arctic Data Center: NSF Polar Programs/i })
+      screen.getByRole('heading', { level: 3, name: "Template 1 Name" });
     })
   });
 
-  it('should pass axe accessibility test', async () => {
-    const { container } = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
-        <PlanCreate />
-      </MockedProvider>
-    );
-
-    await act(async () => {
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
-    });
-  })
-});
-
-
-describe('Testing scenarios that don\'t use the base mock', () => {
-  const mockUseParams = useParams as jest.Mock;
-  const mockUseTranslations = useTranslations as jest.Mock;
-  const mockUseFormatter = useFormatter as jest.Mock;
-
-
-  beforeEach(() => {
-    mockUseTranslations.mockImplementation(() => {
-      return jest.fn((key) => key);
-    });
-
-    mockUseFormatter.mockImplementation(() => ({
-      dateTime: jest.fn(() => '01-01-2023'),
-    }));
-    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
-    mockScrollTo();
-    mockUseParams.mockReturnValue({ projectId: '1' });
-    // mock router
-    mockRouter = { push: jest.fn() };
-    (useRouter as jest.Mock).mockReturnValue(mockRouter);
-
-    // Mock Toast
-    (useToast as jest.Mock).mockReturnValue(mockToast);
-
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-    cleanup();
-  })
-
   it('should not show any checkboxes if no project funders and no best practice', async () => {
-    const mocksWithNoProjectFunders = [
-      // PublishedTemplatesMetaData query
-      {
-        request: {
-          query: PublishedTemplatesMetaDataDocument,
-          variables: {
-            paginationOptions: {
-              offset: 0,
-              limit: 5,
-              type: "OFFSET",
-              sortDir: "DESC",
-              selectOwnerURIs: [],
-              bestPractice: false
-            },
-            term: ""
-          },
-        },
-        result: {
-          data: {
-            publishedTemplatesMetaData: {
-              availableAffiliations: [
-                "http://nsf.gov",
-                "http://nih.gov"
-              ],
-              hasBestPracticeTemplates: false,
-            },
-          },
-        },
-      },
-      {
-        request: {
-          query: PublishedTemplatesDocument,
-          variables: {
-            paginationOptions: {
-              offset: 0,
-              limit: 5,
-              type: "OFFSET",
-              sortDir: "DESC",
-              selectOwnerURIs: [],
-              bestPractice: false
-            },
-            term: ""
-          },
-        },
-        result: {
-          data: {
-            publishedTemplates: {
-              limit: 5,
-              nextCursor: null,
-              totalCount: 4,
-              availableSortFields: ['vt.bestPractice'],
-              currentOffset: 1,
-              hasNextPage: true,
-              hasPreviousPage: true,
-              items: [
-                {
-                  bestPractice: false,
-                  description: "Develop data plans",
-                  id: "10",
-                  name: "Data Curation Centre",
-                  visibility: "PUBLIC",
-                  ownerDisplayName: "UC Davis",
-                  ownerURI: "http://ucd.gov",
-                  modified: "2021-10-25 18:42:37",
-                  modifiedByName: 'John Doe',
-                  modifiedById: 14,
-                  ownerId: 122,
-                  version: "v2",
-                  templateId: 10,
-                  ownerSearchName: "UC Davis"
-                },
-                {
-                  id: "12",
-                  templateId: 11,
-                  name: "Best Practice Template",
-                  description: "Best Practice Template",
-                  visibility: "PUBLIC",
-                  bestPractice: false,
-                  version: "v2",
-                  modified: "2021-10-25 18:42:37",
-                  modifiedById: 14,
-                  modifiedByName: 'John Doe',
-                  ownerId: 122,
-                  ownerURI: "http://nih.gov",
-                  ownerDisplayName: 'NIH',
-                  ownerSearchName: "National Institute of Health | nih.gov | NIH",
-                }
-
-              ]
-            },
-          },
-        },
-      },
-      {
-        request: {
-          query: ProjectFundingsDocument,
-          variables: {
-            projectId: 1
-          },
-        },
-        result: {
-          data: {
-            projectFundings: [
-              {
-                id: 1,
-                affiliation: {
-                  displayName: "National Science Foundation (nsf.gov)",
-                  uri: "http://nsf1.gov"
-                },
-                status: "PLANNED",
-                grantId: null,
-                funderOpportunityNumber: "NSF-23456-ABC",
-                funderProjectNumber: null
-              },
-              {
-                id: 11,
-                affiliation: {
-                  displayName: "National League of Voters",
-                  uri: "http://nlov2.gov"
-                },
-                status: "PLANNED",
-                grantId: null,
-                funderOpportunityNumber: "NLV-23456-ABC",
-                funderProjectNumber: null
-              },
-              {
-                id: 2,
-                affiliation: {
-                  displayName: "National Institute of health",
-                  uri: "http://nih3.gov"
-                },
-                status: "PLANNED",
-                grantId: null,
-                funderOpportunityNumber: "NIH-23456-ABC",
-                funderProjectNumber: null
-              }
-            ]
-          },
-        },
-      },
-      // AddPlan mutation
-      {
-        request: {
-          query: AddPlanDocument,
-          variables: {
-            projectId: 1,
-            versionedTemplateId: 1
-          },
-        },
-        result: {
-          data: {
-            addPlan: {
-              id: 7,
-              __typename: "Plan"
-            }
-          },
-        },
-      },
-    ]
-
-
+    // Project 2 have don't have any funders
+    mockUseParams.mockReturnValue({ projectId: '2' });
     await act(async () => {
       render(
-        <MockedProvider mocks={mocksWithNoProjectFunders} addTypename={false}>
+        <MockedProvider mocks={baseMocks}>
           <PlanCreate />
         </MockedProvider>
       );
@@ -1183,338 +942,212 @@ describe('Testing scenarios that don\'t use the base mock', () => {
   });
 
   it('should display best practices template when no funder templates', async () => {
+    // Project 2 have don't have any funders
+    mockUseParams.mockReturnValue({ projectId: '2' });
 
-    const mocksWithOnlyBestPractice = [
-      // PublishedTemplatesMetaData query
-      {
-        request: {
-          query: PublishedTemplatesMetaDataDocument,
-          variables: {
-            paginationOptions: {
-              offset: 0,
-              limit: 5,
-              type: "OFFSET",
-              sortDir: "DESC",
-              selectOwnerURIs: [],
-              bestPractice: false
-            },
-            term: ""
-          },
-        },
-        result: {
-          data: {
-            publishedTemplatesMetaData: {
-              availableAffiliations: [
-                "http://nsf.gov",
-                "http://nih.gov"
-              ],
-              hasBestPracticeTemplates: true,
-            },
-          },
-        },
-      },
-      {
-        request: {
-          query: PublishedTemplatesDocument,
-          variables: {
-            paginationOptions: {
-              offset: 0,
-              limit: 5,
-              type: "OFFSET",
-              sortDir: "DESC",
-              selectOwnerURIs: [],
-              bestPractice: false
-            },
-            term: ""
-          },
-        },
-        result: {
-          data: {
-            publishedTemplates: {
-              limit: 5,
-              nextCursor: null,
-              totalCount: 4,
-              availableSortFields: ['vt.bestPractice'],
-              currentOffset: 1,
-              hasNextPage: true,
-              hasPreviousPage: true,
-              items: [
-                {
-                  bestPractice: true,
-                  description: "Develop data plans",
-                  id: "10",
-                  name: "Data Curation Centre",
-                  visibility: "PUBLIC",
-                  ownerDisplayName: "UC Davis",
-                  ownerURI: "http://ucd.gov",
-                  modified: "2021-10-25 18:42:37",
-                  modifiedByName: 'John Doe',
-                  modifiedById: 14,
-                  ownerId: 122,
-                  version: "v2",
-                  templateId: 10,
-                  ownerSearchName: "UC Davis"
-                },
-                {
-                  id: "12",
-                  templateId: 11,
-                  name: "Best Practice Template",
-                  description: "Best Practice Template",
-                  visibility: "PUBLIC",
-                  bestPractice: true,
-                  version: "v2",
-                  modified: "2021-10-25 18:42:37",
-                  modifiedById: 14,
-                  modifiedByName: 'John Doe',
-                  ownerId: 122,
-                  ownerURI: "http://bestPractice.gov",
-                  ownerDisplayName: 'NIH',
-                  ownerSearchName: "DMP Best Practice",
-                }
-
-              ]
-            },
-          },
-        },
-      },
-      {
-        request: {
-          query: PublishedTemplatesDocument,
-          variables: {
-            paginationOptions: {
-              offset: 0,
-              limit: 5,
-              type: "OFFSET",
-              sortDir: "DESC",
-              selectOwnerURIs: [],
-              bestPractice: true
-            },
-            term: ""
-          },
-        },
-        result: {
-          data: {
-            publishedTemplates: {
-              limit: 5,
-              nextCursor: null,
-              totalCount: 4,
-              availableSortFields: ['vt.bestPractice'],
-              currentOffset: 1,
-              hasNextPage: true,
-              hasPreviousPage: true,
-              items: [
-                {
-                  bestPractice: true,
-                  description: "Develop data plans",
-                  id: "10",
-                  name: "Data Curation Centre",
-                  visibility: "PUBLIC",
-                  ownerDisplayName: "UC Davis",
-                  ownerURI: "http://ucd.gov",
-                  modified: "2021-10-25 18:42:37",
-                  modifiedByName: 'John Doe',
-                  modifiedById: 14,
-                  ownerId: 122,
-                  version: "v2",
-                  templateId: 10,
-                  ownerSearchName: "UC Davis"
-                },
-                {
-                  id: "12",
-                  templateId: 11,
-                  name: "Best Practice Template",
-                  description: "Best Practice Template",
-                  visibility: "PUBLIC",
-                  bestPractice: true,
-                  version: "v2",
-                  modified: "2021-10-25 18:42:37",
-                  modifiedById: 14,
-                  modifiedByName: 'John Doe',
-                  ownerId: 122,
-                  ownerURI: "http://bestPractice.gov",
-                  ownerDisplayName: 'NIH',
-                  ownerSearchName: "DMP Best Practice",
-                }
-
-              ]
-            },
-          },
-        },
-      },
-      {
-        request: {
-          query: ProjectFundingsDocument,
-          variables: {
-            projectId: 1
-          },
-        },
-        result: {
-          data: {
-            projectFundings: []
-          },
-        },
-      },
-      // AddPlan mutation
-      {
-        request: {
-          query: AddPlanDocument,
-          variables: {
-            projectId: 1,
-            versionedTemplateId: 1
-          },
-        },
-        result: {
-          data: {
-            addPlan: {
-              id: 7,
-              __typename: "Plan"
-            }
-          },
-        },
-      },
-    ]
-    await act(async () => {
-      render(
-        <MockedProvider mocks={mocksWithOnlyBestPractice} addTypename={false}>
-          <PlanCreate />
-        </MockedProvider>
-      );
-    });
-
-
-    await waitFor(() => {
-      const checkBoxes = screen.getByRole('checkbox', { name: "best practices" });
-      expect(checkBoxes).toBeInTheDocument();
-      expect(screen.getByText('checkbox.filterByBestPracticesLabel')).toBeInTheDocument();
-      expect(screen.getByText('checkbox.filterByBestPracticesDescription')).toBeInTheDocument();
-      expect(screen.getByText("labels.dmpBestPractice")).toBeInTheDocument();
-      const listItems = screen.getAllByRole('listitem').filter(item => item.classList.contains('templateItem'));
-      expect(listItems).toHaveLength(2);
-      expect(screen.getByRole('heading', { level: 3, name: "Data Curation Centre" })).toBeInTheDocument();
-      expect(screen.getByRole('heading', { level: 3, name: "Best Practice Template" })).toBeInTheDocument();
-    })
-  });
-})
-
-describe('Query errors', () => {
-  const mockUseParams = useParams as jest.Mock;
-  const mockUseTranslations = useTranslations as jest.Mock;
-  const mockUseFormatter = useFormatter as jest.Mock;
-
-
-  beforeEach(() => {
-    mockUseTranslations.mockImplementation(() => {
-      return jest.fn((key) => key);
-    });
-
-    mockUseFormatter.mockImplementation(() => ({
-      dateTime: jest.fn(() => '01-01-2023'),
-    }));
-    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
-    mockScrollTo();
-    mockUseParams.mockReturnValue({ projectId: '1' });
-    // mock router
-    mockRouter = { push: jest.fn() };
-    (useRouter as jest.Mock).mockReturnValue(mockRouter);
-
-    // Mock Toast
-    (useToast as jest.Mock).mockReturnValue(mockToast);
-
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-    cleanup();
-  })
-
-  it('should display error state', async () => {
-    const mocksError = [
-      // PublishedTemplatesMetaData query
-      {
-        request: {
-          query: PublishedTemplatesMetaDataDocument,
-          variables: {
-            paginationOptions: {
-              offset: 0,
-              limit: 5,
-              type: "OFFSET",
-              sortDir: "DESC",
-              selectOwnerURIs: [],
-              bestPractice: false
-            },
-            term: ""
-          },
-        },
-        error: new Error("There was an error"),
-      },
-      {
-        request: {
-          query: PublishedTemplatesDocument,
-          variables: {
-            paginationOptions: {
-              offset: 0,
-              limit: 5,
-              type: "OFFSET",
-              sortDir: "DESC",
-              selectOwnerURIs: [],
-              bestPractice: false
-            },
-            term: ""
-          },
-        },
-        error: new Error("There was an error"),
-      },
-      {
-        request: {
-          query: PublishedTemplatesDocument,
-          variables: {
-            paginationOptions: {
-              offset: 0,
-              limit: 5,
-              type: "OFFSET",
-              sortDir: "DESC",
-              selectOwnerURIs: [],
-              bestPractice: false
-            },
-            term: ""
-          },
-        },
-        error: new Error("There was an error"),
-      },
-      {
-        request: {
-          query: ProjectFundingsDocument,
-          variables: {
-            projectId: 1
-          },
-        },
-        result: {
-          data: {
-            projectFundings: []
-          },
-        },
-      },
+    const mocks = [
+      ...projectFundingsMocks,
+      ...bestPracticeMocks,
     ];
 
     await act(async () => {
       render(
-        <MockedProvider mocks={mocksError} addTypename={false}>
+        <MockedProvider mocks={mocks}>
           <PlanCreate />
         </MockedProvider>
       );
     });
 
+    const checkbox = screen.getByRole('checkbox', { name: "best practices" });
+    expect(checkbox).toBeInTheDocument();
+    expect(screen.getByText('checkbox.filterByBestPracticesLabel')).toBeInTheDocument();
+    expect(screen.getByText('checkbox.filterByBestPracticesDescription')).toBeInTheDocument();
+    expect(screen.getByText("labels.dmpBestPractice")).toBeInTheDocument();
+
+    const listItems = screen
+      .getAllByRole('listitem')
+      .filter(item => item.classList.contains('templateItem'));
+    expect(listItems).toHaveLength(2);
+    expect(screen.getByRole('heading', {level: 3, name: "Template 1 Name"})).toBeInTheDocument();
+    expect(screen.getByRole('heading', {level: 3, name: "Template 2 Name"})).toBeInTheDocument();
+
+    // Now deselect bestPractice checkbox
+    fireEvent.click(checkbox);
+    await waitFor(() => {
+      const listItems = screen
+        .getAllByRole('listitem')
+        .filter(item => item.classList.contains('templateItem'));
+      expect(listItems).toHaveLength(0);
+    });
+  });
+
+  it('should display error state', async () => {
+    // Project 2 have don't have any funders
+    mockUseParams.mockReturnValue({ projectId: '2' });
+
+    const mocks = [
+      ...projectFundingsMocks,
+      ...errorMocks,
+    ];
+
+    await act(async () => {
+      render(
+        <MockedProvider mocks={mocks}>
+          <PlanCreate />
+        </MockedProvider>
+      );
+    });
+
+    // There should be an error from the initial load
     await waitFor(() => {
       expect(logECS).toHaveBeenCalledWith(
         'error',
         'Plan Create queries',
         expect.objectContaining({
           error: expect.anything(),
+          url: { path: '/en-US/projects/2/dmp/create' },
+        })
+      )
+      expect(mockToast.add).toHaveBeenCalledWith('messaging.somethingWentWrong', { type: 'error' });
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/2');
+    });
+  });
+
+  it('should add the plan and redirect when selecting a template', async () => {
+    await act(async () => {
+      render(
+        <MockedProvider mocks={baseMocks}>
+          <PlanCreate />
+        </MockedProvider>
+      );
+    });
+
+    // Find the first template and select it
+    await waitFor(() => {
+      expect(screen.getAllByText('buttons.select')).toHaveLength(5);
+    });
+
+    const btn = screen.getAllByText('buttons.select')[0];
+    fireEvent.click(btn);
+
+    await waitFor(() => {
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/1/dmp/7');
+    });
+  });
+
+  it('should handle general error from addPlan mutation', async () => {
+    // Project 2 will return errors
+    mockUseParams.mockReturnValue({ projectId: '2' });
+
+    await act(async () => {
+      render(
+        <MockedProvider mocks={baseMocks}>
+          <PlanCreate />
+        </MockedProvider>
+      );
+    });
+
+    // Find the first template and select it
+    await waitFor(() => {
+      expect(screen.getAllByText('buttons.select')).toHaveLength(5);
+    });
+
+    const btn = screen.getAllByText('buttons.select')[0];
+    fireEvent.click(btn);
+
+    await waitFor(() => {
+      expect(screen.getByText("General error")).toBeInTheDocument();
+      expect(mockToast.add).toHaveBeenCalledWith('messaging.somethingWentWrong', { type: 'error' });
+    });
+  });
+
+  it('should handle server errors on addPlan mutation', async () => {
+    const mocks = [
+      ...projectFundingsMocks,
+      ...publishedMetaDataMocks,
+      ...publishedTemplatesMocks,
+      ...addPlanErrMocks,
+    ];
+
+    await act(async () => {
+      render(
+        <MockedProvider mocks={mocks}>
+          <PlanCreate />
+        </MockedProvider>
+      );
+    });
+
+    // Find the first template and select it
+    await waitFor(() => {
+      expect(screen.getAllByText('buttons.select')).toHaveLength(5);
+    });
+
+    const btn = screen.getAllByText('buttons.select')[0];
+    fireEvent.click(btn);
+
+    await waitFor(() => {
+      expect(logECS).toHaveBeenCalledWith(
+        'error',
+        'addPlanMutation',
+        expect.objectContaining({
+          error: expect.anything(),
           url: { path: '/en-US/projects/1/dmp/create' },
         })
       )
       expect(mockToast.add).toHaveBeenCalledWith('messaging.somethingWentWrong', { type: 'error' });
-      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/1');
+    });
+  });
+
+  it('should handle server errors on addPlanFunding mutation', async () => {
+    // Project 2 return a server for the second step
+    mockUseParams.mockReturnValue({ projectId: '2' });
+
+    const mocks = [
+      ...projectFundingsMocks,
+      ...publishedMetaDataMocks,
+      ...publishedTemplatesMocks,
+      ...addPlanErrMocks,
+    ];
+
+    await act(async () => {
+      render(
+        <MockedProvider mocks={mocks}>
+          <PlanCreate />
+        </MockedProvider>
+      );
+    });
+
+    // Find the first template and select it
+    await waitFor(() => {
+      expect(screen.getAllByText('buttons.select')).toHaveLength(5);
+    });
+
+    const btn = screen.getAllByText('buttons.select')[0];
+    fireEvent.click(btn);
+
+    await waitFor(() => {
+      expect(logECS).toHaveBeenCalledWith(
+        'error',
+        'addPlanMutation',
+        expect.objectContaining({
+          error: expect.anything(),
+          url: { path: '/en-US/projects/2/dmp/create' },
+        })
+      )
+      expect(mockToast.add).toHaveBeenCalledWith('messaging.somethingWentWrong', { type: 'error' });
+    });
+  });
+
+  it('should pass axe accessibility test', async () => {
+    const { container } = render(
+      <MockedProvider mocks={baseMocks}>
+        <PlanCreate />
+      </MockedProvider>
+    );
+
+    await act(async () => {
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
   });
 });

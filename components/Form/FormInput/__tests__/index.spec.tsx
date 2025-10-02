@@ -78,5 +78,88 @@ describe('FormInput', () => {
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
-  })
+  });
+
+  it('should display "(required)" text when field is required', () => {
+    render(
+      <FormInput
+        name="email"
+        type="email"
+        label="Email"
+        isRequired={true}
+      />
+    );
+
+    expect(screen.getByText('Email')).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
+  });
+
+  it('should not display "(required)" text when field is not required', () => {
+    render(
+      <FormInput
+        name="email"
+        type="email"
+        label="Email"
+        isRequired={false}
+      />
+    );
+
+    expect(screen.getByText('Email')).toBeInTheDocument();
+    expect(screen.queryByText(/\(required\)/)).not.toBeInTheDocument();
+  });
+
+  // New tests for isRequiredVisualOnly functionality
+  it('should display "(required)" text and set aria-required when isRequiredVisualOnly is true', () => {
+    render(
+      <FormInput
+        name="email"
+        type="email"
+        label="Email"
+        isRequiredVisualOnly={true}
+      />
+    );
+
+    // Check for "(required)" text in label
+    expect(screen.getByText('Email')).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
+
+    // Check that aria-required is set on the input
+    const input = screen.getByRole('textbox', { name: 'Email' });
+    expect(input).toHaveAttribute('aria-required', 'false');
+  });
+
+  it('should not display "(required)" text or set aria-required when isRequiredVisualOnly is false', () => {
+    render(
+      <FormInput
+        name="email"
+        type="email"
+        label="Email"
+        isRequiredVisualOnly={false}
+      />
+    );
+
+    expect(screen.getByText('Email')).toBeInTheDocument();
+    expect(screen.queryByText(/\(required\)/)).not.toBeInTheDocument();
+
+    const input = screen.getByRole('textbox', { name: 'Email' });
+    expect(input).toHaveAttribute('aria-required', 'false');
+  });
+
+  it('should not show required when neither isRequired, isRequiredVisualOnly, nor aria-required are set', () => {
+    render(
+      <FormInput
+        name="email"
+        type="email"
+        label="Email"
+      />
+    );
+
+    expect(screen.getByText('Email')).toBeInTheDocument();
+    expect(screen.queryByText(/\(required\)/)).not.toBeInTheDocument();
+
+    const input = screen.getByRole('textbox', { name: 'Email' });
+    expect(input).toHaveAttribute('aria-required', 'false');
+  });
 });

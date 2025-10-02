@@ -90,6 +90,69 @@
       }
     }
   },
+  "Notifications": {
+    "title": "Notifications",
+    "description": "Configure your notification preferences and email settings",
+    "introText": "Choose the events that you'd like to be notified about from the list below",
+    "headingRelatedActions": "Related actions",
+    "linkUpdateProfile": "Update profile",
+    "linkUpdatePassword": "Update password",
+    "linkUpdateConnections": "Update connections",
+    "notificationTypes": {
+      "commentAdded": "A new comment has been added to my DMP",
+      "planShared": "A plan has been shared with me",
+      "adminPrivileges": "Admin privileges granted to me",
+      "planUpdated": "A plan I'm collaborating on has been updated",
+      "feedbackRequested": "Feedback has been requested on my plan",
+      "templatePublished": "A new template has been published by my organization",
+      "accountActivity": "Unusual activity detected on my account",
+      "weeklyDigest": "Weekly summary of activity"
+    },
+    "actions": {
+      "save": "Save preferences"
+    },
+    "messages": {
+      "preferencesUpdateSuccess": "Your notification preferences have been updated successfully.",
+      "errors": {
+        "errorUpdatingPreferences": "Error when updating notification preferences"
+      }
+    }
+  },
+  "UpdatePassword": {
+    "breadcrumbHome": "Home",
+    "breadcrumbProfile": "Profile",
+    "title": "Update your password",
+    "headingPasswordRequirements": "Passwords must:",
+    "requirementLength": "be greater than 8 characters;",
+    "requirementNumber": "contain at least one number;",
+    "requirementUppercase": "contain at least one upper case letter;",
+    "requirementLowercase": "contain at least one lower case letter;",
+    "requirementSpecialChars": "contain at least one of the following special characters: ( ) ! @ # $ % ^ & * - _ = + ? ~",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "btnChangePassword": "Change password",
+    "btnChangingPassword": "Changing password...",
+    "headingRelatedActions": "Related actions",
+    "linkUpdateConnections": "Update connections",
+    "linkManageNotifications": "Manage notifications",
+    "messages": {
+      "passwordUpdateSuccess": "Your password has been successfully updated.",
+      "errors": {
+        "currentPasswordRequired": "Current password is required",
+        "newPasswordRequired": "New password is required",
+        "confirmPasswordRequired": "Please confirm your new password",
+        "passwordsDoNotMatch": "Passwords do not match",
+        "passwordTooShort": "Password must be at least 8 characters long",
+        "passwordMissingNumber": "Password must contain at least one number",
+        "passwordMissingUppercase": "Password must contain at least one uppercase letter",
+        "passwordMissingLowercase": "Password must contain at least one lowercase letter",
+        "passwordMissingSpecialChar": "Password must contain at least one special character",
+        "incorrectCurrentPassword": "Current password is incorrect",
+        "errorUpdatingPassword": "Error when updating password"
+      }
+    }
+  },
   "UserConnections": {
     "breadcrumbHome": "Home",
     "breadcrumbProfile": "User profile",
@@ -337,7 +400,7 @@
         "placeholder": "Enter name"
       },
       "departmentAbbr": {
-        "label": "Abbreviated name", 
+        "label": "Abbreviated name",
         "placeholder": "Enter abbreviation"
       }
     },
@@ -444,9 +507,11 @@
       "close": "Close",
       "loadMore": "Load more",
       "addAnother": "Add another",
-      "goToProject": "Go to project"
+      "goToProject": "Go to project",
+      "back": "Back"
     },
     "labels": {
+      "required": "required",
       "searchByKeyword": "Search by keyword",
       "startDate": "Start date",
       "endDate": "End date",
@@ -474,7 +539,8 @@
       "collapse": "Collapse",
       "editTitle": "Edit title",
       "prev": "Previous",
-      "next": "Next"
+      "next": "Next",
+      "viewHistory": "View history"
     },
     "messaging": {
       "loading": "Loading",

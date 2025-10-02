@@ -1,0 +1,119 @@
+{
+  "RelatedWorksPage": {
+    "header": {
+      "title": "Trabalhos Relacionados",
+      "description": "Combine trabalhos relacionados ao seu projeto de pesquisa."
+    },
+    "buttons": {
+      "addRelatedWorkManually": "Adicionar Trabalho Relacionado"
+    },
+    "tabs": {
+      "pending": "Pendente",
+      "accepted": "Aceito",
+      "rejected": "Rejeitado"
+    }
+  },
+  "RelatedWorksList": {
+    "filters": {
+      "filterByConfidence": "Filtrar por Confiança",
+      "filterByType": "Filtrar por Tipo",
+      "highlightMatches": "Destacar Correspondências",
+      "sort": "Ordenar",
+      "reset": "Redefinir",
+      "sortBy": {
+        "confidence-high": "Confiança: Alta para Baixa",
+        "confidence-low": "Confiança: Baixa para Alta",
+        "reviewed-new": "Revisado: Novo para Antigo",
+        "reviewed-old": "Revisado: Antigo para Novo ",
+        "published-new": "Publicado: Novo para Antigo",
+        "published-old": "Publicado: Antigo para Novo",
+        "date-found-new": "Data Encontrada: Novo para Antigo",
+        "date-found-old": "Data Encontrada: Antigo para Novo"
+      }
+    },
+    "messages": {
+      "noPendingResults": "Nenhum trabalho pendente encontrado.\n Você não tem trabalhos pendentes para revisar.",
+      "noPendingFilteredResults": "Nenhum trabalho pendente encontrado.\nNenhum trabalho pendente corresponde aos seus filtros atuais.",
+      "noRelatedResults": "Nenhum trabalho relacionado encontrado.\nVocê ainda não marcou nenhum trabalho como relacionado. Verifique a guia Pendente para começar.",
+      "noRelatedFilteredResults": "Nenhum trabalho relacionado encontrado.\nNenhum trabalho relacionado corresponde aos seus filtros atuais.",
+      "noDiscardedResults": "Nenhum trabalho descartado encontrado.\nVocê ainda não descartou nenhum trabalho.",
+      "noDiscardedFilteredResults": "Nenhum trabalho descartado encontrado.\nNenhum trabalho descartado corresponde aos seus filtros atuais."
+    }
+  },
+  "RelatedWorksListItem": {
+    "header": {
+      "title": "Abrir a versão publicada deste trabalho"
+    },
+    "buttons": {
+      "expand": "Expandir",
+      "collapse": "Recolher",
+      "accept": "Aceitar",
+      "reject": "Rejeitar"
+    },
+    "fieldNames": {
+      "confidence": "Confiança",
+      "dateFound": "Data Encontrada",
+      "dateReviewed": "Data Revisada",
+      "type": "Tipo",
+      "source": "Fonte",
+      "doi": "DOI",
+      "title": "Título",
+      "abstract": "Resumo",
+      "awardIds": "IDs de Prêmios",
+      "authors": "Autores",
+      "institutions": "Instituições",
+      "funders": "Financiadores"
+    },
+    "instructions": {
+      "review": "Revise as informações sobre este trabalho potencialmente relacionado abaixo e, em seguida, aceite-o como relacionado ou rejeite-o como não relacionado.",
+      "actions": {
+        "pending": "Se você rejeitar este trabalho relacionado, poderá recuperá-lo mais tarde na guia Rejeitados.",
+        "related": "Se você rejeitar este trabalho relacionado, poderá recuperá-lo mais tarde na guia Rejeitados.",
+        "discarded": "Você pode recuperar este trabalho relacionado aceitando-o, e então verá na guia Aceitos."
+      }
+    }
+  },
+  "RelatedWorksDataTypes": {
+    "confidence": {
+      "all": "Todos",
+      "high": "Alto",
+      "medium": "Médio",
+      "low": "Baixo"
+    },
+    "workType": {
+      "article": "Artigo",
+      "audio-visual": "Audiovisual",
+      "book": "Livro",
+      "book-chapter": "Capítulo de Livro",
+      "collection": "Coleção",
+      "data-paper": "Data Paper",
+      "dataset": "Dataset",
+      "dissertation": "Dissertação",
+      "editorial": "Editorial",
+      "erratum": "Erratum",
+      "event": "Evento",
+      "grant": "Bolsa",
+      "image": "Imagem",
+      "interactive-resource": "Recurso Interativo",
+      "letter": "Carta",
+      "libguides": "Guias de Biblioteca",
+      "model": "Modelo",
+      "other": "Outro",
+      "paratext": "Paratexto",
+      "peer-review": "Revisão por Pares",
+      "physical-object": "Objeto Físico",
+      "preprint": "Preprint",
+      "reference-entry": "Entrada de Referência",
+      "report": "Relatório",
+      "retraction": "Retração",
+      "review": "Revisão",
+      "service": "Serviço",
+      "software": "Software",
+      "sound": "Som",
+      "standard": "Padrão",
+      "supplementary-materials": "Materiais Suplementares",
+      "text": "Texto",
+      "workflow": "Fluxo de Trabalho"
+    }
+  }
+}
