@@ -29,7 +29,11 @@ import {
 } from '@/components/Container';
 
 import FormInput from '@/components/Form/FormInput';
-import { DmpTable } from '@/components/Table';
+import {
+  DmpTable,
+  DmpTableProps,
+  DmpTableColumn,
+} from '@/components/Table';
 
 import PageHeader from '@/components/PageHeader';
 import Pagination from '@/components/Pagination';
@@ -58,16 +62,16 @@ const StaticUserList = Array.from({ length: 8 }, (_, i) => {
   }
 });
 
-const userTableColumns = [
+const initialColumns = [
   {id: 'id', name: 'id', isRowHeader: false},
-  {id: 'name', name: 'Name', isRowHeader: true, allowsSorting: true},
-  {id: 'email', name: 'Email', isRowHeader: true, allowsSorting: true},
-  {id: 'school', name: 'School', isRowHeader: true, allowsSorting: true},
-  {id: 'plans', name: 'Plans', isRowHeader: true, allowsSorting: true},
-  {id: 'active', name: 'Active', isRowHeader: true, allowsSorting: true},
-  {id: 'permission', name: 'Permission', isRowHeader: true, allowsSorting: true},
-  {id: 'created', name: 'Created', isRowHeader: true, allowsSorting: true},
-  {id: 'activity', name: 'Activity', isRowHeader: true, allowsSorting: true},
+  {id: 'name', name: 'Name', isRowHeader: true, allowsSorting: true, direction: ""},
+  {id: 'email', name: 'Email', isRowHeader: true, allowsSorting: true, direction: ""},
+  {id: 'school', name: 'School', isRowHeader: true, allowsSorting: true, direction: ""},
+  {id: 'plans', name: 'Plans', isRowHeader: true, allowsSorting: true, direction: ""},
+  {id: 'active', name: 'Active', isRowHeader: true, allowsSorting: true, direction: ""},
+  {id: 'permission', name: 'Permission', isRowHeader: true, allowsSorting: true, direction: ""},
+  {id: 'created', name: 'Created', isRowHeader: true, allowsSorting: true, direction: ""},
+  {id: 'activity', name: 'Activity', isRowHeader: true, allowsSorting: true, direction: ""},
 ]
 
 const paginationProps = {
@@ -79,19 +83,32 @@ const paginationProps = {
 };
 
 
-function OrgUserAccountsPage(): React.FC {
+function OrgUserAccountsPage(): React.ReactElement {
   const usersTrans = useTranslations('Admin.users');
 
   const errorRef = useRef<HTMLDivElement | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
   const [errors, setErrors] = useState<string[]>([]);
 
+  const [columns, setColumns] = useState<DmpTableColumn[]>(initialColumns);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isSearching, setIsSearching] = useState(false);
 
-  function handleSearchInput(e) {
+
+  function handleSearchInput(e: ChangeEvent<HTMLInputElement>) {
     // TODO::
     console.log('TODO');
+  }
+
+  function onSortChangeHandler(newColumns: DmpTableColumn[]) {
+    // Make sure to update the column states
+    setColumns(newColumns);
+
+    // NOTE::TODO
+    // Now update the sorting for the items.
+    // Currently we are using the static list of demo users, but in a live
+    // setting, we will re-request the user list, from the backend, passing the
+    // new sort order in the params.
   }
 
   return (
@@ -148,7 +165,7 @@ function OrgUserAccountsPage(): React.FC {
             </Select>
 
             <Button
-              onPress={() => {handleSearch();}}
+              onPress={() => { console.log('TODO') }}
               isDisabled={isSearching}
             >
               {usersTrans('buttons.searchLabel')}
@@ -158,12 +175,8 @@ function OrgUserAccountsPage(): React.FC {
           <DmpTable
             label={usersTrans('userTable.label')}
             className={styles.userList}
-            columns={userTableColumns}
-            rows={StaticUserList}
-            onSortChange={(tmp) => {
-              console.log('Hello sort direction change?');
-              console.log(tmp);
-            }}
+            columnData={columns}
+            rowData={StaticUserList}
           />
 
           <Pagination {...paginationProps} />

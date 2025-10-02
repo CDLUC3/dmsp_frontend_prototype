@@ -38,8 +38,8 @@ describe("DMP Table Component", () => {
   it("should render the component", async () => {
     render(
       <DmpTable
-        columns={columns}
-        rows={rows}
+        columnData={columns}
+        rowData={rows}
         label="Test Table"
       />
     );
@@ -60,8 +60,8 @@ describe("DMP Table Component", () => {
   it("should show the sorting icon is the column sorting is enabled", async () => {
     render(
       <DmpTable
-        columns={columns}
-        rows={rows}
+        columnData={columns}
+        rowData={rows}
         label="Test Table"
       />
     );
@@ -78,8 +78,8 @@ describe("DMP Table Component", () => {
 
     render(
       <DmpTable
-        columns={columns}
-        rows={rows}
+        columnData={columns}
+        rowData={rows}
         label="Test Table"
         onSortChange={mockSort}
       />
@@ -89,19 +89,27 @@ describe("DMP Table Component", () => {
     fireEvent.click(nameColumn);
 
     await waitFor(() => {
-      expect(mockSort).toHaveBeenCalledWith({
-        column: 'name',
-        direction: 'ascending',
-      });
+      const want = [
+        {id: 'id', name: 'id', isRowHeader: false},
+        {id: 'name', name: 'Name Column', isRowHeader: true, allowsSorting: true, direction: 'ascending'},
+        {id: 'email', name: 'Email Column', isRowHeader: true},
+        {id: 'other', name: 'Other Column', isRowHeader: true},
+      ];
+      expect(mockSort).toHaveBeenCalledWith(want);
+      // TODO: Check that the correct icon is displayed icon
     });
 
     // Clicking a second time should change the order to descending
     fireEvent.click(nameColumn);
     await waitFor(() => {
-      expect(mockSort).toHaveBeenCalledWith({
-        column: 'name',
-        direction: 'descending',
-      });
+      const want = [
+        {id: 'id', name: 'id', isRowHeader: false},
+        {id: 'name', name: 'Name Column', isRowHeader: true, allowsSorting: true, direction: 'descending'},
+        {id: 'email', name: 'Email Column', isRowHeader: true},
+        {id: 'other', name: 'Other Column', isRowHeader: true},
+      ];
+      expect(mockSort).toHaveBeenCalledWith(want);
+      // TODO: Check that the correct icon is displayed icon
     });
   });
 

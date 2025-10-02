@@ -30,7 +30,9 @@ describe("Admin - User Accounts Dashboard", () => {
       <OrgUserAccountsPage />
     );
 
-    expect(screen.getByText('User Accounts')).toBeInTheDocument();
+    expect(screen.getByText('tools.searchLabel')).toBeInTheDocument();
+    expect(screen.getByText('tools.permissionLabel')).toBeInTheDocument();
+    expect(screen.getByText('buttons.searchLabel')).toBeInTheDocument();
   });
 
   it('should pass accessibility tests', async () => {
@@ -39,7 +41,7 @@ describe("Admin - User Accounts Dashboard", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText("User Accounts")).toBeInTheDocument();
+      expect(screen.getByText('tools.searchLabel')).toBeInTheDocument();
     });
 
     const results = await axe(container);
