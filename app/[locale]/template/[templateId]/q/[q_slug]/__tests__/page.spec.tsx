@@ -248,8 +248,8 @@ describe("QuestionEditPage", () => {
     });
 
     // Get the radio buttons by their role and value
-    const yesRadio = screen.getByRole('radio', { name: /form.yesLabel/i });
-    const noRadio = screen.getByRole('radio', { name: /form.noLabel/i });
+    const yesRadio = screen.getByRole('radio', { name: 'form.yesLabel' });
+    const noRadio = screen.getByRole('radio', { name: 'form.noLabel' });
 
     expect(yesRadio).toBeChecked();
     // Click the radio button
@@ -310,7 +310,7 @@ describe("QuestionEditPage", () => {
     });
 
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/i);
 
     // Set value to empty
     fireEvent.change(input, { target: { value: '' } });
@@ -390,7 +390,7 @@ describe("QuestionEditPage", () => {
       );
     });
 
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/i);
 
     // Set required QuestionType value
     fireEvent.change(input, { target: { value: 'Testing' } });
@@ -560,7 +560,7 @@ describe("QuestionEditPage", () => {
       );
     });
     // Find the input rendered by RangeComponent
-    const rangeStartInput = screen.getByLabelText('range start');
+    const rangeStartInput = screen.getByLabelText(/range start/i);
 
     // Simulate user typing
     fireEvent.change(rangeStartInput, { target: { value: 'New Range Label' } });
@@ -604,7 +604,7 @@ describe("QuestionEditPage", () => {
       );
     });
     // Find the input rendered by RangeComponent
-    const rangeStartInput = screen.getByLabelText('range start');
+    const rangeStartInput = screen.getByLabelText(/range start/i);
 
     // Simulate user typing
     fireEvent.change(rangeStartInput, { target: { value: '2' } });
@@ -737,7 +737,7 @@ describe("QuestionEditPage", () => {
       );
     });
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/i);
 
     // Set value to 'New Question'
     fireEvent.change(input, { target: { value: 'New Question' } });
@@ -1400,7 +1400,7 @@ describe('Options questions', () => {
     const allRows = screen.queryAllByLabelText('Text');
     expect(allRows.length).toBe(3);
 
-    // Enter the label text for new radio button 
+    // Enter the label text for new radio button
     fireEvent.change(allRows[2], { target: { value: 'Maybe' } });
 
     // Get the save button and save
@@ -1475,7 +1475,7 @@ describe('Options questions', () => {
     const allRows = screen.queryAllByLabelText('Text');
     expect(allRows.length).toBe(3);
 
-    // Enter the label text for new radio button 
+    // Enter the label text for new radio button
     fireEvent.change(allRows[2], { target: { value: 'Maybe' } });
 
     // Wait for state update

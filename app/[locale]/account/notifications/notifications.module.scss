@@ -1,0 +1,44 @@
+@use '@/styles/responsive' as r;
+
+.sectionContainer {
+    margin-top: 0;
+    margin-bottom: var(--space-6);
+}
+
+.sectionContent {
+    padding: var(--space-5) var(--space-6);
+    margin-bottom: var(--space-4);
+    border-radius: var(--card-border-radius);
+    background: var(--bg-white);
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--card-border);
+}
+
+.introText {
+    margin-bottom: var(--space-5);
+    font-size: var(--fs-base);
+    color: var(--slate-700);
+    line-height: 1.5;
+}
+
+.formActions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+}
+
+.relatedItemsHeading {
+    margin-bottom: var(--space-6);
+}
+
+.relatedItems {
+    list-style-type: none;
+    padding-left: 0;
+
+    li {
+        font-size: var(--fs-small);
+        padding-bottom: var(--space-3);
+    }
+}

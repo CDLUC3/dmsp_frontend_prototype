@@ -329,7 +329,7 @@ const AddProjectFunderManually = () => {
               label={addFunding('labels.funderName')}
               fieldName="funderName"
               setOtherField={setOtherField}
-              required={true}
+              isRequired={true}
               error={fieldErrors.affiliationId}
               updateFormData={updateAffiliationFormData}
               value={fundingData.affiliationName}
