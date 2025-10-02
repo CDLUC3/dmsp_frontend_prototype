@@ -43,6 +43,8 @@
 - Added test suites for CheckboxGroup and RadioGroup components that seemed to be missing [#503]
 - Interactive form examples to the styleguide showing required and non-required
   states [#503]
+- New DmpTable component that wraps the react-aria table, columns and rows. [#239]
+- Created the static page for the org admin user dashboard. [#782]
 
 ### Updated
 
