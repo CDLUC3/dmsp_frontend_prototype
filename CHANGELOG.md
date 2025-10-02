@@ -1,5 +1,8 @@
 ### Added
+
 =======
+
+- Add static update password page
 - Added dependabot config
 - Add departments and schools page
 - Add hostname and port to start command in AWS Dockerfile
@@ -10,7 +13,7 @@
 - added "homepage" which is our temp home page just to add the admin link and made it nicer
 - Added admin overview page
 - Added component for `PageLinkCard`
-- Added  admin route definitions to `utils/routes.ts`
+- Added admin route definitions to `utils/routes.ts`
 - Added `redact` to the pino logger to prevent sensitive information from being logged
 - Added `utils/server/loggerUtils.ts` with a method to `prepareLogObject` that strips out empty values and adds available JWT info to the log to assist with debugging
 - Added `SERVER_LOG_LEVEL` to the `.env.example` file to be able to set the log level for server side actions
@@ -153,6 +156,7 @@
 - Deleted `__mocks__/mockQuestionTypes.json` as it is no longer needed [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Chore
+
 - Addressed `fast-redact` but upgrading `pino` version 
 - Upgraded to `NextJS v15.5.2` to remove vulnerability and added `next-env.d.ts` to the ignore list for linting. [#751]
 
