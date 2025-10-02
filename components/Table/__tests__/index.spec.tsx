@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import "@testing-library/jest-dom";
 import {
@@ -17,10 +17,10 @@ expect.extend(toHaveNoViolations);
 
 describe("DMP Table Component", () => {
   const columns = [
-    {id: 'id', name: 'id', isRowHeader: false},
-    {id: 'name', name: 'Name Column', isRowHeader: true, allowsSorting: true},
-    {id: 'email', name: 'Email Column', isRowHeader: true},
-    {id: 'other', name: 'Other Column', isRowHeader: true},
+    { id: 'id', name: 'id', isRowHeader: false },
+    { id: 'name', name: 'Name Column', isRowHeader: true, allowsSorting: true },
+    { id: 'email', name: 'Email Column', isRowHeader: true },
+    { id: 'other', name: 'Other Column', isRowHeader: true },
   ];
 
   const rows = Array.from({ length: 5 }, (_, i) => {
@@ -81,19 +81,19 @@ describe("DMP Table Component", () => {
         columnData={columns}
         rowData={rows}
         label="Test Table"
-        onSortChange={mockSort}
+        onDmpSortChange={mockSort}
       />
     );
 
-    let nameColumn = screen.getByText('Name Column');
+    const nameColumn = screen.getByText('Name Column');
     fireEvent.click(nameColumn);
 
     await waitFor(() => {
       const want = [
-        {id: 'id', name: 'id', isRowHeader: false},
-        {id: 'name', name: 'Name Column', isRowHeader: true, allowsSorting: true, direction: 'ascending'},
-        {id: 'email', name: 'Email Column', isRowHeader: true},
-        {id: 'other', name: 'Other Column', isRowHeader: true},
+        { id: 'id', name: 'id', isRowHeader: false },
+        { id: 'name', name: 'Name Column', isRowHeader: true, allowsSorting: true, direction: 'ascending' },
+        { id: 'email', name: 'Email Column', isRowHeader: true },
+        { id: 'other', name: 'Other Column', isRowHeader: true },
       ];
       expect(mockSort).toHaveBeenCalledWith(want);
       // TODO: Check that the correct icon is displayed icon
@@ -103,10 +103,10 @@ describe("DMP Table Component", () => {
     fireEvent.click(nameColumn);
     await waitFor(() => {
       const want = [
-        {id: 'id', name: 'id', isRowHeader: false},
-        {id: 'name', name: 'Name Column', isRowHeader: true, allowsSorting: true, direction: 'descending'},
-        {id: 'email', name: 'Email Column', isRowHeader: true},
-        {id: 'other', name: 'Other Column', isRowHeader: true},
+        { id: 'id', name: 'id', isRowHeader: false },
+        { id: 'name', name: 'Name Column', isRowHeader: true, allowsSorting: true, direction: 'descending' },
+        { id: 'email', name: 'Email Column', isRowHeader: true },
+        { id: 'other', name: 'Other Column', isRowHeader: true },
       ];
       expect(mockSort).toHaveBeenCalledWith(want);
       // TODO: Check that the correct icon is displayed icon

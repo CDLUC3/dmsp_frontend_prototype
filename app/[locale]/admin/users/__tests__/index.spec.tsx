@@ -1,16 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import "@testing-library/jest-dom";
 import {
   render,
   screen,
-  fireEvent,
   waitFor,
 } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
-
-import { useParams, useRouter } from 'next/navigation';
-
 import OrgUserAccountsPage from '../page';
 
 

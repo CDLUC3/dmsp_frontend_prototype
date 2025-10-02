@@ -7,24 +7,21 @@
 //
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { useQuery } from '@apollo/client/react';
+//import { useQuery } from '@apollo/client/react';
 
 import {
   Table,
   TableProps,
   TableBody,
   TableHeader,
-  TableHeaderProps,
   Column,
   Row,
-  RowProps,
   Cell,
   Collection,
-  useTableOptions,
 } from 'react-aria-components';
 import { SortDescriptor } from '@react-types/shared';
 
-import { DmpIcon } from '@/components/Icons';
+//import { DmpIcon } from '@/components/Icons';
 
 import styles from './table.module.scss';
 
@@ -43,12 +40,14 @@ export type DmpTableColumn = {
 export type DmpTableColumnSet = Iterable<DmpTableColumn>;
 
 
+/*eslint-disable @typescript-eslint/no-explicit-any */
 export type DataRow = Record<string, any>;
 export type DataRowSet = Iterable<DataRow>;
 
 export type DmpTableHeaderProps = {
   columns: DmpTableColumnSet,
-  children: (col: Column) => React.ReactNode,
+  className?: string,
+  children: (col: DmpTableColumn) => React.ReactNode,
 };
 
 export type DmpTableProps = TableProps & {
@@ -63,12 +62,14 @@ export type DmpTableProps = TableProps & {
   className?: string;
 
   // Callbacks
-  onSortChange?: (newColumns: DmpTableColumnSet) => void;
+  onDmpSortChange?: (newColumns: DmpTableColumnSet) => void;
 }
 
-interface DmpTableRowProps<T extends object> extends RowProps<T> {
+interface DmpTableRowProps {
   row: DataRow;
+  className?: string;
   columns: DmpTableColumnSet;
+  children: (col: DmpTableColumn) => React.ReactElement;
 }
 
 
@@ -87,6 +88,7 @@ export function sortData(data: DataRowSet, columns: DmpTableColumnSet): DataRowS
 
   if (activeSorts.length === 0) return data;
 
+  /*eslint-disable @typescript-eslint/no-explicit-any */
   return [...data].sort((a, b) => {
     for (const { id, direction } of activeSorts) {
       let valA: any = a[id];
@@ -125,12 +127,13 @@ export function sortData(data: DataRowSet, columns: DmpTableColumnSet): DataRowS
 
 
 // Sub-Components that make up the table
-function DmpTableHeader<T extends object>({
+function DmpTableHeader({
   columns,
+  className,
   children,
 }: DmpTableHeaderProps) {
   return (
-    <TableHeader className={styles.dmpTableHeader}>
+    <TableHeader className={classNames(styles.dmpTableHeader, className)}>
       <Collection items={columns}>
         {children}
       </Collection>
@@ -138,20 +141,19 @@ function DmpTableHeader<T extends object>({
   );
 }
 
-function DmpTableRow<T extends object>({
+function DmpTableRow({
   columns,
   row,
   children,
-  ...otherProps
-}: DmpTableRowProps<T>) {
+  className,
+}: DmpTableRowProps) {
   return (
     <Row
       id={row.id}
-      className={styles.dmpTableRow}
-      {...otherProps}
+      className={classNames(styles.dmpTableRow, className)}
     >
       <Collection items={columns} dependencies={[row]}>
-        {children}
+        {(col: DmpTableColumn) => children(col)}
       </Collection>
     </Row>
   );
@@ -163,7 +165,7 @@ export function DmpTable({
   columnData,
   rowData,
   label,
-  onSortChange,
+  onDmpSortChange,
 }: DmpTableProps): React.ReactElement {
 
   const [sorting, setSorting] = useState<SortDescriptor>({
@@ -178,7 +180,7 @@ export function DmpTable({
   function handleOnSortChange(descriptor: SortDescriptor) {
     const newColumns: DmpTableColumnSet = Array.from(columns).map((col: DmpTableColumn) => {
       if (col.id === descriptor.column) {
-        return {...col, direction: descriptor.direction};
+        return { ...col, direction: descriptor.direction };
       }
       return col;
     });
@@ -188,11 +190,11 @@ export function DmpTable({
   }
 
   useEffect(() => {
-    if (onSortChange) {
-      onSortChange(columns);
+    if (onDmpSortChange) {
+      onDmpSortChange(columns);
     } else {
       // Only use our internal sorting function if we never provided
-      // an onSortChange() handler
+      // an onDmpSortChange() handler
       const sortedRows = sortData(rows, columns);
       setRows(sortedRows);
     }

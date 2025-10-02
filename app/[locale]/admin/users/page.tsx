@@ -3,36 +3,31 @@
 import React, { useState, useRef } from 'react';
 
 import { useTranslations } from 'next-intl';
-import { logECS, routePath } from '@/utils/index';
+import { routePath } from '@/utils/index';
 
 import {
   FieldError,
   Breadcrumb,
   Breadcrumbs,
   Button,
-  Input,
   Link,
   ListBox,
   ListBoxItem,
   Label,
   Popover,
-  SearchField,
   Select,
   SelectValue,
-  Text,
 } from 'react-aria-components';
 
 import {
   ContentContainer,
   LayoutContainer,
-  SidebarPanel,
 } from '@/components/Container';
 
 import FormInput from '@/components/Form/FormInput';
 import {
   DmpTable,
-  DmpTableProps,
-  DmpTableColumn,
+  DmpTableColumnSet,
 } from '@/components/Table';
 
 import PageHeader from '@/components/PageHeader';
@@ -63,15 +58,15 @@ const StaticUserList = Array.from({ length: 8 }, (_, i) => {
 });
 
 const initialColumns = [
-  {id: 'id', name: 'id', isRowHeader: false},
-  {id: 'name', name: 'Name', isRowHeader: true, allowsSorting: true, direction: ""},
-  {id: 'email', name: 'Email', isRowHeader: true, allowsSorting: true, direction: ""},
-  {id: 'school', name: 'School', isRowHeader: true, allowsSorting: true, direction: ""},
-  {id: 'plans', name: 'Plans', isRowHeader: true, allowsSorting: true, direction: ""},
-  {id: 'active', name: 'Active', isRowHeader: true, allowsSorting: true, direction: ""},
-  {id: 'permission', name: 'Permission', isRowHeader: true, allowsSorting: true, direction: ""},
-  {id: 'created', name: 'Created', isRowHeader: true, allowsSorting: true, direction: ""},
-  {id: 'activity', name: 'Activity', isRowHeader: true, allowsSorting: true, direction: ""},
+  { id: 'id', name: 'id', isRowHeader: false },
+  { id: 'name', name: 'Name', isRowHeader: true, allowsSorting: true, direction: "" as const },
+  { id: 'email', name: 'Email', isRowHeader: true, allowsSorting: true, direction: "" as const },
+  { id: 'school', name: 'School', isRowHeader: true, allowsSorting: true, direction: "" as const },
+  { id: 'plans', name: 'Plans', isRowHeader: true, allowsSorting: true, direction: "" as const },
+  { id: 'active', name: 'Active', isRowHeader: true, allowsSorting: true, direction: "" as const },
+  { id: 'permission', name: 'Permission', isRowHeader: true, allowsSorting: true, direction: "" as const },
+  { id: 'created', name: 'Created', isRowHeader: true, allowsSorting: true, direction: "" as const },
+  { id: 'activity', name: 'Activity', isRowHeader: true, allowsSorting: true, direction: "" as const },
 ]
 
 const paginationProps = {
@@ -79,7 +74,7 @@ const paginationProps = {
   totalPages: 10,
   hasPreviousPage: false,
   hasNextPage: true,
-  handlePageClick: () => {},
+  handlePageClick: () => { },
 };
 
 
@@ -90,17 +85,20 @@ function OrgUserAccountsPage(): React.ReactElement {
   const topRef = useRef<HTMLDivElement>(null);
   const [errors, setErrors] = useState<string[]>([]);
 
-  const [columns, setColumns] = useState<DmpTableColumn[]>(initialColumns);
+  const [columns, setColumns] = useState<DmpTableColumnSet>(initialColumns);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isSearching, setIsSearching] = useState(false);
 
 
-  function handleSearchInput(e: ChangeEvent<HTMLInputElement>) {
+  function handleSearchInput(e: React.ChangeEvent<HTMLInputElement>) {
+    setErrors([]);
+    setIsSearching(true);
+    setSearchTerm(e.target.value);
     // TODO::
     console.log('TODO');
   }
 
-  function onSortChangeHandler(newColumns: DmpTableColumn[]) {
+  function onSortChangeHandler(newColumns: DmpTableColumnSet) {
     // Make sure to update the column states
     setColumns(newColumns);
 
@@ -144,7 +142,7 @@ function OrgUserAccountsPage(): React.ReactElement {
               name="search"
               type="text"
               label={usersTrans('tools.searchLabel')}
-              onChange={setSearchTerm}
+              onChange={handleSearchInput}
               value={searchTerm}
             />
 
@@ -177,6 +175,7 @@ function OrgUserAccountsPage(): React.ReactElement {
             className={styles.userList}
             columnData={columns}
             rowData={StaticUserList}
+            onDmpSortChange={onSortChangeHandler}
           />
 
           <Pagination {...paginationProps} />
