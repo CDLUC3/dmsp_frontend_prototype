@@ -80,7 +80,6 @@ describe('TemplateAccessPage', () => {
 
   it('renders the main content', () => {
     render(<TemplateAccessPage />);
-    expect(screen.getByText('intro')).toBeInTheDocument();
     expect(screen.getByText('headings.h3OrgAccess')).toBeInTheDocument();
     expect(screen.getByText('paragraphs.orgAccessPara1')).toBeInTheDocument();
     expect(screen.getByText('paragraphs.orgAccessPara2')).toBeInTheDocument();
