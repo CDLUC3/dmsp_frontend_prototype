@@ -192,15 +192,15 @@ const TemplateAccessPage: React.FC = () => {
       return <div>{AccessPage('messages.errors.errorLoadingCollaborators')}</div>;
     }
 
-    const collaborators = templateCollaboratorData?.template?.collaborators ?? [];
+    const collaborators = templateCollaboratorData?.template?.collaborators;
 
-    if (collaborators.length === 0) {
-      return <div className={styles.emptyState} role="status">{AccessPage('messages.info.noCollaborators')}</div>;
+    if (collaborators?.length === 0) {
+      return <p className={styles.emptyState} role="status">{AccessPage('messages.info.noCollaborators')}</p>;
     }
 
     return (
       <ul className={styles.peopleList} role="list">
-        {collaborators.map((person) => (
+        {collaborators?.map((person) => (
           <li key={person.id ?? person.email} className={styles.personItem}>
             <div className={styles.personInfo}>
               <div className={styles.personName}>{person.user?.givenName} {person.user?.surName}</div>
@@ -246,7 +246,7 @@ const TemplateAccessPage: React.FC = () => {
     <div>
       <PageHeader
         title={AccessPage('title')}
-        description=""
+        description={AccessPage('intro', { orgName: organization?.name ?? '' })}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
@@ -266,9 +266,6 @@ const TemplateAccessPage: React.FC = () => {
           <div className="template-editor-container" ref={errorRef}>
             <div className="main-content">
               <ErrorMessages errors={errorMessages} ref={errorRef} />
-              <p>
-                {AccessPage('intro', { orgName: organization?.name ?? '' })}
-              </p>
               <section className="sectionContainer"
                 aria-labelledby="org-access-heading">
                 <div className={`sectionHeader  mt-0`}>
@@ -287,7 +284,6 @@ const TemplateAccessPage: React.FC = () => {
                   <h3 id="external-access-heading">{AccessPage('headings.externalPeople')}</h3>
                 </div>
                 <div className="sectionContent">
-                  <p>{AccessPage('paragraphs.externalPara1', { orgName: organization?.name || '' })}</p>
                   <div className={styles.externalPeopleList}>
                     {renderExternalPeople}
                   </div>
@@ -311,7 +307,6 @@ const TemplateAccessPage: React.FC = () => {
                         value={addCollaboratorEmail}
                         onChange={handleEmailChange}
                         isRequired={true}
-                        aria-required="true"
                         label={AccessPage('labels.email')}
                         isInvalid={!isValidEmail(addCollaboratorEmail) && addCollaboratorEmail !== ''}
                         errorMessage="Please enter a valid email address"

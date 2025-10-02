@@ -27,9 +27,11 @@ import Pagination from '@/components/Pagination';
 // GraphQL
 import {
   useAddPlanMutation,
+  PlanErrors,
+  useAddPlanFundingMutation,
   useProjectFundingsQuery,
   usePublishedTemplatesMetaDataQuery,
-  usePublishedTemplatesLazyQuery
+  usePublishedTemplatesLazyQuery,
 } from '@/generated/graphql';
 
 // Other
@@ -39,6 +41,7 @@ import { routePath } from '@/utils/routes';
 import { useToast } from '@/context/ToastContext';
 import { useFormatDate } from '@/hooks/useFormatDate';
 import { TemplateItemProps } from '@/app/types';
+import { checkErrors } from '@/utils/errorHandler';
 
 // # of templates displayed per page
 const LIMIT = 5;
@@ -126,17 +129,13 @@ const PlanCreate: React.FC = () => {
     notifyOnNetworkStatusChange: true,
   });
 
+  const [addPlanFundingMutation] = useAddPlanFundingMutation({});
 
   const resetSearch = useCallback(() => {
     setSearchTerm('');
     handleSearchInput('');
     scrollToTop(topRef);
   }, [scrollToTop]);
-
-  const clearErrors = () => {
-    setErrors([])
-  }
-
 
   // Transform the templates data into more useable format
   const transformTemplates = async (templates: (PublicTemplatesInterface | null)[]) => {
@@ -177,7 +176,7 @@ const PlanCreate: React.FC = () => {
   };
 
   // Handle checkbox change
-  const handleCheckboxChange = async (value: string[], type: string) => {
+  const handleCheckboxChange = async (value: string[], typ: string) => {
     // Mark that user has interacted with checkboxes
     setUserHasInteracted(true);
 
@@ -193,14 +192,14 @@ const PlanCreate: React.FC = () => {
       // Default to all templates when no criteria selected
       await fetchTemplates({ page: currentPage });
 
-    } else if (type === 'funders') {
+    } else if (typ === 'funders') {
       // Always dispatch selected filter items (whether empty or not)
       setSelectedFunders(value);
       setSelectedOwnerURIs(value);
       setBestPractice(false);
       // Fetch templates for selected funders
       await fetchTemplates({ selectedOwnerURIs: value });
-    } else if (type === 'bestPractice') {
+    } else if (typ === 'bestPractice') {
       setSelectedFilterItems(value);
       setSelectedOwnerURIs([]);
       setBestPractice(true);
@@ -210,10 +209,7 @@ const PlanCreate: React.FC = () => {
   };
 
   const handlePageClick = async (page: number) => {
-    if (!userHasInteracted) {
-      setUserHasInteracted(true);
-    }
-
+    setUserHasInteracted(true);
     await fetchTemplates({
       page,
       bestPractice,
@@ -221,7 +217,6 @@ const PlanCreate: React.FC = () => {
       searchTerm
     });
   };
-
 
   const handleFiltering = async (term: string) => {
     setErrors([]);
@@ -235,34 +230,70 @@ const PlanCreate: React.FC = () => {
 
   // When user selects a template, we create a plan and redirect
   const onSelect = async (versionedTemplateId: number) => {
-    let newPlanId;
-    //Add the new plan
-    try {
-      const response = await addPlanMutation({
-        variables: {
-          projectId: Number(projectId),
-          versionedTemplateId
-        },
-      });
-      if (response?.data) {
-        clearErrors();
-        // Get plan id of new plan so we know where to redirect
-        newPlanId = response?.data?.addPlan?.id;
+    setErrors([]);  // Clear the errors
+
+    let newPlanId: number;
+    const fundingIds: number[] = projectFundings
+      ?.projectFundings
+      ?.filter((item): item is { id: number } => !!item?.id)
+      .map(item => item.id) ?? [];
+
+    // Add the new plan
+    addPlanMutation({
+      variables: {
+        projectId: Number(projectId),
+        versionedTemplateId
+      },
+    }).then(planResp => {
+      const [hasErrors, errs] = checkErrors(
+        planResp?.data?.addPlan?.errors as PlanErrors,
+        ['general', 'versionedTemplateId', 'projectId']
+      );
+
+      if (hasErrors) {
+        setErrors([String(errs.general)]);
+        toastState.add(Global("messaging.somethingWentWrong"), { type: 'error' });
+      } else if (planResp?.data?.addPlan?.id) {
+        newPlanId = planResp.data.addPlan.id;
+        return addPlanFundingMutation({
+          variables: {
+            planId: newPlanId,
+            projectFundingIds: fundingIds,
+          },
+        });
+      } else {
+        setErrors([Global("messaging.somethingWentWrong")]);
+        toastState.add(Global("messaging.somethingWentWrong"), { type: 'error' });
+        logECS('error', 'addPlanMutation', {
+          error: "Invalid plan response data",
+          url: {
+            path: routePath('projects.dmp.create', {projectId}),
+          }
+        });
       }
-    } catch (err) {
-      logECS('error', 'handleClick', {
+    }).then(() => {
+      // Early return if we don't have a plan ID set in the previous promise
+      // callback
+      if (!newPlanId) return;
+
+      // NOTE:: We need to redirect to the plan index page regardless of potential
+      // errors returned by the AddPlanFundingMutation. This is because we already
+      // created the plan at this point, and it will cause confusion if we now
+      // deal with errors without redirecting to the newly created plan.
+      router.push(routePath('projects.dmp.show', {
+        projectId,
+        dmpId: newPlanId,  // newPlanId was set in the preceding promise
+      }));
+    }).catch(err => {
+      logECS('error', 'addPlanMutation', {
         error: err,
         url: {
-          path: routePath('projects.dmp.create')
+          path: routePath('projects.dmp.create', {projectId}),
         }
       });
+      toastState.add(Global("messaging.somethingWentWrong"), { type: 'error' });
       setErrors([(err as Error).message])
-    }
-
-    // Redirect to the newly created plan
-    if (newPlanId) {
-      router.push(routePath('projects.dmp.show', { projectId, dmpId: newPlanId }));
-    }
+    });
   }
 
   const fetchTemplates = async ({
@@ -318,7 +349,6 @@ const PlanCreate: React.FC = () => {
   }, [publishedTemplates]);
 
 
-
   // Single useEffect for initial data fetching
   useEffect(() => {
     // Wait until both GraphQL queries finish
@@ -331,6 +361,7 @@ const PlanCreate: React.FC = () => {
 
     const hasBestPracticeTemplates = templateMetaData?.publishedTemplatesMetaData?.hasBestPracticeTemplates ?? false;
     setHasBestPractice(hasBestPracticeTemplates);
+
     // Get matching funders directly from `projectFundings` + `uniqueAffiliations`
     let fundersData: { name: string; uri: string }[] = [];
     let funderURIs: string[] = [];
@@ -379,9 +410,7 @@ const PlanCreate: React.FC = () => {
     };
     if (!initialSelectionApplied) {
       setSelectionsAndFetch();
-
     }
-
   }, [
     loading,
     templateMetaData,
@@ -500,7 +529,6 @@ const PlanCreate: React.FC = () => {
               <div className="search-match-text"><Button data-testid="clear-filter" onPress={resetSearch} className="search-match-text link">{Global('links.clearFilter')}</Button></div>
             </div>
           )}
-
 
           {(publicTemplatesList?.length > 0) ? (
             <>

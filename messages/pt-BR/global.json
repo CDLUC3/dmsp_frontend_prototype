@@ -89,6 +89,69 @@
       }
     }
   },
+  "Notifications": {
+    "title": "Notificações",
+    "description": "Configure suas preferências de notificação e configurações de e-mail",
+    "introText": "Escolha os eventos sobre os quais você gostaria de ser notificado na lista abaixo",
+    "headingRelatedActions": "Ações relacionadas",
+    "linkUpdateProfile": "Atualizar perfil",
+    "linkUpdatePassword": "Atualizar senha",
+    "linkUpdateConnections": "Atualizar conexões",
+    "notificationTypes": {
+      "commentAdded": "Um novo comentário foi adicionado ao meu DMP",
+      "planShared": "Um plano foi compartilhado comigo",
+      "adminPrivileges": "Privilégios de administrador concedidos a mim",
+      "planUpdated": "Um plano em que estou colaborando foi atualizado",
+      "feedbackRequested": "Feedback foi solicitado no meu plano",
+      "templatePublished": "Um novo modelo foi publicado pela minha organização",
+      "accountActivity": "Atividade incomum detectada na minha conta",
+      "weeklyDigest": "Resumo semanal de atividades"
+    },
+    "actions": {
+      "save": "Salvar preferências"
+    },
+    "messages": {
+      "preferencesUpdateSuccess": "Suas preferências de notificação foram atualizadas com sucesso.",
+      "errors": {
+        "errorUpdatingPreferences": "Erro ao atualizar as preferências de notificação"
+      }
+    }
+  },
+  "UpdatePassword": {
+    "breadcrumbHome": "Home",
+    "breadcrumbProfile": "Perfil",
+    "title": "Atualizar sua senha",
+    "headingPasswordRequirements": "As senhas devem:",
+    "requirementLength": "ter mais de 8 caracteres;",
+    "requirementNumber": "conter pelo menos um número;",
+    "requirementUppercase": "conter pelo menos uma letra maiúscula;",
+    "requirementLowercase": "conter pelo menos uma letra minúscula;",
+    "requirementSpecialChars": "conter pelo menos um dos seguintes caracteres especiais: ( ) ! @ # $ % ^ & * - _ = + ? ~",
+    "currentPassword": "Senha atual",
+    "newPassword": "Nova senha",
+    "confirmPassword": "Confirmar nova senha",
+    "btnChangePassword": "Alterar senha",
+    "btnChangingPassword": "Alterando senha...",
+    "headingRelatedActions": "Ações relacionadas",
+    "linkUpdateConnections": "Atualizar conexões",
+    "linkManageNotifications": "Gerenciar notificações",
+    "messages": {
+      "passwordUpdateSuccess": "Sua senha foi atualizada com sucesso.",
+      "errors": {
+        "currentPasswordRequired": "Senha atual é obrigatória",
+        "newPasswordRequired": "Nova senha é obrigatória",
+        "confirmPasswordRequired": "Por favor, confirme sua nova senha",
+        "passwordsDoNotMatch": "As senhas não coincidem",
+        "passwordTooShort": "A senha deve ter pelo menos 8 caracteres",
+        "passwordMissingNumber": "A senha deve conter pelo menos um número",
+        "passwordMissingUppercase": "A senha deve conter pelo menos uma letra maiúscula",
+        "passwordMissingLowercase": "A senha deve conter pelo menos uma letra minúscula",
+        "passwordMissingSpecialChar": "A senha deve conter pelo menos um caractere especial",
+        "incorrectCurrentPassword": "Senha atual está incorreta",
+        "errorUpdatingPassword": "Erro ao atualizar a senha"
+      }
+    }
+  },
   "UserConnections": {
     "breadcrumbHome": "Home",
     "breadcrumbProfile": "Perfil de usuário",
@@ -161,6 +224,7 @@
     "btnBack": "Voltar"
   },
   "Admin": {
+    "headingRelatedActions": "Ações relacionadas",
     "sections": {
       "organisationTemplatesAndPlans": {
         "title": "Modelos e Planos da Organização",
@@ -194,8 +258,12 @@
             "title": "Editar detalhes da organização",
             "description": "Atualizar o nome da sua organização, abreviação, instituição, etc"
           },
+          "departments": {
+            "title": "Departamentos",
+            "description": "Gerenciar seus diferentes departamentos, faculdades, escolas ou divisões"
+          },
           "schoolsDepartments": {
-            "title": "Escolas/Departamentos",
+            "title": "Schools/Departments",
             "description": "Gerenciar seus diferentes departamentos, faculdades, escolas ou divisões"
           },
           "manageUserAccounts": {
@@ -308,6 +376,68 @@
       }
     }
   },
+  "EmailPreferences": {
+    "title": "Preferências de E-mail",
+    "sections": {
+      "customizeEmailText": {
+        "title": "Personalizar texto do e-mail",
+        "description": "O seguinte e-mail será enviado aos usuários quando um sistema externo criar um novo DMP (via API) usando um de seus modelos."
+      },
+      "previewEmail": {
+        "title": "Visualizar E-mail"
+      }
+    },
+    "fields": {
+      "subject": {
+        "label": "Assunto",
+        "placeholder": "Digite o assunto do e-mail"
+      },
+      "emailText": {
+        "label": "Texto do E-mail"
+      }
+    },
+    "buttons": {
+      "save": "Salvar"
+    }
+  },
+  "OrganizationProjects": {
+    "title": "Projetos da Organização",
+    "intro": "Gerenciar projetos e planos DMSP em sua organização",
+    "messages": {
+      "errors": {
+        "errorRetrievingProjects": "Algo deu errado ao recuperar os projetos. Tente novamente mais tarde."
+      }
+    }
+  },
+  "Departments": {
+    "title": "Departamentos",
+    "sections": {
+      "departmentsList": {
+        "title": "Departamentos",
+        "description": "Gerencie seus diferentes departamentos, faculdades, escolas ou divisões."
+      }
+    },
+    "fields": {
+      "departmentName": {
+        "label": "Nome do Departamento",
+        "placeholder": "Digite o nome do departamento"
+      },
+      "departmentAbbr": {
+        "label": "Nome abreviado do departamento",
+        "placeholder": "Digite a abreviação"
+      }
+    },
+    "actions": {
+      "addNew": "Adicionar novo",
+      "save": "Salvar",
+      "delete": "Excluir"
+    },
+    "deleteModal": {
+      "title": "Confirmar exclusão",
+      "content": "Tem certeza de que deseja excluir {name}? Esta ação não pode ser desfeita.",
+      "deleteButton": "Excluir"
+    }
+  },
   "Account": {
     "sections": {
       "userProfile": {
@@ -362,6 +492,7 @@
       "questionDetails": "Detalhes da pergunta"
     },
     "form": {
+      "required": "obrigatório",
       "yesLabel": "Sim",
       "noLabel": "Não"
     },
@@ -397,7 +528,8 @@
       "preview": "Pré-visualizar",
       "publish": "Publicar",
       "close": "Fechar",
-      "loadMore": "Carregar mais"
+      "loadMore": "Carregar mais",
+      "back": "Voltar"
     },
     "labels": {
       "searchByKeyword": "Pesquisar por palavra-chave",
@@ -427,7 +559,8 @@
       "collapse": "Recolher",
       "editTitle": "Editar título",
       "prev": "Voltar",
-      "next": "Seguinte"
+      "next": "Seguinte",
+      "viewHistory": "Ver histórico"
     },
     "messaging": {
       "loading": "Baixar",

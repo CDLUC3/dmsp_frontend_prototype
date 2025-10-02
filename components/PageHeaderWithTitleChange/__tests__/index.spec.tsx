@@ -105,6 +105,11 @@ describe('PageHeaderWithTitleChange', () => {
     render(<PageHeaderWithTitleChange {...defaultProps} />);
   });
 
+  it('should render descriptionAppend if provided', () => {
+    render(<PageHeaderWithTitleChange {...defaultProps} descriptionAppend=" - Additional Info" />);
+    expect(screen.getByText(/- Additional Info/i)).toBeInTheDocument();
+  });
+
   it('should pass axe accessibility test', async () => {
     const { container } = render(
       <PageHeaderWithTitleChange {...defaultProps} />

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslations } from "next-intl";
 import {
   FieldError,
   Input,
@@ -23,7 +24,7 @@ interface InputProps {
   inputClasses?: string;
   disabled?: boolean;
   isRequired?: boolean;
-  ariaRequired?: boolean;
+  isRequiredVisualOnly?: boolean;
   isInvalid?: boolean;
   errorMessage?: string;
   helpMessage?: string;
@@ -48,7 +49,7 @@ const FormInput = React.forwardRef<HTMLInputElement, InputProps & React.InputHTM
   inputClasses = '',
   disabled = false,
   isRequired = false,
-  ariaRequired = false,
+  isRequiredVisualOnly = false,
   isInvalid = false,
   errorMessage = '',
   helpMessage = '',
@@ -57,6 +58,8 @@ const FormInput = React.forwardRef<HTMLInputElement, InputProps & React.InputHTM
   pattern,
   ...rest
 }, ref) => {
+  const showRequired = isRequired || isRequiredVisualOnly;
+  const t = useTranslations('Global.labels');
 
   return (
     <>
@@ -68,7 +71,9 @@ const FormInput = React.forwardRef<HTMLInputElement, InputProps & React.InputHTM
         isInvalid={isInvalid}
         data-testid="field-wrapper"
       >
-        <Label htmlFor={id} className={labelClasses}>{label}</Label>
+        <Label htmlFor={id} className={labelClasses}>
+        {label}{showRequired && <span className="is-required" aria-hidden="true"> ({t('required')})</span>}
+        </Label>
         <Text slot="description" className="help">
           {description}
         </Text>
@@ -87,7 +92,7 @@ const FormInput = React.forwardRef<HTMLInputElement, InputProps & React.InputHTM
           minLength={minLength}
           maxLength={maxLength}
           pattern={pattern}
-          aria-required={ariaRequired}
+          aria-required={isRequired}
           {...rest}
         />
 

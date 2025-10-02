@@ -15,10 +15,10 @@ RUN apk add --no-cache bash curl
 
 # Copy package.json and package-lock.json
 # to the /app working directory
-COPY package.json ./
+COPY package*.json ./
 
 # Install dependencies in /app
-RUN npm install
+RUN npm ci
 
 # Copy the rest of our Next.js folder into /app
 COPY . .
