@@ -376,6 +376,15 @@
       }
     }
   },
+  "OrganizationProjects": {
+    "title": "Projetos da Organização",
+    "intro": "Gerenciar projetos e planos DMSP em sua organização",
+    "messages": {
+      "errors": {
+        "errorRetrievingProjects": "Algo deu errado ao recuperar os projetos. Tente novamente mais tarde."
+      }
+    }
+  },
   "Departments": {
     "title": "Departamentos",
     "sections": {

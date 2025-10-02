@@ -2,6 +2,7 @@
 
 =======
 
+- Add static page for Org admin projects dashboard
 - Add static update password page
 - Added dependabot config
 - Add departments and schools page
@@ -46,6 +47,7 @@
 
 
 ### Updated
+
 - Removed some duplicate text from `template/[templateId]/access` under `External people` [#482]
 - Updated description on `template/[templateId]/access` and visibility text on template publish modal [#482]
 - Updated `/template/[templateId]` to include the `View history` link in the header description [#430]
@@ -93,6 +95,7 @@
 - Removed research outputs, including related pages and routes, from the demp overview [#764](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/764)
 
 ### Fixed
+
 - Update middleware to redirect back to same URL when tokens have been refreshed [#848]
 - Updated `ResearchDomainCascadingDropdown` to not require Research domain fields [#763] 
 - Added missing `relatedWorks` translation keys since it was breaking the pages when locale=pt-BR.
