@@ -66,7 +66,7 @@ body {
   --background-color: #f8f8f8;
   --bg-white: var(--gray-50);
   --bg-black: #000000;
-  --text-black: #000000;
+  --text-black: #05042E;
 
   // Interactive states
   --highlight-hover: rgb(0 0 0 / 0.07);
@@ -100,7 +100,7 @@ body {
 
 
   // Text
-  --text-color: var(--gray-600);
+  --text-color: var(--text-black);
   --text-color-base: var(--gray-500);
   --text-color-hover: var(--gray-600);
   --text-color-disabled: var(--gray-200);
@@ -137,7 +137,7 @@ body {
   --button-background-pressed: var(--background-color);
 
   // Headings
-  --heading-color: var(--bg-black);
+  --heading-color: var(--text-black);
 
   // Error
   --brand-error: var(--red-500);

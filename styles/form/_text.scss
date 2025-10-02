@@ -26,7 +26,7 @@
 
   &:hover:not(:disabled) {
     border-color: var(--slate-400);
-    color: var(--slate-600);
+    color: var(--text-color);
     background-color: var(--slate-100);
   }
 
@@ -38,7 +38,7 @@
 
   &:disabled {
     background-color: var(--slate-200);
-    color: var(--slate-600);
+    color: var(--text-color);
     cursor: not-allowed;
   }
 }

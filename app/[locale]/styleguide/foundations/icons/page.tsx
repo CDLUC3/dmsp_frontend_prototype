@@ -541,7 +541,7 @@ export default function IconsPage() {
                     style={{
                       padding: "0.75rem",
                       background: "var(--blue-50)",
-                      color: "var(--blue-800)",
+                      color: "var(--blue-900)",
                       border: "1px solid var(--blue-200)",
                       borderRadius: "4px",
                     }}

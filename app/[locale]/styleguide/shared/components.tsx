@@ -20,13 +20,29 @@ export function BrandColor({ varname, description }: BrandColorProps) {
     "--_color": `var(${varname})`,
   };
 
+  // Get the computed color value
+  const [colorValue, setColorValue] = React.useState<string>("");
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const root = document.documentElement;
+      const computedValue = getComputedStyle(root).getPropertyValue(varname);
+      setColorValue(computedValue.trim());
+    }
+  }, [varname]);
+
   return (
     <div
       className="brand-color"
       style={styleprops}
       title={description}
     >
-      <code>{varname}</code>
+      <div className="brand-color-swatch" />
+      <div className="brand-color-info">
+        <code className="brand-color-varname">{varname}</code>
+        {colorValue && <span className="brand-color-hex">{colorValue}</span>}
+        {description && <p className="brand-color-description">{description}</p>}
+      </div>
     </div>
   );
 }

@@ -17,13 +17,20 @@
   background-color: var(--layout-content-background);
   color: var(--layout-content-color, var(--text-color));
 
-  > :first-child { margin-top: 0; }
+  > :first-child {
+    margin-top: 0;
+  }
 }
 
-.layout-container { @include layoutContainer; }
+.layout-container {
+  @include layoutContainer;
+}
+
 .layout-content-container,
 .layout-sidebar-panel,
-.layout-drawer-panel { @include contentContainer; }
+.layout-drawer-panel {
+  @include contentContainer;
+}
 
 .layout-toolbar-container {
   @include layoutContainer;
@@ -33,7 +40,9 @@
   gap: var(--layout-gap, 1em);
   align-items: center;
 
-  > * { margin: 0; }
+  >* {
+    margin: 0;
+  }
 }
 
 .layout-sidebar-panel,
@@ -51,7 +60,7 @@
 }
 
 .layout-sidebar-panel {
-    &.state-closed {
+  &.state-closed {
     transition: visibility 0.1s 0.3s, opacity 0.1s 0.3s;
     visibility: hidden;
     opacity: 0;
@@ -114,7 +123,7 @@
   gap: var(--layout-gap, var(--brand-space2));
   overflow-x: hidden;
 
-  > .layout-content-container {
+  >.layout-content-container {
     flex-grow: 1;
   }
 
@@ -122,6 +131,7 @@
     flex-direction: row;
 
     > {
+
       .layout-sidebar-panel,
       .layout-drawer-panel {
         flex-grow: 1;
@@ -131,7 +141,8 @@
       .layout-content-container {
         max-width: calc(70% - var(--layout-gap, var(--brand-space2)));
         flex-grow: 4;
-        &.layout-content-container-full{
+
+        &.layout-content-container-full {
           width: 100%;
           max-width: none;
         }
@@ -165,7 +176,7 @@
 }
 
 // Add mask to rest of content when drawer panel is open
-.layout-mask::before { 
+.layout-mask::before {
   content: "";
   position: absolute;
   top: 0;
@@ -179,11 +190,12 @@
   transition: opacity 0.3s ease-in-out;
 }
 
-.layout-mask.drawer-open::before { // want to mask the content when the drawer is open
+.layout-mask.drawer-open::before {
+  // want to mask the content when the drawer is open
   opacity: 1;
   pointer-events: auto;
 }
-  
+
 // Close button in the drawer panel
 .close-action {
   background: #fff;
@@ -196,8 +208,8 @@
   z-index: 21;
   transition: background 0.2s ease-in-out;
 
-    // Disable the mobile tap highlight on mobile devices that usually remains where the 
-    // 'close' button was even after the drawer panel closes
+  // Disable the mobile tap highlight on mobile devices that usually remains where the 
+  // 'close' button was even after the drawer panel closes
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -205,7 +217,7 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  
+
   // Also disable any potential background color changes
   &:active {
     background: #f0f0f0;
@@ -228,11 +240,11 @@
     right: auto !important;
     z-index: auto !important;
     fill: var(--slate-900);
-    color: var(--slate-900);
+    color: var(--text-color);
 
-      &:hover {
-        fill: var(--blue-50);
-      }
+    &:hover {
+      fill: var(--blue-50);
+    }
   }
 
 }

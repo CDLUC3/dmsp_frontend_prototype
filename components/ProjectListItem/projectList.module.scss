@@ -41,7 +41,7 @@
 // Project title styling (both collapsed and expanded)
 .projectTitle {
   font-size: var(--fs-lg);
-  color: var(--slate-900);
+  color: var(--text-color);
   font-weight: var(--fw-bold);
   padding: 0;
   margin: 0 0 var(--space-3) 0;
@@ -170,7 +170,7 @@
 .plansHeading {
   font-size: var(--fs-xxs);
   font-weight: var(--fw-semibold);
-  color: var(--slate-600);
+  color: var(--text-color);
   margin: 0 0 2px 0;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -196,7 +196,7 @@
 }
 
 .planDoi {
-  color: var(--slate-600);
+  color: var(--text-color);
   font-style: italic;
 }
 
@@ -219,7 +219,7 @@
   flex-wrap: wrap;
   gap: var(--space-2);
   font-size: var(--fs-small);
-  color: var(--slate-600);
+  color: var(--text-color);
   margin-top: var(--space-2);
 
   @include device(sm) {

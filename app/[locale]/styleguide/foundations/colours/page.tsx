@@ -28,6 +28,32 @@ export default function ColoursPage() {
           has been carefully chosen to work together harmoniously while meeting accessibility standards.
         </p>
 
+        <div
+          style={{
+            padding: "1.5rem",
+            background: "var(--blue-50)",
+            border: "1px solid var(--blue-200)",
+            borderRadius: "8px",
+            marginBottom: "2rem",
+          }}
+        >
+          <h3 style={{ marginTop: 0, color: "var(--blue-900)" }}>Important Color Usage Notes</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li>
+              <strong>Headings and paragraph tags</strong> use <code>blue-900</code> (#05042E) as the primary text color
+              for maximum contrast and readability.
+            </li>
+            <li>
+              <strong>Blue-800</strong> (#020057) is reserved exclusively for our logo and brand mark. It should not be
+              used elsewhere in the interface.
+            </li>
+            <li>
+              <strong>Brand-primary</strong> refers to <code>blue-900</code> (#05042E), our dark navy blue used
+              throughout the application for primary actions and key interface elements.
+            </li>
+          </ul>
+        </div>
+
         <section id="primary-colours">
           <h2>Primary Colours</h2>
           <p>
@@ -37,11 +63,11 @@ export default function ColoursPage() {
           <div className="brand-color-list">
             <BrandColor
               varname="--blue-900"
-              description="Dark navy - primary dark color"
+              description="Dark navy - brand primary color, headings and key elements"
             />
             <BrandColor
               varname="--blue-500"
-              description="Primary blue - main brand color"
+              description="Mid blue - links and interactive elements"
             />
             <BrandColor
               varname="--blue-50"

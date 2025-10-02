@@ -36,7 +36,7 @@
   &__name {
     font-size: var(--fs-lg);
     font-family: var(--font-family);
-    color: var(--slate-900);
+    color: var(--text-color);
     margin: 0;
     font-weight: 600;
 
@@ -86,7 +86,7 @@
     }
 
     &:focus {
-      color: var(--slate-900);
+      color: var(--text-color);
       outline: 2px solid var(--blue-500);
       outline-offset: 2px;
     }
@@ -114,7 +114,7 @@
     &:focus,
     &:hover {
       background: none;
-      color: var(--slate-900);
+      color: var(--text-color);
       outline: 2px solid var(--blue-500);
       outline-offset: 2px;
     }
@@ -142,7 +142,7 @@
     align-items: center;
     gap: var(--space-1);
     font-size: var(--fs-xsmall);
-    color: var(--slate-900);
+    color: var(--text-color);
     transition: color 0.2s ease;
 
     &.unchecked {
