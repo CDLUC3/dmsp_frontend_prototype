@@ -279,8 +279,8 @@
       "sampleText": "Plan creators will be able to copy the sample text into the field as a starting point, to speed up content entry."
     },
     "labels": {
-      "type": "Type (required)",
-      "questionText": "Question text (required)",
+      "type": "Type",
+      "questionText": "Question text",
       "requirementText": "Requirements plan writer must meet (optional but recommended)",
       "guidanceText": "Question guidance (optional but recommended)",
       "sampleText": "Sample text"
@@ -306,7 +306,7 @@
   "QuestionOptionsComponent": {
     "labels": {
       "order": "Order",
-      "text": "Text (required)",
+      "text": "Text",
       "default": "Default"
     },
     "buttons": {
@@ -339,10 +339,10 @@
     },
     "labels": {
       "order": "Order",
-      "text": "Text (required)",
+      "text": "Text",
       "default": "Default",
-      "type": "Type (required)",
-      "questionText": "Question text (required)",
+      "type": "Type",
+      "questionText": "Question text",
       "requirementText": "Requirements plan writer must meet (optional but recommended)",
       "guidanceText": "Question guidance (optional but recommended)",
       "sampleText": "Sample text"
@@ -387,7 +387,6 @@
     "paragraphs": {
       "orgAccessPara1": "Everyone at {name} can view and edit",
       "orgAccessPara2": "{count} administrator(s) can manage access",
-      "externalPara1": "Share this template with people outside {orgName}",
       "sharePara1": "Enter their email address. If they do not already have a DMP Tool account they will be prompted to create one.",
       "modalPara1": "Please confirm that you want to remove {email}"
     },

@@ -455,7 +455,7 @@ const ProfilePage: React.FC = () => {
                             label={t('institution')}
                             fieldName="institution"
                             setOtherField={setOtherField}
-                            required={true}
+                            isRequired={true}
                             error={errors['affiliationId'] ?? ''}
                             helpText={t('helpTextSearchForInstitution')}
                             updateFormData={updateAffiliationFormData}

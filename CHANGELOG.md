@@ -1,6 +1,9 @@
 ### Added
-=======
+
 - Add admin email text page with styling and tests
+- Add static page for Org admin projects dashboard
+- Add static update password page
+- Added dependabot config
 - Add departments and schools page
 - Add hostname and port to start command in AWS Dockerfile
 - Add explicit cors rules to nextJS config to allow traffic from our domain
@@ -36,8 +39,14 @@
 - Added missing `planId` from the `PlanFundings` errors [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Added descriptive text to the funding-search page [#760](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/760)
 - Added description to project search page [#761](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/761)
+- Required field indicators to FormInput, FormTextArea, FormSelect, RadioGroup, CheckboxGroup, and TypeAheadWithOther components [#503]
+- Added test suites for CheckboxGroup and RadioGroup components that seemed to be missing [#503]
+- Interactive form examples to the styleguide showing required and non-required
+  states [#503]
 
 ### Updated
+
+- Removed some duplicate text from `template/[templateId]/access` under `External people` [#482]
 - Updated description on `template/[templateId]/access` and visibility text on template publish modal [#482]
 - Updated `/template/[templateId]` to include the `View history` link in the header description [#430]
 - Updated `PageHeaderWithTitleChange` component to pass a `descriptionAppend` in order to append the `View history` JSX [#430]
@@ -84,7 +93,9 @@
 - Removed research outputs, including related pages and routes, from the demp overview [#764](https://github.com/CDLUC3/dmsp_frontend_prototype/issues/764)
 
 ### Fixed
-- Updated `ResearchDomainCascadingDropdown` to not require Research domain fields [#763] 
+
+- Update middleware to redirect back to same URL when tokens have been refreshed [#848]
+- Updated `ResearchDomainCascadingDropdown` to not require Research domain fields [#763]
 - Added missing `relatedWorks` translation keys since it was breaking the pages when locale=pt-BR.
 - Returned changes that were initially part of PR `#816` related to `/template` pagination [#812]
 - Fixed issue in `Dockerfile.dev` where `package-lock.json` was not being copied over and breaking build.
@@ -147,6 +158,7 @@
 
 ### Chore
 
+- Addressed `fast-redact` but upgrading `pino` version
 - Upgraded to `NextJS v15.5.2` to remove vulnerability and added `next-env.d.ts` to the ignore list for linting. [#751]
 
 ====================================================================================================================================

@@ -23,7 +23,7 @@ const AffiliationSearchQuestionComponent: React.FC<AffiliationSearchQuestionProp
         label={parsedQuestion?.attributes?.label || Signup('institution')}
         fieldName="institution"
         setOtherField={setOtherField}
-        required={true}
+        isRequired={true}
         error=""
         helpText={parsedQuestion?.attributes?.help || Signup('institutionHelp')}
         updateFormData={handleAffiliationChange}
