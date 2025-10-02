@@ -1,3 +1,10 @@
+//
+// This component makes heavy use of react-aria's Table componen[1]
+// There are many examples of how to use it in their documentation. A lot of the
+// initial code in this component is based on this.
+//
+// - [1] https://react-spectrum.adobe.com/react-aria/Table.html
+//
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@apollo/client/react';
