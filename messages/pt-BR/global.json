@@ -118,6 +118,41 @@
       }
     }
   },
+  "UpdatePassword": {
+    "breadcrumbHome": "Home",
+    "breadcrumbProfile": "Perfil",
+    "title": "Atualizar sua senha",
+    "headingPasswordRequirements": "As senhas devem:",
+    "requirementLength": "ter mais de 8 caracteres;",
+    "requirementNumber": "conter pelo menos um número;",
+    "requirementUppercase": "conter pelo menos uma letra maiúscula;",
+    "requirementLowercase": "conter pelo menos uma letra minúscula;",
+    "requirementSpecialChars": "conter pelo menos um dos seguintes caracteres especiais: ( ) ! @ # $ % ^ & * - _ = + ? ~",
+    "currentPassword": "Senha atual",
+    "newPassword": "Nova senha",
+    "confirmPassword": "Confirmar nova senha",
+    "btnChangePassword": "Alterar senha",
+    "btnChangingPassword": "Alterando senha...",
+    "headingRelatedActions": "Ações relacionadas",
+    "linkUpdateConnections": "Atualizar conexões",
+    "linkManageNotifications": "Gerenciar notificações",
+    "messages": {
+      "passwordUpdateSuccess": "Sua senha foi atualizada com sucesso.",
+      "errors": {
+        "currentPasswordRequired": "Senha atual é obrigatória",
+        "newPasswordRequired": "Nova senha é obrigatória",
+        "confirmPasswordRequired": "Por favor, confirme sua nova senha",
+        "passwordsDoNotMatch": "As senhas não coincidem",
+        "passwordTooShort": "A senha deve ter pelo menos 8 caracteres",
+        "passwordMissingNumber": "A senha deve conter pelo menos um número",
+        "passwordMissingUppercase": "A senha deve conter pelo menos uma letra maiúscula",
+        "passwordMissingLowercase": "A senha deve conter pelo menos uma letra minúscula",
+        "passwordMissingSpecialChar": "A senha deve conter pelo menos um caractere especial",
+        "incorrectCurrentPassword": "Senha atual está incorreta",
+        "errorUpdatingPassword": "Erro ao atualizar a senha"
+      }
+    }
+  },
   "UserConnections": {
     "breadcrumbHome": "Home",
     "breadcrumbProfile": "Perfil de usuário",
@@ -342,6 +377,39 @@
       }
     }
   },
+  "EmailPreferences": {
+    "title": "Preferências de E-mail",
+    "sections": {
+      "customizeEmailText": {
+        "title": "Personalizar texto do e-mail",
+        "description": "O seguinte e-mail será enviado aos usuários quando um sistema externo criar um novo DMP (via API) usando um de seus modelos."
+      },
+      "previewEmail": {
+        "title": "Visualizar E-mail"
+      }
+    },
+    "fields": {
+      "subject": {
+        "label": "Assunto",
+        "placeholder": "Digite o assunto do e-mail"
+      },
+      "emailText": {
+        "label": "Texto do E-mail"
+      }
+    },
+    "buttons": {
+      "save": "Salvar"
+    }
+  },
+  "OrganizationProjects": {
+    "title": "Projetos da Organização",
+    "intro": "Gerenciar projetos e planos DMSP em sua organização",
+    "messages": {
+      "errors": {
+        "errorRetrievingProjects": "Algo deu errado ao recuperar os projetos. Tente novamente mais tarde."
+      }
+    }
+  },
   "Departments": {
     "title": "Departamentos",
     "sections": {
@@ -425,6 +493,7 @@
       "questionDetails": "Detalhes da pergunta"
     },
     "form": {
+      "required": "obrigatório",
       "yesLabel": "Sim",
       "noLabel": "Não"
     },

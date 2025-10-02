@@ -119,6 +119,41 @@
       }
     }
   },
+  "UpdatePassword": {
+    "breadcrumbHome": "Home",
+    "breadcrumbProfile": "Profile",
+    "title": "Update your password",
+    "headingPasswordRequirements": "Passwords must:",
+    "requirementLength": "be greater than 8 characters;",
+    "requirementNumber": "contain at least one number;",
+    "requirementUppercase": "contain at least one upper case letter;",
+    "requirementLowercase": "contain at least one lower case letter;",
+    "requirementSpecialChars": "contain at least one of the following special characters: ( ) ! @ # $ % ^ & * - _ = + ? ~",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "btnChangePassword": "Change password",
+    "btnChangingPassword": "Changing password...",
+    "headingRelatedActions": "Related actions",
+    "linkUpdateConnections": "Update connections",
+    "linkManageNotifications": "Manage notifications",
+    "messages": {
+      "passwordUpdateSuccess": "Your password has been successfully updated.",
+      "errors": {
+        "currentPasswordRequired": "Current password is required",
+        "newPasswordRequired": "New password is required",
+        "confirmPasswordRequired": "Please confirm your new password",
+        "passwordsDoNotMatch": "Passwords do not match",
+        "passwordTooShort": "Password must be at least 8 characters long",
+        "passwordMissingNumber": "Password must contain at least one number",
+        "passwordMissingUppercase": "Password must contain at least one uppercase letter",
+        "passwordMissingLowercase": "Password must contain at least one lowercase letter",
+        "passwordMissingSpecialChar": "Password must contain at least one special character",
+        "incorrectCurrentPassword": "Current password is incorrect",
+        "errorUpdatingPassword": "Error when updating password"
+      }
+    }
+  },
   "UserConnections": {
     "breadcrumbHome": "Home",
     "breadcrumbProfile": "User profile",
@@ -343,6 +378,39 @@
       }
     }
   },
+  "EmailPreferences": {
+    "title": "Email Preferences",
+    "sections": {
+      "customizeEmailText": {
+        "title": "Customize email text",
+        "description": "The following email will be sent to users when an external system creates a new DMP (via the API) using one of your templates."
+      },
+      "previewEmail": {
+        "title": "Preview Email"
+      }
+    },
+    "fields": {
+      "subject": {
+        "label": "Subject",
+        "placeholder": "Enter email subject"
+      },
+      "emailText": {
+        "label": "Email Text"
+      }
+    },
+    "buttons": {
+      "save": "Save"
+    }
+  },
+  "OrganizationProjects": {
+    "title": "Organization Projects",
+    "intro": "Manage DMSP projects and plans across your organization",
+    "messages": {
+      "errors": {
+        "errorRetrievingProjects": "Something went wrong with retrieving projects. Please try again later."
+      }
+    }
+  },
   "Departments": {
     "title": "Schools/Departments",
     "sections": {
@@ -401,6 +469,7 @@
     "breadcrumbs": {
       "navigation": "Breadcrumb navigation",
       "home": "Home",
+      "admin": "Admin",
       "templates": "Templates",
       "template": "Template",
       "createTemplate": "Create a template",
@@ -467,6 +536,7 @@
       "back": "Back"
     },
     "labels": {
+      "required": "required",
       "searchByKeyword": "Search by keyword",
       "startDate": "Start date",
       "endDate": "End date",

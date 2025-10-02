@@ -6,6 +6,10 @@ label,
   margin-bottom: 0.6rem;
 }
 
+.is-required {
+  font-weight: 500;
+  color: var(--slate-600);
+}
 
 .help {
   font-size: 1rem;

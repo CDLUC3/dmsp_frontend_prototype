@@ -213,7 +213,7 @@ describe("SectionUpdatePage", () => {
     expect(editOptionsTab).toBeInTheDocument();
     const editLogicTab = screen.getByRole('tab', { name: 'tabs.logic' });
     expect(editLogicTab).toBeInTheDocument();
-    const sectionNameInput = screen.getByLabelText('labels.sectionName');
+    const sectionNameInput = screen.getByLabelText(/labels.sectionName/);
     expect(sectionNameInput).toBeInTheDocument();
     const sectionIntroductionLabel = screen.getByLabelText(/sectionIntroduction/i);
     expect(sectionIntroductionLabel).toBeInTheDocument();

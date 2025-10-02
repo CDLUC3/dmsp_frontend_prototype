@@ -128,7 +128,7 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
   }, [myResearchDomains]);
 
 
-  // We need this useEffect to update the selectedParent and selectedChild data passed into component, 
+  // We need this useEffect to update the selectedParent and selectedChild data passed into component,
   // just on initial load
   useEffect(() => {
     if (initialLoadRef.current && projectData?.parentResearchDomainId && projectData?.researchDomainId) {
@@ -178,7 +178,7 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
           selectedKey={selectedChild}
           aria-labelledby="child-label"
           aria-invalid={isChildDisabled}
-          aria-required="true"
+          isRequired={true}
           ref={childSelectRef}
           placeholder={ProjectDetail('placeholder.selectSubDomain')}
         >
