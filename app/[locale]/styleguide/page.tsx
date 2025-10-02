@@ -6,7 +6,6 @@ import {
   Button,
   Cell,
   Checkbox,
-  CheckboxGroup,
   Column,
   Dialog,
   DialogTrigger,
@@ -80,12 +79,75 @@ import { useToast } from '@/context/ToastContext';
 
 import QuestionPreview from '@/components/QuestionPreview';
 import FunderSearch from '@/components/FunderSearch';
+import FormInput from '@/components/Form/FormInput';
+import FormTextArea from '@/components/Form/FormTextArea';
+import { FormSelect } from '@/components/Form/FormSelect';
+import RadioGroupComponent from '@/components/Form/RadioGroup';
+import CheckboxGroupComponent from '@/components/Form/CheckboxGroup';
+
 
 function Page() {
   const [otherField, setOtherField] = useState(false);
   const { suggestions, handleSearch } = useAffiliationSearch();
   const toastState = useToast(); // Access the toast state from context
   const router = useRouter();
+
+  // Form state for styleguide examples
+  const [formData, setFormData] = useState({
+    givenName: '',
+    description: '',
+    notes: '',
+    researchDomain: '1',
+    secondaryDomain: '',
+    dataSharing: 'public',
+    notificationPreference: 'email',
+    dataTypes: ['tabular', 'images'],
+    optionalFeatures: [],
+    institution: '',
+    collaboratingInstitution: ''
+  });
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleCheckboxChange = (field: string, value: string[]) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  type optionData = {
+    value: string;
+    label: string;
+    description?: string;
+  };
+
+  function radioOptions(data: optionData[]) {
+    return (
+      <>
+        {data.map((item: optionData, i: number) => (
+          <Radio key={i} value={item.value}>{item.label}</Radio>
+        ))}
+      </>
+    );
+  }
+
+  function checkboxOptions(data: optionData[]) {
+    return (
+      <>
+        {data.map((item: optionData, i: number) => (
+          <Checkbox key={i} value={item.value}>
+            <div className="checkbox">
+              <svg viewBox="0 0 18 18" aria-hidden="true">
+                <polyline points="1 9 7 14 15 4" />
+              </svg>
+            </div>
+            {item.label}
+          </Checkbox>
+        ))}
+      </>
+    );
+  }
+
 
   // NOTE: This text is just for testing the richtext editors
   const html = String.raw;
@@ -1413,6 +1475,160 @@ function Page() {
               </TextField>
             </Example>
 
+            <h3>
+              Using FormInput
+            </h3>
+            <FormInput
+              name="givenName"
+              type="text"
+              label="First name"
+              description="Enter your first name(s), this is how we will address you"
+              placeholder="Your first name"
+              value={formData.givenName}
+              onChange={(e) => handleInputChange('givenName', e.target.value)}
+              isRequired={true}
+            />
+
+            <h3>
+              Using FormTextArea
+            </h3>
+            <FormTextArea
+              name="description"
+              label="Project Description"
+              description="Provide a detailed description of your research project"
+              placeholder="Enter your project description here..."
+              value={formData.description}
+              onChange={(value) => handleInputChange('description', value)}
+              isRequired={true}
+            />
+
+            <FormTextArea
+              name="notes"
+              label="Additional Notes"
+              description="Optional notes or comments about your project"
+              placeholder="Any additional information..."
+              value={formData.notes}
+              onChange={(value) => handleInputChange('notes', value)}
+              isRequired={false}
+            />
+
+            <h3>
+              Using FormSelect
+            </h3>
+            <FormSelect
+              label="Research Domain"
+              items={[
+                { id: '1', name: 'Computer Science' },
+                { id: '2', name: 'Biology' },
+                { id: '3', name: 'Chemistry' },
+                { id: '4', name: 'Physics' }
+              ]}
+              selectedKey={formData.researchDomain}
+              onSelectionChange={(key) => handleInputChange('researchDomain', key as string)}
+              isRequired={true}
+            />
+
+            <FormSelect
+              label="Secondary Domain"
+              items={[
+                { id: '1', name: 'Computer Science' },
+                { id: '2', name: 'Biology' },
+                { id: '3', name: 'Chemistry' },
+                { id: '4', name: 'Physics' }
+              ]}
+              selectedKey={formData.secondaryDomain}
+              onSelectionChange={(key) => handleInputChange('secondaryDomain', key as string)}
+              isRequired={false}
+            />
+
+            <h3>
+              Using RadioGroup
+            </h3>
+            <RadioGroupComponent
+              name="dataSharing"
+              radioGroupLabel="Data Sharing Preference"
+              value={formData.dataSharing}
+              isRequired={true}
+              onChange={(value) => handleInputChange('dataSharing', value)}
+            >
+              {radioOptions([
+                { value: 'public', label: 'Public - Data will be publicly available' },
+                { value: 'restricted', label: 'Restricted - Data access requires approval' },
+                { value: 'private', label: 'Private - Data will remain private' }
+              ])}
+            </RadioGroupComponent>
+
+            <RadioGroupComponent
+              name="notificationPreference"
+              radioGroupLabel="Notification Preference"
+              value={formData.notificationPreference}
+              onChange={(value) => handleInputChange('notificationPreference', value)}
+            >
+              {radioOptions([
+                { value: 'email', label: 'Email notifications'},
+                { value: 'sms', label: 'SMS notifications'},
+                { value: 'none', label: 'No notifications'},
+              ])}
+            </RadioGroupComponent>
+
+            <h3>
+              Using CheckboxGroup
+            </h3>
+
+            <CheckboxGroupComponent
+              name="dataTypes"
+              checkboxGroupLabel="Data Types to be Collected"
+              value={formData.dataTypes}
+              isRequired={true}
+              onChange={(value) => handleCheckboxChange('dataTypes', value)}
+            >
+              {checkboxOptions([
+                { value: 'tabular', label: 'Tabular Data', description: 'Spreadsheets, databases' },
+                { value: 'images', label: 'Images', description: 'Photos, diagrams, charts' },
+                { value: 'documents', label: 'Documents', description: 'Reports, manuscripts' },
+                { value: 'code', label: 'Software Code', description: 'Scripts, applications' }
+              ])}
+            </CheckboxGroupComponent>
+
+            <CheckboxGroupComponent
+              name="optionalFeatures"
+              checkboxGroupLabel="Optional Features"
+              value={formData.optionalFeatures}
+              isRequired={false}
+              onChange={(value) => handleCheckboxChange('optionalFeatures', value)}
+            >
+              {checkboxOptions([
+                { value: 'analytics', label: 'Analytics Dashboard', description: 'Advanced reporting features' },
+                { value: 'export', label: 'Export Options', description: 'Multiple export formats' },
+                { value: 'api', label: 'API Access', description: 'Programmatic access to data' }
+              ])}
+            </CheckboxGroupComponent>
+
+            <h3>
+              Using TypeAheadWithOther
+            </h3>
+            <TypeAheadWithOther
+              label="Institution"
+              fieldName="institution"
+              setOtherField={setOtherField}
+              isRequired={true}
+              helpText="Search for your primary institution"
+              updateFormData={(id, value) => handleInputChange('institution', value)}
+              value={formData.institution}
+              suggestions={suggestions}
+              onSearch={handleSearch}
+            />
+
+            <TypeAheadWithOther
+              label="Collaborating Institution"
+              fieldName="collaboratingInstitution"
+              setOtherField={setOtherField}
+              helpText="Search for any collaborating institutions (optional)"
+              updateFormData={(id, value) => handleInputChange('collaboratingInstitution', value)}
+              value={formData.collaboratingInstitution}
+              suggestions={suggestions}
+              onSearch={handleSearch}
+            />
 
             <h3>
               Email
@@ -1511,7 +1727,7 @@ function Page() {
                   Checkboxes
                 </h3>
 
-                <CheckboxGroup>
+                <CheckboxGroupComponent>
                   <Label>Favorite sports</Label>
                   <Text slot="description" className="help">This is help
                     text</Text>
@@ -1532,12 +1748,13 @@ function Page() {
                     Test
                   </Checkbox>
 
-                </CheckboxGroup>
+                </CheckboxGroupComponent>
 
 
                 <h3>
                   Checkbox
                 </h3>
+
                 <Checkbox>
                   <div className="checkbox">
                     <svg viewBox="0 0 18 18" aria-hidden="true">
@@ -1546,6 +1763,30 @@ function Page() {
                   </div>
                   Unsubscribe
                 </Checkbox>
+
+                <h3>CheckboxGroupComponent</h3>
+
+                <CheckboxGroupComponent
+                  checkboxGroupLabel="Favorite sprots"
+                  checkboxGroupDescription="This is help text"
+                >
+                  <Checkbox value="soccer">
+                    <div className="checkbox">
+                      <svg viewBox="0 0 18 18" aria-hidden="true">
+                        <polyline points="1 9 7 14 15 4" />
+                      </svg>
+                    </div>
+                    Test
+                  </Checkbox>
+                  <Checkbox value="test">
+                    <div className="checkbox">
+                      <svg viewBox="0 0 18 18" aria-hidden="true">
+                        <polyline points="1 9 7 14 15 4" />
+                      </svg>
+                    </div>
+                    Test
+                  </Checkbox>
+                </CheckboxGroupComponent>
 
                 <h3>
                   Radio
@@ -1706,7 +1947,7 @@ function Page() {
                 label="Institution"
                 fieldName="institution"
                 setOtherField={setOtherField}
-                required={true}
+                isRequired={true}
                 helpText="Search for your institution"
                 updateFormData={() => console.log('updating form')}
                 value="UCOP"

@@ -1,25 +1,23 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { FormSelect, MyItem } from '@/components/Form/FormSelect';
+import { FormSelect } from '@/components/Form/FormSelect';
 
-const sampleItems = [
-  { id: '1', name: 'Option 1' },
-  { id: '2', name: 'Option 2' },
-  { id: '3', name: 'Option 3' },
-];
 
 describe('FormSelect', () => {
+  const onSelectionChange = jest.fn();
+  const defaultProps = {
+    label: "Select an option",
+    items: [
+      { id: '1', name: 'Option 1' },
+      { id: '2', name: 'Option 2' },
+      { id: '3', name: 'Option 3' },
+    ],
+    selectedKey: "1",
+  };
 
   it('should render the component correctly', () => {
-
-    const { getByTestId } = render(<FormSelect
-      label="Select an option"
-      items={sampleItems}
-      selectedKey="1"
-    >
-      {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
-    </FormSelect>);
+    const { getByTestId } = render(<FormSelect {...defaultProps} />);
     const container = getByTestId('hidden-select-container');
     const select = container.querySelector('select')!;
 
@@ -28,21 +26,11 @@ describe('FormSelect', () => {
 
     expect(option).toBeTruthy();
     expect(option?.value).toBe('1');
-
   });
 
   it('should open the popover and selects an option', async () => {
-    const onSelectionChange = jest.fn();
-
     render(
-      <FormSelect
-        label="Select an option"
-        items={sampleItems}
-        selectedKey="1"
-        onChange={onSelectionChange}
-      >
-        {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
-      </FormSelect>
+      <FormSelect {...defaultProps} onChange={onSelectionChange} />
     );
 
     // Click the button to open the popover
@@ -60,16 +48,26 @@ describe('FormSelect', () => {
   it('should render the helpMessage', () => {
     render(
       <FormSelect
-        label="Select an option"
-        items={sampleItems}
-        selectedKey="1"
+        {...defaultProps}
         helpMessage="Choose from the available options"
-      >
-        {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
-      </FormSelect>
+      />
     );
-
     const helpText = screen.getAllByText('Choose from the available options');
     expect(helpText).toHaveLength(2);
+  });
+
+  it('should display "(required)" text when field is required', () => {
+    render(<FormSelect {...defaultProps} isRequired={true} />);
+
+    expect(screen.getByText('Select an option')).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
+  });
+
+  it('should allow for requiredVisualOnly', () => {
+    render(<FormSelect {...defaultProps} isRequiredVisualOnly={true} />);
+
+    expect(screen.getByText('Select an option')).toBeInTheDocument();
+    expect(screen.queryByText(/\(required\)/)).toBeInTheDocument();
   });
 });

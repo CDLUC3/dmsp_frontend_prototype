@@ -296,7 +296,7 @@ const SignUpPage: React.FC = () => {
               <TypeAheadWithOther
                 className={styles.typeAhead}
                 label={t('institution')}
-                required={true}
+                isRequired={true}
                 fieldName="institution"
                 setOtherField={setOtherField}
                 helpText={t('institutionHelp')}

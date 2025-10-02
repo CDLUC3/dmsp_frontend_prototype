@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslations } from "next-intl";
 import {
   CheckboxGroup,
   FieldError,
@@ -17,8 +18,12 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
   errorMessage,
   onChange,
   isRequired = false,
-  children
+  isRequiredVisualOnly = false,
+  children,
 }) => {
+  const showRequired = isRequired || isRequiredVisualOnly;
+  const t = useTranslations('Global.labels');
+
   return (
     <>
       <CheckboxGroup
@@ -28,8 +33,12 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
         data-testid="checkbox-group"
         onChange={onChange}
         isRequired={isRequired}
+        isInvalid={isInvalid}
+        aria-required={isRequired}
       >
-        <Label>{checkboxGroupLabel}</Label>
+        <Label>
+          {checkboxGroupLabel}{showRequired && <span className="is-required" aria-hidden="true"> ({t('required')})</span>}
+        </Label>
         {isInvalid && <FieldError className='error-message'>{errorMessage}</FieldError>}
 
         {checkboxGroupDescription && (

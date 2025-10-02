@@ -195,7 +195,7 @@ const TemplateAccessPage: React.FC = () => {
     const collaborators = templateCollaboratorData?.template?.collaborators;
 
     if (collaborators?.length === 0) {
-      return <div className={styles.emptyState} role="status">{AccessPage('messages.info.noCollaborators')}</div>;
+      return <p className={styles.emptyState} role="status">{AccessPage('messages.info.noCollaborators')}</p>;
     }
 
     return (
@@ -284,7 +284,6 @@ const TemplateAccessPage: React.FC = () => {
                   <h3 id="external-access-heading">{AccessPage('headings.externalPeople')}</h3>
                 </div>
                 <div className="sectionContent">
-                  <p>{AccessPage('paragraphs.externalPara1', { orgName: organization?.name || '' })}</p>
                   <div className={styles.externalPeopleList}>
                     {renderExternalPeople}
                   </div>
@@ -308,7 +307,6 @@ const TemplateAccessPage: React.FC = () => {
                         value={addCollaboratorEmail}
                         onChange={handleEmailChange}
                         isRequired={true}
-                        aria-required="true"
                         label={AccessPage('labels.email')}
                         isInvalid={!isValidEmail(addCollaboratorEmail) && addCollaboratorEmail !== ''}
                         errorMessage="Please enter a valid email address"

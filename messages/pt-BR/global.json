@@ -459,6 +459,7 @@
       "questionDetails": "Detalhes da pergunta"
     },
     "form": {
+      "required": "obrigatório",
       "yesLabel": "Sim",
       "noLabel": "Não"
     },

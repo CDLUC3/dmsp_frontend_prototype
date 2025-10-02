@@ -501,6 +501,7 @@
       "back": "Back"
     },
     "labels": {
+      "required": "required",
       "searchByKeyword": "Search by keyword",
       "startDate": "Start date",
       "endDate": "End date",
