@@ -265,91 +265,28 @@ const GuidanceTextEditPage: React.FC = () => {
                     </div>
                   </CheckboxGroupComponent>
                 </div>
+
+                <div className={styles.formGroup}>
+                  {guidanceText.status === "Draft" ? (
+                    <Button
+                      onPress={handlePublish}
+                      className="button button--primary"
+                    >
+                      {t("actions.publish")}
+                    </Button>
+                  ) : (
+                    <Button
+                      onPress={handleSave}
+                      className="button button--primary"
+                    >
+                      {t("actions.saveChanges")}
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </form>
         </ContentContainer>
-
-        <SidebarPanel>
-          <div className={`statusPanelContent sidePanel`}>
-            <div className={`buttonContainer withBorder mb-5`}>
-              {guidanceText.status === "Draft" ? (
-                <Button
-                  onPress={handlePublish}
-                  className="button button--primary"
-                >
-                  {t("actions.publish")}
-                </Button>
-              ) : (
-                <Button
-                  onPress={handleSave}
-                  className="button button--primary"
-                >
-                  {t("actions.saveChanges")}
-                </Button>
-              )}
-            </div>
-
-            <div className="sidePanelContent">
-              <div className={`panelRow mb-5`}>
-                <div>
-                  <p
-                    className="sidebar-label"
-                    role="heading"
-                    aria-level={2}
-                  >
-                    {t("status.lastUpdated")}
-                  </p>
-                  <p>July 5, 2024</p>
-                </div>
-              </div>
-
-              {isEditingStatus ? (
-                <div>
-                  <Form
-                    onSubmit={handleStatusForm}
-                    className="statusForm"
-                  >
-                    <FormSelect
-                      label={t("status.status")}
-                      ariaLabel="Select status"
-                      isRequired
-                      name="status"
-                      items={statusOptions}
-                      onChange={(selected) =>
-                        setGuidanceText({ ...guidanceText, status: selected as "Published" | "Draft" })
-                      }
-                      selectedKey={guidanceText.status}
-                    >
-                      {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
-                    </FormSelect>
-                    {isEditingStatus && <Button type="submit">Save</Button>}
-                  </Form>
-                </div>
-              ) : (
-                <div className={`panelRow mb-5`}>
-                  <div>
-                    <p
-                      className="sidebar-label"
-                      role="heading"
-                      aria-level={2}
-                    >
-                      {t("status.status")}
-                    </p>
-                    <p>{guidanceText.status}</p>
-                  </div>
-                  <Button
-                    className={`buttonLink link`}
-                    onPress={handleStatusChange}
-                    aria-label="Change status"
-                  >
-                    {t("actions.edit")}
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-        </SidebarPanel>
       </LayoutWithPanel>
     </>
   );

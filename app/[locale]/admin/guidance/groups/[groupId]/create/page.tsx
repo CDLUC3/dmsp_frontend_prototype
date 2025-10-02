@@ -255,6 +255,15 @@ const GuidanceTextCreatePage: React.FC = () => {
                     </div>
                   </CheckboxGroupComponent>
                 </div>
+
+                <div className={styles.formGroup}>
+                  <Button
+                    onPress={handleSave}
+                    className="button button--primary"
+                  >
+                    {t("actions.createText")}
+                  </Button>
+                </div>
               </div>
             </div>
           </form>
@@ -262,15 +271,6 @@ const GuidanceTextCreatePage: React.FC = () => {
 
         <SidebarPanel>
           <div className={`statusPanelContent sidePanel`}>
-            <div className={`buttonContainer withBorder mb-5`}>
-              <Button
-                onPress={handleSave}
-                className="button button--primary"
-              >
-                {t("actions.createText")}
-              </Button>
-            </div>
-
             <div className="sidePanelContent">
               {isEditingStatus ? (
                 <div>

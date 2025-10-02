@@ -133,38 +133,19 @@ const GuidanceGroupCreatePage: React.FC = () => {
                     </div>
                   </CheckboxGroupComponent>
                 </div>
+
+                <div className={styles.formGroup}>
+                  <Button
+                    onPress={handleSave}
+                    className="button button--primary"
+                  >
+                    {t("actions.createGroup")}
+                  </Button>
+                </div>
               </div>
             </div>
           </form>
         </ContentContainer>
-
-        <SidebarPanel>
-          <div className={`statusPanelContent sidePanel`}>
-            <div className={`buttonContainer withBorder mb-5`}>
-              <Button
-                onPress={handleSave}
-                className="button button--primary"
-              >
-                {t("actions.createGroup")}
-              </Button>
-            </div>
-
-            <div className="sidePanelContent">
-              <div className={`panelRow mb-5`}>
-                <div>
-                  <p
-                    className="sidebar-label"
-                    role="heading"
-                    aria-level={2}
-                  >
-                    {t("status.status")}
-                  </p>
-                  <p>{t("status.draft")}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </SidebarPanel>
       </LayoutWithPanel>
     </>
   );
