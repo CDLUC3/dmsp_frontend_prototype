@@ -123,10 +123,10 @@ body {
 
   // Form fields
   --field-background: var(--gray-50);
-  --field-text-color: var(--gray-600);
-  --field-label-color: #050a69;
+  --field-text-color: var(--text-black);
+  --field-label-color: var(--text-black);
   --field-bg-color: white;
-  --field-fg-color: #333;
+  --field-fg-color: var(--text-black);
   --field-border-color: #e1e1e1;
 
 

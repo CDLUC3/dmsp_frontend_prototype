@@ -50,7 +50,7 @@
     &:hover,
     &:focus-visible {
       background-color: var(--slate-200);
-      outline: 2px solid var(--slate-900);
+      outline: 2px solid var(--text-color);
       outline-offset: 2px;
     }
   }
@@ -64,7 +64,6 @@
     &:focus-visible {
       background-color: var(--slate-200);
       color: var(--text-color);
-      ;
       outline: 2px solid var(--slate-100);
       outline-offset: 2px;
     }
