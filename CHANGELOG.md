@@ -1,7 +1,6 @@
 ### Added
 
-=======
-
+- Add admin email text page with styling and tests
 - Add static page for Org admin projects dashboard
 - Add static update password page
 - Added dependabot config
@@ -44,7 +43,6 @@
 - Added test suites for CheckboxGroup and RadioGroup components that seemed to be missing [#503]
 - Interactive form examples to the styleguide showing required and non-required
   states [#503]
-
 
 ### Updated
 
@@ -97,7 +95,7 @@
 ### Fixed
 
 - Update middleware to redirect back to same URL when tokens have been refreshed [#848]
-- Updated `ResearchDomainCascadingDropdown` to not require Research domain fields [#763] 
+- Updated `ResearchDomainCascadingDropdown` to not require Research domain fields [#763]
 - Added missing `relatedWorks` translation keys since it was breaking the pages when locale=pt-BR.
 - Returned changes that were initially part of PR `#816` related to `/template` pagination [#812]
 - Fixed issue in `Dockerfile.dev` where `package-lock.json` was not being copied over and breaking build.
@@ -160,7 +158,7 @@
 
 ### Chore
 
-- Addressed `fast-redact` but upgrading `pino` version 
+- Addressed `fast-redact` but upgrading `pino` version
 - Upgraded to `NextJS v15.5.2` to remove vulnerability and added `next-env.d.ts` to the ignore list for linting. [#751]
 
 ====================================================================================================================================

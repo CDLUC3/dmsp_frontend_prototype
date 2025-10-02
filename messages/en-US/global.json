@@ -377,6 +377,30 @@
       }
     }
   },
+  "EmailPreferences": {
+    "title": "Email Preferences",
+    "sections": {
+      "customizeEmailText": {
+        "title": "Customize email text",
+        "description": "The following email will be sent to users when an external system creates a new DMP (via the API) using one of your templates."
+      },
+      "previewEmail": {
+        "title": "Preview Email"
+      }
+    },
+    "fields": {
+      "subject": {
+        "label": "Subject",
+        "placeholder": "Enter email subject"
+      },
+      "emailText": {
+        "label": "Email Text"
+      }
+    },
+    "buttons": {
+      "save": "Save"
+    }
+  },
   "OrganizationProjects": {
     "title": "Organization Projects",
     "intro": "Manage DMSP projects and plans across your organization",
