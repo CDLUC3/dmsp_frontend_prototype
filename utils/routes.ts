@@ -111,7 +111,15 @@ const routes = {
   'admin.notifications': '/admin/notifications',
   'admin.templates': '/admin/templates',
   'admin.templateCustomizations': '/admin/template-customizations',
-  'admin.guidance': '/admin/guidance',
+  
+  // Guidance routes
+  'admin.guidance.index': '/admin/guidance',
+  'admin.guidance.groups.index': '/admin/guidance/groups/:groupId',
+  'admin.guidance.groups.edit': '/admin/guidance/groups/:groupId/edit',
+  'admin.guidance.groups.create': '/admin/guidance/groups/create',
+  'admin.guidance.groups.texts.create': '/admin/guidance/groups/:groupId/create',
+  'admin.guidance.groups.texts.edit': '/admin/guidance/groups/:groupId/edit/:textId',
+  
   'admin.projects': '/admin/projects',
   'admin.organizationDetails': '/admin/organization-details',
   'admin.departments': '/admin/departments',

@@ -1,4 +1,12 @@
 ### Added
+- `DashboardListItem` component and some basic tests
+- guidance route definitions to `utils/routes.ts`
+- Added Guidance Dashboard page, SCSS file and tests
+- Added Guidance Group Create page, SCSS file and tests
+- Added Guidance Group Index page, SCSS file and tests
+- Added Guidance Group Edit page, SCSS file and tests
+- Added Guidance Text Create page, SCSS file and tests
+- Added Guidance Text Edit page, SCSS file and tests
 - Duplicate templates to add Organization Templates page
 - Add admin feedback options page
 - Add admin email text page with styling and tests

@@ -1,0 +1,9 @@
+@use '@/styles/responsive.scss' as r;
+
+// Removed duplicate .guidanceContent - using shared styles from parent guidance.module.scss
+
+.editGroupButton {
+    @include r.device(lg) {
+        margin-right: 1rem;
+    }
+}
