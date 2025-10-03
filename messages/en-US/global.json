@@ -290,6 +290,21 @@
           }
         }
       }
+    },
+    "users": {
+      "title": "User Accounts",
+      "description": "Below is a list of users registered for your organization",
+      "buttons": {
+        "createUserLabel": "Create User",
+        "searchLabel": "Search"
+      },
+      "tools": {
+        "searchLabel": "Search by name or email",
+        "permissionLabel": "Permission"
+      },
+      "userTable": {
+        "label": "User List"
+      }
     }
   },
   "OrganizationDetails": {
@@ -437,6 +452,46 @@
       "title": "Confirm deletion",
       "content": "Are you sure you want to delete {name}? This action cannot be undone.",
       "deleteButton": "Delete"
+    }
+  },
+  "FeedbackOptions": {
+    "title": "Feedback Options",
+    "description": "If this is On, users from your org can request feedback on their DMPs. It will go to your organization's contact email which is support@dmp.edu.",
+    "sections": {
+      "feedbackToggle": {
+        "title": "Turn Feedback on or off"
+      },
+      "feedbackEmail": {
+        "title": "Feedback email address"
+      },
+      "expertFeedback": {
+        "title": "Request Expert Feedback"
+      }
+    },
+    "fields": {
+      "feedbackEnabled": {
+        "label": "Turn Feedback on or off",
+        "options": {
+          "on": "On - Feedback can be requested",
+          "off": "Off - Feedback can not be requested"
+        }
+      },
+      "feedbackEmail": {
+        "label": "Feedback email address",
+        "placeholder": "Enter feedback email address",
+        "helpText": "By default this is the organisations contact email address, However, you may change the feedback email address"
+      },
+      "feedbackText": {
+        "label": "Request Expert Feedback",
+        "placeholder": "Enter feedback text"
+      }
+    },
+    "actions": {
+      "save": "Save"
+    },
+    "screenReader": {
+      "feedbackEnabled": "Feedback options are now enabled. Additional fields are available below.",
+      "feedbackDisabled": "Feedback options are now disabled. Additional fields are hidden."
     }
   },
   "Account": {
@@ -628,7 +683,8 @@
       "loadMore": "Load more",
       "addAnother": "Add another",
       "goToProject": "Go to project",
-      "back": "Back"
+      "back": "Back",
+      "add": "Add"
     },
     "labels": {
       "required": "required",
@@ -708,5 +764,15 @@
       "table": "Table",
       "affiliationSearch": "Affiliation search"
     }
+  },
+  "OrganizationTemplates": {
+    "title": "Organization Templates",
+    "description": "Manage your organization templates and publish for the public",
+    "actionCreate": "Create Template",
+    "actionSearch": "Search",
+    "searchLabel": "Search organization templates",
+    "searchHelpText": "Search by template name, description, or other details",
+    "noItemsFoundError": "No organization templates found matching '{term}'",
+    "somethingWentWrong": "Something went wrong while loading organization templates"
   }
 }

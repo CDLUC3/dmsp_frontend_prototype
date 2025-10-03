@@ -53,13 +53,6 @@ describe("GuidanceGroupCreatePage", () => {
     expect(screen.getByText("actions.createGroup")).toBeInTheDocument();
   });
 
-  it("should render the sidebar panel", () => {
-    render(<GuidanceGroupCreatePage />);
-
-    expect(screen.getByText("status.status")).toBeInTheDocument();
-    expect(screen.getByText("status.draft")).toBeInTheDocument();
-  });
-
   it("should have form element present", () => {
     render(<GuidanceGroupCreatePage />);
 

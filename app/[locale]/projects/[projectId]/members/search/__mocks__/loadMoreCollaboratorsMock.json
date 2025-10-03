@@ -1,0 +1,66 @@
+{
+  "findCollaborator": {
+    "__typename": "CollaboratorSearchResults",
+    "limit": 5,
+    "items": [
+      {
+        "__typename": "CollaboratorSearchResult",
+        "id": 5,
+        "givenName": "Stanford",
+        "email": null,
+        "affiliationId": "https://ror.org/00f54p054",
+        "affiliationURL": null,
+        "orcid": null,
+        "surName": "Admin",
+        "affiliationName": "Stanford University"
+      },
+      {
+        "__typename": "CollaboratorSearchResult",
+        "id": 15,
+        "givenName": "NSF",
+        "email": null,
+        "affiliationId": "https://ror.org/021nxhr62",
+        "affiliationURL": null,
+        "orcid": null,
+        "surName": "Admin",
+        "affiliationName": "National Science Foundation"
+      },
+      {
+        "__typename": "CollaboratorSearchResult",
+        "id": 14,
+        "givenName": "NIH",
+        "email": null,
+        "affiliationId": "https://ror.org/01cwqze88",
+        "affiliationURL": null,
+        "orcid": null,
+        "surName": "Admin",
+        "affiliationName": "National Institutes of Health"
+      },
+      {
+        "__typename": "CollaboratorSearchResult",
+        "id": 13,
+        "givenName": "NASA",
+        "email": null,
+        "affiliationId": "https://ror.org/021nxhr62",
+        "affiliationURL": null,
+        "orcid": "https://orcid.org/0000-0002-1825-0097",
+        "surName": "Admin",
+        "affiliationName": "National Science Foundation"
+      },
+      {
+        "__typename": "CollaboratorSearchResult",
+        "id": 12,
+        "givenName": "Moore Foundation",
+        "email": null,
+        "affiliationId": "https://ror.org/006wxqw41",
+        "affiliationURL": null,
+        "orcid": null,
+        "surName": "Adminr",
+        "affiliationName": "Gordon and Betty Moore Foundation"
+      }
+    ],
+    "availableSortFields": [],
+    "nextCursor": "admin@energy.gov11",
+    "totalCount": 12
+  }
+}

@@ -66,8 +66,8 @@ describe("GuidancePage", () => {
   it("should render guidance group status information", () => {
     render(<GuidancePage />);
 
-    const publishedElements = screen.getAllByText(/Status:.*Published/);
-    const draftElements = screen.getAllByText(/Status:.*Draft/);
+    const publishedElements = screen.getAllByText(/status\.status\s*:\s*Published/);
+    const draftElements = screen.getAllByText(/status\.status\s*:\s*Draft/);
     expect(publishedElements.length).toBeGreaterThan(0);
     expect(draftElements.length).toBeGreaterThan(0);
   });

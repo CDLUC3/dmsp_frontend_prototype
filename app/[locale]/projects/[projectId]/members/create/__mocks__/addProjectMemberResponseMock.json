@@ -1,0 +1,20 @@
+{
+  "id": 38,
+  "givenName": "Charlie",
+  "surName": "Chaplin",
+  "email": "cchap@example.com",
+  "affiliation": {
+    "id": 118,
+    "name": "National Science Foundation",
+    "uri": "https://ror.org/021nxhr62"
+  },
+  "orcid": null,
+  "errors": {
+    "email": null,
+    "surName": null,
+    "general": null,
+    "givenName": null,
+    "orcid": null,
+    "memberRoleIds": null
+  }
+}

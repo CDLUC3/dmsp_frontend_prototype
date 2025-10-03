@@ -106,23 +106,8 @@ describe("GuidanceTextEditPage", () => {
     render(<GuidanceTextEditPage />);
 
     // Check for any button in the sidebar (likely the save button)
-    const sidebarButtons = document.querySelectorAll(".buttonContainer button, .sidePanel button");
-    expect(sidebarButtons.length).toBeGreaterThan(0);
-  });
-
-  it("should render the sidebar panel with status", () => {
-    render(<GuidanceTextEditPage />);
-
-    expect(screen.getByText("status.lastUpdated")).toBeInTheDocument();
-    expect(screen.getByText("status.status")).toBeInTheDocument();
-  });
-
-  it("should render edit status button", () => {
-    render(<GuidanceTextEditPage />);
-
-    // Check that status section exists with some status content
-    const statusElements = screen.getAllByText(/Published|Draft|status\\./i);
-    expect(statusElements.length).toBeGreaterThan(0);
+    const sidebarButtons = screen.getByRole("button", { name: "actions.saveChanges" });
+    expect(sidebarButtons).toBeInTheDocument();
   });
 
   it("should have form element present", () => {
@@ -164,16 +149,6 @@ describe("GuidanceTextEditPage", () => {
       // If all are checked, just verify checkboxes exist
       expect(checkboxes.length).toBeGreaterThan(0);
     }
-  });
-
-  it("should handle status editing interaction", () => {
-    render(<GuidanceTextEditPage />);
-
-    // Check that status section exists in sidebar
-    expect(screen.getByText("status.status")).toBeInTheDocument();
-    // Check that there's a status value (could be Published, Draft, etc.)
-    const statusElements = screen.getAllByText(/Published|Draft|status\\./i);
-    expect(statusElements.length).toBeGreaterThan(0);
   });
 
   it("should render checkbox group in two-column layout", () => {

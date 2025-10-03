@@ -41,6 +41,11 @@
       "info": "{name} ({role})",
       "edit": "Ajustar para este plano"
     },
+    "relatedWorks": {
+      "title": "Trabalhos relacionados para este plano",
+      "count": "{count} funciona",
+      "edit": "Ajustar para este plano"
+    },
     "question": {
       "answered": "Respondido",
       "notAnswered": "Não atendida"
@@ -102,7 +107,7 @@
         "checklistItem": {
           "primaryContact": "ter um contato principal",
           "complete": "marcou seu plano como completo",
-          "percentageAnswered": "respondeu a pelo menos 50% das perguntas (você respondeu {percentage}%",
+          "percentageAnswered": "Respondeu pelo menos 50% das perguntas (você respondeu {percentage}%)",
           "fundingText": "identificaram seu",
           "funding": "fontes de financiamento",
           "requiredFields": "todos os campos marcados como 'obrigatórios'",
@@ -191,15 +196,15 @@
       "lastSaves": "Salvo há {minutes} minutos atrás",
       "noComments": "Não há comentários",
       "sampleTextAdded": "Exemplo de texto adicionado",
-      "commentSent": "Comentário enviado",
-      "commentDeleted": "Comentário excluído com sucesso",
+      "commentSent": "Comentário adicionado com sucesso",
+      "commentDeleted": "Comentário apagado com sucesso",
       "commentUpdated": "Comentário atualizado com sucesso"
     },
     "buttons": {
-      "commentWithNumber": "{number} Comentários"
+      "commentWithNumber": "Comentários {number}"
     },
-    "you": "você",
-    "admin": "administrador",
+    "you": "Você",
+    "admin": "Administrador",
     "edited": "editado"
   },
   "ProjectsProjectFunding": {
@@ -214,40 +219,40 @@
   },
   "ProjectsProjectPlanFeedback": {
     "title": "Solicitar feedback",
-    "description": "Você pode obter feedback da equipe de suporte da Universidade da Califórnia, leia a seguinte mensagem da equipe.",
+    "description": "Você pode receber feedback da equipe de suporte da Universidade da Califórnia, por favor leia a seguinte mensagem da equipe.",
     "form": {
       "label": "Enviar mensagem para a equipe de suporte da Universidade da Califórnia",
-      "placeholder": "Você pode revisar meu plano para quaisquer erros",
-      "submitButton": "Solicitar Feedback",
-      "successMessage": "Solicitação enviada"
+      "placeholder": "Você pode rever o meu plano para quaisquer erros",
+      "submitButton": "Solicitar feedback",
+      "successMessage": "Pedido enviado"
     },
     "teamFeedback": {
       "title": "Feedback dos membros da equipe",
-      "description": "Você pode obter feedback dos membros da equipe deixando comentários",
+      "description": "Você pode obter comentários de membros da equipe deixando comentários",
       "updateAccessButton": "Atualizar configurações de acesso"
     },
     "sidebar": {
       "universitySupport": {
-        "title": "Feedback da Equipe de Suporte Universitário",
-        "description": "Você pode solicitar feedback da equipe de suporte de pesquisa da sua universidade (como administradores de dados, facilitadores de pesquisa ou bibliotecários).",
-        "expertsCanTitle": "Esses especialistas podem:",
+        "title": "Feedback da Equipe de Suporte da Universidade",
+        "description": "Você pode solicitar feedback da equipe de suporte de pesquisa da sua universidade (como diretores de dados, facilitadores de pesquisa ou bibliotecas).",
+        "expertsCanTitle": "Estes especialistas podem:",
         "expertsCan": [
-          "Verificar se seu plano atende aos requisitos do financiador",
-          "Sugerir melhorias no armazenamento, compartilhamento ou manuseio ético de dados",
-          "Ajudá-lo a preparar uma submissão mais forte e compatível"
+          "Verifique se o plano atende aos requisitos do financiador",
+          "Sugerir melhorias para armazenamento de dados, compartilhamento ou manuseio ético",
+          "Ajude-lhe a preparar uma submissão mais forte e compatível"
         ],
-        "requestInfo": "Para solicitar seu feedback e eles serão notificados e revisarão seu plano quando disponível."
+        "requestInfo": "Para solicitar seus comentários e serão notificados e revisarão o seu plano quando disponíveis."
       },
       "teamMembers": {
-        "title": "Feedback dos Membros da Equipe",
-        "description": "Você pode convidar colegas ou colaboradores para revisar seu plano e deixar comentários diretamente em seções específicas.",
-        "usefulWhenTitle": "Isso é especialmente útil quando:",
+        "title": "Feedback dos membros da equipe",
+        "description": "Você pode convidar colegas ou colaboradores para rever seu plano e deixar comentários diretamente em seções específicas.",
+        "usefulWhenTitle": "Isto é especialmente útil quando:",
         "usefulWhen": [
-          "Você está co-autorar o plano com outros",
-          "Você quer input de pessoas familiarizadas com sua pesquisa ou dados",
-          "Você gostaria de esclarecer responsabilidades ou preencher quaisquer detalhes em falta"
+          "Você está co-autorando o plano com outros",
+          "Você quer informações de pessoas familiares com sua pesquisa ou dados",
+          "Você gostaria de esclarecer responsabilidades ou preencher quaisquer detalhes ausentes"
         ],
-        "encourageInfo": "Encoraje sua equipe a deixar comentários ou sugestões construtivas, isso torna o processo colaborativo muito mais suave e garante que nada seja negligenciado."
+        "encourageInfo": "Incentive sua equipe a deixar comentários ou sugestões construtivas, isso torna o processo de colaboração muito mais suave e garante que nada é ignorado."
       }
     }
   }

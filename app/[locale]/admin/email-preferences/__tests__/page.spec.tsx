@@ -43,8 +43,8 @@ describe("EmailPreferencesPage", () => {
     render(<EmailPreferencesPage />);
 
     // Check that form inputs are present
-    const subjectInput = screen.getByLabelText("fields.subject.label");
-    const emailTextInput = screen.getByLabelText("fields.emailText.label");
+    const subjectInput = screen.getByLabelText(/fields.subject.label/);
+    const emailTextInput = screen.getByLabelText(/fields.emailText.label/);
 
     expect(subjectInput).toBeInTheDocument();
     expect(emailTextInput).toBeInTheDocument();
@@ -54,12 +54,12 @@ describe("EmailPreferencesPage", () => {
     render(<EmailPreferencesPage />);
 
     // Check that form inputs are present and have initial values
-    const subjectInput = screen.getByLabelText("fields.subject.label");
+    const subjectInput = screen.getByLabelText(/fields.subject.label/);
     expect(subjectInput).toBeInTheDocument();
     expect(subjectInput).toHaveValue();
 
     // For TinyMCE editor, just check that the container exists
-    const emailTextContainer = screen.getByLabelText("fields.emailText.label");
+    const emailTextContainer = screen.getByLabelText(/fields.emailText.label/);
     expect(emailTextContainer).toBeInTheDocument();
   });
 
@@ -84,7 +84,7 @@ describe("EmailPreferencesPage", () => {
   it("should update email preview when subject changes", () => {
     render(<EmailPreferencesPage />);
 
-    const subjectInput = screen.getByLabelText("fields.subject.label");
+    const subjectInput = screen.getByLabelText(/fields.subject.label/);
     const newSubject = "Updated email subject";
 
     // Change the subject

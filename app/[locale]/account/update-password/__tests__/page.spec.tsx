@@ -20,9 +20,9 @@ describe("UpdatePasswordPage", () => {
     render(<UpdatePasswordPage />);
 
     // Check that all password fields are rendered
-    const currentPasswordField = screen.getByLabelText("currentPassword");
-    const newPasswordField = screen.getByLabelText("newPassword");
-    const confirmPasswordField = screen.getByLabelText("confirmPassword");
+    const currentPasswordField = screen.getByLabelText(/currentPassword/);
+    const newPasswordField = screen.getByLabelText(/newPassword/);
+    const confirmPasswordField = screen.getByLabelText(/confirmPassword/);
 
     expect(currentPasswordField).toBeInTheDocument();
     expect(newPasswordField).toBeInTheDocument();
@@ -32,9 +32,9 @@ describe("UpdatePasswordPage", () => {
   it("should have password input types", () => {
     render(<UpdatePasswordPage />);
 
-    const currentPasswordField = screen.getByLabelText("currentPassword");
-    const newPasswordField = screen.getByLabelText("newPassword");
-    const confirmPasswordField = screen.getByLabelText("confirmPassword");
+    const currentPasswordField = screen.getByLabelText(/currentPassword/);
+    const newPasswordField = screen.getByLabelText(/newPassword/);
+    const confirmPasswordField = screen.getByLabelText(/confirmPassword/);
 
     expect(currentPasswordField).toHaveAttribute("type", "password");
     expect(newPasswordField).toHaveAttribute("type", "password");
@@ -44,9 +44,9 @@ describe("UpdatePasswordPage", () => {
   it("should have required attributes on password fields", () => {
     render(<UpdatePasswordPage />);
 
-    const currentPasswordField = screen.getByLabelText("currentPassword");
-    const newPasswordField = screen.getByLabelText("newPassword");
-    const confirmPasswordField = screen.getByLabelText("confirmPassword");
+    const currentPasswordField = screen.getByLabelText(/currentPassword/);
+    const newPasswordField = screen.getByLabelText(/newPassword/);
+    const confirmPasswordField = screen.getByLabelText(/confirmPassword/);
 
     expect(currentPasswordField).toBeRequired();
     expect(newPasswordField).toBeRequired();
@@ -82,9 +82,9 @@ describe("UpdatePasswordPage", () => {
   it("should handle password field changes", () => {
     render(<UpdatePasswordPage />);
 
-    const currentPasswordField = screen.getByLabelText("currentPassword");
-    const newPasswordField = screen.getByLabelText("newPassword");
-    const confirmPasswordField = screen.getByLabelText("confirmPassword");
+    const currentPasswordField = screen.getByLabelText(/currentPassword/);
+    const newPasswordField = screen.getByLabelText(/newPassword/);
+    const confirmPasswordField = screen.getByLabelText(/confirmPassword/);
 
     // Test field value changes
     fireEvent.change(currentPasswordField, { target: { value: "oldpassword" } });
@@ -103,9 +103,9 @@ describe("UpdatePasswordPage", () => {
     const consoleSpy = jest.spyOn(console, "log").mockImplementation();
 
     // Fill in form fields
-    const currentPasswordField = screen.getByLabelText("currentPassword");
-    const newPasswordField = screen.getByLabelText("newPassword");
-    const confirmPasswordField = screen.getByLabelText("confirmPassword");
+    const currentPasswordField = screen.getByLabelText(/currentPassword/);
+    const newPasswordField = screen.getByLabelText(/newPassword/);
+    const confirmPasswordField = screen.getByLabelText(/confirmPassword/);
 
     fireEvent.change(currentPasswordField, { target: { value: "oldpassword" } });
     fireEvent.change(newPasswordField, { target: { value: "newpassword123" } });
@@ -129,7 +129,7 @@ describe("UpdatePasswordPage", () => {
     const submitButton = screen.getByRole("button", { name: /btnChangePassword|btnChangingPassword/ });
 
     // Fill in form fields
-    const currentPasswordField = screen.getByLabelText("currentPassword");
+    const currentPasswordField = screen.getByLabelText(/currentPassword/);
     fireEvent.change(currentPasswordField, { target: { value: "password" } });
 
     // Submit form
@@ -152,7 +152,7 @@ describe("UpdatePasswordPage", () => {
   it("should clear field errors when user types", () => {
     render(<UpdatePasswordPage />);
 
-    const currentPasswordField = screen.getByLabelText("currentPassword");
+    const currentPasswordField = screen.getByLabelText(/currentPassword/);
 
     // Simulate typing in field (this tests the error clearing logic)
     fireEvent.change(currentPasswordField, { target: { value: "test" } });
@@ -202,7 +202,7 @@ describe("UpdatePasswordPage", () => {
 
     // Wait for component to render
     await waitFor(() => {
-      expect(screen.getByLabelText("currentPassword")).toBeInTheDocument();
+      expect(screen.getByLabelText(/currentPassword/)).toBeInTheDocument();
     });
 
     const results = await axe(container);

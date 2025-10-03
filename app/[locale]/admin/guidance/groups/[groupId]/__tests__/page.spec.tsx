@@ -68,8 +68,8 @@ describe("GuidanceGroupIndexPage", () => {
   it("should render guidance text status information", () => {
     render(<GuidanceGroupIndexPage />);
 
-    expect(screen.getAllByText("Status: Published")).toHaveLength(2);
-    expect(screen.getByText("Status: Draft")).toBeInTheDocument();
+    expect(screen.getAllByText(/status\.status\s*:\s*Published/)).toHaveLength(2);
+    expect(screen.getByText(/status\.status\s*:\s*Draft/)).toBeInTheDocument();
   });
 
   it("should render multiple guidance texts", () => {

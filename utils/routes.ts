@@ -61,6 +61,7 @@ const routes = {
   'projects.fundings.add': '/projects/:projectId/fundings/add',
   'projects.fundings.edit': '/projects/:projectId/fundings/:projectFundingId/edit',
   'projects.members.index': '/projects/:projectId/members',
+  'projects.members.create': '/projects/:projectId/members/create',
   'projects.members.edit': '/projects/:projectId/members/:memberId/edit',
   'projects.members.search': '/projects/:projectId/members/search',
   'projects.outputs.index': '/projects/:projectId/research-outputs',

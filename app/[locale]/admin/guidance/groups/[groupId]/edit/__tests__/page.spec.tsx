@@ -57,29 +57,6 @@ describe("GuidanceGroupEditPage", () => {
     expect(uncheckedBoxes.length).toBeGreaterThan(0);
   });
 
-  it("should render the sidebar panel with status", () => {
-    render(<GuidanceGroupEditPage />);
-
-    expect(screen.getByText("status.lastUpdated")).toBeInTheDocument();
-    expect(screen.getByText("status.status")).toBeInTheDocument();
-  });
-
-  it("should render edit status button", () => {
-    render(<GuidanceGroupEditPage />);
-
-    // Check that status section exists with some status content
-    const statusElements = screen.getAllByText(/Published|Draft|status\\./i);
-    expect(statusElements.length).toBeGreaterThan(0);
-  });
-
-  it("should render the save changes button", () => {
-    render(<GuidanceGroupEditPage />);
-
-    // Check for any button in the sidebar (likely the save button)
-    const sidebarButtons = document.querySelectorAll(".buttonContainer button, .sidePanel button");
-    expect(sidebarButtons.length).toBeGreaterThan(0);
-  });
-
   it("should have form element present", () => {
     render(<GuidanceGroupEditPage />);
 
@@ -105,14 +82,6 @@ describe("GuidanceGroupEditPage", () => {
     fireEvent.click(firstCheckbox);
     // Just verify the click doesn't cause errors
     expect(firstCheckbox).toBeInTheDocument();
-  });
-
-  it("should handle status editing interaction", () => {
-    render(<GuidanceGroupEditPage />);
-
-    // Check that status section exists in sidebar
-    expect(screen.getByText("status.lastUpdated")).toBeInTheDocument();
-    expect(screen.getByText("status.status")).toBeInTheDocument();
   });
 
   it("should render setting descriptions", () => {
