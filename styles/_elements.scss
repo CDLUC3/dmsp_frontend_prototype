@@ -295,7 +295,7 @@
     outline: none;
     border-spacing: 0;
     min-height: 100px;
-    align-self: start;
+    align-self: flex-start;
     max-width: 100%;
     word-break: break-word;
     forced-color-adjust: none;
@@ -584,7 +584,7 @@
   gap: 1rem;
   /* Mobile-first: single column */
   grid-template-columns: 1fr;
-  grid-template-areas: 
+  grid-template-areas:
     "search"
     "filters";
 }
@@ -597,28 +597,28 @@
   grid-template-areas:
     "label"
     "input"
-    "help" 
+    "help"
     "button";
   max-width: 500px;
 
   .react-aria-Label {
     grid-area: label;
   }
-  
+
   .help {
     grid-area: help;
   }
-  
+
   .react-aria-Input {
     grid-area: input;
     min-width: 250px;
   }
-  
+
   .react-aria-Button {
     grid-area: button;
     justify-self: start; /* Prevents button from stretching full width */
   }
-  
+
   .checkbox-group {
     grid-area: filters;
   }
@@ -633,7 +633,7 @@
     grid-template-areas: "search filters";
     align-items: start;
   }
-  
+
   .react-aria-SearchField {
     grid-template-columns: 1fr auto;
     grid-template-areas:
@@ -642,7 +642,7 @@
       "help help";
     align-items: end; /* Aligns input and button to bottom */
   }
-  
+
   .react-aria-Button {
     margin-left: 0;
   }

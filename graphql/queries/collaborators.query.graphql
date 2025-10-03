@@ -19,3 +19,23 @@ query ProjectCollaborators($projectId: Int!) {
     }
   }
 }
+
+
+query FindCollaborator($term: String!, $options: PaginationOptions) {
+  findCollaborator(term: $term, options: $options) {
+    limit
+    items {
+      id
+      givenName
+      email
+      affiliationId
+      affiliationURL
+      orcid
+      surName
+      affiliationName
+    }
+    availableSortFields
+    nextCursor
+    totalCount
+  }
+}

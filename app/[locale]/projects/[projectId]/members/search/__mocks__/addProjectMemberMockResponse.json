@@ -1,0 +1,22 @@
+{
+  "addProjectMember": {
+    "id": 29,
+    "givenName": "Super",
+    "surName": "Admin",
+    "email": "",
+    "affiliation": {
+      "id": 1,
+      "name": "California Digital Library",
+      "uri": "https://ror.org/03y123456"
+    },
+    "orcid": null,
+    "errors": {
+      "email": null,
+      "surName": null,
+      "givenName": null,
+      "orcid": null,
+      "memberRoleIds": null,
+      "general": null
+    }
+  }
+}

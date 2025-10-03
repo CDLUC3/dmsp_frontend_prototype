@@ -135,6 +135,8 @@ In the app, we are using the Crowdin Cli to upload content, and download transla
 
 You can log into the site with the `dmsp-translate` account, and navigate to `https://crowdin.com/project/dmptool` to see the source files and translations.
 
+First you must install crowdin client: `npm install -g @crowdin/cli`
+
 In order to upload new changes to the content, run the following scripts from package.json:
 - `crowdin:upload` - to upload content changes in english
 - `crowdin:download` - to download any new translations
