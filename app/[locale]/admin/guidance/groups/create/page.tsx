@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 
 // Components
 import PageHeader from "@/components/PageHeader";
-import { ContentContainer, LayoutWithPanel, SidebarPanel } from "@/components/Container";
+import { ContentContainer, LayoutWithPanel } from "@/components/Container";
 import { FormInput, CheckboxGroupComponent } from "@/components/Form";
 
 import { routePath } from "@/utils/routes";

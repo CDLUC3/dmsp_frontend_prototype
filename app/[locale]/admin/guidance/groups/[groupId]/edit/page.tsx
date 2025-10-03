@@ -66,23 +66,6 @@ const GuidanceGroupEditPage: React.FC = () => {
     status: "Draft",
   });
 
-  const [isEditingStatus, setIsEditingStatus] = useState(false);
-
-  // Status options for dropdown
-  const statusOptions = [
-    { id: "Published", name: t("status.published") },
-    { id: "Draft", name: t("status.draft") },
-  ];
-
-  const handleStatusChange = () => {
-    setIsEditingStatus(true);
-  };
-
-  const handleStatusForm = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsEditingStatus(false);
-    // TODO: Implement status update functionality
-  };
 
   const handleSave = () => {
     // TODO: Implement save functionality

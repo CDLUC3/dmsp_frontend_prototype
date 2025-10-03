@@ -12,18 +12,16 @@ import {
   DialogTrigger,
   OverlayArrow,
   Popover,
-  Form,
-  ListBoxItem,
 } from "react-aria-components";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 
 // Components
 import PageHeader from "@/components/PageHeader";
-import { ContentContainer, LayoutWithPanel, SidebarPanel } from "@/components/Container";
+import { ContentContainer, LayoutWithPanel } from "@/components/Container";
 import TinyMCEEditor from "@/components/TinyMCEEditor";
 import { DmpIcon } from "@/components/Icons";
-import { FormSelect, FormInput, CheckboxGroupComponent } from "@/components/Form";
+import { FormInput, CheckboxGroupComponent } from "@/components/Form";
 
 import { routePath } from "@/utils/routes";
 import styles from "./guidanceTextEdit.module.scss";
@@ -59,14 +57,6 @@ const GuidanceTextEditPage: React.FC = () => {
     status: "Published",
     selectedTags: ["Data description", "Ethical considerations"],
   });
-
-  const [isEditingStatus, setIsEditingStatus] = useState(false);
-
-  // Status options for dropdown
-  const statusOptions = [
-    { id: "Published", name: t("status.published") },
-    { id: "Draft", name: t("status.draft") },
-  ];
 
   // Fake tags data
   const tags: Tag[] = [
@@ -125,16 +115,6 @@ const GuidanceTextEditPage: React.FC = () => {
       description: "Policies and procedures for sharing research data with other researchers",
     },
   ];
-
-  const handleStatusChange = () => {
-    setIsEditingStatus(true);
-  };
-
-  const handleStatusForm = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsEditingStatus(false);
-    // TODO: Implement status update functionality
-  };
 
   const handleSave = () => {
     // TODO: Implement save functionality
