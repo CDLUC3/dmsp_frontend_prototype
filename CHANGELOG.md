@@ -1,5 +1,5 @@
 ### Added
-
+- Duplicate templates to add Organization Templates page
 - Add admin feedback options page
 - Add admin email text page with styling and tests
 - Add static page for Org admin projects dashboard

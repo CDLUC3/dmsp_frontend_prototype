@@ -667,5 +667,15 @@
       "feedbackEnabled": "Opções de feedback agora estão ativadas. Campos adicionais estão disponíveis abaixo.",
       "feedbackDisabled": "Opções de feedback agora estão desativadas. Campos adicionais estão ocultos."
     }
+  },
+  "OrganizationTemplates": {
+    "title": "Modelos da Organização",
+    "description": "Gerenciar os modelos da sua organização e publicar para o público",
+    "actionCreate": "Criar Modelo",
+    "actionSearch": "Pesquisar",
+    "searchLabel": "Pesquisar modelos da organização",
+    "searchHelpText": "Pesquisar por nome do modelo, descrição ou outros detalhes",
+    "noItemsFoundError": "Nenhum modelo da organização encontrado correspondendo a '{term}'",
+    "somethingWentWrong": "Algo deu errado ao carregar os modelos da organização"
   }
 }
