@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useSwitchLanguage } from '@/hooks/switchLanguage';
 import { useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+
 import { usePathname } from '@/i18n/routing';
 import styles from './languageSelector.module.scss';
 
@@ -32,15 +34,15 @@ function LanguageSelector({ locales }: LanguageSelectorProps) {
   return (
     <>
       {locales.map((locale) => (
-        <button
-          key={locale.id}
-          className={`${styles.paragraph} ${styles.btnLanguageSelector}}`}
-          onClick={() => updateLanguages(locale.id)}
-          role="menuitem"
-          aria-label={`Switch to ${locale.name} language`}
-        >
-          {locale.name}
-        </button>
+        <p className={styles.paragraph} key={locale.id}>
+          <Link
+            href=""
+            onClick={() => updateLanguages(locale.id)}
+            aria-label={`Switch to ${locale.name} language`}
+          >
+            {locale.name}
+          </Link>
+        </p>
       ))}
     </>
   )

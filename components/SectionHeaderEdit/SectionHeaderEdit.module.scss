@@ -1,70 +1,157 @@
+@use "../../styles/variables" as *;
+@use "../../styles/responsive" as *;
+
 .sectionHeader {
   display: flex;
-  align-items: flex-end;
-  padding: 0.625rem 0;
-  border-bottom: 0.0625rem solid #e0e0e0;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--gray-100);
+
+  @include device(md) {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: var(--space-4);
+  }
+}
+
+.sectionHeaderContent {
+  flex-grow: 1;
 }
 
 .sectionTitle {
-  flex-grow: 1;
   margin: 0;
   font-weight: 600;
+  font-size: var(--fs-lg);
+  line-height: var(--lh-tight);
 }
 
 .sectionNumber {
   display: block;
-  font-size: 1rem;
+  font-size: var(--fs-base);
   color: var(--gray-500);
   font-weight: normal;
   font-family: var(--font-family);
-  margin-bottom: 0.3125rem;
+  margin-bottom: var(--space-1);
 }
 
 .buttonGroup {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+
+  @include device(md) {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+  }
 }
 
-.editButton, .orderButton, .expandButton {
+.orderButtons {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.editButton,
+.orderButton,
+.expandButton {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.3125rem 0.625rem;
-  margin-left: 0.625rem;
-  font-size: 0.875rem;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--fs-small);
+  transition: color 0.2s ease;
+
+  @include device(md) {
+    margin-left: var(--space-2);
+  }
 }
 
 .editButton {
   color: var(--gray-600);
   text-decoration: underline;
+
   &:visited,
   &:active {
     color: var(--gray-600);
   }
+
   &:focus {
-    color: var(--slate-900);
+    color: var(--text-color);
+    outline: 2px solid var(--blue-500);
+    outline-offset: 2px;
   }
+
   &:hover {
     color: var(--slate-800);
   }
 }
 
 .orderButton {
-  font-size: 0.875rem;
-  padding: 0;
-  margin: 0;
+  padding: var(--space-1);
   color: var(--gray-600);
+
   &:focus,
   &:hover {
-    background: transparent!important;
-    color: #333;
-    outline: 1px solid #1a73e8;
-    outline-offset: 0;
-    padding: 0!important;
-    margin: 0!important;
+    background: transparent !important;
+    color: var(--text-color);
+    outline: 2px solid var(--blue-500);
+    outline-offset: 2px;
   }
 }
 
 .expandButton {
   transform: rotate(180deg);
+}
+
+// Section checklist styling
+.sectionChecklist {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+  flex-wrap: wrap;
+
+  @include device(sm) {
+    flex-wrap: nowrap;
+  }
+}
+
+.checklistItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--fs-xsmall);
+  color: var(--text-color);
+  transition: color 0.2s ease;
+
+  &.unchecked {
+    color: var(--gray-500);
+  }
+}
+
+.checkIcon {
+  display: inline-block;
+  font-size: var(--fs-xsmall);
+  font-weight: bold;
+  line-height: 1;
+  transition: all 0.2s ease;
+
+  &.checked {
+    color: var(--green-600);
+    opacity: 1;
+  }
+
+  &.unchecked {
+    color: var(--gray-400);
+    opacity: 0.3;
+  }
+}
+
+.checkLabel {
+  font-size: var(--fs-xsmall);
+  color: inherit;
+  margin: 0;
+  line-height: var(--lh-normal);
 }

@@ -50,7 +50,7 @@
     text-overflow: ellipsis;
 
     a {
-      color: var(--slate-900);
+      color: var(--text-color);
       font-size: var(--fs-lg);
       font-weight: var(--fw-bold);
       line-height: var(--lh-tight) !important;
@@ -101,7 +101,7 @@
 
 .confidence {
   line-height: 1.1rem;
-  color: var(--slate-900);
+  color: var(--text-color);
   font-weight: var(--fw-bold);
   padding-top: 0.1rem;
 }
@@ -113,7 +113,7 @@
   gap: var(--space-4);
 }
 
-.detailsList > *:not(:last-child) {
+.detailsList>*:not(:last-child) {
   margin-bottom: var(--space-2);
 }
 

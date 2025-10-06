@@ -31,9 +31,9 @@
     "links": {
       "addSection": "Add section",
       "edit": "Edit",
-      "manageAccess": "Manage access",
-      "templateHistory": "Template history",
-      "editTemplateTitle": "Edit template title"
+      "manageAccess": "Manage",
+      "templateHistory": "History",
+      "editTemplateTitle": "Edit"
     },
     "button": {
       "archiveTemplate": "Archive template",
@@ -97,10 +97,13 @@
   },
   "EditQuestion": {
     "label": {
-      "question": "Question"
+      "question": "Question",
+      "funderQuestion": "Funder Question",
+      "organizationQuestion": "Organization Question"
     },
     "links": {
       "editQuestion": "Edit question",
+      "customizeQuestion": "Customize",
       "addQuestion": "Add question"
     },
     "buttons": {
@@ -109,6 +112,13 @@
     },
     "messages": {
       "questionMoved": "Question moved to position {displayOrder}"
+    },
+    "checklist": {
+      "requirements": "Requirements",
+      "guidance": "Guidance",
+      "sampleText": "Sample Text",
+      "completed": " completed",
+      "notCompleted": " not completed"
     }
   },
   "Sections": {
@@ -134,6 +144,12 @@
       },
       "questionMoved": "Question moved to position {displayOrder}",
       "sectionMoved": "Section moved to position {displayOrder}"
+    },
+    "checklist": {
+      "requirements": "Requirements",
+      "guidance": "Guidance",
+      "completed": " completed",
+      "notCompleted": " not completed"
     }
   },
   "SectionTypeSelectPage": {

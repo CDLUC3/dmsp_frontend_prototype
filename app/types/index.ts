@@ -243,7 +243,13 @@ export interface ProjectItemProps {
     roles: string;
     orcid?: string | null;
   }[];
+  plans?: {
+    name: string;
+    dmpId?: string | null;
+    link?: string;
+  }[];
   grantId?: string | null;
+  modified?: string;
   nextCursor?: string | null;
   totalCount?: number | null;
 }

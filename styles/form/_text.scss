@@ -8,7 +8,7 @@
 // Mixins
 @mixin input-base {
   font-family: var(--font-family);
-  color: var(--slate-900);
+  color: var(--blue-900);
   border-radius: 6px;
   border: 1px solid var(--border-color);
   background: var(--field-background);
@@ -26,7 +26,7 @@
 
   &:hover:not(:disabled) {
     border-color: var(--slate-400);
-    color: var(--slate-600);
+    color: var(--text-color);
     background-color: var(--slate-100);
   }
 
@@ -38,7 +38,7 @@
 
   &:disabled {
     background-color: var(--slate-200);
-    color: var(--slate-600);
+    color: var(--text-color);
     cursor: not-allowed;
   }
 }
@@ -60,7 +60,8 @@ textarea {
   resize: vertical;
   min-height: 100px;
 }
-.richtext-field-container{
+
+.richtext-field-container {
   max-width: 600px;
 }
 
@@ -99,6 +100,7 @@ select {
     box-shadow: none !important;
     outline: none !important;
   }
+
   .react-aria-Group {
     display: flex;
     width: fit-content;

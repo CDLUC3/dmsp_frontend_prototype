@@ -6,7 +6,7 @@
         margin: 0;
         font-size: var(--fs-lg);
         font-weight: 600;
-        color: var(--slate-800);
+        color: var(--text-color);
         padding: 0;
     }
 }
@@ -166,12 +166,12 @@
         margin: 0 0 var(--space-2) 0;
         font-size: var(--fs-lg);
         font-weight: 600;
-        color: var(--slate-800);
+        color: var(--heading-color);
     }
 
     p {
         margin: 0 0 var(--space-1) 0;
-        color: var(--slate-600);
+        color: var(--text-color);
         font-size: var(--fs-base);
     }
 
@@ -250,7 +250,7 @@
 
 .urlDescription {
     margin-bottom: var(--space-4);
-    color: var(--slate-600);
+    color: var(--text-color);
 }
 
 .urlItem {
@@ -336,7 +336,6 @@
 
     &:hover {
         background-color: var(--blue-700);
-        transform: translateY(-1px);
     }
 
     &:focus {

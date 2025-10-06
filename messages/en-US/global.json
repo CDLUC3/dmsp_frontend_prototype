@@ -11,6 +11,7 @@
     "menuDashboard": "Dashboard",
     "menuUpload": "Upload Plan",
     "menuCreatePlan": "Create Plan",
+    "menuProjectsPlans": "Projects & Plans",
     "menuPublicPlans": "Public Plans",
     "menuFunderRequirements": "Funder Requirements",
     "menuAbout": "About",
@@ -774,5 +775,14 @@
     "searchHelpText": "Search by template name, description, or other details",
     "noItemsFoundError": "No organization templates found matching '{term}'",
     "somethingWentWrong": "Something went wrong while loading organization templates"
+  },
+  "ProjectMemberListItem": {
+    "buttons": {
+      "edit": "Edit"
+    },
+    "ariaLabels": {
+      "editMember": "Edit {name}'s details",
+      "orcidProfile": "ORCID profile for {name}"
+    }
   }
 }

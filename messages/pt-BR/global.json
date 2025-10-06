@@ -11,6 +11,7 @@
     "menuDashboard": "Painel de controle",
     "menuUpload": "Carregar plano",
     "menuCreatePlan": "Criar plano",
+    "menuProjectsPlans": "Projetos e Planos",
     "menuPublicPlans": "Planos públicos",
     "menuFunderRequirements": "Requisitos de Barbatana",
     "menuAbout": "Sobre",
@@ -677,5 +678,14 @@
     "searchHelpText": "Pesquisar por nome do modelo, descrição ou outros detalhes",
     "noItemsFoundError": "Nenhum modelo da organização encontrado correspondendo a '{term}'",
     "somethingWentWrong": "Algo deu errado ao carregar os modelos da organização"
+  },
+  "ProjectMemberListItem": {
+    "buttons": {
+      "edit": "Editar"
+    },
+    "ariaLabels": {
+      "editMember": "Editar detalhes de {name}",
+      "orcidProfile": "Perfil ORCID de {name}"
+    }
   }
 }

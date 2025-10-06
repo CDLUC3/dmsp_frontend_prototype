@@ -37,7 +37,7 @@ export default function ExpandButton({
         icon="keyboard_arrow_down"
         width="18px"
         height="18px"
-        fill="black"
+        fill="#05042E"
         className={`${styles.expandIcon} ${expanded ? styles.expanded : ""}`}
       />
     </Button>
