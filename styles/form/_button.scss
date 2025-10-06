@@ -1,5 +1,13 @@
 @use '@/styles/responsive' as r;
 
+@mixin button-focus {
+  outline: 2px solid var(--blue-900);
+  outline-offset: 2px;
+  background-color: var(--blue-900);
+  color: var(--bg-white);
+}
+
+
 @mixin button-base {
   display: inline-flex;
   padding: 8px 16px;
@@ -32,16 +40,20 @@
     cursor: not-allowed;
   }
 
-  &[data-focus-visible] {
-    outline: 2px solid var(--focus-ring);
-    outline-offset: -1px;
+  &[data-focus-visible],
+  &:focus-visible {
+    @include button-focus;
   }
+
 }
 
 @mixin button-primary {
   background: var(--blue-900);
   color: var(--bg-white);
 
+  &:hover:not(:disabled){
+    background: var(--blue-500);
+  }
 
   &:active:not(:disabled),
   &[data-pressed]:not(:disabled) {
@@ -50,6 +62,11 @@
 
   &:disabled {
     background: var(--slate-400);
+  }
+
+  &[data-focus-visible],
+  &:focus-visible {
+    @include button-focus;
   }
 }
 
@@ -225,10 +242,8 @@ input[type="button"] {
 
   &[data-focus-visible],
   &:focus-visible {
-    outline: 2px solid var(--focus-ring);
-    outline-offset: var(--focus-ring-offset);
+    @include button-focus;
   }
-
 }
 
 a.button-link {
@@ -241,7 +256,7 @@ a.button-link {
 
 // Primary button styles
 // Note: Default buttons without a class use primary styling as fallback
-.react-aria-Button:not(.secondary):not(.tertiary):not(.link):not(.danger),
+.react-aria-Button:not(.secondary):not(.tertiary):not(.link):not(.danger):not(.selectButton),
 .react-aria-Button.primary,
 .react-aria-Button--primary,
 button.primary,
@@ -295,6 +310,11 @@ input[type="submit"].danger {
   @include button-danger;
 }
 
+// This is to prevent the Button in FormSelect from taking on primary button colors
+.react-aria-Select .react-aria-Button.selectButton {
+  background: var(--bg-white);
+  color: var(--text-color)
+}
 // Button size styles
 button.small {
   padding: 6px 16px;

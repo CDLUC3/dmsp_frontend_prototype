@@ -321,9 +321,9 @@ a {
   }
 
   &:focus {
-    outline: 2px solid var(--yellow-400);
+    outline: 2px solid var(--blue-900);
     outline-offset: 2px;
-    background-color: var(--yellow-200);
+    //background-color: var(--yellow-200);
   }
 }
 
@@ -536,8 +536,10 @@ button.button-as-link {
   }
 
   &:focus {
-    outline: 2px solid var(--yellow-400) !important;
+    outline: 2px solid var(--blue-900) !important;
     outline-offset: 2px !important;
-    background-color: var(--yellow-200) !important;
+    background-color: var(--blue-900) !important;
+    color: var(--bg-white) !important;
+    //background-color: var(--yellow-200) !important;
   }
 }
