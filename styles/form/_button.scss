@@ -19,7 +19,7 @@
   }
 
   &:active:not(:disabled) {
-    transform: scale(1.05);
+    // transform: scale(1.05); // Removed scale effect
   }
 
   &:hover:not(:disabled) {
@@ -223,13 +223,10 @@ input[type="button"] {
   @include button-base;
   font-weight: 600; // Ensure consistent font-weight for all buttons
 
-  &[data-focus-visible] {
+  &[data-focus-visible],
+  &:focus-visible {
     outline: 2px solid var(--focus-ring);
     outline-offset: var(--focus-ring-offset);
-  }
-
-  &:focus {
-  color: var(--blue-900);
   }
 
 }
@@ -243,7 +240,8 @@ a.button-link {
 }
 
 // Primary button styles
-
+// Note: Default buttons without a class use primary styling as fallback
+.react-aria-Button:not(.secondary):not(.tertiary):not(.link):not(.danger),
 .react-aria-Button.primary,
 .react-aria-Button--primary,
 button.primary,
