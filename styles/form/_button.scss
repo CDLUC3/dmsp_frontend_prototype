@@ -19,7 +19,7 @@
   }
 
   &:active:not(:disabled) {
-    // transform: scale(1.05); // Removed scale effect
+    transform: none;
   }
 
   &:hover:not(:disabled) {

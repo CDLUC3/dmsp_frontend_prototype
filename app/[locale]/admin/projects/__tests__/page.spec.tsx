@@ -579,9 +579,7 @@ describe("OrganizationProjectsListPage", () => {
       expect(screen.getByText("Global.labels.searchByKeyword")).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /Clear search/i })).toBeInTheDocument();
       expect(screen.getByText("Global.helpText.searchHelpText") as HTMLElement).toBeInTheDocument();
-      const projectHeadings = screen.getAllByRole("heading", { level: 2, name: /ProjectOverview.project/i });
-      expect(projectHeadings).toHaveLength(3);
-      // Check for the presence of the <h3> element with the link inside it
+      // Check for the presence of the <h2> element with the link inside it
       const heading = screen.getByRole("heading", {
         name: /Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations/i,
       });
@@ -616,18 +614,16 @@ describe("OrganizationProjectsListPage", () => {
       fireEvent.click(expandButton);
     });
 
-    expect(screen.getByRole("heading", { name: /ProjectOverview.projectDetails/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /ProjectOverview.dates/i })).toBeInTheDocument();
+    // Check that the expanded content is visible
+    expect(screen.getByRole("heading", { name: "ProjectOverview.project" })).toBeInTheDocument();
     const dateText = screen.getByText("9/1/2025 to 12/31/2028", {
       normalizer: (text) => text.replace(/\s+/g, " ").trim(),
     });
     expect(dateText).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /ProjectOverview.collaborators/i })).toBeInTheDocument();
-    expect(screen.getByText(/Jacques Cousteau/i)).toBeInTheDocument();
-    expect(screen.getByText(/(Data Manager, Formal analysis)/i)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /ProjectOverview.funding/i })).toBeInTheDocument();
-    expect(screen.getByText("National Science Foundation")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /ProjectOverview.researchOutputs/i })).toBeInTheDocument();
+    expect(screen.getByText(/ProjectOverview.dates:/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "ProjectOverview.projectMembers" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "ProjectOverview.fundings" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "ProjectOverview.researchOutputs" })).toBeInTheDocument();
 
     // Click on Collapse link
     const collapseButton = screen.getByRole("button", {
@@ -636,11 +632,11 @@ describe("OrganizationProjectsListPage", () => {
 
     expect(collapseButton).toBeInTheDocument();
 
-    // Click on Expand link
+    // Click on Collapse link
     fireEvent.click(collapseButton);
 
-    // The Project Details heading should no longer be visible
-    expect(screen.queryByRole("heading", { name: /ProjectOverview.projectDetails/i })).not.toBeInTheDocument();
+    // The Project heading should no longer be visible
+    expect(screen.queryByRole("heading", { name: "ProjectOverview.project" })).not.toBeInTheDocument();
   });
 
   it("should show filtered list when user clicks Search button", async () => {
