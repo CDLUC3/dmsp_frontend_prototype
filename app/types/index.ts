@@ -411,11 +411,27 @@ export interface AddProjectMemberResponse {
   success: boolean;
   errors?: string[];
   data?: {
-    email: string;
-    errors: {
-      general: string;
-    }
-  }
+    id?: number;
+    givenName?: string;
+    surName?: string;
+    email?: string;
+    affiliation?: {
+      id: number;
+      name: string;
+      uri: string;
+    };
+    orcid?: string | null;
+    errors?: {
+      email?: string | null;
+      surName?: string | null;
+      general?: string | null;
+      givenName?: string | null;
+      orcid?: string | null;
+      memberRoleIds?: string | null;
+      affiliationId?: string | null;
+      projectId?: string | null;
+    };
+  };
   redirect?: string;
 }
 

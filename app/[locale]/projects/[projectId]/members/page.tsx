@@ -51,18 +51,18 @@ const ProjectsProjectMembers = () => {
 
   const handleAddMember = (): void => {
     // Handle adding new member
-    router.push(routePath('projects.members.search', {projectId}));
+    router.push(routePath('projects.members.search', { projectId }));
   };
 
   const handleEdit = (memberId: number | null): void => {
 
     // Handle editing member
-    router.push(routePath('projects.members.edit', {projectId, memberId: String(memberId)}));
+    router.push(routePath('projects.members.edit', { projectId, memberId: String(memberId) }));
   };
 
   const handleShare = (): void => {
     // Handle share
-    router.push(routePath('projects.share.index', {projectId}));
+    router.push(routePath('projects.share.index', { projectId }));
   };
 
   useEffect(() => {
@@ -101,7 +101,7 @@ const ProjectsProjectMembers = () => {
           <Breadcrumbs>
             <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('projects.show', {projectId})}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
             <Breadcrumb>{ProjectMembers('title')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -140,19 +140,21 @@ const ProjectsProjectMembers = () => {
                         {member.fullName}
                       </h2>
                       <p className={styles.affiliation}>{member.affiliation}</p>
-                      <p className={styles.orcid}>
-                        <span aria-hidden="true">
-                          <OrcidIcon icon="orcid" classes={styles.orcidLogo} />
-                        </span>
-                        <a
-                          href={orcidToUrl(member.orcid)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={`ORCID profile for ${member.fullName}`}
-                        >
-                          {member.orcid}
-                        </a>
-                      </p>
+                      {member.orcid && member.orcid !== '' && (
+                        <p className={styles.orcid}>
+                          <span aria-hidden="true">
+                            <OrcidIcon icon="orcid" classes={styles.orcidLogo} />
+                          </span>
+                          <a
+                            href={orcidToUrl(member.orcid)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`ORCID profile for ${member.fullName}`}
+                          >
+                            {member.orcid}
+                          </a>
+                        </p>
+                      )}
                     </div>
                     <div className={styles.memberRole}>
                       <p className={styles.role}>{member.role}</p>

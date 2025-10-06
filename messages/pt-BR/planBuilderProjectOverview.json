@@ -27,7 +27,8 @@
     "outputCount": "{count, plural, =0 {0 outputs} one {1 output} other {{count} outputs}}",
     "editOutputs": "Editar resultados de pesquisa",
     "editResearchOutputs": "Editar resultados de pesquisa",
-    "plans": "Planos",
+    "plan": "Plano",
+    "plans": "Plans",
     "sections": "Seções",
     "planActions": "Planejar ações",
     "upload": "Carregar plano",
@@ -58,9 +59,9 @@
         "link_text": "Gerenciar acesso"
       },
       "feedback": {
-        "title": "Feedback",
+        "title": "Comentarios",
         "description": "",
-        "link_text": "Solicitar"
+        "link_text": "Solicitação"
       }
     }
   },
@@ -77,10 +78,10 @@
   },
   "ProjectsCreateProject": {
     "pageTitle": "Criar um novo blog",
-    "isThisMockProject": "Este é um projeto simulado",
+    "isThisMockProject": "Este é um projeto fictício?",
     "form": {
       "projectTitle": "Qual é o título do projeto?",
-      "projectTitleHelpText": "Você pode alterar isso a qualquer momento. Se você já solicitou financiamento, recomendamos usar o título formal do projeto para manter a consistência.",
+      "projectTitleHelpText": "Você pode mudar isso a qualquer momento. Se já solicitou financiamento, recomendamos que se utilize o título formal do projeto para ser consistente.",
       "checkboxGroupLabel": "Este projeto é uma simulação (mock, em inglês) para fins de teste, prática ou educacional",
       "checkboxGroupHelpText": "Este é um projeto simulado (mock, em inglês) destinado exclusivamente a testes, práticas ou propósitos educativos. Isso permite que você crie um projeto e planos, mas você não poderá receber comentários ou publicá-los.",
       "checkboxLabel": "Sim, defina este projeto para um simulação (mock, em inglês) ou um projeto de teste.",
@@ -98,17 +99,17 @@
   "ProjectsCreateProjectFunding": {
     "title": "Vocês já têm financiamento para este projeto?",
     "form": {
-      "radioFundingLabel": "Você já tem financiamento para este projeto?",
-      "radioFundingDescription": "Você pode atualizar ou remover tudo isso mais tarde, então não se preocupe se ainda estiver esperando os detalhes finais ou um número de prêmio.",
-      "radioYesLabel": "Sim, recebi financiamento",
-      "radioYesDescription": "Ajudaremos você a vincular o projeto a um financiador agora mesmo. Você poderá selecionar um financiador e, se disponível, coletaremos os detalhes relevantes. Tudo poderá ser revisado ou alterado posteriormente.",
+      "radioFundingLabel": "Vocês já têm financiamento para este projeto?",
+      "radioFundingDescription": "Você pode atualizar ou remover tudo mais tarde, então não se preocupe se você ainda está esperando nos detalhes finais ou no número de prêmio.",
+      "radioYesLabel": "Sim - me foi concedido financiamento",
+      "radioYesDescription": "Vamos ajudá-lo a vincular o projeto a um financiador agora. Você poderá selecionar um financiador e, se disponível, pediremos detalhes relevantes. Tudo pode ser analisado ou alterado mais tarde.",
       "radioNoLabel": "Não - Pular por enquanto",
-      "radioNoDescription": "Você ainda pode prosseguir. Se receber financiamento posteriormente, poderá vinculá-lo a este projeto."
+      "radioNoDescription": "Você ainda pode prosseguir. Se receber fundos mais tarde, você poderá vinculá-lo a este projeto."
     }
   },
   "ProjectsProjectDetail": {
-    "title": "Detalhes do projeto",
-    "description": "Insira os detalhes do seu projeto e clique em Salvar abaixo",
+    "title": "Detalhes do Projeto",
+    "description": "Digite seus Detalhes do projeto e, em seguida, clique em Salvar abaixo",
     "mockProject": "Projeto fictício",
     "realProject": "Projeto real",
     "placeholder": {
@@ -129,7 +130,11 @@
       "selectResearchDomain": "Primeiro selecione um domínio de pesquisa",
       "selectedRDomain": "Selecionado: {domains}",
       "selectedCategory": "Categoria selecionada: {category}",
-      "childDropdownUpdated": "Lista suspensa de subdomínios atualizada com opções {childOptionsList} para {selectedParent}"
+      "childDropdownUpdated": "Menu suspenso de subdomínio atualizado com opções {childOptionsList} para {selectedParent}."
+    },
+    "descriptions": {
+      "mockProject": "Para fins de teste/educação: não é possível solicitar feedback ou publicar plano, excluído das estatísticas.",
+      "realProject": "Funcionalidade completa. Não pode ser alterado de volta para projeto fictício."
     },
     "paragraphs": {
       "para1": "Já tem uma ajuda? Não tem o projeto correto? Use os projetos de pesquisa para encontrar o projeto. Se as principais informações serão preenchidas para você."
@@ -166,24 +171,25 @@
         "projectFundingUpdateFailed": "Erro ao atualizar detalhes do financiador do projeto",
         "fundingGrantId": "Valor de ID do financiador inválido",
         "fundingProjectNumber": "Valor inválido do número do projeto financiador",
-        "fundingName": "Valor do nome do financiador inválido"
+        "fundingName": "Valor do nome do financiador inválido",
+        "requiredOtherAffiliation": "Nome inválido"
       },
       "success": {
-        "projectFundingUpdated": "Detalhes do financiamento do projeto atualizados com sucesso",
-        "removedFunding": "Financiamento do projeto removido com sucesso."
+        "projectFundingUpdated": "Detalhes do financiador do projeto atualizados com sucesso",
+        "removedFunding": "Sucesso ao financiamento de projetos."
       },
       "info": {
-        "redirectingToAddFunderPage": "Redirecionando para a página Adicionar financiador."
+        "redirectingToAddFunderPage": "Redirecionando para a página Adicionar Funder."
       }
     },
     "buttons": {
-      "removeFunder": "Remover financiador"
+      "removeFunder": "Remover Fundador"
     },
     "headings": {
-      "deleteFunder": "Excluir financiador"
+      "deleteFunder": "Excluir o financiador"
     },
-    "para1Delete": "Este financiador será excluído. Ele será removido da sua lista e <strong>não é reversível</strong>.",
-    "para2Delete": "A exclusão do financiador e das informações de financiamento também excluirá todos os seus planos."
+    "para1Delete": "Este financiador será excluído. Ele será removido da sua lista e é <strong>não reversível</strong>.",
+    "para2Delete": "Excluir o financiador e informações de financiamento serão excluídos de todos os seus planos."
   },
   "ProjectsProjectFundingAdd": {
     "title": "Adicionar detalhes de financiamento",
@@ -200,7 +206,8 @@
         "projectFundingUpdateFailed": "Erro ao atualizar detalhes do financiador do projeto",
         "fundingGrantId": "Valor de ID do financiador inválido",
         "fundingProjectNumber": "Valor inválido do número do projeto financiador",
-        "fundingName": "Valor do nome do financiador inválido"
+        "fundingName": "Valor do nome do financiador inválido",
+        "requiredOtherAffiliation": "Nome inválido"
       },
       "success": {
         "projectFundingUpdated": "Detalhes do financiador do projeto atualizados com sucesso"
@@ -235,7 +242,7 @@
     },
     "buttons": {
       "removeMember": "Remover membro",
-      "removing": "Removendo"
+      "removing": "Excluindo"
     },
     "headings": {
       "h2RemoveMember": "Remover membro",
@@ -243,7 +250,7 @@
     },
     "paragraphs": {
       "removeMember": "Remover este membro significa que ele não será mais capaz de acessar este plano. Isso não é reversível.",
-      "modalInfo": "Observe que, se você remover este membro do projeto, ele também será removido de todos os planos associados. Além disso, se este for o único membro do projeto, ele não poderá ser excluído."
+      "modalInfo": "Observe que, se você remover este membro do projeto, o membro também será removido de quaisquer planos associados. Além disso, se este for o único membro sob o projeto, ele não pode ser excluído."
     },
     "form": {
       "errors": {
@@ -279,7 +286,7 @@
       "manageAccess": "Gerenciar acesso"
     },
     "buttons": {
-      "grantAccess": "Permitir acesso"
+      "grantAccess": "Conceder acesso"
     },
     "radioButtons": {
       "access": {
@@ -289,7 +296,7 @@
       }
     },
     "accessLevelOn": "{accessLevel} em",
-    "para1": "Quando você clicar em <strong>Conceder acesso</strong>, enviaremos um e-mail para essa pessoa convidando-a a visualizar seu plano.",
+    "para1": "When you click <strong>Grant access</strong> we'll send an email to this person inviting them to view your plan.",
     "para2": "Se ainda não for membro, nós os convidaremos a entrar.",
     "para3": "Enviamos um convite para <strong>{email}</strong>. Eles terão acesso a este projeto.",
     "para4": "Para também adicioná-los como membro do projeto, <projectmember> vá para a página de membros do projeto </projectmember>.",
@@ -299,17 +306,98 @@
         "email": "Por favor insira um endereço de e-mail válido"
       },
       "success": {
-        "addMember": "{email} Adicionado como membro do projeto"
+        "addMember": "{email} foi adicionado como membro do projeto"
       }
     },
     "formLabels": {
       "email": "Endereço de e-mail"
     },
     "placeHolders": {
-      "email": "Insira um endereço de email válido"
+      "email": "Informe um endereço de email válido"
     },
     "headings": {
-      "h2InviteSent": "Convite enviado com sucesso"
+      "h2InviteSent": "Convite enviado!"
+    }
+  },
+  "ProjectsProjectCollaboration": {
+    "title": "Convide pessoas e gerencie o acesso",
+    "description": "Quando você convidar uma pessoa, enviaremos um e-mail para essa pessoa convidando-a para visualizar o seu plano.",
+    "removeCollaborator": "Remover este membro significa que ele não poderá mais colaborar com este plano.",
+    "canEdit": "Pode editar plano",
+    "canComment": "Comentário somente",
+    "own": "O proprietário",
+    "cancelRemoval": "Cancelar a remoção do colaborador de projeto {name}",
+    "deleteCollaborator": "Excluir colaborador do projeto {name}",
+    "canEditPlanFor": "Pode editar o plano de {name}",
+    "canCommentPlanFor": "Pode comentar no plano {name}",
+    "canOwnPlanFor": "Próprio plano para {name}",
+    "revokeAccessFor": "Revogar o acesso para {name}",
+    "deleteInviteFor": "Excluir convite para {name}",
+    "resendInviteFor": "Reenviar convite para {name}",
+    "headings": {
+      "hasAccess": "Estas pessoas atualmente têm acesso a este plano",
+      "removeCollaborator": "Remover colaborador do projeto",
+      "pendingInvites": "Estas pessoas não aceitaram o convite ainda"
+    },
+    "buttons": {
+      "invite": "Convidar colaboradores",
+      "isDeleting": "está Apagando...",
+      "revoke": "Revoke",
+      "deleteInvite": "Convite de exclusão",
+      "resend": "Reenviar"
+    },
+    "links": {
+      "inviteAPerson": "Convidar pessoa"
+    },
+    "messages": {
+      "noCollaborators": "Não foram encontrados colaboradores",
+      "success": {
+        "resentInvite": "O convite foi reenviado com sucesso para {name}",
+        "revokedAccess": "Acesso Revogado com sucesso para {name}",
+        "updatedAccess": "Acesso atualizado com sucesso de {name} para {accessLevel}"
+      }
+    }
+  },
+  "ProjectsProjectMembersSearch": {
+    "title": "Quem são os membros do projeto?",
+    "searchLabel": "Pesquisar por nome, organização ou ORCID",
+    "searchDescription": "Pesquisar por nome, organização e/ou ORCiD de uma pessoa. A introdução de mais informações ajudará a limitar a pesquisa, por exemplo, Frederick Cook 0427.",
+    "ariaSearchInput": "Pesquisa",
+    "ariaSearchItemName": "Membro: {name}",
+    "ariaAddMemberButton": "Adicionar {name} como membro do projeto",
+    "createCollaboratorDescription": "Se seu colaborador não estiver mostrado, você pode adicionar seus detalhes manualmente",
+    "buttons": {
+      "createMember": "Criar membro"
+    },
+    "headings": {
+      "searchResultsHeader": "Mostrando 1-{length} dos resultados {total}",
+      "createCollaboratorHeader": "Não está na lista?"
+    },
+    "messaging": {
+      "errors": {
+        "failedToLoadCollaborators": "Falha ao carregar mais colaboradores",
+        "failedToAddProjectMember": "Falha ao adicionar membro. Por favor, tente novamente."
+      },
+      "success": {
+        "addedProjectMember": "Adicionado com sucesso {name} como membro do projeto"
+      }
+    }
+  },
+  "ProjectsProjectMemberCreate": {
+    "title": "Adicionar um novo membro ao projeto",
+    "description": "Adicionar um novo membro a este projeto, preenchendo seus detalhes abaixo.",
+    "projectRolesOptions": "Opções dos papéis do projeto",
+    "messaging": {
+      "errors": {
+        "errorAddingMember": "Erro ao adicionar membro"
+      },
+      "success": {
+        "memberAdded": "Membro do projeto adicionado com sucesso"
+      }
+    },
+    "breadcrumbs": {
+      "addProjectMember": "Adicionar membro",
+      "projectMemberSearch": "Busca de membros"
     }
   }
 }

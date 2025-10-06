@@ -1,11 +1,11 @@
 @use 'responsive' as r;
-@use 'spacing' as spacing;
 @use "typography";
 @use "elements";
 @use "messages";
 @use "page";
 @use "forms";
 @use "variables" as *;
+@use 'spacing' as spacing;
 
 *,
 *:before,
@@ -64,6 +64,7 @@ body {
 
   // Base colors
   --background-color: #f8f8f8;
+  --white: #ffffff;
   --bg-white: var(--gray-50);
   --bg-black: #000000;
   --text-black: #05042E;
@@ -458,8 +459,9 @@ footer a {
     }
 
     h3,
-    .h3 {
-      font-size: var(--fs-base);
+    .h3,
+    .sidebar-label {
+      font-size: 16px;
       font-weight: 600;
       margin: 0;
       padding: 0;

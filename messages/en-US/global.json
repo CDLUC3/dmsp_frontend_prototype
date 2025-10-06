@@ -291,6 +291,21 @@
           }
         }
       }
+    },
+    "users": {
+      "title": "User Accounts",
+      "description": "Below is a list of users registered for your organization",
+      "buttons": {
+        "createUserLabel": "Create User",
+        "searchLabel": "Search"
+      },
+      "tools": {
+        "searchLabel": "Search by name or email",
+        "permissionLabel": "Permission"
+      },
+      "userTable": {
+        "label": "User List"
+      }
     }
   },
   "OrganizationDetails": {
@@ -440,6 +455,46 @@
       "deleteButton": "Delete"
     }
   },
+  "FeedbackOptions": {
+    "title": "Feedback Options",
+    "description": "If this is On, users from your org can request feedback on their DMPs. It will go to your organization's contact email which is support@dmp.edu.",
+    "sections": {
+      "feedbackToggle": {
+        "title": "Turn Feedback on or off"
+      },
+      "feedbackEmail": {
+        "title": "Feedback email address"
+      },
+      "expertFeedback": {
+        "title": "Request Expert Feedback"
+      }
+    },
+    "fields": {
+      "feedbackEnabled": {
+        "label": "Turn Feedback on or off",
+        "options": {
+          "on": "On - Feedback can be requested",
+          "off": "Off - Feedback can not be requested"
+        }
+      },
+      "feedbackEmail": {
+        "label": "Feedback email address",
+        "placeholder": "Enter feedback email address",
+        "helpText": "By default this is the organisations contact email address, However, you may change the feedback email address"
+      },
+      "feedbackText": {
+        "label": "Request Expert Feedback",
+        "placeholder": "Enter feedback text"
+      }
+    },
+    "actions": {
+      "save": "Save"
+    },
+    "screenReader": {
+      "feedbackEnabled": "Feedback options are now enabled. Additional fields are available below.",
+      "feedbackDisabled": "Feedback options are now disabled. Additional fields are hidden."
+    }
+  },
   "Account": {
     "sections": {
       "userProfile": {
@@ -463,6 +518,95 @@
           }
         }
       }
+    }
+  },
+  "Guidance": {
+    "title": "Guidance",
+    "description": "Manage guidance groups and texts for your organization",
+    "pages": {
+      "index": {
+        "title": "Guidance Groups",
+        "description": "Manage guidance groups that organize related guidance texts",
+        "createGroup": "Create guidance group"
+      },
+      "groupIndex": {
+        "title": "Guidance Texts",
+        "description": "Manage guidance texts within this group",
+        "createText": "Create guidance text",
+        "editGroup": "Edit group"
+      },
+      "groupCreate": {
+        "title": "Create New Guidance Group",
+        "description": "Add a new guidance group to organize related guidance texts"
+      },
+      "groupEdit": {
+        "title": "Edit guidance group",
+        "description": "Create a new guidance group below. Select one or more themes to define where plan creators will see this guidance."
+      },
+      "textCreate": {
+        "title": "Create New Guidance Text",
+        "description": "Add a new guidance text to this group"
+      },
+      "textEdit": {
+        "title": "Edit Guidance Text",
+        "description": "Edit guidance text details and content"
+      }
+    },
+    "sections": {
+      "guidanceGroup": {
+        "title": "Guidance Group"
+      },
+      "guidanceText": {
+        "title": "Guidance Text"
+      }
+    },
+    "fields": {
+      "groupName": {
+        "label": "Group Name",
+        "placeholder": "Enter group name"
+      },
+      "title": {
+        "label": "Title",
+        "placeholder": "Enter guidance text title"
+      },
+      "guidanceText": {
+        "label": "Guidance text",
+        "helpText": "Enter the guidance text content using the rich text editor"
+      },
+      "settings": {
+        "label": "Settings"
+      },
+      "themes": {
+        "label": "Themes",
+        "helpText": "Select appropriate themes below. This will determine when a plan creator sees the guidance text, for example if they are completing a part of template with the theme of \"Data Collection.\""
+      }
+    },
+    "status": {
+      "published": "Published",
+      "draft": "Draft",
+      "archived": "Archived",
+      "lastUpdated": "Last Updated",
+      "status": "Status"
+    },
+    "actions": {
+      "createGroup": "Create Group",
+      "createText": "Create Guidance Text",
+      "saveChanges": "Save Changes",
+      "publish": "Publish",
+      "edit": "Edit"
+    },
+    "breadcrumbs": {
+      "guidance": "Guidance",
+      "guidanceGroups": "Guidance Groups",
+      "createGroup": "Create Group",
+      "editGroup": "Edit group",
+      "createText": "Create Text",
+      "editText": "Edit Text",
+      "group": "Group"
+    },
+    "messages": {
+      "noGroups": "No guidance groups found",
+      "noTexts": "No guidance texts found in this group"
     }
   },
   "Global": {
@@ -492,7 +636,14 @@
       "planFunding": "Plan funding",
       "sectionOverview": "Section overview",
       "feedback": "Feedback",
-      "questionDetails": "Question details"
+      "questionDetails": "Question details",
+      "guidance": "Guidance",
+      "guidanceGroups": "Guidance Groups",
+      "createGroup": "Create Group",
+      "editGroup": "Edit group",
+      "createText": "Create Text",
+      "editText": "Edit Text",
+      "group": "Group"
     },
     "form": {
       "yesLabel": "Yes",
@@ -533,7 +684,8 @@
       "loadMore": "Load more",
       "addAnother": "Add another",
       "goToProject": "Go to project",
-      "back": "Back"
+      "back": "Back",
+      "add": "Add"
     },
     "labels": {
       "required": "required",
@@ -613,6 +765,16 @@
       "table": "Table",
       "affiliationSearch": "Affiliation search"
     }
+  },
+  "OrganizationTemplates": {
+    "title": "Organization Templates",
+    "description": "Manage your organization templates and publish for the public",
+    "actionCreate": "Create Template",
+    "actionSearch": "Search",
+    "searchLabel": "Search organization templates",
+    "searchHelpText": "Search by template name, description, or other details",
+    "noItemsFoundError": "No organization templates found matching '{term}'",
+    "somethingWentWrong": "Something went wrong while loading organization templates"
   },
   "ProjectMemberListItem": {
     "buttons": {

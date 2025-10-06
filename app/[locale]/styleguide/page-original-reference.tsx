@@ -1818,7 +1818,7 @@ function Page() {
                 label="Institution"
                 fieldName="institution"
                 setOtherField={setOtherField}
-                required={true}
+                isRequired={true}
                 helpText="Search for your institution"
                 updateFormData={() => console.log("updating form")}
                 value="UCOP"
@@ -2187,7 +2187,7 @@ function Page() {
                   <TinyMCEEditor
                     id="question-editor-preview"
                     content="<p>Example richtext field inside the preview bottomsheet</p>"
-                    setContent={() => {}}
+                    setContent={() => { }}
                   />
                 </ContentContainer>
 

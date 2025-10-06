@@ -1,119 +1,119 @@
 {
   "RelatedWorksPage": {
     "header": {
-      "title": "Trabalhos Relacionados",
+      "title": "Obras Relacionadas",
       "description": "Combine trabalhos relacionados ao seu projeto de pesquisa."
     },
     "buttons": {
-      "addRelatedWorkManually": "Adicionar Trabalho Relacionado"
+      "addRelatedWorkManually": "Adicionar trabalho relacionado"
     },
     "tabs": {
       "pending": "Pendente",
       "accepted": "Aceito",
-      "rejected": "Rejeitado"
+      "rejected": "Rejeitados"
     }
   },
   "RelatedWorksList": {
     "filters": {
-      "filterByConfidence": "Filtrar por Confiança",
+      "filterByConfidence": "Filtro por confiança",
       "filterByType": "Filtrar por Tipo",
-      "highlightMatches": "Destacar Correspondências",
+      "highlightMatches": "Destacar Partidas",
       "sort": "Ordenar",
-      "reset": "Redefinir",
+      "reset": "Reset",
       "sortBy": {
-        "confidence-high": "Confiança: Alta para Baixa",
-        "confidence-low": "Confiança: Baixa para Alta",
-        "reviewed-new": "Revisado: Novo para Antigo",
-        "reviewed-old": "Revisado: Antigo para Novo ",
-        "published-new": "Publicado: Novo para Antigo",
-        "published-old": "Publicado: Antigo para Novo",
-        "date-found-new": "Data Encontrada: Novo para Antigo",
-        "date-found-old": "Data Encontrada: Antigo para Novo"
+        "confidence-high": "Confiança: Alta para Baixo",
+        "confidence-low": "Confiança: do Menor para o Maior",
+        "reviewed-new": "Revisões: nova para antiga",
+        "reviewed-old": "Revisão: Antigo para Novo",
+        "published-new": "Publicação: nova para antiga",
+        "published-old": "Publicação: antiga para nova",
+        "date-found-new": "Data de encontração: novo para antigo",
+        "date-found-old": "Data de encontração: antiga para nova"
       }
     },
     "messages": {
-      "noPendingResults": "Nenhum trabalho pendente encontrado.\n Você não tem trabalhos pendentes para revisar.",
-      "noPendingFilteredResults": "Nenhum trabalho pendente encontrado.\nNenhum trabalho pendente corresponde aos seus filtros atuais.",
-      "noRelatedResults": "Nenhum trabalho relacionado encontrado.\nVocê ainda não marcou nenhum trabalho como relacionado. Verifique a guia Pendente para começar.",
-      "noRelatedFilteredResults": "Nenhum trabalho relacionado encontrado.\nNenhum trabalho relacionado corresponde aos seus filtros atuais.",
-      "noDiscardedResults": "Nenhum trabalho descartado encontrado.\nVocê ainda não descartou nenhum trabalho.",
-      "noDiscardedFilteredResults": "Nenhum trabalho descartado encontrado.\nNenhum trabalho descartado corresponde aos seus filtros atuais."
+      "noPendingResults": "Nenhum trabalho pendente encontrado.\nVocê não tem nenhum trabalho pendente para revisar.",
+      "noPendingFilteredResults": "Nenhuma obra pendente encontrada. U\nNenhuma obra pendente corresponde aos filtros atuais.",
+      "noRelatedResults": "Nenhuma obra relacionada encontrada.\nVocê ainda não marcou nenhuma obra como relacionada. Confira a aba Pendente para começar.",
+      "noRelatedFilteredResults": "Nenhuma obra pendente encontrada. U\nNenhuma obra pendente corresponde aos filtros atuais.",
+      "noDiscardedResults": "Nenhuma obra descartada encontrada.\nVocê não descartou nenhuma obra.",
+      "noDiscardedFilteredResults": "Nenhum trabalho descartado foi encontrado.\nNenhum trabalho descartado corresponde aos seus filtros atuais."
     }
   },
   "RelatedWorksListItem": {
     "header": {
-      "title": "Abrir a versão publicada deste trabalho"
+      "title": "Abrir a versão publicada deste serviço"
     },
     "buttons": {
-      "expand": "Expandir",
+      "expand": "Expanda",
       "collapse": "Recolher",
-      "accept": "Aceitar",
-      "reject": "Rejeitar"
+      "accept": "",
+      "reject": "Recusar"
     },
     "fieldNames": {
       "confidence": "Confiança",
-      "dateFound": "Data Encontrada",
-      "dateReviewed": "Data Revisada",
-      "type": "Tipo",
-      "source": "Fonte",
-      "doi": "DOI",
+      "dateFound": "Data de Encontro",
+      "dateReviewed": "Avaliado",
+      "type": "tipo",
+      "source": "fonte",
+      "doi": "BAIXO",
       "title": "Título",
       "abstract": "Resumo",
-      "awardIds": "IDs de Prêmios",
+      "awardIds": "IDs dos Prêmios",
       "authors": "Autores",
       "institutions": "Instituições",
-      "funders": "Financiadores"
+      "funders": "Finalizações"
     },
     "instructions": {
-      "review": "Revise as informações sobre este trabalho potencialmente relacionado abaixo e, em seguida, aceite-o como relacionado ou rejeite-o como não relacionado.",
+      "review": "Revise a informação sobre este trabalho potencialmente relacionado abaixo, e aceite-a como relacionada ou rejeite-a como não relacionada.",
       "actions": {
-        "pending": "Se você rejeitar este trabalho relacionado, poderá recuperá-lo mais tarde na guia Rejeitados.",
-        "related": "Se você rejeitar este trabalho relacionado, poderá recuperá-lo mais tarde na guia Rejeitados.",
-        "discarded": "Você pode recuperar este trabalho relacionado aceitando-o, e então verá na guia Aceitos."
+        "pending": "Se você rejeitar este trabalho relacionado, você pode recuperá-lo mais tarde na guia Rejeitada.",
+        "related": "Se você rejeitar este trabalho relacionado, você pode recuperá-lo mais tarde na guia Rejeitada.",
+        "discarded": "Você pode recuperar este trabalho relacionado aceitando-o, você verá então na aba Aceitada."
       }
     }
   },
   "RelatedWorksDataTypes": {
     "confidence": {
-      "all": "Todos",
-      "high": "Alto",
-      "medium": "Médio",
-      "low": "Baixo"
+      "all": "TODOS",
+      "high": "alta",
+      "medium": "Média",
+      "low": ""
     },
     "workType": {
-      "article": "Artigo",
-      "audio-visual": "Audiovisual",
-      "book": "Livro",
-      "book-chapter": "Capítulo de Livro",
-      "collection": "Coleção",
-      "data-paper": "Data Paper",
+      "article": "artigo",
+      "audio-visual": "Visual de Áudio",
+      "book": "Reservar",
+      "book-chapter": "Capítulo do Livro",
+      "collection": "Collection",
+      "data-paper": "Papel de dados",
       "dataset": "Dataset",
-      "dissertation": "Dissertação",
+      "dissertation": "Desmontagem",
       "editorial": "Editorial",
       "erratum": "Erratum",
       "event": "Evento",
-      "grant": "Bolsa",
-      "image": "Imagem",
-      "interactive-resource": "Recurso Interativo",
-      "letter": "Carta",
-      "libguides": "Guias de Biblioteca",
+      "grant": "Conceder",
+      "image": "Imagem:",
+      "interactive-resource": "Recurso interativo",
+      "letter": "Letra",
+      "libguides": "Libguides",
       "model": "Modelo",
-      "other": "Outro",
-      "paratext": "Paratexto",
+      "other": "Outros",
+      "paratext": "PT2",
       "peer-review": "Revisão por Pares",
-      "physical-object": "Objeto Físico",
-      "preprint": "Preprint",
+      "physical-object": "Objeto físico",
+      "preprint": "Pré-impressão",
       "reference-entry": "Entrada de Referência",
-      "report": "Relatório",
-      "retraction": "Retração",
-      "review": "Revisão",
+      "report": "Denunciar",
+      "retraction": "Retracção",
+      "review": "Avaliar",
       "service": "Serviço",
       "software": "Software",
       "sound": "Som",
-      "standard": "Padrão",
-      "supplementary-materials": "Materiais Suplementares",
-      "text": "Texto",
-      "workflow": "Fluxo de Trabalho"
+      "standard": "padrão",
+      "supplementary-materials": "Materiais complementares",
+      "text": "texto",
+      "workflow": "Workflow"
     }
   }
 }

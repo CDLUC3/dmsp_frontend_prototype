@@ -249,7 +249,7 @@ function Header() {
                       </p>
                       <p className={styles.paragraph}>
                         <Link
-                          href={routePath("admin.guidance")}
+                          href={routePath("admin.guidance.index")}
                           role="menuitem"
                         >
                           {t("subMenuGuidance")}
@@ -503,7 +503,7 @@ function Header() {
                       <li role="menuitem">
                         <Link
                           role="none"
-                          href={routePath("admin.guidance")}
+                          href={routePath("admin.guidance.index")}
                         >
                           {t("subMenuGuidance")}
                         </Link>

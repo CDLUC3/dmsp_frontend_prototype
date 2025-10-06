@@ -1,7 +1,6 @@
 @use '@/styles/responsive.scss' as r;
 
 .template-editor-header {
-  // This is to match the left padding for content container
   padding: 0 var(--brand-space2);
 }
 
@@ -31,9 +30,16 @@
   .heading-buttons-actions {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    justify-content: space-between;
+    gap: 0.5rem;
 
-    @include r.device(lg) {}
+    @include r.device(md) {
+      justify-content: flex-start;
+      gap: 0.75rem;
+    }
 
+    @include r.device(lg) {
+      gap: 1rem;
+    }
   }
 }
