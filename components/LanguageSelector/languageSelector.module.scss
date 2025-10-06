@@ -14,17 +14,17 @@
   display: block;
 }
 
-.paragraph {
-  color: var(--dmpui-brand-blue-900);
-  cursor: pointer;
-  display:block;
-  font-weight: 700;
-  margin: 0 0 10px;
-}
-
 .btnLanguageSelector {
   background: 'none';
   border: 'none';
   padding: 0;
   text-align: 'left' ;
+}
+
+.paragraph {
+  color: var(--blue-900);
+  cursor: pointer;
+  display: block;
+  font-weight: var(--fw-bold);
+  margin: 0 0 var(--space-2);
 }
