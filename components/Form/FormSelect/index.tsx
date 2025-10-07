@@ -22,7 +22,7 @@ interface SelectItem {
   name: string;
 }
 interface MySelectProps<T extends SelectItem>
-  extends Omit<SelectProps<T>, 'children'> {
+  extends Omit<SelectProps<T>, 'children' | 'onChange'> {
   label?: string;
   ariaLabel?: string;
   errorMessage?: string | ((validation: ValidationResult) => string);
