@@ -42,6 +42,8 @@ const TinyMCEEditor = ({ content, setContent, onChange, error, id, labelId, help
         branding: false, // removed the tinyMCE branding
         statusbar: false, //removes the bottom status bar
         selector: `#${elementId}`,
+        base_url: '/tinymce', // Base URL for TinyMCE assets
+        suffix: '.min', // Use the minified version
         menubar: false,
         max_height: 400,
         min_height: 100,

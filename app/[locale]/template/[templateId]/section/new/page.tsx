@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -12,20 +12,47 @@ import {
   SearchField,
   Text
 } from "react-aria-components";
-import { ApolloError } from "@apollo/client";
 import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
-import { useToast } from '@/context/ToastContext';
 
-import logECS from '@/utils/clientLogger';
-import { useAddSectionMutation, usePublishedSectionsQuery } from '@/generated/graphql';
+import {
+  SectionErrors,
+  VersionedSectionSearchResult,
+  VersionedSectionSearchResults,
+  useAddSectionMutation,
+  usePublishedSectionsLazyQuery
+} from '@/generated/graphql';
 
 // Components
 import { ContentContainer, LayoutContainer } from '@/components/Container';
 import PageHeader from "@/components/PageHeader";
-import { Card, CardBody, CardFooter, CardHeading } from "@/components/Card/card";
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeading
+} from "@/components/Card/card";
 import ErrorMessages from '@/components/ErrorMessages';
+import Pagination from '@/components/Pagination';
+
+//Other utils
+import { checkErrors } from '@/utils/errorHandler';
+
+import { scrollToTop } from '@/utils/general';
+import { routePath } from '@/utils/routes';
+import logECS from '@/utils/clientLogger';
 import styles from './newSectionPage.module.scss';
+
+// # of sections displayed per section type
+const LIMIT = 6;
+
+type SectionType = 'org' | 'bestPractice';
+
+interface FetchSectionsByTypeParams {
+  sectionType: SectionType;
+  page?: number;
+  searchTerm?: string;
+}
 
 interface SectionInterface {
   id?: number | null;
@@ -37,34 +64,39 @@ interface SectionInterface {
   questionCount?: number | null;
 }
 
-
 const SectionTypeSelectPage: React.FC = () => {
-  const VISIBLE_CARD_COUNT = 6;
 
   const [errors, setErrors] = useState<string[]>([]);
-  const [sections, setSections] = useState<SectionInterface[]>([]);
   const [bestPracticeSections, setBestPracticeSections] = useState<SectionInterface[]>([]);
-  const [filteredSections, setFilteredSections] = useState<(SectionInterface)[] | null>([]);
-  const [filteredBestPracticeSections, setFilteredBestPracticeSections] = useState<(SectionInterface)[] | null>([]);
+  const [orgSections, setOrgSections] = useState<SectionInterface[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  // Visibility counts
-  const [visibleCount, setVisibleCount] = useState({
-    sections: VISIBLE_CARD_COUNT,
-    filteredSections: VISIBLE_CARD_COUNT,
-    bestPracticeSections: VISIBLE_CARD_COUNT,
-    filteredBestPracticeSections: VISIBLE_CARD_COUNT
+  const [initialLoading, setInitialLoading] = useState(true);
+
+
+  // Separate pagination states
+  const [orgPagination, setOrgPagination] = useState({
+    currentPage: 1,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPreviousPage: false
   });
-  const nextSectionsRef = useRef<HTMLDivElement>(null);
+
+  const [bestPracticePagination, setBestPracticePagination] = useState({
+    currentPage: 1,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPreviousPage: false
+  });
+
+
   //For scrolling to error in modal window
   const errorRef = useRef<HTMLDivElement | null>(null);
-
+  // Scrolling to top
+  const topRef = useRef<HTMLDivElement>(null);
   // Get templateId param
   const params = useParams();
-  const toastState = useToast();
   const router = useRouter();
-  const { templateId: rawTemplateId } = params; // From route /template/:templateId
-  // routePath requires this to be a string but it can be either a string or an array
-  const templateId = Array.isArray(rawTemplateId) ? rawTemplateId[0] : rawTemplateId;
+  const templateId = String(params.templateId); // From route /template/:templateId
 
   // Initialize user addSection mutation
   const [addSectionMutation] = useAddSectionMutation();
@@ -74,22 +106,75 @@ const SectionTypeSelectPage: React.FC = () => {
   const createSection = useTranslations('CreateSectionPage');
   const Global = useTranslations('Global');
 
-  // Run template query to get all templates under the given templateId
-  const { data, loading, error: templateQueryErrors, refetch } = usePublishedSectionsQuery(
-    {
-      variables: { term: '' },
-      notifyOnNetworkStatusChange: true // To re-render component whenever network status of query changes
-    }
-  );
+  // Separate lazy queries for published sections
+  const [fetchOrgSections, { data: orgSectionsData, loading: orgLoading }] = usePublishedSectionsLazyQuery();
+  const [fetchBestPracticeSections, { data: bestPracticeData, loading: bestPracticeLoading }] = usePublishedSectionsLazyQuery();
 
-  // Show Failure Message
-  const showFailureToast = () => {
-    const errorMessage = createSection('messages.errorCreatingSection');
-    toastState.add(errorMessage, { type: 'error' });
+  const resetSearch = useCallback(() => {
+    setSearchTerm('');
+    handleSearchInput('');
+    scrollToTop(topRef);
+  }, [scrollToTop]);
+
+  const clearErrors = () => {
+    setErrors([])
   }
 
+
+  const fetchSectionsByType = async ({
+    sectionType,
+    page = 1,
+    searchTerm = ''
+  }: FetchSectionsByTypeParams) => {
+    if (sectionType === 'org') {
+      let offsetLimit = 0;
+      if (page) {
+        setOrgPagination(prev => ({ ...prev, currentPage: page }));
+        offsetLimit = (page - 1) * LIMIT;
+      }
+      await fetchOrgSections({
+        variables: {
+          paginationOptions: {
+            offset: offsetLimit,
+            limit: LIMIT,
+            type: "OFFSET",
+            sortDir: "DESC",
+            bestPractice: false
+          },
+          term: searchTerm,
+        }
+      });
+    } else {
+      let offsetLimit = 0;
+      if (page) {
+        setBestPracticePagination(prev => ({ ...prev, currentPage: page }));
+        offsetLimit = (page - 1) * LIMIT;
+      }
+      await fetchBestPracticeSections({
+        variables: {
+          paginationOptions: {
+            offset: offsetLimit,
+            limit: LIMIT,
+            type: "OFFSET",
+            sortDir: "DESC",
+            bestPractice: true
+          },
+          term: searchTerm,
+        }
+      });
+    }
+  };
+  // Handle page click for org sections
+  const handleOrgPageClick = async (page: number) => {
+    await fetchSectionsByType({ sectionType: 'org', page, searchTerm });
+  };
+  // Handle page click for best practice sections
+  const handleBestPracticePageClick = async (page: number) => {
+    await fetchSectionsByType({ sectionType: 'bestPractice', page, searchTerm });
+  };
+
   // Make GraphQL mutation request to clone a section
-  const copyPublishedSection = async (section: SectionInterface): Promise<SectionInterface | null> => {
+  const copyPublishedSection = async (section: SectionInterface) => {
     if (section) {
       try {
         const response = await addSectionMutation({
@@ -103,159 +188,161 @@ const SectionTypeSelectPage: React.FC = () => {
         });
 
         if (response.data?.addSection) {
-          const errs = Array.isArray(response.data?.addSection?.errors) ? response.data.addSection.errors : {};
-          if (errs && Object.values(errs).filter((err) => err && err !== 'SectionErrors').length === 0) {
-            // redirect to the edit section page for the newly copied section
-            router.push(`/template/${templateId}/section/${response.data.addSection.id}`);
-          } else {
-            showFailureToast();
+
+          const [hasErrors, errs] = checkErrors(
+            response.data.addSection.errors as SectionErrors,
+            ['general', 'name']
+          );
+
+          if (hasErrors) {
+            setErrors([String(errs.general)]);
+            return;
           }
+
+          // Success redirect to the edit section page for the newly copied section
+          router.push(routePath('template.section.slug', { templateId, section_slug: String(response.data.addSection.id) }));
+        } else {
+          setErrors([createSection('messages.errorCreatingSection')]);
         }
+
       } catch (error) {
         logECS('error', 'copyPublishedSection', {
           error,
-          url: { path: '/template/[templateId]/section/new' }
+          url: { path: routePath('template.section.new', { templateId }) }
         });
-        showFailureToast();
+        setErrors([createSection('messages.errorCreatingSection')]);
       }
     }
-    return section;
   };
 
-  //Update searchTerm state whenever entry in the search field changes
-  const handleSearchInput = (value: string) => {
-    setSearchTerm(value);
-  }
 
-  // Filter results when a user enters a search term and clicks "Search" button
-  const handleFiltering = (term: string) => {
+  // Handle search input
+  const handleSearchInput = async (term: string) => {
     setSearchTerm(term);
-    setErrors([]);
+    clearErrors();
 
-    // Filter org sections
-    const filteredSectionsList = sections.filter(item =>
-      item?.name.toLowerCase().includes(term.toLowerCase())
-    );
-    const filteredBestPracticeSectionsList = bestPracticeSections.filter(item =>
-      item?.name.toLowerCase().includes(term.toLowerCase())
-    );
+    // Reset both paginations to first page
+    setOrgPagination(prev => ({ ...prev, currentPage: 1 }));
+    setBestPracticePagination(prev => ({ ...prev, currentPage: 1 }));
 
-    if (filteredSectionsList.length === 0 && filteredBestPracticeSectionsList.length === 0) {
-      const errorMessage = Global('messaging.noItemsFound');
-      setErrors(prev => [...prev, errorMessage]);
+    // Fetch both types with search term
+    await Promise.all([
+      fetchSectionsByType({ sectionType: 'org', page: 1, searchTerm: term }),
+      fetchSectionsByType({ sectionType: 'bestPractice', page: 1, searchTerm: term })
+    ]);
+  };
+
+  // Handle input changes
+  const handleInputChange = (value: string) => {
+    // Update search term immediately for UI responsiveness
+    setSearchTerm(value);
+    if (value === '') {
+      //reset search
+      resetSearch();
+    }
+  };
+
+  const transformSectionsData = async (sectionsData: VersionedSectionSearchResults): Promise<{
+    orgSections: SectionInterface[];
+    bestPracticeSections: SectionInterface[];
+  }> => {
+    const publishedSections = sectionsData?.items?.filter(section => section !== null && section !== undefined) as VersionedSectionSearchResult[] || [];
+
+    if (publishedSections.length === 0) {
+      return { orgSections: [], bestPracticeSections: [] };
     }
 
-    setFilteredSections(filteredSectionsList);
-    // Filter best practice sections and exclude if they are already in the org sections
-    setFilteredBestPracticeSections(filteredBestPracticeSectionsList.filter(
-      item => !filteredSectionsList.some(sect => sect.name === item.name)
-    ));
-  }
-
-  useEffect(() => {
-    // When data from backend changes, set template data in state
-    if (data && data.publishedSections) {
-      const publishedSections = data.publishedSections.items ?? [];
-      if (publishedSections.length > 0) {
-        const transformedSections = publishedSections?.map(section => {
-          return {
-            id: section?.id ?? null,
-            name: section?.name ?? '',
-            modified: section?.modified,
-            bestPractice: section?.bestPractice ?? false,
-            templateName: section?.versionedTemplateName ?? '',
-            questionCount: section?.versionedQuestionCount
-          }
-        });
-
-        const affiliationSections = transformedSections.filter(section => section?.bestPractice === false);
-        const bestPracticeSections = transformedSections.filter(section => section?.bestPractice === true);
-
-        setSections(affiliationSections);
-        // Filter best practice sections and exclude if they are already in the org sections
-        setBestPracticeSections(bestPracticeSections.filter(
-          item => !affiliationSections.some(affiliation => affiliation.name === item.name)
-        ));
+    const transformedSections = publishedSections?.map((section: VersionedSectionSearchResult) => {
+      return {
+        id: section?.id ?? null,
+        name: section?.name ?? '',
+        modified: section?.modified,
+        bestPractice: section?.bestPractice ?? false,
+        templateName: section?.versionedTemplateName ?? '',
+        questionCount: section?.versionedQuestionCount
       }
+    });
 
-    }
-  }, [data]);
+    const orgSections = transformedSections.filter((section: SectionInterface) => section?.bestPractice === false);
+    const bestPracticeSections = transformedSections.filter((section: SectionInterface) => section?.bestPractice === true);
 
+    // Remove duplicates between org and best practice sections
+    const filteredBestPractice = bestPracticeSections.filter(
+      (item: SectionInterface) => !orgSections.some((org: SectionInterface) => org.name === item.name)
+    );
+
+    return { orgSections, bestPracticeSections: filteredBestPractice };
+  };
+
+
+  // Process organization sections when orgSectionsData changes
   useEffect(() => {
-    if (templateQueryErrors) {
-      // Need to refetch on apollo errors to re-render page
-      if (templateQueryErrors instanceof ApolloError) {
-        refetch();
+    const processOrgSections = async () => {
+      if (orgSectionsData?.publishedSections?.items) {
+        const transformedSections = await transformSectionsData(
+          orgSectionsData.publishedSections
+        );
+        // Filter to only org sections (non-best practice)
+        const orgSections = transformedSections.orgSections;
+        setOrgSections(orgSections);
+
+        // Update org-specific pagination
+        const totalCount = orgSectionsData?.publishedSections?.totalCount ?? 0;
+        const totalPages = Math.ceil(totalCount / LIMIT);
+        setOrgPagination({
+          currentPage: orgPagination.currentPage, // Keep current page
+          totalPages,
+          hasNextPage: orgSectionsData?.publishedSections?.hasNextPage ?? false,
+          hasPreviousPage: orgSectionsData?.publishedSections?.hasPreviousPage ?? false
+        });
       } else {
-        // Display other errors
-        setErrors(prevErrors => [...prevErrors, Global('messaging.somethingWentWrong')]);
-        logECS('error', 'templateQueryErrors', {
-          error: templateQueryErrors,
-          url: { path: '/template/[templateId]/section/new' }
-        });
+        setOrgSections([]);
       }
-    }
-  }, [templateQueryErrors]);
+    };
+    processOrgSections();
+  }, [orgSectionsData]);
+
+  // Process best practice sections when bestPracticeData changes
+  useEffect(() => {
+    const processBestPracticeSections = async () => {
+      if (bestPracticeData?.publishedSections?.items) {
+        const transformedSections = await transformSectionsData(bestPracticeData.publishedSections);
+
+        // Filter to only best practice sections
+        const bpSections = transformedSections.bestPracticeSections.filter(section => section?.bestPractice === true);
+        setBestPracticeSections(bpSections);
+
+        // Update best practice-specific pagination
+        const totalCount = bestPracticeData?.publishedSections?.totalCount ?? 0;
+        const totalPages = Math.ceil(totalCount / LIMIT);
+        setBestPracticePagination({
+          currentPage: bestPracticePagination.currentPage,
+          totalPages,
+          hasNextPage: bestPracticeData?.publishedSections?.hasNextPage ?? false,
+          hasPreviousPage: bestPracticeData?.publishedSections?.hasPreviousPage ?? false
+        });
+      } else {
+        setBestPracticeSections([]);
+      }
+    };
+    processBestPracticeSections();
+  }, [bestPracticeData]);
+
 
   useEffect(() => {
-    // Need this to set list of templates back to original, full list after filtering
-    if (searchTerm === '') {
-      setFilteredSections(null);
-      setFilteredBestPracticeSections(null);
-    }
-  }, [searchTerm])
-
-  type VisibleCountKeys = keyof typeof visibleCount;
-  // When user clicks the 'Load more' button, display more cards
-  const handleLoadMore = (listKey: VisibleCountKeys) => {
-    setVisibleCount((prevCounts) => ({
-      ...prevCounts,
-      [listKey]: prevCounts[listKey] + VISIBLE_CARD_COUNT, // Increase the visible count for the specific list
-    }));
-
-    setTimeout(() => {
-      if (nextSectionsRef.current) {
-        nextSectionsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 0);
-  };
-
-  const renderLoadMore = (items: SectionInterface[], visibleCountKey: VisibleCountKeys) => {
-    if (items.length - visibleCount[visibleCountKey] > 0) {
-      const loadMoreNumber = items.length - visibleCount[visibleCountKey]; // Calculate loadMoreNumber
-      const currentlyDisplayed = visibleCount[visibleCountKey];
-      const totalAvailable = items.length;
-
-      return (
-        <>
-          <Button onPress={() => handleLoadMore(visibleCountKey)}>
-            {loadMoreNumber > VISIBLE_CARD_COUNT
-              ? AddNewSection.rich('buttons.load6More', { name: loadMoreNumber })
-              : AddNewSection.rich('buttons.loadMore', { name: loadMoreNumber })}
-          </Button>
-          <div className={styles.remainingText}>
-            {AddNewSection('numDisplaying', { num: currentlyDisplayed, total: totalAvailable })}
-          </div>
-        </>
-      );
-    }
-    return null;
-  };
-
-  const hasOrgSections =
-    (filteredSections && filteredSections.some(s => s?.bestPractice === false)) ||
-    (sections && sections.some(s => s?.bestPractice === false));
-
-  const hasBestPracticeSections =
-    (filteredBestPracticeSections && filteredBestPracticeSections.some(s => s?.bestPractice === true)) ||
-    (bestPracticeSections && bestPracticeSections.some(s => s?.bestPractice === true));
+    const load = async () => {
+      await fetchSectionsByType({ sectionType: 'org', page: 1 });
+      await fetchSectionsByType({ sectionType: 'bestPractice', page: 1 });
+      setInitialLoading(false);
+    };
+    load();
+  }, []);
 
 
-
-  // Show loading message
-  if (loading) {
-    return <div>{Global('messaging.loading')}...</div>;
+  if (initialLoading) {
+    return <div>Loading...</div>; // only for the very first load, otherwise there is flapping when a user clicks on pagination buttons
   }
+
 
   return (
     <>
@@ -265,9 +352,9 @@ const SectionTypeSelectPage: React.FC = () => {
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.index', { templateId })}>{Global('breadcrumbs.templates')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.show', { templateId })}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.addNewSection')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -277,20 +364,21 @@ const SectionTypeSelectPage: React.FC = () => {
 
       <LayoutContainer>
         <ContentContainer>
-          <div className="searchSection" role="search" ref={errorRef}>
+          <div className="searchSection" role="search" ref={topRef}>
             <ErrorMessages errors={errors} ref={errorRef} />
-            <SearchField
-              onClear={() => {
-                setFilteredSections(null);
-                setFilteredBestPracticeSections(null);
-              }}
-            >
+            {/* Search Field */}
+            <SearchField>
               <Label>{AddNewSection('search.label')}</Label>
-              <Input value={searchTerm} onChange={e => handleSearchInput(e.target.value)} />
+              <Input
+                aria-describedby="search-help"
+                value={searchTerm}
+                onChange={e => handleInputChange(e.target.value)}
+
+              />
               <Button
                 onPress={() => {
                   // Call your filtering function without changing the input value
-                  handleFiltering(searchTerm);
+                  handleSearchInput(searchTerm);
                 }}
               >
                 {Global('buttons.search')}
@@ -302,173 +390,107 @@ const SectionTypeSelectPage: React.FC = () => {
             </SearchField>
           </div>
 
+          {searchTerm.length > 0 && (
+            <div className="clear-filter">
+              <div className="search-match-text"><Button data-testid="clear-filter" onPress={resetSearch} className="search-match-text link">{Global('links.clearFilter')}</Button></div>
+            </div>
+          )}
           <div>
 
-            {/* Only show heading if there are org sections and not both */}
-            {hasOrgSections && (
-              <h2>{AddNewSection('headings.previouslyCreatedSections')}</h2>
-            )}
-
             {/*Organization Sections */}
-            <div className="card-grid-list">
-              {filteredSections && filteredSections.length > 0 ? (
-                <>
-                  {
-                    filteredSections
-                      .slice(0, visibleCount['filteredSections'])
-                      .filter(section => section?.bestPractice === false)
-                      .map((section, index) => {
-                        const isFirstInNextSection = index === visibleCount['filteredSections'] - VISIBLE_CARD_COUNT;
-                        return (
-                          <div ref={isFirstInNextSection ? nextSectionsRef : null} key={index}>
-                            <Card>
-                              <CardHeading>{section.name}</CardHeading>
-                              <CardBody>
-                                <p>Template: {section.templateName}</p>
-                                {AddNewSection.rich("questionsCount", {
-                                  count: section.questionCount ? section.questionCount : 0,
-                                  p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
-                                })}
-                              </CardBody>
-                              <CardFooter>
-                                <Button
-                                  onPress={() => copyPublishedSection(section)}
-                                  className="button-link secondary">
-                                  {Global('buttons.select')}
-                                </Button>
-                              </CardFooter>
-                            </Card>
-                          </div>
-                        )
-                      })
-                  }
-                </>
-              ) : (
-                <>
-                  {
-                    sections
-                      .slice(0, visibleCount['sections'])
-                      .filter(section => section?.bestPractice === false)
-                      .map((section, index) => {
-                        const isFirstInNextSection = index === visibleCount['sections'] - VISIBLE_CARD_COUNT;
-                        return (
-                          <div ref={isFirstInNextSection ? nextSectionsRef : null} key={index}>
-                            <Card>
-                              <CardHeading>{section.name}</CardHeading>
-                              <CardBody>
-                                <p>Template: {section.templateName}</p>
-                                {AddNewSection.rich("questionsCount", {
-                                  count: section.questionCount ? section.questionCount : 0,
-                                  p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
-                                })}
-                              </CardBody>
-                              <CardFooter>
-                                <Button
-                                  onPress={() => copyPublishedSection(section)}
-                                  className="button-link secondary">
-                                  {Global('buttons.select')}
-                                </Button>
-                              </CardFooter>
-                            </Card>
-                          </div>
-                        )
-                      })
-                  }
-                </>
-              )
-              }
-            </div>
+            <div>
+              {orgSections.length > 0 && (
 
-            {((filteredSections && filteredSections.length > 0) || (sections && sections.length > 0)) && (
-              <div className={styles.loadBtnContainer}>
-                {filteredSections && filteredSections.length > 0
-                  ? renderLoadMore(filteredSections, 'filteredSections')
-                  : renderLoadMore(sections, 'sections')}
-              </div>
-            )}
-            {/* Only show heading if there are best practice sections and not both */}
-            {hasBestPracticeSections && (
-              <h2>{AddNewSection('headings.bestPracticeSections')}</h2>
-            )}
-
-            {/*Best Practice sections */}
-            <div className="card-grid-list">
-              {filteredBestPracticeSections && filteredBestPracticeSections.length > 0 ? (
-                <>
-                  {
-                    filteredBestPracticeSections
-                      .slice(0, visibleCount['filteredBestPracticeSections'])
-                      .filter(section => section?.bestPractice === true)
-                      .map((section, index) => {
-                        const isFirstInNextSection = index === visibleCount['filteredBestPracticeSections'] - VISIBLE_CARD_COUNT;
-                        return (
-                          <div ref={isFirstInNextSection ? nextSectionsRef : null} key={index}>
-                            <Card>
-                              <CardHeading>{section.name}</CardHeading>
-                              <CardBody>
-                                <p>Template: {section.templateName}</p>
-                                {AddNewSection.rich("questionsCount", {
-                                  count: section.questionCount ? section.questionCount : 0,
-                                  p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
-                                })}
-                              </CardBody>
-                              <CardFooter>
-                                <Button
-                                  onPress={() => copyPublishedSection(section)}
-                                  className="button-link secondary">
-                                  {Global('buttons.select')}
-                                </Button>
-                              </CardFooter>
-                            </Card>
-                          </div>
-                        )
-                      })
-                  }
-                </>
-              ) : (
-                <>
-                  {
-                    bestPracticeSections
-                      .slice(0, visibleCount['bestPracticeSections'])
-                      .filter(section => section?.bestPractice === true)
-                      .map((section, index) => {
-                        const isFirstInNextSection = index === visibleCount['bestPracticeSections'] - VISIBLE_CARD_COUNT;
-                        return (
-                          <div ref={isFirstInNextSection ? nextSectionsRef : null} key={index}>
-                            <Card>
-                              <CardHeading>{section.name}</CardHeading>
-                              <CardBody>
-                                <p>Template: {section.templateName}</p>
-                                {AddNewSection.rich("questionsCount", {
-                                  count: section.questionCount ? section.questionCount : 0,
-                                  p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
-                                })}
-                              </CardBody>
-                              <CardFooter>
-                                <Button
-                                  onPress={() => copyPublishedSection(section)}
-                                  className="button-link secondary">
-                                  {Global('buttons.select')}
-                                </Button>
-                              </CardFooter>
-                            </Card>
-                          </div>
-                        )
-                      })
-                  }
-                </>
-              )
-              }
-            </div>
-            {((filteredBestPracticeSections && filteredBestPracticeSections.length > 0)
-              || (bestPracticeSections && bestPracticeSections.length > 0)) && (
-                <div className={styles.loadBtnContainer}>
-                  {filteredBestPracticeSections && filteredBestPracticeSections.length > 0
-                    ? renderLoadMore(filteredBestPracticeSections, 'filteredBestPracticeSections')
-                    : renderLoadMore(bestPracticeSections, 'bestPracticeSections')}
-                </div>
+                <h2>{AddNewSection('headings.previouslyCreatedSections')}</h2>
               )}
 
+              <div className="card-grid-list">
+                {orgLoading ? (
+                  <p>{Global('messaging.loading')}</p>
+                ) : orgSections.length > 0 ? (
+                  orgSections.map((section, index) => (
+                    <section key={index}>
+                      <Card>
+                        <CardHeading className={styles.cardHeading}>{section.name}</CardHeading>
+                        <CardBody>
+                          <p>Template: {section.templateName}</p>
+                          {AddNewSection.rich("questionsCount", {
+                            count: section.questionCount ? section.questionCount : 0,
+                            p: (chunks) => <p>{chunks}</p>,
+                          })}
+                        </CardBody>
+                        <CardFooter>
+                          <Button
+                            onPress={() => copyPublishedSection(section)}
+                            className="button-link secondary">
+                            {Global('buttons.select')}
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    </section>
+                  ))
+                ) : searchTerm.length === 0 ? null : ( // Only show "no items" message when searching
+                  <p>{Global('messaging.noItemsFound')}</p>
+                )}
+              </div>
+              {orgSections.length > 0 && (
+                <Pagination
+                  currentPage={orgPagination.currentPage}
+                  totalPages={orgPagination.totalPages}
+                  hasPreviousPage={orgPagination.hasPreviousPage}
+                  hasNextPage={orgPagination.hasNextPage}
+                  handlePageClick={handleOrgPageClick}
+                />
+              )}
+
+            </div>
+
+            {/* Best Practice sections */}
+            <div>
+              {bestPracticeSections.length > 0 && (
+                <h2>{AddNewSection('headings.bestPracticeSections')}</h2>
+              )}
+
+              <div className="card-grid-list">
+                {bestPracticeLoading ? (
+                  <p>{Global('messaging.loading')}</p>
+                ) : bestPracticeSections.length > 0 ? (
+                  bestPracticeSections.map((section, index) => (
+                    <div key={index}>
+                      <Card>
+                        <CardHeading>{section.name}</CardHeading>
+                        <CardBody>
+                          <p>Template: {section.templateName}</p>
+                          {AddNewSection.rich("questionsCount", {
+                            count: section.questionCount ? section.questionCount : 0,
+                            p: (chunks) => <p>{chunks}</p>,
+                          })}
+                        </CardBody>
+                        <CardFooter>
+                          <Button
+                            onPress={() => copyPublishedSection(section)}
+                            className="button-link secondary">
+                            {Global('buttons.select')}
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    </div>
+                  ))
+                ) : searchTerm.length === 0 ? null : ( // Only show "no items" message when searching
+                  <p>{Global('messaging.noItemsFound')}</p>
+                )}
+              </div>
+
+              {bestPracticeSections.length > 0 && bestPracticePagination.totalPages > 1 && (
+                <Pagination
+                  currentPage={bestPracticePagination.currentPage}
+                  totalPages={bestPracticePagination.totalPages}
+                  hasPreviousPage={bestPracticePagination.hasPreviousPage}
+                  hasNextPage={bestPracticePagination.hasNextPage}
+                  handlePageClick={handleBestPracticePageClick}
+                />
+              )}
+            </div>
 
             <h2>
               {AddNewSection('headings.buildNewSection')}
@@ -476,11 +498,11 @@ const SectionTypeSelectPage: React.FC = () => {
             <p>
               {AddNewSection('newSectionDescription')}
             </p>
-            <Link href={`/template/${templateId}/section/create`}
+            <Link href={routePath('template.section.create', { templateId })}
               className="button-link secondary">{AddNewSection('buttons.createNew')}</Link>
           </div>
         </ContentContainer>
-      </LayoutContainer>
+      </LayoutContainer >
     </>
   );
 }

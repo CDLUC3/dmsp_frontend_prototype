@@ -59,7 +59,10 @@ const CreateSectionPage: React.FC = () => {
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
-
+  // Track whether there are unsaved changes
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  // Form state
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   //For scrolling to top of page
   const topRef = useRef<HTMLDivElement | null>(null);
 
@@ -228,6 +231,7 @@ const CreateSectionPage: React.FC = () => {
         return [...prevTags, tag];
       }
     });
+    setHasUnsavedChanges(true);
   };
 
   // Show Success Message
@@ -239,6 +243,10 @@ const CreateSectionPage: React.FC = () => {
   // Handle form submit
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    // Prevent double submission
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     // Clear previous errors
     clearAllFieldErrors();
@@ -259,6 +267,8 @@ const CreateSectionPage: React.FC = () => {
 
         setErrors([errors.general || CreateSectionPage('messages.errorCreatingSection')]);
       } else {
+        setIsSubmitting(false);
+        setHasUnsavedChanges(false);
         // Show success message
         showSuccessToast();
         // Redirect to the edit template page
@@ -304,6 +314,21 @@ const CreateSectionPage: React.FC = () => {
     });
   }, [sectionNameContent, sectionIntroductionContent, sectionRequirementsContent, sectionGuidanceContent])
 
+  // Warn user of unsaved changes if they try to leave the page
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = ''; // Required for Chrome/Firefox to show the confirm dialog
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
+
   return (
     <>
       <PageHeader
@@ -342,10 +367,13 @@ const CreateSectionPage: React.FC = () => {
                       name="sectionName"
                       id="sectionName"
                       type="text"
-                      aria-required={true}
+                      isRequiredVisualOnly={true}
                       label={Section('labels.sectionName')}
                       value={formData.sectionName}
-                      onChange={(e) => setSectionNameContent(e.currentTarget.value)} // Use specific setter
+                      onChange={e => {
+                        setSectionNameContent(e.currentTarget.value);
+                        setHasUnsavedChanges(true);
+                      }}
                       isInvalid={fieldErrors['sectionName'] !== ''}
                       errorMessage={fieldErrors['sectionName']}
                     />
@@ -353,7 +381,10 @@ const CreateSectionPage: React.FC = () => {
                     <Label htmlFor="sectionIntroduction" id="sectionIntroductionLabel">{Section('labels.sectionIntroduction')}</Label>
                     <TinyMCEEditor
                       content={sectionIntroductionContent}
-                      setContent={setSectionIntroductionContent}
+                      setContent={(value) => {
+                        setSectionIntroductionContent(value);
+                        setHasUnsavedChanges(true);
+                      }}
                       error={fieldErrors['sectionIntroduction']}
                       id="sectionIntroduction"
                       labelId="sectionIntroductionLabel"
@@ -363,7 +394,10 @@ const CreateSectionPage: React.FC = () => {
                     <Label htmlFor="sectionRequirements" id="sectionRequirementsLabel">{Section('labels.sectionRequirements')}</Label>
                     <TinyMCEEditor
                       content={sectionRequirementsContent}
-                      setContent={setSectionRequirementsContent}
+                      setContent={(value) => {
+                        setSectionRequirementsContent(value);
+                        setHasUnsavedChanges(true);
+                      }}
                       error={fieldErrors['sectionRequirements']}
                       id="sectionRequirements"
                       labelId="sectionRequirementsLabel"
@@ -373,7 +407,10 @@ const CreateSectionPage: React.FC = () => {
                     <Label htmlFor="sectionGuidance" id="sectionGuidanceLabel">{Section('labels.sectionGuidance')}</Label>
                     <TinyMCEEditor
                       content={sectionGuidanceContent}
-                      setContent={setSectionGuidanceContent}
+                      setContent={(value) => {
+                        setSectionGuidanceContent(value);
+                        setHasUnsavedChanges(true);
+                      }}
                       error={fieldErrors['sectionGuidance']}
                       id="sectionGuidance"
                       labelId="sectionGuidanceLabel"
@@ -429,8 +466,11 @@ const CreateSectionPage: React.FC = () => {
                       </div>
                     </CheckboxGroup>
                     <Button
-                      type="submit">{CreateSectionPage('button.createSection')}</Button>
-
+                      type="submit"
+                      aria-disabled={isSubmitting}
+                    >
+                      {isSubmitting ? CreateSectionPage('button.creatingSection') : CreateSectionPage('button.createSection')}
+                    </Button>
                   </Form>
                 </TabPanel>
                 <TabPanel id="options">

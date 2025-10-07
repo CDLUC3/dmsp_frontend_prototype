@@ -161,7 +161,7 @@ describe("CreateSectionPage", () => {
     expect(editOptionsTab).toBeInTheDocument();
     const editLogicTab = screen.getByRole('tab', { name: 'tabs.logic' });
     expect(editLogicTab).toBeInTheDocument();
-    const sectionNameInput = screen.getByLabelText('labels.sectionName');
+    const sectionNameInput = screen.getByLabelText(/labels.sectionName/);
     expect(sectionNameInput).toBeInTheDocument();
     const sectionIntroductionLabel = screen.getByLabelText(/sectionIntroduction/i);
     expect(sectionIntroductionLabel).toBeInTheDocument();
@@ -235,6 +235,57 @@ describe("CreateSectionPage", () => {
     await waitFor(() => {
       expect(mockUseRouter().push).toHaveBeenCalledWith('/template/123');
     });
+  })
+
+  it('should prevent unload when there are unsaved changes and user tries to navigate away from page', async () => {
+    // Mock addEventListener
+    const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+    const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener');
+    const mockAddSection = jest.fn().mockResolvedValueOnce({ data: mockSectionData });
+
+    (useAddSectionMutation as jest.Mock).mockReturnValue([
+      mockAddSection,
+      { loading: false, error: undefined },
+    ]);
+
+
+    await act(async () => {
+      render(
+        <CreateSectionPage />
+      );
+    });
+
+    const sectionNameInput = screen.getByRole('textbox', { name: /sectionName/i });
+    fireEvent.change(sectionNameInput, { target: { value: 'Test Section' } });
+
+
+    // Wait for state update
+    await waitFor(() => {
+      // Get the last registered 'beforeunload' handler
+      const handler = addEventListenerSpy.mock.calls
+        .filter(([event]) => event === 'beforeunload')
+        .map(([, fn]) => fn)
+        .pop();
+
+      // Simulate event of navigating way from page
+      const event = new Event('beforeunload');
+      Object.defineProperty(event, 'returnValue', {
+        writable: true,
+        value: undefined,
+      });
+
+      if (typeof handler === 'function') {
+        handler(event as unknown as BeforeUnloadEvent);
+      } else if (handler && typeof handler.handleEvent === 'function') {
+        handler.handleEvent(event as unknown as BeforeUnloadEvent);
+      } else {
+        throw new Error('beforeunload handler is not callable');
+      }
+    });
+
+    // Cleanup
+    removeEventListenerSpy.mockRestore();
+    addEventListenerSpy.mockRestore();
   })
 
   it('should display error when addSectionMutation throws an error', async () => {

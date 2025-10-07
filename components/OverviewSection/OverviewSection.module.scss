@@ -1,0 +1,54 @@
+@use '../../styles/responsive' as r;
+
+.overviewSection {
+    border-radius: 0;
+    padding: var(--space-2) 0;
+    background-color: var(--color-background-subtle);
+    border-bottom: 1px solid var(--gray-100);
+
+    display: grid;
+    grid-template-columns: 1fr auto;
+
+    gap: var(--space-3);
+    align-items: flex-start;
+
+    /* Make the content area span full width on mobile */
+    @include r.device(mobile) {
+        grid-template-columns: 1fr;
+    }
+
+    h2 {
+        margin: 0;
+        padding: 0;
+    }
+}
+
+.overviewSectionContent {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-0);
+}
+
+.overviewSectionTitle {
+    font-size: var(--fs-h4);
+    margin: 0 0 var(--space-2) 0;
+}
+
+.overviewSectionText {
+    font-size: var(--fs-base);
+    font-weight: 400;
+    margin: 0;
+
+    /* Support for nested elements like spans, strong tags, etc. */
+    p {
+        margin: 0;
+    }
+
+    strong {
+        font-weight: 600;
+    }
+}
+
+.overviewSectionLink {
+    // Use standard link styling - no overrides needed
+}

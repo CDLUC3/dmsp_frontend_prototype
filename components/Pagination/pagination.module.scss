@@ -30,7 +30,7 @@
 
     &[disabled] {
       background-color: var(--slate-200);
-      color: var(--slate-900);
+      color: var(--text-color);
       cursor: not-allowed;
     }
   }
@@ -38,11 +38,11 @@
   // Numbered page links
   a {
     border-radius: 0.4rem;
-    color: var(--slate-900);
+    color: var(--text-color);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-        font-weight: 700;
+    font-weight: 700;
     padding: 0.1rem 0.5rem;
     text-decoration: none;
     transition: background-color 0.2s ease, color 0.2s ease;
@@ -50,7 +50,7 @@
     &:hover,
     &:focus-visible {
       background-color: var(--slate-200);
-      outline: 2px solid var(--slate-900);
+      outline: 2px solid var(--text-color);
       outline-offset: 2px;
     }
   }
@@ -63,7 +63,7 @@
     &:hover,
     &:focus-visible {
       background-color: var(--slate-200);
-            color: var(--slate-900);
+      color: var(--text-color);
       outline: 2px solid var(--slate-100);
       outline-offset: 2px;
     }

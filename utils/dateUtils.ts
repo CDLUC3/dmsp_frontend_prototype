@@ -2,40 +2,47 @@ import {
   DateValue,
   parseDate,
 } from "@internationalized/date";
+import logECS from '@/utils/clientLogger';
+import type { DateTimeFormatOptions } from 'use-intl';
+
+type DateTimeFormatterFn = {
+  (value: number | Date, options?: DateTimeFormatOptions): string;
+  (value: Date | number, format?: string, options?: DateTimeFormatOptions): string;
+};
 
 
-export const formatWithTimeAndDate = (timestamp: string): string => {
-  if (timestamp) {
-    // Parse the ISO date string into a Date object
-    const date = new Date(parseInt(timestamp));
+// Format timestamp with time and date using next-intl formatter
+export const formatWithTimeAndDate = (
+  timestamp: string,
+  formatter: DateTimeFormatterFn
+): string => {
+  if (!timestamp) return 'No date';
 
-    // Define arrays for month names
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  try {
+    // Check if timestamp is a number (milliseconds) or a date string
+    let date: Date;
+    if (/^\d+$/.test(timestamp)) {
+      // If it's all digits, treat as milliseconds timestamp
+      date = new Date(parseInt(timestamp));
+    } else {
+      // Otherwise, treat as date string
+      date = new Date(timestamp);
+    }
 
-    // Extract date components
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const day = date.getDate();
-    const month = date.getMonth(); // Month is 0-based
-    const year = date.getFullYear();
-
-    // Format the final string
-    return `${hours}:${minutes} on ${months[month]} ${day}, ${year}`;
-  } else {
-    return 'No date';
+    // Use the formatter with options for time and date
+    return formatter(date, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  } catch (error) {
+    logECS('error', 'Error in formatWithTimeAndDate', { error });
+    return 'Invalid date';
   }
-}
-
-export const formatShortMonthDayYear = (timestamp: string): string => {
-  if (timestamp) {
-    const date = new Date(parseInt(timestamp));
-    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
-  } else {
-    return 'No date';
-  }
-
-}
+};
 
 // Helper function to safely get a CalendarDate value
 export const getCalendarDateValue = (dateValue: DateValue | string | null) => {
@@ -62,3 +69,29 @@ export const formatRelativeFromTimestamp = (timestampMs: string, locale: string)
 
   return rtf.format(diffSec, "second");
 }
+
+// Format date string like "2025-09-24 17:10:11" to "09-24-2025" with dashes
+export const formatToDateOnly = (
+  dateString: string,
+  formatter: DateTimeFormatterFn
+): string => {
+  if (!dateString) return 'No date';
+
+  try {
+    const date = new Date(dateString);
+
+    // Get the formatted parts from the formatter
+    const formatted = formatter(date, {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+
+    // Replace slashes or other separators with dashes
+    // This udpates the default use of slashes "09/24/2025" to "09-24-2025"
+    return formatted.replace(/[\/\.]/g, '-');
+  } catch (error) {
+    logECS('error', 'Error in formatToDateOnly', { error });
+    return 'Invalid date';
+  }
+};

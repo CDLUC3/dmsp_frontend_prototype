@@ -109,7 +109,7 @@ const ProjectsCreateProjectProjectSearch = () => {
     <>
       <PageHeader
         title="Search for Projects"
-        description=""
+        description="Enter details of your project to help find it in this funder's database. The more you enter the more likely it is to find your project."
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>

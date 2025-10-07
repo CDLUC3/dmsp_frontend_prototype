@@ -10,19 +10,16 @@
 @use "responsive" as r;
 
 
-// Link
+// Link - inherits default text-link styling from globals.scss
 .react-aria-Link {
-  color: var(--link-color);
-  font-size: 18px;
+  // Uses default text-link styling (color, font-weight, underline, etc.)
+  font-size: var(--fs-base);
   transition: all 200ms;
-  text-decoration: underline;
   cursor: pointer;
   outline: none;
   position: relative;
 
-  &[data-hovered] {
-
-  }
+  // &[data-hovered] uses default hover styling from globals.scss
 
   &[data-pressed] {
     color: var(--link-color-pressed);
@@ -193,7 +190,9 @@
 }
 
 .react-aria-Toolbar {
-  .react-aria-Button, .react-aria-ToggleButton {
+
+  .react-aria-Button,
+  .react-aria-ToggleButton {
     --button-background-pressed: transparent;
     --border-color: transparent;
     --button-background-highlight: transparent;
@@ -261,7 +260,7 @@
   position: relative;
   display: grid;
   grid-template-areas: "label kbd"
-                      "desc  kbd";
+    "desc  kbd";
   align-items: center;
   column-gap: 20px;
   forced-color-adjust: none;
@@ -286,16 +285,12 @@
     margin-top: 0;
   }
 
-  // Table
+  // React Aria Table specific accessibility and interaction styles
   .react-aria-Table {
-    padding: 0.286rem;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    background: var(--overlay-background);
     outline: none;
     border-spacing: 0;
     min-height: 100px;
-    align-self: start;
+    align-self: flex-start;
     max-width: 100%;
     word-break: break-word;
     forced-color-adjust: none;
@@ -306,17 +301,10 @@
     }
 
     .react-aria-TableHeader {
-      color: var(--text-color);
-
       &:after {
         content: '';
         display: table-row;
         height: 2px;
-      }
-
-      & tr:last-child .react-aria-Column {
-        border-bottom: 1px solid var(--border-color);
-        cursor: default;
       }
     }
 
@@ -325,7 +313,7 @@
       --radius-bottom: 6px;
       --radius: var(--radius-top) var(--radius-top) var(--radius-bottom) var(--radius-bottom);
       border-radius: var(--radius);
-      clip-path: inset(0 round var(--radius)); /* firefox */
+      clip-path: inset(0 round var(--radius));
       outline: none;
       cursor: default;
       color: var(--text-color);
@@ -360,8 +348,6 @@
 
     .react-aria-Cell,
     .react-aria-Column {
-      padding: 4px 8px;
-      text-align: left;
       outline: none;
 
       &[data-focus-visible] {
@@ -384,13 +370,14 @@
 
     /* join selected items if :has selector is supported */
     @supports selector(:has(.foo)) {
+
       .react-aria-Row[data-selected]:has(+ [data-selected]),
       .react-aria-Row[data-selected]:has(+ .react-aria-DropIndicator + [data-selected]) {
         --radius-bottom: 0px;
       }
 
-      .react-aria-Row[data-selected] + [data-selected],
-      .react-aria-Row[data-selected] + .react-aria-DropIndicator + [data-selected] {
+      .react-aria-Row[data-selected]+[data-selected],
+      .react-aria-Row[data-selected]+.react-aria-DropIndicator+[data-selected] {
         --radius-top: 0px;
       }
     }
@@ -459,7 +446,7 @@
       flex-direction: row-reverse;
     }
 
-    > div {
+    >div {
       flex: 1 1 auto;
       max-width: 100%;
     }
@@ -508,9 +495,11 @@
   overflow: hidden;
 
   @media (max-width: 675px) {
+
     /* Hide all breadcrumbs by default */
     li {
-      display: none !important; /* Ensure no conflicts with other styles */
+      display: none !important;
+      /* Ensure no conflicts with other styles */
     }
 
     /* Show the first breadcrumb (Home) if there are exactly 3 breadcrumbs */
@@ -561,11 +550,13 @@
   }
 
   .react-aria-Link {
+    // Breadcrumb links - intentionally muted styling
     font-size: 0.8rem;
     color: var(--link-color-secondary);
     outline: none;
     text-decoration: none;
     cursor: pointer;
+    font-weight: var(--fw-normal); // Override default semibold for breadcrumbs
 
     @media (max-width: 675px) {
       max-width: 180px;
@@ -584,7 +575,7 @@
   gap: 1rem;
   /* Mobile-first: single column */
   grid-template-columns: 1fr;
-  grid-template-areas: 
+  grid-template-areas:
     "search"
     "filters";
 }
@@ -597,28 +588,29 @@
   grid-template-areas:
     "label"
     "input"
-    "help" 
+    "help"
     "button";
   max-width: 500px;
 
   .react-aria-Label {
     grid-area: label;
   }
-  
+
   .help {
     grid-area: help;
   }
-  
+
   .react-aria-Input {
     grid-area: input;
     min-width: 250px;
   }
-  
+
   .react-aria-Button {
     grid-area: button;
-    justify-self: start; /* Prevents button from stretching full width */
+    justify-self: start;
+    /* Prevents button from stretching full width */
   }
-  
+
   .checkbox-group {
     grid-area: filters;
   }
@@ -633,16 +625,17 @@
     grid-template-areas: "search filters";
     align-items: start;
   }
-  
+
   .react-aria-SearchField {
     grid-template-columns: 1fr auto;
     grid-template-areas:
       "label label"
       "input button"
       "help help";
-    align-items: end; /* Aligns input and button to bottom */
+    align-items: end;
+    /* Aligns input and button to bottom */
   }
-  
+
   .react-aria-Button {
     margin-left: 0;
   }
@@ -653,6 +646,7 @@
   margin-bottom: var(--space-8);
   display: grid;
   gap: var(--space-5);
+
   @include r.device(md) {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -686,19 +680,31 @@
 
 // project overview
 .project-overview {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-8);
+
   .project-overview-item {
-    margin-top: var(--space-0);
-    margin-bottom: var(--space-6);
-    font-size: var(--fs-small);
+    border-radius: 0;
+    padding: var(--space-2) var(--space-4);
+    background-color: var(--color-background-subtle);
+    border-bottom: 1px solid var(--gray-100);
+
+    display: grid;
+    grid-template-columns: 1fr auto;
+    /* Content takes available space, button takes needed space */
+    gap: var(--space-3);
+    align-items: center;
+
+    /* Make the content area span full width on mobile */
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
 
     h2 {
-      font-size: var(--fs-base);
-      color: var(--blue-600);
-      font-weight: 600;
-
-      padding: var(--space-0);
-      margin: var(--space-0);
-      margin-bottom: var(--space-1);
+      font-size: var(--fs-h4);
+      margin: 0 0 var(--space-2) 0;
+      padding: 0;
     }
 
     h3 {
@@ -712,20 +718,24 @@
     }
 
     p {
-      font-size: var(--fs-small);
-      padding: var(--space-0);
-      margin: var(--space-0);
+      font-size: var(--fs-base);
+      padding: 0;
+      margin: 0;
     }
 
     .project-overview-item-heading {
-      font-size: var(--fs-lg);
+      font-size: var(--fs-base);
+      font-weight: 400;
     }
 
     .react-aria-Link {
-      font-size: var(--fs-small);
+      // Card/content area links - intentionally muted styling
+      font-size: var(--fs-base);
       color: var(--slate-800);
       margin-top: var(--space-1);
       display: inline-block;
+      font-weight: 700;
+      text-decoration: none; // Override default underline
     }
   }
 }
@@ -739,25 +749,37 @@
     margin-bottom: var(--space-2);
     flex-direction: column;
     gap: var(--space-2);
+
     @include r.device(sm) {
       flex-direction: row;
       align-items: center;
       margin-bottom: var(--space-2);
     }
+
     .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+
       @include r.device(sm) {
         flex-direction: row;
         align-items: center;
       }
-      a{
-        margin-bottom: var(--space-1);
-      }
     }
+  }
+
+  .plan-section-heading {
+    font-size: var(--fs-xxs);
+    font-weight: var(--fw-semibold);
+    color: var(--text-color);
+    margin: 0 0 2px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .plan-sections-list {
     padding: 0;
-    margin: var(space-4) 0;
+    margin: 0 0 var(--space-4) 0;
     list-style: none;
   }
 
@@ -767,14 +789,15 @@
     margin: var(--space-2) 0;
 
     a {
-      font-size: var(--fs-base);
-      color: var(--text-black);
+      font-size: var(--fs-sm);
+      color: var(--blue-500);
       text-decoration: underline;
       text-underline-offset: 2px;
     }
 
     .plan-sections-list-item-progress {
       display: block;
+
       @include r.device(sm) {
         display: inline-block;
         margin-left: var(--space-3);
@@ -795,6 +818,7 @@
   .plan-links {
     display: flex;
     flex-direction: column;
+
     @include r.device(md) {
       flex-direction: row;
       gap: var(--space-4);
@@ -826,6 +850,7 @@
     align-items: flex-start;
     gap: var(--space-4);
     flex-direction: column;
+
     @include r.device(md) {
       flex-direction: row;
       align-items: center;
@@ -833,8 +858,8 @@
   }
 }
 
-.form-signpost{
-  .form-signpost-inner{
+.form-signpost {
+  .form-signpost-inner {
     background: var(--gray-100);
     padding: var(--space-4);
   }
@@ -846,10 +871,13 @@
 
 .side-panel {
   .react-aria-Link {
+    // Side panel links - intentionally muted styling
     font-size: var(--fs-small);
     color: var(--slate-800);
     margin-top: var(--space-1);
     display: inline-block;
+    font-weight: var(--fw-normal); // Override default semibold
+    text-decoration: none; // Override default underline
   }
 }
 
@@ -858,24 +886,51 @@
 
 
 
-/* --- Basic ProseMirror Table Styling --- */
+/* --- Unified Table Styling for All Table Types --- */
+table,
+.react-aria-Table,
 .ProseMirror table,
 .editor-content table {
   width: 100%;
   border-collapse: collapse;
-  margin: 1rem 0;
-  border: 1px solid #ccc;
-}
+  margin: var(--space-4) 0;
+  background: var(--bg-white);
 
-/* Style table header (th) and data cells (td) */
-.ProseMirror th,
-.ProseMirror td,
-.editor-content th,
-.editor-content td {
-  border: 1px solid #ccc;
-  padding: var(--space-1);
-  text-align: left;
-  vertical-align: top;
+  th,
+  td,
+  .react-aria-Cell,
+  .react-aria-Column {
+    padding: var(--space-3) !important;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    line-height: var(--lh-normal);
+  }
+
+  th,
+  .react-aria-Column {
+    background: var(--blue-900);
+    font-weight: var(--fw-medium);
+    color: var(--gray-50);
+    border-bottom: 2px solid var(--blue-900);
+  }
+
+  tbody tr:nth-child(even),
+  .react-aria-Row:nth-child(even) {
+    background: var(--gray-25);
+  }
+
+  tbody tr:hover,
+  .react-aria-Row:hover {
+    background: var(--gray-75);
+  }
+
+  code {
+    background: var(--gray-100);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--border-radius-sm);
+    font-family: var(--font-family-monospace);
+    font-size: var(--fs-small);
+  }
 }
 
 /* Style header cells specifically */

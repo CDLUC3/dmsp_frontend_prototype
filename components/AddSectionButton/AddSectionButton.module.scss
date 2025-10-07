@@ -13,9 +13,9 @@
   align-items: center;
   gap: 8px;
   text-decoration: underline;
-  color: var(--slate-900)!important;
+  color: var(--text-color) !important;
   font-size: var(-fs-small);
-  padding: var(--brand-space3)  var(--brand-space4);
+  padding: var(--brand-space3) var(--brand-space4);
   transition: all 0.2s ease;
 }
 

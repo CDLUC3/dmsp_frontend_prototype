@@ -93,6 +93,11 @@ const SignUpPage: React.FC = () => {
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const { suggestions, handleSearch } = useAffiliationSearch();
 
+
+  const returnToEmail = () => {
+    setStep("email");
+  };
+
   async function handleSignUp() {
     setIsWorking(true);
     setErrors([]);
@@ -291,7 +296,7 @@ const SignUpPage: React.FC = () => {
               <TypeAheadWithOther
                 className={styles.typeAhead}
                 label={t('institution')}
-                required={true}
+                isRequired={true}
                 fieldName="institution"
                 setOtherField={setOtherField}
                 helpText={t('institutionHelp')}
@@ -322,6 +327,7 @@ const SignUpPage: React.FC = () => {
                 onChange={setEmail}
                 value={email}
                 isRequired
+                isDisabled={true}
               >
                 <Label>{t('emailAddress')}</Label>
                 <Input />
@@ -381,13 +387,18 @@ const SignUpPage: React.FC = () => {
             )}
 
             {(step === "profile") && (
-              <Button
-                type="submit"
-                isDisabled={(isWorking || !termsAccepted)}
-                data-testid="signup"
-              >
-                {isWorking ? t('signingUp') + ' ...' : t('submitSignup')}
-              </Button>
+              <>
+                <div className="button-container">
+                  <Button type="submit" className="secondary" onPress={returnToEmail}>{globalT('buttons.back')}</Button>
+                  <Button
+                    type="submit"
+                    isDisabled={(isWorking || !termsAccepted)}
+                    data-testid="signup"
+                  >
+                    {isWorking ? t('signingUp') + ' ...' : t('submitSignup')}
+                  </Button>
+                </div>
+              </>
             )}
           </ToolbarContainer>
 
@@ -399,7 +410,7 @@ const SignUpPage: React.FC = () => {
           )}
         </Form>
       </ContentContainer>
-    </LayoutContainer>
+    </LayoutContainer >
   );
 }
 

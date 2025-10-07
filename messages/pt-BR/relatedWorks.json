@@ -1,0 +1,119 @@
+{
+  "RelatedWorksPage": {
+    "header": {
+      "title": "Obras Relacionadas",
+      "description": "Combine trabalhos relacionados ao seu projeto de pesquisa."
+    },
+    "buttons": {
+      "addRelatedWorkManually": "Adicionar trabalho relacionado"
+    },
+    "tabs": {
+      "pending": "Pendente",
+      "accepted": "Aceito",
+      "rejected": "Rejeitados"
+    }
+  },
+  "RelatedWorksList": {
+    "filters": {
+      "filterByConfidence": "Filtro por confiança",
+      "filterByType": "Filtrar por Tipo",
+      "highlightMatches": "Destacar Partidas",
+      "sort": "Ordenar",
+      "reset": "Reset",
+      "sortBy": {
+        "confidence-high": "Confiança: Alta para Baixo",
+        "confidence-low": "Confiança: do Menor para o Maior",
+        "reviewed-new": "Revisões: nova para antiga",
+        "reviewed-old": "Revisão: Antigo para Novo",
+        "published-new": "Publicação: nova para antiga",
+        "published-old": "Publicação: antiga para nova",
+        "date-found-new": "Data de encontração: novo para antigo",
+        "date-found-old": "Data de encontração: antiga para nova"
+      }
+    },
+    "messages": {
+      "noPendingResults": "Nenhum trabalho pendente encontrado.\nVocê não tem nenhum trabalho pendente para revisar.",
+      "noPendingFilteredResults": "Nenhuma obra pendente encontrada. U\nNenhuma obra pendente corresponde aos filtros atuais.",
+      "noRelatedResults": "Nenhuma obra relacionada encontrada.\nVocê ainda não marcou nenhuma obra como relacionada. Confira a aba Pendente para começar.",
+      "noRelatedFilteredResults": "Nenhuma obra pendente encontrada. U\nNenhuma obra pendente corresponde aos filtros atuais.",
+      "noDiscardedResults": "Nenhuma obra descartada encontrada.\nVocê não descartou nenhuma obra.",
+      "noDiscardedFilteredResults": "Nenhum trabalho descartado foi encontrado.\nNenhum trabalho descartado corresponde aos seus filtros atuais."
+    }
+  },
+  "RelatedWorksListItem": {
+    "header": {
+      "title": "Abrir a versão publicada deste serviço"
+    },
+    "buttons": {
+      "expand": "Expanda",
+      "collapse": "Recolher",
+      "accept": "",
+      "reject": "Recusar"
+    },
+    "fieldNames": {
+      "confidence": "Confiança",
+      "dateFound": "Data de Encontro",
+      "dateReviewed": "Avaliado",
+      "type": "tipo",
+      "source": "fonte",
+      "doi": "BAIXO",
+      "title": "Título",
+      "abstract": "Resumo",
+      "awardIds": "IDs dos Prêmios",
+      "authors": "Autores",
+      "institutions": "Instituições",
+      "funders": "Finalizações"
+    },
+    "instructions": {
+      "review": "Revise a informação sobre este trabalho potencialmente relacionado abaixo, e aceite-a como relacionada ou rejeite-a como não relacionada.",
+      "actions": {
+        "pending": "Se você rejeitar este trabalho relacionado, você pode recuperá-lo mais tarde na guia Rejeitada.",
+        "related": "Se você rejeitar este trabalho relacionado, você pode recuperá-lo mais tarde na guia Rejeitada.",
+        "discarded": "Você pode recuperar este trabalho relacionado aceitando-o, você verá então na aba Aceitada."
+      }
+    }
+  },
+  "RelatedWorksDataTypes": {
+    "confidence": {
+      "all": "TODOS",
+      "high": "alta",
+      "medium": "Média",
+      "low": ""
+    },
+    "workType": {
+      "article": "artigo",
+      "audio-visual": "Visual de Áudio",
+      "book": "Reservar",
+      "book-chapter": "Capítulo do Livro",
+      "collection": "Collection",
+      "data-paper": "Papel de dados",
+      "dataset": "Dataset",
+      "dissertation": "Desmontagem",
+      "editorial": "Editorial",
+      "erratum": "Erratum",
+      "event": "Evento",
+      "grant": "Conceder",
+      "image": "Imagem:",
+      "interactive-resource": "Recurso interativo",
+      "letter": "Letra",
+      "libguides": "Libguides",
+      "model": "Modelo",
+      "other": "Outros",
+      "paratext": "PT2",
+      "peer-review": "Revisão por Pares",
+      "physical-object": "Objeto físico",
+      "preprint": "Pré-impressão",
+      "reference-entry": "Entrada de Referência",
+      "report": "Denunciar",
+      "retraction": "Retracção",
+      "review": "Avaliar",
+      "service": "Serviço",
+      "software": "Software",
+      "sound": "Som",
+      "standard": "padrão",
+      "supplementary-materials": "Materiais complementares",
+      "text": "texto",
+      "workflow": "Workflow"
+    }
+  }
+}

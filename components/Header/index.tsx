@@ -1,262 +1,619 @@
-'use client';
+"use client";
 
-import { MouseEvent, useEffect, useState } from 'react';
-import Image from 'next/image';
+import { useEffect, useState } from "react";
+import Image from "next/image";
 
-import { useRouter } from 'next/navigation';
-import { Link } from '@/i18n/routing';
-import { useTranslations } from 'next-intl';
-import { useAuthContext } from '@/context/AuthContext';
-import { useCsrf } from '@/context/CsrfContext';
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { useAuthContext } from "@/context/AuthContext";
+import { useCsrf } from "@/context/CsrfContext";
 
-import { faGlobe, faUser } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import styles from './header.module.scss';
-import LanguageSelector from '../LanguageSelector';
+import { faGlobe } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Button } from "react-aria-components";
+import styles from "./header.module.scss";
+import LanguageSelector from "../LanguageSelector";
+import { routePath } from "@/utils/routes";
 
 function Header() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const { isAuthenticated, setIsAuthenticated } = useAuthContext();
   const router = useRouter();
   const { csrfToken } = useCsrf();
-  const t = useTranslations('Header');
+  const t = useTranslations("Header");
 
   const locales = [
     {
-      id: 'en-US',
-      name: t('subMenuEnglish')
+      id: "en-US",
+      name: t("subMenuEnglish"),
     },
     {
-      id: 'pt-BR',
-      name: t('subMenuPortuguese')
-    }
+      id: "pt-BR",
+      name: t("subMenuPortuguese"),
+    },
   ];
-
 
   useEffect(() => {
     //this is just to trigger a refresh on authentication change
   }, [isAuthenticated]);
 
-
-  const handleLogout = async (e: MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-
-
+  const handleLogout = async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-signout`, {
-        method: 'POST',
-        credentials: 'include',
+        method: "POST",
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': csrfToken || '',
+          "Content-Type": "application/json",
+          "X-CSRF-TOKEN": csrfToken || "",
         },
-      })
+      });
 
       if (response.ok) {
         setIsAuthenticated(false);
-        router.push('/login')
+        router.push(routePath("app.login"));
       } else {
-        console.error('Failed to logout');
+        console.error("Failed to logout");
       }
     } catch (err) {
-      console.error('An error occurred during logout:', err);
+      console.error("An error occurred during logout:", err);
     }
-
-  }
+  };
 
   function handleClick() {
     setShowMobileMenu(true);
   }
 
   function hideMenu() {
-    setShowMobileMenu(false)
+    setShowMobileMenu(false);
   }
 
   return (
-    <header className={styles.headerStyle}>
-      <div className={`${styles['dmpui-frontend-container']} ${styles['dmpui-frontend']} ${styles['dmpui-frontend-header']}`}>
-        <div className={styles['header-logo dmpui-grow']}>
-          <Link href="/">
-            <Image src="/images/DMP-logo.svg" className={styles.icon} width={289} height={41} alt="DMP Tool" />
+    <header className={styles.header}>
+      <div className={`${styles.container} ${styles.headerContent}`}>
+        <div className={`${styles.headerLogo} ${styles.grow}`}>
+          <Link href={routePath("app.home")}>
+            <Image
+              src="/images/dmplogo.svg"
+              width={200}
+              height={28}
+              alt="DMP Tool"
+            />
           </Link>
         </div>
 
-        <div className={styles['dmpui-desktop']}>
+        <div className={`${styles.navigation} ${styles.desktop}`}>
           <ul role="menu">
-            {/*If user is signed in */}
-            <li role="menuitem"><Link role="none" href="">{t('menuDashboard')}</Link></li>
-            <li role="menuitem"><Link role="none" href="">{t('menuUpload')}</Link></li>
-            <li role="menuitem"><Link role="none" href="">{t('menuCreatePlan')}</Link></li>
-            {/*end user is signed in */}
-
-            <li role="menuitem"><Link role="none" href="">{t('menuPublicPlans')}</Link></li>
-            <li role="menuitem"><Link role="none" href="">{t('menuFunderRequirements')}</Link></li>
-
-            <li role="menuitem">
-              <div className={styles['dmpui-dropdown']} role="menu">
-                <span><Link role="none" href="#">{t('menuAbout')}</Link></span>
-                <div className={styles['dmpui-dropdown-content']} role="menu">
-                  <p className={styles.paragraph} role="menuitem"><Link href="" role="none">{t('subMenuLearnMore')}</Link></p>
-                  <p className={styles.paragraph} role="menuitem"><Link href="" role="none">{t('subMenuMembership')}</Link></p>
-                  <p className={styles.paragraph} role="menuitem" ><Link href="" role="none">{t('subMenuFAQs')}</Link></p>
-                  <p className={styles.paragraph} role="menuitem"><Link href="" role="none">{t('subMenuEditorial')}</Link></p>
-                  <p className={styles.paragraph} role="menuitem"><Link href="" role="none">{t('subMenuLogos')}</Link></p>
-                </div>
-              </div>
-            </li>
-            {/*If user is signed in and is org admin */}
-            <li role="menuitem">
-              <div className={styles['dmpui-dropdown']}>
-                <span><Link href="#">{t('menuAdmin')}</Link></span>
-                <div className={styles['dmpui-dropdown-content']}>
-                  {/*If user is super admin */}
-                  <p className={styles.paragraph}><Link href="" role="menuitem">{t('subMenuOrganisations')}</Link></p>
-                  {/*If user can modify org details */}
-                  <p className={styles.paragraph}><Link href="" role="menuitem">{t('subMenuOrgDetails')}</Link></p>
-                  {/*end user can modify org details */}
-
-                  {/*if user can grant permissions */}
-                  <p className={styles.paragraph}><Link href="" role="menuitem">{t('subMenuUsers')}</Link></p>
-                  {/*end user can grant permissions */}
-                  <p className={styles.paragraph}><Link href="" role="menuitem">{t('subMenuPlans')}</Link></p>
-                  <p className={styles.paragraph}><Link href="" role="menuitem">{t('subMenuUsage')}</Link></p>
-                  {/*if current user can modify templates */}
-                  <p className={styles.paragraph}><Link href="" role="menuitem">{t('subMenuTemplates')}</Link></p>
-                  {/*end current user can modify templates */}
-                  {/*if user can modify guidance */}
-                  <p className={styles.paragraph}><Link href="" role="menuitem">{t('subMenuGuidance')}</Link></p>
-                  {/*end user can modify guidance */}
-
-                  {/*if current user is super admin */}
-                  <p className={styles.paragraph}><Link href="" role="menuitem">{t('subMenuThemes')}</Link></p>
-                  {/*end current user is super admin */}
-
-                  {/*if current user is super admin */}
-                  <p className={styles.paragraph}><Link href="" role="menuitem">{t('subMenuApiClients')}</Link></p>
-                  <p className={styles.paragraph}><Link href="" role="menuitem">{t('subMenuApiLogs')}</Link></p>
-                  <p className={styles.paragraph}><Link href="" role="menuitem">{t('subMenuNotifications')}</Link></p>
-                  {/*end current user is super admin */}
-                </div>
-              </div>
-            </li>
-
-            {/*if user is signed in */}
-            <li role="menuitem">
-              <div className={styles['dmpui-dropdown']}>
-                <FontAwesomeIcon icon={faUser} fixedWidth />
-                <div className={styles['dmpui-dropdown-content']}>
-                  <p className={styles.paragraph}><Link href="" role="menuitem">{t('subMenuEditProfile')}</Link></p>
-                  <p className={styles.paragraph}><Link href="" role="menuitem">{t('subMenu3rdParty')}</Link></p>
-                  <p className={styles.paragraph}><Link href="" role="menuitem">{t('subMenuDevTools')}</Link></p>
-                </div>
-              </div>
-            </li>
-            {/*end user is signed in */}
-
+            {/* Show authenticated user items first when logged in */}
             {isAuthenticated && (
-              <li role="menuitem">
-                <div className={styles['dmpui-dropdown']}>
-                  <a href="#"><FontAwesomeIcon icon={faGlobe} aria-label="Language" /></a>
-                  <div className={styles['dmpui-dropdown-content']}>
-
-                    <LanguageSelector locales={locales} />
-
-                  </div>
-                </div>
-              </li>
+              <>
+                <li role="menuitem">
+                  <Link href={routePath("projects.index")}>{t("menuProjectsPlans")}</Link>
+                </li>
+                <li role="menuitem">
+                  <Link href={routePath("projects.create")}>{t("menuCreatePlan")}</Link>
+                </li>
+              </>
             )}
 
-            {isAuthenticated ? (
-              <li role="menuitem"><Link href="/" role="menuitem" className={`${styles['dmpui-frontend-btn']} ${styles['dmpui-frontend-btn-secondary']}`} rel="nofollow" data-method="delete" onClick={handleLogout}>{t('btnLogout')}</Link></li>
-            ) : (
+            {/* Always show public items */}
+            <li role="menuitem">
+              <Link
+                role="none"
+                href="/public-plans"
+              >
+                {t("menuPublicPlans")}
+              </Link>
+            </li>
+            <li role="menuitem">
+              <Link
+                role="none"
+                href="/funder-requirements"
+              >
+                {t("menuFunderRequirements")}
+              </Link>
+            </li>
+
+            <li role="menuitem">
+              <div
+                className={styles.dropdown}
+                role="menu"
+              >
+                <span>
+                  <Link
+                    role="none"
+                    href="#"
+                  >
+                    {t("menuAbout")}
+                  </Link>
+                </span>
+                <div
+                  className={styles.dropdownContent}
+                  role="menu"
+                >
+                  <p
+                    className={styles.paragraph}
+                    role="menuitem"
+                  >
+                    <Link
+                      href=""
+                      role="none"
+                    >
+                      {t("subMenuLearnMore")}
+                    </Link>
+                  </p>
+                  <p
+                    className={styles.paragraph}
+                    role="menuitem"
+                  >
+                    <Link
+                      href=""
+                      role="none"
+                    >
+                      {t("subMenuMembership")}
+                    </Link>
+                  </p>
+                  <p
+                    className={styles.paragraph}
+                    role="menuitem"
+                  >
+                    <Link
+                      href=""
+                      role="none"
+                    >
+                      {t("subMenuFAQs")}
+                    </Link>
+                  </p>
+                  <p
+                    className={styles.paragraph}
+                    role="menuitem"
+                  >
+                    <Link
+                      href=""
+                      role="none"
+                    >
+                      {t("subMenuEditorial")}
+                    </Link>
+                  </p>
+                  <p
+                    className={styles.paragraph}
+                    role="menuitem"
+                  >
+                    <Link
+                      href=""
+                      role="none"
+                    >
+                      {t("subMenuLogos")}
+                    </Link>
+                  </p>
+                </div>
+              </div>
+            </li>
+
+            {/* Show authenticated user items */}
+            {isAuthenticated && (
               <>
-                <li role="menuitem"><Link href="/login" role="menuitem" className={`${styles['dmpui-frontend-btn']} ${styles['dmpui-frontend-btn-secondary']}`}>{t('btnLogin')}</Link></li>
-                <li role="menuitem"><Link href="/signup" role="menuitem" className={`${styles['dmpui-frontend-btn']} ${styles['dmpui-frontend-btn-secondary']}`}>{t('btnSignup')}</Link></li>
+                <li role="menuitem">
+                  <div className={styles.dropdown}>
+                    <span>
+                      <Link href="#">{t("menuAdmin")}</Link>
+                    </span>
+                    <div className={styles.dropdownContent}>
+                      <p className={styles.paragraph}>
+                        <Link
+                          href={routePath("admin.organizationDetails")}
+                          role="menuitem"
+                        >
+                          {t("subMenuOrganisations")}
+                        </Link>
+                      </p>
+                      <p className={styles.paragraph}>
+                        <Link
+                          href=""
+                          role="menuitem"
+                        >
+                          {t("subMenuOrgDetails")}
+                        </Link>
+                      </p>
+                      <p className={styles.paragraph}>
+                        <Link
+                          href={routePath("admin.users")}
+                          role="menuitem"
+                        >
+                          {t("subMenuUsers")}
+                        </Link>
+                      </p>
+                      <p className={styles.paragraph}>
+                        <Link
+                          href={routePath("admin.projects")}
+                          role="menuitem"
+                        >
+                          {t("subMenuPlans")}
+                        </Link>
+                      </p>
+                      <p className={styles.paragraph}>
+                        <Link
+                          href=""
+                          role="menuitem"
+                        >
+                          {t("subMenuUsage")}
+                        </Link>
+                      </p>
+                      <p className={styles.paragraph}>
+                        <Link
+                          href={routePath("admin.templates")}
+                          role="menuitem"
+                        >
+                          {t("subMenuTemplates")}
+                        </Link>
+                      </p>
+                      <p className={styles.paragraph}>
+                        <Link
+                          href={routePath("admin.guidance.index")}
+                          role="menuitem"
+                        >
+                          {t("subMenuGuidance")}
+                        </Link>
+                      </p>
+                      <p className={styles.paragraph}>
+                        <Link
+                          href=""
+                          role="menuitem"
+                        >
+                          {t("subMenuThemes")}
+                        </Link>
+                      </p>
+                      <p className={styles.paragraph}>
+                        <Link
+                          href=""
+                          role="menuitem"
+                        >
+                          {t("subMenuApiClients")}
+                        </Link>
+                      </p>
+                      <p className={styles.paragraph}>
+                        <Link
+                          href=""
+                          role="menuitem"
+                        >
+                          {t("subMenuApiLogs")}
+                        </Link>
+                      </p>
+                      <p className={styles.paragraph}>
+                        <Link
+                          href={routePath("admin.notifications")}
+                          role="menuitem"
+                        >
+                          {t("subMenuNotifications")}
+                        </Link>
+                      </p>
+                    </div>
+                  </div>
+                </li>
+
+                <li role="menuitem">
+                  <div className={styles.dropdown}>
+                    <a href="#">
+                      <FontAwesomeIcon
+                        icon={faGlobe}
+                        aria-label="Language"
+                      />
+                    </a>
+                    <div className={styles.dropdownContent}>
+                      <LanguageSelector locales={locales} />
+                    </div>
+                  </div>
+                </li>
+
+                <li role="menuitem">
+                  <Button
+                    className="react-aria-Button secondary"
+                    onPress={handleLogout}
+                  >
+                    {t("btnLogout")}
+                  </Button>
+                </li>
+              </>
+            )}
+
+            {/* Show login/signup for non-authenticated users */}
+            {!isAuthenticated && (
+              <>
+                <li role="menuitem">
+                  <Button
+                    className="react-aria-Button primary"
+                    onPress={() => router.push(routePath("app.login"))}
+                  >
+                    {t("btnLogin")}
+                  </Button>
+                </li>
+                <li role="menuitem">
+                  <Button
+                    className="react-aria-Button secondary"
+                    onPress={() => router.push("/signup")}
+                  >
+                    {t("btnSignup")}
+                  </Button>
+                </li>
               </>
             )}
           </ul>
         </div>
 
-
         {/*Mobile */}
-        <button className={`${styles['dmpui-mobile']} ${styles['mobile-icon']}`} id="mobile-menu-open" onClick={handleClick}>
-          <Image src="/images/mobile-menu.svg" width={25} height={37} alt="Mobile menu" />
-
+        <button
+          className={`${styles.mobile} ${styles.mobileIcon}`}
+          id="mobile-menu-open"
+          onClick={handleClick}
+        >
+          <Image
+            src="/images/mobile-menu.svg"
+            width={25}
+            height={37}
+            alt="Mobile menu"
+          />
         </button>
-        <div id={styles['mobile-navigation']} className={`${styles['dmpui-mobile']} ${styles['mobile-menu']} " + ${(showMobileMenu ? styles['show-menu'] : '')}`}>
-          <button id={styles['mobile-menu-close']} onClick={hideMenu}>
-            <Image src="/images/blue-arrow.svg" className={styles['close-mobile-icon']} width={28} height={39} alt="Close mobile menu" />
+        <div
+          id="mobile-navigation"
+          className={`${styles.mobile} ${styles.mobileMenu} ${showMobileMenu ? styles.showMenu : ""}`}
+        >
+          <button
+            id="mobile-menu-close"
+            className={styles.mobileMenuClose}
+            onClick={hideMenu}
+          >
+            <Image
+              src="/images/blue-arrow.svg"
+              className={styles.closeIcon}
+              width={28}
+              height={39}
+              alt="Close mobile menu"
+            />
           </button>
           <ul role="menubar">
-            <li role="menuitem"><Link href="/plans">{t('menuDashboard')}</Link></li>
-            <li role="menuitem"><Link href="/dashboard">{t('menuUpload')}</Link></li>
-            <li role="menuitem"><Link href="/plans/new">{t('menuCreatePlan')}</Link></li>
-
-            <li role="menuitem"><Link role="none" href="/public_plans">{t('menuPublicPlans')}</Link></li>
-            <li role="menuitem"><Link role="none" href="/public_templates">{t('menuFunderRequirements')}</Link></li>
-
-            <li role="menuitem">
-              <div className={styles['dmpui-dropdown']}>
-                <span><Link href="#">{t('menuAbout')}</Link></span>
-                <ul className={styles['mobile-menu-submenu']}>
-                  <li role="menuitem"><Link role="none" href="/about_us">{t('subMenuLearnMore')}</Link></li>
-                  <li role="menuitem"><Link role="none" href="/join_us">{t('subMenuMembership')}</Link></li>
-                  <li role="menuitem"><Link role="none" href="/faq">{t('subMenuFAQs')}</Link></li>
-                  <li role="menuitem"><Link role="none" href="/editorial_board">{t('subMenuEditorial')}</Link></li>
-                  <li role="menuitem"><Link role="none" href="/promote">{t('subMenuLogos')}</Link></li>
-                </ul>
-              </div>
-            </li>
-
-            <li role="menuitem">
-              <div className={styles['dmpui-dropdown']}>
-                <span><Link href="#">{t('menuAdmin')}</Link></span>
-                <ul className={styles['mobile-menu-submenu']}>
-                  <li role="menuitem"><Link role="none" href="/super_admin/orgs">{t('subMenuOrganisations')}</Link></li>
-                  <li role="menuitem"><Link role="none" href="/org/admin/users/admin_index">{t('subMenuUsers')}</Link></li>
-                  <li role="menuitem"><Link role="none" href="/org_admin/plans">{t('subMenuPlans')}</Link></li>
-                  <li role="menuitem"><Link role="none" href="/usage">{t('subMenuUsage')}</Link></li>
-                  <li role="menuitem"><Link role="none" href="/org_admin/templates">{t('subMenuTemplates')}</Link></li>
-                  <li role="menuitem"><Link role="none" href="/org/admin/guidance/15/admin_index">{t('subMenuGuidance')}</Link></li>
-                  <li role="menuitem"><Link role="none" href="/super_admin/themes">{t('subMenuThemes')}</Link></li>
-                  <li role="menuitem"><Link role="none" href="/super_admin/api_clients">{t('subMenuApiClients')}</Link></li>
-                  <li role="menuitem"><Link role="none" href="/super_admin/api_logs">{t('subMenuApiLogs')}</Link></li>
-                  <li role="menuitem"><Link role="none" href="/super_admin/notifications">{t('subMenuNotifications')}</Link></li>
-                </ul>
-              </div>
-            </li>
-
-
-            <li role="menuitem">
-              <div className={styles['dmpui-dropdown']}>
-                <span><Link href="#">{t('menuUser')}</Link></span>
-                <ul className={styles['mobile-menu-submenu']} role="menu">
-                  <li role="menuitem"><Link role="none" href="/users/edit">{t('subMenuEditProfile')}</Link></li>
-                  <li role="menuitem"><Link role="none" href="/users/third_party_apps">{t('subMenu3rdParty')}</Link></li>
-                  <li role="menuitem"><Link role="none" href="/users/developer_tools">{t('subMenuDevTools')}</Link></li>
-                </ul>
-              </div>
-            </li>
-
+            {/* Show authenticated user items first when logged in */}
             {isAuthenticated && (
-              <li role="menuitem">
-                <div className={styles['dmpui-dropdown']}>
-                  <span><Link href="#">{t('menuLanguage')}</Link></span>
-                  <ul className={styles['mobile-menu-submenu']} role="menu">
-                    <li role="menuitem"><Link role="none" rel="nofollow" data-method="patch" href="/locale/en-US">{t('subMenuEnglish')}</Link></li>
-                    <li role="menuitem"><Link role="none" rel="nofollow" data-method="patch" href="/locale/pt-BR">{t('subMenuPortuguese')}</Link></li>
-                  </ul>
-                </div>
-              </li>
+              <>
+                <li role="menuitem">
+                  <Link href={routePath("projects.index")}>{t("menuProjectsPlans")}</Link>
+                </li>
+                <li role="menuitem">
+                  <Link href={routePath("projects.create")}>{t("menuCreatePlan")}</Link>
+                </li>
+              </>
             )}
 
-            <li role="menuitem"><Link className={`${styles['dmpui-frontend-btn']} ${styles['dmpui-frontend-btn-secondary']}`} rel="nofollow" data-method="mobile-delete" href="/users/sign_out" onClick={handleLogout}>{t('btnLogout')}</Link>
-            </li></ul>
+            {/* Always show public items */}
+            <li role="menuitem">
+              <Link
+                role="none"
+                href="/public_plans"
+              >
+                {t("menuPublicPlans")}
+              </Link>
+            </li>
+            <li role="menuitem">
+              <Link
+                role="none"
+                href="/public_templates"
+              >
+                {t("menuFunderRequirements")}
+              </Link>
+            </li>
+
+            <li role="menuitem">
+              <div className={styles.dropdown}>
+                <span>
+                  <Link href="#">{t("menuAbout")}</Link>
+                </span>
+                <ul className={styles.submenu}>
+                  <li role="menuitem">
+                    <Link
+                      role="none"
+                      href="/about_us"
+                    >
+                      {t("subMenuLearnMore")}
+                    </Link>
+                  </li>
+                  <li role="menuitem">
+                    <Link
+                      role="none"
+                      href="/join_us"
+                    >
+                      {t("subMenuMembership")}
+                    </Link>
+                  </li>
+                  <li role="menuitem">
+                    <Link
+                      role="none"
+                      href="/faq"
+                    >
+                      {t("subMenuFAQs")}
+                    </Link>
+                  </li>
+                  <li role="menuitem">
+                    <Link
+                      role="none"
+                      href="/editorial_board"
+                    >
+                      {t("subMenuEditorial")}
+                    </Link>
+                  </li>
+                  <li role="menuitem">
+                    <Link
+                      role="none"
+                      href="/promote"
+                    >
+                      {t("subMenuLogos")}
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </li>
+
+            {/* Show authenticated user items */}
+            {isAuthenticated && (
+              <>
+                <li role="menuitem">
+                  <div className={styles.dropdown}>
+                    <span>
+                      <Link href="#">{t("menuAdmin")}</Link>
+                    </span>
+                    <ul className={styles.submenu}>
+                      <li role="menuitem">
+                        <Link
+                          role="none"
+                          href={routePath("admin.organizationDetails")}
+                        >
+                          {t("subMenuOrganisations")}
+                        </Link>
+                      </li>
+                      <li role="menuitem">
+                        <Link
+                          role="none"
+                          href={routePath("admin.users")}
+                        >
+                          {t("subMenuUsers")}
+                        </Link>
+                      </li>
+                      <li role="menuitem">
+                        <Link
+                          role="none"
+                          href={routePath("admin.projects")}
+                        >
+                          {t("subMenuPlans")}
+                        </Link>
+                      </li>
+                      <li role="menuitem">
+                        <Link
+                          role="none"
+                          href="/usage"
+                        >
+                          {t("subMenuUsage")}
+                        </Link>
+                      </li>
+                      <li role="menuitem">
+                        <Link
+                          role="none"
+                          href={routePath("admin.templates")}
+                        >
+                          {t("subMenuTemplates")}
+                        </Link>
+                      </li>
+                      <li role="menuitem">
+                        <Link
+                          role="none"
+                          href={routePath("admin.guidance.index")}
+                        >
+                          {t("subMenuGuidance")}
+                        </Link>
+                      </li>
+                      <li role="menuitem">
+                        <Link
+                          role="none"
+                          href="/super_admin/themes"
+                        >
+                          {t("subMenuThemes")}
+                        </Link>
+                      </li>
+                      <li role="menuitem">
+                        <Link
+                          role="none"
+                          href="/super_admin/api_clients"
+                        >
+                          {t("subMenuApiClients")}
+                        </Link>
+                      </li>
+                      <li role="menuitem">
+                        <Link
+                          role="none"
+                          href="/super_admin/api_logs"
+                        >
+                          {t("subMenuApiLogs")}
+                        </Link>
+                      </li>
+                      <li role="menuitem">
+                        <Link
+                          role="none"
+                          href={routePath("admin.notifications")}
+                        >
+                          {t("subMenuNotifications")}
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                </li>
+
+                <li role="menuitem">
+                  <div className={styles.dropdown}>
+                    <span>
+                      <Link href="#">{t("menuLanguage")}</Link>
+                    </span>
+                    <ul
+                      className={styles.submenu}
+                      role="menu"
+                    >
+                      <li role="menuitem">
+                        <Link
+                          role="none"
+                          rel="nofollow"
+                          data-method="patch"
+                          href="/locale/en-US"
+                        >
+                          {t("subMenuEnglish")}
+                        </Link>
+                      </li>
+                      <li role="menuitem">
+                        <Link
+                          role="none"
+                          rel="nofollow"
+                          data-method="patch"
+                          href="/locale/pt-BR"
+                        >
+                          {t("subMenuPortuguese")}
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                </li>
+
+                <li role="menuitem">
+                  <Button
+                    className="react-aria-Button secondary"
+                    onPress={handleLogout}
+                  >
+                    {t("btnLogout")}
+                  </Button>
+                </li>
+              </>
+            )}
+
+            {/* Show login/signup for non-authenticated users */}
+            {!isAuthenticated && (
+              <>
+                <li role="menuitem">
+                  <Button
+                    className="react-aria-Button primary"
+                    onPress={() => router.push(routePath("app.login"))}
+                  >
+                    {t("btnLogin")}
+                  </Button>
+                </li>
+                <li role="menuitem">
+                  <Button
+                    className="react-aria-Button secondary"
+                    onPress={() => router.push("/signup")}
+                  >
+                    {t("btnSignup")}
+                  </Button>
+                </li>
+              </>
+            )}
+          </ul>
         </div>
       </div>
     </header>
-  )
+  );
 }
 
 export default Header;
-

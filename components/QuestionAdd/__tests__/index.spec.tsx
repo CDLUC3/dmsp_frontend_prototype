@@ -358,7 +358,7 @@ describe("QuestionAdd", () => {
     });
 
     // Get the question text input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // add text to question text field
     fireEvent.change(input, { target: { value: 'New Question' } });
@@ -438,7 +438,7 @@ describe("QuestionAdd", () => {
     });
 
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to 'New Question'
     fireEvent.change(input, { target: { value: 'New Question' } });
@@ -466,6 +466,76 @@ describe("QuestionAdd", () => {
         },
       });
     });
+  })
+
+  it('should prevent unload when there are unsaved changes and user tries to navigate away from page', async () => {
+    // Mock addEventListener
+    const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+    const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener');
+    const mockAddQuestionMutation = jest.fn().mockResolvedValueOnce({
+      data: { addQuestion: { id: 1 } },
+    });
+
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      mockAddQuestionMutation,
+      { loading: false, error: undefined },
+    ]);
+
+    const json = JSON.stringify({
+      meta: {
+        asRichText: true,
+        schemaVersion: "1.0"
+      },
+      type: "text",
+      attributes: {
+        pattern: null,
+        maxLength: null,
+        minLength: 0
+      }
+    })
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionType="text"
+          questionName="Text Field"
+          questionJSON={json}
+          sectionId="1"
+        />);
+    });
+
+    // Get the input
+    const input = screen.getByLabelText(/labels.questionText/);
+
+    // Set value to 'New Question'
+    fireEvent.change(input, { target: { value: 'New Question' } });
+
+    // Wait for state update
+    await waitFor(() => {
+      // Get the last registered 'beforeunload' handler
+      const handler = addEventListenerSpy.mock.calls
+        .filter(([event]) => event === 'beforeunload')
+        .map(([, fn]) => fn)
+        .pop();
+
+      // Simulate event of navigating way from page
+      const event = new Event('beforeunload');
+      Object.defineProperty(event, 'returnValue', {
+        writable: true,
+        value: undefined,
+      });
+
+      if (typeof handler === 'function') {
+        handler(event as unknown as BeforeUnloadEvent);
+      } else if (handler && typeof handler.handleEvent === 'function') {
+        handler.handleEvent(event as unknown as BeforeUnloadEvent);
+      } else {
+        throw new Error('beforeunload handler is not callable');
+      }
+    });
+
+    // Cleanup
+    removeEventListenerSpy.mockRestore();
+    addEventListenerSpy.mockRestore();
   })
 
   it('should call addQuestionMutation with correct data for \'textArea\' question type ', async () => {
@@ -503,7 +573,7 @@ describe("QuestionAdd", () => {
     });
 
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to 'New Question'
     fireEvent.change(input, { target: { value: 'New Question' } });
@@ -565,7 +635,7 @@ describe("QuestionAdd", () => {
     });
 
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to 'New Question'
     fireEvent.change(input, { target: { value: 'New Question' } });
@@ -628,7 +698,7 @@ describe("QuestionAdd", () => {
     });
 
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to 'New Question'
     fireEvent.change(input, { target: { value: 'New Question' } });
@@ -690,7 +760,7 @@ describe("QuestionAdd", () => {
     });
 
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to 'New Question'
     fireEvent.change(input, { target: { value: 'New Question' } });
@@ -753,9 +823,9 @@ describe("QuestionAdd", () => {
     });
 
     // Radio button info with order, text and checkbox should be in document
-    expect(screen.getByLabelText('labels.order')).toBeInTheDocument();
-    expect(screen.getByLabelText('labels.text')).toBeInTheDocument();
-    expect(screen.getByLabelText('labels.default')).toBeInTheDocument();
+    expect(screen.getByLabelText(/labels.order/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/labels.text/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/labels.default/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'buttons.addRow' })).toBeInTheDocument();
   })
 
@@ -777,12 +847,12 @@ describe("QuestionAdd", () => {
     });
 
     // Enter Question text
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to empty
     fireEvent.change(input, { target: { value: 'Testing adding new row' } });
 
-    const radioInput = screen.getByLabelText('labels.text');
+    const radioInput = screen.getByLabelText(/labels.text/);
     fireEvent.change(radioInput, { target: { value: 'Yes' } });
 
     const addButton = screen.getByRole('button', { name: /buttons.addRow/i });
@@ -947,7 +1017,7 @@ describe("QuestionAdd", () => {
       />);
 
     // Find the input rendered by RangeComponent
-    const rangeStartInput = screen.getByLabelText('range start');
+    const rangeStartInput = screen.getByLabelText(/range start/);
 
     // Simulate user typing
     fireEvent.change(rangeStartInput, { target: { value: 'New Range Label' } });
@@ -1001,7 +1071,7 @@ describe("QuestionAdd", () => {
       />);
 
     // Find the input rendered by RangeComponent
-    const rangeStartInput = screen.getByLabelText('range start');
+    const rangeStartInput = screen.getByLabelText(/range start/);
 
     // Simulate user typing
     fireEvent.change(rangeStartInput, { target: { value: 'New Range Label' } });
@@ -1052,7 +1122,7 @@ describe("QuestionAdd", () => {
     });
 
     // Get the question text input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // add text to question text field
     fireEvent.change(input, { target: { value: 'New Question' } });
@@ -1401,7 +1471,7 @@ describe("Error handling", () => {
     });
 
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to empty
     fireEvent.change(input, { target: { value: '' } });
@@ -1447,7 +1517,7 @@ describe("Error handling", () => {
     });
 
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to 'New Question'
     fireEvent.change(input, { target: { value: 'New Question' } });
@@ -1588,7 +1658,7 @@ describe("Error handling", () => {
     });
 
     // Get the input
-    const input = screen.getByLabelText('labels.questionText');
+    const input = screen.getByLabelText(/labels.questionText/);
 
     // Set value to empty
     fireEvent.change(input, { target: { value: 'Test' } });

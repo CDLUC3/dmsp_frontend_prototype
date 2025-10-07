@@ -243,7 +243,13 @@ export interface ProjectItemProps {
     roles: string;
     orcid?: string | null;
   }[];
+  plans?: {
+    name: string;
+    dmpId?: string | null;
+    link?: string;
+  }[];
   grantId?: string | null;
+  modified?: string;
   nextCursor?: string | null;
   totalCount?: number | null;
 }
@@ -277,16 +283,19 @@ export interface RadioButtonInterface {
   label: string;
   description?: string | ReactNode;
 }
-export interface RadioButtonProps {
+
+export interface RadioGroupProps {
   name: string;
-  description?: string | ReactNode;
+  value?: string;
   classes?: string;
+  description?: string | ReactNode;
   radioGroupLabel?: string;
-  radioButtonData: RadioButtonInterface[];
-  value: string;
   isInvalid?: boolean;
   errorMessage?: string;
   onChange?: (value: string) => void;
+  isRequired?: boolean;
+  isRequiredVisualOnly?: boolean;
+  children?: ReactNode; // allow any Radio buttons or JSX
 }
 
 export interface CheckboxInterface {
@@ -294,6 +303,7 @@ export interface CheckboxInterface {
   label: string;
   description?: string;
 }
+
 export interface CheckboxGroupProps {
   name?: string;
   checkboxGroupLabel?: string;
@@ -303,7 +313,8 @@ export interface CheckboxGroupProps {
   errorMessage?: string;
   onChange?: ((value: string[]) => void),
   isRequired?: boolean;
-  children: ReactNode; // allow any Checkboxes or JSX
+  isRequiredVisualOnly?: boolean;
+  children?: ReactNode; // allow any Checkboxes or JSX
 }
 
 export interface ProjectMemberErrorInterface {
@@ -400,11 +411,27 @@ export interface AddProjectMemberResponse {
   success: boolean;
   errors?: string[];
   data?: {
-    email: string;
-    errors: {
-      general: string;
-    }
-  }
+    id?: number;
+    givenName?: string;
+    surName?: string;
+    email?: string;
+    affiliation?: {
+      id: number;
+      name: string;
+      uri: string;
+    };
+    orcid?: string | null;
+    errors?: {
+      email?: string | null;
+      surName?: string | null;
+      general?: string | null;
+      givenName?: string | null;
+      orcid?: string | null;
+      memberRoleIds?: string | null;
+      affiliationId?: string | null;
+      projectId?: string | null;
+    };
+  };
   redirect?: string;
 }
 
@@ -454,6 +481,7 @@ export interface MergedComment {
   commentText?: string | null;
   answerId?: number | null;
   created?: string | null;
+  createdById?: number | null;
   type: 'answer' | 'feedback';
   isAnswerComment: boolean;
   isFeedbackComment: boolean;

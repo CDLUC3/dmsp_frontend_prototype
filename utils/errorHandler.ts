@@ -94,19 +94,27 @@ export const handleErrors = async (
 /**
  * Shared function to extract specified errors from an error object.
  * @param errs - The error object (can be any shape)
- * @param keys - The keys to extract errors from
+ * @param keys - (Optional)- The keys to extract errors from
  * @returns Array of error messages (non-empty strings)
  */
 export function extractErrors<T extends Record<string, string | undefined>>(
   errs: T,
-  keys: (keyof T)[]
+  keys?: (keyof T)[]
 ): string[] {
   const newErrors: string[] = [];
 
-  for (const key of keys) {
-    const val = errs[key];
-    if (val) {
-      newErrors.push(val);
+  if (keys && keys.length > 0) {
+    for (const key of keys) {
+      const val = errs[key];
+      if (val) {
+        newErrors.push(val);
+      }
+    }
+  } else {
+    for (const val of Object.values(errs)) {
+      if (val) {
+        newErrors.push(val);
+      }
     }
   }
 
@@ -125,7 +133,7 @@ export function checkErrors<T extends Record<string, string | null | undefined>>
   errs: T,
   keys: (keyof T)[],
 ): [boolean, T] {
-  const noErrors = Object.values(errs).every(val => val === null);
+  const noErrors = Object.values(errs).every(val => !val);
   if (noErrors) return [false, errs];
   return [keys.some((k) => !!errs[k]), errs];
 }

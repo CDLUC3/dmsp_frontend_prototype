@@ -61,6 +61,7 @@ const routes = {
   'projects.fundings.add': '/projects/:projectId/fundings/add',
   'projects.fundings.edit': '/projects/:projectId/fundings/:projectFundingId/edit',
   'projects.members.index': '/projects/:projectId/members',
+  'projects.members.create': '/projects/:projectId/members/create',
   'projects.members.edit': '/projects/:projectId/members/:memberId/edit',
   'projects.members.search': '/projects/:projectId/members/search',
   'projects.outputs.index': '/projects/:projectId/research-outputs',
@@ -75,8 +76,6 @@ const routes = {
   'projects.dmp.members': '/projects/:projectId/dmp/:dmpId/members',
   'projects.dmp.versionedQuestion': '/projects/:projectId/dmp/:dmpId/q',
   'projects.dmp.versionedQuestion.detail': '/projects/:projectId/dmp/:dmpId/s/:versionedSectionId/q/:versionedQuestionId',
-  'projects.dmp.research-outputs': '/projects/:projectId/dmp/:dmpId/research-outputs',
-  'projects.dmp.research-outputs.edit': '/projects/:projectId/dmp/:dmpId/research-outputs/edit',
   'projects.dmp.versionedSection': '/projects/:projectId/dmp/:dmpId/s/:versionedSectionId',
   'projects.dmp.create': '/projects/:projectId/dmp/create',
 
@@ -101,10 +100,33 @@ const routes = {
   'template.edit': '/template/:templateId/edit',
 
   // account/profile
+  'account.index': '/account',
   'account.profile': '/account/profile',
   'account.password': '/account/update-password',
   'account.connections': '/account/connections',
   'account.notifications': '/account/notifications',
+
+  // Admin routes
+  'admin.index': '/admin/',
+  'admin.notifications': '/admin/notifications',
+  'admin.templates': '/admin/templates',
+  'admin.templateCustomizations': '/admin/template-customizations',
+  
+  // Guidance routes
+  'admin.guidance.index': '/admin/guidance',
+  'admin.guidance.groups.index': '/admin/guidance/groups/:groupId',
+  'admin.guidance.groups.edit': '/admin/guidance/groups/:groupId/edit',
+  'admin.guidance.groups.create': '/admin/guidance/groups/create',
+  'admin.guidance.groups.texts.create': '/admin/guidance/groups/:groupId/create',
+  'admin.guidance.groups.texts.edit': '/admin/guidance/groups/:groupId/edit/:textId',
+  
+  'admin.projects': '/admin/projects',
+  'admin.organizationDetails': '/admin/organization-details',
+  'admin.departments': '/admin/departments',
+  'admin.users': '/admin/users',
+  'admin.emailPreferences': '/admin/email-preferences',
+  'admin.feedbackOptions': '/admin/feedback-options',
+  'admin.statistics': '/admin/statistics',
 
 
   // Help pages

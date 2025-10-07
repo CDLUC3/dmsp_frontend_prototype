@@ -6,7 +6,7 @@
   margin: 0 var(--fs-xl);
 
   .tooltipButton {
-    background: none;
+    background: none !important;
     border: none;
     margin: 0;
     padding: 0;
@@ -36,4 +36,5 @@
 
 .trashcanIcon {
   cursor: pointer;
+  fill: var(--blue-900) !important;
 }

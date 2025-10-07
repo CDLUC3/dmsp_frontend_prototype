@@ -18,29 +18,29 @@ describe('TypeAheadSearch', () => {
 
   it('should render both FormInput fields with correct labels and placeholders', () => {
     render(<TypeAheadSearch {...defaultProps} />);
-    expect(screen.getByLabelText('Search label')).toBeInTheDocument();
-    expect(screen.getByLabelText('Help text')).toBeInTheDocument();
+    expect(screen.getByLabelText(/search label/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/help text/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Enter search label')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Enter the help text you want to display')).toBeInTheDocument();
   });
 
   it('should call handleTypeAheadSearchLabelChange when search label input changes', () => {
     render(<TypeAheadSearch {...defaultProps} />);
-    const searchLabelInput = screen.getByLabelText('Search label');
+    const searchLabelInput = screen.getByLabelText(/search label/i);
     fireEvent.change(searchLabelInput, { target: { value: 'New Label' } });
     expect(mockLabelChange).toHaveBeenCalledWith('New Label');
   });
 
   it('should call handleTypeAheadHelpTextChange when help text input changes', () => {
     render(<TypeAheadSearch {...defaultProps} />);
-    const helpTextInput = screen.getByLabelText('Help text');
+    const helpTextInput = screen.getByLabelText(/help text/i);
     fireEvent.change(helpTextInput, { target: { value: 'New Help' } });
     expect(mockHelpTextChange).toHaveBeenCalledWith('New Help');
   });
 
   it('should show the correct values in the input fields', () => {
     render(<TypeAheadSearch {...defaultProps} />);
-    expect(screen.getByLabelText('Search label')).toHaveValue('Initial Label');
-    expect(screen.getByLabelText('Help text')).toHaveValue('Initial Help');
+    expect(screen.getByLabelText(/search label/i)).toHaveValue('Initial Label');
+    expect(screen.getByLabelText(/help text/i)).toHaveValue('Initial Help');
   });
 });

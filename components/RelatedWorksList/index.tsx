@@ -238,7 +238,7 @@ export const RelatedWorksList = ({ status }: RelatedWorksListProps) => {
           totalPages={1}
           hasPreviousPage={false}
           hasNextPage={false}
-          handlePageClick={() => {}}
+          handlePageClick={() => { }}
         />
       </div>
     </div>
@@ -282,7 +282,10 @@ const Select = ({
         }}
       >
         {label != null && <span>{placeholder}</span>}
-        <Button>
+        <Button
+          type="button"
+          className="react-aria-Button selectButton"
+        >
           <SelectValue />
           <span aria-hidden="true">▼</span>
         </Button>

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { useEffect, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { useParams, useRouter } from 'next/navigation';
+import React, { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
+import { useParams, useRouter } from "next/navigation";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -19,7 +19,7 @@ import {
   Text,
   TextArea,
   TextField,
-} from 'react-aria-components';
+} from "react-aria-components";
 
 import {
   Section,
@@ -28,24 +28,21 @@ import {
   useArchiveTemplateMutation,
   useCreateTemplateVersionMutation,
   useTemplateQuery,
-} from '@/generated/graphql';
+} from "@/generated/graphql";
 
 // Components
 import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
 import AddSectionButton from "@/components/AddSectionButton";
-import ErrorMessages from '@/components/ErrorMessages';
-import SectionEditContainer from '@/components/SectionEditContainer';
+import ErrorMessages from "@/components/ErrorMessages";
+import SectionEditContainer from "@/components/SectionEditContainer";
 
-import { useFormatDate } from '@/hooks/useFormatDate';
-import logECS from '@/utils/clientLogger';
-import { useToast } from '@/context/ToastContext';
-import { routePath } from '@/utils/routes';
-import { extractErrors } from '@/utils/errorHandler';
-import {
-  updateTemplateAction,
-  updateSectionDisplayOrderAction
-} from './actions';
-import styles from './templateEditPage.module.scss';
+import { useFormatDate } from "@/hooks/useFormatDate";
+import logECS from "@/utils/clientLogger";
+import { useToast } from "@/context/ToastContext";
+import { routePath } from "@/utils/routes";
+import { extractErrors } from "@/utils/errorHandler";
+import { updateTemplateAction, updateSectionDisplayOrderAction } from "./actions";
+import styles from "./templateEditPage.module.scss";
 interface TemplateInfoInterface {
   templateId: number | null;
   name: string;
@@ -65,21 +62,21 @@ const TemplateEditPage: React.FC = () => {
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [templateInfo, setTemplateInfoState] = useState<TemplateInfoInterface>({
     templateId: null,
-    name: '',
+    name: "",
   });
   //Track local section order - using optimistic rendering
   const [localSections, setLocalSections] = useState<Section[]>([]);
   const [isReordering, setIsReordering] = useState(false);
 
   // Added for accessibility
-  const [announcement, setAnnouncement] = useState('');
+  const [announcement, setAnnouncement] = useState("");
 
   // localization keys
-  const BreadCrumbs = useTranslations('Breadcrumbs');
-  const EditTemplate = useTranslations('EditTemplates');
-  const PublishTemplate = useTranslations('PublishTemplate');
-  const Messaging = useTranslations('Messaging');
-  const Global = useTranslations('Global');
+  const BreadCrumbs = useTranslations("Breadcrumbs");
+  const EditTemplate = useTranslations("EditTemplates");
+  const PublishTemplate = useTranslations("PublishTemplate");
+  const Messaging = useTranslations("Messaging");
+  const Global = useTranslations("Global");
 
   // Used to set the translated visibility text, based on the
   // public/private choice.
@@ -99,29 +96,31 @@ const TemplateEditPage: React.FC = () => {
   const [archiveTemplateMutation] = useArchiveTemplateMutation();
 
   // Run template query to get all templates under the given templateIdx
-  const { data, loading, error: templateQueryErrors, refetch } = useTemplateQuery(
-    {
-      variables: { templateId: Number(templateId) },
-      notifyOnNetworkStatusChange: true,
-      fetchPolicy: "network-only",// Fetch latest data instead of cache so we get the latest sections and questions after adding new ones
-    }
-  );
+  const {
+    data,
+    loading,
+    error: templateQueryErrors,
+    refetch,
+  } = useTemplateQuery({
+    variables: { templateId: Number(templateId) },
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: "network-only", // Fetch latest data instead of cache so we get the latest sections and questions after adding new ones
+  });
 
   const sortSections = (sections: Section[]) => {
     // Create a new array with the spread operator before sorting
-    return [...sections].sort((a, b) => (a.displayOrder!) - (b.displayOrder!));
+    return [...sections].sort((a, b) => a.displayOrder! - b.displayOrder!);
   };
 
   const showSuccessToast = () => {
-    const successMessage = Messaging('successfullyUpdated');
-    toastState.add(successMessage, { type: 'success' });
+    const successMessage = Messaging("successfullyUpdated");
+    toastState.add(successMessage, { type: "success" });
   };
 
-
   const showSuccessArchiveToast = () => {
-    const successMessage = EditTemplate('messages.successfullyArchived');
-    toastState.add(successMessage, { type: 'success' });
-  }
+    const successMessage = EditTemplate("messages.successfullyArchived");
+    toastState.add(successMessage, { type: "success" });
+  };
 
   const handleArchiveTemplate = async () => {
     try {
@@ -131,27 +130,21 @@ const TemplateEditPage: React.FC = () => {
         },
       });
 
-      const responseErrors = response.data?.archiveTemplate?.errors
-      if (
-        responseErrors &&
-        typeof responseErrors.general === 'string') {
+      const responseErrors = response.data?.archiveTemplate?.errors;
+      if (responseErrors && typeof responseErrors.general === "string") {
         if (responseErrors.general) {
           const message = responseErrors.general;
-          setErrorMessages(prev => [
-            ...prev,
-            message
-          ]);
+          setErrorMessages((prev) => [...prev, message]);
         }
-
       } else {
         showSuccessArchiveToast();
-        router.push(routePath('template.show', { templateId }));
+        router.push(routePath("template.show", { templateId }));
       }
     } catch (err) {
-      setErrorMessages(prevErrors => [...prevErrors, EditTemplate('errors.archiveTemplateError')]);
-      logECS('error', 'handleArchiveTemplate', {
+      setErrorMessages((prevErrors) => [...prevErrors, EditTemplate("errors.archiveTemplateError")]);
+      logECS("error", "handleArchiveTemplate", {
         error: err,
-        url: { path: '/template/[templateId]' }
+        url: { path: "/template/[templateId]" },
       });
     }
   };
@@ -160,13 +153,12 @@ const TemplateEditPage: React.FC = () => {
   const saveTemplate = async (
     versionType: TemplateVersionType,
     comment: string | undefined,
-    latestPublishVisibility: TemplateVisibility
+    latestPublishVisibility: TemplateVisibility,
   ) => {
-
     setErrorMessages([]); // Clear previous errors
 
     if (!latestPublishVisibility) {
-      setErrorMessages([EditTemplate('errors.saveTemplateError')]);
+      setErrorMessages([EditTemplate("errors.saveTemplateError")]);
       return;
     }
 
@@ -183,7 +175,7 @@ const TemplateEditPage: React.FC = () => {
       const result = response?.data?.createTemplateVersion;
 
       if (!result) {
-        setErrorMessages([EditTemplate('errors.saveTemplateError')]);
+        setErrorMessages([EditTemplate("errors.saveTemplateError")]);
         return;
       }
 
@@ -197,11 +189,11 @@ const TemplateEditPage: React.FC = () => {
       showSuccessToast();
       await refetch();
     } catch (err) {
-      setErrorMessages([EditTemplate('errors.saveTemplateError')]);
+      setErrorMessages([EditTemplate("errors.saveTemplateError")]);
 
-      logECS('error', 'saveTemplate', {
+      logECS("error", "saveTemplate", {
         error: err,
-        url: { path: '/template/[templateId]' },
+        url: { path: "/template/[templateId]" },
       });
     }
   };
@@ -213,30 +205,29 @@ const TemplateEditPage: React.FC = () => {
     const formData = new FormData(form);
 
     // Extract the selected radio button value, and make it upper case to match TemplateVisibility enum values
-    const latestPublishVisibility = formData.get('visibility')?.toString().toUpperCase() as TemplateVisibility;
-    const changeLog = formData.get('change_log')?.toString();
+    const latestPublishVisibility = formData.get("visibility")?.toString().toUpperCase() as TemplateVisibility;
+    const changeLog = formData.get("change_log")?.toString();
 
     await saveTemplate(TemplateVersionType.Published, changeLog, latestPublishVisibility);
   };
 
   const handlePressPublishTemplate = () => {
     setPublishModalOpen(true);
-  }
+  };
 
   // Call Server Action updateTemplateAction
   const updateTemplate = async (templateInfo: TemplateInfoInterface) => {
-
     if (templateInfo.templateId === null) {
       // Handle the case where templateId is null (e.g., log an error or return early)
-      logECS('error', 'updateTemplate', {
-        error: 'templateId is null',
+      logECS("error", "updateTemplate", {
+        error: "templateId is null",
         url: {
-          path: routePath('template.show', { templateId: 'unknown' }),
+          path: routePath("template.show", { templateId: "unknown" }),
         },
       });
       return {
         success: false,
-        errors: [EditTemplate('errors.updateTemplateError')],
+        errors: [EditTemplate("errors.updateTemplateError")],
         data: null,
       };
     }
@@ -247,7 +238,6 @@ const TemplateEditPage: React.FC = () => {
       name: templateInfo.name,
     });
 
-
     if (response.redirect) {
       router.push(response.redirect);
     }
@@ -257,7 +247,7 @@ const TemplateEditPage: React.FC = () => {
       errors: response.errors,
       data: response.data,
     };
-  }
+  };
 
   const handleTitleChange = async (newTitle: string) => {
     const result = await updateTemplate({
@@ -266,48 +256,46 @@ const TemplateEditPage: React.FC = () => {
     });
 
     if (!result.success) {
-      setErrorMessages([EditTemplate('errors.updateTitleError')])
+      setErrorMessages([EditTemplate("errors.updateTitleError")]);
     } else {
       if (result.data?.errors) {
         // Handle errors as an object with general or field-level errors
-        const errs = extractErrors<UpdateTemplateErrors>(result?.data?.errors, ['general', 'name', 'description']);
+        const errs = extractErrors<UpdateTemplateErrors>(result?.data?.errors, ["general", "name", "description"]);
         if (errs.length > 0) {
           setErrorMessages(errs);
           return;
         }
         setTemplateInfoState({
           ...templateInfo,
-          name: newTitle
-        })
+          name: newTitle,
+        });
 
-        const successMessage = EditTemplate('messages.successfullyUpdatedTitle');
-        toastState.add(successMessage, { type: 'success' });
+        const successMessage = EditTemplate("messages.successfullyUpdatedTitle");
+        toastState.add(successMessage, { type: "success" });
       }
     }
-  }
+  };
 
   function handleVisibilityChange(value: string) {
     if (value == "public") {
-      setVisibilityText(PublishTemplate('bullet.publishingTemplate3'));
+      setVisibilityText(PublishTemplate("bullet.publishingTemplate3"));
     } else if (value == "organization") {
-      setVisibilityText(PublishTemplate('bullet.publishingTemplate3Private'));
+      setVisibilityText(PublishTemplate("bullet.publishingTemplate3Private"));
     }
   }
 
-
   // Call Server Action updateSectionDisplayOrderAction
   const updateSectionDisplayOrder = async (sectionId: number, newDisplayOrder: number) => {
-
     if (!sectionId) {
-      logECS('error', 'updateSectionDisplayOrder', {
-        error: 'No sectionId',
+      logECS("error", "updateSectionDisplayOrder", {
+        error: "No sectionId",
         url: {
-          path: routePath('template.show', { templateId }),
+          path: routePath("template.show", { templateId }),
         },
       });
       return {
         success: false,
-        errors: [EditTemplate('errors.updateDisplayOrderError')],
+        errors: [EditTemplate("errors.updateDisplayOrderError")],
         data: null,
       };
     }
@@ -315,9 +303,8 @@ const TemplateEditPage: React.FC = () => {
     // Don't need a try-catch block here, as the error is handled in the server action
     const response = await updateSectionDisplayOrderAction({
       sectionId,
-      newDisplayOrder
+      newDisplayOrder,
     });
-
 
     if (response.redirect) {
       router.push(response.redirect);
@@ -328,18 +315,18 @@ const TemplateEditPage: React.FC = () => {
       errors: response.errors,
       data: response.data,
     };
-  }
+  };
 
   // Optimistic update function
   const updateLocalSectionOrder = (sectionId: number, newDisplayOrder: number) => {
-    setLocalSections(prevSections => {
+    setLocalSections((prevSections) => {
       const oldSections = [...prevSections];
-      const movedSection = oldSections.find(s => s.id === sectionId);
+      const movedSection = oldSections.find((s) => s.id === sectionId);
       if (!movedSection || movedSection.displayOrder == null) return prevSections;
 
       const oldOrder = movedSection.displayOrder;
 
-      const updatedSections = oldSections.map(section => {
+      const updatedSections = oldSections.map((section) => {
         if (section.id === sectionId) {
           // The moved section gets the new displayOrder
           return { ...section, displayOrder: newDisplayOrder };
@@ -367,32 +354,32 @@ const TemplateEditPage: React.FC = () => {
     });
   };
 
-  const validateSectionMove = (sectionId: number, newDisplayOrder: number): { isValid: boolean, message?: string } => {
-    const currentSection = localSections.find(s => s.id === sectionId);
+  const validateSectionMove = (sectionId: number, newDisplayOrder: number): { isValid: boolean; message?: string } => {
+    const currentSection = localSections.find((s) => s.id === sectionId);
 
     // If current section doesn't exist in localSections
     if (!currentSection || currentSection.displayOrder == null) {
-      const errorMsg = EditTemplate('errors.updateDisplayOrderError');
-      return { isValid: false, message: errorMsg }
+      const errorMsg = EditTemplate("errors.updateDisplayOrderError");
+      return { isValid: false, message: errorMsg };
     }
 
     // If new display order is zero
-    const maxDisplayOrder = Math.max(...localSections.map(s => s.displayOrder || 0));
+    const maxDisplayOrder = Math.max(...localSections.map((s) => s.displayOrder || 0));
     if (newDisplayOrder < 1) {
-      const errorMsg = EditTemplate('errors.displayOrderAlreadyAtTop');
-      return { isValid: false, message: errorMsg }
+      const errorMsg = EditTemplate("errors.displayOrderAlreadyAtTop");
+      return { isValid: false, message: errorMsg };
     }
 
     // If new display order exceeds max number of sections
     if (newDisplayOrder > maxDisplayOrder) {
-      const errorMsg = EditTemplate('errors.cannotMoveFurtherDown');
-      return { isValid: false, message: errorMsg }
+      const errorMsg = EditTemplate("errors.cannotMoveFurtherDown");
+      return { isValid: false, message: errorMsg };
     }
 
     // If new display order is same as current display order
     if (currentSection.displayOrder === newDisplayOrder) {
-      const errorMsg = EditTemplate('errors.cannotMoveFurtherUpOrDown');
-      return { isValid: false, message: errorMsg }
+      const errorMsg = EditTemplate("errors.cannotMoveFurtherUpOrDown");
+      return { isValid: false, message: errorMsg };
     }
 
     return { isValid: true };
@@ -407,7 +394,7 @@ const TemplateEditPage: React.FC = () => {
     const { isValid, message } = validateSectionMove(sectionId, newDisplayOrder);
     if (!isValid && message) {
       // Deliver toast error messages
-      toastState.add(message, { type: 'error' });
+      toastState.add(message, { type: "error" });
       return;
     }
 
@@ -415,45 +402,38 @@ const TemplateEditPage: React.FC = () => {
     updateLocalSectionOrder(sectionId, newDisplayOrder);
     setIsReordering(true);
 
-    try {
-      const result = await updateSectionDisplayOrder(sectionId, newDisplayOrder);
+    const result = await updateSectionDisplayOrder(sectionId, newDisplayOrder);
 
-      if (!result.success) {
-        // Revert optimistic update on failure
-        await refetch();
-        const errors = result.errors;
-        if (Array.isArray(errors)) {
-          setErrorMessages(errors.length > 0 ? errors : [EditTemplate('errors.updateDisplayOrderError')]);
-        }
-      } else if (result.data?.errors?.general) {
-        // Revert on server errors
-        await refetch();
-        setErrorMessages(prev => [...prev, result.data?.errors?.general || EditTemplate('errors.updateDisplayOrderError')]);
-      }
-      // After successful update
-
-      // Scroll user to the reordered section
-      const focusedElement = document.activeElement;
-
-      // Check if an element is actually focused
-      if (focusedElement) {
-        // Scroll the focused element into view
-        focusedElement.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-          inline: 'nearest'
-        });
-      }
-      // Set accessible announcement
-      const message = EditTemplate('messages.sectionMoved', { displayOrder: newDisplayOrder })
-      setAnnouncement(message);
-    } catch {
-      // Revert optimistic update on network error
+    if (!result.success) {
+      // Revert optimistic update on failure
       await refetch();
-      setErrorMessages(prev => [...prev, EditTemplate('errors.updateDisplayOrderError')]);
-    } finally {
-      setIsReordering(false);
+      const errors = result.errors;
+      if (Array.isArray(errors)) {
+        setErrorMessages((prev) => [...prev, ...errors]);
+      }
+    } else if (result.data?.errors?.general) {
+      // Revert on server errors
+      await refetch();
+      setErrorMessages((prev) => [...prev, result.data?.errors?.general || ""]);
     }
+    // After successful update
+
+    // Scroll user to the reordered section
+    const focusedElement = document.activeElement;
+
+    // Check if an element is actually focused
+    if (focusedElement) {
+      // Scroll the focused element into view
+      focusedElement.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "nearest",
+      });
+    }
+    // Set accessible announcement
+    const accessibleMessage = EditTemplate("messages.sectionMoved", { displayOrder: newDisplayOrder });
+    setAnnouncement(accessibleMessage);
+    setIsReordering(false);
   };
 
   // Need to set this info to update template title
@@ -461,58 +441,73 @@ const TemplateEditPage: React.FC = () => {
     if (data?.template) {
       setTemplateInfoState({
         templateId: data.template.id ? Number(data.template.id) : null,
-        name: data.template.name || '',
+        name: data.template.name || "",
       });
     }
 
     if (data?.template?.sections) {
-      const sorted = sortSections(
-        data.template.sections.filter((section): section is Section => section !== null)
-      );
+      const sorted = sortSections(data.template.sections.filter((section): section is Section => section !== null));
       setLocalSections(sorted);
     }
   }, [data]);
 
   if (loading) {
-    return <div>{Global('messaging.loading')}...</div>;
+    return <div>{Global("messaging.loading")}...</div>;
   }
 
   if (templateQueryErrors) {
-    return <div>{EditTemplate('errors.getTemplatesError')}</div>;
+    return <div>{EditTemplate("errors.getTemplatesError")}</div>;
   }
 
   const template = data?.template;
 
   if (!template) {
-    return <div>{EditTemplate('errors.noTemplateFound')}</div>;
+    return <div>{EditTemplate("errors.noTemplateFound")}</div>;
   }
 
   // Format the latest publish date if it exists
   const formattedPublishDate = template.latestPublishDate ? formatDate(template.latestPublishDate) : null;
 
-
   // Use localSections instead of sortedSections in render
-  const sectionsToRender = localSections.length > 0 ? localSections :
-    (template.sections ? sortSections(template.sections.filter((section): section is Section => section !== null)) : []);
+  const sectionsToRender =
+    localSections.length > 0
+      ? localSections
+      : template.sections
+        ? sortSections(template.sections.filter((section): section is Section => section !== null))
+        : [];
 
-  const description = `by ${template?.name}` +
-    (template?.latestPublishVersion ? ` - ${Global('version')}: ${template.latestPublishVersion}` : '') +
-    (template?.latestPublishDate || formattedPublishDate ? ` - ${Global('lastUpdated')}: ${formattedPublishDate || template.latestPublishDate}` : '');
-
-
+  const description =
+    `by ${template?.owner?.displayName}` +
+    (template?.latestPublishVersion ? ` - ${Global("version")}: ${template.latestPublishVersion}` : "") +
+    (formattedPublishDate ? ` - ${Global("lastUpdated")}: ${formattedPublishDate}` : "");
 
   return (
     <div>
       <PageHeaderWithTitleChange
         title={templateInfo.name}
         description={description}
-        linkText={EditTemplate('links.editTemplateTitle')}
-        labelText={EditTemplate('templateTitleLabel')}
+        descriptionAppend={
+          <>
+            -{" "}
+            <Link
+              className={styles.templateHistoryLink}
+              href={routePath("template.history", { templateId })}
+            >
+              {Global("links.viewHistory")}
+            </Link>
+          </>
+        }
+        linkText={EditTemplate("links.editTemplateTitle")}
+        labelText={EditTemplate("templateTitleLabel")}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{BreadCrumbs('home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template">{BreadCrumbs('templates')}</Link></Breadcrumb>
+            <Breadcrumb>
+              <Link href="/">{BreadCrumbs("home")}</Link>
+            </Breadcrumb>
+            <Breadcrumb>
+              <Link href="/template">{BreadCrumbs("templates")}</Link>
+            </Breadcrumb>
             <Breadcrumb>{template.name}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -520,15 +515,18 @@ const TemplateEditPage: React.FC = () => {
         onTitleChange={handleTitleChange}
       />
 
-      <ErrorMessages errors={errorMessages} ref={errorRef} />
+      <ErrorMessages
+        errors={errorMessages}
+        ref={errorRef}
+      />
 
       <div className="template-editor-container">
         <div className="main-content">
           {sectionsToRender.length > 0 && (
             <div>
               {sectionsToRender
-                .filter(section => section.id != null)
-                .map(section => (
+                .filter((section) => section.id != null)
+                .map((section) => (
                   <SectionEditContainer
                     key={section.id}
                     sectionId={section.id as number}
@@ -552,96 +550,106 @@ const TemplateEditPage: React.FC = () => {
           <AddSectionButton href={`/template/${templateId}/section/new`} />
         </div>
         <aside className="sidebar">
-          <div className="sidebar-inner">
-            <h2>{EditTemplate('titleStatus')}</h2>
-            <div className="sidebar-section">
-
-              <Button data-secondary className="my-3 secondary"
-                onPress={() => saveTemplate(TemplateVersionType.Draft, '', TemplateVisibility.Organization)}>
-                {EditTemplate('button.saveAsDraft')}
-              </Button>
-
-              <Button data-tertiary className="my-3"
-                onPress={() => console.log('Preview')}>{EditTemplate('button.previewTemplate')}</Button>
-
-            </div>
-
-            {template.isDirty && (
-              <div className="sidebar-section">
-                <h3 className="h5 sidebar-section-title">{EditTemplate('button.publishTemplate')}</h3>
-                <div className="status">
-                  <p>
-                    {EditTemplate('draft')} <Link href='#' onPress={() => setPublishModalOpen(true)}>{EditTemplate('links.edit')}</Link>
-                  </p>
-                </div>
-              </div>
-            )}
-
-            <div className="sidebar-section">
-              <h3 className="h5 sidebar-section-title">{EditTemplate('heading.visibilitySettings')}</h3>
-              <div className="status">
-                <p>
-                  {template.isDirty ? EditTemplate('notPublished') : EditTemplate('published')}{' '}<Link href='#' onPress={() => setPublishModalOpen(true)}>{EditTemplate('links.edit')}</Link>
-                </p>
-              </div>
-            </div>
-
-
-            <div className="sidebar-section">
-              <h3 className="h5 sidebar-section-title">{EditTemplate('heading.feedbackAndCollaboration')}</h3>
-              <div className="description">
-                <p>
-                  {EditTemplate('allowAccess')}
-                </p>
-                <p>
-                  <Link className="learn-more"
-                    href={`/template/${templateId}/access`}>
-                    {EditTemplate('links.manageAccess')}
-                  </Link>
-                </p>
-              </div>
-            </div>
-
-
-            <div className="sidebar-section">
+          <div className="statusPanelContent sidePanel">
+            <div className="buttonContainer withBorder mb-5">
               <Button
-                className="my-3"
-                onPress={() => handlePressPublishTemplate()}
+                data-secondary
+                className="secondary"
+                onPress={() => saveTemplate(TemplateVersionType.Draft, "", TemplateVisibility.Organization)}
               >
-                {EditTemplate('button.publishTemplate')}
+                {EditTemplate("button.saveAsDraft")}
               </Button>
-              <h3 className="h5 sidebar-section-title">{EditTemplate('heading.history')}</h3>
-              <p>
-                <Link className="learn-more"
-                  href={`/template/${templateId}/history`}>
-                  {EditTemplate('links.templateHistory')}
-                </Link>
-              </p>
+              <Button onPress={() => handlePressPublishTemplate()}>{EditTemplate("button.publishTemplate")}</Button>
             </div>
 
+            <div className="sidePanelContent">
+              <div className="panelRow mb-5">
+                <div>
+                  <h3>{EditTemplate("button.previewTemplate")}</h3>
+                </div>
+                <Link
+                  href="#"
+                  onPress={() => console.log("Preview")}
+                  className="sidePanelLink"
+                >
+                  Preview
+                </Link>
+              </div>
 
+              {template.isDirty && (
+                <div className="panelRow mb-5">
+                  <div>
+                    <h3>{EditTemplate("button.publishTemplate")}</h3>
+                    <p>{EditTemplate("draft")}</p>
+                  </div>
+                  <Link
+                    href="#"
+                    onPress={() => setPublishModalOpen(true)}
+                    className="sidePanelLink"
+                  >
+                    {EditTemplate("links.edit")}
+                  </Link>
+                </div>
+              )}
+
+              <div className="panelRow mb-5">
+                <div>
+                  <h3>{EditTemplate("heading.visibilitySettings")}</h3>
+                  <p>{template.isDirty ? EditTemplate("notPublished") : EditTemplate("published")}</p>
+                </div>
+                <Link
+                  href="#"
+                  onPress={() => setPublishModalOpen(true)}
+                  className="sidePanelLink"
+                >
+                  {EditTemplate("links.edit")}
+                </Link>
+              </div>
+
+              <div className="panelRow mb-5">
+                <div>
+                  <h3>{EditTemplate("heading.feedbackAndCollaboration")}</h3>
+                  <p>{EditTemplate("allowAccess")}</p>
+                </div>
+                <Link
+                  href={`/template/${templateId}/access`}
+                  className="sidePanelLink"
+                >
+                  {EditTemplate("links.manageAccess")}
+                </Link>
+              </div>
+
+              <div className="panelRow mb-5">
+                <div>
+                  <h3>{EditTemplate("heading.history")}</h3>
+                </div>
+                <Link
+                  href={`/template/${templateId}/history`}
+                  className="sidePanelLink"
+                >
+                  {EditTemplate("links.templateHistory")}
+                </Link>
+              </div>
+            </div>
           </div>
         </aside>
       </div>
       <div className="template-archive-container">
         <div className="main-content">
-          <h2>
-            {EditTemplate('heading.archiveTemplate')}
-          </h2>
-          <p>
-            {EditTemplate('description.archiveTemplate')}
-          </p>
+          <h2>{EditTemplate("heading.archiveTemplate")}</h2>
+          <p>{EditTemplate("description.archiveTemplate")}</p>
           <Form>
             <Button
               className="my-3"
               data-tertiary
               data-testid="archive-template"
-              onPress={handleArchiveTemplate}>{EditTemplate('button.archiveTemplate')}
+              onPress={handleArchiveTemplate}
+            >
+              {EditTemplate("button.archiveTemplate")}
             </Button>
           </Form>
         </div>
       </div>
-
 
       <Modal
         isDismissable
@@ -651,23 +659,31 @@ const TemplateEditPage: React.FC = () => {
       >
         <Dialog>
           <div>
-            <Form onSubmit={e => handleSubmit(e)} data-testid="publishForm">
-              <Heading slot="title">{PublishTemplate('heading.publish')}</Heading>
+            <Form
+              onSubmit={(e) => handleSubmit(e)}
+              data-testid="publishForm"
+            >
+              <Heading slot="title">{PublishTemplate("heading.publish")}</Heading>
 
               <RadioGroup
                 name="visibility"
                 onChange={handleVisibilityChange}
                 defaultValue={
                   template.latestPublishDate
-                    ? (template.latestPublishVisibility === 'PUBLIC' ? 'public' :
-                      template.latestPublishVisibility === 'ORGANIZATION' ? 'organization' :
-                        undefined)
+                    ? template.latestPublishVisibility === "PUBLIC"
+                      ? "public"
+                      : template.latestPublishVisibility === "ORGANIZATION"
+                        ? "organization"
+                        : undefined
                     : undefined
                 }
               >
-                <Label>{PublishTemplate('heading.visibilitySettings')}</Label>
-                <Text slot="description" className="help">
-                  {PublishTemplate('descPublishedTemplate')}
+                <Label>{PublishTemplate("heading.visibilitySettings")}</Label>
+                <Text
+                  slot="description"
+                  className="help"
+                >
+                  {PublishTemplate("descPublishedTemplate")}
                 </Text>
                 <Radio
                   data-testid="visPublic"
@@ -675,8 +691,8 @@ const TemplateEditPage: React.FC = () => {
                   className={`${styles.radioBtn} react-aria-Radio`}
                 >
                   <div>
-                    <span>{PublishTemplate('radioBtn.public')}</span>
-                    <p className="text-gray-600 text-sm">{PublishTemplate('radioBtn.publicHelpText')}</p>
+                    <span>{PublishTemplate("radioBtn.public")}</span>
+                    <p className="text-gray-600 text-sm">{PublishTemplate("radioBtn.publicHelpText")}</p>
                   </div>
                 </Radio>
                 <Radio
@@ -685,68 +701,66 @@ const TemplateEditPage: React.FC = () => {
                   className={`${styles.radioBtn} react-aria-Radio`}
                 >
                   <div>
-                    <span>{PublishTemplate('radioBtn.organizationOnly')}</span>
-                    <p className="text-gray-600 text-sm">{PublishTemplate('radioBtn.orgOnlyHelpText')}</p>
+                    <span>{PublishTemplate("radioBtn.organizationOnly")}</span>
+                    <p className="text-gray-600 text-sm">{PublishTemplate("radioBtn.orgOnlyHelpText")}</p>
                   </div>
                 </Radio>
               </RadioGroup>
 
               <p>
-                <strong>
-                  {PublishTemplate('heading.publishingThisTemplate')}
-                </strong>
+                <strong>{PublishTemplate("heading.publishingThisTemplate")}</strong>
               </p>
 
               <ul>
-                <li>
-                  {PublishTemplate('bullet.publishingTemplate')}
-                </li>
-                <li>
-                  {PublishTemplate('bullet.publishingTemplate2')}
-                </li>
-                {visibilityText && (
-                  <li data-testid="visText">
-                    {visibilityText}
-                  </li>
-                )}
+                <li>{PublishTemplate("bullet.publishingTemplate")}</li>
+                <li>{PublishTemplate("bullet.publishingTemplate2")}</li>
+                {visibilityText && <li data-testid="visText">{visibilityText}</li>}
               </ul>
               <div className="">
-
                 <TextField
                   name="change_log"
                   isRequired
                 >
-                  <Label>{PublishTemplate('heading.changeLog')}</Label>
-                  <Text slot="description" className="help">
-                    {PublishTemplate('descChangeLog')}
+                  <Label>{PublishTemplate("heading.changeLog")}</Label>
+                  <Text
+                    slot="description"
+                    className="help"
+                  >
+                    {PublishTemplate("descChangeLog")}
                   </Text>
                   <TextArea
                     data-testid="changeLog"
-                    style={{ height: '100px' }}
+                    style={{ height: "100px" }}
                   />
                   <FieldError />
                 </TextField>
-
               </div>
-
 
               <div className="modal-actions">
                 <div className="">
-                  <Button data-secondary onPress={() => setPublishModalOpen(false)}>{PublishTemplate('button.close')}</Button>
+                  <Button
+                    data-secondary
+                    onPress={() => setPublishModalOpen(false)}
+                  >
+                    {PublishTemplate("button.close")}
+                  </Button>
                 </div>
                 <div className="">
-                  <Button type="submit">{PublishTemplate('button.saveAndPublish')}</Button>
+                  <Button type="submit">{PublishTemplate("button.saveAndPublish")}</Button>
                 </div>
               </div>
-
             </Form>
           </div>
         </Dialog>
       </Modal>
-      <div aria-live="polite" aria-atomic="true" className="hidden-accessibly">
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        className="hidden-accessibly"
+      >
         {announcement}
       </div>
-    </div >
+    </div>
   );
 };
 

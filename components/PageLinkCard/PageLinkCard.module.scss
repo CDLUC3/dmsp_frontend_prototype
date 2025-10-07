@@ -1,0 +1,104 @@
+@use "../../styles/responsive" as r;
+
+.adminSection {
+    margin-bottom: var(--space-8);
+
+    h2 {
+        font-size: var(--fs-2xl);
+        font-weight: var(--fw-bold);
+        margin: 0 0 var(--space-4) 0;
+        color: var(--heading-color);
+        padding-bottom: var(--space-2);
+    }
+
+    .sectionDescription {
+        margin: 0 0 var(--space-4) 0;
+        color: var(--text-color-base);
+        line-height: var(--lh-normal);
+        font-size: var(--fs-base);
+    }
+}
+
+.sectionGrid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.adminCard {
+    display: block;
+    background: var(--bg-white);
+    border: none;
+    border-radius: var(--card-border-radius);
+    padding: var(--card-padding);
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+    box-shadow: var(--card-shadow);
+
+
+    &:hover {
+        text-decoration: none;
+
+    }
+
+    &:focus {
+        outline: 2px solid var(--focus-ring-color);
+        outline-offset: 2px;
+    }
+
+    &:hover .cardHeader h3,
+    &:focus .cardHeader h3 {
+        text-decoration: underline;
+        color: var(--blue-900);
+    }
+
+    .cardHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: var(--space-3);
+
+        h3 {
+            font-size: var(--fs-lg);
+            font-weight: var(--fw-bold);
+            margin: 0;
+            color: var(--heading-color);
+            flex: 1;
+            transition: text-decoration 0.2s ease;
+        }
+    }
+
+    p {
+        margin: 0;
+        color: var(--text-color-base);
+        line-height: var(--lh-normal);
+        font-weight: var(--fw-normal);
+    }
+}
+
+.notificationBadge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--fs-xsmall);
+    color: var(--red-400);
+    white-space: nowrap;
+    margin-left: var(--space-2);
+
+    &::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background: var(--red-400);
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+}
+
+// Responsive adjustments
+@include r.device(md) {
+    .sectionGrid {
+        gap: var(--space-3);
+    }
+}

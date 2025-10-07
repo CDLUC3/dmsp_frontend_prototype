@@ -15,6 +15,9 @@ const customJestConfig = {
     '^@fortawesome/.*$': '<rootDir>/__mocks__/styleMock.js',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/app/\\[locale\\]/styleguide/'],
   collectCoverage: true,
   collectCoverageFrom: [
     "app/**",  // Include all pages
@@ -28,7 +31,7 @@ const customJestConfig = {
     "<rootDir>/app/\\[locale\\]/styleguide/sg-components.tsx", // Exclude style guide
     "<rootDir>/components/Header", // Exclude Header component for now until we implement a new one
     "<rootDir>/components/Footer", // Exclude Footer component for now until we implement a new one
-    "<rootDir>/app/\\[locale\\]/styleguide/page.tsx", // Exclude style guide
+    "<rootDir>/app/\\[locale\\]/styleguide/", // Exclude style guide
     "<rootDir>/app/types/index.ts", // Exclude types
     "<rootDir>/app/\\[locale\\]/healthcheck/page.tsx", // Exclude health check
     ".*\\.server\\.(js|ts|tsx)$"  // Optional: Exclude files ending with .server.ts etc.

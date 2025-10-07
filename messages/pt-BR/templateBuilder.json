@@ -14,7 +14,8 @@
     "linkExpand": "Expandir",
     "linkCollapse": "Retrair",
     "details": "Detalhes",
-    "additionalInfo": "Informações adicionais vão aqui..."
+    "additionalInfo": "Informações adicionais vão aqui...",
+    "templateList": "Lista de templates"
   },
   "EditTemplates": {
     "title": "Editar modelo",
@@ -30,9 +31,9 @@
     "links": {
       "addSection": "Adicionar seção",
       "edit": "Alterar",
-      "manageAccess": "Gerenciar acesso",
-      "templateHistory": "Histórico do modelo",
-      "editTemplateTitle": "Editar título do modelo"
+      "manageAccess": "Gerenciar",
+      "templateHistory": "Histórico",
+      "editTemplateTitle": "Editar"
     },
     "button": {
       "archiveTemplate": "Template de arquivo",
@@ -74,8 +75,8 @@
     "radioBtn": {
       "public": "Público",
       "organizationOnly": "Apenas organização",
-      "publicHelpText": "Isto estará disponível e disponível pelos construtores do plano.",
-      "orgOnlyHelpText": "Somente sua organização poderá ver e usar esse modelo."
+      "publicHelpText": "Este modelo pode ser usado por todos os autores do plano.",
+      "orgOnlyHelpText": "Apenas planejar autores de sua organização poderão ver e usar esse modelo."
     },
     "descPublishedTemplate": "Você pode controlar quem pode usar este modelo publicado.",
     "bullet": {
@@ -96,10 +97,13 @@
   },
   "EditQuestion": {
     "label": {
-      "question": "Pergunta"
+      "question": "Pergunta",
+      "funderQuestion": "Pergunta do Financiador",
+      "organizationQuestion": "Pergunta da Organização"
     },
     "links": {
       "editQuestion": "Editar pergunta",
+      "customizeQuestion": "Personalizar",
       "addQuestion": "Adicionar pergunta"
     },
     "buttons": {
@@ -108,6 +112,13 @@
     },
     "messages": {
       "questionMoved": "Seção movida para a posição {displayOrder}"
+    },
+    "checklist": {
+      "requirements": "Requisitos",
+      "guidance": "Orientação",
+      "sampleText": "Texto de Exemplo",
+      "completed": " concluído",
+      "notCompleted": " não concluído"
     }
   },
   "Sections": {
@@ -133,6 +144,12 @@
       },
       "questionMoved": "Seção movida para a posição {displayOrder}",
       "sectionMoved": "Seção movida para a posição {displayOrder}"
+    },
+    "checklist": {
+      "requirements": "Requisitos",
+      "guidance": "Orientação",
+      "completed": " concluído",
+      "notCompleted": " não concluído"
     }
   },
   "SectionTypeSelectPage": {
@@ -171,15 +188,16 @@
     },
     "helpText": {
       "bestPracticeTagsDesc": "Selecione uma ou mais tags para associar a orientação de boas práticas globais escrita pela Ferramenta DMP.",
-      "sectionIntroduction": "Insira uma introdução curta e concisa para a seção.",
-      "sectionRequirements": "Descreva os requisitos que um usuário deve considerar nesta seção.",
+      "sectionIntroduction": "Enter a short, concise introduction to the section.",
+      "sectionRequirements": "Esboça os requisitos que um usuário deve considerar nesta seção.",
       "sectionGuidance": "Forneça aos usuários orientações úteis para ajudá-los a responder às perguntas da seção."
     }
   },
   "CreateSectionPage": {
     "title": "Criar seção",
     "button": {
-      "createSection": "Criar seção"
+      "createSection": "Criar seção",
+      "creatingSection": "Criando seção..."
     },
     "messages": {
       "fieldLengthValidation": "O nome precisa ter pelo menos 3 caracteres",
@@ -236,15 +254,17 @@
       "startNew": "Iniciar"
     },
     "headings": {
-      "previouslyCreatedTemplates": "Use uma de suas seções criadas anteriormente",
-      "publicTemplates": "Use um dos modelos públicos",
+      "myOrgTemplates": "Meus modelos de organização",
+      "publicTemplates": "Templates públicos",
       "createNew": "Construir um novo template"
     },
     "messages": {
       "noItemsFound": "Nenhum “item” encontrado",
       "missingTemplateName": "Nome do modelo não pode ser vazio.",
       "loadingError": "Erro ao carregar modelos. Tente novamente mais tarde."
-    }
+    },
+    "loadMoreTemplates": "Carregar mais modelos",
+    "loadMoreSearchResults": "Carregar mais resultados de pesquisa"
   },
   "TemplateSelectListItem": {
     "messages": {
@@ -275,8 +295,8 @@
       "sampleText": "Pesquisadores poderão copiar o texto de amostra para o campo como ponto de partida, como uma maneira de acelerar a entrada de conteúdo."
     },
     "labels": {
-      "type": "Tipo (obrigatório)",
-      "questionText": "Conjunto de perguntas (obrigatório)",
+      "type": "Tipo",
+      "questionText": "Texto da questão",
       "requirementText": "Escritor do plano de requisitos deve atender (opcional, mas recomendado)",
       "guidanceText": "Orientação para perguntas (opcional mas recomendado)",
       "sampleText": "Texto de amostra"
@@ -302,7 +322,7 @@
   "QuestionOptionsComponent": {
     "labels": {
       "order": "Ordem",
-      "text": "Texto (obrigatório)",
+      "text": "Texto",
       "default": "Padrão"
     },
     "buttons": {
@@ -335,10 +355,10 @@
     },
     "labels": {
       "order": "Ordem",
-      "text": "Texto (obrigatório)",
+      "text": "Texto",
       "default": "Padrão",
-      "type": "Tipo (obrigatório)",
-      "questionText": "Conjunto de perguntas (obrigatório)",
+      "type": "Tipo",
+      "questionText": "Texto da pergunta",
       "requirementText": "Escritor do plano de requisitos deve atender (opcional, mas recomendado)",
       "guidanceText": "Orientação para perguntas (opcional mas recomendado)",
       "sampleText": "Texto de amostra"
@@ -372,7 +392,7 @@
   },
   "TemplateAccessPage": {
     "title": "Gerenciar acesso",
-    "intro": "Este modelo é acessível para todos no NSF com visualização completa e edição de permissões. Ele também pode ser compartilhado com pessoas fora da sua organização.",
+    "intro": "Este modelo é editável por todos em {orgName}. Ele também pode ser compartilhado com pessoas fora da sua organização para permitir que eles editem o acesso.",
     "headings": {
       "h3OrgAccess": "Dentro da organização",
       "externalPeople": "Pessoas externas",
@@ -383,7 +403,6 @@
     "paragraphs": {
       "orgAccessPara1": "Todos em {name} podem ver e editar",
       "orgAccessPara2": "Administradores {count} podem gerenciar o acesso",
-      "externalPara1": "Compartilhe este modelo com pessoas fora do {orgName}",
       "sharePara1": "Digite seu endereço de e-mail. Se eles já não tiverem uma conta de DMP Tool eles serão convidados a criar uma.",
       "modalPara1": "Por favor, confirme que você deseja remover {email}"
     },

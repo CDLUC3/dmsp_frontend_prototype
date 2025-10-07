@@ -5,11 +5,13 @@ import { RichTranslationValues } from 'next-intl';
 import TemplateSelectTemplatePage from '../index';
 import {
   useAddTemplateMutation,
-  useMyVersionedTemplatesQuery,
-  usePublishedTemplatesQuery
+  usePublishedTemplatesLazyQuery,
+  useTemplatesLazyQuery
 } from '@/generated/graphql';
 import { useRouter } from 'next/navigation';
 import logECS from '@/utils/clientLogger';
+import mockMyTemplates from '../__mocks__/mockTemplates.json';
+import mockPublishedTemplates from '../__mocks__/mockPublishedTemplates.json';
 
 expect.extend(toHaveNoViolations);
 
@@ -57,8 +59,8 @@ jest.mock('@/components/PageHeader', () => ({
 // Mock the GraphQL hooks
 jest.mock('@/generated/graphql', () => ({
   useAddTemplateMutation: jest.fn(),
-  usePublishedTemplatesQuery: jest.fn(),
-  useMyVersionedTemplatesQuery: jest.fn()
+  usePublishedTemplatesLazyQuery: jest.fn(),
+  useTemplatesLazyQuery: jest.fn()
 }));
 
 // Mock the Next.js router
@@ -74,185 +76,69 @@ jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`,
 }));
 
-
-const mockPublicTemplates = {
-  publishedTemplates: {
-    items: [
-      {
-        description: "",
-        errors: null,
-        id: 1,
-        modifiedById: 1,
-        modifiedByName: "User One",
-        name: "Public template 1",
-        owner: null,
-        template: {
-          id: 1,
-          __typename: "Template",
-        },
-        publishStatus: "PUBLISHED",
-        modified: "2018-01-30 18:18:28",
-        visibility: "PUBLIC"
-      },
-      {
-        description: "",
-        errors: null,
-        id: 2,
-        modifiedById: 2,
-        modifiedByName: "User Two",
-        modified: "2018-01-30 18:18:28",
-        name: "Public template 2",
-        owner: null,
-        template: {
-          id: 2,
-          __typename: "Template",
-        },
-        visibility: "PUBLIC"
-      }
-    ]
-  }
-}
-
-const mockTemplates = {
-  myVersionedTemplates: [
-    {
-      description: "",
-      errors: null,
-      id: 3,
-      modifiedById: 3,
-      modifiedByName: "User Three",
-      modified: "2018-01-30 18:18:28",
-      name: "Public template 3",
-      owner: {
-        name: 'Institution',
-        displayName: 'National Institution',
-        searchName: 'NI'
-      },
-      template: {
-        id: 3,
-        __typename: "Template",
-      },
-      visibility: "PUBLIC",
-      publishStatus: 'Published'
-    },
-    {
-      description: "",
-      errors: null,
-      id: 4,
-      modifiedById: 4,
-      modifiedByName: "User Four",
-      modified: "2018-01-30 18:18:28",
-      name: "Public template 4",
-      owner: {
-        name: 'Institution',
-        displayName: 'National Institution',
-        searchName: 'NI'
-      },
-      template: {
-        id: 4,
-        __typename: "Template",
-      },
-      visibility: "PUBLIC",
-      publishStatus: 'Published'
-    },
-    {
-      description: "",
-      errors: null,
-      id: 5,
-      modifiedById: 5,
-      modifiedByName: "User Five",
-      modified: "2018-01-30 18:18:28",
-      name: "Odd template 5",
-      owner: {
-        name: 'Institution',
-        displayName: 'National Institution',
-        searchName: 'NI'
-      },
-      template: {
-        id: 5,
-        __typename: "Template",
-      },
-      visibility: "PUBLIC",
-      publishStatus: 'Published'
-    },
-    {
-      description: "",
-      errors: null,
-      id: 6,
-      modifiedById: 6,
-      modified: "2018-01-30 18:18:28",
-      name: "Public template 6",
-      owner: {
-        name: 'Institution',
-        displayName: 'National Institution',
-        searchName: 'NI'
-      },
-      template: {
-        id: 6,
-        __typename: "Template",
-      },
-      visibility: "PUBLIC",
-      publishStatus: 'Published'
-    }
-  ]
-}
-// Helper function to cast to jest.Mock for TypeScript
-/* eslint-disable  @typescript-eslint/no-explicit-any */
-const mockHook = (hook: any) => hook as jest.Mock;
-
-const setupMocks = () => {
-  mockHook(useAddTemplateMutation).mockReturnValue([jest.fn(), {
-    loading: false,
-    error: undefined
-  }]);
-  mockHook(usePublishedTemplatesQuery).mockReturnValue({ data: mockPublicTemplates, loading: false, error: undefined });
-  mockHook(useMyVersionedTemplatesQuery).mockReturnValue({ data: mockTemplates, loading: false, error: undefined });
-};
-
+const mockFetchPublishedTemplates = jest.fn();
+const mockFetchMyTemplates = jest.fn();
 
 describe('TemplateSelectTemplatePage', () => {
   let pushMock: jest.Mock;
   beforeEach(() => {
-    setupMocks();
     pushMock = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({ push: pushMock });
     window.scrollTo = jest.fn();
     HTMLElement.prototype.scrollIntoView = jest.fn();
+
+    (useAddTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    // Return [fetchFunction, { data, loading, error }]
+    (usePublishedTemplatesLazyQuery as jest.Mock).mockReturnValue([
+      mockFetchPublishedTemplates,
+      { data: mockPublishedTemplates, loading: false, error: null }
+    ]);
+    (useTemplatesLazyQuery as jest.Mock).mockReturnValue([
+      mockFetchMyTemplates,
+      { data: mockMyTemplates, loading: false, error: null }
+    ]);
   });
 
-  it('should redirect back to step 1 if template name is missing', async () => {
-    await act(async () => {
-      render(
-        <TemplateSelectTemplatePage templateName="" />
-      );
-    });
-    expect(pushMock).toHaveBeenCalledWith('/template/create?step1');
-  });
+  afterEach(() => {
+    jest.clearAllMocks();
+  })
 
-  it('should render the main content sections', async () => {
+  it('should render the main content templates', async () => {
     await act(async () => {
       render(
         <TemplateSelectTemplatePage templateName="test" />
       );
     });
 
-    const input = screen.getByLabelText('labels.searchByKeyword');
-    expect(input).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /public template 1/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /public template 2/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /public template 3/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /public template 4/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /odd template 5/i })).toBeInTheDocument();
-    const templateData = screen.getAllByTestId('template-list-item');
-    const lastRevisedBy = within(templateData[0]).getByText(/lastRevisedBy.*User Three/);
+    const searchInput = screen.getByLabelText('labels.searchByKeyword');
+    expect(searchInput).toBeInTheDocument();
+    expect(screen.getByText('helpText.searchHelpText')).toBeInTheDocument();
+    expect(screen.getByTestId('mock-page-header')).toBeInTheDocument();
+
+    //Expect the template sections to be in the document
+    // My organization templates
+    const myOrgTemplates = screen.getByTestId('my-org-templates');
+    expect(myOrgTemplates).toBeInTheDocument();
+    expect(within(myOrgTemplates).getByRole('heading', { name: /headings.myOrgTemplates/i, level: 2 })).toBeInTheDocument();
+    expect(within(myOrgTemplates).getByRole('heading', { name: /Juliet's Test Template 3/i, level: 3 })).toBeInTheDocument();
+    expect(within(myOrgTemplates).getByRole('heading', { name: /Juliet's Test Template 1/i, level: 3 })).toBeInTheDocument();
+    expect(within(myOrgTemplates).getByRole('heading', { name: /Computer and Information Science and Engineering/i, level: 3 })).toBeInTheDocument();
+    expect(within(myOrgTemplates).getByRole('heading', { name: /Astronomical Sciences/i, level: 3 })).toBeInTheDocument();
+    expect(within(myOrgTemplates).getByRole('heading', { name: /Engineering Template/i, level: 3 })).toBeInTheDocument();
+    const templateData = within(myOrgTemplates).getAllByTestId('template-list-item');
+    const lastRevisedBy = within(templateData[0]).getByText(/lastRevisedBy.*NSF Admin/);
     const lastUpdated = within(templateData[0]).getByText(/lastUpdated.*01-01-2023/);
-    const publishStatus = within(templateData[0]).getByText('published');
-    const visibility = within(templateData[0]).getByText(/visibility\s*:\s*Public/i);
+    const publishStatus = within(templateData[0]).getByText('notPublished');
+    const visibility = within(templateData[0]).getByText(/visibility\s*:\s*Organization/i);
     expect(lastRevisedBy).toBeInTheDocument();
     expect(lastUpdated).toBeInTheDocument();
     expect(publishStatus).toBeInTheDocument();
     expect(visibility).toBeInTheDocument();
-    const lastRevisedBy1 = within(templateData[1]).getByText(/lastRevisedBy.*User Four/);
+    const lastRevisedBy1 = within(templateData[1]).getByText(/lastRevisedBy.*NSF Admin/);
     const lastUpdated1 = within(templateData[1]).getByText(/lastUpdated.*01-01-2023/);
     const publishStatus1 = within(templateData[1]).getByText('published');
     const visibility1 = within(templateData[1]).getByText(/visibility\s*:\s*Public/i);
@@ -260,38 +146,229 @@ describe('TemplateSelectTemplatePage', () => {
     expect(lastUpdated1).toBeInTheDocument();
     expect(publishStatus1).toBeInTheDocument();
     expect(visibility1).toBeInTheDocument();
+
+    // Public templates
+    const publishedTemplates = screen.getByTestId('published-templates');
+    expect(publishedTemplates).toBeInTheDocument();
+    expect(within(publishedTemplates).getByRole('heading', { name: /headings.publicTemplates/i, level: 2 })).toBeInTheDocument();
+    expect(within(publishedTemplates).getByRole('heading', { name: /Juliet's Best Practice Template/i, level: 3 })).toBeInTheDocument();
+    expect(within(publishedTemplates).getByRole('heading', { name: /Juliet's Test Template 1/i, level: 3 })).toBeInTheDocument();
+    expect(within(publishedTemplates).getByRole('heading', { name: /Test Template Bravo/i, level: 3 })).toBeInTheDocument();
+    expect(within(publishedTemplates).getByRole('heading', { name: /Test Template 2/i, level: 3 })).toBeInTheDocument();
+    expect(within(publishedTemplates).getByRole('heading', { name: /Test Template 3/i, level: 3 })).toBeInTheDocument();
+    const publicTemplateData = within(publishedTemplates).getAllByTestId('template-list-item');
+    const lastRevisedBy2 = within(publicTemplateData[0]).getByText(/lastRevisedBy.*NIH Admin/);
+    const lastUpdated2 = within(publicTemplateData[0]).getByText(/lastUpdated.*01-01-2023/);
+    const publishStatus2 = within(publicTemplateData[0]).getByText('published');
+    const visibility2 = within(publicTemplateData[0]).getByText(/visibility\s*:\s*Public/i);
+    expect(lastRevisedBy2).toBeInTheDocument();
+    expect(lastUpdated2).toBeInTheDocument();
+    expect(publishStatus2).toBeInTheDocument();
+    expect(visibility2).toBeInTheDocument();
   });
 
-  it('should render text loading if templates are still loading', async () => {
-    (usePublishedTemplatesQuery as jest.Mock).mockReturnValue({
-      data: null,
-      loading: true,
-      error: null,
-    });
+
+  it('should not have any problems if template title or description is empty', async () => {
+
+    const mockPublishedTemplatesWithEmptyFields = {
+      publishedTemplates: {
+        __typename: "PublishedTemplateSearchResults",
+        limit: 5,
+        nextCursor: null,
+        totalCount: 32,
+        availableSortFields: [
+          "vt.name",
+          "vt.created",
+          "vt.visibility",
+          "vt.bestPractice",
+          "vt.modified"
+        ],
+        currentOffset: 0,
+        hasNextPage: true,
+        hasPreviousPage: false,
+        items: [
+          {
+            __typename: "VersionedTemplateSearchResult",
+            id: 32,
+            templateId: 32,
+            name: null,
+            description: null,
+            visibility: "PUBLIC",
+            bestPractice: false,
+            version: "v1",
+            modified: "1758239580000",
+            modifiedById: 15,
+            modifiedByName: null,
+            ownerId: 118,
+            ownerURI: "https://ror.org/021123462",
+            ownerDisplayName: null,
+            ownerSearchName: "National Science Foundation | nsf.gov | NSF "
+          }
+        ]
+      }
+    };
+
+    const mockTemplatesWithEmptyFields = {
+      myTemplates: {
+        __typename: "TemplateSearchResults",
+        totalCount: 11,
+        nextCursor: null,
+        limit: 5,
+        availableSortFields: [
+          "t.name",
+          "t.created",
+          "t.latestPublishVisibility",
+          "t.bestPractice",
+          "t.latestPublishDate"
+        ],
+        currentOffset: 0,
+        hasNextPage: true,
+        hasPreviousPage: false,
+        items: [
+          {
+            __typename: "TemplateSearchResult",
+            id: 33,
+            name: null,
+            description: null,
+            latestPublishVisibility: "ORGANIZATION",
+            isDirty: true,
+            latestPublishVersion: "",
+            latestPublishDate: null,
+            ownerId: "https://ror.org/021678962",
+            ownerDisplayName: "National Science Foundation (nsf.gov)",
+            modified: "1758241119000",
+            modifiedById: 15,
+            modifiedByName: "NSF Admin",
+            bestPractice: false
+          },
+        ]
+      }
+    };
+
+    // Return [fetchFunction, { data, loading, error }]
+    (usePublishedTemplatesLazyQuery as jest.Mock).mockReturnValue([
+      mockFetchPublishedTemplates,
+      { data: mockPublishedTemplatesWithEmptyFields, loading: false, error: null }
+    ]);
+
+    (useTemplatesLazyQuery as jest.Mock).mockReturnValue([
+      mockFetchMyTemplates,
+      { data: mockTemplatesWithEmptyFields, loading: false, error: null }
+    ]);
+
     await act(async () => {
       render(
         <TemplateSelectTemplatePage templateName="test" />
       );
     });
-    const loading = screen.getByText(/loading.../i);
+
+    const searchInput = screen.getByLabelText('labels.searchByKeyword');
+    expect(searchInput).toBeInTheDocument();
+    expect(screen.getByText('helpText.searchHelpText')).toBeInTheDocument();
+    expect(screen.getByTestId('mock-page-header')).toBeInTheDocument();
+
+    //Expect the template sections to be in the document
+    // My organization templates
+    const myOrgTemplates = screen.getByTestId('my-org-templates');
+    expect(myOrgTemplates).toBeInTheDocument();
+    expect(within(myOrgTemplates).getByRole('heading', { name: /headings.myOrgTemplates/i, level: 2 })).toBeInTheDocument();
+    const templateData = within(myOrgTemplates).getAllByTestId('template-list-item');
+    const lastRevisedBy = within(templateData[0]).getByText(/lastRevisedBy.*NSF Admin/);
+    const lastUpdated = within(templateData[0]).getByText(/lastUpdated.*01-01-2023/);
+    const publishStatus = within(templateData[0]).getByText('notPublished');
+    const visibility = within(templateData[0]).getByText(/visibility\s*:\s*Organization/i);
+    expect(lastRevisedBy).toBeInTheDocument();
+    expect(lastUpdated).toBeInTheDocument();
+    expect(publishStatus).toBeInTheDocument();
+    expect(visibility).toBeInTheDocument();
+
+    const publishedTemplates = screen.getByTestId('published-templates');
+    expect(publishedTemplates).toBeInTheDocument();
+    expect(within(publishedTemplates).getByRole('heading', { name: /headings.publicTemplates/i, level: 2 })).toBeInTheDocument();
+
+    const publicTemplateData = within(publishedTemplates).getAllByTestId('template-list-item');
+    const lastRevisedBy2 = within(publicTemplateData[0]).getByText(/lastRevisedBy:/);
+    const lastUpdated2 = within(publicTemplateData[0]).getByText(/lastUpdated.*01-01-2023/);
+    const publishStatus2 = within(publicTemplateData[0]).getByText('published');
+    const visibility2 = within(publicTemplateData[0]).getByText(/visibility\s*:\s*Public/i);
+    expect(lastRevisedBy2).toBeInTheDocument();
+    expect(lastUpdated2).toBeInTheDocument();
+    expect(publishStatus2).toBeInTheDocument();
+    expect(visibility2).toBeInTheDocument();
+  });
+
+  it('should render text loading text if templates are still loading', async () => {
+    // Return [fetchFunction, { data, loading, error }]
+    (usePublishedTemplatesLazyQuery as jest.Mock).mockReturnValue([
+      mockFetchPublishedTemplates,
+      { data: undefined, loading: true, error: null }
+    ]);
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
+    });
+    const loading = screen.getByText(/messaging.loading/i);
     expect(loading).toBeInTheDocument();
   });
 
-  it('should render a button that says \'Load 1 more\' and when clicked, should display \'public template 6\'', async () => {
+  it('should display correct pagination', async () => {
     await act(async () => {
       render(
         <TemplateSelectTemplatePage templateName="test" />
       );
     });
-    const loadMoreButton = screen.getByRole('button', { name: /buttons.loadMore/i });
-    expect(loadMoreButton).toBeInTheDocument();
-    await act(async () => {
-      fireEvent.click(loadMoreButton);
+    // Find all pagination navs by role and aria-label
+    const paginationNavs = screen.getAllByRole('navigation', { name: 'pagination' });
+    expect(paginationNavs).toHaveLength(2); // One for each list
+
+    // Check for the ordered lists inside each nav
+    paginationNavs.forEach(nav => {
+      expect(nav.querySelector('ol')).toBeInTheDocument();
     });
-    expect(screen.getByRole('heading', { name: /public template 6/i })).toBeInTheDocument();
+
+    const pageLinks = screen.getAllByRole('link', { name: /Page \d+/ });
+    expect(pageLinks).toHaveLength(7);
+    // Check for "Previous" and "Next" buttons
+    const previousButtons = screen.getAllByRole('button', { name: "labels.previousPage" });
+    const nextButtons = screen.getAllByRole('button', { name: "labels.nextPage" });
+    expect(previousButtons).toHaveLength(2);
+    expect(nextButtons).toHaveLength(2);
   });
 
-  it('should match only one item when a user enters text \'ODD\'', async () => {
+  it('should handle click of pagination links for org section', async () => {
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
+    });
+
+    const paginationNavs = screen.getAllByRole('navigation', { name: 'pagination' });
+
+    // Check org templates pagination
+    const page1Link = within(paginationNavs[0]).getByRole('link', { name: 'Page 1' });
+    expect(page1Link).toHaveClass('current');
+    const page2Link = within(paginationNavs[0]).getByRole('link', { name: 'Page 2' });
+    expect(page2Link).not.toHaveClass('current');
+    fireEvent.click(page2Link);
+
+    await waitFor(() => {
+      expect(page2Link).toHaveClass('current');
+    });
+
+    // Check public templates pagination
+    const page1Link2 = within(paginationNavs[1]).getByRole('link', { name: 'Page 1' });
+    expect(page1Link2).toHaveClass('current');
+    const page2Link2 = within(paginationNavs[1]).getByRole('link', { name: 'Page 2' });
+    expect(page2Link2).not.toHaveClass('current');
+    fireEvent.click(page2Link2);
+
+    await waitFor(() => {
+      expect(page2Link2).toHaveClass('current');
+    });
+  });
+
+  it('should match only one item when a user enters text \'Bravo\'', async () => {
     await act(async () => {
       render(
         <TemplateSelectTemplatePage templateName="test" />
@@ -303,31 +380,23 @@ describe('TemplateSelectTemplatePage', () => {
 
     expect(searchButton).toBeInTheDocument();
     await act(async () => {
-      fireEvent.change(input, { target: { value: 'ODD' } });
+      fireEvent.change(input, { target: { value: 'Bravo' } });
       fireEvent.click(searchButton);
     });
 
-    expect(screen.getByRole('heading', { name: /odd template 5/i })).toBeInTheDocument();
-    expect(screen.getByText(/resultsText/i)).toBeInTheDocument();
-    const linkElement = screen.getAllByRole('link', { name: /clear filter/i });
-    expect(linkElement).toHaveLength(1);
+    expect(screen.getByRole('heading', { name: /Test Template Bravo/i })).toBeInTheDocument();
   });
 
-  it("Should show errors when no templates were found", async () => {
-    // We need to mock both of these with empty results
-    (useMyVersionedTemplatesQuery as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValue({
-        data: { myVersionedTemplates: [] },
-        loading: false,
-        error: null
-      })
+  it("Should show message when no templates were found", async () => {
+    // Return [fetchFunction, { data, loading, error }]
+    (usePublishedTemplatesLazyQuery as jest.Mock).mockReturnValue([
+      mockFetchPublishedTemplates,
+      { data: { publishedTemplates: [] }, loading: false, error: null }
     ]);
-
-    (usePublishedTemplatesQuery as jest.Mock).mockReturnValue({
-      data: { publishedTemplates: [] },
-      loading: false,
-      error: null
-    });
+    (useTemplatesLazyQuery as jest.Mock).mockReturnValue([
+      mockFetchMyTemplates,
+      { data: { myTemplates: [] }, loading: false, error: null }
+    ]);
 
     render(<TemplateSelectTemplatePage templateName="test" />);
 
@@ -341,7 +410,7 @@ describe('TemplateSelectTemplatePage', () => {
     fireEvent.click(searchButton);
 
     await waitFor(() => {
-      expect(screen.getAllByText('messages.noItemsFound').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('messaging.noItemsFound').length).toBeGreaterThan(0);
     });
   });
 
@@ -411,7 +480,7 @@ describe('TemplateSelectTemplatePage', () => {
       );
     });
     //Search input field
-    const selectButton = screen.getAllByRole('button', { name: /Select Public template 2/i });
+    const selectButton = screen.getAllByRole('button', { name: /Select Astronomical Sciences/i });
 
     await act(async () => {
       fireEvent.click(selectButton[0]);
@@ -422,7 +491,7 @@ describe('TemplateSelectTemplatePage', () => {
       'handleClick',
       expect.objectContaining({
         error: expect.anything(),
-        url: { path: '/template/create' },
+        url: { path: '/en-US/template/create' },
       })
     )
   });
@@ -501,10 +570,10 @@ describe('TemplateSelectTemplatePage', () => {
 
     expect(logECS).toHaveBeenCalledWith(
       'error',
-      'handleClick',
+      'handleStartNew',
       expect.objectContaining({
         error: expect.anything(),
-        url: { path: '/template/create' },
+        url: { path: '/en-US/template/create' },
       })
     )
   });

@@ -11,6 +11,7 @@
     "menuDashboard": "Dashboard",
     "menuUpload": "Upload Plan",
     "menuCreatePlan": "Create Plan",
+    "menuProjectsPlans": "Projects & Plans",
     "menuPublicPlans": "Public Plans",
     "menuFunderRequirements": "Funder Requirements",
     "menuAbout": "About",
@@ -90,6 +91,69 @@
       }
     }
   },
+  "Notifications": {
+    "title": "Notifications",
+    "description": "Configure your notification preferences and email settings",
+    "introText": "Choose the events that you'd like to be notified about from the list below",
+    "headingRelatedActions": "Related actions",
+    "linkUpdateProfile": "Update profile",
+    "linkUpdatePassword": "Update password",
+    "linkUpdateConnections": "Update connections",
+    "notificationTypes": {
+      "commentAdded": "A new comment has been added to my DMP",
+      "planShared": "A plan has been shared with me",
+      "adminPrivileges": "Admin privileges granted to me",
+      "planUpdated": "A plan I'm collaborating on has been updated",
+      "feedbackRequested": "Feedback has been requested on my plan",
+      "templatePublished": "A new template has been published by my organization",
+      "accountActivity": "Unusual activity detected on my account",
+      "weeklyDigest": "Weekly summary of activity"
+    },
+    "actions": {
+      "save": "Save preferences"
+    },
+    "messages": {
+      "preferencesUpdateSuccess": "Your notification preferences have been updated successfully.",
+      "errors": {
+        "errorUpdatingPreferences": "Error when updating notification preferences"
+      }
+    }
+  },
+  "UpdatePassword": {
+    "breadcrumbHome": "Home",
+    "breadcrumbProfile": "Profile",
+    "title": "Update your password",
+    "headingPasswordRequirements": "Passwords must:",
+    "requirementLength": "be greater than 8 characters;",
+    "requirementNumber": "contain at least one number;",
+    "requirementUppercase": "contain at least one upper case letter;",
+    "requirementLowercase": "contain at least one lower case letter;",
+    "requirementSpecialChars": "contain at least one of the following special characters: ( ) ! @ # $ % ^ & * - _ = + ? ~",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "btnChangePassword": "Change password",
+    "btnChangingPassword": "Changing password...",
+    "headingRelatedActions": "Related actions",
+    "linkUpdateConnections": "Update connections",
+    "linkManageNotifications": "Manage notifications",
+    "messages": {
+      "passwordUpdateSuccess": "Your password has been successfully updated.",
+      "errors": {
+        "currentPasswordRequired": "Current password is required",
+        "newPasswordRequired": "New password is required",
+        "confirmPasswordRequired": "Please confirm your new password",
+        "passwordsDoNotMatch": "Passwords do not match",
+        "passwordTooShort": "Password must be at least 8 characters long",
+        "passwordMissingNumber": "Password must contain at least one number",
+        "passwordMissingUppercase": "Password must contain at least one uppercase letter",
+        "passwordMissingLowercase": "Password must contain at least one lowercase letter",
+        "passwordMissingSpecialChar": "Password must contain at least one special character",
+        "incorrectCurrentPassword": "Current password is incorrect",
+        "errorUpdatingPassword": "Error when updating password"
+      }
+    }
+  },
   "UserConnections": {
     "breadcrumbHome": "Home",
     "breadcrumbProfile": "User profile",
@@ -117,6 +181,7 @@
   },
   "FunderSearch": {
     "headerTitle": "Search for Funders",
+    "headerDescription": "Select the funder to use for this project. This can be the funder you plan to apply to or where you already have funding from. You'll be able to add additional funders later if you have more than one.",
     "funder": "Funder",
     "popularTitle": "Most popular funders",
     "found": "{count} funders found",
@@ -160,10 +225,395 @@
   "Back": {
     "btnBack": "Back"
   },
+  "Admin": {
+    "headingRelatedActions": "Related actions",
+    "sections": {
+      "organisationTemplatesAndPlans": {
+        "title": "Organisation Templates and Plans",
+        "items": {
+          "notifications": {
+            "title": "Notifications",
+            "description": "View current and past notifications"
+          },
+          "organizationTemplates": {
+            "title": "Organization Templates",
+            "description": "Manage your organisation templates and publish for the public"
+          },
+          "templateCustomizations": {
+            "title": "Template Customizations",
+            "description": "Add an overlay on top of funder templates"
+          },
+          "guidance": {
+            "title": "Guidance",
+            "description": "Add guidance that apply to all funders templates"
+          },
+          "projectAndPlans": {
+            "title": "Project & Plans",
+            "description": "Manage your organisation projects and plans"
+          }
+        }
+      },
+      "organizationSettings": {
+        "title": "Organization's settings",
+        "items": {
+          "editOrganizationDetails": {
+            "title": "Edit organization details",
+            "description": "Update your organization name, abbreviation, institution etc"
+          },
+          "departments": {
+            "title": "Departments",
+            "description": "Manage your different departments, faculties, schools or divisions"
+          },
+          "schoolsDepartments": {
+            "title": "Schools/Departments",
+            "description": "Manage your different departments, faculties, schools or divisions"
+          },
+          "manageUserAccounts": {
+            "title": "Manage user accounts",
+            "description": "Manage user accounts"
+          },
+          "customizeEmailText": {
+            "title": "Customize email text",
+            "description": "Manage your notification preferences"
+          },
+          "requestFeedbackOptions": {
+            "title": "Request feedback options",
+            "description": "Manage your organisations request feedback options"
+          }
+        }
+      },
+      "reporting": {
+        "title": "Reporting",
+        "items": {
+          "usageStatistics": {
+            "title": "Usage Statistics",
+            "description": "View usage statistics and reports"
+          }
+        }
+      }
+    },
+    "users": {
+      "title": "User Accounts",
+      "description": "Below is a list of users registered for your organization",
+      "buttons": {
+        "createUserLabel": "Create User",
+        "searchLabel": "Search"
+      },
+      "tools": {
+        "searchLabel": "Search by name or email",
+        "permissionLabel": "Permission"
+      },
+      "userTable": {
+        "label": "User List"
+      }
+    }
+  },
+  "OrganizationDetails": {
+    "title": "Organization Details",
+    "description": "View organization details",
+    "sections": {
+      "organizationDetails": {
+        "title": "Edit organization details"
+      },
+      "administratorContact": {
+        "title": "Administrator contact"
+      },
+      "branding": {
+        "title": "Branding"
+      },
+      "organizationUrls": {
+        "title": "Organization URL(s)",
+        "description": "You can add up to 5 organization URLs."
+      },
+      "identifiers": {
+        "title": "Identifiers"
+      }
+    },
+    "fields": {
+      "organizationName": {
+        "label": "Organization full name",
+        "placeholder": "Enter organization full name"
+      },
+      "organizationAbbr": {
+        "label": "Organization abbreviated name",
+        "placeholder": "Enter abbreviated name"
+      },
+      "organizationType": {
+        "label": "Organization Type"
+      },
+      "contactEmail": {
+        "label": "Contact email",
+        "placeholder": "Enter contact email"
+      },
+      "linkText": {
+        "label": "Contact email text",
+        "placeholder": "Enter link text"
+      },
+      "url": {
+        "label": "URL",
+        "placeholder": "Enter organization URL"
+      },
+      "urlLinkText": {
+        "label": "Link text for URL",
+        "placeholder": "Enter link text"
+      },
+      "fundRef": {
+        "label": "Crossref Funder Registry (FundRef)"
+      },
+      "ror": {
+        "label": "Research Organization Registry (ROR)"
+      },
+      "shibboleth": {
+        "label": "Institutional Sign In (Shibboleth)"
+      },
+      "domains": {
+        "label": "Domain(s)"
+      }
+    },
+    "actions": {
+      "requestChange": "Request Change",
+      "removeUrl": "Remove URL",
+      "addAnotherUrl": "Add another URL"
+    },
+    "buttons": {
+      "save": "Save"
+    },
+    "upload": {
+      "dropZone": {
+        "ariaLabel": "Drop a file here to upload"
+      },
+      "title": "Upload your organization logo",
+      "description": "Drag and drop your logo here, or click to browse",
+      "fileTypes": "Supports: PNG, JPG, SVG (Max 5MB)",
+      "browseButton": "Browse Files"
+    },
+    "messages": {
+      "success": {
+        "organizationDetailsSaved": "Organization details saved successfully!"
+      }
+    }
+  },
+  "EmailPreferences": {
+    "title": "Email Preferences",
+    "sections": {
+      "customizeEmailText": {
+        "title": "Customize email text",
+        "description": "The following email will be sent to users when an external system creates a new DMP (via the API) using one of your templates."
+      },
+      "previewEmail": {
+        "title": "Preview Email"
+      }
+    },
+    "fields": {
+      "subject": {
+        "label": "Subject",
+        "placeholder": "Enter email subject"
+      },
+      "emailText": {
+        "label": "Email Text"
+      }
+    },
+    "buttons": {
+      "save": "Save"
+    }
+  },
+  "OrganizationProjects": {
+    "title": "Organization Projects",
+    "intro": "Manage DMSP projects and plans across your organization",
+    "messages": {
+      "errors": {
+        "errorRetrievingProjects": "Something went wrong with retrieving projects. Please try again later."
+      }
+    }
+  },
+  "Departments": {
+    "title": "Schools/Departments",
+    "sections": {
+      "departmentsList": {
+        "title": "Schools/Departments",
+        "description": "Manage your different departments, faculties, schools or divisions."
+      }
+    },
+    "fields": {
+      "departmentName": {
+        "label": "Name",
+        "placeholder": "Enter name"
+      },
+      "departmentAbbr": {
+        "label": "Abbreviated name",
+        "placeholder": "Enter abbreviation"
+      }
+    },
+    "actions": {
+      "addNew": "Add new",
+      "save": "Save",
+      "delete": "Delete"
+    },
+    "deleteModal": {
+      "title": "Confirm deletion",
+      "content": "Are you sure you want to delete {name}? This action cannot be undone.",
+      "deleteButton": "Delete"
+    }
+  },
+  "FeedbackOptions": {
+    "title": "Feedback Options",
+    "description": "If this is On, users from your org can request feedback on their DMPs. It will go to your organization's contact email which is support@dmp.edu.",
+    "sections": {
+      "feedbackToggle": {
+        "title": "Turn Feedback on or off"
+      },
+      "feedbackEmail": {
+        "title": "Feedback email address"
+      },
+      "expertFeedback": {
+        "title": "Request Expert Feedback"
+      }
+    },
+    "fields": {
+      "feedbackEnabled": {
+        "label": "Turn Feedback on or off",
+        "options": {
+          "on": "On - Feedback can be requested",
+          "off": "Off - Feedback can not be requested"
+        }
+      },
+      "feedbackEmail": {
+        "label": "Feedback email address",
+        "placeholder": "Enter feedback email address",
+        "helpText": "By default this is the organisations contact email address, However, you may change the feedback email address"
+      },
+      "feedbackText": {
+        "label": "Request Expert Feedback",
+        "placeholder": "Enter feedback text"
+      }
+    },
+    "actions": {
+      "save": "Save"
+    },
+    "screenReader": {
+      "feedbackEnabled": "Feedback options are now enabled. Additional fields are available below.",
+      "feedbackDisabled": "Feedback options are now disabled. Additional fields are hidden."
+    }
+  },
+  "Account": {
+    "sections": {
+      "userProfile": {
+        "title": "User Profile",
+        "items": {
+          "profile": {
+            "title": "Profile",
+            "description": "Update your personal information, email preferences, and language settings"
+          },
+          "password": {
+            "title": "Update Password",
+            "description": "Change your account password and security settings"
+          },
+          "connections": {
+            "title": "Connections",
+            "description": "Manage your ORCID iD and institutional connections"
+          },
+          "notifications": {
+            "title": "Notifications",
+            "description": "Configure your notification preferences and email settings"
+          }
+        }
+      }
+    }
+  },
+  "Guidance": {
+    "title": "Guidance",
+    "description": "Manage guidance groups and texts for your organization",
+    "pages": {
+      "index": {
+        "title": "Guidance Groups",
+        "description": "Manage guidance groups that organize related guidance texts",
+        "createGroup": "Create guidance group"
+      },
+      "groupIndex": {
+        "title": "Guidance Texts",
+        "description": "Manage guidance texts within this group",
+        "createText": "Create guidance text",
+        "editGroup": "Edit group"
+      },
+      "groupCreate": {
+        "title": "Create New Guidance Group",
+        "description": "Add a new guidance group to organize related guidance texts"
+      },
+      "groupEdit": {
+        "title": "Edit guidance group",
+        "description": "Create a new guidance group below. Select one or more themes to define where plan creators will see this guidance."
+      },
+      "textCreate": {
+        "title": "Create New Guidance Text",
+        "description": "Add a new guidance text to this group"
+      },
+      "textEdit": {
+        "title": "Edit Guidance Text",
+        "description": "Edit guidance text details and content"
+      }
+    },
+    "sections": {
+      "guidanceGroup": {
+        "title": "Guidance Group"
+      },
+      "guidanceText": {
+        "title": "Guidance Text"
+      }
+    },
+    "fields": {
+      "groupName": {
+        "label": "Group Name",
+        "placeholder": "Enter group name"
+      },
+      "title": {
+        "label": "Title",
+        "placeholder": "Enter guidance text title"
+      },
+      "guidanceText": {
+        "label": "Guidance text",
+        "helpText": "Enter the guidance text content using the rich text editor"
+      },
+      "settings": {
+        "label": "Settings"
+      },
+      "themes": {
+        "label": "Themes",
+        "helpText": "Select appropriate themes below. This will determine when a plan creator sees the guidance text, for example if they are completing a part of template with the theme of \"Data Collection.\""
+      }
+    },
+    "status": {
+      "published": "Published",
+      "draft": "Draft",
+      "archived": "Archived",
+      "lastUpdated": "Last Updated",
+      "status": "Status"
+    },
+    "actions": {
+      "createGroup": "Create Group",
+      "createText": "Create Guidance Text",
+      "saveChanges": "Save Changes",
+      "publish": "Publish",
+      "edit": "Edit"
+    },
+    "breadcrumbs": {
+      "guidance": "Guidance",
+      "guidanceGroups": "Guidance Groups",
+      "createGroup": "Create Group",
+      "editGroup": "Edit group",
+      "createText": "Create Text",
+      "editText": "Edit Text",
+      "group": "Group"
+    },
+    "messages": {
+      "noGroups": "No guidance groups found",
+      "noTexts": "No guidance texts found in this group"
+    }
+  },
   "Global": {
     "breadcrumbs": {
       "navigation": "Breadcrumb navigation",
       "home": "Home",
+      "admin": "Admin",
       "templates": "Templates",
       "template": "Template",
       "createTemplate": "Create a template",
@@ -186,7 +636,14 @@
       "planFunding": "Plan funding",
       "sectionOverview": "Section overview",
       "feedback": "Feedback",
-      "questionDetails": "Question details"
+      "questionDetails": "Question details",
+      "guidance": "Guidance",
+      "guidanceGroups": "Guidance Groups",
+      "createGroup": "Create Group",
+      "editGroup": "Edit group",
+      "createText": "Create Text",
+      "editText": "Edit Text",
+      "group": "Group"
     },
     "form": {
       "yesLabel": "Yes",
@@ -226,9 +683,12 @@
       "close": "Close",
       "loadMore": "Load more",
       "addAnother": "Add another",
-      "goToProject": "Go to project"
+      "goToProject": "Go to project",
+      "back": "Back",
+      "add": "Add"
     },
     "labels": {
+      "required": "required",
       "searchByKeyword": "Search by keyword",
       "startDate": "Start date",
       "endDate": "End date",
@@ -256,7 +716,8 @@
       "collapse": "Collapse",
       "editTitle": "Edit title",
       "prev": "Previous",
-      "next": "Next"
+      "next": "Next",
+      "viewHistory": "View history"
     },
     "messaging": {
       "loading": "Loading",
@@ -273,7 +734,8 @@
         "questionUnexpectedFormat": "Unexpected format for question.json.",
         "questionJSONFParseFailed": "JSON.parse failed."
       },
-      "numDisplaying": "Showing {num} of {total}"
+      "numDisplaying": "Showing {num} of {total}",
+      "unsavedChangesWarning": "You have unsaved changes. Are you sure you want to leave this page?"
     },
     "tabs": {
       "editQuestion": "Edit question",
@@ -302,6 +764,25 @@
       "filteredSearch": "Filtered search",
       "table": "Table",
       "affiliationSearch": "Affiliation search"
+    }
+  },
+  "OrganizationTemplates": {
+    "title": "Organization Templates",
+    "description": "Manage your organization templates and publish for the public",
+    "actionCreate": "Create Template",
+    "actionSearch": "Search",
+    "searchLabel": "Search organization templates",
+    "searchHelpText": "Search by template name, description, or other details",
+    "noItemsFoundError": "No organization templates found matching '{term}'",
+    "somethingWentWrong": "Something went wrong while loading organization templates"
+  },
+  "ProjectMemberListItem": {
+    "buttons": {
+      "edit": "Edit"
+    },
+    "ariaLabels": {
+      "editMember": "Edit {name}'s details",
+      "orcidProfile": "ORCID profile for {name}"
     }
   }
 }
