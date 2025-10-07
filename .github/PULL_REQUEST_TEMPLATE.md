@@ -26,3 +26,6 @@ Please describe the tests that you ran to verify your changes. Provide instructi
 - [ ] I have completed manual or automated accessibility testing for my changes
 - [ ] New and existing unit tests pass locally with my changes
 - [ ] Any dependent changes have been merged and published in downstream modules
+
+## Important Note:
+Please make sure to do a careful merge of development branch into yours, to make sure you aren't reverting or effecting any previous commits to the development branch. 

@@ -18,6 +18,7 @@ module.exports = [
       ".next/**",
       "next-env.d.ts",
       "cypress/**",
+      "next-env.d.ts",
       "eslint.config.js",
       "scripts/**",
       "__mocks__/"
