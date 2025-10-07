@@ -84,7 +84,7 @@ query Section($sectionId: Int!) {
       isDirty
       languageId
       name
-      visibility
+      latestPublishVisibility
     }
   }
 }

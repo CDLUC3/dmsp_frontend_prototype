@@ -37,10 +37,15 @@ query MyVersionedTemplates {
   }
 }
 
-query PublishedTemplates {
-  publishedTemplates {
-    totalCount
+query PublishedTemplates($paginationOptions: PaginationOptions, $term: String) {
+  publishedTemplates(paginationOptions: $paginationOptions, term: $term) {
+    limit
     nextCursor
+    totalCount
+    availableSortFields
+    currentOffset
+    hasNextPage
+    hasPreviousPage
     items {
       id
       templateId
@@ -57,5 +62,12 @@ query PublishedTemplates {
       ownerDisplayName
       ownerSearchName
     }
+  }
+}
+
+query PublishedTemplatesMetaData($paginationOptions: PaginationOptions, $term: String) {
+  publishedTemplatesMetaData(paginationOptions: $paginationOptions, term: $term) {
+    hasBestPracticeTemplates
+    availableAffiliations
   }
 }

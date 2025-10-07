@@ -1,22 +1,115 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 import { act, render, screen, fireEvent, waitFor, within } from '@testing-library/react';
-import ProjectsCreateProject from '../page';
-import { useAddProjectMutation } from '@/generated/graphql';
-import { RichTranslationValues } from 'next-intl';
+import { MockedProvider } from '@apollo/client/testing';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/context/ToastContext';
 import { axe, toHaveNoViolations } from 'jest-axe';
+import { AddProjectDocument } from '@/generated/graphql';
+import ProjectsCreateProject from '../page';
+
+
 expect.extend(toHaveNoViolations);
 
-// Mock the GraphQL mutation
-jest.mock('@/generated/graphql', () => ({
-  useAddProjectMutation: jest.fn(),
-}));
 
-// Mock next-intl hooks
-jest.mock('next-intl', () => ({
-  useTranslations: jest.fn(),
-}));
+const mocks = [
+  {
+    request: {
+      query: AddProjectDocument,
+      variables: {
+        title: "Test Project",
+        isTestProject: true,
+      },
+    },
+
+    result: {
+      data: {
+        addProject: {
+          id: 123,
+          errors: [],
+        },
+      }
+    },
+  },
+
+  // Project that is not a test
+  {
+    request: {
+      query: AddProjectDocument,
+      variables: {
+        title: "Non-Test Project",
+        isTestProject: false,
+      },
+    },
+
+    result: {
+      data: {
+        addProject: {
+          id: 123,
+          errors: [],
+        },
+      }
+    },
+  },
+
+  // This is to create the error result
+  {
+    request: {
+      query: AddProjectDocument,
+      variables: {
+        title: "Field Errors",
+        isTestProject: false,
+      },
+    },
+
+    result: {
+      data: {
+        addProject: {
+          id: 123,
+          errors: {
+            title: 'Title error',
+            general: '',
+          },
+        },
+      },
+    },
+  },
+
+  {
+    request: {
+      query: AddProjectDocument,
+      variables: {
+        title: "General Error",
+        isTestProject: false,
+      },
+    },
+
+    result: {
+      data: {
+        addProject: {
+          id: 123,
+          errors: {
+            title: 'Title error',
+            general: 'General error',
+          },
+        },
+      },
+    },
+  },
+
+  // Mocked Server error for addProjectFunding
+  {
+    request: {
+      query: AddProjectDocument,
+      variables: {
+        title: "Server Error",
+        isTestProject: true,
+      },
+    },
+
+    error: new Error('Server Error'),
+  },
+];
+
 
 // Mock next/navigation hooks
 jest.mock('next/navigation', () => ({
@@ -29,29 +122,10 @@ jest.mock('@/context/ToastContext', () => ({
   })),
 }));
 
+
 // Create a mock for scrollIntoView and focus
 const mockScrollIntoView = jest.fn();
 
-type MockUseTranslations = {
-  (key: string, ...args: unknown[]): string;
-  rich: (key: string, values?: RichTranslationValues) => ReactNode;
-};
-
-jest.mock('next-intl', () => ({
-  useTranslations: jest.fn(() => {
-    const mockUseTranslations: MockUseTranslations = ((key: string) => key) as MockUseTranslations;
-
-    mockUseTranslations.rich = (key, values) => {
-      const p = values?.p;
-      if (typeof p === 'function') {
-        return p(key); // Can return JSX
-      }
-      return key; // fallback
-    };
-
-    return mockUseTranslations;
-  }),
-}));
 
 const mockRouter = {
   push: jest.fn(),
@@ -65,7 +139,6 @@ describe('ProjectsCreateProject', () => {
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
-    (useAddProjectMutation as jest.Mock).mockReturnValue([jest.fn()]);
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     (useToast as jest.Mock).mockReturnValue(mockToast);
   });
@@ -73,7 +146,9 @@ describe('ProjectsCreateProject', () => {
   it('should render the ProjectsCreateProject component', async () => {
     await act(async () => {
       render(
-        <ProjectsCreateProject />
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <ProjectsCreateProject />
+        </MockedProvider>
       );
     });
 
@@ -81,74 +156,61 @@ describe('ProjectsCreateProject', () => {
     expect(screen.getByRole('heading', { level: 1, name: /pageTitle/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/form.projectTitle/i)).toBeInTheDocument();
     expect(screen.getByText(/form.projectTitleHelpText/i)).toBeInTheDocument();
-    expect(screen.getByText(/form.newOrExisting/i)).toBeInTheDocument();
-    expect(screen.getByText(/form.radioExistingLabel/i)).toBeInTheDocument();
-    expect(screen.getByText(/form.radioExistingHelpText/i)).toBeInTheDocument();
-    expect(screen.getByText(/form.radioNewLabel/i)).toBeInTheDocument();
-    expect(screen.getByText(/form.radioNewHelpText/i)).toBeInTheDocument();
     expect(screen.getByText(/form.checkboxLabel/i)).toBeInTheDocument();
     expect(screen.getByText(/form.checkboxHelpText/i)).toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: /form.checkboxLabel/i })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: "isThisMockProject" })).toBeInTheDocument();
     expect(screen.getByText(/form.checkboxGroupLabel/i)).toBeInTheDocument();
     expect(screen.getByText(/form.checkboxGroupHelpText/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /buttons.continue/i })).toBeInTheDocument();
   });
 
   it('should handle form submission with valid data', async () => {
-    const addProjectMutationMock = jest.fn().mockResolvedValue({
-      data: {
-        addProject: {
-          id: 123,
-          errors: [],
-        },
-      },
-    });
-
-    (useAddProjectMutation as jest.Mock).mockReturnValue([addProjectMutationMock]);
-
     await act(async () => {
       render(
-        <ProjectsCreateProject />
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <ProjectsCreateProject />
+        </MockedProvider>
       );
     });
 
     fireEvent.change(screen.getByLabelText(/form.projectTitle/i), { target: { value: 'Test Project' } });
-    fireEvent.click(screen.getByLabelText('form.radioNewLabel'));
     fireEvent.click(screen.getByLabelText(/form.checkboxLabel/i));
     fireEvent.click(screen.getByRole('button', { name: /buttons.continue/i }));
 
     await waitFor(() => {
-      expect(addProjectMutationMock).toHaveBeenCalledWith({
-        variables: {
-          title: 'Test Project',
-          isTestProject: true,
-        },
-      });
       expect(mockToast.add).toHaveBeenCalledWith('messages.success', { type: 'success' });
-      expect(mockRouter.push).toHaveBeenCalledWith('/projects/123/project-funding');
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/123/funding-search');
+    });
+  });
+
+  it('should handle valid non-test project', async () => {
+    await act(async () => {
+      render(
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <ProjectsCreateProject />
+        </MockedProvider>
+      );
+    });
+
+    fireEvent.change(screen.getByLabelText(/form.projectTitle/i), { target: { value: 'Non-Test Project' } });
+    fireEvent.click(screen.getByRole('button', { name: /buttons.continue/i }));
+
+    await waitFor(() => {
+      expect(mockToast.add).toHaveBeenCalledWith('messages.success', { type: 'success' });
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/123/funding-search');
     });
   });
 
   it('should handle showing field-level error when there is no title', async () => {
-    const addProjectMutationMock = jest.fn().mockResolvedValue({
-      data: {
-        addProject: {
-          id: 123,
-          errors: [],
-        },
-      },
-    });
-
-    (useAddProjectMutation as jest.Mock).mockReturnValue([addProjectMutationMock]);
-
     await act(async () => {
       render(
-        <ProjectsCreateProject />
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <ProjectsCreateProject />
+        </MockedProvider>
       );
     });
 
     fireEvent.change(screen.getByLabelText(/form.projectTitle/i), { target: { value: '' } });
-    fireEvent.click(screen.getByLabelText('form.radioNewLabel'));
     fireEvent.click(screen.getByLabelText(/form.checkboxLabel/i));
     fireEvent.click(screen.getByRole('button', { name: /buttons.continue/i }));
 
@@ -158,30 +220,34 @@ describe('ProjectsCreateProject', () => {
     });
   });
 
-  it('should display error messages from the server', async () => {
-    const addProjectMutationMock = jest.fn().mockResolvedValue({
-      data: {
-        addProject: {
-          id: 123,
-          errors: {
-            title: 'Title error',
-            general: 'General error',
-          },
-        },
-      },
-    });
-    (useAddProjectMutation as jest.Mock).mockReturnValue([addProjectMutationMock]);
-
+  it('should display field error messages', async () => {
     await act(async () => {
       render(
-        <ProjectsCreateProject />
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <ProjectsCreateProject />
+        </MockedProvider>
       );
     });
 
+    fireEvent.change(screen.getByLabelText(/form.projectTitle/i), { target: { value: 'Field Errors' } });
+    fireEvent.click(screen.getByRole('button', { name: /buttons.continue/i }));
 
-    fireEvent.change(screen.getByLabelText(/form.projectTitle/i), { target: { value: 'Test Project' } });
-    fireEvent.click(screen.getByLabelText('form.radioExistingLabel'));
-    fireEvent.click(screen.getByLabelText(/form.checkboxLabel/i));
+    await waitFor(() => {
+      expect(screen.getByText(/Title error/i)).toBeInTheDocument();
+      expect(screen.getByText('messages.errors.createProjectError')).toBeInTheDocument();
+    });
+  });
+
+  it('should display general error message instead of default', async () => {
+    await act(async () => {
+      render(
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <ProjectsCreateProject />
+        </MockedProvider>
+      );
+    });
+
+    fireEvent.change(screen.getByLabelText(/form.projectTitle/i), { target: { value: 'General Error' } });
     fireEvent.click(screen.getByRole('button', { name: /buttons.continue/i }));
 
     await waitFor(() => {
@@ -190,9 +256,29 @@ describe('ProjectsCreateProject', () => {
     });
   });
 
+  it('should catch general server exceptions', async () => {
+    await act(async () => {
+      render(
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <ProjectsCreateProject />
+        </MockedProvider>
+      );
+    });
+
+    fireEvent.change(screen.getByLabelText(/form.projectTitle/i), { target: { value: 'Server Error' } });
+    fireEvent.click(screen.getByLabelText(/form.checkboxLabel/i));
+    fireEvent.click(screen.getByRole('button', { name: /buttons.continue/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('messages.errors.createProjectError')).toBeInTheDocument();
+    });
+  });
+
   it('should pass axe accessibility test', async () => {
     const { container } = render(
-      <ProjectsCreateProject />
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <ProjectsCreateProject />
+      </MockedProvider>
     );
     await act(async () => {
       const results = await axe(container);

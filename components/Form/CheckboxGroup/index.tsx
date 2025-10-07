@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Checkbox,
   CheckboxGroup,
   FieldError,
   Label,
@@ -14,11 +13,11 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
   value,
   checkboxGroupLabel,
   checkboxGroupDescription,
-  checkboxData,
   isInvalid,
   errorMessage,
   onChange,
   isRequired = false,
+  children
 }) => {
   return (
     <>
@@ -38,26 +37,7 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
             {checkboxGroupDescription}
           </Text>
         )}
-        {checkboxData.map((checkbox, index) => (
-          <div key={index}>
-            <Checkbox value={checkbox.value}>
-              <div className="checkbox">
-                <svg viewBox="0 0 18 18" aria-hidden="true">
-                  <polyline points="1 9 7 14 15 4" />
-                </svg>
-              </div>
-              <div className="">
-                <span>
-                  {checkbox.label}
-                </span>
-                <br />
-                <span className="help">
-                  {checkbox.description}
-                </span>
-              </div>
-            </Checkbox>
-          </div>
-        ))}
+        {children}
       </CheckboxGroup>
     </>
   );

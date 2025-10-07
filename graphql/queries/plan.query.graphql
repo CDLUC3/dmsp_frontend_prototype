@@ -7,6 +7,9 @@ query Plan($planId: Int!) {
         name
       }
       name
+      owner {
+        uri
+      }
     }
     fundings {
       id
@@ -27,6 +30,12 @@ query Plan($planId: Int!) {
         funderOpportunityNumber
       }
       title
+      collaborators {
+        user {
+          id
+        }
+        accessLevel
+      }
     }
     members {
       isPrimaryContact
@@ -47,10 +56,20 @@ query Plan($planId: Int!) {
       title
       totalQuestions
     }
+    progress {
+      answeredQuestions
+      percentComplete
+      totalQuestions
+    }
     created
+    createdById
     modified
     dmpId
     registered
     title
+    feedback {
+      id
+      completed
+    }
   }
 }

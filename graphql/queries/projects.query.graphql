@@ -1,5 +1,5 @@
-query MyProjects {
-  myProjects {
+query MyProjects($term: String, $paginationOptions: PaginationOptions) {
+  myProjects(term: $term, paginationOptions: $paginationOptions) {
     totalCount
     nextCursor
     items {
@@ -72,6 +72,16 @@ query Project($projectId: Int!) {
       dmpId
       modified
       created
+    }
+  }
+}
+
+query ProjectFundingsApi($projectId: Int!) {
+  project(projectId: $projectId) {
+    fundings {
+      affiliation {
+        apiTarget
+      }
     }
   }
 }

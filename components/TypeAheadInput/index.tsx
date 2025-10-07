@@ -1,35 +1,47 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react';
-import { DocumentNode } from '@apollo/client';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Input,
   Label,
+  Text,
   TextField,
-} from 'react-aria-components';
-import { createApolloClient } from '@/lib/graphql/client/apollo-client';
+} from "react-aria-components";
 import Spinner from '@/components/Spinner';
+import { SuggestionInterface } from '@/app/types';
 import classNames from 'classnames';
-import styles from './typeaheadInput.module.scss'
-import logECS from '@/utils/clientLogger';
+import styles from './typeaheadInput.module.scss';
 
-type TypeAheadInputProps = {
-  graphqlQuery: DocumentNode;
+
+export type TypeAheadInputProps = {
   label: string;
+  placeholder?: string;
+  helpText?: string;
   fieldName: string;
-  helpText?: string
+  required: boolean;
+  error?: string;
+  updateFormData: (id: string, value: string) => void; //Function to update the typeahead field value in the parent form data
+  value?: string;
+  className?: string;
+  suggestions: SuggestionInterface[];
+  onSearch: (searchTerm: string) => void;
 }
 
-type SuggestionInterface = {
-  id: string;
-  displayName: string;
-}
-const TypeAheadInput = ({ graphqlQuery, label, fieldName, helpText }: TypeAheadInputProps) => {
-  const [inputValue, setInputValue] = useState('');
-  const [suggestions, setSuggestions] = useState<SuggestionInterface[]>([]);
+const TypeAheadInput = ({
+  label,
+  placeholder,
+  helpText,
+  fieldName,
+  error,
+  updateFormData,
+  value,
+  className,
+  suggestions,
+  onSearch,
+}: TypeAheadInputProps) => {
+
+  const [inputValue, setInputValue] = useState<string>(value ?? "");
   const [showSuggestionSpinner, setShowSuggestionSpinner] = useState(false);
-  const [selected, setSelected] = useState("");
-  const [debouncedValue, setDebouncedValue] = useState(inputValue);
   const [currentListItemFocused, setCurrentListItemFocused] = useState(-1);
   const [activeDescendentId, setActiveDescendentId] = useState<string>("");
   const [open, setOpen] = useState(false);
@@ -37,33 +49,45 @@ const TypeAheadInput = ({ graphqlQuery, label, fieldName, helpText }: TypeAheadI
   const listRef = useRef<HTMLUListElement | null>(null);
   const listItemRefs = useRef<(HTMLLIElement | null)[]>([]);
 
-  const client = createApolloClient();
-  useEffect(() => {
-    if (!client) {
-      logECS('error', 'Apollo client creation failed', {
-        source: 'TypeAheadInput component',
-      });
-      return;
+  const handleUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setShowSuggestionSpinner(true);
+    setOpen(true);
+    const value = e.target.value;
+    const dataId = (e.target as HTMLElement).dataset.id || '';
+
+    setInputValue(value);
+    updateFormData(dataId, value);
+
+    if (onSearch) {
+      onSearch(value);
     }
-  }, [client]);
+
+    setShowSuggestionSpinner(false);
+  };
 
   const handleInputClick = () => {
     setOpen(true);
+    setInputValue('');
+    updateFormData('', ''); // Clear the form data when input is clicked
   }
 
-  const handleSelection = (e: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLLIElement>) => {
-    const item = (e.target as HTMLLIElement | HTMLInputElement).innerText?.toString() ||
-      (e.target as HTMLLIElement | HTMLInputElement).value?.toString();
-    const activeDescendentId = (e.target as HTMLLIElement | HTMLInputElement).id;
-    setSelected(item);
+  const handleSelection = async (e: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLLIElement>) => {
+    const li = (e.target as HTMLElement).closest('li'); // always get the <li>
+    if (!li) return;
+
     setOpen(false);
+    const item = (li.textContent ?? '').trim();
+    const activeDescendentId = li.id;
+
+    const dataId = li.dataset.id || '';
+
+    updateFormData(dataId, item);
+
     setInputValue(item);
     setCurrentListItemFocused(-1);
     setActiveDescendentId(activeDescendentId);
 
-    if (inputRef && inputRef.current) {
-      inputRef.current.focus();
-    }
+    inputRef.current?.focus();
   }
 
   const focusListItem = (index: number) => {
@@ -77,53 +101,50 @@ const TypeAheadInput = ({ graphqlQuery, label, fieldName, helpText }: TypeAheadI
     }
   };
 
-  const handleKeyboardEvents = (e: React.KeyboardEvent<HTMLElement>
-  ) => {
+  const handleKeyboardEvents = (e: React.KeyboardEvent<HTMLElement>) => {
     let listItems = [];
     if (listRef.current) {
       // Convert NodeListOf<ChildNode> to an array of HTMLElement
       listItems = Array.from(listRef.current.childNodes);
     }
 
-
-    if (['ArrowUp', 'ArrowDown', 'Enter'].includes(e.key)) {
+    if (["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) {
       e.preventDefault();
     }
 
     switch (e.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         // Allow user to navigate through list items using down arrow key
-        if (currentListItemFocused < listItems.length - 1) {
-          focusListItem(currentListItemFocused + 1);
+        if (currentListItemFocused <= listItems.length - 1) {
+          if (currentListItemFocused < 0) {
+            focusListItem(1)
+          } else {
+            focusListItem(currentListItemFocused + 1);
+          }
         }
         break;
-      case 'ArrowUp':
+
+      case "ArrowUp":
         // Allow user to navigate through list items using up arrow key
-        if (currentListItemFocused > 0) {
+        if (currentListItemFocused > 1) {
           focusListItem(currentListItemFocused - 1);
         } else {
           setCurrentListItemFocused(-1);
-          setActiveDescendentId('');
+          setActiveDescendentId("");
           if (inputRef && inputRef.current) {
             inputRef.current.focus();
           }
         }
         break;
+
       case 'Enter':
-        //If user hits "Enter" on a list item, then set as current input value
+        // If user hits "Enter" on a list item, then set as current
+        // input value
         if (currentListItemFocused !== -1) {
           handleSelection(e)
         }
         break;
-      case "Tab":
-        setCurrentListItemFocused(-1);
-        // If the entered value is not in the response, then don't let user tab
-        const hasSelectedValue = suggestions ? suggestions.some(item => item.displayName === selected) : false;
 
-        if (!hasSelectedValue) {
-          e.preventDefault();
-        }
-        break;
       default:
         if (/([a-zA-Z0-9_]|ArrowLeft|ArrowRight)/.test(e.key)) {
           // If list item is focused and user presses an alphanumeric key, or left or right
@@ -131,71 +152,29 @@ const TypeAheadInput = ({ graphqlQuery, label, fieldName, helpText }: TypeAheadI
           if (inputRef && inputRef.current) {
             inputRef.current.focus();
           }
-
         }
-
         break;
     }
   }
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(inputValue);
-    }, 700);
-
-    return () => {
-      clearTimeout(handler);
-    };
+    if (onSearch) {
+      onSearch(inputValue);
+    }
   }, [inputValue]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-
-    const fetchSuggestions = async (searchTerm: string) => {
-      try {
-        const { data } = await client.query({
-          query: graphqlQuery,
-          variables: { name: searchTerm },
-          context: { fetchOptions: { signal } }
-        });
-
-        if (!signal.aborted) {
-          const affiliations = data.affiliations?.items;
-          setSuggestions(affiliations);
-          setOpen(true);
-        }
-
-      } catch (error) {
-        if (!signal.aborted) {
-          console.error('Error fetching suggestions:', error);
-        }
-      } finally {
-        if (!signal.aborted) {
-          setShowSuggestionSpinner(false);
-        }
-      }
-    }
-
-    if (debouncedValue && debouncedValue !== '') {
-      setShowSuggestionSpinner(true);
-      fetchSuggestions(debouncedValue);
-    }
-
-    return () => controller.abort();
-  }, [debouncedValue]);
 
   useEffect(() => {
     // Function to handle click outside the input and list
     const handleClickOutside = (e: MouseEvent) => {
       if (
         inputRef.current &&
-        !inputRef.current.contains(e.target as Node)
+        !inputRef.current.contains(e.target as Node) &&
+        listRef.current &&
+        !listRef.current.contains(e.target as Node)
       ) {
         setOpen(false); // Hide the list
         setCurrentListItemFocused(-1); //Reset so that next search doesn't start with focus on the wrong option
       }
-
     };
 
     // Attach the event listener when component mounts
@@ -207,85 +186,98 @@ const TypeAheadInput = ({ graphqlQuery, label, fieldName, helpText }: TypeAheadI
     };
   }, []);
 
+
   return (
-    <>
-      <div className={`${styles.autocompleteContainer} ${styles.expanded}`} aria-expanded={open} role="combobox" aria-controls="results">
-        <TextField>
-          <Label>{label}</Label>
-          <Input
-            name={fieldName}
-            type="text"
-            role="textbox"
-            value={inputValue}
-            aria-controls="results"
-            aria-activedescendant={activeDescendentId}
-            className={classNames('react-aria-Input', styles.searchInput)}
-            onChange={(e) => setInputValue(e.target.value)}
-            onClick={handleInputClick}
-            onKeyDown={handleKeyboardEvents}
-            placeholder="Type to search..."
-            ref={inputRef}
-            autoComplete="off"
-          />
-
-          <Spinner className={`${styles.searchSpinner} ${showSuggestionSpinner ? styles.show : ''}`}
-            isActive={showSuggestionSpinner} />
-
-          {/*Visually hidden element for screen readers */}
-          <div
-            aria-live="polite"
-            className="hidden-accessibly">
-            {showSuggestionSpinner ? "Loading..." : ""}
-          </div>
-
-          <div
-            className={`${styles.autocompleteDropdownArrow} ${open ? styles.expanded : ""}`}
-            onClick={e => e.preventDefault()}
-            tabIndex={-1}
-            aria-hidden="true"
-          >
-            <svg width="10" height="5" viewBox="0 0 10 5" fillRule="evenodd">
-              <title>Open drop down</title>
-              <path d="M10 0L5 5 0 0z"></path>
-            </svg>
-          </div>
-          <p className={styles.helpText}>{helpText}</p>
-        </TextField >
-
-        <ul
-          className={`${styles.autocompleteResults} ${open ? styles.visible : ''}`}
-          ref={listRef}
-          id="results"
-          role="listbox"
+    <div className={`${styles.autocompleteContainer} ${styles.expanded} ${className} form-row`} aria-expanded={open} role="combobox" aria-controls="results">
+      <TextField
+        type="text"
+        data-testid="typeaheadWithOther"
+        className={(!!error) ? styles.fieldError : ''}
+        isInvalid={!!error}
+      >
+        <Label>{label}</Label>
+        <Input
+          name={fieldName}
+          type="text"
+          value={inputValue}
+          role="textbox"
+          aria-controls="results"
+          aria-activedescendant={activeDescendentId}
+          className={classNames('react-aria-Input', styles.searchInput)}
+          onChange={handleUpdate}
+          onClick={handleInputClick}
           onKeyDown={handleKeyboardEvents}
+          placeholder={placeholder ? placeholder : 'Type to search...'}
+          ref={inputRef}
+          autoComplete="off"
+        />
+        {(helpText && !error) && (
+          <Text slot="description" className={styles.helpText}>
+            {helpText}
+          </Text>
+        )}
+        {error && (
+          <Text slot="description" className={styles.errorMessage}>
+            {error}
+          </Text>
+        )}
+        <Spinner className={`${styles.searchSpinner} ${showSuggestionSpinner ? styles.show : ''}`}
+          isActive={showSuggestionSpinner} />
+
+        {/*Visually hidden element for screen readers */}
+        <div
+          aria-live="polite"
+          className="hidden-accessibly">
+          {showSuggestionSpinner ? "Loading..." : ""}
+        </div>
+
+        <div
+          className={`${styles.autocompleteDropdownArrow} ${open ? styles.expanded : ""}`}
+          onClick={e => e.preventDefault()}
           tabIndex={-1}
+          aria-hidden="true"
         >
-          {suggestions.length === 0 && (
-            <li
-              className={styles.autocompleteItem}
-              role="option"
-              aria-selected="false"
-              tabIndex={-1}
-            >
-              No results found.
-            </li>
-          )}
-          {suggestions.map((suggestion, index) => (
-            <li
-              key={index}
-              className={styles.autocompleteItem}
-              id={`autocompleteItem-${index}`}
-              data-id={suggestion.id}
-              onClick={handleSelection}
-              tabIndex={-1}
-              ref={(el) => {
-                listItemRefs.current[index] = el;
-              }}
-            >{suggestion.displayName}</li>
-          ))}
-        </ul>
-      </div >
-    </>
+          <svg width="10" height="5" viewBox="0 0 10 5" fillRule="evenodd">
+            <title>Open drop down</title>
+            <path d="M10 0L5 5 0 0z"></path>
+          </svg>
+        </div>
+      </TextField>
+
+      <ul
+        className={`${styles.autocompleteResults} ${open ? styles.visible : ''}`}
+        ref={listRef}
+        id="results"
+        role="listbox"
+        onKeyDown={handleKeyboardEvents}
+        tabIndex={-1}
+      >
+        {suggestions && suggestions.length > 0 && (
+          <>
+
+            {suggestions?.map((suggestion, index) => {
+              if (suggestion.displayName !== '') {
+                return (
+                  <li
+                    key={index}
+                    className={styles.autocompleteItem}
+                    id={`autocompleteItem-${index + 1}`}
+                    role='option'
+                    aria-selected={currentListItemFocused === index + 1}
+                    data-id={suggestion?.uri}
+                    onClick={handleSelection}
+                    tabIndex={-1}
+                    ref={(el) => {
+                      listItemRefs.current[index + 1] = el;
+                    }}
+                  >{suggestion.displayName}</li>
+                )
+              }
+            })}
+          </>
+        )}
+      </ul>
+    </div>
   );
 };
 

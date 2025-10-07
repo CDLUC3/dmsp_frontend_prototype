@@ -107,3 +107,16 @@ code {
   font-weight: bold;
   font-size: inherit; // Inherits the font size from its parent
 }
+
+// Font classes
+.font-small {
+  font-size: var(--fs-small);
+}
+
+.font-base {
+  font-size: var(--fs-base);
+}
+
+.font-large {
+  font-size: var(--fs-large);
+}

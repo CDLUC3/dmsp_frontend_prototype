@@ -58,7 +58,7 @@
       "updateSection": "Editar: {title}"
     },
     "errors": {
-      "invalidDmpId": "ID DMP inválido: O ID DMP fornecido não é válido.",
+      "invalidDmpId": "ID DMP inválido: O ID de DMP fornecido não é válido.",
       "sectionNotFound": "Seção não encontrada: Esta seção não pertence ao plano atual."
     },
     "status": {
@@ -192,8 +192,19 @@
       "unsavedChanges": "Alterações não Salvas",
       "savedJustNow": "Salvo há pouco",
       "lastSavedOneMinuteAgo": "Última salvo há 1 minuto",
-      "lastSaves": "Salvo há {minutes} minutos atrás"
-    }
+      "lastSaves": "Salvo há {minutes} minutos atrás",
+      "noComments": "Não há comentários",
+      "sampleTextAdded": "Exemplo de texto adicionado",
+      "commentSent": "Comentário enviado",
+      "commentDeleted": "Comentário excluído com sucesso",
+      "commentUpdated": "Comentário atualizado com sucesso"
+    },
+    "buttons": {
+      "commentWithNumber": "{number} Comentários"
+    },
+    "you": "você",
+    "admin": "administrador",
+    "edited": "editado"
   },
   "ProjectsProjectFunding": {
     "buttons": {
@@ -202,6 +213,45 @@
     "messages": {
       "errors": {
         "funderNumberNotFound": "Número do projeto fino não encontrado."
+      }
+    }
+  },
+  "ProjectsProjectPlanFeedback": {
+    "title": "Solicitar feedback",
+    "description": "Você pode obter feedback da equipe de suporte da Universidade da Califórnia, leia a seguinte mensagem da equipe.",
+    "form": {
+      "label": "Enviar mensagem para a equipe de suporte da Universidade da Califórnia",
+      "placeholder": "Você pode revisar meu plano para quaisquer erros",
+      "submitButton": "Solicitar Feedback",
+      "successMessage": "Solicitação enviada"
+    },
+    "teamFeedback": {
+      "title": "Feedback dos membros da equipe",
+      "description": "Você pode obter feedback dos membros da equipe deixando comentários",
+      "updateAccessButton": "Atualizar configurações de acesso"
+    },
+    "sidebar": {
+      "universitySupport": {
+        "title": "Feedback da Equipe de Suporte Universitário",
+        "description": "Você pode solicitar feedback da equipe de suporte de pesquisa da sua universidade (como administradores de dados, facilitadores de pesquisa ou bibliotecários).",
+        "expertsCanTitle": "Esses especialistas podem:",
+        "expertsCan": [
+          "Verificar se seu plano atende aos requisitos do financiador",
+          "Sugerir melhorias no armazenamento, compartilhamento ou manuseio ético de dados",
+          "Ajudá-lo a preparar uma submissão mais forte e compatível"
+        ],
+        "requestInfo": "Para solicitar seu feedback e eles serão notificados e revisarão seu plano quando disponível."
+      },
+      "teamMembers": {
+        "title": "Feedback dos Membros da Equipe",
+        "description": "Você pode convidar colegas ou colaboradores para revisar seu plano e deixar comentários diretamente em seções específicas.",
+        "usefulWhenTitle": "Isso é especialmente útil quando:",
+        "usefulWhen": [
+          "Você está co-autorar o plano com outros",
+          "Você quer input de pessoas familiarizadas com sua pesquisa ou dados",
+          "Você gostaria de esclarecer responsabilidades ou preencher quaisquer detalhes em falta"
+        ],
+        "encourageInfo": "Encoraje sua equipe a deixar comentários ou sugestões construtivas, isso torna o processo colaborativo muito mais suave e garante que nada seja negligenciado."
       }
     }
   }

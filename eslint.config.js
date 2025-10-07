@@ -16,6 +16,7 @@ module.exports = [
       "coverage/*",
       "node_modules/**",
       ".next/**",
+      "next-env.d.ts",
       "cypress/**",
       "next-env.d.ts",
       "eslint.config.js",

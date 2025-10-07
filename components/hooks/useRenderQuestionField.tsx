@@ -197,11 +197,11 @@ export function useRenderQuestionField({
       if (parsed.type === 'selectBox' && 'options' in parsed) {
         if (selectBoxProps?.setSelectedSelectValue) {
           return (
-              <SelectboxQuestionComponent
-                  parsedQuestion={parsed}
-                  selectedSelectValue={selectBoxProps.selectedSelectValue}
-                  handleSelectChange={selectBoxProps.handleSelectChange}
-              />
+            <SelectboxQuestionComponent
+              parsedQuestion={parsed}
+              selectedSelectValue={selectBoxProps.selectedSelectValue}
+              handleSelectChange={selectBoxProps.handleSelectChange}
+            />
           );
         }
       }
@@ -211,11 +211,11 @@ export function useRenderQuestionField({
       if (parsed.type === 'multiselectBox' && 'options' in parsed) {
         if (multiSelectBoxProps?.handleMultiSelectChange) {
           return (
-              <MultiSelectQuestionComponent
-                  parsedQuestion={parsed}
-                  selectedMultiSelectValues={multiSelectBoxProps.selectedMultiSelectValues}
-                  handleMultiSelectChange={multiSelectBoxProps.handleMultiSelectChange}
-              />
+            <MultiSelectQuestionComponent
+              parsedQuestion={parsed}
+              selectedMultiSelectValues={multiSelectBoxProps.selectedMultiSelectValues}
+              handleMultiSelectChange={multiSelectBoxProps.handleMultiSelectChange}
+            />
           );
         }
       }

@@ -17,6 +17,7 @@ import {
   Link,
   Modal,
   ModalOverlay,
+  Radio,
   Tab,
   TabList,
   TabPanel,
@@ -43,6 +44,7 @@ import {
   RangeComponent,
   TypeAheadSearch
 } from '@/components/Form';
+
 import FormTextArea from '@/components/Form/FormTextArea';
 import ErrorMessages from '@/components/ErrorMessages';
 import QuestionView from '@/components/QuestionView';
@@ -53,7 +55,7 @@ import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
-import {getQuestionFormatInfo, getQuestionTypes, questionTypeHandlers} from '@/utils/questionTypeHandlers';
+import { getQuestionFormatInfo, getQuestionTypes, questionTypeHandlers } from '@/utils/questionTypeHandlers';
 import { QuestionTypeMap } from "@dmptool/types";
 import {
   Question,
@@ -121,21 +123,6 @@ const QuestionEdit = () => {
 
   // Set URLs
   const TEMPLATE_URL = routePath('template.show', { templateId });
-
-  const radioData = {
-    radioGroupLabel: Global('labels.requiredField'),
-    radioButtonData: [
-      {
-        value: 'yes',
-        label: Global('form.yesLabel'),
-      },
-      {
-        value: 'no',
-        label: Global('form.noLabel')
-      }
-    ]
-  }
-
 
   // Run selected question query
   const {
@@ -664,11 +651,18 @@ const QuestionEdit = () => {
                 <RadioGroupComponent
                   name="radioGroup"
                   value={question?.required ? 'yes' : 'no'}
-                  radioGroupLabel={radioData.radioGroupLabel}
-                  radioButtonData={radioData.radioButtonData}
+                  radioGroupLabel={Global('labels.requiredField')}
                   description={Global('descriptions.requiredFieldDescription')}
                   onChange={handleRadioChange}
-                />
+                >
+                  <div>
+                    <Radio value="yes">{Global('form.yesLabel')}</Radio>
+                  </div>
+
+                  <div>
+                    <Radio value="no">{Global('form.noLabel')}</Radio>
+                  </div>
+                </RadioGroupComponent>
 
 
                 <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.saveAndUpdate')}</Button>

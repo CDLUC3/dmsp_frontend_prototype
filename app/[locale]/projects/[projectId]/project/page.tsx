@@ -11,6 +11,8 @@ import {
   Button,
   Form,
   Link,
+  Radio,
+  Text
 } from "react-aria-components";
 
 //GraphQL
@@ -25,9 +27,11 @@ import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutContainer } from "@/components/Container";
 import {
   FormInput,
-  RadioGroupComponent,
-  DateComponent
+  FormTextArea,
+  DateComponent,
+  RadioGroupComponent
 } from "@/components/Form";
+
 import ErrorMessages from '@/components/ErrorMessages';
 import ResearchDomainCascadingDropdown
   from '@/components/ResearchDomainCascadingDropdown';
@@ -58,7 +62,7 @@ const ProjectsProjectDetail = () => {
   // Get projectId param
   const params = useParams();
   const router = useRouter();
-  const { projectId } = params; // From route /projects/:projectId
+  const projectId = String(params.projectId); // From route /projects/:projectId
 
   //For scrolling to top of page
   const topRef = useRef<HTMLDivElement | null>(null);
@@ -89,20 +93,6 @@ const ProjectsProjectDetail = () => {
   const ProjectOverview = useTranslations('ProjectOverview');
   const ProjectDetail = useTranslations('ProjectsProjectDetail');
   const Global = useTranslations('Global');
-
-  const radioData = {
-    radioGroupLabel: ProjectDetail('labels.projectType'),
-    radioButtonData: [
-      {
-        value: 'true',
-        label: ProjectDetail('labels.mockProject')
-      },
-      {
-        value: 'false',
-        label: ProjectDetail('labels.realProject')
-      }
-    ]
-  }
 
   // Initialize useUpdateProjectMutation
   const [updateProjectMutation] = useUpdateProjectMutation();
@@ -265,6 +255,8 @@ const ProjectsProjectDetail = () => {
       } else {
         // Show success message
         showSuccessToast();
+        // Redirect to the Project Overview page
+        router.push(routePath('projects.show', { projectId }))
       }
     }
   };
@@ -339,13 +331,13 @@ const ProjectsProjectDetail = () => {
               errorMessage={fieldErrors.projectName.length > 0 ? fieldErrors.projectName : ProjectDetail('messages.errors.projectName')}
             />
 
-            <FormInput
+            <FormTextArea
               name="projectAbstract"
-              type="text"
               isRequired={false}
+              richText={false}
               label={ProjectDetail('labels.projectAbstract')}
               value={projectData.projectAbstract}
-              onChange={(e) => updateProjectContent('projectAbstract', e.target.value)}
+              onChange={(value) => updateProjectContent('projectAbstract', value)}
               isInvalid={!!fieldErrors.projectAbstract}
               errorMessage={fieldErrors.projectAbstract.length > 0 ? fieldErrors.projectAbstract : ProjectDetail('messages.errors.projectAbstract')}
             />
@@ -373,55 +365,55 @@ const ProjectsProjectDetail = () => {
 
             <ResearchDomainCascadingDropdown projectData={projectData} setProjectData={setProjectData} />
 
-            <div className="form-signpost  my-8">
-              <div className="form-signpost-inner">
-                <div className="">
-                  <p className="text-sm">
-                    {ProjectDetail('paragraphs.para1')}
-                  </p>
-                </div>
-                <div className="form-signpost-button">
-                  <Button
-                    className="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800"
-                    data-testid="search-projects-button"
-                    onPress={() => router.push(PROJECT_SEARCH_REDIRECT_ROUTE)}
-                  >
-                    {ProjectDetail('buttons.searchProjects')}
-                  </Button>
-                </div>
-              </div>
-            </div>
-
             <div className="project-type-section">
-              {projectData.isTestProject === 'true' && (
-                <>
-                  <h2>{ProjectDetail('headings.h2MockProject')}</h2>
-                  <p className={"help"}>
-                    {ProjectDetail('paragraphs.mockProject')}
-                  </p>
-                </>
-              )}
-
-              <p className={"help"}>
-                <strong>{ProjectDetail('mockProject')}: </strong>
-                {ProjectDetail('paragraphs.mockProjectDescription')}
-              </p>
-              <p className={"help"}>
-                <strong>{ProjectDetail('realProject')}: </strong>
-                {ProjectDetail('paragraphs.realProjectDescription')}
-              </p>
 
               <RadioGroupComponent
                 name="projectType"
                 value={projectData.isTestProject.toString()}
-                radioGroupLabel={radioData.radioGroupLabel}
-                radioButtonData={radioData.radioButtonData}
+                radioGroupLabel={ProjectDetail('labels.projectType')}
                 onChange={handleRadioChange}
-              />
+              >
+                <div>
+                  <Radio value="true">{ProjectDetail('labels.mockProject')}</Radio>
+                  <Text
+                    slot="description"
+                  >
+                    {ProjectDetail('descriptions.mockProject')}
+                  </Text>
+                </div>
+
+                <div>
+                  <Radio value="false">{ProjectDetail('labels.realProject')}</Radio>
+                  <Text
+                    slot="description"
+                  >
+                    {ProjectDetail('descriptions.realProject')}
+                  </Text>
+                </div>
+              </RadioGroupComponent>
             </div>
 
             <Button type="submit" className="submit-button">{Global('buttons.save')}</Button>
           </Form>
+
+          <div className="form-signpost my-8">
+            <div className="form-signpost-inner">
+              <div className="">
+                <p className="text-sm">
+                  {ProjectDetail('paragraphs.para1')}
+                </p>
+              </div>
+              <div className="form-signpost-button">
+                <Button
+                  className="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800"
+                  data-testid="search-projects-button"
+                  onPress={() => router.push(PROJECT_SEARCH_REDIRECT_ROUTE)}
+                >
+                  {ProjectDetail('buttons.searchProjects')}
+                </Button>
+              </div>
+            </div>
+          </div>
         </ContentContainer>
       </LayoutContainer >
     </>

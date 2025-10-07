@@ -8,22 +8,23 @@
     padding: var(--space-2) var(--space-4);
     background-color: var(--color-background-subtle);
     border-bottom: 1px solid var(--gray-100);
-  
+
     display: grid;
-    grid-template-columns: 1fr auto; /* Content takes available space, button takes needed space */
+    grid-template-columns: 1fr auto;
+    /* Content takes available space, button takes needed space */
     gap: var(--space-3);
     align-items: center;
-  
+
     /* Make the content area span full width on mobile */
     @media (max-width: 640px) {
       grid-template-columns: 1fr;
     }
-  
+
     h2 {
       margin: 0;
       padding: 0;
     }
-  
+
     a {
       font-weight: 700;
       font-size: var(--fs-base);
@@ -35,18 +36,18 @@
     flex-direction: column;
     gap: var(--space-0);
   }
-  
+
   .planOverviewItemHeading {
     margin: 0;
     font-size: var(--fs-base);
     font-weight: 400;
   }
-  
+
   .planOverviewItemTitle {
     font-size: var(--fs-h4);
     margin: 0 0 var(--space-2) 0;
   }
-  
+
 }
 
 
@@ -61,17 +62,18 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-  
+
   }
-  
+
   .planSectionsTitle {
-  
-    h3{
+
+    h3 {
       margin: 0;
       padding: 0;
       margin-bottom: var(--space-2);
     }
-    p{
+
+    p {
       margin: 0;
       padding: 0;
     }
@@ -85,46 +87,26 @@
     font-size: var(--fs-sm);
     font-weight: 400;
   }
-  
+
   .progressIcon {
     color: var(--success-600);
     flex-shrink: 0;
   }
 
-  .planSectionsList + .planSectionsList {
+  .planSectionsList+.planSectionsList {
     margin-top: var(--space-4);
   }
 }
 
 
-.statusPanelContent {
-  padding: var(--space-4);
-  background-color: var(--gray-75);
-  border-radius: var(--border-radius-lg);
 
-  h3 {
-    font-size: var(--fs-h5);
-    margin: 0 0 var(--space-1) 0;
-    padding: 0;
-  }
-
-  p {
-    padding: 0;
-    margin-top: 0;
-    font-size: var(--fs-base);
-    margin-bottom: var(--space-2);
-
-    a {
-      font-size: var(--fs-base);
-    }
-  }
-}
 
 // Dialog styles
 .publishModal {
   .checkList {
     margin: 0;
     padding: 0;
+
     li {
       list-style: none;
 
@@ -142,7 +124,7 @@
     white-space: normal;
     word-break: break-word;
     text-wrap-mode: wrap;
-  
+
   }
 
   .iconTextListItem {
@@ -161,48 +143,3 @@
     line-height: 1.4;
   }
 }
-
-
-.sidePanelContent {
-  border-top: 1px solid var(--gray-100);
-  padding-top: 20px;
-
-  .statusForm {
-    margin-bottom: var(--space-8);
-  }
-}
-.sidePanel {
-  a {
-    font-size: var(--fs-small);
-    color: var(--slate-800);
-    margin-top: var(--space-1);
-    display: inline-block;
-  }
-
-  .buttonContainer {
-    display: flex;
-    justify-content:space-between;
-    margin: var(--space-4) 0;
-  }
-
-  .panelRow {
-    display: flex;
-    justify-content: space-between;
-
-    .buttonLink {
-      font-size: var(--fs-small);
-      font-weight: 300;
-      color: var(--slate-800);
-      margin-top: var(--space-1);
-      display: inline-block;
-      margin: 0;
-    }
-  }
-}
-
-
-
-
-
-
-

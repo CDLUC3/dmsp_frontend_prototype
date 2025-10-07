@@ -1,6 +1,7 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { useMyProjectsQuery } from '@/generated/graphql';
+import { MockedProvider } from '@apollo/client/testing';
+import { MyProjectsDocument } from '@/generated/graphql';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import ProjectsListPage from '../page';
 import { useFormatter, useTranslations } from 'next-intl';
@@ -8,56 +9,546 @@ import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
-// Mock the GraphQL query
-jest.mock('@/generated/graphql', () => ({
-  useMyProjectsQuery: jest.fn(),
-}));
-
 // Mock next-intl hooks
 jest.mock('next-intl', () => ({
   useFormatter: jest.fn(),
   useTranslations: jest.fn(),
 }));
 
-const mockProjectsData = {
-  myProjects: {
-    items: [
-      {
-        __typename: 'Project',
-        title: 'Project 1',
-        id: 1,
-        startDate: '2023-01-01',
-        endDate: '2023-12-31',
-        modified: '2023-06-01',
-        members: [
-          {
-            __typename: 'ProjectMember',
-            name: 'John Doe',
-            orcid: '0000-0001-2345-6789',
-            role: 'Researcher',
-          },
-        ],
-        fundings: [
-          {
-            __typename: 'ProjectFunding',
-            name: 'NSF',
-            grantId: 'http://nsf.gov/award/99999',
-          },
-        ],
+const mocks = [
+  // Initial load mock
+  {
+    request: {
+      query: MyProjectsDocument,
+      variables: {
+        paginationOptions: {
+          limit: 3,
+        },
       },
-    ],
-  }
-};
+    },
+    result: {
+      data: {
+        myProjects: {
+          totalCount: 9,
+          nextCursor: "2025-08-05_00:00:004",
+          items: [
+            {
+              title: "Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations",
+              id: 1,
+              startDate: "2025-09-01",
+              endDate: "2028-12-31",
+              fundings: [
+                {
+                  name: "National Science Foundation",
+                  grantId: null
+                }
+              ],
+              members: [
+                {
+                  name: "Jacques Cousteau",
+                  role: "Data Manager, Formal analysis",
+                  orcid: "https://orcid.org/0000-JACQ-0000-0000"
+                },
+              ],
+              errors: null
+            },
+            {
+              title: "Project 2",
+              id: 1,
+              startDate: "2025-01-01",
+              endDate: "2027-12-31",
+              fundings: [
+                {
+                  name: "National Science Foundation (nsf.gov)",
+                  grantId: null
+                }
+              ],
+              members: [
+                {
+                  name: "Betty White",
+                  role: "Principal",
+                  orcid: "https://orcid.org/0000-BETTY-0000-0000"
+                },
+              ],
+              errors: null
+            },
+            {
+              title: "Project 2",
+              id: 1,
+              startDate: "2025-09-01",
+              endDate: "2028-12-31",
+              fundings: [
+                {
+                  name: "NASA",
+                  grantId: null
+                }
+              ],
+              members: [
+                {
+                  name: "Captain Jack",
+                  role: "Data manager",
+                  orcid: "https://orcid.org/0000-CAPTAIN-0000-0000"
+                },
+              ],
+              errors: null
+            },
+          ]
+        },
+      },
+    },
+  },
+  // Second call
+  {
+    request: {
+      query: MyProjectsDocument,
+      variables: {
+        paginationOptions: {
+          limit: 3,
+        },
+      },
+    },
+    result: {
+      data: {
+        myProjects: {
+          totalCount: 9,
+          nextCursor: "2025-08-05_00:00:004",
+          items: [
+            {
+              title: "Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations",
+              id: 1,
+              startDate: "2025-09-01",
+              endDate: "2028-12-31",
+              fundings: [
+                {
+                  name: "National Science Foundation",
+                  grantId: null
+                }
+              ],
+              members: [
+                {
+                  name: "Jacques Cousteau",
+                  role: "Data Manager, Formal analysis",
+                  orcid: "https://orcid.org/0000-JACQ-0000-0000"
+                },
+              ],
+              errors: null
+            },
+            {
+              title: "Project 2",
+              id: 1,
+              startDate: "2025-01-01",
+              endDate: "2027-12-31",
+              fundings: [
+                {
+                  name: "National Science Foundation (nsf.gov)",
+                  grantId: null
+                }
+              ],
+              members: [
+                {
+                  name: "Betty White",
+                  role: "Principal",
+                  orcid: "https://orcid.org/0000-BETTY-0000-0000"
+                },
+              ],
+              errors: null
+            },
+            {
+              title: "Project 2",
+              id: 1,
+              startDate: "2025-09-01",
+              endDate: "2028-12-31",
+              fundings: [
+                {
+                  name: "NASA",
+                  grantId: null
+                }
+              ],
+              members: [
+                {
+                  name: "Captain Jack",
+                  role: "Data manager",
+                  orcid: "https://orcid.org/0000-CAPTAIN-0000-0000"
+                },
+              ],
+              errors: null
+            },
+          ]
+        },
+      },
+    },
+  },
+  // Search results with cursor
+  {
+    request: {
+      query: MyProjectsDocument,
+      variables: {
+        paginationOptions: {
+          type: "CURSOR",
+          cursor: "2025-08-05_00:00:004",
+          limit: 3
+        },
+        term: "reef"
+      },
+    },
+    result: {
+      data: {
+        myProjects: {
+          totalCount: 9,
+          nextCursor: "2025-08-05_00:00:004",
+          items: [
+            {
+              title: "Project 3",
+              id: 1,
+              startDate: "2025-09-01",
+              endDate: "2028-12-31",
+              fundings: [
+                {
+                  name: "National Science Foundation",
+                  grantId: null
+                }
+              ],
+              members: [
+                {
+                  name: "Jacques Cousteau",
+                  role: "Data Manager, Formal analysis",
+                  orcid: "https://orcid.org/0000-JACQ-0000-0000"
+                },
+              ],
+              errors: null
+            },
+            {
+              title: "Project 4",
+              id: 1,
+              startDate: "2025-01-01",
+              endDate: "2027-12-31",
+              fundings: [
+                {
+                  name: "National Science Foundation (nsf.gov)",
+                  grantId: null
+                }
+              ],
+              members: [
+                {
+                  name: "Betty White",
+                  role: "Principal",
+                  orcid: "https://orcid.org/0000-BETTY-0000-0000"
+                },
+              ],
+              errors: null
+            },
+            {
+              title: "Project 5",
+              id: 1,
+              startDate: "2025-09-01",
+              endDate: "2028-12-31",
+              fundings: [
+                {
+                  name: "NASA",
+                  grantId: null
+                }
+              ],
+              members: [
+                {
+                  name: "Captain Jack",
+                  role: "Data manager",
+                  orcid: "https://orcid.org/0000-CAPTAIN-0000-0000"
+                },
+              ],
+              errors: null
+            },
+          ]
+        },
+      },
+    },
+  },
+  // Load more results
+  {
+    request: {
+      query: MyProjectsDocument,
+      variables: {
+        paginationOptions: {
+          type: "CURSOR",
+          cursor: "2025-08-05_00:00:004",
+          limit: 3
+        },
+      },
+    },
+    result: {
+      data: {
+        myProjects: {
+          totalCount: 9,
+          nextCursor: "2025-08-05_00:00:004",
+          items: [
+            {
+              title: "Project 3",
+              id: 1,
+              startDate: "2025-09-01",
+              endDate: "2028-12-31",
+              fundings: [
+                {
+                  name: "National Science Foundation",
+                  grantId: null
+                }
+              ],
+              members: [
+                {
+                  name: "Jacques Cousteau",
+                  role: "Data Manager, Formal analysis",
+                  orcid: "https://orcid.org/0000-JACQ-0000-0000"
+                },
+              ],
+              errors: null
+            },
+            {
+              title: "Project 4",
+              id: 1,
+              startDate: "2025-01-01",
+              endDate: "2027-12-31",
+              fundings: [
+                {
+                  name: "National Science Foundation (nsf.gov)",
+                  grantId: null
+                }
+              ],
+              members: [
+                {
+                  name: "Betty White",
+                  role: "Principal",
+                  orcid: "https://orcid.org/0000-BETTY-0000-0000"
+                },
+              ],
+              errors: null
+            },
+            {
+              title: "Project 5",
+              id: 1,
+              startDate: "2025-09-01",
+              endDate: "2028-12-31",
+              fundings: [
+                {
+                  name: "NASA",
+                  grantId: null
+                }
+              ],
+              members: [
+                {
+                  name: "Captain Jack",
+                  role: "Data manager",
+                  orcid: "https://orcid.org/0000-CAPTAIN-0000-0000"
+                },
+              ],
+              errors: null
+            },
+          ]
+        },
+      },
+    },
+  },
+  // Search results
+  {
+    request: {
+      query: MyProjectsDocument,
+      variables: {
+        paginationOptions: {
+          limit: 3,
+          type: 'CURSOR'
+        },
+        term: 'reef',
+      },
+    },
+    result: {
+      data: {
+        myProjects: {
+          totalCount: 9,
+          nextCursor: "2025-08-05_00:00:004",
+          items: [
+            {
+              title: "Reef One",
+              id: 2,
+              startDate: "2025-01-01",
+              endDate: "2027-12-31",
+              fundings: [
+                {
+                  name: "NIH",
+                  grantId: null
+                }
+              ],
+              members: [
+                {
+                  name: "Betty White",
+                  role: "Principal",
+                  orcid: "https://orcid.org/0000-BETTY-0000-0000"
+                },
+              ],
+              errors: null
+            },
+          ]
+        },
+      },
+    },
+  },
+  // Search results
+  {
+    request: {
+      query: MyProjectsDocument,
+      variables: {
+        paginationOptions: {
+          limit: 3,
+          type: 'CURSOR'
+        },
+        term: 'throw',
+      },
+    },
+    result: {
+      data: {
+        myProjects: {
+          totalCount: 9,
+          nextCursor: "2025-08-05_00:00:004",
+          items: [
+            {
+              title: "Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations",
+              id: 1,
+              startDate: "2025-09-01",
+              endDate: "2028-12-31",
+              fundings: [
+                {
+                  name: "National Science Foundation",
+                  grantId: null
+                }
+              ],
+              members: [
+                {
+                  name: "Jacques Cousteau",
+                  role: "Data Manager, Formal analysis",
+                  orcid: "https://orcid.org/0000-JACQ-0000-0000"
+                },
+              ],
+              errors: {
+                general: "There was an error getting the projects"
+              }
+            },
+          ]
+        },
+      },
+    },
+  },
+  // Search returns an error
+  {
+    request: {
+      query: MyProjectsDocument,
+      variables: {
+        paginationOptions: {
+          type: 'CURSOR',
+          limit: 3,
+          cursor: "2025-08-05_00:00:004"
+        },
+        term: 'throw',
+      },
+    },
+    result: {
+      data: {
+        myProjects: {
+          totalCount: 9,
+          nextCursor: "2025-08-05_00:00:004",
+          items: [
+            {
+              title: "Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations",
+              id: 1,
+              startDate: "2025-09-01",
+              endDate: "2028-12-31",
+              fundings: [
+                {
+                  name: "National Science Foundation",
+                  grantId: null
+                }
+              ],
+              members: [
+                {
+                  name: "Jacques Cousteau",
+                  role: "Data Manager, Formal analysis",
+                  orcid: "https://orcid.org/0000-JACQ-0000-0000"
+                },
+              ],
+              errors: {
+                general: "There was an error getting the projects"
+              }
+            },
+          ]
+        },
+      },
+    },
+  },
+  // With paginationOptions type
+  {
+    request: {
+      query: MyProjectsDocument,
+      variables: {
+        paginationOptions: {
+          limit: 3,
+          type: 'CURSOR'
+        },
+      },
+    },
+    result: {
+      data: {
+        myProjects: {
+          totalCount: 9,
+          nextCursor: "2025-08-05_00:00:004",
+          items: [
+            {
+              title: "Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations",
+              id: 1,
+              startDate: "2025-09-01",
+              endDate: "2028-12-31",
+              fundings: [
+                {
+                  name: "National Science Foundation",
+                  grantId: null
+                }
+              ],
+              members: [
+                {
+                  name: "Jacques Cousteau",
+                  role: "Data Manager, Formal analysis",
+                  orcid: "https://orcid.org/0000-JACQ-0000-0000"
+                },
+              ],
+              errors: null
+            },
+          ]
+        },
+      },
+    },
+  },
+  // Empty search results mock
+  {
+    request: {
+      query: MyProjectsDocument,
+      variables: {
+        paginationOptions: {
+          type: "CURSOR",
+          limit: 3,
+        },
+        term: 'nonexistent project',
+      },
+    },
+    result: {
+      data: {
+        myProjects: {
+          items: [],
+          nextCursor: null,
+          totalCount: 0,
+        },
+      },
+    },
+  },
+];
 
 describe('ProjectsListPage', () => {
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
-    (useMyProjectsQuery as jest.Mock).mockReturnValue({
-      data: mockProjectsData,
-      loading: false,
-      error: null,
-    });
 
     (useFormatter as jest.Mock).mockReturnValue({
       dateTime: jest.fn((date) => date.toLocaleDateString()),
@@ -71,59 +562,72 @@ describe('ProjectsListPage', () => {
   it('should render the ProjectsListPage component', async () => {
     await act(async () => {
       render(
-        <ProjectsListPage />
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <ProjectsListPage />
+        </MockedProvider>
       );
     });
 
-    expect(screen.getByRole('link', { name: /Global.breadcrumbs.home/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Global.breadcrumbs.project/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /Global.breadcrumbs.projects/i })).toBeInTheDocument();
-    expect(screen.getByText('ProjectsListPage.intro')).toBeInTheDocument();
-    expect(screen.getByText('ProjectsListPage.buttons.createProject')).toBeInTheDocument();
-    expect(screen.getByText('Global.labels.searchByKeyword')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Clear search/i })).toBeInTheDocument();
-    expect(screen.getByText('Global.helpText.searchHelpText') as HTMLElement).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /ProjectOverview.project/i })).toBeInTheDocument();
-    // Check for the presence of the <h3> element with the link inside it
-    const heading = screen.getByRole('heading', { name: /Project 1/i });
-    expect(heading).toBeInTheDocument();
-    expect(screen.getByText('Global.buttons.linkExpand')).toBeInTheDocument();
-    expect(screen.getByText('ProjectOverview.projectDetails')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: /Global.breadcrumbs.home/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /Global.breadcrumbs.project/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /Global.breadcrumbs.projects/i })).toBeInTheDocument();
+      expect(screen.getByText('ProjectsListPage.intro')).toBeInTheDocument();
+      expect(screen.getByText('ProjectsListPage.buttons.createProject')).toBeInTheDocument();
+      expect(screen.getByText('Global.labels.searchByKeyword')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Clear search/i })).toBeInTheDocument();
+      expect(screen.getByText('Global.helpText.searchHelpText') as HTMLElement).toBeInTheDocument();
+      const projectHeadings = screen.getAllByRole('heading', { level: 2, name: /ProjectOverview.project/i });
+      expect(projectHeadings).toHaveLength(3);
+      // Check for the presence of the <h3> element with the link inside it
+      const heading = screen.getByRole('heading', { name: /Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations/i });
+      expect(heading).toBeInTheDocument();
+      const linkExpand = screen.getAllByText('Global.buttons.linkExpand');
+      expect(linkExpand).toHaveLength(3);
+      const projectDetails = screen.getAllByText('ProjectOverview.projectDetails');
+      expect(projectDetails).toHaveLength(3);
+    })
+
   });
 
   it('should display project details after clicking expand, and hide after clicking collapse', async () => {
     await act(async () => {
       render(
-        <ProjectsListPage />
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <ProjectsListPage />
+        </MockedProvider>
       );
     });
 
-    const expandButton = screen.getByRole("button", {
-      name: /Global.buttons.linkExpand details for Project 1/i,
+
+    await waitFor(() => {
+      const expandButton = screen.getByRole("button", {
+        name: /Global.buttons.linkExpand details for Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations/i,
+      });
+
+      expect(expandButton).toBeInTheDocument();
+
+
+      // Click on Expand link
+      fireEvent.click(expandButton);
     });
-
-    expect(expandButton).toBeInTheDocument();
-
-    // Click on Expand link
-    fireEvent.click(expandButton);
 
     expect(screen.getByRole('heading', { name: /ProjectOverview.projectDetails/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /ProjectOverview.dates/i })).toBeInTheDocument();
-    const dateText = screen.getByText("1/1/2023 to 12/31/2023", {
+    const dateText = screen.getByText("9/1/2025 to 12/31/2028", {
       normalizer: (text) => text.replace(/\s+/g, " ").trim(),
     });
     expect(dateText).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /ProjectOverview.collaborators/i })).toBeInTheDocument();
-    expect(screen.getByText(/John Doe/i)).toBeInTheDocument();
-    expect(screen.getByText(/\(Researcher\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Jacques Cousteau/i)).toBeInTheDocument();
+    expect(screen.getByText(/(Data Manager, Formal analysis)/i)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /ProjectOverview.funding/i })).toBeInTheDocument();
-    expect(screen.getByText('NSF')).toBeInTheDocument();
-    expect(screen.getByText(/http:\/\/nsf\.gov\/award\/99999/i)).toBeInTheDocument();
+    expect(screen.getByText('National Science Foundation')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /ProjectOverview.researchOutputs/i })).toBeInTheDocument();
 
     // Click on Collapse link
     const collapseButton = screen.getByRole("button", {
-      name: /Global.buttons.linkCollapse details for Project 1/i,
+      name: /Global.buttons.linkCollapse details for Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations/i,
     });
 
     expect(collapseButton).toBeInTheDocument();
@@ -137,27 +641,122 @@ describe('ProjectsListPage', () => {
   });
 
   it('should show filtered list when user clicks Search button', async () => {
+
     await act(async () => {
       render(
-        <ProjectsListPage />
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <ProjectsListPage />
+        </MockedProvider>
+      );
+    });
+
+
+    const searchInput = screen.getByLabelText('Global.labels.searchByKeyword');
+    fireEvent.change(searchInput, { target: { value: 'reef' } });
+
+    const searchButton = screen.getByText('Global.buttons.search');
+    await act(async () => {
+      fireEvent.click(searchButton);
+
+    })
+    await waitFor(() => {
+      expect(screen.getByText('Reef One')).toBeInTheDocument();
+    });
+  })
+
+  it('should reset results back to original when user clicks the clear filter button', async () => {
+
+    await act(async () => {
+      render(
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <ProjectsListPage />
+        </MockedProvider>
+      );
+    });
+
+
+    const searchInput = screen.getByLabelText('Global.labels.searchByKeyword');
+    fireEvent.change(searchInput, { target: { value: 'reef' } });
+
+    const searchButton = screen.getByText('Global.buttons.search');
+    await act(async () => {
+      fireEvent.click(searchButton);
+    })
+    await waitFor(() => {
+      expect(screen.getByText('Reef One')).toBeInTheDocument();
+    });
+
+    const clearFilterBtn = screen.getAllByRole('button', { name: 'Global.links.clearFilter' });
+    expect(clearFilterBtn).toHaveLength(2);
+
+    await act(async () => {
+      fireEvent.click(clearFilterBtn[0]);
+    })
+
+    expect(screen.queryByText('Reef One')).not.toBeInTheDocument();
+  })
+
+  it('should handle clicking on the Load more button', async () => {
+
+    await act(async () => {
+      render(
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <ProjectsListPage />
+        </MockedProvider>
+      );
+    });
+
+    await waitFor(() => {
+      const loadMoreBtn = screen.getByRole('button', { name: 'load more' });
+      expect(loadMoreBtn).toBeInTheDocument();
+      fireEvent.click(loadMoreBtn);
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Project 3')).toBeInTheDocument();
+    });
+
+  })
+
+  it('should handle clicking on the Load more button in search list', async () => {
+
+    await act(async () => {
+      render(
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <ProjectsListPage />
+        </MockedProvider>
       );
     });
 
     const searchInput = screen.getByLabelText('Global.labels.searchByKeyword');
-    fireEvent.change(searchInput, { target: { value: 'Project 1' } });
+    fireEvent.change(searchInput, { target: { value: 'reef' } });
 
     const searchButton = screen.getByText('Global.buttons.search');
-    fireEvent.click(searchButton);
+    await act(async () => {
+      fireEvent.click(searchButton);
+    })
+    await waitFor(() => {
+      expect(screen.getByText('Reef One')).toBeInTheDocument();
+    });
 
     await waitFor(() => {
-      expect(screen.getByText('Project 1')).toBeInTheDocument();
+      const loadMoreBtn = screen.getByRole('button', { name: 'load more search results' });
+      expect(loadMoreBtn).toBeInTheDocument();
+      fireEvent.click(loadMoreBtn);
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Project 3')).toBeInTheDocument();
     });
+
   })
 
   it('should display no items found message when search yields no results', async () => {
     await act(async () => {
       render(
-        <ProjectsListPage />
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <ProjectsListPage />
+        </MockedProvider>
       );
     });
 
@@ -172,25 +771,53 @@ describe('ProjectsListPage', () => {
     });
   });
 
-  it('should display loading message when data is loading', async () => {
-    (useMyProjectsQuery as jest.Mock).mockReturnValue({
-      data: null,
-      loading: true,
-      error: null,
-    });
-
+  it('should handle an empty search', async () => {
     await act(async () => {
       render(
-        <ProjectsListPage />
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <ProjectsListPage />
+        </MockedProvider>
       );
     });
 
-    expect(screen.getByText('Global.messaging.loading...')).toBeInTheDocument();
+    await waitFor(() => {
+      // Check for the presence of the <h3> element with the link inside it
+      const heading = screen.getByRole('heading', { name: /Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations/i });
+      expect(heading).toBeInTheDocument();
+      const linkExpand = screen.getAllByText('Global.buttons.linkExpand');
+      expect(linkExpand).toHaveLength(3);
+      const projectDetails = screen.getAllByText('ProjectOverview.projectDetails');
+      expect(projectDetails).toHaveLength(3);
+    })
+
+    const searchInput = screen.getByLabelText('Global.labels.searchByKeyword');
+    fireEvent.change(searchInput, { target: { value: '' } });
+
+    const searchButton = screen.getByText('Global.buttons.search');
+    fireEvent.click(searchButton);
+
+    // Nothing should have changed
+    await waitFor(() => {
+      // Check for the presence of the <h3> element with the link inside it
+      const heading = screen.getByRole('heading', { name: /Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations/i });
+      expect(heading).toBeInTheDocument();
+      const linkExpand = screen.getAllByText('Global.buttons.linkExpand');
+      expect(linkExpand).toHaveLength(3);
+      const projectDetails = screen.getAllByText('ProjectOverview.projectDetails');
+      expect(projectDetails).toHaveLength(3);
+    })
+
+    // clear filter links should not show
+    const clearFilterBtn = screen.queryByRole('button', { name: 'Global.links.clearFilter' });
+    expect(clearFilterBtn).not.toBeInTheDocument();
   });
 
   it('should pass axe accessibility test', async () => {
+
     const { container } = render(
-      <ProjectsListPage />
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <ProjectsListPage />
+      </MockedProvider>
     );
 
     await act(async () => {
