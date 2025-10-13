@@ -98,6 +98,7 @@
 - Deleted `__mocks__/mockQuestionTypes.json` as it is no longer needed [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Chore
+- Added `renovate.json` config file in order to get automatic PRs for dependency updates
 - Upgraded to `NextJS v15.5.2` to remove vulnerability and added `next-env.d.ts` to the ignore list for linting. [#751]
 
 ====================================================================================================================================
