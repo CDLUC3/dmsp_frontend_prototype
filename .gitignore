@@ -37,4 +37,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# renovate config
+renovate.json
+
 tmp.js

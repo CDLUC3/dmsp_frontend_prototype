@@ -2,5 +2,17 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "enabledManagers": [
+    "npm"
+  ],
+  "baseBranches": [
+    "development"
+  ],
+  "ignorePaths": [
+    "public/**",
+    "Dockerfile*",
+    "docker-compose.yml",
+    ".nvmrc"
   ]
 }
