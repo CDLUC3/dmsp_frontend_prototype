@@ -220,6 +220,26 @@ const QuestionTypeSelectPage: React.FC = () => {
                               handleSelect={handleSelect}
                             />
                           ))}
+                          <QuestionTypeCard
+                            key="researchOutput"
+                            questionType={{
+                              type: "researchOutput",
+                              title: "Research Output",
+                              usageDescription: "A description of the research output.",
+                              defaultJSON: {
+                                meta: {
+                                  schemaVersion: "1.0",
+                                },
+                                type: "researchOutput",
+                                title: "Research Output",
+                                description: "",
+                                helpText: "",
+                                required: false,
+                              }
+                            }}
+                            handleSelect={handleSelect}
+                          />
+
                         </>
                       )
                       }

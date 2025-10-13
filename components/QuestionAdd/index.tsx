@@ -55,7 +55,8 @@ import {
   OPTIONS_QUESTION_TYPES,
   RANGE_QUESTION_TYPE,
   TYPEAHEAD_QUESTION_TYPE,
-  TEXT_AREA_QUESTION_TYPE
+  TEXT_AREA_QUESTION_TYPE,
+  RESEARCH_OUTPUT_QUESTION_TYPE
 } from '@/lib/constants';
 import {
   isOptionsType,
@@ -115,6 +116,25 @@ const QuestionAdd = ({
   const [typeaheadHelpText, setTypeAheadHelpText] = useState<string>('');
   const [parsedQuestionJSON, setParsedQuestionJSON] = useState<AnyParsedQuestion>();
   const [dateRangeLabels, setDateRangeLabels] = useState<{ start: string; end: string }>({ start: '', end: '' });
+
+  // Standard fields for research output questions
+  const [standardFields, setStandardFields] = useState([
+    { id: 'title', label: 'Title', enabled: true },
+    { id: 'description', label: 'Description', enabled: true },
+    { id: 'outputType', label: 'Output Type', enabled: true },
+    { id: 'dataFlags', label: 'Data Flags', enabled: false },
+    { id: 'intendedRepos', label: 'Intended Repositories', enabled: false },
+    { id: 'metadataStandards', label: 'Metadata Standards', enabled: false },
+    { id: 'licenses', label: 'Licenses', enabled: false },
+  ]);
+
+  // Additional fields for research output questions
+  const [additionalFields, setAdditionalFields] = useState([
+    { id: 'retentionPeriod', label: 'Retention Period', enabled: true },
+    { id: 'fundingSource', label: 'Funding Source', enabled: false },
+    { id: 'conclusions', label: 'Conclusions', enabled: false }
+  ]);
+
 
   // localization keys
   const Global = useTranslations('Global');
@@ -222,6 +242,22 @@ const QuestionAdd = ({
         setHasUnsavedChanges(true);
       }
     }
+  };
+
+  // Handler for standard field checkbox changes
+  const handleStandardFieldChange = (fieldId: string, enabled: boolean) => {
+    setStandardFields(prev =>
+      prev.map(field =>
+        field.id === fieldId ? { ...field, enabled } : field
+      )
+    );
+    setHasUnsavedChanges(true);
+  };
+
+  // Handler for customize button clicks
+  const handleCustomizeField = (fieldId: string) => {
+    // TODO: Implement customize functionality
+    console.log(`Customizing field: ${fieldId}`);
   };
 
   // Handle changes from RadioGroup
@@ -357,6 +393,9 @@ const QuestionAdd = ({
 
   };
 
+  const addAdditionalField = () => {
+    console.log('Add additional field clicked');
+  }
   // If questionType is missing, return user to the Question Types selection page
   // If sectionId is missing, return user back to the Edit Template page
   // This is to ensure that the user has selected a question type before proceeding
@@ -574,6 +613,81 @@ const QuestionAdd = ({
                     </div>
                     {QuestionAdd('descriptions.sampleTextAsDefault')}
                   </Checkbox>
+                )}
+
+                {questionType === RESEARCH_OUTPUT_QUESTION_TYPE && (
+                  <div className={styles.fieldsContainer}>
+                    <h3>Enable Standard Fields</h3>
+
+                    <p className={styles.fieldsDescription}>
+                      Select which standard fields to include in your research output question. You can customize each field individually.
+                    </p>
+                    <div className={styles.fieldsList}>
+                      {standardFields.map((field, index) => (
+                        <div key={field.id} className={styles.fieldRow}>
+                          <Checkbox
+                            isSelected={field.enabled}
+                            onChange={(isSelected) => handleStandardFieldChange(field.id, isSelected)}
+
+                          >
+                            <div className="checkbox">
+                              <svg viewBox="0 0 18 18" aria-hidden="true">
+                                <polyline points="1 9 7 14 15 4" />
+                              </svg>
+                            </div>
+                            <span >{field.label}</span>
+                          </Checkbox>
+                          <Button
+                            type="button"
+                            className={`buttonLink link`}
+                            onPress={() => handleCustomizeField(field.id)}
+                            isDisabled={!field.enabled}
+                          >
+                            Customize
+                          </Button>
+                          {index < standardFields.length - 1 && <hr className={styles.fieldDivider} />}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className={styles.fieldsContainer}>
+                      <h3>Additional Text Fields</h3>
+                      <div className={styles.fieldsList}>
+                        {additionalFields.map((field, index) => (
+                          <div key={field.id} className={styles.fieldRow}>
+                            <Checkbox
+                              isSelected={field.enabled}
+                              onChange={(isSelected) => handleStandardFieldChange(field.id, isSelected)}
+
+                            >
+                              <div className="checkbox">
+                                <svg viewBox="0 0 18 18" aria-hidden="true">
+                                  <polyline points="1 9 7 14 15 4" />
+                                </svg>
+                              </div>
+                              <span >{field.label}</span>
+                            </Checkbox>
+                            <Button
+                              type="button"
+                              className={`buttonLink link`}
+                              onPress={() => handleCustomizeField(field.id)}
+                              isDisabled={!field.enabled}
+                            >
+                              Customize
+                            </Button>
+                            {index < additionalFields.length - 1 && <hr className={styles.fieldDivider} />}
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          className={styles.addFieldButton}
+                          onPress={addAdditionalField}
+                        >
+                          + Add additional field
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 )}
 
                 <RadioGroupComponent

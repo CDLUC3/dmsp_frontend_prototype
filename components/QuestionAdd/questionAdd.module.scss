@@ -52,3 +52,44 @@
   flex-direction: column;
   flex: 1;
 }
+
+// Standard fields styles for research output questions
+.fieldsContainer {
+  margin-bottom: var(--space-4);
+}
+
+.fieldsDescription {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-3);
+}
+
+.fieldsList {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: var(--space-3);
+  background: var(--bg-secondary);
+}
+
+.fieldRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) 0;
+  position: relative;
+}
+
+.fieldDivider {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  border: none;
+  background: var(--border-color);
+  margin: 0;
+}
+
+.addFieldButton {
+  margin-top: var(--space-3);
+}
