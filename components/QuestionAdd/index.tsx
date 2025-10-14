@@ -10,10 +10,15 @@ import {
   Breadcrumbs,
   Button,
   Checkbox,
+  Dialog,
+  DialogTrigger,
   Form,
+  Heading,
   Input,
   Label,
   Link,
+  ListBoxItem,
+  Modal,
   Radio,
   Tab,
   TabList,
@@ -33,6 +38,7 @@ import {
 import PageHeader from "@/components/PageHeader";
 import {
   FormInput,
+  FormSelect,
   FormTextArea,
   RadioGroupComponent,
   RangeComponent,
@@ -43,7 +49,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 import QuestionPreview from '@/components/QuestionPreview';
 import QuestionView from '@/components/QuestionView';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
-import CustomizeFieldForm from '@/components/QuestionAdd/CustomizeFieldForm';
+import RepositorySelectionSystem from './ReposSelector';
 
 //Other
 import { useToast } from '@/context/ToastContext';
@@ -64,6 +70,7 @@ import {
   getOverrides,
 } from './hooks/useAddQuestion';
 import styles from './questionAdd.module.scss';
+import { set } from 'zod';
 
 const defaultQuestion = {
   guidanceText: '',
@@ -75,6 +82,25 @@ const defaultQuestion = {
 
 type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
 
+type DataFlagsConfig = {
+  showSensitiveData: boolean;
+  showPersonalData: boolean;
+  mode: 'sensitiveOnly' | 'personalOnly' | 'both';
+};
+
+type RepoConfig = {
+  hasCustomRepos: boolean;
+  customRepos: string[];
+}
+
+type StandardField = {
+  id: string;
+  label: string;
+  enabled: boolean;
+  [key: string]: any; // For additional properties like helpText, required, etc.
+  flagsConfig?: DataFlagsConfig;
+  repoConfig?: RepoConfig;
+};
 
 const QuestionAdd = ({
   questionType,
@@ -119,11 +145,34 @@ const QuestionAdd = ({
   const [dateRangeLabels, setDateRangeLabels] = useState<{ start: string; end: string }>({ start: '', end: '' });
 
   const [expandedFields, setExpandedFields] = useState<string[]>([]);
+  const [isReposModalOpen, setReposModalOpen] = useState<boolean>(false);
+  const outputTypeOptions = [
+    { id: 'defaults', name: 'Use defaults' },
+    { id: 'mine', name: 'Use mine' },
+    { id: 'addToDefaults', name: 'Add mine to defaults' }
+  ]
+  // Default output types
+  const defaultOutputTypes = [
+    'Audiovisual',
+    'Collection',
+    'Data paper',
+    'Dataset',
+    'Event',
+    'Image',
+    'Interactive resource',
+    'Model representation',
+    'Physical object',
+    'Service',
+    'Software',
+    'Sound',
+    'Text',
+    'Workflow'
+  ];
 
   // Standard fields for research output questions
   const [standardFields, setStandardFields] = useState([
     { id: 'title', label: 'Title', enabled: true, required: true },
-    { id: 'description', label: 'Description', enabled: true, placeholder: '', helpText: '', maxLength: '', required: true },
+    { id: 'description', label: 'Description', enabled: true, placeholder: '', helpText: '', maxLength: '', required: true, value: '' },
     {
       id: 'outputType',
       label: 'Output Type',
@@ -131,13 +180,35 @@ const QuestionAdd = ({
       helpText: '',
       required: true,
       outputTypeConfig: {
-        mode: 'defaults' as const,
-        selectedDefaults: [],
-        customTypes: []
+        mode: 'defaults' as 'defaults' | 'mine' | 'addToDefaults',
+        selectedDefaults: [] as string[],
+        customTypes: [] as string[]
       }
     },
-    { id: 'dataFlags', label: 'Data Flags', enabled: false, helpText: '', defaultValue: '', allowMultiple: false },
-    { id: 'intendedRepos', label: 'Intended Repositories', enabled: false, placeholder: '', helpText: '', enableSearch: false },
+    {
+      id: 'dataFlags',
+      label: 'Data Flags',
+      enabled: false,
+      helpText: '',
+      flagsConfig: {
+        showSensitiveData: true,
+        showPersonalData: true,
+        mode: 'both' as 'sensitiveOnly' | 'personalOnly' | 'both'
+      }
+    },
+    {
+      id: 'repoSelector',
+      label: 'Repo selector',
+      enabled: false,
+      placeholder: '',
+      helpText: '',
+      enableSearch: false,
+      value: '',
+      repoConfig: {
+        hasCustomRepos: false,
+        customRepos: [] as string[],
+      }
+    },
     { id: 'metadataStandards', label: 'Metadata Standards', enabled: false, helpText: '', showSuggestions: false },
     { id: 'licenses', label: 'Licenses', enabled: false, defaultValue: '', helpText: '', showDescriptions: false },
   ]);
@@ -148,6 +219,9 @@ const QuestionAdd = ({
     { id: 'fundingSource', label: 'Funding Source', enabled: false, placeholder: '', helpText: '', linkToDatabase: false },
     { id: 'conclusions', label: 'Conclusions', enabled: false, placeholder: '', maxLength: '', helpText: '' }
   ]);
+
+  // State for managing custom output types
+  const [newOutputType, setNewOutputType] = useState<string>('');
 
 
   // localization keys
@@ -258,14 +332,20 @@ const QuestionAdd = ({
     }
   };
 
-  // Handler for standard field checkbox changes
-  const handleStandardFieldChange = (fieldId: string, enabled: boolean) => {
+  // Shared function to update any property in standardFields
+  const updateStandardFieldProperty = (fieldId: string, propertyName: string, value: any) => {
+    console.log("*** Updating field:", fieldId, propertyName, value);
     setStandardFields(prev =>
       prev.map(field =>
-        field.id === fieldId ? { ...field, enabled } : field
+        field.id === fieldId ? { ...field, [propertyName]: value } : field
       )
     );
     setHasUnsavedChanges(true);
+  };
+
+  // Handler for standard field checkbox changes (for enabled property)
+  const handleStandardFieldChange = (fieldId: string, enabled: boolean) => {
+    updateStandardFieldProperty(fieldId, 'enabled', enabled);
   };
 
   // Handler for customize button clicks
@@ -293,6 +373,55 @@ const QuestionAdd = ({
     );
 
     setHasUnsavedChanges(true);
+  };
+
+  // Handler for toggling preferred repositories
+  const handleTogglePreferredRepositories = (hasCustomRepos: boolean) => {
+    const currentField = standardFields.find(f => f.id === 'repoSelector');
+    if (currentField && currentField.repoConfig) {
+      updateStandardFieldProperty('repoSelector', 'repoConfig', {
+        ...currentField.repoConfig,
+        hasCustomRepos
+      });
+    }
+  };
+
+  // Handler for output type mode changes (defaults, mine, add to defaults)
+  const handleOutputTypeModeChange = (mode: 'defaults' | 'mine' | 'addToDefaults') => {
+    const currentField = standardFields.find(f => f.id === 'outputType');
+    if (currentField && currentField.outputTypeConfig) {
+      updateStandardFieldProperty('outputType', 'outputTypeConfig', {
+        ...currentField.outputTypeConfig,
+        mode
+      });
+    }
+  };
+
+  // Handler for adding custom output types
+  const handleAddCustomOutputType = () => {
+    if (newOutputType.trim()) {
+      const currentField = standardFields.find(f => f.id === 'outputType');
+      if (currentField && currentField.outputTypeConfig) {
+        const updatedCustomTypes = [...currentField.outputTypeConfig.customTypes, newOutputType.trim()];
+        updateStandardFieldProperty('outputType', 'outputTypeConfig', {
+          ...currentField.outputTypeConfig,
+          customTypes: updatedCustomTypes
+        });
+        setNewOutputType('');
+      }
+    }
+  };
+
+  // Handler for removing custom output types
+  const handleRemoveCustomOutputType = (typeToRemove: string) => {
+    const currentField = standardFields.find(f => f.id === 'outputType');
+    if (currentField && currentField.outputTypeConfig) {
+      const updatedCustomTypes = currentField.outputTypeConfig.customTypes.filter(type => type !== typeToRemove);
+      updateStandardFieldProperty('outputType', 'outputTypeConfig', {
+        ...currentField.outputTypeConfig,
+        customTypes: updatedCustomTypes
+      });
+    }
   };
 
 
@@ -687,22 +816,279 @@ const QuestionAdd = ({
                                   </div>
                                   <span>{field.label}</span>
                                 </Checkbox>
-                                {isDisabled && <span className={styles.tooltipText}>Always required</span>}
+                                {isDisabled && <span className={styles.tooltipText}>These fields are required</span>}
                               </div>
-                              <Button
-                                type="button"
-                                className={`buttonLink link`}
-                                onPress={() => handleCustomizeField(field.id)}
-                                isDisabled={!field.enabled}
-                              >
-                                {expandedFields.includes(field.id) ? "Close" : "Customize"}
-                              </Button>
+                              {field.id !== 'title' && (
+                                <Button
+                                  type="button"
+                                  className={`buttonLink link`}
+                                  onPress={() => handleCustomizeField(field.id)}
+                                  isDisabled={!field.enabled}
+                                >
+                                  {expandedFields.includes(field.id) ? "Close" : "Customize"}
+                                </Button>
+                              )}
+
                             </div>
 
                             {/* Expanded panel OUTSIDE the .fieldRow flex container */}
                             {expandedFields.includes(field.id) && (
-                              <div className={styles.customizePanel}>
-                                <CustomizeFieldForm field={field} onChange={handleCustomizeOptions} />
+                              <div className={styles.fieldPanel}>
+                                {/** Title */}
+                                {field.id === 'title' && (
+                                  <Checkbox
+                                    onChange={() => updateStandardFieldProperty('title', 'required', !field.required)}
+                                    isSelected={field.required}
+                                  >
+                                    <div className="checkbox">
+                                      <svg viewBox="0 0 18 18" aria-hidden="true">
+                                        <polyline points="1 9 7 14 15 4" />
+                                      </svg>
+                                    </div>
+                                    Is Required field
+                                  </Checkbox>
+                                )}
+
+                                {/** Description */}
+                                {field.id === 'description' && (
+                                  <FormTextArea
+                                    name="description"
+                                    isRequired={false}
+                                    richText={true}
+                                    label="Description"
+                                    value={field.value}
+                                    onChange={(newValue) => updateStandardFieldProperty('description', 'value', newValue)}
+                                  />
+                                )}
+
+                                {/** Data Flags Configuration */}
+                                {field.id === 'dataFlags' && (
+                                  <div className={styles.dataFlagsConfig}>
+                                    <RadioGroupComponent
+                                      name="dataFlagsMode"
+                                      value={field.flagsConfig?.mode || 'both'}
+                                      radioGroupLabel="Which data flags to display:"
+                                      description="Select which data sensitivity flags should be shown to users"
+                                      onChange={(mode) => updateStandardFieldProperty('dataFlags', 'flagsConfig', {
+                                        ...field.flagsConfig,
+                                        mode,
+                                        showSensitiveData: mode === 'sensitiveOnly' || mode === 'both',
+                                        showPersonalData: mode === 'personalOnly' || mode === 'both'
+                                      })}
+                                    >
+                                      <div>
+                                        <Radio value="sensitiveOnly">Display only "May contain sensitive data?" checkbox</Radio>
+                                      </div>
+                                      <div>
+                                        <Radio value="personalOnly">Display only "May contain personally identifiable information?" checkbox</Radio>
+                                      </div>
+                                      <div>
+                                        <Radio value="both">Display both data flag checkboxes</Radio>
+                                      </div>
+                                    </RadioGroupComponent>
+                                  </div>
+                                )}
+
+                                {/** Output Type Configuration */}
+                                {field.id === 'outputType' && (
+
+                                  <div className={styles.outputTypeConfig}>
+                                    <div className={styles.outputTypeModeSelector}>
+                                      <FormSelect
+                                        label="Define output types"
+                                        ariaLabel="define output types"
+                                        isRequired={false}
+                                        name="status"
+                                        items={outputTypeOptions}
+                                        onChange={(value) =>
+                                          handleOutputTypeModeChange(
+                                            value as 'defaults' | 'mine' | 'addToDefaults'
+                                          )
+                                        }
+                                        selectedKey={field.outputTypeConfig?.mode || 'defaults'}
+                                      >
+                                        {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
+                                      </FormSelect>
+                                    </div>
+
+                                    {/* --- USE DEFAULTS MODE --- */}
+                                    {field.outputTypeConfig?.mode === 'defaults' && (
+                                      <div className={styles.defaultOutputTypes}>
+                                        <fieldset>
+                                          <legend>Default Output Types</legend>
+                                          <ul className={`${styles.outputTypesList} ${styles.bulletList}`}>
+                                            {defaultOutputTypes.map((outputType) => (
+                                              <li key={outputType} className={styles.outputTypeItem}>
+                                                <span>{outputType}</span>
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        </fieldset>
+                                      </div>
+                                    )}
+
+                                    {/* --- USE MINE MODE --- */}
+                                    {field.outputTypeConfig?.mode === 'mine' && (
+                                      <div className={styles.customOutputTypes}>
+                                        <fieldset>
+                                          <legend>My Output Types</legend>
+
+                                          {/* Add new custom types */}
+                                          <div className={styles.addOutputTypeContainer}>
+                                            <FormInput
+                                              name="custom_types"
+                                              type="text"
+                                              isRequired={false}
+                                              label="Enter an output type"
+                                              className={styles.outputTypeWrapper}
+                                              value={newOutputType}
+                                              onChange={(e) => setNewOutputType(e.target.value)}
+                                              aria-label="Enter an output type"
+                                              onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                  e.preventDefault();
+                                                  handleAddCustomOutputType();
+                                                }
+                                              }}
+                                            />
+                                            <Button
+                                              type="button"
+                                              onPress={handleAddCustomOutputType}
+                                              isDisabled={!newOutputType.trim()}
+                                            >
+                                              Add output type
+                                            </Button>
+                                          </div>
+
+                                          {/* List of custom types (with delete 'x') */}
+                                          {field.outputTypeConfig?.customTypes?.length > 0 && (
+                                            <ul className={`${styles.customOutputTypesList} ${styles.deletableList}`}>
+                                              {field.outputTypeConfig.customTypes.map((customType, index) => (
+                                                <li key={index} className={styles.customOutputTypeItem}>
+                                                  <span>{customType}</span>
+                                                  <Button
+                                                    type="button"
+                                                    className={styles.removeButton}
+                                                    onPress={() => handleRemoveCustomOutputType(customType)}
+                                                    aria-label={`Remove ${customType}`}
+                                                  >
+                                                    x
+                                                  </Button>
+                                                </li>
+                                              ))}
+                                            </ul>
+                                          )}
+                                        </fieldset>
+                                      </div>
+                                    )}
+
+                                    {/* --- ADD TO DEFAULTS MODE (unchanged) --- */}
+                                    {field.outputTypeConfig?.mode === 'addToDefaults' && (
+                                      <>
+                                        <div className={styles.defaultOutputTypes}>
+                                          <fieldset>
+                                            <legend>Default Output Types</legend>
+                                            <ul className={`${styles.outputTypesList} ${styles.bulletList}`}>
+                                              {defaultOutputTypes.map((outputType) => (
+                                                <li key={outputType} className={styles.outputTypeItem}>
+                                                  <span>{outputType}</span>
+                                                </li>
+                                              ))}
+                                            </ul>
+                                          </fieldset>
+                                        </div>
+
+                                        {/* Add user-defined types (same logic as before) */}
+                                        <div className={styles.customOutputTypes}>
+                                          <fieldset>
+                                            <legend>My Output Types</legend>
+                                            <div className={styles.addOutputTypeContainer}>
+                                              <Input
+                                                type="text"
+                                                value={newOutputType}
+                                                onChange={(e) => setNewOutputType(e.target.value)}
+                                                placeholder="Enter an output type"
+                                                aria-label="Enter an output type"
+                                                onKeyDown={(e) => {
+                                                  if (e.key === 'Enter') {
+                                                    e.preventDefault();
+                                                    handleAddCustomOutputType();
+                                                  }
+                                                }}
+                                              />
+                                              <Button
+                                                type="button"
+                                                onPress={handleAddCustomOutputType}
+                                                isDisabled={!newOutputType.trim()}
+                                              >
+                                                Add output type
+                                              </Button>
+                                            </div>
+                                            {field.outputTypeConfig?.customTypes?.length > 0 && (
+                                              <ul className={styles.customOutputTypesList}>
+                                                {field.outputTypeConfig.customTypes.map((customType, index) => (
+                                                  <li key={index} className={styles.customOutputTypeItem}>
+                                                    <span>{customType}</span>
+                                                    <Button
+                                                      type="button"
+                                                      className={styles.removeButton}
+                                                      onPress={() => handleRemoveCustomOutputType(customType)}
+                                                      aria-label={`Remove ${customType}`}
+                                                    >
+                                                      x
+                                                    </Button>
+                                                  </li>
+                                                ))}
+                                              </ul>
+                                            )}
+                                          </fieldset>
+                                        </div>
+                                      </>
+                                    )}
+                                  </div>
+                                )}
+                                {/** Repository Selector */}
+                                {field.id === 'repoSelector' && (
+                                  <>
+                                    <RepositorySelectionSystem
+                                      field={field}
+                                      handleTogglePreferredRepositories={handleTogglePreferredRepositories}
+                                      updateStandardFieldProperty={updateStandardFieldProperty}
+                                    />
+
+                                    <FormTextArea
+                                      name="repoSelectorDescription"
+                                      isRequired={false}
+                                      richText={true}
+                                      label="Description for Repositories field"
+                                      value={field.value}
+                                      onChange={(value) => updateStandardFieldProperty('repoSelector', 'value', value)}
+                                    />
+
+                                    <DialogTrigger>
+                                      <Button>Open Dialog</Button>
+                                      <Modal
+                                        isDismissable
+                                        isOpen={isReposModalOpen}
+                                        onOpenChange={setReposModalOpen.bind(this, !isReposModalOpen)}
+                                      >
+                                        <Dialog>
+                                          {({ close }) => ( // The 'close' function is provided by DialogTrigger
+                                            <>
+                                              <Heading slot="title">Repository search</Heading>
+                                              <div>
+
+                                              </div>
+                                              <p>This is the content of the modal.</p>
+                                              <Button onPress={close}>Close</Button> {/* Using the 'close' function */}
+                                            </>
+                                          )}
+                                        </Dialog>
+                                      </Modal>
+                                    </DialogTrigger>
+                                  </>
+                                )}
+
                               </div>
                             )}
                             {index < standardFields.length - 1 && <hr className={styles.fieldDivider} />}
@@ -757,6 +1143,7 @@ const QuestionAdd = ({
                         </Button>
                       </div>
                     </div>
+
                   </div>
                 )}
 

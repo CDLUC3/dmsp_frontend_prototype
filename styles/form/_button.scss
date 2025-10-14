@@ -322,6 +322,13 @@ button.small {
   font-size: 0.75rem;
 }
 
+button.medium {
+  padding: 8px 16px;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 14px;
+}
+
 // Button container for two buttons
 .button-container {
   display: flex;
