@@ -5,7 +5,7 @@ We welcome all contributions — from bug fixes and documentation improvements t
 Please take a few minutes to review this guide before submitting your contribution.
 
 ## How to Report Issues
-- Use [GitHub Issues](https://github.com/CDLUC3/dmsp_backend_prototype/issues) for bugs and feature requests.
+- Use [GitHub Issues](https://github.com/CDLUC3/dmsp_frontend_prototype/issues) for bugs and feature requests.
 - Include as much detail as possible.
 
 ## Code of Conduct
