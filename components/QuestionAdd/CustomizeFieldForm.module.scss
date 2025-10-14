@@ -1,0 +1,75 @@
+.customizeFieldForm {
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e1e5e9;
+}
+
+.formRow {
+  margin-bottom: 1rem;
+}
+
+.formRow:last-child {
+  margin-bottom: 0;
+}
+
+/* Special handling for outputTypeManager - no extra margin */
+.formRow:has([class*="outputTypeManager"]) {
+  margin-bottom: 1rem;
+}
+
+.formRow label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.formRow input[type="text"],
+.formRow input[type="number"],
+.formRow textarea,
+.formRow select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  background-color: white;
+}
+
+.formRow input[type="text"]:focus,
+.formRow input[type="number"]:focus,
+.formRow textarea:focus,
+.formRow select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.formRow input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+.formRow label:has(input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.formRow textarea {
+  resize: vertical;
+  min-height: 2.5rem;
+}
+
+.formRow select {
+  cursor: pointer;
+}
+
+/* Placeholder styling */
+.formRow input::placeholder,
+.formRow textarea::placeholder {
+  color: #9ca3af;
+  font-style: italic;
+}

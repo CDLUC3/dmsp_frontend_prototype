@@ -80,10 +80,6 @@
 }
 
 .fieldDivider {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
   height: 1px;
   border: none;
   background: var(--border-color);
@@ -92,4 +88,56 @@
 
 .addFieldButton {
   margin-top: var(--space-3);
+}
+
+.fieldRow {
+  margin-bottom: 1rem;
+
+  .customizePanel {
+    margin-top: 0.5rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-left: 3px solid var(--accent-color, #0070f3);
+    border-radius: 8px;
+  }
+}
+
+.tooltipWrapper {
+  position: relative;
+  display: inline-block;
+
+  .tooltipText {
+    visibility: hidden;
+    opacity: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    text-align: center;
+    padding: 5px 10px;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    top: 77%;
+    left: 10px;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 0.875rem;
+    transition: opacity 0.15s, visibility 0.15s;
+    pointer-events: none;
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent rgba(0, 0, 0, 0.85) transparent;
+    }
+  }
+
+  &:hover .tooltipText {
+    visibility: visible;
+    opacity: 1;
+  }
 }

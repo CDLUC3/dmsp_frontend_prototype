@@ -43,6 +43,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 import QuestionPreview from '@/components/QuestionPreview';
 import QuestionView from '@/components/QuestionView';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
+import CustomizeFieldForm from '@/components/QuestionAdd/CustomizeFieldForm';
 
 //Other
 import { useToast } from '@/context/ToastContext';
@@ -117,22 +118,35 @@ const QuestionAdd = ({
   const [parsedQuestionJSON, setParsedQuestionJSON] = useState<AnyParsedQuestion>();
   const [dateRangeLabels, setDateRangeLabels] = useState<{ start: string; end: string }>({ start: '', end: '' });
 
+  const [expandedFields, setExpandedFields] = useState<string[]>([]);
+
   // Standard fields for research output questions
   const [standardFields, setStandardFields] = useState([
-    { id: 'title', label: 'Title', enabled: true },
-    { id: 'description', label: 'Description', enabled: true },
-    { id: 'outputType', label: 'Output Type', enabled: true },
-    { id: 'dataFlags', label: 'Data Flags', enabled: false },
-    { id: 'intendedRepos', label: 'Intended Repositories', enabled: false },
-    { id: 'metadataStandards', label: 'Metadata Standards', enabled: false },
-    { id: 'licenses', label: 'Licenses', enabled: false },
+    { id: 'title', label: 'Title', enabled: true, required: true },
+    { id: 'description', label: 'Description', enabled: true, placeholder: '', helpText: '', maxLength: '', required: true },
+    {
+      id: 'outputType',
+      label: 'Output Type',
+      enabled: true,
+      helpText: '',
+      required: true,
+      outputTypeConfig: {
+        mode: 'defaults' as const,
+        selectedDefaults: [],
+        customTypes: []
+      }
+    },
+    { id: 'dataFlags', label: 'Data Flags', enabled: false, helpText: '', defaultValue: '', allowMultiple: false },
+    { id: 'intendedRepos', label: 'Intended Repositories', enabled: false, placeholder: '', helpText: '', enableSearch: false },
+    { id: 'metadataStandards', label: 'Metadata Standards', enabled: false, helpText: '', showSuggestions: false },
+    { id: 'licenses', label: 'Licenses', enabled: false, defaultValue: '', helpText: '', showDescriptions: false },
   ]);
 
   // Additional fields for research output questions
   const [additionalFields, setAdditionalFields] = useState([
-    { id: 'retentionPeriod', label: 'Retention Period', enabled: true },
-    { id: 'fundingSource', label: 'Funding Source', enabled: false },
-    { id: 'conclusions', label: 'Conclusions', enabled: false }
+    { id: 'retentionPeriod', label: 'Retention Period', enabled: true, defaultValue: '', customLabel: '', helpText: '' },
+    { id: 'fundingSource', label: 'Funding Source', enabled: false, placeholder: '', helpText: '', linkToDatabase: false },
+    { id: 'conclusions', label: 'Conclusions', enabled: false, placeholder: '', maxLength: '', helpText: '' }
   ]);
 
 
@@ -256,9 +270,31 @@ const QuestionAdd = ({
 
   // Handler for customize button clicks
   const handleCustomizeField = (fieldId: string) => {
-    // TODO: Implement customize functionality
-    console.log(`Customizing field: ${fieldId}`);
+    setExpandedFields(prev =>
+      prev.includes(fieldId)
+        ? prev.filter(id => id !== fieldId) // collapse
+        : [...prev, fieldId]                // expand
+    );
   };
+
+  const handleCustomizeOptions = (fieldId: string, updatedValues: Record<string, any>) => {
+    // Update standard fields
+    setStandardFields((prev) =>
+      prev.map((field) =>
+        field.id === fieldId ? { ...field, ...updatedValues } : field
+      )
+    );
+
+    // Update additional fields
+    setAdditionalFields((prev) =>
+      prev.map((field) =>
+        field.id === fieldId ? { ...field, ...updatedValues } : field
+      )
+    );
+
+    setHasUnsavedChanges(true);
+  };
+
 
   // Handle changes from RadioGroup
   const handleRadioChange = (value: string) => {
@@ -623,58 +659,92 @@ const QuestionAdd = ({
                       Select which standard fields to include in your research output question. You can customize each field individually.
                     </p>
                     <div className={styles.fieldsList}>
-                      {standardFields.map((field, index) => (
-                        <div key={field.id} className={styles.fieldRow}>
-                          <Checkbox
-                            isSelected={field.enabled}
-                            onChange={(isSelected) => handleStandardFieldChange(field.id, isSelected)}
+                      {standardFields.map((field, index) => {
+                        const isExpanded = expandedFields.includes(field.id);
+                        const isDisabled = field.id === 'title' || field.id === 'outputType';// These fields are already required
 
-                          >
-                            <div className="checkbox">
-                              <svg viewBox="0 0 18 18" aria-hidden="true">
-                                <polyline points="1 9 7 14 15 4" />
-                              </svg>
+                        return (
+                          <div key={field.id} className={styles.fieldRowWrapper}>
+                            <div className={styles.fieldRow}>
+                              <div className={isDisabled ? styles.tooltipWrapper : undefined}>
+
+                                <Checkbox
+                                  isSelected={field.enabled}
+                                  isDisabled={isDisabled}
+                                  className={
+                                    `react-aria-Checkbox ${(field.id === 'title' || field.id === 'outputType')
+                                      ? styles.disabledCheckbox
+                                      : ''
+                                    }`
+                                  }
+
+                                  onChange={(isSelected) => handleStandardFieldChange(field.id, isSelected)}
+                                >
+                                  <div className="checkbox">
+                                    <svg viewBox="0 0 18 18" aria-hidden="true">
+                                      <polyline points="1 9 7 14 15 4" />
+                                    </svg>
+                                  </div>
+                                  <span>{field.label}</span>
+                                </Checkbox>
+                                {isDisabled && <span className={styles.tooltipText}>Always required</span>}
+                              </div>
+                              <Button
+                                type="button"
+                                className={`buttonLink link`}
+                                onPress={() => handleCustomizeField(field.id)}
+                                isDisabled={!field.enabled}
+                              >
+                                {expandedFields.includes(field.id) ? "Close" : "Customize"}
+                              </Button>
                             </div>
-                            <span >{field.label}</span>
-                          </Checkbox>
-                          <Button
-                            type="button"
-                            className={`buttonLink link`}
-                            onPress={() => handleCustomizeField(field.id)}
-                            isDisabled={!field.enabled}
-                          >
-                            Customize
-                          </Button>
-                          {index < standardFields.length - 1 && <hr className={styles.fieldDivider} />}
-                        </div>
-                      ))}
+
+                            {/* Expanded panel OUTSIDE the .fieldRow flex container */}
+                            {expandedFields.includes(field.id) && (
+                              <div className={styles.customizePanel}>
+                                <CustomizeFieldForm field={field} onChange={handleCustomizeOptions} />
+                              </div>
+                            )}
+                            {index < standardFields.length - 1 && <hr className={styles.fieldDivider} />}
+
+                          </div>
+                        );
+                      })}
                     </div>
 
                     <div className={styles.fieldsContainer}>
                       <h3>Additional Text Fields</h3>
                       <div className={styles.fieldsList}>
                         {additionalFields.map((field, index) => (
-                          <div key={field.id} className={styles.fieldRow}>
-                            <Checkbox
-                              isSelected={field.enabled}
-                              onChange={(isSelected) => handleStandardFieldChange(field.id, isSelected)}
+                          <div key={field.id} className={styles.fieldRowWrapper}>
+                            <div className={styles.fieldRow}>
+                              <Checkbox
+                                isSelected={field.enabled}
+                                onChange={(isSelected) => handleStandardFieldChange(field.id, isSelected)}
+                              >
+                                <div className="checkbox">
+                                  <svg viewBox="0 0 18 18" aria-hidden="true">
+                                    <polyline points="1 9 7 14 15 4" />
+                                  </svg>
+                                </div>
+                                <span>{field.label}</span>
+                              </Checkbox>
+                              <Button
+                                type="button"
+                                className={`buttonLink link`}
+                                onPress={() => handleCustomizeField(field.id)}
+                                isDisabled={!field.enabled}
+                              >
+                                {expandedFields.includes(field.id) ? "Close" : "Customize"}
+                              </Button>
+                            </div>
 
-                            >
-                              <div className="checkbox">
-                                <svg viewBox="0 0 18 18" aria-hidden="true">
-                                  <polyline points="1 9 7 14 15 4" />
-                                </svg>
+                            {/* Expanded panel for additional fields */}
+                            {expandedFields.includes(field.id) && (
+                              <div className={styles.customizePanel}>
+                                <CustomizeFieldForm field={field} onChange={handleCustomizeOptions} />
                               </div>
-                              <span >{field.label}</span>
-                            </Checkbox>
-                            <Button
-                              type="button"
-                              className={`buttonLink link`}
-                              onPress={() => handleCustomizeField(field.id)}
-                              isDisabled={!field.enabled}
-                            >
-                              Customize
-                            </Button>
+                            )}
                             {index < additionalFields.length - 1 && <hr className={styles.fieldDivider} />}
                           </div>
                         ))}
