@@ -23,7 +23,7 @@ import ExpandButton from "@/components/ExpandButton";
 
 import Pagination from '@/components/Pagination';
 import { useToast } from '@/context/ToastContext';
-import styles from './RepositorySelector.module.scss';
+import styles from './Selector.module.scss';
 
 const paginationProps = {
   currentPage: 1,
@@ -132,6 +132,8 @@ const RepositorySelectionSystem = ({
 
   const handleSearchInput = (term: string) => {
     setSearchTerm(term);
+    setRepositories(originalRepositories);
+
   };
 
   const handleSearch = () => {
@@ -143,11 +145,6 @@ const RepositorySelectionSystem = ({
       repo.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
     );
     setRepositories(filtered);
-  }
-
-  const clearSearch = () => {
-    setSearchTerm('');
-    setRepositories(originalRepositories);
   }
 
   const searchOnSubjectArea = (subject: string) => {
@@ -232,57 +229,52 @@ const RepositorySelectionSystem = ({
     <div className={styles.container}>
       <div className={styles.wrapper}>
         <div className={styles.prefsOption}>
-          <div className={styles.checkboxWrapper}>
-            <Checkbox
-              onChange={() => handleTogglePreferredRepositories(!field.repoConfig?.hasCustomRepos)}
-              isSelected={field.repoConfig?.hasCustomRepos || false}
-            >
-              <div className="checkbox">
-                <svg viewBox="0 0 18 18" aria-hidden="true">
-                  <polyline points="1 9 7 14 15 4" />
-                </svg>
-              </div>
-              Create a list of preferred repositories
-            </Checkbox>
-          </div>
+          <Checkbox
+            onChange={() => handleTogglePreferredRepositories(!field.repoConfig?.hasCustomRepos)}
+            isSelected={field.repoConfig?.hasCustomRepos || false}
+          >
+            <div className="checkbox">
+              <svg viewBox="0 0 18 18" aria-hidden="true">
+                <polyline points="1 9 7 14 15 4" />
+              </svg>
+            </div>
+            Create a list of preferred repositories
+          </Checkbox>
           {field.repoConfig?.hasCustomRepos && (
-            <div className={styles.selectedRepos}>
-              <div className={styles.selectedReposHeader}>
+            <div className={styles.selectedItems}>
+              <div className={styles.selectedItemsHeader}>
                 <span className={styles.selectedCount}>
                   {selectedCount} {selectedCount === 1 ? 'repository' : 'repositories'} selected
                 </span>
-                <Button
-                  onClick={removeAllRepos}
-                  isDisabled={selectedCount === 0}
-                  className="danger medium"
-                >
-                  Remove All
-                </Button>
+                {selectedCount > 0 && (
+                  <Button
+                    onClick={removeAllRepos}
+                    isDisabled={selectedCount === 0}
+                    className="danger medium"
+                  >
+                    Remove All
+                  </Button>
+                )}
+
               </div>
 
-              {selectedCount === 0 ? (
-                <div className={styles.emptyState}>
-                  <div className={styles.emptyStateIcon}>📦</div>
-                  <p>No repositories selected yet.</p>
-                  <p className={styles.emptyStateText}>Click &quot;Add a repository&quot; to get started.</p>
-                </div>
-              ) : (
+              {selectedCount !== 0 && (
                 <div>
                   {selectedArray.map(repo => (
-                    <div key={repo.id} className={styles.repoItem}>
-                      <div className={styles.repoItemHeader}>
-                        <div className={styles.repoContent}>
-                          <div className={styles.repoTitle}>{repo.name}</div>
-                          <div className={styles.repoMeta}>
-                            <span className={`${styles.repoBadge} ${repo.access.toLowerCase() === 'open' ? styles.open : ''}`}>
+                    <div key={repo.id} className={styles.item}>
+                      <div className={styles.itemHeader}>
+                        <div className={styles.itemContent}>
+                          <div className={styles.itemTitle}>{repo.name}</div>
+                          <div className={styles.itemMeta}>
+                            <span className={`${styles.itemBadge} ${repo.access.toLowerCase() === 'open' ? styles.open : ''}`}>
                               {repo.access}
                             </span>
-                            <span className={styles.repoBadge}>{repo.identifier}</span>
+                            <span className={styles.itemBadge}>{repo.identifier}</span>
                             <a
                               href={repo.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className={styles.repoLink}
+                              className={styles.itemLink}
                             >
                               View repository →
                             </a>
@@ -290,7 +282,7 @@ const RepositorySelectionSystem = ({
                         </div>
                         <Button
                           onClick={() => removeRepo(repo.id)}
-                          className="danger small"
+                          className={`${styles.removeBtn} danger small`}
                         >
                           Remove
                         </Button>
@@ -300,12 +292,12 @@ const RepositorySelectionSystem = ({
                 </div>
               )}
 
-              <button
+              <Button
                 onClick={() => setIsModalOpen(true)}
-                className={styles.addRepoBtn}
+                className={styles.addItemBtn}
               >
                 Add a repository
-              </button>
+              </Button>
 
             </div>
           )}
@@ -345,6 +337,8 @@ const RepositorySelectionSystem = ({
                       <div className={styles.filterRow}>
                         <div className={styles.filterGroup}>
                           <FormSelect
+                            selectClasses={styles.formSelect}
+                            label="Subject area"
                             placeholder="Select a subject area"
                             ariaLabel="Select a subject area"
                             isRequired={false}
@@ -359,6 +353,8 @@ const RepositorySelectionSystem = ({
 
                         <div className={styles.filterGroup}>
                           <FormSelect
+                            selectClasses={styles.formSelect}
+                            label="Repository type"
                             placeholder="Select a repository type"
                             ariaLabel="Select a repository type"
                             isRequired={false}
@@ -410,37 +406,31 @@ const RepositorySelectionSystem = ({
                     {isCustomFormOpen && (
                       <div className={styles.customRepoForm}>
                         <h4>Add a new repository for your Template</h4>
-                        <div className={styles.formGroup}>
-                          <FormInput
-                            name="repo-name"
-                            type="text"
-                            isRequired={true}
-                            label="Name"
-                            value={customForm.name}
-                            onChange={(e) => setCustomForm({ ...customForm, name: e.target.value })}
-                          />
+                        <FormInput
+                          name="repo-name"
+                          type="text"
+                          isRequired={true}
+                          label="Name"
+                          value={customForm.name}
+                          onChange={(e) => setCustomForm({ ...customForm, name: e.target.value })}
+                        />
+                        <FormInput
+                          name="repo-url"
+                          type="url"
+                          isRequired={true}
+                          label="Url"
+                          value={customForm.url}
+                          onChange={(e) => setCustomForm({ ...customForm, url: e.target.value })}
+                        />
+                        <FormInput
+                          name="repo-description"
+                          type="text"
+                          isRequired={true}
+                          label="Description"
+                          value={customForm.description}
+                          onChange={(e) => setCustomForm({ ...customForm, description: e.target.value })}
+                        />
 
-                        </div>
-                        <div className={styles.formGroup}>
-                          <FormInput
-                            name="repo-url"
-                            type="url"
-                            isRequired={true}
-                            label="Url"
-                            value={customForm.url}
-                            onChange={(e) => setCustomForm({ ...customForm, url: e.target.value })}
-                          />
-                        </div>
-                        <div className={styles.formGroup}>
-                          <FormInput
-                            name="repo-description"
-                            type="text"
-                            isRequired={true}
-                            label="Description"
-                            value={customForm.description}
-                            onChange={(e) => setCustomForm({ ...customForm, description: e.target.value })}
-                          />
-                        </div>
                         <div className={styles.formActions}>
                           <Button
                             onClick={addCustomRepo}
@@ -449,7 +439,10 @@ const RepositorySelectionSystem = ({
                             Add repository to your Template
                           </Button>
                           <Button
-                            onClick={() => setIsCustomFormOpen(false)}
+                            onClick={() => {
+                              setIsCustomFormOpen(false);
+                              setCustomForm({ name: '', url: '', description: '' });//Reset fields
+                            }}
                             className="secondary medium"
                           >
                             Cancel
@@ -482,7 +475,7 @@ const RepositorySelectionSystem = ({
                                 {isSelected ? 'Remove' : 'Select'}
                               </Button>
                             </div>
-                            <div className={styles.repoDescription}>{repo.description}</div>
+                            <div className={styles.itemDescription}>{repo.description}</div>
                             <div className={styles.tags}>
                               {repo.tags.map(tag => (
                                 <span key={tag} className={styles.tag}>{tag}</span>

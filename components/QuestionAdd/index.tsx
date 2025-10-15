@@ -50,7 +50,7 @@ import QuestionPreview from '@/components/QuestionPreview';
 import QuestionView from '@/components/QuestionView';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 import RepositorySelectionSystem from './ReposSelector';
-
+import MetaDataStandards from './MetaDataStandards';
 //Other
 import { useToast } from '@/context/ToastContext';
 import { stripHtmlTags } from '@/utils/general';
@@ -144,12 +144,16 @@ const QuestionAdd = ({
   const [parsedQuestionJSON, setParsedQuestionJSON] = useState<AnyParsedQuestion>();
   const [dateRangeLabels, setDateRangeLabels] = useState<{ start: string; end: string }>({ start: '', end: '' });
 
-  const [expandedFields, setExpandedFields] = useState<string[]>([]);
+  const [expandedFields, setExpandedFields] = useState<string[]>(['title', 'outputType']);
   const [isReposModalOpen, setReposModalOpen] = useState<boolean>(false);
   const outputTypeOptions = [
     { id: 'defaults', name: 'Use defaults' },
     { id: 'mine', name: 'Use mine' },
     { id: 'addToDefaults', name: 'Add mine to defaults' }
+  ]
+  const licenseTypeOptions = [
+    { id: 'defaults', name: 'Use defaults' },
+    { id: 'addToDefaults', name: 'Use mine' }
   ]
   // Default output types
   const defaultOutputTypes = [
@@ -169,10 +173,30 @@ const QuestionAdd = ({
     'Workflow'
   ];
 
+  // Default licenses
+  const defaultLicenses = [
+    'CC-BY-4.0',
+    'CC-BY-SA-4.0',
+    'CC-BY-NC-4.0',
+    'CC-BY-NC-SA-4.0',
+    'CC-BY-ND-4.0',
+    'CC-BY-NC-ND-4.0',
+    'CCo-1.0'
+  ];
+
+  // Other licenses
+  const otherLicenses = [
+    { id: 'obsd', name: 'OBSD' },
+    { id: 'aal', name: 'AAL' },
+    { id: 'adsl', name: 'ADSL' },
+    { id: 'afl11', name: 'AFL-1.1' },
+    { id: 'aml', name: 'AML' }
+  ]
+
   // Standard fields for research output questions
   const [standardFields, setStandardFields] = useState([
     { id: 'title', label: 'Title', enabled: true, required: true },
-    { id: 'description', label: 'Description', enabled: true, placeholder: '', helpText: '', maxLength: '', required: true, value: '' },
+    { id: 'description', label: 'Description', enabled: false, placeholder: '', helpText: '', maxLength: '', required: true, value: '' },
     {
       id: 'outputType',
       label: 'Output Type',
@@ -209,8 +233,30 @@ const QuestionAdd = ({
         customRepos: [] as string[],
       }
     },
-    { id: 'metadataStandards', label: 'Metadata Standards', enabled: false, helpText: '', showSuggestions: false },
-    { id: 'licenses', label: 'Licenses', enabled: false, defaultValue: '', helpText: '', showDescriptions: false },
+    {
+      id: 'metadataStandards',
+      label: 'Metadata Standards',
+      enabled: false,
+      helpText: '',
+      showSuggestions: false,
+      metaDataConfig: {
+        hasCustomStandards: false,
+        customStandards: [] as number[],
+      }
+    },
+    {
+      id: 'licenses',
+      label: 'Licenses',
+      enabled: false,
+      defaultValue: '',
+      helpText: '',
+      showDescriptions: false,
+      licensesConfig: {
+        mode: 'defaults' as 'defaults' | 'addToDefaults',
+        selectedDefaults: [] as string[],
+        customTypes: defaultLicenses as string[],
+      }
+    },
   ]);
 
   // Additional fields for research output questions
@@ -222,7 +268,8 @@ const QuestionAdd = ({
 
   // State for managing custom output types
   const [newOutputType, setNewOutputType] = useState<string>('');
-
+  // State for managing custom license types
+  const [newLicenseType, setNewLicenseType] = useState<string>('');
 
   // localization keys
   const Global = useTranslations('Global');
@@ -334,7 +381,6 @@ const QuestionAdd = ({
 
   // Shared function to update any property in standardFields
   const updateStandardFieldProperty = (fieldId: string, propertyName: string, value: any) => {
-    console.log("*** Updating field:", fieldId, propertyName, value);
     setStandardFields(prev =>
       prev.map(field =>
         field.id === fieldId ? { ...field, [propertyName]: value } : field
@@ -346,6 +392,15 @@ const QuestionAdd = ({
   // Handler for standard field checkbox changes (for enabled property)
   const handleStandardFieldChange = (fieldId: string, enabled: boolean) => {
     updateStandardFieldProperty(fieldId, 'enabled', enabled);
+    if (enabled === true) {
+      handleCustomizeField(fieldId);
+    } else {
+      removeCustomizeField(fieldId);
+    }
+  };
+
+  const removeCustomizeField = (fieldId: string) => {
+    setExpandedFields(prev => prev.filter(id => id !== fieldId));
   };
 
   // Handler for customize button clicks
@@ -375,6 +430,17 @@ const QuestionAdd = ({
     setHasUnsavedChanges(true);
   };
 
+  // Handler for toggling metadata standards
+  const handleToggleMetaDataStandards = (hasCustomStandards: boolean) => {
+    const currentField = standardFields.find(f => f.id === 'metadataStandards');
+    if (currentField && currentField.metaDataConfig) {
+      updateStandardFieldProperty('metadataStandards', 'metaDataConfig', {
+        ...currentField.metaDataConfig,
+        hasCustomStandards
+      });
+    }
+  };
+
   // Handler for toggling preferred repositories
   const handleTogglePreferredRepositories = (hasCustomRepos: boolean) => {
     const currentField = standardFields.find(f => f.id === 'repoSelector');
@@ -382,6 +448,48 @@ const QuestionAdd = ({
       updateStandardFieldProperty('repoSelector', 'repoConfig', {
         ...currentField.repoConfig,
         hasCustomRepos
+      });
+    }
+  };
+
+  // Handler for license mode changes (defaults, add to defaults)
+  const handleLicenseModeChange = (mode: 'defaults' | 'addToDefaults') => {
+    const currentField = standardFields.find(f => f.id === 'licenses');
+    if (currentField && currentField.licensesConfig) {
+      updateStandardFieldProperty('licenses', 'licensesConfig', {
+        ...currentField.licensesConfig,
+        mode
+      });
+    }
+  };
+
+  // Handler for adding custom license types
+  const handleAddCustomLicenseType = () => {
+    if (newLicenseType.trim()) {
+      const currentField = standardFields.find(f => f.id === 'licenses');
+      if (currentField && currentField.licensesConfig) {
+        // Find the license object by ID and get its name
+        const selectedLicense = otherLicenses.find(license => license.id === newLicenseType.trim());
+        const licenseNameToAdd = selectedLicense ? selectedLicense.name : newLicenseType.trim();
+
+        const updatedCustomTypes = [...currentField.licensesConfig.customTypes, licenseNameToAdd];
+        updateStandardFieldProperty('licenses', 'licensesConfig', {
+          ...currentField.licensesConfig,
+          customTypes: updatedCustomTypes
+        });
+        setNewLicenseType('');
+      }
+    }
+  };
+
+  // Handler for removing custom license types
+  const handleRemoveCustomLicenseType = (typeToRemove: string) => {
+    const currentField = standardFields.find(f => f.id === 'licenses');
+    if (currentField && currentField.licensesConfig) {
+      const updatedCustomTypes = currentField.licensesConfig.customTypes.filter(type => type !== typeToRemove);
+      updateStandardFieldProperty('licenses', 'licensesConfig', {
+        ...currentField.licensesConfig,
+        customTypes: updatedCustomTypes
       });
     }
   };
@@ -823,7 +931,7 @@ const QuestionAdd = ({
                                   type="button"
                                   className={`buttonLink link`}
                                   onPress={() => handleCustomizeField(field.id)}
-                                  isDisabled={!field.enabled}
+                                // isDisabled={!field.enabled}
                                 >
                                   {expandedFields.includes(field.id) ? "Close" : "Customize"}
                                 </Button>
@@ -1047,6 +1155,7 @@ const QuestionAdd = ({
                                     )}
                                   </div>
                                 )}
+
                                 {/** Repository Selector */}
                                 {field.id === 'repoSelector' && (
                                   <>
@@ -1064,6 +1173,27 @@ const QuestionAdd = ({
                                       value={field.value}
                                       onChange={(value) => updateStandardFieldProperty('repoSelector', 'value', value)}
                                     />
+                                  </>
+                                )}
+
+                                {/** Metadata Standards */}
+                                {field.id === 'metadataStandards' && (
+                                  <>
+                                    <MetaDataStandards
+                                      field={field}
+                                      handleToggleMetaDataStandards={handleToggleMetaDataStandards}
+                                      updateStandardFieldProperty={updateStandardFieldProperty}
+                                    />
+
+                                    <FormTextArea
+                                      name="metadataStandardsDescription"
+                                      isRequired={false}
+                                      richText={true}
+                                      label="Description for Metadata Standards field"
+                                      value={field.value}
+                                      helpMessage="This can be used to provide custom guidance and/or instructions for researchers."
+                                      onChange={(value) => updateStandardFieldProperty('metadataStandards', 'value', value)}
+                                    />
 
                                     <DialogTrigger>
                                       <Button>Open Dialog</Button>
@@ -1075,7 +1205,7 @@ const QuestionAdd = ({
                                         <Dialog>
                                           {({ close }) => ( // The 'close' function is provided by DialogTrigger
                                             <>
-                                              <Heading slot="title">Repository search</Heading>
+                                              <Heading slot="title">Metadata Standard search</Heading>
                                               <div>
 
                                               </div>
@@ -1087,6 +1217,111 @@ const QuestionAdd = ({
                                       </Modal>
                                     </DialogTrigger>
                                   </>
+                                )}
+
+
+                                {/**License configurations */}
+                                {field.id === 'licenses' && (
+
+                                  <div className={styles.outputTypeConfig}>
+                                    <div className={styles.outputTypeModeSelector}>
+                                      <FormSelect
+                                        label="Define preferred licenses"
+                                        ariaLabel="define preferred licenses"
+                                        isRequired={false}
+                                        name="status"
+                                        items={licenseTypeOptions}
+                                        onChange={(value) =>
+                                          handleLicenseModeChange(
+                                            value as 'defaults' | 'addToDefaults'
+                                          )
+                                        }
+                                        selectedKey={field.licensesConfig?.mode || 'defaults'}
+                                      >
+                                        {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
+                                      </FormSelect>
+                                    </div>
+
+                                    {/* --- USE DEFAULTS MODE --- */}
+                                    {field.licensesConfig?.mode === 'defaults' && (
+                                      <div className={styles.defaultOutputTypes}>
+                                        <fieldset>
+                                          <legend>Default Preferred Licenses</legend>
+                                          <ul className={`${styles.outputTypesList} ${styles.bulletList}`}>
+                                            {defaultLicenses.map((outputType) => (
+                                              <li key={outputType} className={styles.outputTypeItem}>
+                                                <span>{outputType}</span>
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        </fieldset>
+                                      </div>
+                                    )}
+
+
+                                    {/* --- ADD TO DEFAULTS MODE (unchanged) --- */}
+                                    {field.licensesConfig?.mode === 'addToDefaults' && (
+                                      <>
+                                        {/* <div className={styles.defaultOutputTypes}>
+                                          <fieldset>
+                                            <legend>Default Output Types</legend>
+                                            <ul className={`${styles.outputTypesList} ${styles.bulletList}`}>
+                                              {defaultOutputTypes.map((outputType) => (
+                                                <li key={outputType} className={styles.outputTypeItem}>
+                                                  <span>{outputType}</span>
+                                                </li>
+                                              ))}
+                                            </ul>
+                                          </fieldset>
+                                        </div> */}
+
+                                        {/* Add user-defined types (same logic as before) */}
+                                        <div className={styles.customOutputTypes}>
+                                          <fieldset>
+                                            <legend>My Licenses</legend>
+                                            <div className={styles.addLicenseTypeContainer}>
+                                              <FormSelect
+                                                label="Add license"
+                                                ariaLabel="Add license"
+                                                isRequired={false}
+                                                name="add-license"
+                                                items={otherLicenses}
+                                                selectClasses={styles.licenseSelector}
+                                                onChange={(value) => setNewLicenseType(value)}
+                                                selectedKey={field.licensesConfig?.mode || 'defaults'}
+                                              >
+                                                {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
+                                              </FormSelect>
+                                              <Button
+                                                type="button"
+                                                onPress={handleAddCustomLicenseType}
+                                                isDisabled={!newLicenseType.trim()}
+                                              >
+                                                Add license type
+                                              </Button>
+                                            </div>
+                                            {field.licensesConfig?.customTypes?.length > 0 && (
+                                              <ul className={styles.customOutputTypesList}>
+                                                {field.licensesConfig.customTypes.map((customType, index) => (
+                                                  <li key={index} className={styles.customOutputTypeItem}>
+                                                    <span>{customType}</span>
+                                                    <Button
+                                                      type="button"
+                                                      className={styles.removeButton}
+                                                      onPress={() => handleRemoveCustomLicenseType(customType)}
+                                                      aria-label={`Remove ${customType}`}
+                                                    >
+                                                      x
+                                                    </Button>
+                                                  </li>
+                                                ))}
+                                              </ul>
+                                            )}
+                                          </fieldset>
+                                        </div>
+                                      </>
+                                    )}
+                                  </div>
                                 )}
 
                               </div>
@@ -1119,7 +1354,7 @@ const QuestionAdd = ({
                                 type="button"
                                 className={`buttonLink link`}
                                 onPress={() => handleCustomizeField(field.id)}
-                                isDisabled={!field.enabled}
+                              // isDisabled={!field.enabled}
                               >
                                 {expandedFields.includes(field.id) ? "Close" : "Customize"}
                               </Button>
@@ -1128,7 +1363,7 @@ const QuestionAdd = ({
                             {/* Expanded panel for additional fields */}
                             {expandedFields.includes(field.id) && (
                               <div className={styles.customizePanel}>
-                                <CustomizeFieldForm field={field} onChange={handleCustomizeOptions} />
+                                {/* <CustomizeFieldForm field={field} onChange={handleCustomizeOptions} /> */}
                               </div>
                             )}
                             {index < additionalFields.length - 1 && <hr className={styles.fieldDivider} />}

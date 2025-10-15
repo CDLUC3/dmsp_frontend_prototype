@@ -1,3 +1,5 @@
+@use '@/styles/responsive' as r;
+
 .optionsDescription {
   font-size: var(--fs-sm);
   font-weight:600;
@@ -202,6 +204,42 @@
 
 .outputTypeWrapper {
   width: 100%;
+}
+
+.addLicenseTypeContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+  align-items: center; // Keep Select and Button vertically aligned
+
+  // By default (mobile): stack vertically
+  > * {
+    flex: 1 1 100%;
+  }
+
+  button {
+    width: 100%; // full width on small screens
+  }
+
+  .licenseSelector {
+    margin-bottom: 0;
+  }
+  // On larger screens, sit side-by-side
+  @include r.device(sm) {
+    flex-wrap: nowrap;
+    align-items: center; // Ensure vertical alignment
+
+    button {
+      flex: 0 0 auto; // natural width
+      width: auto;
+    }
+
+        .licenseSelector {
+      margin-bottom: 2rem !important; // Override for desktop
+    }
+
+  }
 }
 
 .addOutputTypeContainer {

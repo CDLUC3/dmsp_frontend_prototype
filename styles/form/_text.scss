@@ -25,9 +25,10 @@
   }
 
   &:hover:not(:disabled) {
-    border-color: var(--slate-400);
+    border-color: var(--focus-ring);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     color: var(--text-color);
-    background-color: var(--slate-100);
+    background-color: var(--gray-50);
   }
 
   &:focus:not(:disabled) {
