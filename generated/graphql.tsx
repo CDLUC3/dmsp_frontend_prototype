@@ -4591,6 +4591,13 @@ export type UpdateQuestionDisplayOrderMutationVariables = Exact<{
 
 export type UpdateQuestionDisplayOrderMutation = { __typename?: 'Mutation', updateQuestionDisplayOrder: { __typename?: 'ReorderQuestionsResult', questions?: Array<{ __typename?: 'Question', id?: number | null, displayOrder?: number | null, questionText?: string | null, sampleText?: string | null, requirementText?: string | null, guidanceText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null } | null }> | null } };
 
+export type UpdateRelatedWorkStatusMutationVariables = Exact<{
+  input: UpdateRelatedWorkStatusInput;
+}>;
+
+
+export type UpdateRelatedWorkStatusMutation = { __typename?: 'Mutation', updateRelatedWorkStatus?: { __typename?: 'RelatedWorkSearchResult', id: number, status: RelatedWorkStatus } | null };
+
 export type AddSectionMutationVariables = Exact<{
   input: AddSectionInput;
 }>;
@@ -4859,6 +4866,15 @@ export type PublishedQuestionQueryVariables = Exact<{
 
 
 export type PublishedQuestionQuery = { __typename?: 'Query', publishedQuestion?: { __typename?: 'VersionedQuestion', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, json?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, versionedSectionId: number, versionedTemplateId: number, required?: boolean | null, errors?: { __typename?: 'VersionedQuestionErrors', general?: string | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, displayOrder?: string | null, versionedSectionId?: string | null } | null } | null };
+
+export type RelatedWorksByPlanQueryVariables = Exact<{
+  planId: Scalars['Int']['input'];
+  paginationOptions?: InputMaybe<PaginationOptions>;
+  filterOptions?: InputMaybe<RelatedWorksFilterOptions>;
+}>;
+
+
+export type RelatedWorksByPlanQuery = { __typename?: 'Query', relatedWorksByPlan?: { __typename?: 'RelatedWorkSearchResults', totalCount?: number | null, limit?: number | null, currentOffset?: number | null, hasNextPage?: boolean | null, hasPreviousPage?: boolean | null, availableSortFields?: Array<string | null> | null, statusOnlyCount?: number | null, items?: Array<{ __typename?: 'RelatedWorkSearchResult', id: number, scoreNorm: number, confidence?: RelatedWorkConfidence | null, status: RelatedWorkStatus, created: string, modified: string, workVersion: { __typename?: 'WorkVersion', id: number, hash: any, workType: WorkType, publicationDate?: string | null, title?: string | null, publicationVenue?: string | null, sourceName: string, sourceUrl?: string | null, work: { __typename?: 'Work', id: number, doi: string }, authors: Array<{ __typename?: 'Author', orcid?: string | null, firstInitial?: string | null, givenName?: string | null, middleInitials?: string | null, middleNames?: string | null, surname?: string | null, full?: string | null }>, institutions: Array<{ __typename?: 'Institution', name?: string | null, ror?: string | null }>, funders: Array<{ __typename?: 'Funder', name?: string | null, ror?: string | null }>, awards: Array<{ __typename?: 'Award', awardId?: string | null }> }, doiMatch?: { __typename?: 'DoiMatch', found: boolean, score: number, sources: Array<{ __typename?: 'DoiMatchSource', parentAwardId?: string | null, awardId: string, awardUrl: string }> } | null, contentMatch?: { __typename?: 'ContentMatch', score: number, titleHighlight?: string | null, abstractHighlights: Array<string> } | null, authorMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, institutionMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, funderMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, awardMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null } | null> | null, workTypeCounts?: Array<{ __typename?: 'TypeCount', typeId: string, count: number }> | null, confidenceCounts?: Array<{ __typename?: 'TypeCount', typeId: string, count: number }> | null } | null };
 
 export type TopLevelResearchDomainsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -6440,6 +6456,40 @@ export function useUpdateQuestionDisplayOrderMutation(baseOptions?: Apollo.Mutat
 export type UpdateQuestionDisplayOrderMutationHookResult = ReturnType<typeof useUpdateQuestionDisplayOrderMutation>;
 export type UpdateQuestionDisplayOrderMutationResult = Apollo.MutationResult<UpdateQuestionDisplayOrderMutation>;
 export type UpdateQuestionDisplayOrderMutationOptions = Apollo.BaseMutationOptions<UpdateQuestionDisplayOrderMutation, UpdateQuestionDisplayOrderMutationVariables>;
+export const UpdateRelatedWorkStatusDocument = gql`
+    mutation UpdateRelatedWorkStatus($input: UpdateRelatedWorkStatusInput!) {
+  updateRelatedWorkStatus(input: $input) {
+    id
+    status
+  }
+}
+    `;
+export type UpdateRelatedWorkStatusMutationFn = Apollo.MutationFunction<UpdateRelatedWorkStatusMutation, UpdateRelatedWorkStatusMutationVariables>;
+
+/**
+ * __useUpdateRelatedWorkStatusMutation__
+ *
+ * To run a mutation, you first call `useUpdateRelatedWorkStatusMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateRelatedWorkStatusMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateRelatedWorkStatusMutation, { data, loading, error }] = useUpdateRelatedWorkStatusMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateRelatedWorkStatusMutation(baseOptions?: Apollo.MutationHookOptions<UpdateRelatedWorkStatusMutation, UpdateRelatedWorkStatusMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateRelatedWorkStatusMutation, UpdateRelatedWorkStatusMutationVariables>(UpdateRelatedWorkStatusDocument, options);
+      }
+export type UpdateRelatedWorkStatusMutationHookResult = ReturnType<typeof useUpdateRelatedWorkStatusMutation>;
+export type UpdateRelatedWorkStatusMutationResult = Apollo.MutationResult<UpdateRelatedWorkStatusMutation>;
+export type UpdateRelatedWorkStatusMutationOptions = Apollo.BaseMutationOptions<UpdateRelatedWorkStatusMutation, UpdateRelatedWorkStatusMutationVariables>;
 export const AddSectionDocument = gql`
     mutation AddSection($input: AddSectionInput!) {
   addSection(input: $input) {
@@ -8364,6 +8414,142 @@ export type PublishedQuestionQueryHookResult = ReturnType<typeof usePublishedQue
 export type PublishedQuestionLazyQueryHookResult = ReturnType<typeof usePublishedQuestionLazyQuery>;
 export type PublishedQuestionSuspenseQueryHookResult = ReturnType<typeof usePublishedQuestionSuspenseQuery>;
 export type PublishedQuestionQueryResult = Apollo.QueryResult<PublishedQuestionQuery, PublishedQuestionQueryVariables>;
+export const RelatedWorksByPlanDocument = gql`
+    query RelatedWorksByPlan($planId: Int!, $paginationOptions: PaginationOptions, $filterOptions: RelatedWorksFilterOptions) {
+  relatedWorksByPlan(
+    planId: $planId
+    paginationOptions: $paginationOptions
+    filterOptions: $filterOptions
+  ) {
+    items {
+      id
+      workVersion {
+        id
+        work {
+          id
+          doi
+        }
+        hash
+        workType
+        publicationDate
+        title
+        authors {
+          orcid
+          firstInitial
+          givenName
+          middleInitials
+          middleNames
+          surname
+          full
+        }
+        institutions {
+          name
+          ror
+        }
+        funders {
+          name
+          ror
+        }
+        awards {
+          awardId
+        }
+        publicationVenue
+        sourceName
+        sourceUrl
+      }
+      scoreNorm
+      confidence
+      status
+      doiMatch {
+        found
+        score
+        sources {
+          parentAwardId
+          awardId
+          awardUrl
+        }
+      }
+      contentMatch {
+        score
+        titleHighlight
+        abstractHighlights
+      }
+      authorMatches {
+        index
+        score
+        fields
+      }
+      institutionMatches {
+        index
+        score
+        fields
+      }
+      funderMatches {
+        index
+        score
+        fields
+      }
+      awardMatches {
+        index
+        score
+        fields
+      }
+      created
+      modified
+    }
+    totalCount
+    limit
+    currentOffset
+    hasNextPage
+    hasPreviousPage
+    availableSortFields
+    statusOnlyCount
+    workTypeCounts {
+      typeId
+      count
+    }
+    confidenceCounts {
+      typeId
+      count
+    }
+  }
+}
+    `;
+
+/**
+ * __useRelatedWorksByPlanQuery__
+ *
+ * To run a query within a React component, call `useRelatedWorksByPlanQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRelatedWorksByPlanQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useRelatedWorksByPlanQuery({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      paginationOptions: // value for 'paginationOptions'
+ *      filterOptions: // value for 'filterOptions'
+ *   },
+ * });
+ */
+export function useRelatedWorksByPlanQuery(baseOptions: Apollo.QueryHookOptions<RelatedWorksByPlanQuery, RelatedWorksByPlanQueryVariables> & ({ variables: RelatedWorksByPlanQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<RelatedWorksByPlanQuery, RelatedWorksByPlanQueryVariables>(RelatedWorksByPlanDocument, options);
+      }
+export function useRelatedWorksByPlanLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RelatedWorksByPlanQuery, RelatedWorksByPlanQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<RelatedWorksByPlanQuery, RelatedWorksByPlanQueryVariables>(RelatedWorksByPlanDocument, options);
+        }
+export function useRelatedWorksByPlanSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<RelatedWorksByPlanQuery, RelatedWorksByPlanQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<RelatedWorksByPlanQuery, RelatedWorksByPlanQueryVariables>(RelatedWorksByPlanDocument, options);
+        }
+export type RelatedWorksByPlanQueryHookResult = ReturnType<typeof useRelatedWorksByPlanQuery>;
+export type RelatedWorksByPlanLazyQueryHookResult = ReturnType<typeof useRelatedWorksByPlanLazyQuery>;
+export type RelatedWorksByPlanSuspenseQueryHookResult = ReturnType<typeof useRelatedWorksByPlanSuspenseQuery>;
+export type RelatedWorksByPlanQueryResult = Apollo.QueryResult<RelatedWorksByPlanQuery, RelatedWorksByPlanQueryVariables>;
 export const TopLevelResearchDomainsDocument = gql`
     query TopLevelResearchDomains {
   topLevelResearchDomains {

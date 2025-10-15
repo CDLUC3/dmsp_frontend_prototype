@@ -1,0 +1,6 @@
+mutation UpdateRelatedWorkStatus($input: UpdateRelatedWorkStatusInput!) {
+  updateRelatedWorkStatus(input: $input) {
+    id
+    status
+  }
+}
