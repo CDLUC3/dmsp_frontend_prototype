@@ -412,24 +412,6 @@ const QuestionAdd = ({
     );
   };
 
-  const handleCustomizeOptions = (fieldId: string, updatedValues: Record<string, any>) => {
-    // Update standard fields
-    setStandardFields((prev) =>
-      prev.map((field) =>
-        field.id === fieldId ? { ...field, ...updatedValues } : field
-      )
-    );
-
-    // Update additional fields
-    setAdditionalFields((prev) =>
-      prev.map((field) =>
-        field.id === fieldId ? { ...field, ...updatedValues } : field
-      )
-    );
-
-    setHasUnsavedChanges(true);
-  };
-
   // Handler for toggling metadata standards
   const handleToggleMetaDataStandards = (hasCustomStandards: boolean) => {
     const currentField = standardFields.find(f => f.id === 'metadataStandards');
@@ -667,8 +649,37 @@ const QuestionAdd = ({
   };
 
   const addAdditionalField = () => {
-    console.log('Add additional field clicked');
-  }
+    const newId = `custom_field_${Date.now()}`;
+    const newField = {
+      id: newId,
+      label: 'Custom Field',
+      enabled: false, // Default to not required
+      defaultValue: '',
+      customLabel: '',
+      helpText: ''
+    };
+
+    setAdditionalFields(prev => [...prev, newField]);
+    setExpandedFields(prev => [...prev, newId]); // Auto-expand for editing
+    setHasUnsavedChanges(true);
+  };
+
+  // Handler for deleting additional fields
+  const handleDeleteAdditionalField = (fieldId: string) => {
+    setAdditionalFields(prev => prev.filter(field => field.id !== fieldId));
+    setExpandedFields(prev => prev.filter(id => id !== fieldId));
+    setHasUnsavedChanges(true);
+  };
+
+  // Handler for updating additional field properties
+  const handleUpdateAdditionalField = (fieldId: string, propertyName: string, value: any) => {
+    setAdditionalFields(prev =>
+      prev.map(field =>
+        field.id === fieldId ? { ...field, [propertyName]: value } : field
+      )
+    );
+    setHasUnsavedChanges(true);
+  };
   // If questionType is missing, return user to the Question Types selection page
   // If sectionId is missing, return user back to the Edit Template page
   // This is to ensure that the user has selected a question type before proceeding
@@ -1262,18 +1273,6 @@ const QuestionAdd = ({
                                     {/* --- ADD TO DEFAULTS MODE (unchanged) --- */}
                                     {field.licensesConfig?.mode === 'addToDefaults' && (
                                       <>
-                                        {/* <div className={styles.defaultOutputTypes}>
-                                          <fieldset>
-                                            <legend>Default Output Types</legend>
-                                            <ul className={`${styles.outputTypesList} ${styles.bulletList}`}>
-                                              {defaultOutputTypes.map((outputType) => (
-                                                <li key={outputType} className={styles.outputTypeItem}>
-                                                  <span>{outputType}</span>
-                                                </li>
-                                              ))}
-                                            </ul>
-                                          </fieldset>
-                                        </div> */}
 
                                         {/* Add user-defined types (same logic as before) */}
                                         <div className={styles.customOutputTypes}>
@@ -1336,67 +1335,155 @@ const QuestionAdd = ({
                     <div className={styles.fieldsContainer}>
                       <h3>Additional Text Fields</h3>
                       <div className={styles.fieldsList}>
-                        {additionalFields.map((field, index) => (
-                          <div key={field.id} className={styles.fieldRowWrapper}>
-                            <div className={styles.fieldRow}>
-                              <Checkbox
-                                isSelected={field.enabled}
-                                onChange={(isSelected) => handleStandardFieldChange(field.id, isSelected)}
-                              >
-                                <div className="checkbox">
-                                  <svg viewBox="0 0 18 18" aria-hidden="true">
-                                    <polyline points="1 9 7 14 15 4" />
-                                  </svg>
-                                </div>
-                                <span>{field.label}</span>
-                              </Checkbox>
-                              <Button
-                                type="button"
-                                className={`buttonLink link`}
-                                onPress={() => handleCustomizeField(field.id)}
-                              // isDisabled={!field.enabled}
-                              >
-                                {expandedFields.includes(field.id) ? "Close" : "Customize"}
-                              </Button>
-                            </div>
+                        {additionalFields.map((field, index) => {
 
-                            {/* Expanded panel for additional fields */}
-                            {expandedFields.includes(field.id) && (
-                              <div className={styles.customizePanel}>
-                                {/* <CustomizeFieldForm field={field} onChange={handleCustomizeOptions} /> */}
+                          return (
+                            <div key={field.id} className={styles.fieldRowWrapper}>
+                              <div className={styles.fieldRow}>
+                                <Checkbox
+                                  isSelected={field.enabled}
+                                  onChange={(isSelected) => handleStandardFieldChange(field.id, isSelected)}
+                                >
+                                  <div className="checkbox">
+                                    <svg viewBox="0 0 18 18" aria-hidden="true">
+                                      <polyline points="1 9 7 14 15 4" />
+                                    </svg>
+                                  </div>
+                                  <span>{field.customLabel || field.label}</span>
+                                </Checkbox>
+                                <div className={styles.fieldActions}>
+                                  <Button
+                                    type="button"
+                                    className={`buttonLink link`}
+                                    onPress={() => handleCustomizeField(field.id)}
+                                  >
+                                    {expandedFields.includes(field.id) ? "Close" : "Customize"}
+                                  </Button>
+
+                                  <Button
+                                    type="button"
+                                    className={`buttonLink link ${styles.deleteButton}`}
+                                    onPress={() => handleDeleteAdditionalField(field.id)}
+                                    aria-label={`Delete ${field.label}`}
+                                  >
+                                    Delete
+                                  </Button>
+
+                                </div>
                               </div>
-                            )}
-                            {index < additionalFields.length - 1 && <hr className={styles.fieldDivider} />}
-                          </div>
-                        ))}
-                        <Button
-                          type="button"
-                          className={styles.addFieldButton}
-                          onPress={addAdditionalField}
-                        >
-                          + Add additional field
-                        </Button>
+
+                              {/* Expanded panel for Additional Fields */}
+                              {expandedFields.includes(field.id) && (
+                                <div className={styles.customizePanel}>
+                                  <div className={styles.fieldCustomization}>
+                                    {/* Field Label */}
+                                    <FormInput
+                                      name={`${field.id}_label`}
+                                      type="text"
+                                      isRequired={false}
+                                      label="Field Label"
+                                      value={field.customLabel || field.label}
+                                      onChange={(e) => handleUpdateAdditionalField(field.id, 'customLabel', e.currentTarget.value)}
+                                      helpMessage="The label that will be displayed for this field"
+                                    />
+
+                                    {/* Help Text */}
+                                    <FormTextArea
+                                      name={`${field.id}_help`}
+                                      isRequired={false}
+                                      richText={false}
+                                      label="Help Text"
+                                      value={field.helpText}
+                                      onChange={(value) => handleUpdateAdditionalField(field.id, 'helpText', value)}
+                                      helpMessage="Optional help text to guide users"
+                                    />
+
+                                    {/* Placeholder for text field */}
+                                    <FormInput
+                                      name={`${field.id}_placeholder`}
+                                      type="text"
+                                      isRequired={false}
+                                      label="Placeholder Text"
+                                      value={field.placeholder || ''}
+                                      onChange={(e) => handleUpdateAdditionalField(field.id, 'placeholder', e.currentTarget.value)}
+                                      helpMessage="Placeholder text shown in the input field"
+                                    />
+
+                                    {/* Max Length for text field */}
+                                    <FormInput
+                                      name={`${field.id}_maxLength`}
+                                      type="number"
+                                      isRequired={false}
+                                      label="Maximum Length"
+                                      value={field.maxLength || ''}
+                                      onChange={(e) => handleUpdateAdditionalField(field.id, 'maxLength', e.currentTarget.value)}
+                                      helpMessage="Maximum number of characters allowed (leave empty for no limit)"
+                                    />
+
+                                    {/* Default Value for the custom field */}
+                                    <FormInput
+                                      name={`${field.id}_defaultValue`}
+                                      type="text"
+                                      isRequired={false}
+                                      label="Default Value"
+                                      value={field.defaultValue}
+                                      onChange={(e) => handleUpdateAdditionalField(field.id, 'defaultValue', e.currentTarget.value)}
+                                      helpMessage="Default value for this field"
+                                    />
+
+                                    {/* Is a required field */}
+                                    <Checkbox
+                                      onChange={() => handleUpdateAdditionalField(field.id, 'enabled', !field.enabled)}
+                                      isSelected={field.enabled || false}
+                                    >
+                                      <div className="checkbox">
+                                        <svg viewBox="0 0 18 18" aria-hidden="true">
+                                          <polyline points="1 9 7 14 15 4" />
+                                        </svg>
+                                      </div>
+                                      Is Required field
+                                    </Checkbox>
+                                  </div>
+                                </div>
+                              )}
+                              {index < additionalFields.length - 1 && <hr className={styles.fieldDivider} />}
+                            </div>
+                          );
+                        })}
+                        <div className={styles.additionalFieldsContainer}>
+                          <Button
+                            type="button"
+                            className={styles.addFieldButton}
+                            onPress={addAdditionalField}
+                          >
+                            + Add additional field
+                          </Button>
+                        </div>
                       </div>
                     </div>
 
                   </div>
                 )}
 
-                <RadioGroupComponent
-                  name="radioGroup"
-                  value={question?.required ? 'yes' : 'no'}
-                  radioGroupLabel={Global('labels.requiredField')}
-                  description={Global('descriptions.requiredFieldDescription')}
-                  onChange={handleRadioChange}
-                >
-                  <div>
-                    <Radio value="yes">{Global('form.yesLabel')}</Radio>
-                  </div>
+                {/** Research Output question types have "required" at individual fields, and not on the whole question */}
+                {questionType !== RESEARCH_OUTPUT_QUESTION_TYPE && (
 
-                  <div>
-                    <Radio value="no">{Global('form.noLabel')}</Radio>
-                  </div>
-                </RadioGroupComponent>
+                  <RadioGroupComponent
+                    name="radioGroup"
+                    value={question?.required ? 'yes' : 'no'}
+                    radioGroupLabel={Global('labels.requiredField')}
+                    description={Global('descriptions.requiredFieldDescription')}
+                    onChange={handleRadioChange}
+                  >
+                    <div>
+                      <Radio value="yes">{Global('form.yesLabel')}</Radio>
+                    </div>
+
+                    <div>
+                      <Radio value="no">{Global('form.noLabel')}</Radio>
+                    </div>
+                  </RadioGroupComponent>
+                )}
 
                 {/**We need to set formSubmitted here, so that it is passed down to the child component QuestionOptionsComponent */}
                 <Button

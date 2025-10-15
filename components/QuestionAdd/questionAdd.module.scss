@@ -68,7 +68,7 @@
 
 .fieldsList {
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
+  //border-radius: var(--border-radius-md);
   padding: var(--space-3);
   background: var(--bg-secondary);
 }
@@ -79,6 +79,32 @@
   justify-content: space-between;
   padding: var(--space-2) 0;
   position: relative;
+}
+
+.fieldActions {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.deleteButton {
+  color: var(--red-400) !important;
+  
+  &:hover {
+    background-color: var(--danger-bg, #f8d7da);
+  }
+}
+
+.fieldCustomization {
+  display: flex;
+  flex-direction: column;
+}
+
+.customizePanel {
+  margin-top: var(--space-3);
+  padding: var(--space-4);
+  background: var(--slate-100);
+  border-radius: var(--border-radius-sm);
 }
 
 .fieldDivider {
@@ -148,6 +174,15 @@
     opacity: 1;
   }
 }
+
+// Additional fields
+.additionalFieldsContainer {
+  padding: 20px;
+  background: var(--slate-100);
+  border-radius: 6px;
+  min-height: 100px;
+}
+
 
 // Output type configuration styles
 .outputTypeConfig {
