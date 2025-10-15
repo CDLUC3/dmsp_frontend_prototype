@@ -1,0 +1,95 @@
+query RelatedWorksByPlan($planId: Int!, $paginationOptions: PaginationOptions, $filterOptions: RelatedWorksFilterOptions) {
+  relatedWorksByPlan(planId: $planId, paginationOptions: $paginationOptions, filterOptions: $filterOptions) {
+    items {
+      id
+      workVersion {
+        id
+        work {
+          id
+          doi
+        }
+        hash
+        workType
+        publicationDate
+        title
+        authors {
+          orcid
+          firstInitial
+          givenName
+          middleInitials
+          middleNames
+          surname
+          full
+        }
+        institutions {
+          name
+          ror
+        }
+        funders {
+          name
+          ror
+        }
+        awards {
+          awardId
+        }
+        publicationVenue
+        sourceName
+        sourceUrl
+      }
+      scoreNorm
+      confidence
+      status
+      doiMatch {
+        found
+        score
+        sources {
+          parentAwardId
+          awardId
+          awardUrl
+        }
+      }
+      contentMatch {
+        score
+        titleHighlight
+        abstractHighlights
+      }
+      authorMatches {
+        index
+        score
+        fields
+      }
+      institutionMatches {
+        index
+        score
+        fields
+      }
+      funderMatches {
+        index
+        score
+        fields
+      }
+      awardMatches {
+        index
+        score
+        fields
+      }
+      created
+      modified
+    }
+    totalCount
+    limit
+    currentOffset
+    hasNextPage
+    hasPreviousPage
+    availableSortFields
+    statusOnlyCount
+    workTypeCounts {
+      typeId
+      count
+    }
+    confidenceCounts {
+      typeId
+      count
+    }
+  }
+}
