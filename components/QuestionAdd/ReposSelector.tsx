@@ -55,16 +55,42 @@ const repositoryTypes = [
   { id: 'institutional', name: 'Institutional' },
 ]
 
+interface RepositoryInterface {
+  id: number;
+  name: string;
+  description: string;
+  url: string;
+  contact: string;
+  access: string;
+  identifier: string;
+  tags: string[];
+}
+
+interface RepositoryFieldInterface {
+  id: string;
+  label: string;
+  enabled: boolean;
+  placeholder?: string;
+  helpText?: string;
+  enableSearch?: boolean;
+  value?: string;
+  repoConfig?: {
+    hasCustomRepos: boolean;
+    customRepos: string[];
+  }
+}
 const RepositorySelectionSystem = ({
   field,
-  handleTogglePreferredRepositories,
-  updateStandardFieldProperty
+  handleTogglePreferredRepositories
+}: {
+  field: RepositoryFieldInterface;
+  handleTogglePreferredRepositories: (hasCustomRepos: boolean) => void;
 }) => {
   const toastState = useToast();
-  const [selectedRepos, setSelectedRepos] = useState({});
+  const [selectedRepos, setSelectedRepos] = useState<RepositoryInterface[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCustomFormOpen, setIsCustomFormOpen] = useState(false);
-  const [expandedDetails, setExpandedDetails] = useState({});
+  const [expandedDetails, setExpandedDetails] = useState<Record<string, boolean>>({});
   const [subjectArea, setSubjectArea] = useState('');
   const [repoType, setRepoType] = useState('');
   const [customForm, setCustomForm] = useState({ name: '', url: '', description: '' });
@@ -159,7 +185,7 @@ const RepositorySelectionSystem = ({
     setRepoType(type);
   };
 
-  const toggleSelection = (repo) => {
+  const toggleSelection = (repo: RepositoryInterface) => {
     setSelectedRepos(prev => {
       const newSelected = { ...prev };
       if (newSelected[repo.id]) {
@@ -173,7 +199,7 @@ const RepositorySelectionSystem = ({
     });
   };
 
-  const removeRepo = (repoId) => {
+  const removeRepo = (repoId: number) => {
     const repo = selectedRepos[repoId];
     setSelectedRepos(prev => {
       const newSelected = { ...prev };
@@ -185,12 +211,12 @@ const RepositorySelectionSystem = ({
 
   const removeAllRepos = () => {
     if (window.confirm('Are you sure you want to remove all selected repositories?')) {
-      setSelectedRepos({});
+      setSelectedRepos([]);
       toastState.add('All repositories removed', { type: 'success' });
     }
   };
 
-  const toggleDetails = (repoId, prefix = '') => {
+  const toggleDetails = (repoId: string | number, prefix: string = '') => {
     setExpandedDetails(prev => ({
       ...prev,
       [`${prefix}${repoId}`]: !prev[`${prefix}${repoId}`]

@@ -29,20 +29,36 @@ const paginationProps = {
   handlePageClick: () => { },
 };
 
+interface MetaDataStandardInterface {
+  id: number;
+  name: string;
+  description: string;
+  url: string;
+}
 
+interface MetaDataStandardFieldInterface {
+  id: string;
+  label: string;
+  enabled: boolean;
+  helpText: string;
+  showSuggestions: boolean;
+  metaDataConfig: {
+    hasCustomStandards: boolean;
+    customStandards: string[];
+  }
+}
 
 const MetaDataStandardsSelector = ({
   field,
   handleToggleMetaDataStandards,
-  updateStandardFieldProperty
+}: {
+  field: MetaDataStandardFieldInterface;
+  handleToggleMetaDataStandards: (hasCustomStandards: boolean) => void;
 }) => {
   const toastState = useToast();
-  const [selectedStandards, setSelectedStandards] = useState({});
+  const [selectedStandards, setSelectedStandards] = useState<MetaDataStandardInterface[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCustomFormOpen, setIsCustomFormOpen] = useState(false);
-  const [expandedDetails, setExpandedDetails] = useState({});
-  const [subjectArea, setSubjectArea] = useState('');
-  const [repoType, setRepoType] = useState('');
   const [customForm, setCustomForm] = useState({ name: '', url: '', description: '' });
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -101,7 +117,7 @@ const MetaDataStandardsSelector = ({
     setMetaStandards(filtered);
   }
 
-  const toggleSelection = (std) => {
+  const toggleSelection = (std: MetaDataStandardInterface) => {
     setSelectedStandards(prev => {
       const newSelected = { ...prev };
       if (newSelected[std.id]) {
@@ -115,7 +131,7 @@ const MetaDataStandardsSelector = ({
     });
   };
 
-  const removeStandard = (stdId) => {
+  const removeStandard = (stdId: number) => {
     const std = selectedStandards[stdId];
     setSelectedStandards(prev => {
       const newSelected = { ...prev };
@@ -127,7 +143,7 @@ const MetaDataStandardsSelector = ({
 
   const removeAllStandards = () => {
     if (window.confirm('Are you sure you want to remove all selected metadatastandards?')) {
-      setSelectedStandards({});
+      setSelectedStandards([]);
       toastState.add('All metadata standards removed', { type: 'success' });
     }
   };

@@ -955,17 +955,8 @@ const QuestionAdd = ({
                               <div className={styles.fieldPanel}>
                                 {/** Title */}
                                 {field.id === 'title' && (
-                                  <Checkbox
-                                    onChange={() => updateStandardFieldProperty('title', 'required', !field.required)}
-                                    isSelected={field.required}
-                                  >
-                                    <div className="checkbox">
-                                      <svg viewBox="0 0 18 18" aria-hidden="true">
-                                        <polyline points="1 9 7 14 15 4" />
-                                      </svg>
-                                    </div>
-                                    Is Required field
-                                  </Checkbox>
+                                  // Title-specific configurations can go here if needed
+                                  <></>
                                 )}
 
                                 {/** Description */}
@@ -982,29 +973,33 @@ const QuestionAdd = ({
 
                                 {/** Data Flags Configuration */}
                                 {field.id === 'dataFlags' && (
-                                  <div className={styles.dataFlagsConfig}>
-                                    <RadioGroupComponent
-                                      name="dataFlagsMode"
-                                      value={field.flagsConfig?.mode || 'both'}
-                                      radioGroupLabel="Which data flags to display:"
-                                      description="Select which data sensitivity flags should be shown to users"
-                                      onChange={(mode) => updateStandardFieldProperty('dataFlags', 'flagsConfig', {
-                                        ...field.flagsConfig,
-                                        mode,
-                                        showSensitiveData: mode === 'sensitiveOnly' || mode === 'both',
-                                        showPersonalData: mode === 'personalOnly' || mode === 'both'
-                                      })}
-                                    >
-                                      <div>
-                                        <Radio value="sensitiveOnly">Display only "May contain sensitive data?" checkbox</Radio>
+                                  <div style={{ marginBottom: '1.5rem' }}>
+                                    <fieldset>
+                                      <legend>Which data flags to display</legend>
+                                      <div className={styles.dataFlagsConfig}>
+                                        <RadioGroupComponent
+                                          name="dataFlagsMode"
+                                          value={field.flagsConfig?.mode || 'both'}
+                                          description="Select which data sensitivity flags should be shown to users"
+                                          onChange={(mode) => updateStandardFieldProperty('dataFlags', 'flagsConfig', {
+                                            ...field.flagsConfig,
+                                            mode,
+                                            showSensitiveData: mode === 'sensitiveOnly' || mode === 'both',
+                                            showPersonalData: mode === 'personalOnly' || mode === 'both'
+                                          })}
+                                        >
+                                          <div>
+                                            <Radio value="sensitiveOnly">Display only "May contain sensitive data?" checkbox</Radio>
+                                          </div>
+                                          <div>
+                                            <Radio value="personalOnly">Display only "May contain personally identifiable information?" checkbox</Radio>
+                                          </div>
+                                          <div>
+                                            <Radio value="both">Display both data flag checkboxes</Radio>
+                                          </div>
+                                        </RadioGroupComponent>
                                       </div>
-                                      <div>
-                                        <Radio value="personalOnly">Display only "May contain personally identifiable information?" checkbox</Radio>
-                                      </div>
-                                      <div>
-                                        <Radio value="both">Display both data flag checkboxes</Radio>
-                                      </div>
-                                    </RadioGroupComponent>
+                                    </fieldset>
                                   </div>
                                 )}
 
@@ -1173,7 +1168,6 @@ const QuestionAdd = ({
                                     <RepositorySelectionSystem
                                       field={field}
                                       handleTogglePreferredRepositories={handleTogglePreferredRepositories}
-                                      updateStandardFieldProperty={updateStandardFieldProperty}
                                     />
 
                                     <FormTextArea
@@ -1205,28 +1199,6 @@ const QuestionAdd = ({
                                       helpMessage="This can be used to provide custom guidance and/or instructions for researchers."
                                       onChange={(value) => updateStandardFieldProperty('metadataStandards', 'value', value)}
                                     />
-
-                                    <DialogTrigger>
-                                      <Button>Open Dialog</Button>
-                                      <Modal
-                                        isDismissable
-                                        isOpen={isReposModalOpen}
-                                        onOpenChange={setReposModalOpen.bind(this, !isReposModalOpen)}
-                                      >
-                                        <Dialog>
-                                          {({ close }) => ( // The 'close' function is provided by DialogTrigger
-                                            <>
-                                              <Heading slot="title">Metadata Standard search</Heading>
-                                              <div>
-
-                                              </div>
-                                              <p>This is the content of the modal.</p>
-                                              <Button onPress={close}>Close</Button> {/* Using the 'close' function */}
-                                            </>
-                                          )}
-                                        </Dialog>
-                                      </Modal>
-                                    </DialogTrigger>
                                   </>
                                 )}
 
@@ -1322,6 +1294,20 @@ const QuestionAdd = ({
                                     )}
                                   </div>
                                 )}
+
+                                {/** Universal "Is Required" checkbox for all field types */}
+                                <Checkbox
+                                  onChange={() => updateStandardFieldProperty(field.id, 'required', !field.required)}
+                                  isSelected={field.required}
+                                  className={styles.requiredCheckbox}
+                                >
+                                  <div className="checkbox">
+                                    <svg viewBox="0 0 18 18" aria-hidden="true">
+                                      <polyline points="1 9 7 14 15 4" />
+                                    </svg>
+                                  </div>
+                                  Is Required field
+                                </Checkbox>
 
                               </div>
                             )}
