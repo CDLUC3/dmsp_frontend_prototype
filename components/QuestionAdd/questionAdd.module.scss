@@ -183,16 +183,20 @@
   min-height: 100px;
 }
 
+// When customizePanel is expanded, reduce amount of space between it and the 'Add additional field' button
+.fieldsList:has(.customizePanel) .additionalFieldsContainer {
+  padding-top: 0;
+}
 
-// Output type configuration styles
-.outputTypeConfig {
+// Type selector configuration styles for outputType and license fields
+.typeConfig {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   margin-bottom: 2rem;
 }
 
-.outputTypeModeSelector {
+.typeModeSelector {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -207,7 +211,7 @@
   }
 }
 
-.defaultOutputTypes, .customOutputTypes {
+.defaultTypes, .customTypes {
   fieldset {
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-sm);
@@ -222,7 +226,7 @@
   }
 }
 
-.outputTypesList {
+.typesList {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -231,13 +235,13 @@
   gap: var(--space-2);
 }
 
-.outputTypeItem {
+.typeItem {
   display: flex;
   align-items: center;
   padding: var(--space-1);
 }
 
-.outputTypeWrapper {
+.typeWrapper {
   width: 100%;
 }
 
@@ -277,7 +281,7 @@
   }
 }
 
-.addOutputTypeContainer {
+.addTypeContainer {
   display: flex;
   gap: var(--space-2);
   align-items: center;
@@ -297,7 +301,7 @@
   }
 }
 
-.customOutputTypesList {
+.customTypesList {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -306,7 +310,7 @@
   gap: var(--space-2);
 }
 
-.customOutputTypeItem {
+.customTypeItem {
   display: flex;
   align-items: center;
   justify-content: space-between;

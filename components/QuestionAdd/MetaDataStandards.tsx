@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from "next-intl";
 
 import {
@@ -19,6 +19,11 @@ import {
 
 import Pagination from '@/components/Pagination';
 import { useToast } from '@/context/ToastContext';
+
+import {
+  MetaDataStandardInterface,
+  MetaDataStandardFieldInterface
+} from '@/app/types';
 import styles from './Selector.module.scss';
 
 const paginationProps = {
@@ -29,31 +34,14 @@ const paginationProps = {
   handlePageClick: () => { },
 };
 
-interface MetaDataStandardInterface {
-  id: number;
-  name: string;
-  description: string;
-  url: string;
-}
-
-interface MetaDataStandardFieldInterface {
-  id: string;
-  label: string;
-  enabled: boolean;
-  helpText: string;
-  showSuggestions: boolean;
-  metaDataConfig: {
-    hasCustomStandards: boolean;
-    customStandards: string[];
-  }
-}
-
 const MetaDataStandardsSelector = ({
   field,
   handleToggleMetaDataStandards,
+  onMetaDataStandardsChange
 }: {
   field: MetaDataStandardFieldInterface;
   handleToggleMetaDataStandards: (hasCustomStandards: boolean) => void;
+  onMetaDataStandardsChange: (standards: MetaDataStandardInterface[]) => void;
 }) => {
   const toastState = useToast();
   const [selectedStandards, setSelectedStandards] = useState<MetaDataStandardInterface[]>([]);
@@ -118,17 +106,24 @@ const MetaDataStandardsSelector = ({
   }
 
   const toggleSelection = (std: MetaDataStandardInterface) => {
+    const isRemoving = selectedStandards[std.id];
+
     setSelectedStandards(prev => {
       const newSelected = { ...prev };
       if (newSelected[std.id]) {
         delete newSelected[std.id];
-        toastState.add(`${std.name} removed`, { type: 'error' });
       } else {
         newSelected[std.id] = std;
-        toastState.add(`${std.name} added`, { type: 'success' });
       }
       return newSelected;
     });
+
+    // Call toasts AFTER state update completes
+    if (isRemoving) {
+      toastState.add(`${std.name} removed`, { type: 'success' });
+    } else {
+      toastState.add(`${std.name} added`, { type: 'success' });
+    }
   };
 
   const removeStandard = (stdId: number) => {
@@ -138,7 +133,7 @@ const MetaDataStandardsSelector = ({
       delete newSelected[stdId];
       return newSelected;
     });
-    toastState.add(`${std.name} removed`, { type: 'error' });
+    toastState.add(`${std.name} removed`, { type: 'success' });
   };
 
   const removeAllStandards = () => {
@@ -168,6 +163,12 @@ const MetaDataStandardsSelector = ({
     setIsCustomFormOpen(false);
     toastState.add(`${customStandard.name} added successfully`, { type: 'success' });
   };
+
+
+  useEffect(() => {
+    const stdsArray = Object.values(selectedStandards);
+    onMetaDataStandardsChange?.(stdsArray);
+  }, [selectedStandards]);
 
   const selectedCount = Object.keys(selectedStandards).length;
   const selectedArray = Object.values(selectedStandards);

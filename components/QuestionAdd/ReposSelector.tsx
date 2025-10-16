@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from "next-intl";
 
 import {
@@ -13,7 +13,6 @@ import {
   ListBoxItem,
   Modal,
   SearchField,
-  Text
 } from "react-aria-components";
 import {
   FormInput,
@@ -23,7 +22,13 @@ import ExpandButton from "@/components/ExpandButton";
 
 import Pagination from '@/components/Pagination';
 import { useToast } from '@/context/ToastContext';
+
+import {
+  RepositoryInterface,
+  RepositoryFieldInterface
+} from '@/app/types';
 import styles from './Selector.module.scss';
+
 
 const paginationProps = {
   currentPage: 1,
@@ -32,7 +37,6 @@ const paginationProps = {
   hasNextPage: true,
   handlePageClick: () => { },
 };
-
 
 const subjectAreas = [
   { id: 'agriculture', name: 'Agriculture' },
@@ -55,38 +59,79 @@ const repositoryTypes = [
   { id: 'institutional', name: 'Institutional' },
 ]
 
-interface RepositoryInterface {
-  id: number;
-  name: string;
-  description: string;
-  url: string;
-  contact: string;
-  access: string;
-  identifier: string;
-  tags: string[];
-}
 
-interface RepositoryFieldInterface {
-  id: string;
-  label: string;
-  enabled: boolean;
-  placeholder?: string;
-  helpText?: string;
-  enableSearch?: boolean;
-  value?: string;
-  repoConfig?: {
-    hasCustomRepos: boolean;
-    customRepos: string[];
+// Original sample data - keep this as the source of truth
+const originalRepositories = [
+  {
+    id: 1105,
+    name: "1.2 Meter CO Survey Dataverse",
+    description: "The Radio Telescope Data Center (RTDC) reduces, archives, and makes available on its web site data from SMA and the CfA Millimeter-wave Telescope. The whole-Galaxy CO survey presented in Dame et al. (2001) is a composite of 37 separate surveys.",
+    url: "https://dataverse.harvard.edu/dataverse/rtdc",
+    contact: "Unknown",
+    access: "Open",
+    identifier: "DOI",
+    tags: ["physical sciences", "radio telescope"]
+  },
+  {
+    id: 1280,
+    name: "1000 Functional Connectomes Project",
+    description: "The FCP entailed the aggregation and public release (via www.nitrc.org) of over 1200 resting state fMRI (R-fMRI) datasets collected from 33 sites around the world.",
+    url: "http://fcon_1000.projects.nitrc.org/fcpClassic/FcpTable.html",
+    contact: "moderator@nitrc.org",
+    access: "Open",
+    identifier: "none",
+    tags: ["neuroscience", "fMRI"]
+  },
+  {
+    id: 1350,
+    name: "Protein Data Bank",
+    description: "The Protein Data Bank is a database for the three-dimensional structural data of large biological molecules, such as proteins and nucleic acids.",
+    url: "https://www.rcsb.org",
+    contact: "info@rcsb.org",
+    access: "Open",
+    identifier: "PDB ID",
+    tags: ["biology", "proteins", "structural biology"]
+  },
+  {
+    id: 1420,
+    name: "GenBank",
+    description: "GenBank is the NIH genetic sequence database, an annotated collection of all publicly available DNA sequences.",
+    url: "https://www.ncbi.nlm.nih.gov/genbank/",
+    contact: "info@ncbi.nlm.nih.gov",
+    access: "Open",
+    identifier: "Accession Number",
+    tags: ["genetics", "DNA", "biology"]
+  },
+  {
+    id: 1501,
+    name: "Crystallography Open Database",
+    description: "Open-access collection of crystal structures of organic, inorganic, metal-organic compounds and minerals.",
+    url: "http://www.crystallography.net",
+    contact: "cod@crystallography.net",
+    access: "Open",
+    identifier: "COD ID",
+    tags: ["chemistry", "crystallography", "materials"]
   }
-}
+];
+
+/* Research Output question's Repository Selection System */
 const RepositorySelectionSystem = ({
   field,
-  handleTogglePreferredRepositories
+  handleTogglePreferredRepositories,
+  onRepositoriesChange
 }: {
   field: RepositoryFieldInterface;
   handleTogglePreferredRepositories: (hasCustomRepos: boolean) => void;
+  onRepositoriesChange?: (repos: RepositoryInterface[]) => void;
 }) => {
+
+  // Toast context for notifications
   const toastState = useToast();
+
+  // Translation keys
+  const Global = useTranslations("Global");
+
+  // Component states
   const [selectedRepos, setSelectedRepos] = useState<RepositoryInterface[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCustomFormOpen, setIsCustomFormOpen] = useState(false);
@@ -95,76 +140,18 @@ const RepositorySelectionSystem = ({
   const [repoType, setRepoType] = useState('');
   const [customForm, setCustomForm] = useState({ name: '', url: '', description: '' });
   const [searchTerm, setSearchTerm] = useState('');
-
-  // Translation keys
-  const Global = useTranslations("Global");
-
-  // Original sample data - keep this as the source of truth
-  const originalRepositories = [
-    {
-      id: 1105,
-      name: "1.2 Meter CO Survey Dataverse",
-      description: "The Radio Telescope Data Center (RTDC) reduces, archives, and makes available on its web site data from SMA and the CfA Millimeter-wave Telescope. The whole-Galaxy CO survey presented in Dame et al. (2001) is a composite of 37 separate surveys.",
-      url: "https://dataverse.harvard.edu/dataverse/rtdc",
-      contact: "Unknown",
-      access: "Open",
-      identifier: "DOI",
-      tags: ["physical sciences", "radio telescope"]
-    },
-    {
-      id: 1280,
-      name: "1000 Functional Connectomes Project",
-      description: "The FCP entailed the aggregation and public release (via www.nitrc.org) of over 1200 resting state fMRI (R-fMRI) datasets collected from 33 sites around the world.",
-      url: "http://fcon_1000.projects.nitrc.org/fcpClassic/FcpTable.html",
-      contact: "moderator@nitrc.org",
-      access: "Open",
-      identifier: "none",
-      tags: ["neuroscience", "fMRI"]
-    },
-    {
-      id: 1350,
-      name: "Protein Data Bank",
-      description: "The Protein Data Bank is a database for the three-dimensional structural data of large biological molecules, such as proteins and nucleic acids.",
-      url: "https://www.rcsb.org",
-      contact: "info@rcsb.org",
-      access: "Open",
-      identifier: "PDB ID",
-      tags: ["biology", "proteins", "structural biology"]
-    },
-    {
-      id: 1420,
-      name: "GenBank",
-      description: "GenBank is the NIH genetic sequence database, an annotated collection of all publicly available DNA sequences.",
-      url: "https://www.ncbi.nlm.nih.gov/genbank/",
-      contact: "info@ncbi.nlm.nih.gov",
-      access: "Open",
-      identifier: "Accession Number",
-      tags: ["genetics", "DNA", "biology"]
-    },
-    {
-      id: 1501,
-      name: "Crystallography Open Database",
-      description: "Open-access collection of crystal structures of organic, inorganic, metal-organic compounds and minerals.",
-      url: "http://www.crystallography.net",
-      contact: "cod@crystallography.net",
-      access: "Open",
-      identifier: "COD ID",
-      tags: ["chemistry", "crystallography", "materials"]
-    }
-  ];
-
   // Filtered repositories state
   const [repositories, setRepositories] = useState(originalRepositories);
 
   const handleSearchInput = (term: string) => {
     setSearchTerm(term);
     setRepositories(originalRepositories);
-
   };
 
+  // Handle search for repositories
   const handleSearch = () => {
-    //TODO: Implement actual search/filter logic here
-
+    //TODO: Implement actual search request to backend with pagination
+    // with subjectArea, repoType, and searchTerm as parameters
     const filtered = originalRepositories.filter(repo =>
       repo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       repo.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -173,32 +160,39 @@ const RepositorySelectionSystem = ({
     setRepositories(filtered);
   }
 
+  // Set selected subject area
   const searchOnSubjectArea = (subject: string) => {
-    console.log('Searching for subject area:', subject);
-    //TODO: Implement actual search/filter logic here
     setSubjectArea(subject);
   };
 
+  // Set selected repository type
   const searchOnRepositoryType = (type: string) => {
-    console.log('Searching for repository type:', type);
-    //TODO: Implement actual search/filter logic here
     setRepoType(type);
   };
 
+  // Handle add/removal of repository selections in modal view and display confirmation toasts
   const toggleSelection = (repo: RepositoryInterface) => {
+    const isRemoving = selectedRepos[repo.id];
+
     setSelectedRepos(prev => {
       const newSelected = { ...prev };
       if (newSelected[repo.id]) {
         delete newSelected[repo.id];
-        toastState.add(`${repo.name} removed`, { type: 'error' });
       } else {
         newSelected[repo.id] = repo;
-        toastState.add(`${repo.name} added`, { type: 'success' });
       }
       return newSelected;
     });
+
+    // Call toasts AFTER state update completes
+    if (isRemoving) {
+      toastState.add(`${repo.name} removed`, { type: 'success' });
+    } else {
+      toastState.add(`${repo.name} added`, { type: 'success' });
+    }
   };
 
+  // Remove a single repository from the non-modal view
   const removeRepo = (repoId: number) => {
     const repo = selectedRepos[repoId];
     setSelectedRepos(prev => {
@@ -208,7 +202,7 @@ const RepositorySelectionSystem = ({
     });
     toastState.add(`${repo.name} removed`, { type: 'error' });
   };
-
+  // Removal of all selected repositories from the non-modal view
   const removeAllRepos = () => {
     if (window.confirm('Are you sure you want to remove all selected repositories?')) {
       setSelectedRepos([]);
@@ -216,6 +210,7 @@ const RepositorySelectionSystem = ({
     }
   };
 
+  // Toggle display of additional repository details in modal view
   const toggleDetails = (repoId: string | number, prefix: string = '') => {
     setExpandedDetails(prev => ({
       ...prev,
@@ -223,6 +218,7 @@ const RepositorySelectionSystem = ({
     }));
   };
 
+  // Add the custom repository to the selected list
   const addCustomRepo = () => {
     const { name, url, description } = customForm;
 
@@ -247,6 +243,12 @@ const RepositorySelectionSystem = ({
     setIsCustomFormOpen(false);
     toastState.add(`${customRepo.name} added successfully`, { type: 'success' });
   };
+
+  useEffect(() => {
+    const reposArray = Object.values(selectedRepos);
+    onRepositoriesChange?.(reposArray);
+  }, [selectedRepos]);
+
 
   const selectedCount = Object.keys(selectedRepos).length;
   const selectedArray = Object.values(selectedRepos);
@@ -429,6 +431,7 @@ const RepositorySelectionSystem = ({
                       </div>
                     </div>
 
+                    {/**To add Custom repositories- name, url and description fields */}
                     {isCustomFormOpen && (
                       <div className={styles.customRepoForm}>
                         <h4>Add a new repository for your Template</h4>
@@ -462,7 +465,7 @@ const RepositorySelectionSystem = ({
                             onClick={addCustomRepo}
                             className={`${styles.applyFilterBtn} primary medium`}
                           >
-                            Add repository to your Template
+                            Add repository
                           </Button>
                           <Button
                             onClick={() => {
