@@ -497,10 +497,12 @@
         "labels": {
           "define": "Define preferred licenses",
           "defaultPreferred": "Default preferred licenses",
-          "addLicense": "Add license"
+          "addLicense": "Add license",
+          "myLicenses": "My Licenses"
         },
         "buttons": {
-          "addLicenseType": "Add license type"
+          "addLicenseType": "Add license type",
+          "removeLicenseType": "Remove {type}"
         }
       },
       "additionalFields": {

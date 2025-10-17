@@ -40,8 +40,8 @@ const LicenseField = ({
   onAddCustomType,
   onRemoveCustomType,
 }: LicenseFieldProps) => {
-  const Global = useTranslations('Global');
   const QuestionAdd = useTranslations('QuestionAdd');
+
   return (
     <div className={styles.typeConfig}>
       <div className={styles.typeModeSelector}>
@@ -84,7 +84,7 @@ const LicenseField = ({
           {/* Add user-defined types */}
           <div className={styles.customTypes}>
             <fieldset>
-              <legend>My Licenses</legend>
+              <legend>{QuestionAdd('researchOutput.licenses.labels.myLicenses')}</legend>
               <div className={styles.addLicenseTypeContainer}>
                 <FormSelect
                   label={QuestionAdd('researchOutput.licenses.labels.addLicense')}
@@ -115,7 +115,7 @@ const LicenseField = ({
                         type="button"
                         className={styles.removeButton}
                         onPress={() => onRemoveCustomType(customType)}
-                        aria-label={`Remove ${customType}`}
+                        aria-label={QuestionAdd('researchOutput.licenses.buttons.removeLicenseType', { type: customType })}
                       >
                         x
                       </Button>

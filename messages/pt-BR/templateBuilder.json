@@ -497,7 +497,8 @@
         "labels": {
           "define": "Definir licenças preferidas",
           "defaultPreferred": "Licenças preferidas por padrão",
-          "addLicense": "Adicionar licença"
+          "addLicense": "Adicionar licença",
+          "myLicenses": "Minhas licenças"
         },
         "buttons": {
           "addLicenseType": "Adicionar tipo de licença"
