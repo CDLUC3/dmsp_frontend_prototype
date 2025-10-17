@@ -1,17 +1,3 @@
-/**
- * Unit tests for LicenseField component
- * 
- * This test suite covers:
- * - Component rendering in different modes (defaults vs addToDefaults)
- * - User interactions (mode changes, adding/removing custom licenses)
- * - Props validation and edge cases
- * - Accessibility considerations
- * - Export validation for otherLicenses constant
- * 
- * Tests use mocked components for FormSelect and react-aria components
- * to isolate the LicenseField logic from complex dependencies.
- */
-
 import React from 'react';
 import { act, render, screen, fireEvent } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -20,7 +6,7 @@ import { LicenseFieldProps } from '@/app/types';
 
 expect.extend(toHaveNoViolations);
 
-// Mock the FormSelect component since it's complex and has react-aria dependencies
+// Mock the FormSelect component
 jest.mock('@/components/Form', () => ({
   FormSelect: ({
     label,
@@ -86,6 +72,18 @@ describe('LicenseField', () => {
       expect(screen.getByTestId('form-select')).toBeInTheDocument();
       const select = screen.getByTestId('select-input');
       expect(select).toHaveValue('defaults');
+    });
+
+    it('should pass axe accessibility test', async () => {
+      const { container } = render(
+        <LicenseField {...defaultProps} />
+      );
+
+      await act(async () => {
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
+      });
+
     });
 
     describe('Defaults Mode', () => {
@@ -425,18 +423,6 @@ describe('LicenseField', () => {
         expect(licenseIds).toContain('adsl');
         expect(licenseIds).toContain('afl11');
         expect(licenseIds).toContain('aml');
-      });
-
-      it('should pass axe accessibility test', async () => {
-        const { container } = render(
-          <LicenseField {...defaultProps} />
-        );
-
-        await act(async () => {
-          const results = await axe(container);
-          expect(results).toHaveNoViolations();
-        });
-
       });
     });
   });
