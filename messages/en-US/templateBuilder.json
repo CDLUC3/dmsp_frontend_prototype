@@ -361,7 +361,8 @@
       "questionText": "Question text",
       "requirementText": "Requirements plan writer must meet (optional but recommended)",
       "guidanceText": "Question guidance (optional but recommended)",
-      "sampleText": "Sample text"
+      "sampleText": "Sample text",
+      "questionEditing": "Question editing"
     },
     "buttons": {
       "addRow": "Add Row",
@@ -387,6 +388,97 @@
       },
       "success": {
         "questionAdded": "Question was successfully added."
+      }
+    },
+    "researchOutput": {
+      "headings": {
+        "enableStandardFields": "Enable standard fields"
+      },
+      "description": "Select which standard fields to include in your research output question. You can customize each field individually.",
+      "tooltip": {
+        "requiredFields": "These fields are required for all research outputs."
+      },
+      "labels": {
+        "description": "Description",
+        "descriptionLowerCase": "description"
+      },
+      "legends": {
+        "dataFlag": "Which data flags to display"
+      },
+      "dataFlags": {
+        "description": "Select which data sensitivity flags should be shown to users.",
+        "options": {
+          "both": "Display both",
+          "personalOnly": "Display only \"May contain personally identifiable information?\" checkbox",
+          "sensitiveOnly": "Display only \"May contain sensitive data?\" checkbox"
+        }
+      },
+      "repoSelector": {
+        "descriptionLabel": "Description for Repositories field"
+      },
+      "metaDataStandards": {
+        "headings": {
+          "dialogHeading": "Metadata Standard search",
+          "addCustomHeading": "Add a new metadata standard for your Template."
+        },
+        "descriptionLabel": "Description",
+        "helpText": "This can be used to provide custom guidance and/or instructions for researchers.",
+        "messages": {
+          "confirmRemovalAll": "Are you sure you want to remove all selected metadatastandards?",
+          "allRemoved": "All metadata standards removed",
+          "fillInAllFields": "Please fill in all fields",
+          "addedSuccessfully": "{name} added successfully"
+        },
+        "labels": {
+          "createStandards": "Create a list of preferred metadata standards",
+          "searchTerm": "Search term",
+          "name": "Name",
+          "url": "URL",
+          "description": "Description"
+        },
+        "buttons": {
+          "removeAll": "Remove all",
+          "add": "Add metadata standard",
+          "applyFilter": "Apply filter(s)",
+          "addToTemplate": "Add metadata standard to your Template"
+        },
+        "singleMetaData": "Metadata standard",
+        "multipleMetaData": "Metadata standards",
+        "selectedCount": "{count} selected"
+      },
+      "outputType": {
+        "labels": {
+          "defineOutputTypes": "Define output types"
+        }
+      },
+      "licenses": {
+        "labels": {
+          "define": "Define preferred licenses",
+          "defaultPreferred": "Default preferred licenses",
+          "addLicense": "Add license"
+        },
+        "buttons": {
+          "addLicenceType": "Add license type"
+        }
+      },
+      "additionalFields": {
+        "fieldLabel": {
+          "label": "Field label",
+          "helpText": "The label that will be displayed for this field"
+        },
+        "helpText": {
+          "label": "Help text",
+          "helpText": "Optional help text to guide users"
+        },
+        "maxLength": {
+          "label": "Maximum length",
+          "helpText": "Maximum number of characters allowed (leave empty for no limit)"
+        },
+        "defaultValue": {
+          "label": "Default value",
+          "helpText": "Default value for this field"
+        },
+        "addFieldBtn": "Add additional field"
       }
     }
   },

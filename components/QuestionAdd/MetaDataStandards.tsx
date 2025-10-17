@@ -10,6 +10,7 @@ import {
   Heading,
   Input,
   Label,
+  Link,
   Modal,
   SearchField,
 } from "react-aria-components";
@@ -52,6 +53,7 @@ const MetaDataStandardsSelector = ({
 
   // Translation keys
   const Global = useTranslations("Global");
+  const QuestionAdd = useTranslations("QuestionAdd");
 
   // Original sample data - keep this as the source of truth
   const originalMetaDataStandards = [
@@ -137,9 +139,9 @@ const MetaDataStandardsSelector = ({
   };
 
   const removeAllStandards = () => {
-    if (window.confirm('Are you sure you want to remove all selected metadatastandards?')) {
+    if (window.confirm(QuestionAdd('researchOutput.metaDataStandards.messages.confirmRemovalAll'))) {
       setSelectedStandards([]);
-      toastState.add('All metadata standards removed', { type: 'success' });
+      toastState.add(QuestionAdd('researchOutput.metaDataStandards.messages.allRemoved'), { type: 'success' });
     }
   };
 
@@ -147,7 +149,7 @@ const MetaDataStandardsSelector = ({
     const { name, url, description } = customForm;
 
     if (!name.trim() || !url.trim() || !description.trim()) {
-      toastState.add('Please fill in all fields', { type: 'error' });
+      toastState.add(QuestionAdd('researchOutput.metaDataStandards.messages.fillInAllFields'), { type: 'error' });
       return;
     }
 
@@ -161,7 +163,7 @@ const MetaDataStandardsSelector = ({
     setSelectedStandards(prev => ({ ...prev, [customStandard.id]: customStandard }));
     setCustomForm({ name: '', url: '', description: '' });
     setIsCustomFormOpen(false);
-    toastState.add(`${customStandard.name} added successfully`, { type: 'success' });
+    toastState.add(QuestionAdd('researchOutput.metaDataStandards.messages.addedSuccessfully', { name: customStandard.name }), { type: 'success' });
   };
 
 
@@ -187,14 +189,14 @@ const MetaDataStandardsSelector = ({
               </svg>
             </div>
 
-            Create a list of preferred metadata standards
+            {QuestionAdd('researchOutput.metaDataStandards.labels.createStandards')}
           </Checkbox>
 
           {field.metaDataConfig?.hasCustomStandards && (
             <div className={styles.selectedItems}>
               <div className={styles.selectedItemsHeader}>
                 <span className={styles.selectedCount}>
-                  {selectedCount} {selectedCount === 1 ? 'metadata standard' : 'metadata standards'} selected
+                  {selectedCount} {selectedCount === 1 ? QuestionAdd('researchOutput.metaDataStandards.singleMetaData') : QuestionAdd('researchOutput.metaDataStandards.multipleMetaData')} selected
                 </span>
                 {selectedCount > 0 && (
                   <Button
@@ -202,7 +204,7 @@ const MetaDataStandardsSelector = ({
                     isDisabled={selectedCount === 0}
                     className="danger medium"
                   >
-                    Remove All
+                    {QuestionAdd('researchOutput.metaDataStandards.buttons.removeAll')}
                   </Button>
                 )}
               </div>
@@ -219,7 +221,7 @@ const MetaDataStandardsSelector = ({
                           onClick={() => removeStandard(std.id)}
                           className="danger small"
                         >
-                          Remove
+                          {Global('buttons.remove')}
                         </Button>
                       </div>
                     </div>
@@ -231,7 +233,7 @@ const MetaDataStandardsSelector = ({
                 onClick={() => setIsModalOpen(true)}
                 className={styles.addItemBtn}
               >
-                Add a metadata standard
+                {QuestionAdd('researchOutput.metaDataStandards.buttons.add')}
               </Button>
 
             </div>
@@ -254,7 +256,7 @@ const MetaDataStandardsSelector = ({
                 <div className={styles.modal}>
                   <div className={styles.modalHeader}>
                     <div className={styles.modalTitle}>
-                      <Heading slot="title">Metadata Standard search{' '}<span className={styles.tag}>{selectedCount} selected</span></Heading>
+                      <Heading slot="title">{QuestionAdd('researchOutput.metaDataStandards.headings.dialogHeading')}{' '}<span className={styles.tag}>{QuestionAdd('researchOutput.metaDataStandards.selectedCount', { count: selectedCount })}</span></Heading>
                     </div>
                     <Button
                       onPress={() => {
@@ -274,7 +276,7 @@ const MetaDataStandardsSelector = ({
                           <div className={styles.searchWrapper}>
 
                             <SearchField className={styles.searchRepos}>
-                              <Label>Search term</Label>
+                              <Label>{QuestionAdd('researchOutput.metaDataStandards.labels.searchTerm')}</Label>
                               <Input
                                 id="search-term"
                                 value={searchTerm}
@@ -290,13 +292,13 @@ const MetaDataStandardsSelector = ({
                                   handleSearch();
                                 }}
                               >
-                                Apply filter(s)
+                                {QuestionAdd('researchOutput.metaDataStandards.buttons.applyFilter')}
                               </Button>
                               <Button
                                 onClick={() => setIsCustomFormOpen(!isCustomFormOpen)}
                                 className="secondary medium"
                               >
-                                Add metadata standard
+                                {QuestionAdd('researchOutput.metaDataStandards.buttons.add')}
                               </Button>
                             </div>
                           </div>
@@ -306,12 +308,12 @@ const MetaDataStandardsSelector = ({
 
                     {isCustomFormOpen && (
                       <div className={styles.customRepoForm}>
-                        <h4>Add a new metadata standard for your Template.</h4>
+                        <h4>{QuestionAdd('researchOutput.metaDataStandards.headings.addCustomHeading')}</h4>
                         <FormInput
                           name="std-name"
                           type="text"
                           isRequired={true}
-                          label="Name"
+                          label={QuestionAdd('researchOutput.metaDataStandards.labels.name')}
                           value={customForm.name}
                           onChange={(e) => setCustomForm({ ...customForm, name: e.target.value })}
                         />
@@ -319,7 +321,7 @@ const MetaDataStandardsSelector = ({
                           name="std-url"
                           type="url"
                           isRequired={true}
-                          label="Url"
+                          label={QuestionAdd('researchOutput.metaDataStandards.labels.url')}
                           value={customForm.url}
                           onChange={(e) => setCustomForm({ ...customForm, url: e.target.value })}
                         />
@@ -327,7 +329,7 @@ const MetaDataStandardsSelector = ({
                           name="std-description"
                           type="text"
                           isRequired={true}
-                          label="Description"
+                          label={QuestionAdd('researchOutput.metaDataStandards.labels.description')}
                           value={customForm.description}
                           onChange={(e) => setCustomForm({ ...customForm, description: e.target.value })}
                         />
@@ -337,13 +339,13 @@ const MetaDataStandardsSelector = ({
                             onClick={addCustomMetadataStandard}
                             className={`${styles.applyFilterBtn} primary medium`}
                           >
-                            Add metadata standard to your Template
+                            {QuestionAdd('researchOutput.metaDataStandards.buttons.addToTemplate')}
                           </Button>
                           <Button
                             onClick={() => setIsCustomFormOpen(false)}
                             className="secondary medium"
                           >
-                            Cancel
+                            {Global('buttons.cancel')}
                           </Button>
                         </div>
                       </div>
@@ -370,10 +372,13 @@ const MetaDataStandardsSelector = ({
                                 onClick={() => toggleSelection(std)}
                                 className={`small ${isSelected ? 'danger' : 'primary'}`}
                               >
-                                {isSelected ? 'Remove' : 'Select'}
+                                {isSelected ? Global('buttons.remove') : Global('buttons.select')}
                               </Button>
                             </div>
-                            <div className={styles.itemDescription}>{std.description}</div>
+                            <div className={styles.itemDescription}>
+                              {std.description}
+                              <Link href={std.url} className={styles.itemLink}>{std.url}</Link>
+                            </div>
                           </div>
                         );
                       })}

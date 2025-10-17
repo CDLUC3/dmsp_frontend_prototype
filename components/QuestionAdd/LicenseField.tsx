@@ -1,4 +1,5 @@
 import { Button, ListBoxItem } from "react-aria-components";
+import { useTranslations } from 'next-intl';
 import { FormSelect } from '@/components/Form';
 import {
   LicenseFieldProps
@@ -39,14 +40,16 @@ const LicenseField = ({
   onAddCustomType,
   onRemoveCustomType,
 }: LicenseFieldProps) => {
+  const Global = useTranslations('Global');
+  const QuestionAdd = useTranslations('QuestionAdd');
   return (
     <div className={styles.typeConfig}>
       <div className={styles.typeModeSelector}>
         <FormSelect
-          label="Define preferred licenses"
-          ariaLabel="define preferred licenses"
+          label={QuestionAdd('researchOutput.licenses.labels.define')}
+          ariaLabel={QuestionAdd('researchOutput.licenses.labels.define')}
           isRequired={false}
-          name="status"
+          name="licenses"
           items={licenseTypeOptions}
           onChange={(value) =>
             onModeChange(
@@ -63,7 +66,7 @@ const LicenseField = ({
       {field.licensesConfig?.mode === 'defaults' && (
         <div className={styles.defaultTypes}>
           <fieldset>
-            <legend>Default Preferred Licenses</legend>
+            <legend>{QuestionAdd('researchOutput.licenses.labels.defaultPreferred')}</legend>
             <ul className={`${styles.typesList} ${styles.bulletList}`}>
               {defaultLicenses.map((outputType) => (
                 <li key={outputType} className={styles.typeItem}>
@@ -84,8 +87,8 @@ const LicenseField = ({
               <legend>My Licenses</legend>
               <div className={styles.addLicenseTypeContainer}>
                 <FormSelect
-                  label="Add license"
-                  ariaLabel="Add license"
+                  label={QuestionAdd('researchOutput.licenses.labels.addLicense')}
+                  ariaLabel={QuestionAdd('researchOutput.licenses.labels.addLicense')}
                   isRequired={false}
                   name="add-license"
                   items={otherLicenses}
@@ -100,7 +103,7 @@ const LicenseField = ({
                   onPress={onAddCustomType}
                   isDisabled={!newLicenseType.trim()}
                 >
-                  Add license type
+                  {QuestionAdd('researchOutput.licenses.buttons.addLicenseType')}
                 </Button>
               </div>
               {field.licensesConfig?.customTypes?.length > 0 && (

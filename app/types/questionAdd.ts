@@ -81,3 +81,12 @@ export interface LicenseFieldProps {
   onAddCustomType: () => void;
   onRemoveCustomType: (type: string) => void;
 }
+
+export interface OutputTypeFieldConfigProps {
+  field: StandardField;
+  newOutputType: string;
+  setNewOutputType: (value: string) => void;
+  onModeChange: (mode: 'defaults' | 'mine' | 'addToDefaults') => void;
+  onAddCustomType: () => void;
+  onRemoveCustomType: (type: string) => void;
+}

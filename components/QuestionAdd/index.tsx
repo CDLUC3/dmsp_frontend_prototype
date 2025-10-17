@@ -771,8 +771,9 @@ const QuestionAdd = ({
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.index', { templateId })}>{Global('breadcrumbs.templates')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.show', { templateId })}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
             <Breadcrumb><Link href={step1Url}>{Global('breadcrumbs.selectQuestionType')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
           </Breadcrumbs>
@@ -785,7 +786,7 @@ const QuestionAdd = ({
         <div className="main-content">
           <ErrorMessages errors={errors} ref={errorRef} />
           <Tabs>
-            <TabList aria-label="Question editing">
+            <TabList aria-label={QuestionAdd('labels.questionEditing')}>
               <Tab id="edit">{Global('tabs.editQuestion')}</Tab>
               <Tab id="options">{Global('tabs.options')}</Tab>
               <Tab id="logic">{Global('tabs.logic')}</Tab>
@@ -892,7 +893,6 @@ const QuestionAdd = ({
                   />
                 )}
 
-
                 {questionType === TEXT_AREA_QUESTION_TYPE && (
                   <Checkbox
                     onChange={() => handleInputChange('useSampleTextAsDefault', !question?.useSampleTextAsDefault)}
@@ -909,10 +909,10 @@ const QuestionAdd = ({
 
                 {questionType === RESEARCH_OUTPUT_QUESTION_TYPE && (
                   <div className={styles.fieldsContainer}>
-                    <h3>Enable Standard Fields</h3>
+                    <h3>{QuestionAdd('researchOutput.headings.enableStandardFields')}</h3>
 
                     <p className={styles.fieldsDescription}>
-                      Select which standard fields to include in your research output question. You can customize each field individually.
+                      {QuestionAdd('researchOutput.description')}
                     </p>
                     <div className={styles.fieldsList}>
                       {standardFields.map((field, index) => {
@@ -943,16 +943,15 @@ const QuestionAdd = ({
                                   </div>
                                   <span>{field.label}</span>
                                 </Checkbox>
-                                {isDisabled && <span className={styles.tooltipText}>These fields are required</span>}
+                                {isDisabled && <span className={styles.tooltipText}>{QuestionAdd('researchOutput.tooltip.requiredFields')}</span>}
                               </div>
                               {field.id !== 'title' && (
                                 <Button
                                   type="button"
                                   className={`buttonLink link`}
                                   onPress={() => handleCustomizeField(field.id)}
-                                // isDisabled={!field.enabled}
                                 >
-                                  {expandedFields.includes(field.id) ? "Close" : "Customize"}
+                                  {expandedFields.includes(field.id) ? Global('buttons.close') : Global('buttons.customize')}
                                 </Button>
                               )}
 
@@ -964,10 +963,10 @@ const QuestionAdd = ({
                                 {/** Description */}
                                 {field.id === 'description' && (
                                   <FormTextArea
-                                    name="description"
+                                    name={QuestionAdd('researchOutput.labels.descriptionLowerCase')}
                                     isRequired={false}
                                     richText={true}
-                                    label="Description"
+                                    label={QuestionAdd('researchOutput.labels.description')}
                                     value={field.value}
                                     onChange={(newValue) => updateStandardFieldProperty('description', 'value', newValue)}
                                   />
@@ -977,12 +976,12 @@ const QuestionAdd = ({
                                 {field.id === 'dataFlags' && (
                                   <div style={{ marginBottom: '1.5rem' }}>
                                     <fieldset>
-                                      <legend>Which data flags to display</legend>
+                                      <legend>{QuestionAdd('researchOutput.legends.dataFlag')}</legend>
                                       <div className={styles.dataFlagsConfig}>
                                         <RadioGroupComponent
                                           name="dataFlagsMode"
                                           value={field.flagsConfig?.mode || 'both'}
-                                          description="Select which data sensitivity flags should be shown to users"
+                                          description={QuestionAdd('researchOutput.dataFlags.description')}
                                           onChange={(mode) => updateStandardFieldProperty('dataFlags', 'flagsConfig', {
                                             ...field.flagsConfig,
                                             mode,
@@ -991,13 +990,13 @@ const QuestionAdd = ({
                                           })}
                                         >
                                           <div>
-                                            <Radio value="sensitiveOnly">Display only "May contain sensitive data?" checkbox</Radio>
+                                            <Radio value="sensitiveOnly">{QuestionAdd('researchOutput.dataFlags.options.sensitiveOnly')}</Radio>
                                           </div>
                                           <div>
-                                            <Radio value="personalOnly">Display only "May contain personally identifiable information?" checkbox</Radio>
+                                            <Radio value="personalOnly">{QuestionAdd('researchOutput.dataFlags.options.personalOnly')}</Radio>
                                           </div>
                                           <div>
-                                            <Radio value="both">Display both data flag checkboxes</Radio>
+                                            <Radio value="both">{QuestionAdd('researchOutput.dataFlags.options.both')}</Radio>
                                           </div>
                                         </RadioGroupComponent>
                                       </div>
@@ -1030,7 +1029,7 @@ const QuestionAdd = ({
                                       name="repoSelectorDescription"
                                       isRequired={false}
                                       richText={true}
-                                      label="Description for Repositories field"
+                                      label={QuestionAdd('researchOutput.repoSelector.descriptionLabel')}
                                       value={field.value}
                                       onChange={(value) => updateStandardFieldProperty('repoSelector', 'value', value)}
                                     />
@@ -1050,10 +1049,10 @@ const QuestionAdd = ({
                                       name="metadataStandardsDescription"
                                       isRequired={false}
                                       richText={true}
-                                      label="Description for Metadata Standards field"
+                                      label={QuestionAdd('researchOutput.metaDataStandards.descriptionLabel')}
                                       value={field.value}
-                                      helpMessage="This can be used to provide custom guidance and/or instructions for researchers."
-                                      onChange={(value) => updateStandardFieldProperty('metadataStandards', 'value', value)}
+                                      helpMessage={QuestionAdd('researchOutput.metaDataStandards.helpText')}
+                                      onChange={(value) => updateStandardFieldProperty('metaDataStandards', 'value', value)}
                                     />
                                   </>
                                 )}
@@ -1103,7 +1102,7 @@ const QuestionAdd = ({
                                     className={`buttonLink link`}
                                     onPress={() => handleCustomizeField(field.id)}
                                   >
-                                    {expandedFields.includes(field.id) ? "Close" : "Customize"}
+                                    {expandedFields.includes(field.id) ? Global('buttons.close') : Global('buttons.customize')}
                                   </Button>
 
                                   <Button
@@ -1127,10 +1126,10 @@ const QuestionAdd = ({
                                       name={`${field.id}_label`}
                                       type="text"
                                       isRequired={false}
-                                      label="Field Label"
+                                      label={QuestionAdd('researchOutput.additionalFields.fieldLabel.label')}
                                       value={field.customLabel !== undefined ? field.customLabel : field.label}
                                       onChange={(e) => handleUpdateAdditionalField(field.id, 'customLabel', e.currentTarget.value)}
-                                      helpMessage="The label that will be displayed for this field"
+                                      helpMessage={QuestionAdd('researchOutput.additionalFields.fieldLabel.helpText')}
                                     />
 
                                     {/* Help Text */}
@@ -1138,10 +1137,10 @@ const QuestionAdd = ({
                                       name={`${field.id}_help`}
                                       isRequired={false}
                                       richText={false}
-                                      label="Help Text"
+                                      label={QuestionAdd('researchOutput.additionalFields.helpText.label')}
                                       value={field.helpText}
                                       onChange={(value) => handleUpdateAdditionalField(field.id, 'helpText', value)}
-                                      helpMessage="Optional help text to guide users"
+                                      helpMessage={QuestionAdd('researchOutput.additionalFields.helpText.helpText')}
                                     />
 
                                     {/* Max Length for text field */}
@@ -1149,10 +1148,10 @@ const QuestionAdd = ({
                                       name={`${field.id}_maxLength`}
                                       type="number"
                                       isRequired={false}
-                                      label="Maximum Length"
+                                      label={QuestionAdd('researchOutput.additionalFields.maxLength.label')}
                                       value={field.maxLength || ''}
                                       onChange={(e) => handleUpdateAdditionalField(field.id, 'maxLength', e.currentTarget.value)}
-                                      helpMessage="Maximum number of characters allowed (leave empty for no limit)"
+                                      helpMessage={QuestionAdd('researchOutput.additionalFields.maxLength.helpText')}
                                     />
 
                                     {/* Default Value for the custom field */}
@@ -1160,10 +1159,10 @@ const QuestionAdd = ({
                                       name={`${field.id}_defaultValue`}
                                       type="text"
                                       isRequired={false}
-                                      label="Default Value"
+                                      label={QuestionAdd('researchOutput.additionalFields.defaultValue.label')}
                                       value={field.defaultValue}
                                       onChange={(e) => handleUpdateAdditionalField(field.id, 'defaultValue', e.currentTarget.value)}
-                                      helpMessage="Default value for this field"
+                                      helpMessage={QuestionAdd('researchOutput.additionalFields.defaultValue.helpText')}
                                     />
                                   </div>
                                 </div>
@@ -1178,7 +1177,7 @@ const QuestionAdd = ({
                             className={styles.addFieldButton}
                             onPress={addAdditionalField}
                           >
-                            + Add additional field
+                            + {QuestionAdd('researchOutput.additionalFields.addFieldBtn')}
                           </Button>
                         </div>
                       </div>

@@ -685,7 +685,8 @@
       "addAnother": "Add another",
       "goToProject": "Go to project",
       "back": "Back",
-      "add": "Add"
+      "add": "Add",
+      "customize": "Customize"
     },
     "labels": {
       "required": "required",

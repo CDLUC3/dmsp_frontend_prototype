@@ -1,41 +1,10 @@
-import { Button, ListBoxItem, Radio } from "react-aria-components";
+import { Button, ListBoxItem } from "react-aria-components";
+import { useTranslations } from 'next-intl';
 import { FormInput, FormSelect } from '@/components/Form';
+import {
+  OutputTypeFieldConfigProps,
+} from '@/app/types';
 import styles from './questionAdd.module.scss';
-
-type DataFlagsConfig = {
-  showSensitiveData: boolean;
-  showPersonalData: boolean;
-  mode: 'sensitiveOnly' | 'personalOnly' | 'both';
-};
-
-type RepoConfig = {
-  hasCustomRepos: boolean;
-  customRepos: string[];
-}
-
-type MetaDataConfig = {
-  hasCustomStandards: boolean;
-  customStandards: string[];
-}
-
-type StandardField = {
-  id: string;
-  label: string;
-  enabled: boolean;
-  [key: string]: any; // For additional properties like helpText, required, etc.
-  flagsConfig?: DataFlagsConfig;
-  repoConfig?: RepoConfig;
-  metaDataConfig?: MetaDataConfig;
-};
-
-interface OutputTypeFieldConfigProps {
-  field: StandardField;
-  newOutputType: string;
-  setNewOutputType: (value: string) => void;
-  onModeChange: (mode: 'defaults' | 'mine' | 'addToDefaults') => void;
-  onAddCustomType: () => void;
-  onRemoveCustomType: (type: string) => void;
-}
 
 const outputTypeOptions = [
   { id: 'defaults', name: 'Use defaults' },
@@ -68,12 +37,13 @@ const OutputTypeField = ({
   onAddCustomType,
   onRemoveCustomType,
 }: OutputTypeFieldConfigProps) => {
+  const QuestionAdd = useTranslations('QuestionAdd');
   return (
     <div className={styles.typeConfig}>
       <div className={styles.typeModeSelector}>
         <FormSelect
-          label="Define output types"
-          ariaLabel="define output types"
+          label={QuestionAdd('outputType.labels.defineOutputTypes')}
+          ariaLabel={QuestionAdd('outputType.labels.defineOutputTypes')}
           isRequired={false}
           name="status"
           items={outputTypeOptions}
@@ -90,7 +60,7 @@ const OutputTypeField = ({
       {field.outputTypeConfig?.mode === 'defaults' && (
         <div className={styles.defaultTypes}>
           <fieldset>
-            <legend>Default Output Types</legend>
+            <legend>{QuestionAdd('outputType.legends.default')}</legend>
             <ul className={`${styles.typesList} ${styles.bulletList}`}>
               {defaultOutputTypes.map((outputType) => (
                 <li key={outputType} className={styles.typeItem}>
@@ -106,7 +76,7 @@ const OutputTypeField = ({
       {field.outputTypeConfig?.mode === 'mine' && (
         <div className={styles.customTypes}>
           <fieldset>
-            <legend>My Output Types</legend>
+            <legend>{QuestionAdd('outputType.legends.myOutputs')}</legend>
             <div className={styles.addTypeContainer}>
               <FormInput
                 name="custom_types"
