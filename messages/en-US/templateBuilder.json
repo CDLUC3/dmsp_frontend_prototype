@@ -414,7 +414,46 @@
         }
       },
       "repoSelector": {
-        "descriptionLabel": "Description for Repositories field"
+        "selectedCount": "{count} selected",
+        "repositorySelected": "repository selected",
+        "repositoriesSelected": "repositories selected",
+        "selectSubjectArea": "Select subject area",
+        "selectRepoType": "Select repository type",
+        "headings": {
+          "repoSearch": "Repository search",
+          "addNewRepo": "Add a new repository for your Template."
+        },
+        "descriptionLabel": "Description for Repositories field",
+        "messages": {
+          "removedRepo": "{name} removed",
+          "addedRepo": "{name} added",
+          "confirmRemovalAll": "Are you sure you want to remove all selected repositories?",
+          "allRemoved": "All repositories removed",
+          "customRepoAdded": "Custom repository {name} added successfully"
+        },
+        "errors": {
+          "customRepoError": "Please fill in all fields for custom repository."
+        },
+        "labels": {
+          "createRepos": "Create a list of preferred repositories",
+          "subjectArea": "Subject area",
+          "repoType": "Repository type"
+        },
+        "links": {
+          "viewRepository": "View repository"
+        },
+        "buttons": {
+          "addRepo": "Add a repository",
+          "addRepository": "Add repository",
+          "addCustomRepo": "Add custom repository"
+        },
+        "descriptions": {
+          "repoTitle": "Repository URL",
+          "contactTitle": "Contact email",
+          "urlTitle": "Repository description",
+          "dataAccessTitle": "Data access",
+          "identifierTitle": "Persistent identifier"
+        }
       },
       "metaDataStandards": {
         "headings": {
@@ -430,16 +469,10 @@
           "addedSuccessfully": "{name} added successfully"
         },
         "labels": {
-          "createStandards": "Create a list of preferred metadata standards",
-          "searchTerm": "Search term",
-          "name": "Name",
-          "url": "URL",
-          "description": "Description"
+          "createStandards": "Create a list of preferred metadata standards"
         },
         "buttons": {
-          "removeAll": "Remove all",
           "add": "Add metadata standard",
-          "applyFilter": "Apply filter(s)",
           "addToTemplate": "Add metadata standard to your Template"
         },
         "singleMetaData": "Metadata standard",
@@ -448,7 +481,16 @@
       },
       "outputType": {
         "labels": {
-          "defineOutputTypes": "Define output types"
+          "defineOutputTypes": "Define output types",
+          "enterOutputType": "Enter an output type",
+          "removeOutputType": "Remove {type}"
+        },
+        "legends": {
+          "default": "Default Output Types",
+          "myOutputs": "My Output Types"
+        },
+        "buttons": {
+          "addOutputType": "Add output type"
         }
       },
       "licenses": {
@@ -458,7 +500,7 @@
           "addLicense": "Add license"
         },
         "buttons": {
-          "addLicenceType": "Add license type"
+          "addLicenseType": "Add license type"
         }
       },
       "additionalFields": {

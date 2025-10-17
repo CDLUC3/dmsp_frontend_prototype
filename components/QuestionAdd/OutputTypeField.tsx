@@ -42,8 +42,8 @@ const OutputTypeField = ({
     <div className={styles.typeConfig}>
       <div className={styles.typeModeSelector}>
         <FormSelect
-          label={QuestionAdd('outputType.labels.defineOutputTypes')}
-          ariaLabel={QuestionAdd('outputType.labels.defineOutputTypes')}
+          label={QuestionAdd('researchOutput.outputType.labels.defineOutputTypes')}
+          ariaLabel={QuestionAdd('researchOutput.outputType.labels.defineOutputTypes')}
           isRequired={false}
           name="status"
           items={outputTypeOptions}
@@ -60,7 +60,7 @@ const OutputTypeField = ({
       {field.outputTypeConfig?.mode === 'defaults' && (
         <div className={styles.defaultTypes}>
           <fieldset>
-            <legend>{QuestionAdd('outputType.legends.default')}</legend>
+            <legend>{QuestionAdd('researchOutput.outputType.legends.default')}</legend>
             <ul className={`${styles.typesList} ${styles.bulletList}`}>
               {defaultOutputTypes.map((outputType) => (
                 <li key={outputType} className={styles.typeItem}>
@@ -76,17 +76,17 @@ const OutputTypeField = ({
       {field.outputTypeConfig?.mode === 'mine' && (
         <div className={styles.customTypes}>
           <fieldset>
-            <legend>{QuestionAdd('outputType.legends.myOutputs')}</legend>
+            <legend>{QuestionAdd('researchOutput.outputType.legends.myOutputs')}</legend>
             <div className={styles.addTypeContainer}>
               <FormInput
                 name="custom_types"
                 type="text"
                 isRequired={false}
-                label="Enter an output type"
+                label={QuestionAdd('researchOutput.outputType.labels.enterOutputType')}
                 className={styles.typeWrapper}
                 value={newOutputType}
                 onChange={(e) => setNewOutputType(e.target.value)}
-                aria-label="Enter an output type"
+                aria-label={QuestionAdd('researchOutput.outputType.labels.enterOutputType')}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
@@ -99,7 +99,7 @@ const OutputTypeField = ({
                 onPress={onAddCustomType}
                 isDisabled={!newOutputType.trim()}
               >
-                Add output type
+                {QuestionAdd('researchOutput.outputType.buttons.addOutputType')}
               </Button>
             </div>
 
@@ -112,7 +112,7 @@ const OutputTypeField = ({
                       type="button"
                       className={styles.removeButton}
                       onPress={() => onRemoveCustomType(customType)}
-                      aria-label={`Remove ${customType}`}
+                      aria-label={QuestionAdd('researchOutput.outputType.labels.removeOutputType', { type: customType })}
                     >
                       x
                     </Button>
@@ -129,7 +129,7 @@ const OutputTypeField = ({
         <>
           <div className={styles.defaultTypes}>
             <fieldset>
-              <legend>Default Output Types</legend>
+              <legend>{QuestionAdd('researchOutput.outputType.legends.default')}</legend>
               <ul className={`${styles.typesList} ${styles.bulletList}`}>
                 {defaultOutputTypes.map((outputType) => (
                   <li key={outputType} className={styles.typeItem}>
@@ -142,17 +142,17 @@ const OutputTypeField = ({
 
           <div className={styles.customTypes}>
             <fieldset>
-              <legend>My Output Types</legend>
+              <legend>{QuestionAdd('researchOutput.outputType.legends.myOutputs')}</legend>
               <div className={styles.addTypeContainer}>
                 <FormInput
                   name="custom_types_add"
                   type="text"
                   isRequired={false}
-                  label="Enter an output type"
+                  label={QuestionAdd('researchOutput.outputType.labels.enterOutputType')}
                   className={styles.typeWrapper}
                   value={newOutputType}
                   onChange={(e) => setNewOutputType(e.target.value)}
-                  aria-label="Enter an output type"
+                  aria-label={QuestionAdd('researchOutput.outputType.labels.enterOutputType')}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
@@ -165,7 +165,7 @@ const OutputTypeField = ({
                   onPress={onAddCustomType}
                   isDisabled={!newOutputType.trim()}
                 >
-                  Add output type
+                  {QuestionAdd('researchOutput.outputType.buttons.addOutputType')}
                 </Button>
               </div>
 
@@ -178,7 +178,7 @@ const OutputTypeField = ({
                         type="button"
                         className={styles.removeButton}
                         onPress={() => onRemoveCustomType(customType)}
-                        aria-label={`Remove ${customType}`}
+                        aria-label={QuestionAdd('researchOutput.outputType.labels.removeOutputType', { type: customType })}
                       >
                         x
                       </Button>

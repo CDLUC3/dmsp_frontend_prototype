@@ -204,7 +204,7 @@ const MetaDataStandardsSelector = ({
                     isDisabled={selectedCount === 0}
                     className="danger medium"
                   >
-                    {QuestionAdd('researchOutput.metaDataStandards.buttons.removeAll')}
+                    {Global('buttons.removeAll')}
                   </Button>
                 )}
               </div>
@@ -264,6 +264,7 @@ const MetaDataStandardsSelector = ({
                         close();
                       }}
                       className={styles.closeBtn}
+                      aria-label={Global('buttons.closeModal')}
                     >
                       x
                     </Button>
@@ -276,7 +277,7 @@ const MetaDataStandardsSelector = ({
                           <div className={styles.searchWrapper}>
 
                             <SearchField className={styles.searchRepos}>
-                              <Label>{QuestionAdd('researchOutput.metaDataStandards.labels.searchTerm')}</Label>
+                              <Label>{Global('labels.searchTerm')}</Label>
                               <Input
                                 id="search-term"
                                 value={searchTerm}
@@ -292,7 +293,7 @@ const MetaDataStandardsSelector = ({
                                   handleSearch();
                                 }}
                               >
-                                {QuestionAdd('researchOutput.metaDataStandards.buttons.applyFilter')}
+                                {Global('buttons.applyFilter')}
                               </Button>
                               <Button
                                 onClick={() => setIsCustomFormOpen(!isCustomFormOpen)}
@@ -313,7 +314,7 @@ const MetaDataStandardsSelector = ({
                           name="std-name"
                           type="text"
                           isRequired={true}
-                          label={QuestionAdd('researchOutput.metaDataStandards.labels.name')}
+                          label={Global('labels.name')}
                           value={customForm.name}
                           onChange={(e) => setCustomForm({ ...customForm, name: e.target.value })}
                         />
@@ -321,7 +322,7 @@ const MetaDataStandardsSelector = ({
                           name="std-url"
                           type="url"
                           isRequired={true}
-                          label={QuestionAdd('researchOutput.metaDataStandards.labels.url')}
+                          label={Global('labels.url')}
                           value={customForm.url}
                           onChange={(e) => setCustomForm({ ...customForm, url: e.target.value })}
                         />
@@ -329,7 +330,7 @@ const MetaDataStandardsSelector = ({
                           name="std-description"
                           type="text"
                           isRequired={true}
-                          label={QuestionAdd('researchOutput.metaDataStandards.labels.description')}
+                          label={Global('labels.description')}
                           value={customForm.description}
                           onChange={(e) => setCustomForm({ ...customForm, description: e.target.value })}
                         />

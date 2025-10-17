@@ -130,6 +130,7 @@ const RepositorySelectionSystem = ({
 
   // Translation keys
   const Global = useTranslations("Global");
+  const QuestionAdd = useTranslations("QuestionAdd");
 
   // Component states
   const [selectedRepos, setSelectedRepos] = useState<RepositoryInterface[]>([]);
@@ -186,9 +187,9 @@ const RepositorySelectionSystem = ({
 
     // Call toasts AFTER state update completes
     if (isRemoving) {
-      toastState.add(`${repo.name} removed`, { type: 'success' });
+      toastState.add(QuestionAdd('researchOutput.repoSelector.messages.removedRepo', { name: repo.name }), { type: 'success' });
     } else {
-      toastState.add(`${repo.name} added`, { type: 'success' });
+      toastState.add(QuestionAdd('researchOutput.repoSelector.messages.addedRepo', { name: repo.name }), { type: 'success' });
     }
   };
 
@@ -200,13 +201,13 @@ const RepositorySelectionSystem = ({
       delete newSelected[repoId];
       return newSelected;
     });
-    toastState.add(`${repo.name} removed`, { type: 'error' });
+    toastState.add(QuestionAdd('researchOutput.repoSelector.messages.removedRepo', { name: repo.name }), { type: 'success' });
   };
   // Removal of all selected repositories from the non-modal view
   const removeAllRepos = () => {
-    if (window.confirm('Are you sure you want to remove all selected repositories?')) {
+    if (window.confirm(QuestionAdd('researchOutput.repoSelector.messages.confirmRemoveAll'))) {
       setSelectedRepos([]);
-      toastState.add('All repositories removed', { type: 'success' });
+      toastState.add(QuestionAdd('researchOutput.repoSelector.messages.allRemoved'), { type: 'success' });
     }
   };
 
@@ -223,7 +224,7 @@ const RepositorySelectionSystem = ({
     const { name, url, description } = customForm;
 
     if (!name.trim() || !url.trim() || !description.trim()) {
-      toastState.add('Please fill in all fields', { type: 'error' });
+      toastState.add(QuestionAdd('researchOutput.repoSelector.errors.customRepoError'), { type: 'error' });
       return;
     }
 
@@ -241,7 +242,7 @@ const RepositorySelectionSystem = ({
     setSelectedRepos(prev => ({ ...prev, [customRepo.id]: customRepo }));
     setCustomForm({ name: '', url: '', description: '' });
     setIsCustomFormOpen(false);
-    toastState.add(`${customRepo.name} added successfully`, { type: 'success' });
+    toastState.add(QuestionAdd('researchOutput.repoSelector.messages.customRepoAdded', { name: customRepo.name }), { type: 'success' });
   };
 
   useEffect(() => {
@@ -266,13 +267,13 @@ const RepositorySelectionSystem = ({
                 <polyline points="1 9 7 14 15 4" />
               </svg>
             </div>
-            Create a list of preferred repositories
+            {QuestionAdd('researchOutput.repoSelector.labels.createRepos')}
           </Checkbox>
           {field.repoConfig?.hasCustomRepos && (
             <div className={styles.selectedItems}>
               <div className={styles.selectedItemsHeader}>
                 <span className={styles.selectedCount}>
-                  {selectedCount} {selectedCount === 1 ? 'repository' : 'repositories'} selected
+                  {selectedCount} {selectedCount === 1 ? QuestionAdd('researchOutput.repoSelector.repositorySelected') : QuestionAdd('researchOutput.repoSelector.repositoriesSelected')}
                 </span>
                 {selectedCount > 0 && (
                   <Button
@@ -280,7 +281,7 @@ const RepositorySelectionSystem = ({
                     isDisabled={selectedCount === 0}
                     className="danger medium"
                   >
-                    Remove All
+                    {Global('buttons.removeAll')}
                   </Button>
                 )}
 
@@ -304,7 +305,7 @@ const RepositorySelectionSystem = ({
                               rel="noopener noreferrer"
                               className={styles.itemLink}
                             >
-                              View repository →
+                              {QuestionAdd('researchOutput.repoSelector.links.viewRepository')} →
                             </a>
                           </div>
                         </div>
@@ -312,7 +313,7 @@ const RepositorySelectionSystem = ({
                           onClick={() => removeRepo(repo.id)}
                           className={`${styles.removeBtn} danger small`}
                         >
-                          Remove
+                          {Global('buttons.remove')}
                         </Button>
                       </div>
                     </div>
@@ -324,7 +325,7 @@ const RepositorySelectionSystem = ({
                 onClick={() => setIsModalOpen(true)}
                 className={styles.addItemBtn}
               >
-                Add a repository
+                {QuestionAdd('researchOutput.repoSelector.buttons.addRepo')}
               </Button>
 
             </div>
@@ -347,7 +348,7 @@ const RepositorySelectionSystem = ({
                 <div className={styles.modal}>
                   <div className={styles.modalHeader}>
                     <div className={styles.modalTitle}>
-                      <Heading slot="title">Repository search{' '}<span className={styles.tag}>{selectedCount} selected</span></Heading>
+                      <Heading slot="title">{QuestionAdd('researchOutput.repoSelector.headings.repoSearch')}{' '}<span className={styles.tag}>{QuestionAdd('researchOutput.repoSelector.selectedCount', { count: selectedCount })}</span></Heading>
                     </div>
                     <Button
                       onPress={() => {
@@ -355,6 +356,7 @@ const RepositorySelectionSystem = ({
                         close();
                       }}
                       className={styles.closeBtn}
+                      aria-label={Global('buttons.closeModal')}
                     >
                       x
                     </Button>
@@ -366,9 +368,9 @@ const RepositorySelectionSystem = ({
                         <div className={styles.filterGroup}>
                           <FormSelect
                             selectClasses={styles.formSelect}
-                            label="Subject area"
-                            placeholder="Select a subject area"
-                            ariaLabel="Select a subject area"
+                            label={QuestionAdd('researchOutput.repoSelector.labels.subjectArea')}
+                            placeholder={QuestionAdd('researchOutput.repoSelector.selectSubjectArea')}
+                            ariaLabel={QuestionAdd('researchOutput.repoSelector.selectSubjectArea')}
                             isRequired={false}
                             name="status"
                             items={subjectAreas}
@@ -382,9 +384,9 @@ const RepositorySelectionSystem = ({
                         <div className={styles.filterGroup}>
                           <FormSelect
                             selectClasses={styles.formSelect}
-                            label="Repository type"
-                            placeholder="Select a repository type"
-                            ariaLabel="Select a repository type"
+                            label={QuestionAdd('researchOutput.repoSelector.labels.repoType')}
+                            placeholder={QuestionAdd('researchOutput.repoSelector.selectRepoType')}
+                            ariaLabel={QuestionAdd('researchOutput.repoSelector.selectRepoType')}
                             isRequired={false}
                             name="status"
                             items={repositoryTypes}
@@ -401,7 +403,7 @@ const RepositorySelectionSystem = ({
                           <div className={styles.searchWrapper}>
 
                             <SearchField className={styles.searchRepos}>
-                              <Label>Search term</Label>
+                              <Label>{Global('labels.searchTerm')}</Label>
                               <Input
                                 id="search-term"
                                 value={searchTerm}
@@ -417,13 +419,13 @@ const RepositorySelectionSystem = ({
                                   handleSearch();
                                 }}
                               >
-                                Apply filter(s)
+                                {Global('buttons.applyFilter')}
                               </Button>
                               <Button
                                 onClick={() => setIsCustomFormOpen(!isCustomFormOpen)}
                                 className="secondary medium"
                               >
-                                Add new repo
+                                {QuestionAdd('researchOutput.repoSelector.buttons.addCustomRepo')}
                               </Button>
                             </div>
                           </div>
@@ -434,12 +436,12 @@ const RepositorySelectionSystem = ({
                     {/**To add Custom repositories- name, url and description fields */}
                     {isCustomFormOpen && (
                       <div className={styles.customRepoForm}>
-                        <h4>Add a new repository for your Template</h4>
+                        <h4>{QuestionAdd('researchOutput.repoSelector.headings.addNewRepo')}</h4>
                         <FormInput
                           name="repo-name"
                           type="text"
                           isRequired={true}
-                          label="Name"
+                          label={Global('labels.name')}
                           value={customForm.name}
                           onChange={(e) => setCustomForm({ ...customForm, name: e.target.value })}
                         />
@@ -447,7 +449,7 @@ const RepositorySelectionSystem = ({
                           name="repo-url"
                           type="url"
                           isRequired={true}
-                          label="Url"
+                          label={Global('labels.url')}
                           value={customForm.url}
                           onChange={(e) => setCustomForm({ ...customForm, url: e.target.value })}
                         />
@@ -455,7 +457,7 @@ const RepositorySelectionSystem = ({
                           name="repo-description"
                           type="text"
                           isRequired={true}
-                          label="Description"
+                          label={Global('labels.description')}
                           value={customForm.description}
                           onChange={(e) => setCustomForm({ ...customForm, description: e.target.value })}
                         />
@@ -465,7 +467,7 @@ const RepositorySelectionSystem = ({
                             onClick={addCustomRepo}
                             className={`${styles.applyFilterBtn} primary medium`}
                           >
-                            Add repository
+                            {QuestionAdd('researchOutput.repoSelector.buttons.addRepository')}
                           </Button>
                           <Button
                             onClick={() => {
@@ -474,7 +476,7 @@ const RepositorySelectionSystem = ({
                             }}
                             className="secondary medium"
                           >
-                            Cancel
+                            {Global('buttons.cancel')}
                           </Button>
                         </div>
                       </div>
@@ -501,7 +503,7 @@ const RepositorySelectionSystem = ({
                                 onClick={() => toggleSelection(repo)}
                                 className={`small ${isSelected ? 'danger' : 'primary'}`}
                               >
-                                {isSelected ? 'Remove' : 'Select'}
+                                {isSelected ? Global('buttons.remove') : Global('buttons.select')}
                               </Button>
                             </div>
                             <div className={styles.itemDescription}>{repo.description}</div>
@@ -511,27 +513,27 @@ const RepositorySelectionSystem = ({
                               ))}
                             </div>
                             <ExpandButton
-                              collapseLabel='Less info'
-                              expandLabel='More info'
+                              collapseLabel={Global('buttons.lessInfo')}
+                              expandLabel={Global('buttons.moreInfo')}
                               className={`${styles.moreInfoToggle} link`}
-                              aria-label={expandedDetails[`modal-${repo.id}`] ? 'Less info' : 'More info'}
+                              aria-label={expandedDetails[`modal-${repo.id}`] ? Global('buttons.lessInfo') : Global('buttons.moreInfo')}
                               expanded={expandedDetails[`modal-${repo.id}`]}
                               setExpanded={() => toggleDetails(repo.id, 'modal-')}
                             />
                             {expandedDetails[`modal-${repo.id}`] && (
                               <div className={styles.repoDetails}>
                                 <dl>
-                                  <dt>Repository URL</dt>
+                                  <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.repoTitle')}</dt>
                                   <dd>
                                     <a href={repo.url} target="_blank" rel="noopener noreferrer">
                                       {repo.url}
                                     </a>
                                   </dd>
-                                  <dt>Contact</dt>
+                                  <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.contactTitle')}</dt>
                                   <dd>{repo.contact}</dd>
-                                  <dt>Data access</dt>
+                                  <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.dataAccessTitle')}</dt>
                                   <dd>{repo.access}</dd>
-                                  <dt>Persistent identifier</dt>
+                                  <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.identifierTitle')}</dt>
                                   <dd>{repo.identifier}</dd>
                                 </dl>
                               </div>

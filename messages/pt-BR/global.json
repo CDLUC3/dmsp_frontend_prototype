@@ -65,7 +65,7 @@
     "headingRelatedActions": "Ações relacionadas",
     "primaryEmailDesc": "Este e-mail será usado para seu login de conta. Ele também pode ser usado para redefinições de senha.",
     "SSODesc": "Este endereço de e-mail é gerenciado por cdl.edu e conectado à instituição.",
-    "notificationsDesc": "Este endereço de e-mail será usado para notificações DMP. <manage> Gerencie suas notificações </manage>.",
+    "notificationsDesc": "Este endereço de e-mail será usado para notificações DMP. &lt;manage&gt;Gerencie suas notificações&lt;/manage&gt;.",
     "aliasEmailDesc": "Os endereços de e-mail do pseudônimo podem ser usados para ajudar outros a encontrar você, por exemplo, se eles quiserem compartilhar um DMP com você.",
     "linkMakePrimary": "Endereço de e-mail principal",
     "helpTextForAddAlias": "Você receberá um e-mail para confirmar esta adição",
@@ -122,34 +122,34 @@
   "UpdatePassword": {
     "breadcrumbHome": "Home",
     "breadcrumbProfile": "Perfil",
-    "title": "Atualizar sua senha",
-    "headingPasswordRequirements": "As senhas devem:",
-    "requirementLength": "ter mais de 8 caracteres;",
-    "requirementNumber": "conter pelo menos um número;",
-    "requirementUppercase": "conter pelo menos uma letra maiúscula;",
+    "title": "Atualize sua senha",
+    "headingPasswordRequirements": "Senhas necessárias:",
+    "requirementLength": "seja maior que 8 caracteres;",
+    "requirementNumber": "contém pelo menos um número;",
+    "requirementUppercase": "contém pelo menos uma letra maiúscula;",
     "requirementLowercase": "conter pelo menos uma letra minúscula;",
-    "requirementSpecialChars": "conter pelo menos um dos seguintes caracteres especiais: ( ) ! @ # $ % ^ & * - _ = + ? ~",
+    "requirementSpecialChars": "contém pelo menos um dos seguintes caracteres especiais: ( ) ! @ # $ % ^ &amp; * - _ = + ? ~",
     "currentPassword": "Senha atual",
     "newPassword": "Nova senha",
-    "confirmPassword": "Confirmar nova senha",
-    "btnChangePassword": "Alterar senha",
-    "btnChangingPassword": "Alterando senha...",
+    "confirmPassword": "Confirme a nova senha",
+    "btnChangePassword": "Mudar Senha",
+    "btnChangingPassword": "Alterando a senha...",
     "headingRelatedActions": "Ações relacionadas",
     "linkUpdateConnections": "Atualizar conexões",
     "linkManageNotifications": "Gerenciar notificações",
     "messages": {
       "passwordUpdateSuccess": "Sua senha foi atualizada com sucesso.",
       "errors": {
-        "currentPasswordRequired": "Senha atual é obrigatória",
-        "newPasswordRequired": "Nova senha é obrigatória",
-        "confirmPasswordRequired": "Por favor, confirme sua nova senha",
+        "currentPasswordRequired": "A senha atual é obrigatória",
+        "newPasswordRequired": "Nova senha é necessária",
+        "confirmPasswordRequired": "Confirme sua nova senha",
         "passwordsDoNotMatch": "As senhas não coincidem",
         "passwordTooShort": "A senha deve ter pelo menos 8 caracteres",
         "passwordMissingNumber": "A senha deve conter pelo menos um número",
         "passwordMissingUppercase": "A senha deve conter pelo menos uma letra maiúscula",
         "passwordMissingLowercase": "A senha deve conter pelo menos uma letra minúscula",
         "passwordMissingSpecialChar": "A senha deve conter pelo menos um caractere especial",
-        "incorrectCurrentPassword": "Senha atual está incorreta",
+        "incorrectCurrentPassword": "A senha atual está incorreta",
         "errorUpdatingPassword": "Erro ao atualizar a senha"
       }
     }
@@ -296,15 +296,15 @@
       "title": "Contas de usuário",
       "description": "Abaixo está uma lista de usuários registrados para sua organização",
       "buttons": {
-        "createUserLabel": "Criar usuário",
-        "searchLabel": "Procurar"
+        "createUserLabel": "Criar Usuário",
+        "searchLabel": "Pesquisa"
       },
       "tools": {
         "searchLabel": "Pesquisar por nome ou e-mail",
-        "permissionLabel": "Permissão"
+        "permissionLabel": "Permisschar@@0o"
       },
       "userTable": {
-        "label": "Lista de usuários"
+        "label": "Lista de Usuários"
       }
     }
   },
@@ -394,35 +394,35 @@
     }
   },
   "EmailPreferences": {
-    "title": "Preferências de E-mail",
+    "title": "Preferências de email",
     "sections": {
       "customizeEmailText": {
-        "title": "Personalizar texto do e-mail",
+        "title": "Personalizar texto de email",
         "description": "O seguinte e-mail será enviado aos usuários quando um sistema externo criar um novo DMP (via API) usando um de seus modelos."
       },
       "previewEmail": {
-        "title": "Visualizar E-mail"
+        "title": "Pré-visualizar e-mail"
       }
     },
     "fields": {
       "subject": {
-        "label": "Assunto",
-        "placeholder": "Digite o assunto do e-mail"
+        "label": "Cargo",
+        "placeholder": "Digite assunto do email"
       },
       "emailText": {
-        "label": "Texto do E-mail"
+        "label": "Texto do e-mail"
       }
     },
     "buttons": {
-      "save": "Salvar"
+      "save": "Guardar"
     }
   },
   "OrganizationProjects": {
-    "title": "Projetos da Organização",
-    "intro": "Gerenciar projetos e planos DMSP em sua organização",
+    "title": "Projeto da organização",
+    "intro": "Gerencie projetos e planos para DMSP em toda a sua organização",
     "messages": {
       "errors": {
-        "errorRetrievingProjects": "Algo deu errado ao recuperar os projetos. Tente novamente mais tarde."
+        "errorRetrievingProjects": "Algo deu errado ao recuperar projetos. Por favor, tente novamente mais tarde."
       }
     }
   },
@@ -455,6 +455,46 @@
       "deleteButton": "Deletar"
     }
   },
+  "FeedbackOptions": {
+    "title": "Opções do Feedback",
+    "description": "Se estiver Ativado, usuários da sua organização podem solicitar feedback sobre seus DMPs. Vai para o e-mail de contato da sua organização, que é support@dmp.edu.",
+    "sections": {
+      "feedbackToggle": {
+        "title": "Ativar ou desativar o Feedback"
+      },
+      "feedbackEmail": {
+        "title": "E-mail de feedback"
+      },
+      "expertFeedback": {
+        "title": "Solicitar feedback especializado"
+      }
+    },
+    "fields": {
+      "feedbackEnabled": {
+        "label": "Ativar ou desativar o Feedback",
+        "options": {
+          "on": "Ativado - Comentários podem ser solicitados",
+          "off": "Desligado - Não é possível solicitar o feedback"
+        }
+      },
+      "feedbackEmail": {
+        "label": "E-mail de feedback",
+        "placeholder": "Digite o e-mail de feedback",
+        "helpText": "Por padrão este é o endereço de e-mail do contato organizações, mas você pode alterar o endereço de e-mail de feedback"
+      },
+      "feedbackText": {
+        "label": "Solicitar feedback especializado",
+        "placeholder": "Digitar texto de feedback"
+      }
+    },
+    "actions": {
+      "save": "Guardar"
+    },
+    "screenReader": {
+      "feedbackEnabled": "As opções do feedback agora estão ativadas. Campos adicionais estão disponíveis abaixo.",
+      "feedbackDisabled": "As opções do feedback agora estão desativadas. Campos adicionais estão ocultos."
+    }
+  },
   "Account": {
     "sections": {
       "userProfile": {
@@ -480,10 +520,100 @@
       }
     }
   },
+  "Guidance": {
+    "title": "Orientação",
+    "description": "Gerenciar grupos de orientação e textos para sua organização",
+    "pages": {
+      "index": {
+        "title": "Grupos de Orientação",
+        "description": "Gerenciar grupos de orientação que organizam textos de orientação relacionados",
+        "createGroup": "Criar grupo de orientação"
+      },
+      "groupIndex": {
+        "title": "Textos de Orientação",
+        "description": "Gerenciar os textos de orientação neste grupo",
+        "createText": "Criar texto de orientação",
+        "editGroup": "Editar grupo"
+      },
+      "groupCreate": {
+        "title": "Criar Novo Grupo de Orientação",
+        "description": "Adicionar um novo grupo de orientação para organizar os textos de orientação relacionados"
+      },
+      "groupEdit": {
+        "title": "Editar grupo de orientação",
+        "description": "Criar um novo grupo de orientação abaixo. Selecione um ou mais temas para definir onde os criadores do plano verão esta orientação."
+      },
+      "textCreate": {
+        "title": "Criar Novo Texto de Orientação",
+        "description": "Adicionar um novo texto de orientação a este grupo"
+      },
+      "textEdit": {
+        "title": "Editar Texto de Orientação",
+        "description": "Editar texto e conteúdo e detalhes da orientação"
+      }
+    },
+    "sections": {
+      "guidanceGroup": {
+        "title": "Grupo de orientação"
+      },
+      "guidanceText": {
+        "title": "Texto de orientação"
+      }
+    },
+    "fields": {
+      "groupName": {
+        "label": "Nome do Grupo",
+        "placeholder": "Inserir nome do grupo"
+      },
+      "title": {
+        "label": "Título",
+        "placeholder": "Digite título da orientação"
+      },
+      "guidanceText": {
+        "label": "Texto de orientação",
+        "helpText": "Digite o conteúdo do texto de orientação usando o editor de texto rico"
+      },
+      "settings": {
+        "label": "Confirgurações"
+      },
+      "themes": {
+        "label": "Tema",
+        "helpText": "Selecione os temas apropriados abaixo. Isso determinará quando um criador de plano vê o texto de orientação, por exemplo, se eles estiverem completando uma parte do template com o tema de \"Coleta de dados\"."
+      }
+    },
+    "status": {
+      "published": "Publicado",
+      "draft": "Rascunho",
+      "archived": "Arquivado",
+      "lastUpdated": "Última atualização",
+      "status": "SItuação"
+    },
+    "actions": {
+      "createGroup": "Criar grupo",
+      "createText": "Criar Texto de Orientação",
+      "saveChanges": "Salvar as alterações",
+      "publish": "Publicar",
+      "edit": "Alterar"
+    },
+    "breadcrumbs": {
+      "guidance": "Orientação",
+      "guidanceGroups": "Grupos de Orientação",
+      "createGroup": "Criar grupo",
+      "editGroup": "Editar grupo",
+      "createText": "Criar texto",
+      "editText": "Editar Texto",
+      "group": "grupo"
+    },
+    "messages": {
+      "noGroups": "Não foram encontrados grupos de orientação",
+      "noTexts": "Não há textos de orientação encontrados neste grupo"
+    }
+  },
   "Global": {
     "breadcrumbs": {
       "navigation": "Navegação de Breadcrumb",
       "home": "Home",
+      "admin": "Administrador",
       "templates": "Modelos",
       "template": "Modelo",
       "createTemplate": "Criar um modelo",
@@ -506,7 +636,14 @@
       "planFunding": "Financiamento do plano",
       "sectionOverview": "Visão geral da seção",
       "feedback": "Registrar",
-      "questionDetails": "Detalhes da pergunta"
+      "questionDetails": "Detalhes da pergunta",
+      "guidance": "Orientação",
+      "guidanceGroups": "Grupos de Orientação",
+      "createGroup": "Criar grupo",
+      "editGroup": "Editar grupo",
+      "createText": "Criar texto",
+      "editText": "Editar Texto",
+      "group": "grupo"
     },
     "form": {
       "yesLabel": "Sim",
@@ -532,6 +669,7 @@
       "saveAndUpdate": "Salvar e atualizar",
       "saveChanges": "Salvar as alterações",
       "remove": "Remover",
+      "removeAll": "Remover todos os",
       "confirm": "Confirmação",
       "change": "Mudança",
       "cancel": "Cancelar",
@@ -544,11 +682,16 @@
       "preview": "Pré-visualizar",
       "publish": "Publicar",
       "close": "Fechar",
+      "closeModal": "Fechar modal",
       "loadMore": "Carregar mais",
       "addAnother": "Adicionar mais",
       "goToProject": "Ir para o projeto",
       "back": "Voltar",
-      "add": "Adicionar"
+      "add": "Adicionar",
+      "customize": "Personalizar",
+      "applyFilter": "Aplicar filtro(s)",
+      "moreInfo": "Mais informações",
+      "lessInfo": "Menos informações"
     },
     "labels": {
       "required": "Obrigatório",
@@ -558,7 +701,11 @@
       "funderSearch": "Pesquisar por nome do financiador",
       "requiredField": "Marcar como obrigatório?",
       "previousPage": "Página anterior",
-      "nextPage": "Próxima página"
+      "nextPage": "Próxima página",
+      "name": "Nome:",
+      "url": "URL:",
+      "description": "Descrição:",
+      "searchTerm": "Termo para pesquisa"
     },
     "helpText": {
       "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc.",
@@ -629,63 +776,23 @@
       "affiliationSearch": "Busca de afiliação"
     }
   },
-  "FeedbackOptions": {
-    "title": "Opções de Feedback",
-    "description": "Se estiver Ativado, usuários da sua organização podem solicitar feedback sobre seus DMPs. Isso será enviado para o e-mail de contato da sua organização, que é support@dmp.edu.",
-    "sections": {
-      "feedbackToggle": {
-        "title": "Ativar ou desativar Feedback"
-      },
-      "feedbackEmail": {
-        "title": "Endereço de e-mail para feedback"
-      },
-      "expertFeedback": {
-        "title": "Solicitar Feedback de Especialista"
-      }
-    },
-    "fields": {
-      "feedbackEnabled": {
-        "label": "Ativar ou desativar Feedback",
-        "options": {
-          "on": "Ativado - Feedback pode ser solicitado",
-          "off": "Desativado - Feedback não pode ser solicitado"
-        }
-      },
-      "feedbackEmail": {
-        "label": "Endereço de e-mail para feedback",
-        "placeholder": "Digite o endereço de e-mail para feedback",
-        "helpText": "Por padrão, este é o endereço de e-mail de contato da organização. No entanto, você pode alterar o endereço de e-mail para feedback"
-      },
-      "feedbackText": {
-        "label": "Solicitar Feedback de Especialista",
-        "placeholder": "Digite o texto de feedback"
-      }
-    },
-    "actions": {
-      "save": "Salvar"
-    },
-    "screenReader": {
-      "feedbackEnabled": "Opções de feedback agora estão ativadas. Campos adicionais estão disponíveis abaixo.",
-      "feedbackDisabled": "Opções de feedback agora estão desativadas. Campos adicionais estão ocultos."
-    }
-  },
   "OrganizationTemplates": {
-    "title": "Modelos da Organização",
-    "description": "Gerenciar os modelos da sua organização e publicar para o público",
+    "title": "Modelos de organização",
+    "description": "Gerencie seus modelos de organização e publique para o público",
     "actionCreate": "Criar Modelo",
-    "actionSearch": "Pesquisar",
-    "searchLabel": "Pesquisar modelos da organização",
+    "actionSearch": "Buscar",
+    "searchLabel": "Pesquisar modelos de organização",
     "searchHelpText": "Pesquisar por nome do modelo, descrição ou outros detalhes",
-    "noItemsFoundError": "Nenhum modelo da organização encontrado correspondendo a '{term}'",
-    "somethingWentWrong": "Algo deu errado ao carregar os modelos da organização"
+    "noItemsFoundError": "Nenhum modelo de organização encontrado corresponde '{term}'",
+    "somethingWentWrong": "Ocorreu um erro ao carregar os modelos da organização"
   },
   "ProjectMemberListItem": {
     "buttons": {
-      "edit": "Editar"
+      "edit": "Alterar"
     },
     "ariaLabels": {
       "editMember": "Editar detalhes de {name}",
-      "orcidProfile": "Perfil ORCID de {name}"
+      "orcidProfile": "Perfil ORCID para {name}"
     }
   }
 }
