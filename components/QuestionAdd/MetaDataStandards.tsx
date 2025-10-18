@@ -312,6 +312,7 @@ const MetaDataStandardsSelector = ({
                         <h4>{QuestionAdd('researchOutput.metaDataStandards.headings.addCustomHeading')}</h4>
                         <FormInput
                           name="std-name"
+                          data-testid="form-input-std-name"
                           type="text"
                           isRequired={true}
                           label={Global('labels.name')}
@@ -320,6 +321,7 @@ const MetaDataStandardsSelector = ({
                         />
                         <FormInput
                           name="std-url"
+                          data-testid="form-input-std-url"
                           type="url"
                           isRequired={true}
                           label={Global('labels.url')}
@@ -328,6 +330,7 @@ const MetaDataStandardsSelector = ({
                         />
                         <FormInput
                           name="std-description"
+                          data-testid="form-input-std-description"
                           type="text"
                           isRequired={true}
                           label={Global('labels.description')}
@@ -360,7 +363,7 @@ const MetaDataStandardsSelector = ({
                         <Pagination {...paginationProps} />
                       </div>
 
-                      {metaStandards?.map((std, index) => {
+                      {metaStandards?.map((std) => {
                         const isSelected = selectedStandards[std.id];
                         return (
                           <div

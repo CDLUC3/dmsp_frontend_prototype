@@ -392,7 +392,8 @@
     },
     "researchOutput": {
       "headings": {
-        "enableStandardFields": "Enable standard fields"
+        "enableStandardFields": "Enable standard fields",
+        "additionalTextFields": "Additional text fields"
       },
       "description": "Select which standard fields to include in your research output question. You can customize each field individually.",
       "tooltip": {
@@ -427,7 +428,7 @@
         "messages": {
           "removedRepo": "{name} removed",
           "addedRepo": "{name} added",
-          "confirmRemovalAll": "Are you sure you want to remove all selected repositories?",
+          "confirmRemoveAll": "Are you sure you want to remove all selected repositories?",
           "allRemoved": "All repositories removed",
           "customRepoAdded": "Custom repository {name} added successfully"
         },

@@ -1,54 +1,11 @@
 import React from 'react';
 import { act, render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import OutputTypeField from '../OutputTypeField';
 import { OutputTypeFieldConfigProps } from '@/app/types';
 
 expect.extend(toHaveNoViolations);
-
-// Mock the FormSelect and FormInput components
-jest.mock('@/components/Form', () => ({
-  FormSelect: ({
-    label,
-    items,
-    onChange,
-    selectedKey,
-    'data-testid': dataTestId
-  }: any) => (
-    <div data-testid={dataTestId || 'form-select'}>
-      <label>{label}</label>
-      <select
-        value={selectedKey || 'defaults'}
-        onChange={(e) => onChange && onChange(e.target.value)}
-        data-testid="select-input"
-        aria-label={label}
-      >
-        {items.map((item: any) => (
-          <option key={item.id} value={item.id}>
-            {item.name}
-          </option>
-        ))}
-      </select>
-    </div>
-  ),
-  FormInput: ({
-    label,
-    value,
-    onChange,
-    onKeyDown,
-    'data-testid': dataTestId,
-  }: any) => (
-    <input
-      type="text"
-      value={value}
-      onChange={onChange}
-      onKeyDown={onKeyDown}
-      data-testid={dataTestId || 'form-input'}
-      aria-label={label}
-      placeholder={label}
-    />
-  ),
-}));
 
 describe('OutputTypeField', () => {
   const defaultProps: OutputTypeFieldConfigProps = {
@@ -59,6 +16,7 @@ describe('OutputTypeField', () => {
       outputTypeConfig: {
         mode: 'defaults',
         customTypes: [],
+        selectedDefaults: [],
       },
     },
     newOutputType: '',
@@ -79,15 +37,16 @@ describe('OutputTypeField', () => {
   describe('Rendering', () => {
     it('renders without crashing', () => {
       renderComponent();
-      expect(screen.getByTestId('form-select')).toBeInTheDocument();
+      expect(screen.getByTestId('select-button')).toBeInTheDocument();
     });
 
     it('renders with correct initial structure', () => {
       renderComponent();
 
-      expect(screen.getByTestId('form-select')).toBeInTheDocument();
-      const select = screen.getByTestId('select-input');
-      expect(select).toHaveValue('defaults');
+      const selectButton = screen.getByTestId('select-button');
+      expect(selectButton).toBeInTheDocument();
+      const defaultLegend = screen.getByText('researchOutput.outputType.legends.default');
+      expect(defaultLegend).toBeInTheDocument();
     });
 
     it('should pass axe accessibility test', async () => {
@@ -109,6 +68,7 @@ describe('OutputTypeField', () => {
             outputTypeConfig: {
               mode: 'defaults',
               customTypes: [],
+              selectedDefaults: [],
             },
           },
         });
@@ -137,6 +97,7 @@ describe('OutputTypeField', () => {
             outputTypeConfig: {
               mode: 'defaults',
               customTypes: [],
+              selectedDefaults: [],
             },
           },
         });
@@ -152,6 +113,7 @@ describe('OutputTypeField', () => {
         outputTypeConfig: {
           mode: 'mine' as const,
           customTypes: ['Custom Type 1', 'Custom Type 2'],
+          selectedDefaults: [],
         },
       };
 
@@ -189,6 +151,7 @@ describe('OutputTypeField', () => {
             outputTypeConfig: {
               mode: 'mine',
               customTypes: [],
+              selectedDefaults: [],
             },
           },
         });
@@ -204,6 +167,7 @@ describe('OutputTypeField', () => {
         outputTypeConfig: {
           mode: 'addToDefaults' as const,
           customTypes: ['Custom Type 1', 'Custom Type 2'],
+          selectedDefaults: [],
         },
       };
 
@@ -251,6 +215,7 @@ describe('OutputTypeField', () => {
             outputTypeConfig: {
               mode: 'addToDefaults',
               customTypes: [],
+              selectedDefaults: [],
             },
           },
         });
@@ -265,8 +230,13 @@ describe('OutputTypeField', () => {
         const onModeChange = jest.fn();
         renderComponent({ onModeChange });
 
-        const select = screen.getByTestId('select-input');
-        fireEvent.change(select, { target: { value: 'mine' } });
+        // Click the button to open the dropdown
+        const selectButton = screen.getByTestId('select-button');
+        await userEvent.click(selectButton);
+
+        // Find and click the "Use mine" option in the listbox
+        const mineOption = screen.getByRole('option', { name: 'Use mine' });
+        await userEvent.click(mineOption);
 
         expect(onModeChange).toHaveBeenCalledWith('mine');
       });
@@ -279,12 +249,13 @@ describe('OutputTypeField', () => {
             outputTypeConfig: {
               mode: 'mine',
               customTypes: [],
+              selectedDefaults: ['Default Type 1', 'Default Type 2'],
             },
           },
           setNewOutputType,
         });
 
-        const input = screen.getByPlaceholderText('researchOutput.outputType.labels.enterOutputType');
+        const input = screen.getByLabelText('researchOutput.outputType.labels.enterOutputType');
         fireEvent.change(input, { target: { value: 'New Output Type' } });
 
         expect(setNewOutputType).toHaveBeenCalledWith('New Output Type');
@@ -298,6 +269,7 @@ describe('OutputTypeField', () => {
             outputTypeConfig: {
               mode: 'mine',
               customTypes: [],
+              selectedDefaults: [],
             },
           },
           newOutputType: 'New Type',
@@ -318,13 +290,14 @@ describe('OutputTypeField', () => {
             outputTypeConfig: {
               mode: 'mine',
               customTypes: [],
+              selectedDefaults: [],
             },
           },
           newOutputType: 'New Type',
           onAddCustomType,
         });
 
-        const input = screen.getByPlaceholderText('researchOutput.outputType.labels.enterOutputType');
+        const input = screen.getByLabelText('researchOutput.outputType.labels.enterOutputType');
         fireEvent.keyDown(input, { key: 'Enter' });
 
         expect(onAddCustomType).toHaveBeenCalled();
@@ -337,6 +310,7 @@ describe('OutputTypeField', () => {
             outputTypeConfig: {
               mode: 'mine',
               customTypes: [],
+              selectedDefaults: [],
             },
           },
           newOutputType: '   ',
@@ -353,6 +327,7 @@ describe('OutputTypeField', () => {
             outputTypeConfig: {
               mode: 'mine',
               customTypes: [],
+              selectedDefaults: [],
             },
           },
           newOutputType: 'Valid Output Type',
@@ -370,6 +345,7 @@ describe('OutputTypeField', () => {
             outputTypeConfig: {
               mode: 'mine',
               customTypes: ['Test Type'],
+              selectedDefaults: [],
             },
           },
           onRemoveCustomType,
@@ -390,6 +366,7 @@ describe('OutputTypeField', () => {
             outputTypeConfig: {
               mode: 'addToDefaults',
               customTypes: [],
+              selectedDefaults: [],
             },
           },
           newOutputType: 'New Type',
@@ -413,8 +390,8 @@ describe('OutputTypeField', () => {
           },
         });
 
-        const select = screen.getByTestId('select-input');
-        expect(select).toHaveValue('defaults');
+        const selectButton = screen.getByTestId('select-button');
+        expect(selectButton).toHaveTextContent('Use defaults');
       });
 
       it('handles field without outputTypeConfig mode', () => {
@@ -423,12 +400,14 @@ describe('OutputTypeField', () => {
             ...defaultProps.field,
             outputTypeConfig: {
               customTypes: [],
-            } as any,
+              selectedDefaults: [],
+              mode: 'addToDefaults'
+            }
           },
         });
 
-        const select = screen.getByTestId('select-input');
-        expect(select).toHaveValue('defaults');
+        const selectButton = screen.getByTestId('select-button');
+        expect(selectButton).toHaveTextContent('Add mine to defaultsOpen drop down');
       });
     });
 
@@ -440,6 +419,7 @@ describe('OutputTypeField', () => {
             outputTypeConfig: {
               mode: 'mine',
               customTypes: [],
+              selectedDefaults: [],
             },
           },
         });
@@ -456,6 +436,7 @@ describe('OutputTypeField', () => {
             outputTypeConfig: {
               mode: 'mine',
               customTypes: multipleCustomTypes,
+              selectedDefaults: [],
             },
           },
         });
@@ -475,6 +456,7 @@ describe('OutputTypeField', () => {
             outputTypeConfig: {
               mode: 'mine',
               customTypes: [specialType],
+              selectedDefaults: [],
             },
           },
         });
@@ -490,6 +472,7 @@ describe('OutputTypeField', () => {
             outputTypeConfig: {
               mode: 'defaults',
               customTypes: [],
+              selectedDefaults: [],
             },
           },
         });

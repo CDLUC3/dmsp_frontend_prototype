@@ -439,6 +439,7 @@ const RepositorySelectionSystem = ({
                         <h4>{QuestionAdd('researchOutput.repoSelector.headings.addNewRepo')}</h4>
                         <FormInput
                           name="repo-name"
+                          data-testid="form-input-repo-name"
                           type="text"
                           isRequired={true}
                           label={Global('labels.name')}
@@ -447,6 +448,7 @@ const RepositorySelectionSystem = ({
                         />
                         <FormInput
                           name="repo-url"
+                          data-testid="form-input-repo-url"
                           type="url"
                           isRequired={true}
                           label={Global('labels.url')}
@@ -455,6 +457,7 @@ const RepositorySelectionSystem = ({
                         />
                         <FormInput
                           name="repo-description"
+                          data-testid="form-input-repo-description"
                           type="text"
                           isRequired={true}
                           label={Global('labels.description')}
@@ -490,7 +493,7 @@ const RepositorySelectionSystem = ({
                         <Pagination {...paginationProps} />
                       </div>
 
-                      {repositories.map((repo, index) => {
+                      {repositories.map((repo) => {
                         const isSelected = selectedRepos[repo.id];
                         return (
                           <div
@@ -514,6 +517,7 @@ const RepositorySelectionSystem = ({
                             </div>
                             <ExpandButton
                               collapseLabel={Global('buttons.lessInfo')}
+                              data-testid="expand-button"
                               expandLabel={Global('buttons.moreInfo')}
                               className={`${styles.moreInfoToggle} link`}
                               aria-label={expandedDetails[`modal-${repo.id}`] ? Global('buttons.lessInfo') : Global('buttons.moreInfo')}

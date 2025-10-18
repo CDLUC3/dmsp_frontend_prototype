@@ -14,7 +14,7 @@ jest.mock('@/components/Form', () => ({
     onChange,
     selectedKey,
     'data-testid': dataTestId
-  }: any) => (
+  }: { label: string; items: []; onChange: (value: string) => void; selectedKey: string | undefined; 'data-testid': string }) => (
     <div data-testid={dataTestId || 'form-select'}>
       <label>{label}</label>
       <select
@@ -23,7 +23,7 @@ jest.mock('@/components/Form', () => ({
         data-testid="select-input"
         aria-label={label}
       >
-        {items.map((item: any) => (
+        {items.map((item: { id: string, name: string }) => (
           <option key={item.id} value={item.id}>
             {item.name}
           </option>
@@ -334,7 +334,8 @@ describe('LicenseField', () => {
             licensesConfig: {
               selectedDefaults: [],
               customTypes: [],
-            } as any, // Missing mode property
+              mode: 'defaults' as const
+            }
           },
         });
 

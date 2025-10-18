@@ -14,7 +14,6 @@ import {
   Input,
   Label,
   Link,
-  ListBoxItem,
   Radio,
   Tab,
   TabList,
@@ -34,7 +33,6 @@ import {
 import PageHeader from "@/components/PageHeader";
 import {
   FormInput,
-  FormSelect,
   FormTextArea,
   RadioGroupComponent,
   RangeComponent,
@@ -137,7 +135,6 @@ const initialStandardFields: StandardField[] = [
     enabled: false,
     placeholder: '',
     helpText: '',
-    enableSearch: false,
     value: '',
     repoConfig: {
       hasCustomRepos: false,
@@ -160,37 +157,12 @@ const initialStandardFields: StandardField[] = [
     enabled: false,
     defaultValue: '',
     helpText: '',
-    showDescriptions: false,
     licensesConfig: {
       mode: 'defaults' as 'defaults' | 'addToDefaults',
       selectedDefaults: [] as string[],
       customTypes: defaultLicenses as string[],
     }
   },
-];
-
-// Research output constants
-const outputTypeOptions = [
-  { id: 'defaults', name: 'Use defaults' },
-  { id: 'mine', name: 'Use mine' },
-  { id: 'addToDefaults', name: 'Add mine to defaults' }
-]
-// Default output types
-const defaultOutputTypes = [
-  'Audiovisual',
-  'Collection',
-  'Data paper',
-  'Dataset',
-  'Event',
-  'Image',
-  'Interactive resource',
-  'Model representation',
-  'Physical object',
-  'Service',
-  'Software',
-  'Sound',
-  'Text',
-  'Workflow'
 ];
 
 const QuestionAdd = ({
@@ -386,7 +358,7 @@ const QuestionAdd = ({
   };
 
   // Shared function to update any property in standardFields
-  const updateStandardFieldProperty = (fieldId: string, propertyName: string, value: any) => {
+  const updateStandardFieldProperty = (fieldId: string, propertyName: string, value: unknown) => {
     setStandardFields(prev =>
       prev.map(field =>
         field.id === fieldId ? { ...field, [propertyName]: value } : field
@@ -679,8 +651,7 @@ const QuestionAdd = ({
   };
 
   // Handler for updating additional field properties
-  const handleUpdateAdditionalField = (fieldId: string, propertyName: string, value: any) => {
-    console.log("Value:", value);
+  const handleUpdateAdditionalField = (fieldId: string, propertyName: string, value: unknown) => {
     setAdditionalFields(prev =>
       prev.map(field =>
         field.id === fieldId ? { ...field, [propertyName]: value } : field
@@ -1078,7 +1049,7 @@ const QuestionAdd = ({
                     </div>
 
                     <div className={styles.fieldsContainer}>
-                      <h3>Additional Text Fields</h3>
+                      <h3>{QuestionAdd('researchOutput.headings.additionalTextFields')}</h3>
                       <div className={styles.fieldsList}>
                         {additionalFields.map((field, index) => {
 
@@ -1111,7 +1082,7 @@ const QuestionAdd = ({
                                     onPress={() => handleDeleteAdditionalField(field.id)}
                                     aria-label={`Delete ${field.label}`}
                                   >
-                                    Delete
+                                    {Global('buttons.delete')}
                                   </Button>
 
                                 </div>

@@ -18,7 +18,18 @@ export type StandardField = {
   id: string;
   label: string;
   enabled: boolean;
-  [key: string]: any; // For additional properties like helpText, required, etc.
+  required?: boolean;
+  defaultValue?: string;
+  placeholder?: string;
+  helpText?: string;
+  maxLength?: string;
+  value?: string;
+  licensesConfig?: LicensesConfig;
+  outputTypeConfig?: {
+    mode: 'defaults' | 'mine' | 'addToDefaults';
+    selectedDefaults: string[];
+    customTypes: string[];
+  };
   flagsConfig?: DataFlagsConfig;
   repoConfig?: RepoConfig;
   metaDataConfig?: MetaDataConfig;
@@ -41,7 +52,6 @@ export interface RepositoryFieldInterface {
   enabled: boolean;
   placeholder?: string;
   helpText?: string;
-  enableSearch?: boolean;
   value?: string;
   repoConfig?: {
     hasCustomRepos: boolean;

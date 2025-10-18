@@ -236,7 +236,7 @@ const QuestionTypeSelectPage: React.FC = () => {
                                 helpText: "",
                                 required: false,
                               }
-                            }}
+                            } as any} // eslint-disable-line @typescript-eslint/no-explicit-any
                             handleSelect={handleSelect}
                           />
 
