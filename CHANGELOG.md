@@ -1,3 +1,6 @@
+### Added
+- Integrated related works UI with GraphQL backend.
+
 ==================================================================================================================
 <!-- Merged below to main branch on Friday, July 18th, 2025  -->
 ### Added
@@ -58,7 +61,6 @@
 - Created the static page for the org admin user dashboard. [#782]
 
 ### Updated
-
 - Removed some duplicate text from `template/[templateId]/access` under `External people` [#482]
 - Updated description on `template/[templateId]/access` and visibility text on template publish modal [#482]
 - Updated `/template/[templateId]` to include the `View history` link in the header description [#430]
