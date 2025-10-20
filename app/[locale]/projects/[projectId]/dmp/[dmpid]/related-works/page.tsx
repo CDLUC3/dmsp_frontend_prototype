@@ -3,25 +3,13 @@
 import React from "react";
 
 import PageHeader from "@/components/PageHeader";
-import {ContentContainer, LayoutContainer} from "@/components/Container";
-import {
-  Breadcrumb,
-  Breadcrumbs,
-  Button,
-  Link,
-  Tab,
-  TabList,
-  TabPanel,
-  Tabs
-} from "react-aria-components";
-import {useTranslations} from "next-intl";
+import { ContentContainer, LayoutContainer } from "@/components/Container";
+import { Breadcrumb, Breadcrumbs, Button, Link, Tab, TabList, TabPanel, Tabs } from "react-aria-components";
+import { useTranslations } from "next-intl";
 import styles from "./RelatedWorks.module.scss";
-import {
-  RelatedWorksList,
-  SortByOptions
-} from "@/components/RelatedWorksList";
-import {RelatedWorkStatus} from "@/generated/graphql";
-import {useParams} from "next/navigation";
+import { RelatedWorksList } from "@/components/RelatedWorksList";
+import { RelatedWorkStatus } from "@/generated/graphql";
+import { useParams } from "next/navigation";
 
 const RelatedWorksPage = () => {
   const t = useTranslations("RelatedWorksPage");
@@ -75,21 +63,18 @@ const RelatedWorksPage = () => {
               <RelatedWorksList
                 planId={planId}
                 status={RelatedWorkStatus.Pending}
-                defaultSortBy={SortByOptions.ConfidenceHigh}
               />
             </TabPanel>
             <TabPanel id="related">
               <RelatedWorksList
                 planId={planId}
                 status={RelatedWorkStatus.Accepted}
-                defaultSortBy={SortByOptions.PublishedNew}
               />
             </TabPanel>
             <TabPanel id="discarded">
               <RelatedWorksList
                 planId={planId}
                 status={RelatedWorkStatus.Rejected}
-                defaultSortBy={SortByOptions.ReviewedNew}
               />
             </TabPanel>
           </Tabs>

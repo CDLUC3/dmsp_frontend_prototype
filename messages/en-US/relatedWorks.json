@@ -34,15 +34,15 @@
     "messages": {
       "PENDING": {
         "noResults": "No pending works found.\n You have no pending works to review.",
-        "noFilteredResults": "No pending works found.\nNo pending works match your current filters."
+        "noFilteredResults": "No pending works match your current filters."
       },
       "ACCEPTED": {
         "noResults": "No accepted works found.\nYou haven’t marked any works as related yet. Check the Pending tab to get started.",
-        "noFilteredResults": "No accepted works found.\nNo related works match your current filters."
+        "noFilteredResults": "No related works match your current filters."
       },
       "REJECTED": {
         "noResults": "No rejected works found.\nYou haven’t rejected any works.",
-        "noFilteredResults": "No rejected works found.\nNo rejected works match your current filters."
+        "noFilteredResults": "No rejected works match your current filters."
       }
     }
   },

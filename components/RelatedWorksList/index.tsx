@@ -75,7 +75,6 @@ interface RelatedWorksListProps {
   defaultType?: WorkType | null;
   defaultHighlightMatches?: boolean;
   defaultPage?: number;
-  defaultSortBy?: SortByOptions;
 }
 
 export const RelatedWorksList = ({
@@ -85,7 +84,6 @@ export const RelatedWorksList = ({
   defaultType = null,
   defaultHighlightMatches = false,
   defaultPage = 1,
-  defaultSortBy = SortByOptions.ConfidenceHigh,
 }: RelatedWorksListProps) => {
   const t = useTranslations("RelatedWorksList");
   const dataTypes = useTranslations("RelatedWorksDataTypes");
@@ -95,7 +93,7 @@ export const RelatedWorksList = ({
   const [workType, setWorkType] = useState<string | null>(defaultType);
   const [highlightMatches, setHighlightMatches] = useState<boolean>(defaultHighlightMatches);
   const [currentPage, setCurrentPage] = useState<number>(defaultPage);
-  const [sortBy, setSortBy] = useState<string | null>(defaultSortBy);
+  const [sortBy, setSortBy] = useState<string | null>(getDefaultSortBy(status));
 
   // Derived API values
   const apiConfidence = useMemo(() => {
@@ -173,17 +171,20 @@ export const RelatedWorksList = ({
   );
 
   // Confidence items
-  const confidenceCounts = new Map(relatedWorksData?.relatedWorksByPlan?.confidenceCounts?.map(item => [item.typeId, item.count]));
+  const confidenceCounts = new Map(
+    relatedWorksData?.relatedWorksByPlan?.confidenceCounts?.map((item) => [item.typeId, item.count]),
+  );
   const confidenceItems = Object.values(ConfidenceOptions).map((key: string) => ({
     id: key,
     label: dataTypes(`confidence.${key}`),
-    count: key === ConfidenceOptions.All? undefined: confidenceCounts.get(key) ?? 0,
+    count: key === ConfidenceOptions.All ? undefined : (confidenceCounts.get(key) ?? 0),
   }));
 
   // Work type items
-  const typeItems = relatedWorksData?.relatedWorksByPlan?.workTypeCounts
-    ?.map((item) => ({ id: item.typeId, label: `${dataTypes(`workType.${item.typeId}`)} (${item.count ?? 0})`}))
-    .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase())) ?? [];
+  const typeItems =
+    relatedWorksData?.relatedWorksByPlan?.workTypeCounts
+      ?.map((item) => ({ id: item.typeId, label: `${dataTypes(`workType.${item.typeId}`)} (${item.count ?? 0})` }))
+      .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase())) ?? [];
 
   const sortItems = Object.values(SortByOptions)
     .map((id) => ({ id, label: t(`filters.sortBy.${id}`) }))
@@ -268,7 +269,7 @@ export const RelatedWorksList = ({
           />
         ))}
 
-        {!relatedWorksDataLoading && statusOnlyCount == 0 && (
+        {!relatedWorksDataLoading && statusOnlyCount == 0 && totalCount == 0 && (
           <div className={styles.noResults}>{t("messages." + status + ".noResults")}</div>
         )}
         {!relatedWorksDataLoading && statusOnlyCount > 0 && totalCount == 0 && (
@@ -286,6 +287,18 @@ export const RelatedWorksList = ({
       </div>
     </div>
   );
+};
+
+const getDefaultSortBy = (status: RelatedWorkStatus): SortByOptions => {
+  if (status === RelatedWorkStatus.Pending) {
+    return SortByOptions.ConfidenceHigh;
+  } else if (status === RelatedWorkStatus.Accepted) {
+    return SortByOptions.PublishedNew;
+  } else if (status === RelatedWorkStatus.Rejected) {
+    return SortByOptions.ReviewedNew;
+  }
+
+  return SortByOptions.ConfidenceHigh;
 };
 
 interface SelectProps {

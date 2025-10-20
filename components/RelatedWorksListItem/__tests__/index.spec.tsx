@@ -4,26 +4,32 @@ import userEvent from "@testing-library/user-event";
 import RelatedWorksListItem from "../index";
 import "@testing-library/jest-dom";
 import { axe, toHaveNoViolations } from "jest-axe";
-import { RelatedWork, Status, WorkType } from "@/app/types";
 import { NextIntlClientProvider } from "next-intl";
+import { RelatedWorkSearchResult, RelatedWorkSourceType, RelatedWorkStatus, WorkType } from "@/generated/graphql";
 
 expect.extend(toHaveNoViolations);
 
-const RELATED_WORK: RelatedWork = {
-  dmpDoi: "10.48321/D000001",
-  score: 1.0,
-  work: {
-    doi: "10.1126/fake.2025.084512",
-    type: WorkType.Article,
+const RELATED_WORK: RelatedWorkSearchResult = {
+  id: 4,
+  planId: 1,
+  workVersion: {
+    id: 3,
+    work: {
+      id: 2,
+      doi: "10.1126/fake.2025.084512",
+      created: "",
+      modified: "",
+    },
+    hash: "",
+    workType: WorkType.Article,
+    publicationDate: "2020-05-15",
     title: "Title",
-    publicationDate: new Date(2020, 4, 15),
-    containerTitle: "Journal Name",
     authors: [
       {
         firstInitial: "G",
         givenName: "Given",
-        middleInitial: "M",
-        middleName: "Middle",
+        middleInitials: "M",
+        middleNames: "Middle",
         surname: "Last",
         full: null,
         orcid: "0000-0003-1234-5678",
@@ -31,30 +37,37 @@ const RELATED_WORK: RelatedWork = {
     ],
     institutions: [{ ror: "08t3yqz51", name: "Institution Name" }],
     funders: [{ ror: "098k2sk96", name: "Funder Name" }],
-    awardIds: ["123456789"],
-    source: { name: "OpenAlex", url: "https://openalex.org/works/w2060245136" },
+    awards: [{ awardId: "123456789" }],
+    publicationVenue: "Journal Name",
+    sourceName: "OpenAlex",
+    sourceUrl: "https://openalex.org/works/w2060245136",
+    created: "",
+    modified: "",
   },
-  dateFound: new Date(2025, 7, 21),
-  status: Status.Pending,
-  match: {
-    doi: true,
-    title: "<mark>Title</mark>",
-    abstract: ["a <mark>fragment</mark> of an abstract...", "a second <mark>fragment</mark> of an abstract"],
-    awardIds: [0],
-    authors: [0],
-    institutions: [0],
-    funders: [0],
+  sourceType: RelatedWorkSourceType.SystemMatched,
+  score: 1.0,
+  scoreMax: 1.0,
+  scoreNorm: 1.0,
+  status: RelatedWorkStatus.Pending,
+  doiMatch: {
+    found: true,
+    score: 15,
+    sources: [],
   },
-  dateReviewed: null,
+  contentMatch: {
+    score: 18.0,
+    titleHighlight: "<mark>Title</mark>",
+    abstractHighlights: ["a <mark>fragment</mark> of an abstract...", "a second <mark>fragment</mark> of an abstract"],
+  },
+  authorMatches: [{ index: 0, score: 2.0 }],
+  institutionMatches: [{ index: 0, score: 2.0 }],
+  funderMatches: [{ index: 0, score: 2.0 }],
+  awardMatches: [{ index: 0, score: 2.0 }],
+  created: "2025-08-21",
+  modified: "2025-08-21",
 };
 
-function RelatedWorksListItemHarness({
-  acceptWork = jest.fn(),
-  discardWork = jest.fn(),
-}: {
-  acceptWork?: jest.Mock;
-  discardWork?: jest.Mock;
-}) {
+function RelatedWorksListItemHarness({ updateRelatedWorkStatus = jest.fn() }: { updateRelatedWorkStatus?: jest.Mock }) {
   return (
     <NextIntlClientProvider
       locale={"en"}
@@ -62,10 +75,9 @@ function RelatedWorksListItemHarness({
       messages={{}}
     >
       <RelatedWorksListItem
-        item={RELATED_WORK}
+        relatedWork={RELATED_WORK}
         highlightMatches={false}
-        acceptWork={acceptWork}
-        discardWork={discardWork}
+        updateRelatedWorkStatus={updateRelatedWorkStatus}
       />
     </NextIntlClientProvider>
   );
@@ -89,8 +101,8 @@ describe("RelatedWorksListItem", () => {
   });
 
   it("should accept work", async () => {
-    const acceptWork = jest.fn();
-    render(<RelatedWorksListItemHarness acceptWork={acceptWork} />);
+    const updateRelatedWorkStatus = jest.fn();
+    render(<RelatedWorksListItemHarness updateRelatedWorkStatus={updateRelatedWorkStatus} />);
 
     // Click Accept
     const accept = screen.getByRole("button", { name: "buttons.accept" });
@@ -98,14 +110,14 @@ describe("RelatedWorksListItem", () => {
 
     // Check acceptWork called with DOI
     await waitFor(() => {
-      expect(acceptWork).toHaveBeenCalledTimes(1);
-      expect(acceptWork).toHaveBeenCalledWith(RELATED_WORK.work.doi);
+      expect(updateRelatedWorkStatus).toHaveBeenCalledTimes(1);
+      expect(updateRelatedWorkStatus).toHaveBeenCalledWith(RELATED_WORK.id, RelatedWorkStatus.Accepted);
     });
   });
 
   it("should reject work", async () => {
-    const discardWork = jest.fn();
-    render(<RelatedWorksListItemHarness discardWork={discardWork} />);
+    const updateRelatedWorkStatus = jest.fn();
+    render(<RelatedWorksListItemHarness updateRelatedWorkStatus={updateRelatedWorkStatus} />);
 
     // Click Discard
     const discard = screen.getByRole("button", { name: "buttons.reject" });
@@ -113,8 +125,8 @@ describe("RelatedWorksListItem", () => {
 
     // Check discardWork called with DOI
     await waitFor(() => {
-      expect(discardWork).toHaveBeenCalledTimes(1);
-      expect(discardWork).toHaveBeenCalledWith(RELATED_WORK.work.doi);
+      expect(updateRelatedWorkStatus).toHaveBeenCalledTimes(1);
+      expect(updateRelatedWorkStatus).toHaveBeenCalledWith(RELATED_WORK.id, RelatedWorkStatus.Rejected);
     });
   });
 
