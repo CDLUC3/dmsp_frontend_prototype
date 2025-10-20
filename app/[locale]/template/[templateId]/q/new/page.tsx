@@ -220,6 +220,7 @@ const QuestionTypeSelectPage: React.FC = () => {
                               handleSelect={handleSelect}
                             />
                           ))}
+                          {/** This is temporary, until we add research output question type to questionTypes */}
                           <QuestionTypeCard
                             key="researchOutput"
                             questionType={{
