@@ -21,23 +21,29 @@
       "sort": "Ordenar",
       "reset": "Reset",
       "sortBy": {
-        "confidence-high": "Confiança: Alta para Baixo",
-        "confidence-low": "Confiança: do Menor para o Maior",
-        "reviewed-new": "Revisões: nova para antiga",
-        "reviewed-old": "Revisão: Antigo para Novo",
-        "published-new": "Publicação: nova para antiga",
-        "published-old": "Publicação: antiga para nova",
-        "date-found-new": "Data de encontração: novo para antigo",
-        "date-found-old": "Data de encontração: antiga para nova"
+        "ConfidenceHigh": "Confiança: Alta para Baixo",
+        "ConfidenceLow": "Confiança: do Menor para o Maior",
+        "ReviewedNew": "Revisões: nova para antiga",
+        "ReviewedOld": "Revisão: Antigo para Novo",
+        "PublishedNew": "Publicação: nova para antiga",
+        "PublishedOld": "Publicação: antiga para nova",
+        "DateFoundNew": "Data de encontração: novo para antigo",
+        "DateFoundOld": "Data de encontração: antiga para nova"
       }
     },
     "messages": {
-      "noPendingResults": "Nenhum trabalho pendente encontrado.\nVocê não tem nenhum trabalho pendente para revisar.",
-      "noPendingFilteredResults": "Nenhuma obra pendente encontrada. U\nNenhuma obra pendente corresponde aos filtros atuais.",
-      "noRelatedResults": "Nenhuma obra relacionada encontrada.\nVocê ainda não marcou nenhuma obra como relacionada. Confira a aba Pendente para começar.",
-      "noRelatedFilteredResults": "Nenhuma obra pendente encontrada. U\nNenhuma obra pendente corresponde aos filtros atuais.",
-      "noDiscardedResults": "Nenhuma obra descartada encontrada.\nVocê não descartou nenhuma obra.",
-      "noDiscardedFilteredResults": "Nenhum trabalho descartado foi encontrado.\nNenhum trabalho descartado corresponde aos seus filtros atuais."
+      "PENDING": {
+        "noResults": "Nenhum trabalho pendente encontrado.\nVocê não tem nenhum trabalho pendente para revisar.",
+        "noFilteredResults": "Nenhuma obra pendente encontrada. U\nNenhuma obra pendente corresponde aos filtros atuais."
+      },
+      "ACCEPTED": {
+        "noResults": "Nenhuma obra relacionada encontrada.\nVocê ainda não marcou nenhuma obra como relacionada. Confira a aba Pendente para começar.",
+        "noFilteredResults": "Nenhuma obra pendente encontrada. U\nNenhuma obra pendente corresponde aos filtros atuais."
+      },
+      "REJECTED": {
+        "noResults":  "Nenhuma obra descartada encontrada.\nVocê não descartou nenhuma obra.",
+        "noFilteredResults":  "Nenhum trabalho descartado foi encontrado.\nNenhum trabalho descartado corresponde aos seus filtros atuais."
+      }
     }
   },
   "RelatedWorksListItem": {
@@ -67,53 +73,56 @@
     "instructions": {
       "review": "Revise a informação sobre este trabalho potencialmente relacionado abaixo, e aceite-a como relacionada ou rejeite-a como não relacionada.",
       "actions": {
-        "pending": "Se você rejeitar este trabalho relacionado, você pode recuperá-lo mais tarde na guia Rejeitada.",
-        "related": "Se você rejeitar este trabalho relacionado, você pode recuperá-lo mais tarde na guia Rejeitada.",
-        "discarded": "Você pode recuperar este trabalho relacionado aceitando-o, você verá então na aba Aceitada."
+        "PENDING": "Se você rejeitar este trabalho relacionado, você pode recuperá-lo mais tarde na guia Rejeitada.",
+        "ACCEPTED": "Se você rejeitar este trabalho relacionado, você pode recuperá-lo mais tarde na guia Rejeitada.",
+        "REJECTED": "Você pode recuperar este trabalho relacionado aceitando-o, você verá então na aba Aceitada."
       }
     }
   },
   "RelatedWorksDataTypes": {
     "confidence": {
-      "all": "TODOS",
-      "high": "alta",
-      "medium": "Média",
-      "low": ""
+      "ALL": "TODOS",
+      "HIGH": "alta",
+      "MEDIUM": "Média",
+      "LOW": ""
     },
     "workType": {
-      "article": "artigo",
-      "audio-visual": "Visual de Áudio",
-      "book": "Reservar",
-      "book-chapter": "Capítulo do Livro",
-      "collection": "Collection",
-      "data-paper": "Papel de dados",
-      "dataset": "Dataset",
-      "dissertation": "Desmontagem",
-      "editorial": "Editorial",
-      "erratum": "Erratum",
-      "event": "Evento",
-      "grant": "Conceder",
-      "image": "Imagem:",
-      "interactive-resource": "Recurso interativo",
-      "letter": "Letra",
-      "libguides": "Libguides",
-      "model": "Modelo",
-      "other": "Outros",
-      "paratext": "PT2",
-      "peer-review": "Revisão por Pares",
-      "physical-object": "Objeto físico",
-      "preprint": "Pré-impressão",
-      "reference-entry": "Entrada de Referência",
-      "report": "Denunciar",
-      "retraction": "Retracção",
-      "review": "Avaliar",
-      "service": "Serviço",
-      "software": "Software",
-      "sound": "Som",
-      "standard": "padrão",
-      "supplementary-materials": "Materiais complementares",
-      "text": "texto",
-      "workflow": "Workflow"
+      "ARTICLE": "artigo",
+      "AUDIO_VISUAL": "Visual de Áudio",
+      "BOOK": "Reservar",
+      "BOOK_CHAPTER": "Capítulo do Livro",
+      "COLLECTION": "Collection",
+      "DATA_PAPER": "Papel de dados",
+      "DATASET": "Dataset",
+      "DISSERTATION": "Desmontagem",
+      "EDITORIAL": "Editorial",
+      "ERRATUM": "Erratum",
+      "EVENT": "Evento",
+      "GRANT": "Conceder",
+      "IMAGE": "Imagem:",
+      "INTERACTIVE_RESOURCE": "Recurso interativo",
+      "LETTER": "Letra",
+      "LIBGUIDES": "Libguides",
+      "MODEL": "Modelo",
+      "OTHER": "Outros",
+      "PARATEXT": "PT2",
+      "PEER_REVIEW": "Revisão por Pares",
+      "PHYSICAL_OBJECT": "Objeto físico",
+      "PREPRINT": "Pré-impressão",
+      "PRE_REGISTRATION": "Entrada de Referência",
+      "PROTOCOL": "",
+      "REFERENCE_ENTRY": "",
+      "REPORT": "Denunciar",
+      "RETRACTION": "Retracção",
+      "REVIEW": "Avaliar",
+      "SERVICE": "Serviço",
+      "SOFTWARE": "Software",
+      "SOUND": "Som",
+      "STANDARD": "padrão",
+      "SUPPLEMENTARY_MATERIALS": "Materiais complementares",
+      "TEXT": "texto",
+      "TRADITIONAL_KNOWLEDGE": "",
+      "WORKFLOW": "Workflow"
     }
   }
 }
