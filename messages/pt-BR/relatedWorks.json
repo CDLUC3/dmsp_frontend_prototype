@@ -43,7 +43,7 @@
       "REJECTED": {
         "noResults":  "Nenhuma obra descartada encontrada.\nVocê não descartou nenhuma obra.",
         "noFilteredResults":  "Nenhum trabalho descartado foi encontrado.\nNenhum trabalho descartado corresponde aos seus filtros atuais."
-      },
+      }
     }
   },
   "RelatedWorksListItem": {
