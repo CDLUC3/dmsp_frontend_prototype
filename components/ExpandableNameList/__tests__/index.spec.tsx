@@ -11,7 +11,13 @@ function ExpandableNameListHarness({ maxItems }: { maxItems: number }) {
   return (
     <ExpandableNameList
       items={[{ name: "One" }, { name: "Two" }, { name: "Three" }]}
-      matches={[0, 1]}
+      matches={[
+        { index: 0, score: 2 },
+        {
+          index: 1,
+          score: 1,
+        },
+      ]}
       maxItems={maxItems}
       renderItem={(item) => {
         return <span>{item.name}</span>;

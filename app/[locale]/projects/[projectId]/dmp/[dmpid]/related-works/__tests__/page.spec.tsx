@@ -1,16 +1,16 @@
 import React from "react";
-import {render, screen} from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import {useParams, useRouter} from "next/navigation";
-import {axe, toHaveNoViolations} from "jest-axe";
+import { useParams, useRouter } from "next/navigation";
+import { axe, toHaveNoViolations } from "jest-axe";
 import RelatedWorks from "../page";
 import userEvent from "@testing-library/user-event";
-import {NextIntlClientProvider} from "next-intl";
-import {useRelatedWorksByPlanQuery} from "@/generated/graphql";
+import { NextIntlClientProvider } from "next-intl";
+import { useRelatedWorksByPlanQuery } from "@/generated/graphql";
 import {
   MOCK_ACCEPTED_WORKS,
   MOCK_PENDING_WORKS,
-  MOCK_REJECTED_WORKS
+  MOCK_REJECTED_WORKS,
 } from "@/components/RelatedWorksList/__tests__/index.spec";
 
 expect.extend(toHaveNoViolations);
@@ -29,7 +29,7 @@ jest.mock("@/generated/graphql", () => ({
 }));
 
 function RelatedWorksHarness() {
-  mockUseParams.mockReturnValue({ dmpid: '1' });
+  mockUseParams.mockReturnValue({ dmpid: "1" });
 
   return (
     <NextIntlClientProvider
