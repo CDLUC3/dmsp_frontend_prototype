@@ -2,6 +2,9 @@ import { ReactNode } from "react";
 import { PlanSectionProgress, TemplateVisibility, PlanFeedback, ProjectFundingStatus } from "@/generated/graphql";
 import { AffiliationSearchQuestionType, AnyQuestionType } from '@dmptool/types';
 
+// Re-export types from questionAdd module
+export * from './questionAdd';
+
 export interface EmailInterface {
   id?: number | null;
   email: string;

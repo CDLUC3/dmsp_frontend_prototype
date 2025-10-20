@@ -18,6 +18,7 @@
     width: 1.143rem;
     height: 1.143rem;
     border: 2px solid var(--border-color);
+    background: var(--gray-50);
     border-radius: 4px;
     transition: all 200ms;
     display: flex;
@@ -70,7 +71,30 @@
       fill: var(--checkmark-color);
     }
   }
+
+    // Disabled state styling
+  &[data-disabled="true"] {
+
+    .checkbox {
+      background-color: var(--text-color-disabled);
+      border-color: var(--border-color);
+      // opacity: 0.6;
+      color: white;
+    }
+
+    // Override selected state when disabled
+    &[data-selected] .checkbox {
+      background-color: #e5e7eb;
+      border-color: #d1d5db;
+    }
+
+    svg {
+      stroke: #9ca3af;
+    }
+  }
 }
+
+
 
 .react-aria-CheckboxGroup {
   margin-bottom: var(--space-5);
