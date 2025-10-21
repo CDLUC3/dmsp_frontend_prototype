@@ -11,6 +11,7 @@ export async function addProjectMemberAction({
   email,
   orcid,
   affiliationId,
+  affiliationName,
   memberRoleIds
 }: {
   projectId: number;
@@ -18,7 +19,8 @@ export async function addProjectMemberAction({
   surName: string;
   email: string;
   orcid: string;
-  affiliationId: string;
+  affiliationId?: string;
+  affiliationName?: string;
   memberRoleIds?: number[] | MemberRole[] | null;
 }): Promise<AddProjectMemberResponse> {
   // Execute the mutation using the shared handler
@@ -32,6 +34,7 @@ export async function addProjectMemberAction({
         email,
         orcid,
         affiliationId,
+        affiliationName,
         memberRoleIds
       }
     },

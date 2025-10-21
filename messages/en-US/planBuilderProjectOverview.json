@@ -359,29 +359,54 @@
     }
   },
   "ProjectsProjectMembersSearch": {
-    "title": "Who are the project members?",
-    "searchLabel": "Search by name, organization or ORCID",
-    "searchDescription": "Search by a person's name, organization and/or ORCiD. Entering more information will help narrow the search, for exampleFrederick Cook 0427.",
+    "title": "Add project member",
+    "description": "If you know a person's full 16 character ORCiD, enter it below and use the Lookup button to associate them with this project. If you don't know their ORCiD, just enter their info below.",
+    "searchLabel": "ORCiD ID (recommended)",
+    "searchDescription": "If known, enter project member's full 16 character ORCiD in the format XXXX-XXXX-XXXX-XXXX and click Lookup. Otherwise, complete the information below manually.",
     "ariaSearchInput": "Search",
     "ariaSearchItemName": "Member: {name}",
+    "ariaSelectSearchResult": "Select {name} to populate form",
     "ariaAddMemberButton": "Add {name} as project member",
     "createCollaboratorDescription": "If your collaborator isn't shown you can add their details manually",
     "buttons": {
-      "createMember": "Create member"
+      "createMember": "Create member",
+      "addToProject": "Add to project",
+      "clearForm": "Clear form"
     },
     "headings": {
-      "searchResultsHeader": "Showing 1-{length} of {total} results",
+      "enterMemberDetails": "Project member's details",
+      "searchResultsHeader": "Found a match",
       "createCollaboratorHeader": "Not in the list?"
     },
     "messaging": {
       "errors": {
         "failedToLoadCollaborators": "Failed to load more collaborators",
-        "failedToAddProjectMember": "Failed to add member. Please try again."
+        "failedToAddProjectMember": "Failed to add member. Please try again.",
+        "surNameRequired": "Last name is required",
+        "givenNameRequired": "First name is required",
+        "emailRequired": "Email address is required",
+        "invalidEmail": "Please enter a valid email address",
+        "projectRolesRequired": "At least one project role must be selected"
       },
       "success": {
         "addedProjectMember": "Successfully added {name} as project member"
       }
-    }
+    },
+    "labels": {
+      "givenName": "First name",
+      "surName": "Last name",
+      "affiliation": "Affiliation",
+      "email": "Email (recommended)",
+      "definedRole": "Define member's role(s) in this project",
+      "selected": "Selected",
+      "selectedFromSearch": "Selected from search",
+      "orcid": "ORCID",
+      "orcidFromSearch": "ORCID from search result"
+    },
+    "links": {
+      "learnMoreAboutCreditTaxonomy": "Learn more about each role"
+    },
+    "memberRolesDescription": "<p>Select the role(s) that should be displayed within citations for this project member with the DMP.</p><p>We use an ANSI/NISO standard called CRediT, a community-owned 14 role taxonomy that can be used to describe the key types of contributions typically made to the production and publication of research output such as research articles. </p><p><link>Learn more about CRediT Taxonomy</link> ↗</p>"
   },
   "ProjectsProjectMemberCreate": {
     "title": "Add a new project member",

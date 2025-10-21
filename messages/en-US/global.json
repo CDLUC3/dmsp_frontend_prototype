@@ -659,8 +659,10 @@
     "dataDescription": "Data description",
     "dataFormat": "Data format",
     "dataVolume": "Data volume",
+    "opensInNewTab": "Opens in a new tab",
     "buttons": {
       "search": "Search",
+      "lookup": "Lookup",
       "select": "Select",
       "next": "Next",
       "save": "Save",

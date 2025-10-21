@@ -310,7 +310,7 @@ export interface CheckboxInterface {
 export interface CheckboxGroupProps {
   name?: string;
   checkboxGroupLabel?: string;
-  checkboxGroupDescription?: string;
+  checkboxGroupDescription?: string | ReactNode;
   value?: string[];
   isInvalid?: boolean;
   errorMessage?: string;
@@ -336,7 +336,6 @@ export interface ProjectMemberFormInterface {
   email: string;
   orcid: string;
 }
-
 
 export interface PlanMemberRolesInterface {
   id: number | null;

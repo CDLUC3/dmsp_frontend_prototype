@@ -83,6 +83,8 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
 
   const mutationString = typeof document === "string" ? document : print(document);
 
+  console.log("***VARIABLES IN GRAPHQL SERVER ACTION HANDLER: ", variables);
+  console.log("***MUTATION STRING IN GRAPHQL SERVER ACTION HANDLER: ", mutationString);
   try {
     if (!mutationString) {
       throw new Error("No mutation string provided");
