@@ -9,7 +9,6 @@ import {
   Breadcrumbs,
   Button,
   Checkbox,
-  FieldError,
   Form,
   Input,
   Label,
@@ -42,6 +41,7 @@ import {
 import { OrcidIcon } from '@/components/Icons/orcid/';
 import { CheckboxGroupComponent, FormInput } from "@/components/Form";
 import { TypeAheadWithOther, useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
+import Loading from '@/components/Loading';
 
 import ErrorMessages from '@/components/ErrorMessages';
 
@@ -75,6 +75,25 @@ type ProjectMemberInfo = {
   memberRoleIds?: number[];
 }
 
+interface ProjectMemberFormState {
+  givenName: string;
+  surName: string;
+  affiliationId: string;
+  affiliationName: string;
+  otherAffiliationName: string;
+  email: string;
+  orcid: string;
+}
+
+type SearchState = {
+  term: string;
+  results: CollaboratorSearchResult[];
+  isSearching: boolean;
+}
+
+const ORCID_REGEX = /\b\d{4}-\d{4}-\d{4}-\d{4}\b/;
+const EMAIL_REGEX = /\S+@\S+\.\S+/;
+
 const ProjectsProjectMembersSearch = () => {
   const params = useParams();
   const router = useRouter();
@@ -88,11 +107,6 @@ const ProjectsProjectMembersSearch = () => {
   //For scrolling to error in modal window
   const errorRef = useRef<HTMLDivElement | null>(null);
 
-  // To track last processed cursor to avoid duplicate processing
-  const lastProcessedCursorRef = useRef<string | null>(null);
-  // To track if we've processed the initial results
-  const hasProcessedInitialResults = useRef(false);
-
   // For TypeAhead component
   const { suggestions, handleSearch } = useAffiliationSearch();
 
@@ -100,13 +114,16 @@ const ProjectsProjectMembersSearch = () => {
   const [otherField, setOtherField] = useState(false);
 
 
-  // Add separate state for search and load more
-  const [searchResults, setSearchResults] = useState<CollaboratorSearchResult[]>([]);
-  const [isSearchFetch, setIsSearchFetch] = useState(false);
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  // Add separate state for search
+  const [searchState, setSearchState] = useState<SearchState>({
+    term: '',
+    results: [],
+    isSearching: false
+  });
+
 
   // Project member
-  const [projectMember, setProjectMember] = useState({
+  const [projectMember, setProjectMember] = useState<ProjectMemberFormState>({
     givenName: '',
     surName: '',
     affiliationId: '',
@@ -116,7 +133,6 @@ const ProjectsProjectMembersSearch = () => {
     orcid: '',
   });
   const [roles, setRoles] = useState<string[]>([]);
-  const [selectedSearchResult, setSelectedSearchResult] = useState<CollaboratorSearchResult | null>(null);
 
   // Field errors for funding form
   const [fieldErrors, setFieldErrors] = useState({
@@ -167,49 +183,50 @@ const ProjectsProjectMembersSearch = () => {
   const handleSearchInput = (value: string) => {
     reset();
     const trimmedValue = value.trim();
-    setSearchTerm(trimmedValue);
+    setSearchState(prev => ({ ...prev, term: trimmedValue }));
   }
 
 
-  const extractOrcidFromInput = (input: string): string => {
+  const extractOrcidFromInput = (input: string): { orcid: string; error?: string } => {
     // If input is empty, return empty string
-    if (!input) return '';
+    if (!input.trim()) return { orcid: '' };
 
-    // Regex to find ORCID pattern anywhere in the string
-    const orcidPattern = /\b\d{4}-\d{4}-\d{4}-\d{4}\b/;
-
-    const match = input.match(orcidPattern);
+    const match = input.match(ORCID_REGEX);
     if (!match) {
-      setErrors([t('messaging.errors.valueOrcidRequired')]);
-      return '';
+      return { orcid: '', error: t('messaging.errors.valueOrcidRequired') };
     }
 
-    return match[0];
+    return { orcid: match[0] };
   }
 
   // Handler for search button
   const handleMemberSearch = async () => {
-    const trimmedTerm = searchTerm.trim();
+    const trimmedTerm = searchState.term.trim();
     if (!trimmedTerm) {
       setErrors([t('messaging.errors.searchTermRequired')]);
       return;
     }
 
-    const orcidId = extractOrcidFromInput(trimmedTerm); // Extract the matched ORCID
+    const orcidResult = extractOrcidFromInput(trimmedTerm); // Extract the matched ORCID
 
-    // Do not fetch if no valid orcid match
-    if (!orcidId) return;
+    // Handle ORCID validation errors
+    if (orcidResult.error) {
+      setErrors([orcidResult.error]);
+      return;
+    }
 
     clearAllFormFields();
     setErrors([]);
-    setIsSearchFetch(true);
-    setSearchResults([]); // Clear previous search results
-    lastProcessedCursorRef.current = null; // Reset processed cursor tracking
-    hasProcessedInitialResults.current = false; // Reset initial results flag
+    setSearchState(prev => ({
+      ...prev,
+      isSearching: true,
+      results: []
+    }));
+
 
     await fetchCollaborator({
       variables: {
-        term: searchTerm.trim().toLowerCase(),
+        term: trimmedTerm.toLowerCase(),
       },
     });
   };
@@ -237,7 +254,6 @@ const ProjectsProjectMembersSearch = () => {
 
   // Handle selecting a search result to populate form fields
   const handleSelectSearchResult = (result: CollaboratorSearchResult) => {
-    setSelectedSearchResult(result);
     setProjectMember({
       givenName: result?.givenName || '',
       surName: result?.surName || '',
@@ -259,8 +275,13 @@ const ProjectsProjectMembersSearch = () => {
 
   // Handle clearing the form to start fresh
   const handleClearForm = () => {
-    setSearchTerm('');
+    setSearchState({
+      term: '',
+      results: [],
+      isSearching: false
+    });
   }
+
 
   // Redirect users to the create member page
   const handleCreateMember = () => {
@@ -300,49 +321,35 @@ const ProjectsProjectMembersSearch = () => {
     setRoles([]);
   }
 
+  const validationRules = {
+    givenName: (value: string) =>
+      !value.trim() ? t('messaging.errors.givenNameRequired') : '',
+    surName: (value: string) =>
+      !value.trim() ? t('messaging.errors.surNameRequired') : '',
+    affiliationName: (value: string) =>
+      !value.trim() ? t('messaging.errors.affiliationRequired') : '',
+    email: (value: string) =>
+      value.trim() && !EMAIL_REGEX.test(value)
+        ? t('messaging.errors.invalidEmail') : '',
+    roles: (roles: string[]) =>
+      roles.length === 0 ? t('messaging.errors.projectRolesRequired') : '',
+  };
+
+
   // Validate form fields
   const validateForm = () => {
     const newFieldErrors = {
-      givenName: '',
-      surName: '',
-      affiliationName: '',
-      affiliationId: '',
-      email: '',
-      projectRoles: ''
+      givenName: validationRules.givenName(projectMember.givenName),
+      surName: validationRules.surName(projectMember.surName),
+      affiliationName: validationRules.affiliationName(projectMember.affiliationName),
+      affiliationId: validationRules.affiliationName(projectMember.affiliationName),
+      email: validationRules.email(projectMember.email),
+      projectRoles: validationRules.roles(roles),
     };
 
-    let hasErrors = false;
-
-    console.log("****Affiliation Name:", projectMember.affiliationName);
-
-    if (!projectMember.givenName.trim()) {
-      newFieldErrors.givenName = t('messaging.errors.givenNameRequired');
-      hasErrors = true;
-    }
-
-    if (!projectMember.surName.trim()) {
-      newFieldErrors.surName = t('messaging.errors.surNameRequired');
-      hasErrors = true;
-    }
-
-    if (!projectMember.affiliationName.trim()) {
-      newFieldErrors.affiliationId = t('messaging.errors.affiliationRequired');
-      hasErrors = true;
-    }
-
-    // Email validation - only validate format if provided
-    if (projectMember.email.trim() && !/\S+@\S+\.\S+/.test(projectMember.email)) {
-      newFieldErrors.email = t('messaging.errors.invalidEmail');
-      hasErrors = true;
-    }
-
-    if (roles.length === 0) {
-      newFieldErrors.projectRoles = t('messaging.errors.projectRolesRequired');
-      hasErrors = true;
-    }
-
+    const hasErrors = Object.values(newFieldErrors).some(error => error !== '');
     return { fieldErrors: newFieldErrors, hasErrors };
-  }
+  };
 
   // Handle form submission
   const handleFormSubmit = async (event: React.FormEvent) => {
@@ -366,12 +373,19 @@ const ProjectsProjectMembersSearch = () => {
     // Convert role IDs from strings to numbers
     const memberRoleIds = roles.map(roleId => parseInt(roleId, 10));
     const extractedOrcid = extractOrcidFromInput(projectMember.orcid);
+
+    // Handle ORCID validation errors
+    if (extractedOrcid.error) {
+      setErrors([extractedOrcid.error]);
+      return;
+    }
+
     const response = await addProjectMember({
       projectId: Number(projectId),
       givenName: projectMember.givenName,
       surName: projectMember.surName,
       email: projectMember.email,
-      orcid: extractedOrcid, // Include ORCID if available from search
+      orcid: extractedOrcid.orcid, // Include ORCID if available from search
       affiliationName: projectMember.otherAffiliationName ? projectMember.otherAffiliationName : projectMember.affiliationName,
       affiliationId: projectMember.affiliationId,
       memberRoleIds
@@ -413,52 +427,39 @@ const ProjectsProjectMembersSearch = () => {
 
   // Process fetched collaborator data
   useEffect(() => {
-    if (!collaboratorData || !collaboratorData?.findCollaborator || loading) return;
+    if (!collaboratorData?.findCollaborator || loading) return;
 
-    const newItems = (collaboratorData.findCollaborator.items || []).filter((item): item is CollaboratorSearchResult => item !== null);
+    const newItems = (collaboratorData.findCollaborator.items || [])
+      .filter((item): item is CollaboratorSearchResult => item !== null);
 
-    if (isSearchFetch) {
-      if (newItems.length === 0) {
-        setErrors([t('messaging.noSearchResultsFound')]);
-      } else {
-        // Set search results directly since we only get one result
-        setSearchResults(newItems);
-      }
+    if (!searchState.isSearching) return;
 
-
-      // Auto-populate form with the first result if no result is currently selected
-      if (newItems.length > 0 && !selectedSearchResult) {
-        const firstResult = newItems[0];
-        setSelectedSearchResult(firstResult);
-        setProjectMember({
-          givenName: firstResult?.givenName || '',
-          surName: firstResult?.surName || '',
-          affiliationId: firstResult?.affiliationRORId || '',
-          affiliationName: firstResult?.affiliationName || '',
-          otherAffiliationName: '',
-          email: firstResult?.email || '',
-          orcid: firstResult?.orcid || '',
-        });
-
-        // Clear any previous errors
-        setErrors([]);
-        clearAllFieldErrors();
-      }
+    if (newItems.length === 0) {
+      setErrors([t('messaging.noSearchResultsFound')]);
+      setSearchState(prev => ({ ...prev, results: [] }));
+      return;
     }
 
-  }, [collaboratorData, loading, isSearchFetch, selectedSearchResult]);
+    // Set search results
+    setSearchState(prev => ({ ...prev, results: newItems }));
+
+    // Auto-populate form with the first result
+    const firstResult = newItems[0];
+    handleSelectSearchResult(firstResult);
+
+  }, [collaboratorData, loading, searchState.isSearching]);
+
 
   // Reset search when search term is cleared
   useEffect(() => {
-    // Need this to set list of projects back to original, full list after filtering
-    if (searchTerm === '') {
-      setSearchResults([]);
-      setIsSearchFetch(false);
-      lastProcessedCursorRef.current = null;
-      hasProcessedInitialResults.current = false;
+    if (searchState.term === '') {
+      setSearchState({
+        term: '',
+        results: [],
+        isSearching: false
+      });
 
       // Clear form when search is cleared
-      setSelectedSearchResult(null);
       setProjectMember({
         givenName: '',
         surName: '',
@@ -472,7 +473,7 @@ const ProjectsProjectMembersSearch = () => {
       clearAllFieldErrors();
       setErrors([]);
     }
-  }, [searchTerm])
+  }, [searchState.term])
 
   // Description for the member roles checkbox radio group
   const rolesDescription = t.rich('memberRolesDescription', {
@@ -509,7 +510,7 @@ const ProjectsProjectMembersSearch = () => {
               <Label>{t('searchLabel')} <span className="is-required">(recommended)</span></Label>
               <Input
                 aria-describedby="search-help"
-                value={searchTerm}
+                value={searchState.term}
                 onChange={e => handleSearchInput(e.target.value)} />
               <Button
                 onPress={() => {
@@ -524,9 +525,9 @@ const ProjectsProjectMembersSearch = () => {
             </SearchField>
           </section>
 
-          {isSearchFetch && (
+          {searchState.isSearching && (
             <section aria-labelledby="results-section">
-              {searchResults.length > 0 && (
+              {searchState.results.length > 0 && (
                 <>
                   <div id="results-section" className={styles.resultsHeader}><strong>{t('headings.searchResultsHeader')}</strong>
                     <Button
@@ -541,21 +542,28 @@ const ProjectsProjectMembersSearch = () => {
               )}
 
               <div>
-                {searchResults.length === 0 && !loading && (
+                {loading && (
+                  <Loading
+                    variant="inline"
+                    message={Global('messaging.loading')}
+                    isActive={true}
+                  />
+                )}
+
+                {searchState.results.length === 0 && !loading && (
                   <div className={styles.noResults}>
                     <p>{Global('messaging.noItemsFound')}</p>
                   </div>
                 )}
 
-                {searchResults.map((result: CollaboratorSearchResult, index) => {
+                {searchState.results.map((result: CollaboratorSearchResult, index) => {
                   const name = `${result?.givenName} ${result?.surName} `;
-                  const isSelected = selectedSearchResult?.id === result.id;
                   return (
                     <div
                       key={result.id}
                       data-testid={`result-${index} `}
                       data-result-index={index}
-                      className={`${styles.memberResultsListItem} ${isSelected ? styles.selected : ''}`}
+                      className={`${styles.memberResultsListItem}`}
                       role="button"
                       tabIndex={0}
                       onClick={() => handleSelectSearchResult(result)}
@@ -584,11 +592,6 @@ const ProjectsProjectMembersSearch = () => {
                           )}
                         </p>
                       </div>
-                      {isSelected && (
-                        <div className={styles.selectedIndicator}>
-                          ✓ {t('labels.selected')}
-                        </div>
-                      )}
                     </div>
                   )
                 })}
