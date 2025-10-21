@@ -23,8 +23,8 @@
     "trivy-all": "npm run trivy-high && npm run trivy-med"
   },
   "dependencies": {
-    "@apollo/client": "3.13.8",
-    "@apollo/experimental-nextjs-app-support": "0.12.2",
+    "@apollo/client": "3.14.0",
+    "@apollo/experimental-nextjs-app-support": "0.14.0",
     "@dmptool/types": "1.2.3",
     "@elastic/ecs-pino-format": "1.5.0",
     "@fortawesome/fontawesome-svg-core": "6.6.0",
