@@ -8,7 +8,12 @@ label,
 
 .is-required {
   font-weight: 500;
-  color: var(--slate-600);
+  color: var(--slate-700);
+}
+
+.is-recommended {
+  font-weight: 500;
+  color: var(--slate-700);
 }
 
 .help {

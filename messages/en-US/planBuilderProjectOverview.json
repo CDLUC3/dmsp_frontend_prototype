@@ -361,8 +361,8 @@
   "ProjectsProjectMembersSearch": {
     "title": "Add project member",
     "description": "If you know a person's full 16 character ORCiD, enter it below and use the Lookup button to associate them with this project. If you don't know their ORCiD, just enter their info below.",
-    "searchLabel": "ORCiD ID (recommended)",
-    "searchDescription": "If known, enter project member's full 16 character ORCiD in the format XXXX-XXXX-XXXX-XXXX and click Lookup. Otherwise, complete the information below manually.",
+    "searchLabel": "ORCiD ID",
+    "searchDescription": "If known, enter project member's full 16 character ORCiD in the format XXXX-XXXX-XXXX-XXXX  or ORCiD URL, and click Lookup. Otherwise, complete the information below manually.",
     "ariaSearchInput": "Search",
     "ariaSearchItemName": "Member: {name}",
     "ariaSelectSearchResult": "Select {name} to populate form",
@@ -379,6 +379,7 @@
       "createCollaboratorHeader": "Not in the list?"
     },
     "messaging": {
+      "noSearchResultsFound": "No record associated with that ORCiD was found. Please check the ORCiD and try again.",
       "errors": {
         "failedToLoadCollaborators": "Failed to load more collaborators",
         "failedToAddProjectMember": "Failed to add member. Please try again.",
@@ -386,7 +387,10 @@
         "givenNameRequired": "First name is required",
         "emailRequired": "Email address is required",
         "invalidEmail": "Please enter a valid email address",
-        "projectRolesRequired": "At least one project role must be selected"
+        "projectRolesRequired": "At least one project role must be selected",
+        "affiliationRequired": "Affiliation is required",
+        "searchTermRequired": "Please enter an ORCiD or a URL containing an ORCiD to search",
+        "valueOrcidRequired": "Please enter a valid ORCiD in the format XXXX-XXXX-XXXX-XXXX or a URL containing an ORCiD"
       },
       "success": {
         "addedProjectMember": "Successfully added {name} as project member"
@@ -396,7 +400,7 @@
       "givenName": "First name",
       "surName": "Last name",
       "affiliation": "Affiliation",
-      "email": "Email (recommended)",
+      "email": "Email",
       "definedRole": "Define member's role(s) in this project",
       "selected": "Selected",
       "selectedFromSearch": "Selected from search",

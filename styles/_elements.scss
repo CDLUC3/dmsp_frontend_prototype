@@ -633,6 +633,7 @@
       "input button"
       "help help";
     align-items: end;
+    row-gap: 0; // No added gap between the rows to maintain consistent spacing with form fields
     /* Aligns input and button to bottom */
   }
 
