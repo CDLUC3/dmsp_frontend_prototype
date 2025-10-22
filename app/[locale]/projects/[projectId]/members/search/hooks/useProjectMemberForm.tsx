@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
@@ -27,7 +27,6 @@ export const useProjectMemberForm = (projectId: string) => {
   const router = useRouter();
   const toastState = useToast();
   const t = useTranslations('ProjectsProjectMembersSearch');
-  const Global = useTranslations('Global');
 
   const [projectMember, setProjectMember] = useState<ProjectMemberFormState>({
     givenName: '',
@@ -53,8 +52,6 @@ export const useProjectMemberForm = (projectId: string) => {
   const { data: memberRolesData } = useMemberRolesQuery();
   const memberRoles: MemberRole[] =
     memberRolesData?.memberRoles?.filter((r): r is MemberRole => r !== null) || [];
-
-  /** ---- Form utility helpers ---- */
 
   const clearAllFieldErrors = useCallback(() => {
     setFieldErrors({
@@ -85,6 +82,7 @@ export const useProjectMemberForm = (projectId: string) => {
     clearAllFieldErrors();
   }, [clearAllFieldErrors]);
 
+  // Update affiliation fields
   const updateAffiliationFormData = useCallback(async (id: string, value: string) => {
     resetErrors();
     setProjectMember((prev) => ({
@@ -94,7 +92,6 @@ export const useProjectMemberForm = (projectId: string) => {
     }));
   }, [resetErrors]);
 
-  /** ---- Validation ---- */
 
   const validationRules = useMemo(() => ({
     givenName: (value: string) =>
@@ -113,6 +110,7 @@ export const useProjectMemberForm = (projectId: string) => {
         : '',
   }), [t]);
 
+  // Validate fields on form submit
   const validateForm = useCallback(() => {
     const newFieldErrors = {
       givenName: validationRules.givenName(projectMember.givenName),
@@ -127,8 +125,7 @@ export const useProjectMemberForm = (projectId: string) => {
     return { fieldErrors: newFieldErrors, hasErrors };
   }, [validationRules, projectMember, roles]);
 
-  /** ---- Submit ---- */
-
+  // Call to addProjectMember mutation
   const addProjectMember = useCallback(async (): Promise<AddProjectMemberResponse> => {
     const memberRoleIds = roles.map((r) => parseInt(r, 10));
 
@@ -147,6 +144,8 @@ export const useProjectMemberForm = (projectId: string) => {
     return response;
   }, [roles, projectId, projectMember]);
 
+
+  // Handle member details form submission
   const handleFormSubmit = useCallback(async (event: React.FormEvent) => {
     event.preventDefault();
     resetErrors();
@@ -188,6 +187,7 @@ export const useProjectMemberForm = (projectId: string) => {
         'projectId',
         'surName',
       ]);
+
       if (errs.length > 0) {
         setErrors(errs);
         return;
@@ -204,14 +204,12 @@ export const useProjectMemberForm = (projectId: string) => {
     router.push(routePath('projects.members.index', { projectId }));
   }, [resetErrors, validateForm, addProjectMember, router, projectId, t, toastState, projectMember.givenName, projectMember.surName]);
 
-  /** ---- Checkbox ---- */
-
+  // Handle member role checkbox changes
   const handleCheckboxChange = useCallback((values: string[]) => {
     resetErrors();
     setRoles(values);
   }, [resetErrors]);
 
-  /** ---- Return all ---- */
 
   return {
     projectMember,

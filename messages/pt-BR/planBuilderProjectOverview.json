@@ -369,16 +369,15 @@
     "ariaAddMemberButton": "Adicionar {name} como membro do projeto",
     "createCollaboratorDescription": "Se seu colaborador não estiver mostrado, você pode adicionar seus detalhes manualmente",
     "buttons": {
-      "createMember": "Criar membro",
       "addToProject": "Adicionar ao projeto",
       "clearForm": "Limpar formulário"
     },
     "headings": {
       "searchResultsHeader": "Mostrando 1-{length} dos resultados {total}",
-      "createCollaboratorHeader": "Não está na lista?",
       "enterMemberDetails": "Inserir detalhes do membro"
     },
     "messaging": {
+      "noSearchResultsFound": "Nenhum registro associado a esse ORCiD foi encontrado. Verifique o ORCiD e tente novamente.",
       "errors": {
         "failedToLoadCollaborators": "Falha ao carregar mais colaboradores",
         "failedToAddProjectMember": "Falha ao adicionar membro. Por favor, tente novamente.",
@@ -386,7 +385,10 @@
         "givenNameRequired": "Nome é obrigatório",
         "emailRequired": "Endereço de e-mail é obrigatório",
         "invalidEmail": "Por favor, insira um endereço de e-mail válido",
-        "projectRolesRequired": "Pelo menos um papel do projeto deve ser selecionado"
+        "projectRolesRequired": "Pelo menos um papel do projeto deve ser selecionado",
+        "affiliationRequired": "Afiliação é obrigatória",
+        "searchTermRequired": "Por favor, insira um ORCiD ou uma URL contendo um ORCiD para pesquisar",
+        "valueOrcidRequired": "Por favor, insira um ORCiD válido no formato XXXX-XXXX-XXXX-XXXX ou uma URL contendo um ORCiD"
       },
       "success": {
         "addedProjectMember": "Adicionado com sucesso {name} como membro do projeto"
@@ -396,8 +398,10 @@
       "givenName": "Nome",
       "surName": "Sobrenome",
       "affiliation": "Afiliação",
+      "otherAffiliationName": "Outro nome de afiliação",
       "email": "Endereço de e-mail",
       "definedRole": "Definir o(s) papel(éis) do membro neste projeto",
+      "ariaMemberRoles": "Opções de papéis do membro do projeto",
       "selected": "Selecionado",
       "selectedFromSearch": "Selecionado da pesquisa",
       "orcid": "ORCID",

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
 import {
   Breadcrumb,
@@ -22,8 +22,6 @@ import {
   CollaboratorSearchResult,
 } from '@/generated/graphql';
 
-
-
 // Components
 import PageHeader from "@/components/PageHeader";
 import {
@@ -41,14 +39,12 @@ import ErrorMessages from '@/components/ErrorMessages';
 import { useCollaboratorSearch } from './hooks/useCollaboratorSearch';
 import { useProjectMemberForm } from './hooks/useProjectMemberForm';
 
+// Utils
 import { routePath } from '@/utils/index';
 import styles from './ProjectsProjectMembersSearch.module.scss';
 
-
-
 const ProjectsProjectMembersSearch = () => {
   const params = useParams();
-  const router = useRouter();
   const projectId = String(params.projectId);
 
   // Scroll to top when search is reset
@@ -56,6 +52,10 @@ const ProjectsProjectMembersSearch = () => {
 
   //For scrolling to error in modal window
   const errorRef = useRef<HTMLDivElement | null>(null);
+
+  // Translation keys
+  const Global = useTranslations('Global');
+  const t = useTranslations('ProjectsProjectMembersSearch');
 
   // For TypeAhead component
   const { suggestions, handleSearch: handleAffiliationSearch } = useAffiliationSearch();
@@ -74,14 +74,8 @@ const ProjectsProjectMembersSearch = () => {
     handleFormSubmit,
     resetErrors,
     updateAffiliationFormData,
-    clearAllFieldErrors,
     clearAllFormFields,
-    setErrors,
   } = useProjectMemberForm(projectId);
-
-  // Translation keys
-  const Global = useTranslations('Global');
-  const t = useTranslations('ProjectsProjectMembersSearch');
 
   const {
     term,
@@ -110,7 +104,7 @@ const ProjectsProjectMembersSearch = () => {
 
   //Update searchTerm state whenever entry in the search field changes
   const handleSearchInput = (value: string) => {
-    reset();
+    reset(); // clear form and errors when search input changes
     setSearchTerm(value);
   }
 
@@ -123,7 +117,6 @@ const ProjectsProjectMembersSearch = () => {
   };
 
 
-
   // Handle selecting a search result to populate form fields
   const handleSelectSearchResult = (result: CollaboratorSearchResult) => {
     setProjectMember({
@@ -132,7 +125,7 @@ const ProjectsProjectMembersSearch = () => {
       email: result?.email || '',
       orcid: result?.orcid || '',
       affiliationName: result?.affiliationName || '',
-      affiliationId: result?.affiliationId || '',
+      affiliationId: result?.affiliationId || result?.affiliationRORId || '',
       otherAffiliationName: '',
     });
 
@@ -145,13 +138,7 @@ const ProjectsProjectMembersSearch = () => {
     clearSearch();
   }
 
-
-  // Redirect users to the create member page
-  const handleCreateMember = () => {
-    router.push(routePath('projects.members.create', { projectId }));
-  }
-
-  // Auto-populate form with the first result when we get search results
+  // Auto-populate form with the result when we get search results
   useEffect(() => {
     if (results.length > 0) {
       const firstResult = results[0];
@@ -199,6 +186,7 @@ const ProjectsProjectMembersSearch = () => {
 
       <LayoutContainer>
         <ContentContainer>
+          {/** Search */}
           <section id="search-section" className={styles.searchSection} role="search" ref={topRef}>
             <SearchField>
               <Label>{t('searchLabel')} <span className="is-required">(recommended)</span></Label>
@@ -219,6 +207,7 @@ const ProjectsProjectMembersSearch = () => {
             </SearchField>
           </section>
 
+          {/** Search Result section */}
           {isSearching && (
             <section aria-labelledby="results-section">
               {results.length > 0 && (
@@ -293,11 +282,13 @@ const ProjectsProjectMembersSearch = () => {
             </section>
           )}
 
+          {/** Member Details section */}
           <section id="member-details">
             <h2>{t('headings.enterMemberDetails')}</h2>
             <Form onSubmit={handleFormSubmit}>
               <FormInput
                 name="firstName"
+                id="firstName"
                 type="text"
                 isRequiredVisualOnly={true}
                 label={t('labels.givenName')}
@@ -312,6 +303,7 @@ const ProjectsProjectMembersSearch = () => {
 
               <FormInput
                 name="lastName"
+                id="lastName"
                 type="text"
                 isRequiredVisualOnly={true}
                 label={t('labels.surName')}
@@ -328,8 +320,8 @@ const ProjectsProjectMembersSearch = () => {
                 label={t('labels.affiliation')}
                 fieldName="affiliation"
                 setOtherField={setOtherField}
-                isRequired={true}
-                error={fieldErrors.affiliationId}
+                isRequiredVisualOnly={true}
+                error={fieldErrors.affiliationName}
                 updateFormData={updateAffiliationFormData}
                 value={projectMember.affiliationName}
                 suggestions={suggestions}
@@ -339,8 +331,9 @@ const ProjectsProjectMembersSearch = () => {
                 <div className={`${styles.formRow} ${styles.oneItemRow}`}>
                   <FormInput
                     name="otherAffiliationName"
+                    id="otherAffiliationName"
                     type="text"
-                    label="Other Affiliation Name"
+                    label={t('labels.otherAffiliationName')}
                     placeholder={projectMember.otherAffiliationName}
                     value={projectMember.otherAffiliationName}
                     onChange={handleOtherAffiliationInputChange}
@@ -350,6 +343,7 @@ const ProjectsProjectMembersSearch = () => {
 
               <FormInput
                 name="email"
+                id="email"
                 type="email"
                 isRequired={false}
                 isRecommended={true}
@@ -375,7 +369,7 @@ const ProjectsProjectMembersSearch = () => {
                   errorMessage={fieldErrors.projectRoles}
                 >
                   {memberRoles.map((role, index) => (
-                    <Checkbox key={role?.id ?? index} value={role?.id?.toString() ?? ''} aria-label="project roles option">
+                    <Checkbox key={role?.id ?? index} value={role?.id?.toString() ?? ''} aria-label={t('labels.ariaMemberRoles')}>
                       <div className="checkbox">
                         <svg viewBox="0 0 18 18" aria-hidden="true">
                           <polyline points="1 9 7 14 15 4" />
@@ -393,18 +387,6 @@ const ProjectsProjectMembersSearch = () => {
               </div>
               <Button type="submit" className="submit-button">{t('buttons.addToProject')}</Button>
             </Form>
-          </section>
-
-          <section aria-labelledby="manual-section"
-            className={styles.createNew}>
-            <h2 id="manual-section" className="heading-3">{t('headings.createCollaboratorHeader')}</h2>
-            <p>{t('createCollaboratorDescription')}</p>
-            <Button
-              className="secondary"
-              onPress={handleCreateMember}
-            >
-              {t('buttons.createMember')}
-            </Button>
           </section>
         </ContentContainer>
       </LayoutContainer>

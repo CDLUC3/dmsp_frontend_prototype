@@ -12,8 +12,6 @@ type SearchState = {
   loading: boolean;
 };
 
-const ORCID_REGEX = /\b\d{4}-\d{4}-\d{4}-\d{4}\b/;
-
 export const useCollaboratorSearch = () => {
   const t = useTranslations('ProjectsProjectMembersSearch');
   const [searchState, setSearchState] = useState<SearchState>({
@@ -26,15 +24,7 @@ export const useCollaboratorSearch = () => {
 
   const [fetchCollaborator, { data, loading }] = useFindCollaboratorLazyQuery();
 
-  // --- helpers ---
-  const extractOrcidFromInput = (input: string): { orcid: string; error?: string } => {
-    if (!input.trim()) return { orcid: '' };
-    const match = input.match(ORCID_REGEX);
-    if (!match) return { orcid: '', error: t('messaging.errors.valueOrcidRequired') };
-    return { orcid: match[0] };
-  };
-
-  // --- event handlers ---
+  // Set search state on input change
   const handleSearchInput = (value: string) => {
     const trimmed = value.trim();
     setSearchState({
@@ -46,6 +36,7 @@ export const useCollaboratorSearch = () => {
     });
   };
 
+  // Execute search
   const handleMemberSearch = async () => {
     const trimmed = searchState.term.trim();
 
@@ -53,15 +44,6 @@ export const useCollaboratorSearch = () => {
       setSearchState((prev) => ({
         ...prev,
         errors: [t('messaging.errors.searchTermRequired')],
-      }));
-      return;
-    }
-
-    const orcidResult = extractOrcidFromInput(trimmed);
-    if (orcidResult.error) {
-      setSearchState((prev) => ({
-        ...prev,
-        errors: [orcidResult.error!], // Use non-null assertion since we know it exists
       }));
       return;
     }
@@ -80,7 +62,7 @@ export const useCollaboratorSearch = () => {
     });
   };
 
-  // --- sync results with query ---
+  // Update search results when data changes
   useEffect(() => {
     if (!data?.findCollaborator) return;
     const items = (data.findCollaborator.items || []).filter(

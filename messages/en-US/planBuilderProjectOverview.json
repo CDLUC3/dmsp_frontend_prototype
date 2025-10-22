@@ -367,16 +367,13 @@
     "ariaSearchItemName": "Member: {name}",
     "ariaSelectSearchResult": "Select {name} to populate form",
     "ariaAddMemberButton": "Add {name} as project member",
-    "createCollaboratorDescription": "If your collaborator isn't shown you can add their details manually",
     "buttons": {
-      "createMember": "Create member",
       "addToProject": "Add to project",
       "clearForm": "Clear form"
     },
     "headings": {
       "enterMemberDetails": "Project member's details",
-      "searchResultsHeader": "Found a match",
-      "createCollaboratorHeader": "Not in the list?"
+      "searchResultsHeader": "Found a match"
     },
     "messaging": {
       "noSearchResultsFound": "No record associated with that ORCiD was found. Please check the ORCiD and try again.",
@@ -400,8 +397,10 @@
       "givenName": "First name",
       "surName": "Last name",
       "affiliation": "Affiliation",
+      "otherAffiliationName": "Other Affiliation Name",
       "email": "Email",
       "definedRole": "Define member's role(s) in this project",
+      "ariaMemberRoles": "Project member roles options",
       "selected": "Selected",
       "selectedFromSearch": "Selected from search",
       "orcid": "ORCID",
