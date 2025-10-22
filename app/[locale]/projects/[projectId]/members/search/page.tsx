@@ -20,17 +20,9 @@ import {
 //GraphQL
 import {
   CollaboratorSearchResult,
-  MemberRole,
-  useFindCollaboratorLazyQuery,
-  useMemberRolesQuery,
 } from '@/generated/graphql';
 
-import {
-  addProjectMemberAction
-} from '@/app/actions';
 
-// Types
-import { AddProjectMemberResponse } from '@/app/types';
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -46,59 +38,17 @@ import Loading from '@/components/Loading';
 import ErrorMessages from '@/components/ErrorMessages';
 
 // Hooks
-import { extractErrors } from '@/utils/errorHandler';
+import { useCollaboratorSearch } from './hooks/useCollaboratorSearch';
+import { useProjectMemberForm } from './hooks/useProjectMemberForm';
 
-import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/index';
 import styles from './ProjectsProjectMembersSearch.module.scss';
 
-type AddProjectMemberErrors = {
-  email?: string;
-  general?: string;
-  givenName?: string;
-  affiliationId: string,
-  affiliationName: string,
-  memberRoleIds?: string;
-  orcid?: string;
-  projectId?: string;
-  surName?: string;
-}
 
-type ProjectMemberInfo = {
-  projectId: number;
-  givenName: string;
-  surName: string;
-  email: string;
-  orcid: string;
-  affiliationId: string,
-  affiliationName: string,
-  memberRoleIds?: number[];
-}
-
-interface ProjectMemberFormState {
-  givenName: string;
-  surName: string;
-  affiliationId: string;
-  affiliationName: string;
-  otherAffiliationName: string;
-  email: string;
-  orcid: string;
-}
-
-type SearchState = {
-  term: string;
-  results: CollaboratorSearchResult[];
-  isSearching: boolean;
-}
-
-const ORCID_REGEX = /\b\d{4}-\d{4}-\d{4}-\d{4}\b/;
-const EMAIL_REGEX = /\S+@\S+\.\S+/;
 
 const ProjectsProjectMembersSearch = () => {
   const params = useParams();
   const router = useRouter();
-  const toastState = useToast();
-
   const projectId = String(params.projectId);
 
   // Scroll to top when search is reset
@@ -108,72 +58,51 @@ const ProjectsProjectMembersSearch = () => {
   const errorRef = useRef<HTMLDivElement | null>(null);
 
   // For TypeAhead component
-  const { suggestions, handleSearch } = useAffiliationSearch();
+  const { suggestions, handleSearch: handleAffiliationSearch } = useAffiliationSearch();
 
-  const [errors, setErrors] = useState<string[]>([]);
   const [otherField, setOtherField] = useState(false);
 
-
-  // Add separate state for search
-  const [searchState, setSearchState] = useState<SearchState>({
-    term: '',
-    results: [],
-    isSearching: false
-  });
-
-
-  // Project member
-  const [projectMember, setProjectMember] = useState<ProjectMemberFormState>({
-    givenName: '',
-    surName: '',
-    affiliationId: '',
-    affiliationName: '',
-    otherAffiliationName: '',
-    email: '',
-    orcid: '',
-  });
-  const [roles, setRoles] = useState<string[]>([]);
-
-  // Field errors for funding form
-  const [fieldErrors, setFieldErrors] = useState({
-    givenName: '',
-    surName: '',
-    affiliationId: '',
-    affiliationName: '',
-    email: '',
-    projectRoles: ''
-  });
+  // Use the custom hook for form management
+  const {
+    projectMember,
+    setProjectMember,
+    roles,
+    memberRoles,
+    errors,
+    fieldErrors,
+    handleCheckboxChange,
+    handleFormSubmit,
+    resetErrors,
+    updateAffiliationFormData,
+    clearAllFieldErrors,
+    clearAllFormFields,
+    setErrors,
+  } = useProjectMemberForm(projectId);
 
   // Translation keys
   const Global = useTranslations('Global');
   const t = useTranslations('ProjectsProjectMembersSearch');
 
-  // Get Member Roles
-  const { data: memberRolesData } = useMemberRolesQuery();
-  const memberRoles: MemberRole[] = memberRolesData?.memberRoles?.filter((role): role is MemberRole => role !== null) || [];
-
-  // Lazy query for searching collaborators
-  const [fetchCollaborator, { data: collaboratorData, loading }] = useFindCollaboratorLazyQuery();
-
+  const {
+    term,
+    results,
+    isSearching,
+    loading: searchLoading,
+    errors: searchErrors,
+    setSearchTerm,
+    handleMemberSearch: handleCollaboratorSearch,
+    clearSearch
+  } = useCollaboratorSearch();
 
   const reset = () => {
-    clearAllFieldErrors();
-    setErrors([]);
+    resetErrors();
     clearAllFormFields();
-  }
-
-  const updateAffiliationFormData = async (id: string, value: string) => {
-    // Clear previous error messages
-    clearAllFieldErrors();
-    setErrors([]);
-    return setProjectMember({ ...projectMember, affiliationName: value, affiliationId: id });
   }
 
   // Handle any changes to form field values
   function handleOtherAffiliationInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     // Clear previous error messages
-    clearAllFieldErrors();
-    setErrors([]);
+    resetErrors();
     const { name, value } = e.target;
     setProjectMember({ ...projectMember, [name]: value });
   }
@@ -182,75 +111,18 @@ const ProjectsProjectMembersSearch = () => {
   //Update searchTerm state whenever entry in the search field changes
   const handleSearchInput = (value: string) => {
     reset();
-    const trimmedValue = value.trim();
-    setSearchState(prev => ({ ...prev, term: trimmedValue }));
+    setSearchTerm(value);
   }
 
 
-  const extractOrcidFromInput = (input: string): { orcid: string; error?: string } => {
-    // If input is empty, return empty string
-    if (!input.trim()) return { orcid: '' };
-
-    const match = input.match(ORCID_REGEX);
-    if (!match) {
-      return { orcid: '', error: t('messaging.errors.valueOrcidRequired') };
-    }
-
-    return { orcid: match[0] };
-  }
-
-  // Handler for search button
+  // Handler for search button - now uses the hook's functionality
   const handleMemberSearch = async () => {
-    const trimmedTerm = searchState.term.trim();
-    if (!trimmedTerm) {
-      setErrors([t('messaging.errors.searchTermRequired')]);
-      return;
-    }
-
-    const orcidResult = extractOrcidFromInput(trimmedTerm); // Extract the matched ORCID
-
-    // Handle ORCID validation errors
-    if (orcidResult.error) {
-      setErrors([orcidResult.error]);
-      return;
-    }
-
     clearAllFormFields();
-    setErrors([]);
-    setSearchState(prev => ({
-      ...prev,
-      isSearching: true,
-      results: []
-    }));
-
-
-    await fetchCollaborator({
-      variables: {
-        term: trimmedTerm.toLowerCase(),
-      },
-    });
+    resetErrors();
+    await handleCollaboratorSearch();
   };
 
-  // Call Server Action addProjectMemberAction
-  const addProjectMember = async (memberInfo: ProjectMemberInfo): Promise<AddProjectMemberResponse> => {
-    // Don't need a try-catch block here, as the error is handled in the server action
-    const response = await addProjectMemberAction({
-      projectId: memberInfo.projectId,
-      givenName: memberInfo.givenName,
-      surName: memberInfo.surName,
-      email: memberInfo.email,
-      orcid: memberInfo.orcid,
-      affiliationId: memberInfo.affiliationId,
-      affiliationName: memberInfo.affiliationName,
-      memberRoleIds: memberInfo.memberRoleIds,
-    });
 
-    if (response.redirect) {
-      router.push(response.redirect);
-    }
-
-    return response;
-  }
 
   // Handle selecting a search result to populate form fields
   const handleSelectSearchResult = (result: CollaboratorSearchResult) => {
@@ -265,21 +137,12 @@ const ProjectsProjectMembersSearch = () => {
     });
 
     // Clear any previous errors
-    setErrors([]);
-    clearAllFieldErrors();
-
-    // Scroll to form
-    const formSection = document.getElementById('member-details');
-    formSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    resetErrors();
   }
 
   // Handle clearing the form to start fresh
   const handleClearForm = () => {
-    setSearchState({
-      term: '',
-      results: [],
-      isSearching: false
-    });
+    clearSearch();
   }
 
 
@@ -288,192 +151,23 @@ const ProjectsProjectMembersSearch = () => {
     router.push(routePath('projects.members.create', { projectId }));
   }
 
-  // Handle changes to role checkbox selection
-  const handleCheckboxChange = (values: string[]) => {
-    clearAllFieldErrors();
-    setErrors([]);
-    setRoles(values); // Set the selected role IDs
-  }
-
-  const clearAllFieldErrors = () => {
-    //Remove all field errors
-    setFieldErrors({
-      givenName: '',
-      surName: '',
-      affiliationName: '',
-      affiliationId: '',
-      email: '',
-      projectRoles: ''
-    });
-  }
-
-  const clearAllFormFields = () => {
-    setProjectMember({
-      givenName: '',
-      surName: '',
-      affiliationId: '',
-      affiliationName: '',
-      otherAffiliationName: '',
-      email: '',
-      orcid: '',
-    });
-
-    setRoles([]);
-  }
-
-  const validationRules = {
-    givenName: (value: string) =>
-      !value.trim() ? t('messaging.errors.givenNameRequired') : '',
-    surName: (value: string) =>
-      !value.trim() ? t('messaging.errors.surNameRequired') : '',
-    affiliationName: (value: string) =>
-      !value.trim() ? t('messaging.errors.affiliationRequired') : '',
-    email: (value: string) =>
-      value.trim() && !EMAIL_REGEX.test(value)
-        ? t('messaging.errors.invalidEmail') : '',
-    roles: (roles: string[]) =>
-      roles.length === 0 ? t('messaging.errors.projectRolesRequired') : '',
-  };
-
-
-  // Validate form fields
-  const validateForm = () => {
-    const newFieldErrors = {
-      givenName: validationRules.givenName(projectMember.givenName),
-      surName: validationRules.surName(projectMember.surName),
-      affiliationName: validationRules.affiliationName(projectMember.affiliationName),
-      affiliationId: validationRules.affiliationName(projectMember.affiliationName),
-      email: validationRules.email(projectMember.email),
-      projectRoles: validationRules.roles(roles),
-    };
-
-    const hasErrors = Object.values(newFieldErrors).some(error => error !== '');
-    return { fieldErrors: newFieldErrors, hasErrors };
-  };
-
-  // Handle form submission
-  const handleFormSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    // Clear previous errors
-    setErrors([]);
-    clearAllFieldErrors();
-
-    // Validate form
-    const { fieldErrors: newFieldErrors, hasErrors } = validateForm();
-
-    if (hasErrors) {
-      setFieldErrors(newFieldErrors);
-      // Extract the error messages and add them to the general errors state
-      const errorMessages = extractErrors(newFieldErrors);
-      setErrors(errorMessages);
-      return;
-    }
-
-    // Convert role IDs from strings to numbers
-    const memberRoleIds = roles.map(roleId => parseInt(roleId, 10));
-    const extractedOrcid = extractOrcidFromInput(projectMember.orcid);
-
-    // Handle ORCID validation errors
-    if (extractedOrcid.error) {
-      setErrors([extractedOrcid.error]);
-      return;
-    }
-
-    const response = await addProjectMember({
-      projectId: Number(projectId),
-      givenName: projectMember.givenName,
-      surName: projectMember.surName,
-      email: projectMember.email,
-      orcid: extractedOrcid.orcid, // Include ORCID if available from search
-      affiliationName: projectMember.otherAffiliationName ? projectMember.otherAffiliationName : projectMember.affiliationName,
-      affiliationId: projectMember.affiliationId,
-      memberRoleIds
-    });
-
-    // Handle redirect from server action (e.g., authentication required)
-    if (response.redirect) {
-      router.push(response.redirect);
-      return;
-    }
-
-    if (!response.success) {
-      // Use specific error messages if available, otherwise use default
-      const errorMessages = response.errors && response.errors.length > 0
-        ? response.errors
-        : [t('messaging.errors.failedToAddProjectMember')];
-      setErrors(errorMessages);
-    } else {
-      if (response.data?.errors) {
-        // Convert nulls to undefined before passing to extractErrors
-        const normalizedErrors = Object.fromEntries(
-          Object.entries(response.data.errors).map(([key, value]) => [key, value ?? undefined])
-        ) as AddProjectMemberErrors;
-
-        // Handle errors as an object with general or field-level errors
-        const errs = extractErrors<AddProjectMemberErrors>(normalizedErrors, ['general', 'affiliationId', 'email', 'givenName', 'memberRoleIds', 'orcid', 'projectId', 'surName']);
-        if (errs.length > 0) {
-          setErrors(errs);
-          return;
-        }
-      }
-
-      // On success
-      const successMessage = `${t('messaging.success.addedProjectMember', { name: `${projectMember.givenName} ${projectMember.surName}` })}`;
-      toastState.add(successMessage, { type: 'success' });
-      router.push(routePath('projects.members.index', { projectId }))
-    }
-  }
-
-  // Process fetched collaborator data
+  // Auto-populate form with the first result when we get search results
   useEffect(() => {
-    if (!collaboratorData?.findCollaborator || loading) return;
-
-    const newItems = (collaboratorData.findCollaborator.items || [])
-      .filter((item): item is CollaboratorSearchResult => item !== null);
-
-    if (!searchState.isSearching) return;
-
-    if (newItems.length === 0) {
-      setErrors([t('messaging.noSearchResultsFound')]);
-      setSearchState(prev => ({ ...prev, results: [] }));
-      return;
+    if (results.length > 0) {
+      const firstResult = results[0];
+      handleSelectSearchResult(firstResult);
     }
-
-    // Set search results
-    setSearchState(prev => ({ ...prev, results: newItems }));
-
-    // Auto-populate form with the first result
-    const firstResult = newItems[0];
-    handleSelectSearchResult(firstResult);
-
-  }, [collaboratorData, loading, searchState.isSearching]);
+  }, [results]);
 
 
-  // Reset search when search term is cleared
+  // Reset form when search term is cleared
   useEffect(() => {
-    if (searchState.term === '') {
-      setSearchState({
-        term: '',
-        results: [],
-        isSearching: false
-      });
-
+    if (term === '') {
       // Clear form when search is cleared
-      setProjectMember({
-        givenName: '',
-        surName: '',
-        affiliationId: '',
-        affiliationName: '',
-        otherAffiliationName: '',
-        email: '',
-        orcid: '',
-      });
-      setRoles([]);
-      clearAllFieldErrors();
-      setErrors([]);
+      clearAllFormFields();
+      resetErrors();
     }
-  }, [searchState.term])
+  }, [term, clearAllFormFields, resetErrors])
 
   // Description for the member roles checkbox radio group
   const rolesDescription = t.rich('memberRolesDescription', {
@@ -501,7 +195,7 @@ const ProjectsProjectMembersSearch = () => {
         className="page-project-members-search"
       />
 
-      <ErrorMessages errors={errors} ref={errorRef} />
+      <ErrorMessages errors={[...errors, ...searchErrors]} ref={errorRef} />
 
       <LayoutContainer>
         <ContentContainer>
@@ -510,7 +204,7 @@ const ProjectsProjectMembersSearch = () => {
               <Label>{t('searchLabel')} <span className="is-required">(recommended)</span></Label>
               <Input
                 aria-describedby="search-help"
-                value={searchState.term}
+                value={term}
                 onChange={e => handleSearchInput(e.target.value)} />
               <Button
                 onPress={() => {
@@ -525,9 +219,9 @@ const ProjectsProjectMembersSearch = () => {
             </SearchField>
           </section>
 
-          {searchState.isSearching && (
+          {isSearching && (
             <section aria-labelledby="results-section">
-              {searchState.results.length > 0 && (
+              {results.length > 0 && (
                 <>
                   <div id="results-section" className={styles.resultsHeader}><strong>{t('headings.searchResultsHeader')}</strong>
                     <Button
@@ -542,7 +236,7 @@ const ProjectsProjectMembersSearch = () => {
               )}
 
               <div>
-                {loading && (
+                {searchLoading && (
                   <Loading
                     variant="inline"
                     message={Global('messaging.loading')}
@@ -550,13 +244,13 @@ const ProjectsProjectMembersSearch = () => {
                   />
                 )}
 
-                {searchState.results.length === 0 && !loading && (
+                {results.length === 0 && !searchLoading && (
                   <div className={styles.noResults}>
                     <p>{Global('messaging.noItemsFound')}</p>
                   </div>
                 )}
 
-                {searchState.results.map((result: CollaboratorSearchResult, index) => {
+                {results.map((result: CollaboratorSearchResult, index: number) => {
                   const name = `${result?.givenName} ${result?.surName} `;
                   return (
                     <div
@@ -609,8 +303,7 @@ const ProjectsProjectMembersSearch = () => {
                 label={t('labels.givenName')}
                 value={projectMember.givenName}
                 onChange={(e) => {
-                  setErrors([]); // clear errors on input change
-                  clearAllFieldErrors();
+                  resetErrors();
                   setProjectMember({ ...projectMember, givenName: e.target.value })
                 }}
                 isInvalid={(!!fieldErrors.givenName)}
@@ -624,8 +317,7 @@ const ProjectsProjectMembersSearch = () => {
                 label={t('labels.surName')}
                 value={projectMember.surName}
                 onChange={(e) => {
-                  setErrors([]); // clear errors on input change
-                  clearAllFieldErrors();
+                  resetErrors();
                   setProjectMember({ ...projectMember, surName: e.target.value })
                 }}
                 isInvalid={(!!fieldErrors.surName)}
@@ -641,7 +333,7 @@ const ProjectsProjectMembersSearch = () => {
                 updateFormData={updateAffiliationFormData}
                 value={projectMember.affiliationName}
                 suggestions={suggestions}
-                onSearch={handleSearch}
+                onSearch={handleAffiliationSearch}
               />
               {otherField && (
                 <div className={`${styles.formRow} ${styles.oneItemRow}`}>
@@ -664,8 +356,7 @@ const ProjectsProjectMembersSearch = () => {
                 label={t('labels.email')}
                 value={projectMember.email}
                 onChange={(e) => {
-                  setErrors([]); // clear errors on input change
-                  clearAllFieldErrors();
+                  resetErrors();
                   setProjectMember({ ...projectMember, email: e.target.value })
                 }}
                 isInvalid={(!!fieldErrors.email)}
