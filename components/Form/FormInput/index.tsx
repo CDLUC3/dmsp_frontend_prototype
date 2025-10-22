@@ -76,7 +76,7 @@ const FormInput = React.forwardRef<HTMLInputElement, InputProps & React.InputHTM
         <Label htmlFor={id} className={labelClasses}>
           {label}
           {showRequired && <span className="is-required" aria-hidden="true"> ({t('required')})</span>}
-          {isRecommended && <span className="is-recommended" aria-hidden="true"> (recommended)</span>}
+          {isRecommended && <span className="is-recommended" aria-hidden="true"> ({t('recommended')})</span>}
         </Label>
         {description && (
           <Text slot="description" className="help">

@@ -697,6 +697,7 @@
     },
     "labels": {
       "required": "Obrigatório",
+      "recommended": "Recomendado",
       "searchByKeyword": "Pesquisar por palavra-chave",
       "startDate": "Data de início",
       "endDate": "Data final",

@@ -697,6 +697,7 @@
     },
     "labels": {
       "required": "required",
+      "recommended": "recommended",
       "searchByKeyword": "Search by keyword",
       "startDate": "Start date",
       "endDate": "End date",
