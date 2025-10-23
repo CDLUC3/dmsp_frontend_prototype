@@ -659,9 +659,11 @@
     "dataDescription": "Descrição dos dados",
     "dataFormat": "Formato de dados:",
     "dataVolume": "Volume dos dados",
+    "opensInNewTab": "Abre em uma nova aba",
     "buttons": {
       "search": "Buscar",
-      "select": "Select",
+      "lookup": "Pesquisar",
+      "select": "Selecionar",
       "next": "Seguinte",
       "save": "Salvar",
       "saving": "Salvando",
@@ -695,6 +697,7 @@
     },
     "labels": {
       "required": "Obrigatório",
+      "recommended": "Recomendado",
       "searchByKeyword": "Pesquisar por palavra-chave",
       "startDate": "Data de início",
       "endDate": "Data final",

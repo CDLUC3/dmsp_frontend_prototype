@@ -13,7 +13,7 @@
     align-items: flex-start;
 
     /* Make the content area span full width on mobile */
-    @include r.device(mobile) {
+    @include r.device(sm) {
         grid-template-columns: 1fr;
     }
 

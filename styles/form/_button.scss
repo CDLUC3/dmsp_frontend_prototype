@@ -237,8 +237,8 @@ a.button-link,
 input[type="submit"],
 input[type="reset"],
 input[type="button"] {
-  @include button-base;
   font-weight: 600; // Ensure consistent font-weight for all buttons
+  @include button-base;
 
   &[data-focus-visible],
   &:focus-visible {

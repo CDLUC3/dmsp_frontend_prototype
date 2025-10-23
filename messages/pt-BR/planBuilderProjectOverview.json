@@ -359,29 +359,58 @@
     }
   },
   "ProjectsProjectMembersSearch": {
-    "title": "Quem são os membros do projeto?",
-    "searchLabel": "Pesquisar por nome, organização ou ORCID",
-    "searchDescription": "Pesquisar por nome, organização e/ou ORCiD de uma pessoa. A introdução de mais informações ajudará a limitar a pesquisa, por exemplo, Frederick Cook 0427.",
+    "title": "Adicionar membro ao projeto",
+    "description": "Se você conhece o ORCiD completo de 16 caracteres de uma pessoa, insira-o abaixo e use o botão Pesquisar para associá-la a este projeto. Se você não souber o ORCiD dela, basta inserir as informações dela abaixo.",
+    "searchLabel": "ID do ORCiD (recomendado)",
+    "searchDescription": "Se conhecido, insira o ORCiD completo de 16 caracteres do membro do projeto no formato XXXX-XXXX-XXXX-XXXX e clique em Pesquisar. Caso contrário, preencha as informações abaixo manualmente.",
     "ariaSearchInput": "Pesquisa",
     "ariaSearchItemName": "Membro: {name}",
+    "ariaSelectSearchResult": "Selecionar {name} para preencher formulário",
     "ariaAddMemberButton": "Adicionar {name} como membro do projeto",
     "createCollaboratorDescription": "Se seu colaborador não estiver mostrado, você pode adicionar seus detalhes manualmente",
     "buttons": {
-      "createMember": "Criar membro"
+      "addToProject": "Adicionar ao projeto",
+      "clearForm": "Limpar formulário"
     },
     "headings": {
       "searchResultsHeader": "Mostrando 1-{length} dos resultados {total}",
-      "createCollaboratorHeader": "Não está na lista?"
+      "enterMemberDetails": "Inserir detalhes do membro"
     },
     "messaging": {
+      "noSearchResultsFound": "Nenhum registro associado a esse ORCiD foi encontrado. Verifique o ORCiD e tente novamente.",
       "errors": {
         "failedToLoadCollaborators": "Falha ao carregar mais colaboradores",
-        "failedToAddProjectMember": "Falha ao adicionar membro. Por favor, tente novamente."
+        "failedToAddProjectMember": "Falha ao adicionar membro. Por favor, tente novamente.",
+        "surNameRequired": "Sobrenome é obrigatório",
+        "givenNameRequired": "Nome é obrigatório",
+        "emailRequired": "Endereço de e-mail é obrigatório",
+        "invalidEmail": "Por favor, insira um endereço de e-mail válido",
+        "projectRolesRequired": "Pelo menos um papel do projeto deve ser selecionado",
+        "affiliationRequired": "Afiliação é obrigatória",
+        "searchTermRequired": "Por favor, insira um ORCiD ou uma URL contendo um ORCiD para pesquisar",
+        "valueOrcidRequired": "Por favor, insira um ORCiD válido no formato XXXX-XXXX-XXXX-XXXX ou uma URL contendo um ORCiD"
       },
       "success": {
         "addedProjectMember": "Adicionado com sucesso {name} como membro do projeto"
       }
-    }
+    },
+    "labels": {
+      "givenName": "Nome",
+      "surName": "Sobrenome",
+      "affiliation": "Afiliação",
+      "otherAffiliationName": "Outro nome de afiliação",
+      "email": "Endereço de e-mail",
+      "definedRole": "Definir o(s) papel(éis) do membro neste projeto",
+      "ariaMemberRoles": "Opções de papéis do membro do projeto",
+      "selected": "Selecionado",
+      "selectedFromSearch": "Selecionado da pesquisa",
+      "orcid": "ORCID",
+      "orcidFromSearch": "ORCID do resultado da pesquisa"
+    },
+    "links": {
+      "learnMoreAboutCreditTaxonomy": "Saiba mais sobre cada papel"
+    },
+    "memberRolesDescription": "<p>Selecione uma ou mais funções que descrevem melhor as contribuições desta pessoa para este projeto.</p>"
   },
   "ProjectsProjectMemberCreate": {
     "title": "Adicionar um novo membro ao projeto",
