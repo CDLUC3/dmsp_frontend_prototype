@@ -96,7 +96,7 @@ describe("UpdatePasswordPage", () => {
     expect(confirmPasswordField).toHaveValue("newpassword123");
   });
 
-  it.only("should handle form submission", async () => {
+  it("should handle form submission", async () => {
     render(<UpdatePasswordPage />);
 
     const form = document.querySelector("form");

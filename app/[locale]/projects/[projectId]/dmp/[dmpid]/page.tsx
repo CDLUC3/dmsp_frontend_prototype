@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Formatter, useFormatter, useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -93,7 +93,7 @@ const getNarrativeUrl = (dmpId: string): string => {
 };
 
 // Format date utility - moved outside component to prevent recreation
-const formatPublishDate = (date: string | null, formatter: Formatter): string | null => {
+const formatPublishDate = (date: string | null, formatter: ReturnType<typeof useFormatter>): string | null => {
   if (!date) return null;
 
   let dateObj: Date;
