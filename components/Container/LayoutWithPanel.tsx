@@ -128,13 +128,13 @@ export const SidebarPanel: React.FC<SidebarPanelProps> = ({
 
   return (
     <>
-      <div
+      <aside
         id={id}
         className={`layout-sidebar-panel ${className} ${isOpen ? "state-open" : "state-closed"}`}
         data-testid="sidebar-panel"
       >
         {children}
-      </div>
+      </aside>
     </>
   );
 }

@@ -22,16 +22,16 @@ interface PageLinkCardProps {
 
 const PageLinkCard: React.FC<PageLinkCardProps> = ({ sections }) => {
   return (
-    <div role="main" aria-label="Page link sections">
+    <div aria-label="Page link sections">
       {sections.map((section, sectionIndex) => (
         <section key={sectionIndex} className={styles.adminSection} aria-labelledby={`section-${sectionIndex}`}>
           <h2 id={`section-${sectionIndex}`}>{section.title}</h2>
           {section.description && <p className={styles.sectionDescription}>{section.description}</p>}
           <div className={styles.sectionGrid}>
             {section.items.map((item, itemIndex) => (
-              <Link 
-                key={itemIndex} 
-                href={item.href} 
+              <Link
+                key={itemIndex}
+                href={item.href}
                 className={styles.adminCard}
                 aria-describedby={item.description ? `item-${sectionIndex}-${itemIndex}` : undefined}
               >

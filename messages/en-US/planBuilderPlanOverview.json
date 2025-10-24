@@ -1,5 +1,6 @@
 {
   "PlanOverview": {
+    "description": "This plan is based on the \"{source}\" template provided by {affiliationName}",
     "navigation": {
       "home": "Home",
       "projects": "Projects",

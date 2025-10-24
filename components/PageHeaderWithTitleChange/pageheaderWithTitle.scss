@@ -58,9 +58,6 @@
 
   .title-form-container {
     width: 100%;
-    @include r.device(lg) {
-      width: 80%;
-    }
   }
 }
 
