@@ -15,18 +15,18 @@ export type ContentContainerProps = React.HTMLAttributes<HTMLDivElement> & {
 
 export const ContentContainer: React.FC<ContentContainerProps> = ({
   children,
-  id = '',
+  id = 'mainContent',
   className = '',
 }) => {
   return (
     <>
-      <div
+      <main
         id={id}
         className={`layout-content-container ${className}`}
         data-testid="content-container"
       >
         {children}
-      </div>
+      </main>
     </>
   )
 }

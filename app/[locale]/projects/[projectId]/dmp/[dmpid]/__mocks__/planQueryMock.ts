@@ -4,9 +4,15 @@ export const mockPlanData = {
     versionedTemplate: {
       template: {
         id: 2,
-        name: "General"
+        name: "Generic DMP Template",
       },
-      name: "NSF-CISE: Computer and Information Science and Engineering"
+      name: "NSF-CISE: Computer and Information Science and Engineering",
+      owner: {
+        uri: "https://ror.org/03yrm5c26",
+        displayName: "California Digital Library (cdlib.org)"
+      },
+      version: "v2",
+      created: "2025-10-23 18:16:20"
     },
     fundings: [
       {

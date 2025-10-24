@@ -162,10 +162,10 @@ export type AddRelatedWorkInput = {
   institutions: Array<InstitutionInput>;
   /** The unique identifier of the plan that this related work has been matched to */
   planId?: InputMaybe<Scalars['Int']['input']>;
+  /** The date that the work was published YYYY-MM-DD */
+  publicationDate?: InputMaybe<Scalars['String']['input']>;
   /** The venue where the work was published, e.g. IEEE Transactions on Software Engineering, Zenodo etc */
   publicationVenue?: InputMaybe<Scalars['String']['input']>;
-  /** The date that the work was published YYYY-MM-DD */
-  publishedDate?: InputMaybe<Scalars['String']['input']>;
   /** The name of the source where the work was found */
   sourceName: Scalars['String']['input'];
   /** The URL for the source of the work */
@@ -3030,7 +3030,7 @@ export type RelatedWorkSearchResult = {
   /** Details how relevant the title and abstract of the work were to the plan */
   contentMatch?: Maybe<ContentMatch>;
   /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['String']['output']>;
+  created: Scalars['String']['output'];
   /** The user who created the Object. Null if the related work was automatically found */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** Details whether the work's DOI was found on a funder award page */
@@ -3038,33 +3038,35 @@ export type RelatedWorkSearchResult = {
   /** Details which funders matched from the work and the fields they matched on */
   funderMatches?: Maybe<Array<ItemMatch>>;
   /** The unique identifier for the Object */
-  id?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['Int']['output'];
   /** Details which institutions matched from the work and the fields they matched on */
   institutionMatches?: Maybe<Array<ItemMatch>>;
   /** The timestamp when the Object was last modified */
-  modified?: Maybe<Scalars['String']['output']>;
+  modified: Scalars['String']['output'];
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The unique identifier of the plan that this related work has been matched to */
-  planId?: Maybe<Scalars['Int']['output']>;
+  planId: Scalars['Int']['output'];
   /** The confidence score indicating how well the work matches the plan */
   score?: Maybe<Scalars['Float']['output']>;
   /** The maximum confidence score returned when this work was matched to the plan */
-  scoreMax?: Maybe<Scalars['Float']['output']>;
+  scoreMax: Scalars['Float']['output'];
   /** The normalised confidence score from 0.0-1.0 */
-  scoreNorm?: Maybe<Scalars['Float']['output']>;
+  scoreNorm: Scalars['Float']['output'];
   /** Whether the related work was automatically or manually added */
-  sourceType?: Maybe<RelatedWorkSourceType>;
+  sourceType: RelatedWorkSourceType;
   /** The status of the related work */
-  status?: Maybe<RelatedWorkStatus>;
+  status: RelatedWorkStatus;
   /** The version of the work that the plan was matched to */
-  workVersion?: Maybe<WorkVersion>;
+  workVersion: WorkVersion;
 };
 
 export type RelatedWorkSearchResults = PaginatedQueryResults & {
   __typename?: 'RelatedWorkSearchResults';
   /** The sortFields that are available for this query (for standard offset pagination only!) */
   availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** Count of confidence values returned in the query */
+  confidenceCounts?: Maybe<Array<TypeCount>>;
   /** The current offset of the results (for standard offset pagination) */
   currentOffset?: Maybe<Scalars['Int']['output']>;
   /** Whether or not there is a next page */
@@ -3077,8 +3079,12 @@ export type RelatedWorkSearchResults = PaginatedQueryResults & {
   limit?: Maybe<Scalars['Int']['output']>;
   /** The cursor to use for the next page of results (for infinite scroll/load more) */
   nextCursor?: Maybe<Scalars['String']['output']>;
+  /** The count of the number of related works after the status filter is applied but doesn't include any other filters */
+  statusOnlyCount?: Maybe<Scalars['Int']['output']>;
   /** The total number of possible items */
   totalCount?: Maybe<Scalars['Int']['output']>;
+  /** Counts of work types returned in the query */
+  workTypeCounts?: Maybe<Array<TypeCount>>;
 };
 
 /** The origin of the related work entry */
@@ -3539,6 +3545,12 @@ export enum TemplateVisibility {
   /** Visible to all users */
   Public = 'PUBLIC'
 }
+
+export type TypeCount = {
+  __typename?: 'TypeCount';
+  count: Scalars['Int']['output'];
+  typeId: Scalars['String']['output'];
+};
 
 export type UpdateMetadataStandardInput = {
   /** A description of the metadata standard */
@@ -4221,15 +4233,15 @@ export type VersionedTemplateSearchResult = {
 export type Work = {
   __typename?: 'Work';
   /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['String']['output']>;
+  created: Scalars['String']['output'];
   /** The user who created the Object. Null if the work was automatically found */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** The Digital Object Identifier (DOI) of the work */
-  doi?: Maybe<Scalars['String']['output']>;
+  doi: Scalars['String']['output'];
   /** The unique identifier for the Object */
-  id?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['Int']['output'];
   /** The timestamp when the Object was last modified */
-  modified?: Maybe<Scalars['String']['output']>;
+  modified: Scalars['String']['output'];
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
 };
@@ -4281,35 +4293,35 @@ export type WorkVersion = {
   /** The awards that funded the work */
   awards: Array<Award>;
   /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['String']['output']>;
+  created: Scalars['String']['output'];
   /** The user who created the Object. Null if the work was automatically found */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** The funders of the work */
   funders: Array<Funder>;
   /** A hash of the content of this version of a work */
-  hash?: Maybe<Scalars['MD5']['output']>;
+  hash: Scalars['MD5']['output'];
   /** The unique identifier for the Object */
-  id?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['Int']['output'];
   /** The unique institutions of the authors of the work */
   institutions: Array<Institution>;
   /** The timestamp when the Object was last modified */
-  modified?: Maybe<Scalars['String']['output']>;
+  modified: Scalars['String']['output'];
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The date that the work was published YYYY-MM-DD */
+  publicationDate?: Maybe<Scalars['String']['output']>;
   /** The venue where the work was published, e.g. IEEE Transactions on Software Engineering, Zenodo etc */
   publicationVenue?: Maybe<Scalars['String']['output']>;
-  /** The date that the work was published YYYY-MM-DD */
-  publishedDate?: Maybe<Scalars['String']['output']>;
   /** The name of the source where the work was found */
-  sourceName?: Maybe<Scalars['String']['output']>;
+  sourceName: Scalars['String']['output'];
   /** The URL for the source of the work */
   sourceUrl?: Maybe<Scalars['String']['output']>;
   /** The title of the work */
   title?: Maybe<Scalars['String']['output']>;
   /** The work */
-  work?: Maybe<Work>;
+  work: Work;
   /** The type of the work */
-  workType?: Maybe<WorkType>;
+  workType: WorkType;
 };
 
 export type AddAffiliationMutationVariables = Exact<{
@@ -4724,7 +4736,7 @@ export type FindCollaboratorQueryVariables = Exact<{
 }>;
 
 
-export type FindCollaboratorQuery = { __typename?: 'Query', findCollaborator?: { __typename?: 'CollaboratorSearchResults', limit?: number | null, availableSortFields?: Array<string | null> | null, nextCursor?: string | null, totalCount?: number | null, items?: Array<{ __typename?: 'CollaboratorSearchResult', id?: number | null, givenName?: string | null, email?: string | null, affiliationRORId?: string | null, affiliationURL?: string | null, orcid?: string | null, surName?: string | null, affiliationName?: string | null } | null> | null } | null };
+export type FindCollaboratorQuery = { __typename?: 'Query', findCollaborator?: { __typename?: 'CollaboratorSearchResults', limit?: number | null, availableSortFields?: Array<string | null> | null, nextCursor?: string | null, totalCount?: number | null, items?: Array<{ __typename?: 'CollaboratorSearchResult', id?: number | null, givenName?: string | null, email?: string | null, affiliationId?: string | null, affiliationRORId?: string | null, affiliationURL?: string | null, orcid?: string | null, surName?: string | null, affiliationName?: string | null } | null> | null } | null };
 
 export type ProjectFundingsQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4760,7 +4772,7 @@ export type PlanQueryVariables = Exact<{
 }>;
 
 
-export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, createdById?: number | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, template?: { __typename?: 'Template', id?: number | null, name: string } | null, owner?: { __typename?: 'Affiliation', uri: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null, collaborators?: Array<{ __typename?: 'ProjectCollaborator', accessLevel?: ProjectCollaboratorAccessLevel | null, user?: { __typename?: 'User', id?: number | null } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number }> | null, progress?: { __typename?: 'PlanProgress', answeredQuestions: number, percentComplete: number, totalQuestions: number } | null, feedback?: Array<{ __typename?: 'PlanFeedback', id?: number | null, completed?: string | null }> | null } | null };
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, createdById?: number | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, version: string, created?: string | null, template?: { __typename?: 'Template', id?: number | null, name: string } | null, owner?: { __typename?: 'Affiliation', uri: string, displayName: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null, collaborators?: Array<{ __typename?: 'ProjectCollaborator', accessLevel?: ProjectCollaboratorAccessLevel | null, user?: { __typename?: 'User', id?: number | null } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number }> | null, progress?: { __typename?: 'PlanProgress', answeredQuestions: number, percentComplete: number, totalQuestions: number } | null, feedback?: Array<{ __typename?: 'PlanFeedback', id?: number | null, completed?: string | null }> | null } | null };
 
 export type PlanMembersQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -7318,6 +7330,7 @@ export const FindCollaboratorDocument = gql`
       id
       givenName
       email
+      affiliationId
       affiliationRORId
       affiliationURL
       orcid
@@ -7594,7 +7607,10 @@ export const PlanDocument = gql`
       name
       owner {
         uri
+        displayName
       }
+      version
+      created
     }
     fundings {
       id

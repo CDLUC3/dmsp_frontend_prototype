@@ -54,9 +54,6 @@ describe('PageLinkCard', () => {
   it('has proper accessibility structure', () => {
     render(<PageLinkCard sections={mockSections} />);
 
-    // Check for main role
-    expect(screen.getByRole('main')).toBeInTheDocument();
-
     // Check for section elements
     const sections = screen.getAllByRole('region');
     expect(sections).toHaveLength(2);

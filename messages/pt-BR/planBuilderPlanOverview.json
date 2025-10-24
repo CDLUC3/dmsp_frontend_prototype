@@ -1,5 +1,6 @@
 {
   "PlanOverview": {
+    "description": "Este plano é baseado no modelo \"{source}\" fornecido por {affiliationName}",
     "navigation": {
       "home": "Home",
       "projects": "Projetos",

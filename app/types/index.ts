@@ -375,6 +375,10 @@ export interface PlanOverviewInterface {
   members: PlanMember[];
   versionedSections: PlanSectionProgress[];
   percentageAnswered: number;
+  affiliationName?: string;
+  sourceTemplate?: string;
+  templateVersion?: string;
+  templatePublished?: string;
 }
 
 export interface ActionResponse {

@@ -131,7 +131,10 @@ const planMock = {
     name: 'Test Template',
     owner: {
       uri: 'https://example.com/owner',
-    }
+      displayName: 'Test Owner',
+    },
+    version: 1,
+    created: '2024-01-01',
   },
   fundings: {
     id: 1,
@@ -174,7 +177,6 @@ const planMock = {
   created: '2024-01-01',
   createdById: 1,
   modified: '2024-01-01',
-  modifiedById: 1,
   dmpId: 'doi-456',
   registered: true,
   feedback: {

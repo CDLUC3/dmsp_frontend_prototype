@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { act, render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter } from 'next/navigation';
+import { RichTranslationValues } from 'next-intl';
 import { cookies } from "next/headers";
 import {
   publishPlanAction,
@@ -15,6 +16,32 @@ jest.mock('../actions/index', () => ({
   publishPlanAction: jest.fn(),
   updatePlanStatusAction: jest.fn(),
   updatePlanTitleAction: jest.fn(),
+}));
+
+type MockUseTranslations = {
+  (key: string, ...args: unknown[]): string;
+  rich: (key: string, values?: RichTranslationValues) => ReactNode;
+};
+
+
+// Mock useFormatter from next-intl
+jest.mock('next-intl', () => ({
+  useFormatter: jest.fn(() => ({
+    dateTime: jest.fn(() => '01-01-2023'),
+  })),
+  useTranslations: jest.fn(() => {
+    const mockUseTranslations: MockUseTranslations = ((key: string) => key) as MockUseTranslations;
+
+    mockUseTranslations.rich = (key, values) => {
+      const p = values?.p;
+      if (typeof p === 'function') {
+        return p(key); // Can return JSX
+      }
+      return key; // fallback
+    };
+
+    return mockUseTranslations;
+  }),
 }));
 
 // Mock the graphql hooks
@@ -112,6 +139,7 @@ describe('PlanOverviewPage', () => {
 
     expect(screen.getByRole('heading', { name: 'Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations' })).toBeInTheDocument();
     expect(screen.getByText('National Science Foundation (nsf.gov), Irish Research Council (research.ie)')).toBeInTheDocument();
+    expect(screen.getByText('description - version: v2, published: 01-01-2023')).toBeInTheDocument();
     expect(screen.getByText('members.title')).toBeInTheDocument();
     expect(screen.getByText('members.info')).toBeInTheDocument();
     expect(screen.getByText('members.edit')).toBeInTheDocument();
