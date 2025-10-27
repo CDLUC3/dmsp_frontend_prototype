@@ -14,5 +14,11 @@
     "Dockerfile*",
     "docker-compose.yml",
     ".nvmrc"
+  ],
+  "packageRules": [
+    {
+      "groupName": "Apollo GraphQL packages", // disable update to @apollo/client and @apollo/experimental-nextjs-app-support for now
+      "enabled": false
+    }
   ]
 }

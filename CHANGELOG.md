@@ -1,3 +1,18 @@
+### Added
+- Added updated description that includes template source, affiliation name, version and publish date on the `Plan Overview` page [#621]
+
+
+### Updated
+
+
+### Fixed
+
+
+### Removed
+
+### Chore
+- Disable `Apollo Graphql` renovate PR and fix missing logs from CHANGELOG
+- Added `renovate.json` config file in order to get automatic PRs for dependency updates
 ==================================================================================================================
 <!-- Merged below to main branch on Friday, July 18th, 2025  -->
 ### Added
