@@ -281,7 +281,7 @@
     }
   },
   "ProjectsProjectCollaborationInvite": {
-    "title": "Quem deve ter acesso a este plano?",
+    "title": "Quem deve ter acesso a este projeto?",
     "breadcrumbs": {
       "manageAccess": "Gerenciar acesso"
     },
