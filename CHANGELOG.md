@@ -6,7 +6,7 @@
 
 
 ### Fixed
-
+- Fixed typo in some translation text for the `projects/[projectId]/collaboration/invite` page [#846]
 
 ### Removed
 
