@@ -6,7 +6,7 @@
 
 
 ### Fixed
-- Fixed typo in some translation text for the `projects/[projectId]/collaboration/invite` page [#846]
+- Fixed typo in some translation text for the `projects/[projectId]/collaboration/invite` page and added missing `Owner` access level radio option [#846]
 
 ### Removed
 

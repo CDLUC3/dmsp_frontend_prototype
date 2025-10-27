@@ -292,7 +292,8 @@
       "access": {
         "label": "What should this person be able to do?",
         "edit": "Edit the plan",
-        "comment": "Comment only"
+        "comment": "Comment only",
+        "own": "Own the plan"
       }
     },
     "accessLevelOn": "{accessLevel} on",
