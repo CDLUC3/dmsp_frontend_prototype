@@ -3,7 +3,7 @@
 
 
 ### Updated
-
+- Updated `TinyMCEEditor` to allow users to change text color and background color.
 
 ### Fixed
 
