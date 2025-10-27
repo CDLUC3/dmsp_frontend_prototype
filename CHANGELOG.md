@@ -11,6 +11,7 @@
 ### Removed
 
 ### Chore
+- Trying another method of disabling the renovate `Apollo Graphql Group update` 
 - Disable `Apollo Graphql` renovate PR and fix missing logs from CHANGELOG
 - Added `renovate.json` config file in order to get automatic PRs for dependency updates
 ==================================================================================================================

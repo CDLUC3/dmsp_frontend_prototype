@@ -17,8 +17,12 @@
   ],
   "packageRules": [
     {
-      "groupName": "Apollo GraphQL packages", // disable update to @apollo/client and @apollo/experimental-nextjs-app-support for now
-      "enabled": false
+      "matchPackageNames": [
+        "@apollo/client",
+        "@apollo/experimental-nextjs-app-support"
+      ],
+      "enabled": false,
+      "description": "Disable updates for specific Apollo GraphQL packages"
     }
   ]
 }
