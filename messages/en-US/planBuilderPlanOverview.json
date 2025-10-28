@@ -201,6 +201,7 @@
       "commentDeleted": "Comment successfully deleted",
       "commentUpdated": "Comment successfully updated"
     },
+    "licenseGuidance": "You can obtain more guidance on selecting a license from <link>Creative commons</link>",
     "buttons": {
       "commentWithNumber": "{number} Comments"
     },

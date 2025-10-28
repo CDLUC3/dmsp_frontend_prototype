@@ -27,13 +27,19 @@ interface MySelectProps<T extends SelectItem>
   ariaLabel?: string;
   errorMessage?: string | ((validation: ValidationResult) => string);
   helpMessage?: string;
-  description?: string;
+  description?: React.ReactNode | string;
   selectClasses?: string;
   isRequired?: boolean;
   isRequiredVisualOnly?: boolean;
   onChange?: (value: string) => void;
   items?: T[];
   placeHolder?: string;
+  // When true, render a selectable empty option at the top of the menu
+  includeEmptyOption?: boolean;
+  // Label for the empty option (e.g., "Select option")
+  emptyOptionLabel?: string;
+  // Key/id representing the empty option; defaults to empty string
+  emptyOptionId?: string;
   children?: React.ReactNode | ((item: T) => React.ReactNode);
 }
 
@@ -49,18 +55,34 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
     isRequiredVisualOnly = false,
     onChange,
     items,
-    placeholder,
+    // prefer placeholder over legacy placeHolder
+    placeholder: placeholderProp,
+    placeHolder,
+    includeEmptyOption = false,
+    emptyOptionLabel = 'Select option',
+    emptyOptionId = '',
     ...rest
   } = props;
+  const placeholder = placeholderProp ?? placeHolder;
   const showRequired = isRequired || isRequiredVisualOnly;
   const t = useTranslations('Global.labels');
 
   const handleSelectionChange = (key: Key | null) => {
     if (onChange) {
-      // Convert `Key | null` to string or undefined as needed
-      onChange(key?.toString() ?? '');
+      // Map null or the empty option key to an empty string for callers
+      const value = key == null ? '' : key.toString();
+      onChange(value === emptyOptionId ? '' : value);
     }
   };
+
+  // Build items list, optionally prepending a selectable empty option
+  const listItems = ((): SelectItem[] | undefined => {
+    if (!items) return items;
+    if (!includeEmptyOption) return items;
+    const hasEmpty = items.some((i) => i.id === emptyOptionId);
+    const emptyItem: SelectItem = { id: emptyOptionId, name: emptyOptionLabel };
+    return hasEmpty ? items : [emptyItem, ...items];
+  })();
 
   return (
     <Select
@@ -78,8 +100,11 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
           <Label>
             {label}{showRequired && <span className="is-required" aria-hidden="true"> ({t('required')})</span>}
           </Label>
-          <Text slot="description" className="help">
-            {description}</Text>
+          {description && (
+            <Text slot="description" className="help">
+              {description}
+            </Text>
+          )}
           <Button className='react-aria-Button selectButton' ref={ref} data-testid="select-button">
             <SelectValue />
             <span
@@ -103,7 +128,8 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
             </Text>
           )}
           <Popover>
-            <ListBox items={items}>
+            <ListBox items={listItems}
+            >
               {(item) => (
                 <ListBoxItem key={item.id as React.Key}>{item.name}</ListBoxItem>
               )}

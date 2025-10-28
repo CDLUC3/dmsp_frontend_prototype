@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import {
   Breadcrumb,
@@ -44,6 +44,7 @@ import { DmpIcon } from "@/components/Icons";
 import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
 import ExpandableContentSection from '@/components/ExpandableContentSection';
 import CommentsDrawer from './CommentsDrawer';
+import { ResearchOutputDemo, MOCK_RESEARCH_OUTPUT_QUESTION } from './ResearchOutputDemo';
 
 // Context
 import { useToast } from '@/context/ToastContext';
@@ -130,6 +131,7 @@ interface PlanData {
 const PlanOverviewQuestionPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const dmpId = params.dmpid as string;
   const projectId = params.projectId as string;
   const versionedSectionId = params.sid as string;
@@ -138,6 +140,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const toastState = useToast(); // Access the toast state from context
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
+
+  // Check for demo mode query parameter
+  const isDemoMode = searchParams.get('demo') === 'researchOutput';
 
   // Ref for scrolling to bottom of comments
   const commentsEndRef = useRef<HTMLDivElement | null>(null);
@@ -839,6 +844,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
         required: q?.required ?? undefined // convert null to undefined
       };
 
+      console.log('Cleaned Question:', cleanedQuestion);
+      const temp = cleanedQuestion?.json;
+      console.log(JSON.parse(temp || '{}'));
       try {
         const { parsed, error } = getParsedQuestionJSON(cleanedQuestion, routePath('projects.dmp.versionedQuestion.detail', routeParams), Global);
         if (!parsed?.type) {
@@ -1044,6 +1052,111 @@ const PlanOverviewQuestionPage: React.FC = () => {
     return <div>{Global('messaging.somethingWentWrong')}</div>
   }
 
+  // If in demo mode, render the research output component
+  if (isDemoMode) {
+    return (
+      <>
+        <PageHeader
+          title={plan?.title ?? 'Demo Plan'}
+          description=""
+          showBackButton={true}
+          breadcrumbs={
+            <Breadcrumbs aria-label={PlanOverview('navigation.navigation')}>
+              <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+              <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+              <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+              <Breadcrumb><Link href={routePath('projects.dmp.show', { projectId, dmpId })}>{Global('breadcrumbs.planOverview')}</Link></Breadcrumb>
+              <Breadcrumb><Link href={routePath('projects.dmp.versionedSection', { projectId, dmpId, versionedSectionId })}>{Global('breadcrumbs.sectionOverview')}</Link></Breadcrumb>
+              <Breadcrumb>{Global('breadcrumbs.questionDetails')} (Demo)</Breadcrumb>
+            </Breadcrumbs>
+          }
+          actions={null}
+          className="page-project-list"
+        />
+
+        <LayoutWithPanel>
+          <ContentContainer>
+            <div className="container">
+              {/**Requirements by funder */}
+              <section aria-label={"Requirements"}>
+                {/**TODO: need to get this data from backend */}
+                <h3 className={"h4"}>Requirements by University of California</h3>
+                <p>
+                  The university requires data and metadata to be cleared by the ethics
+                  committee before being submitted to funder.
+                </p>
+              </section>
+
+              <p className={styles.guidanceLinkWrapper}>
+                <DmpIcon icon="down_arrow" />
+                <Link href="#guidance" className={`${styles.guidanceLink} react-aria-Link`}>{PlanOverview('page.jumpToGuidance')}</Link>
+              </p>
+              <ResearchOutputDemo onBack={handleBackToSection} />
+
+              <section aria-label={"Guidance"} id="guidance">
+                <h3 className={"h4"}>Guidance by Funder</h3>
+                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(MOCK_RESEARCH_OUTPUT_QUESTION.guidanceText) }} />
+              </section>
+              <div className={styles.modalAction}>
+                <div>
+                  <Button
+                    type="submit"
+                    data-secondary
+                    className="primary"
+                    aria-label={PlanOverview('labels.saveAnswer')}
+                    aria-disabled={isSubmitting}
+                  >
+                    {isSubmitting ? Global('buttons.saving') : Global('buttons.save')}
+                  </Button>
+                </div>
+                <div>
+                  <Button
+                    className="secondary"
+                    aria-label={PlanOverview('labels.returnToSection')}
+                    onPress={() => handleBackToSection()}
+                  >
+                    {PlanOverview('buttons.backToSection')}
+                  </Button>
+                </div>
+
+              </div>
+            </div>
+          </ContentContainer>
+
+          <SidebarPanel isOpen={isSideBarPanelOpen}>
+            <div className={styles.headerWithLogo}>
+              <h2 className="h4">{Global('bestPractice')}</h2>
+              <Image
+                className={styles.Logo}
+                src="/images/DMP-logo.svg"
+                width="140"
+                height="16"
+                alt="DMP Tool"
+              />
+            </div>
+
+            <ExpandableContentSection
+              id="research-outputs-guidance"
+              heading="Research Outputs Best Practices"
+              expandLabel={Global('links.expand')}
+              summaryCharLimit={200}
+            >
+              <p>
+                When describing research outputs, consider all forms of scholarly products that will result from your project.
+              </p>
+              <p>
+                Include both traditional outputs (publications, datasets) and non-traditional outputs (software, protocols, educational materials).
+              </p>
+              <p>
+                For each output, specify the format, anticipated size, and any relevant standards or metadata schemas you will use.
+              </p>
+            </ExpandableContentSection>
+          </SidebarPanel>
+        </LayoutWithPanel>
+      </>
+    );
+  }
+
   return (
     <>
       <PageHeader
@@ -1101,7 +1214,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
                   <div className={styles.requiredWrapper}>
                     <div><strong>{PlanOverview('page.requiredByFunder')}</strong></div>
                     <DialogTrigger>
-                      <Button className={`${styles.popOverButton} react-aria-Button`} aria-label="Required by funder"><div className={styles.infoIcon}><DmpIcon icon="info" /></div></Button>
+                      <Button className={`${styles.popOverButton} react-aria-Button`} aria-label="Required by funder">
+                        <div className={styles.infoIcon}><DmpIcon icon="info" /></div>
+                      </Button>
                       <Popover>
                         <OverlayArrow>
                           <svg width={12} height={12} viewBox="0 0 12 12">
@@ -1206,7 +1321,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
               </div>
             </Form>
           </div>
-        </ContentContainer >
+        </ContentContainer>
 
         <SidebarPanel isOpen={isSideBarPanelOpen}>
 

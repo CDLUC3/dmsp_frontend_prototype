@@ -118,11 +118,13 @@ const originalRepositories = [
 const RepositorySelectionSystem = ({
   field,
   handleTogglePreferredRepositories,
-  onRepositoriesChange
+  onRepositoriesChange,
+  noPreferredCheckbox = false,
 }: {
   field: RepositoryFieldInterface;
-  handleTogglePreferredRepositories: (hasCustomRepos: boolean) => void;
+  handleTogglePreferredRepositories?: (hasCustomRepos: boolean) => void;
   onRepositoriesChange?: (repos: RepositoryInterface[]) => void;
+  noPreferredCheckbox?: boolean;
 }) => {
 
   // Toast context for notifications
@@ -258,18 +260,20 @@ const RepositorySelectionSystem = ({
     <div className={styles.container}>
       <div className={styles.wrapper}>
         <div className={styles.prefsOption}>
-          <Checkbox
-            onChange={() => handleTogglePreferredRepositories(!field.repoConfig?.hasCustomRepos)}
-            isSelected={field.repoConfig?.hasCustomRepos || false}
-          >
-            <div className="checkbox">
-              <svg viewBox="0 0 18 18" aria-hidden="true">
-                <polyline points="1 9 7 14 15 4" />
-              </svg>
-            </div>
-            {QuestionAdd('researchOutput.repoSelector.labels.createRepos')}
-          </Checkbox>
-          {field.repoConfig?.hasCustomRepos && (
+          {!noPreferredCheckbox && !!handleTogglePreferredRepositories && (
+            <Checkbox
+              onChange={() => handleTogglePreferredRepositories(!field.repoConfig?.hasCustomRepos)}
+              isSelected={field.repoConfig?.hasCustomRepos || false}
+            >
+              <div className="checkbox">
+                <svg viewBox="0 0 18 18" aria-hidden="true">
+                  <polyline points="1 9 7 14 15 4" />
+                </svg>
+              </div>
+              {QuestionAdd('researchOutput.repoSelector.labels.createRepos')}
+            </Checkbox>
+          )}
+          {(field.repoConfig?.hasCustomRepos || noPreferredCheckbox) && (
             <div className={styles.selectedItems}>
               <div className={styles.selectedItemsHeader}>
                 <span className={styles.selectedCount}>

@@ -167,13 +167,18 @@
 }
 
 .modal {
-  width: min(700px, 90vw); // never exceeds viewport width
+  width: 100%; // Full width on mobile
   height: 90vh;
   display: flex;
   flex-direction: column;
   border-radius: 6px;
   background: var(--gray-50);
   overflow: hidden;
+
+  // 70% width on tablet and larger
+  @include r.device(sm) {
+    width: 70vw;
+  }
 }
 
 .modalHeader {

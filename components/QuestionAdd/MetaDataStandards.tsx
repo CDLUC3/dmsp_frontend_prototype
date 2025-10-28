@@ -38,11 +38,13 @@ const paginationProps = {
 const MetaDataStandardsSelector = ({
   field,
   handleToggleMetaDataStandards,
-  onMetaDataStandardsChange
+  onMetaDataStandardsChange,
+  noPreferredCheckbox = false,
 }: {
   field: MetaDataStandardFieldInterface;
   handleToggleMetaDataStandards: (hasCustomStandards: boolean) => void;
   onMetaDataStandardsChange: (standards: MetaDataStandardInterface[]) => void;
+  noPreferredCheckbox?: boolean;
 }) => {
   const toastState = useToast();
   const [selectedStandards, setSelectedStandards] = useState<MetaDataStandardInterface[]>([]);
@@ -179,20 +181,22 @@ const MetaDataStandardsSelector = ({
     <div className={styles.container}>
       <div className={styles.wrapper}>
         <div className={styles.prefsOption}>
-          <Checkbox
-            onChange={() => handleToggleMetaDataStandards(!field.metaDataConfig?.hasCustomStandards)}
-            isSelected={field.metaDataConfig?.hasCustomStandards || false}
-          >
-            <div className="checkbox">
-              <svg viewBox="0 0 18 18" aria-hidden="true">
-                <polyline points="1 9 7 14 15 4" />
-              </svg>
-            </div>
+          {!noPreferredCheckbox && !!handleToggleMetaDataStandards && (
+            <Checkbox
+              onChange={() => handleToggleMetaDataStandards(!field.metaDataConfig?.hasCustomStandards)}
+              isSelected={field.metaDataConfig?.hasCustomStandards || false}
+            >
+              <div className="checkbox">
+                <svg viewBox="0 0 18 18" aria-hidden="true">
+                  <polyline points="1 9 7 14 15 4" />
+                </svg>
+              </div>
 
-            {QuestionAdd('researchOutput.metaDataStandards.labels.createStandards')}
-          </Checkbox>
+              {QuestionAdd('researchOutput.metaDataStandards.labels.createStandards')}
+            </Checkbox>
+          )}
 
-          {field.metaDataConfig?.hasCustomStandards && (
+          {(field.metaDataConfig?.hasCustomStandards || noPreferredCheckbox) && (
             <div className={styles.selectedItems}>
               <div className={styles.selectedItemsHeader}>
                 <span className={styles.selectedCount}>
