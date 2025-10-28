@@ -1,4 +1,5 @@
 ### Added
+- Integrated related works UI with GraphQL backend.
 - Added updated description that includes template source, affiliation name, version and publish date on the `Plan Overview` page [#621]
 
 

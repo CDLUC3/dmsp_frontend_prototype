@@ -2,7 +2,7 @@ import styles from "./RelatedWorksList.module.scss";
 import RelatedWorksListItem from "@/components/RelatedWorksListItem";
 import Pagination from "@/components/Pagination";
 import LinkFilter from "@/components/LinkFilter";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   Button,
   FieldError,
@@ -13,132 +13,188 @@ import {
   SelectValue,
   Switch,
 } from "react-aria-components";
-
-import { Confidence, RelatedWorksSortBy, Status, WorkType } from "@/app/types";
-import { useRelatedWorksListContext } from "@/providers/relatedWorksListProvider";
-import { useRelatedWorksContext } from "@/providers/relatedWorksProvider";
+import { useToast } from "@/context/ToastContext";
 import { useTranslations } from "next-intl";
-import { scoreToConfidence } from "@/lib/relatedWorks";
+import {
+  RelatedWorkConfidence,
+  RelatedWorkSearchResult,
+  RelatedWorkStatus,
+  useRelatedWorksByPlanQuery,
+  WorkType,
+} from "@/generated/graphql";
+import { updateRelatedWorkStatusAction } from "@/app/[locale]/projects/[projectId]/dmp/[dmpid]/related-works/actions";
 
-interface RelatedWorksListProps {
-  status: Status;
+const LIMIT = 20;
+const FADEOUT_TIMEOUT = 550;
+
+export enum ConfidenceOptions {
+  All = "ALL",
+  High = "HIGH",
+  Medium = "MEDIUM",
+  Low = "LOW",
 }
 
-export const RelatedWorksList = ({ status }: RelatedWorksListProps) => {
+export enum SortByOptions {
+  ConfidenceHigh = "ConfidenceHigh",
+  ConfidenceLow = "ConfidenceLow",
+  ReviewedNew = "ReviewedNew",
+  ReviewedOld = "ReviewedOld",
+  PublishedNew = "PublishedNew",
+  PublishedOld = "PublishedOld",
+  DateFoundNew = "DateFoundNew",
+  DateFoundOld = "DateFoundOld",
+}
+
+export enum RelatedWorksSortBy {
+  ScoreNorm = "scoreNorm",
+  Modified = "modified",
+  PublicationDate = "publicationDate",
+  Created = "created",
+}
+
+export enum RelatedWorksSortDir {
+  Ascending = "ASC",
+  Descending = "DESC",
+}
+
+const SORT_MAP = new Map<SortByOptions | string | null, [RelatedWorksSortBy, RelatedWorksSortDir]>([
+  [SortByOptions.ConfidenceHigh, [RelatedWorksSortBy.ScoreNorm, RelatedWorksSortDir.Descending]],
+  [SortByOptions.ConfidenceLow, [RelatedWorksSortBy.ScoreNorm, RelatedWorksSortDir.Ascending]],
+  [SortByOptions.ReviewedNew, [RelatedWorksSortBy.Modified, RelatedWorksSortDir.Descending]],
+  [SortByOptions.ReviewedOld, [RelatedWorksSortBy.Modified, RelatedWorksSortDir.Ascending]],
+  [SortByOptions.PublishedNew, [RelatedWorksSortBy.PublicationDate, RelatedWorksSortDir.Descending]],
+  [SortByOptions.PublishedOld, [RelatedWorksSortBy.PublicationDate, RelatedWorksSortDir.Ascending]],
+  [SortByOptions.DateFoundNew, [RelatedWorksSortBy.Created, RelatedWorksSortDir.Descending]],
+  [SortByOptions.DateFoundOld, [RelatedWorksSortBy.Created, RelatedWorksSortDir.Ascending]],
+]);
+
+interface RelatedWorksListProps {
+  planId: number;
+  status: RelatedWorkStatus;
+  defaultConfidence?: ConfidenceOptions;
+  defaultType?: WorkType | null;
+  defaultHighlightMatches?: boolean;
+  defaultPage?: number;
+}
+
+export const RelatedWorksList = ({
+  planId,
+  status,
+  defaultConfidence = ConfidenceOptions.All,
+  defaultType = null,
+  defaultHighlightMatches = false,
+  defaultPage = 1,
+}: RelatedWorksListProps) => {
   const t = useTranslations("RelatedWorksList");
   const dataTypes = useTranslations("RelatedWorksDataTypes");
 
-  // TODO: each list can probably be independent when hooked up the GraphQL API, so useRelatedWorksContext will
-  // be unnecessary then.
-  const { works, setWorks } = useRelatedWorksContext();
-  const { confidence, setConfidence, type, setType, highlightMatches, setHighlightMatches, page, sortBy, setSortBy } =
-    useRelatedWorksListContext();
+  // UI State
+  const [confidence, setConfidence] = useState<string>(defaultConfidence);
+  const [workType, setWorkType] = useState<string | null>(defaultType);
+  const [highlightMatches, setHighlightMatches] = useState<boolean>(defaultHighlightMatches);
+  const [currentPage, setCurrentPage] = useState<number>(defaultPage);
+  const [sortBy, setSortBy] = useState<string | null>(getDefaultSortBy(status));
 
-  // TODO: these will call the GraphQL API
-  const acceptWork = useCallback(
-    (doi: string) => {
-      setWorks((prev) =>
-        prev.map((work) =>
-          work.work.doi === doi ? { ...work, status: Status.Related, dateReviewed: new Date() } : work,
-        ),
-      );
-    },
-    [works],
-  );
-  const discardWork = useCallback(
-    (doi: string) => {
-      setWorks((prev) =>
-        prev.map((work) =>
-          work.work.doi === doi ? { ...work, status: Status.Discarded, dateReviewed: new Date() } : work,
-        ),
-      );
-    },
-    [works],
-  );
+  // Derived API values
+  const apiConfidence = useMemo(() => {
+    return confidence === ConfidenceOptions.All ? undefined : (confidence.toUpperCase() as RelatedWorkConfidence);
+  }, [confidence]);
+  const [sortField, sortDir] = useMemo(() => {
+    const sortConfig = SORT_MAP.get(sortBy);
+    if (sortConfig != null) {
+      return sortConfig;
+    }
+    return [undefined, undefined];
+  }, [sortBy]);
+  const apiWorkType = useMemo(() => {
+    return workType == null ? undefined : (workType as WorkType);
+  }, [workType]);
 
-  // Status counts
-  // TODO: these will be computed by the GraphQL API
-  const statusInitialValue: { [key: string]: number } = {
-    [Status.Pending]: 0,
-    [Status.Related]: 0,
-    [Status.Discarded]: 0,
+  // Query data
+  const {
+    data,
+    previousData,
+    loading: relatedWorksDataLoading,
+    refetch: relatedWorksRefetch,
+  } = useRelatedWorksByPlanQuery({
+    variables: {
+      planId,
+      filterOptions: {
+        status,
+        workType: apiWorkType,
+        confidence: apiConfidence,
+      },
+      paginationOptions: {
+        offset: currentPage,
+        limit: LIMIT,
+        type: "OFFSET",
+        sortField,
+        sortDir,
+      },
+    },
+    fetchPolicy: "cache-and-network", // required so that results in different tabs update when status of a related work is updated
+  });
+
+  // Use previous data when loading new data, stops flickering results
+  const relatedWorksData = data || previousData;
+
+  // Remaining pagination variables
+  const statusOnlyCount = relatedWorksData?.relatedWorksByPlan?.statusOnlyCount ?? 0;
+  const totalCount = relatedWorksData?.relatedWorksByPlan?.totalCount ?? 0;
+  const totalPages = Math.ceil((relatedWorksData?.relatedWorksByPlan?.totalCount ?? 0) / LIMIT);
+  const hasPreviousPage = relatedWorksData?.relatedWorksByPlan?.hasPreviousPage ?? null;
+  const hasNextPage = relatedWorksData?.relatedWorksByPlan?.hasNextPage ?? null;
+  const handlePageClick = async (page: number) => {
+    setCurrentPage(page);
   };
-  const statusCounts = works.reduce((acc, work) => {
-    acc[work.status] += 1;
-    return acc;
-  }, statusInitialValue);
+
+  const toastState = useToast();
+  const updateRelatedWorkStatus = useCallback(
+    async (relatedWorkId: number, status: RelatedWorkStatus) => {
+      // Update related works status and wait at least FADEOUT_TIMEOUT
+      // until updating UI so that the fadeout can complete
+      const updatePromise = updateRelatedWorkStatusAction({
+        id: relatedWorkId,
+        status,
+      });
+      const delayPromise = new Promise((resolve) => setTimeout(resolve, FADEOUT_TIMEOUT));
+      const [response] = await Promise.all([updatePromise, delayPromise]);
+
+      if (response.success) {
+        // Refreshes the related works query in this component
+        await relatedWorksRefetch();
+      } else {
+        toastState.add(`Error updating related work. ${response?.errors?.join(", ")}`, { type: "error" });
+      }
+    },
+    [toastState],
+  );
 
   // Confidence items
-  // TODO: these will be computed by the GraphQL API
-  const confidenceInitialValue: { [key: string]: number } = {
-    [Confidence.High]: 0,
-    [Confidence.Medium]: 0,
-    [Confidence.Low]: 0,
-  };
-  const confidenceCounts = works
-    .filter((work) => work.status === status)
-    .reduce((acc, work) => {
-      acc[scoreToConfidence(work.score)] += 1;
-      return acc;
-    }, confidenceInitialValue);
-  const confidenceItems = Object.values(Confidence).map((key: string) => ({
+  const confidenceCounts = new Map(
+    relatedWorksData?.relatedWorksByPlan?.confidenceCounts?.map((item) => [item.typeId, item.count]),
+  );
+  const confidenceItems = Object.values(ConfidenceOptions).map((key: string) => ({
     id: key,
     label: dataTypes(`confidence.${key}`),
-    count: confidenceCounts[key] ?? undefined,
+    count: key === ConfidenceOptions.All ? undefined : (confidenceCounts.get(key) ?? 0),
   }));
 
   // Work type items
-  // Filter based on available work types
-  // TODO: available work types needs to be supplied by GraphQL query
-  const typeCounts = new Map<string, number>(works.map((work) => [work.work.type, 0]));
-  works.forEach((work) => {
-    if (work.status === status) {
-      const type = work.work.type as string;
-      typeCounts.set(type, (typeCounts.get(type) || 0) + 1);
-    }
-  });
-  const workTypeSet = new Set(typeCounts.keys());
-  const typeItems = Object.values(WorkType)
-    .filter((key: string) => workTypeSet.has(key))
-    .map((key: string) => ({ id: key, label: `${dataTypes(`workType.${key}`)} (${typeCounts.get(key)})` }));
+  const typeItems =
+    relatedWorksData?.relatedWorksByPlan?.workTypeCounts
+      ?.map((item) => ({ id: item.typeId, label: `${dataTypes(`workType.${item.typeId}`)} (${item.count ?? 0})` }))
+      .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase())) ?? [];
 
-  // Filter and sort works
-  // TODO: this will be done with GraphQL
-  const sortFieldMap: { [key: string]: { field: string; direction: number } } = {
-    [RelatedWorksSortBy.ConfidenceHigh]: { field: "score", direction: 1 },
-    [RelatedWorksSortBy.ConfidenceLow]: { field: "score", direction: -1 },
-    [RelatedWorksSortBy.ReviewedNew]: { field: "dateReviewed", direction: 1 },
-    [RelatedWorksSortBy.ReviewedOld]: { field: "dateReviewed", direction: -1 },
-    [RelatedWorksSortBy.PublishedNew]: { field: "work.publicationDate", direction: 1 },
-    [RelatedWorksSortBy.PublishedOld]: { field: "work.publicationDate", direction: -1 },
-    [RelatedWorksSortBy.DateFoundNew]: { field: "dateFound", direction: 1 },
-    [RelatedWorksSortBy.DateFoundOld]: { field: "dateFound", direction: -1 },
-  };
-  const filteredWorks = works.filter((work) => {
-    const confidenceInclude = confidence === Confidence.All || confidence === scoreToConfidence(work.score);
-    const typeInclude = type === null || type === work.work.type;
-    const statusInclude = work.status === status;
-    return confidenceInclude && typeInclude && statusInclude;
-  });
-  filteredWorks.sort((a, b) => {
-    const { field, direction } = sortFieldMap[sortBy as string];
-    if (get(a, field) > get(b, field)) {
-      return -1 * direction;
-    } else if (get(a, field) < get(b, field)) {
-      return direction;
-    }
-    return 0;
-  });
-
-  const sortItems = Object.values(RelatedWorksSortBy)
+  const sortItems = Object.values(SortByOptions)
     .map((id) => ({ id, label: t(`filters.sortBy.${id}`) }))
     .filter((item) => {
       const pendingReviewed =
-        [Status.Pending].includes(status) &&
-        [RelatedWorksSortBy.ReviewedNew, RelatedWorksSortBy.ReviewedOld].includes(item.id);
+        [RelatedWorkStatus.Pending].includes(status) &&
+        [SortByOptions.ReviewedNew, SortByOptions.ReviewedOld].includes(item.id);
       const relatedDiscardedDateFound =
-        [Status.Related, Status.Discarded].includes(status) &&
-        [RelatedWorksSortBy.DateFoundNew, RelatedWorksSortBy.DateFoundOld].includes(item.id);
+        [RelatedWorkStatus.Accepted, RelatedWorkStatus.Rejected].includes(status) &&
+        [SortByOptions.DateFoundNew, SortByOptions.DateFoundOld].includes(item.id);
       return !(pendingReviewed || relatedDiscardedDateFound);
     });
 
@@ -162,8 +218,8 @@ export const RelatedWorksList = ({ status }: RelatedWorksListProps) => {
           <div className={styles.spacer}>
             <Select
               placeholder={t("filters.filterByType")}
-              selectedKey={type}
-              setSelectedKey={setType}
+              selectedKey={workType}
+              setSelectedKey={setWorkType}
               items={typeItems}
               containerClassName={styles.filterByType}
               includeEmptyValue
@@ -204,54 +260,47 @@ export const RelatedWorksList = ({ status }: RelatedWorksListProps) => {
         data-testid="related-works-list"
         role="list"
       >
-        {filteredWorks.map((work) => (
+        {relatedWorksData?.relatedWorksByPlan?.items?.map((relatedWork) => (
           <RelatedWorksListItem
-            key={work.work.doi}
-            item={work}
+            key={relatedWork?.workVersion.work.doi}
+            relatedWork={relatedWork as RelatedWorkSearchResult}
             highlightMatches={highlightMatches}
-            acceptWork={acceptWork}
-            discardWork={discardWork}
+            updateRelatedWorkStatus={updateRelatedWorkStatus}
           />
         ))}
-        {status == Status.Pending && statusCounts[Status.Pending] == 0 && (
-          <div className={styles.noResults}>{t("messages.noPendingResults")}</div>
+
+        {!relatedWorksDataLoading && statusOnlyCount == 0 && totalCount == 0 && (
+          <div className={styles.noResults}>{t("messages." + status + ".noResults")}</div>
         )}
-        {status == Status.Pending && statusCounts[Status.Pending] > 0 && filteredWorks.length == 0 && (
-          <div className={styles.noResults}>{t("messages.noPendingFilteredResults")}</div>
-        )}
-        {status == Status.Related && statusCounts[Status.Related] == 0 && (
-          <div className={styles.noResults}>{t("messages.noRelatedResults")}</div>
-        )}
-        {status == Status.Related && statusCounts[Status.Related] > 0 && filteredWorks.length == 0 && (
-          <div className={styles.noResults}>{t("messages.noRelatedFilteredResults")}</div>
-        )}
-        {status == Status.Discarded && statusCounts[Status.Discarded] == 0 && (
-          <div className={styles.noResults}>{t("messages.noDiscardedResults")}</div>
-        )}
-        {status == Status.Discarded && statusCounts[Status.Discarded] > 0 && filteredWorks.length == 0 && (
-          <div className={styles.noResults}>{t("messages.noDiscardedFilteredResults")}</div>
+        {!relatedWorksDataLoading && statusOnlyCount > 0 && totalCount == 0 && (
+          <div className={styles.noResults}>{t("messages." + status + ".noFilteredResults")}</div>
         )}
       </div>
       <div className={styles.footer}>
         <Pagination
-          currentPage={page}
-          totalPages={1}
-          hasPreviousPage={false}
-          hasNextPage={false}
-          handlePageClick={() => { }}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          handlePageClick={handlePageClick}
         />
       </div>
     </div>
   );
 };
 
-// TODO delete this function after integration with GraphQL
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function get(obj: any, path: string, defaultValue?: any) {
-  return path.split(".").reduce((acc, key) => acc?.[key], obj) ?? defaultValue;
-}
+const getDefaultSortBy = (status: RelatedWorkStatus): SortByOptions => {
+  if (status === RelatedWorkStatus.Pending) {
+    return SortByOptions.ConfidenceHigh;
+  } else if (status === RelatedWorkStatus.Accepted) {
+    return SortByOptions.PublishedNew;
+  } else if (status === RelatedWorkStatus.Rejected) {
+    return SortByOptions.ReviewedNew;
+  }
 
-// TODO: should some of this functionality be combined with Form/FormSelect?
+  return SortByOptions.ConfidenceHigh;
+};
+
 interface SelectProps {
   label?: string;
   placeholder: string;
