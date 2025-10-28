@@ -167,7 +167,7 @@ export const RelatedWorksList = ({
         toastState.add(`Error updating related work. ${response?.errors?.join(", ")}`, { type: "error" });
       }
     },
-    [toastState, FADEOUT_TIMEOUT],
+    [toastState],
   );
 
   // Confidence items
@@ -262,7 +262,7 @@ export const RelatedWorksList = ({
       >
         {relatedWorksData?.relatedWorksByPlan?.items?.map((relatedWork) => (
           <RelatedWorksListItem
-            key={relatedWork?.workVersion?.work?.doi}
+            key={relatedWork?.workVersion.work.doi}
             relatedWork={relatedWork as RelatedWorkSearchResult}
             highlightMatches={highlightMatches}
             updateRelatedWorkStatus={updateRelatedWorkStatus}

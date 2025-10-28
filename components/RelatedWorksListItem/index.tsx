@@ -67,12 +67,14 @@ function RelatedWorksListItem({ relatedWork, highlightMatches, updateRelatedWork
           </div>
 
           <div className={styles.overviewHeaderActions}>
-            <span
-              data-testid="confidence"
-              className={styles.confidence}
-            >
-              {t("fieldNames.confidence")}: {dataTypes(`confidence.${relatedWork.confidence}`)}
-            </span>
+            {relatedWork.confidence != null && (
+              <span
+                data-testid="confidence"
+                className={styles.confidence}
+              >
+                {t("fieldNames.confidence")}: {dataTypes(`confidence.${relatedWork.confidence}`)}
+              </span>
+            )}
 
             <ExpandButton
               aria-controls={expandedContentId}
