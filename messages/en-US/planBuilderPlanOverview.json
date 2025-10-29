@@ -79,8 +79,8 @@
       "feedback": {
         "title": "Feedback",
         "none": "No feedback",
-        "request": "Feedback requested",
-        "complete": "Feedback received"
+        "requested": "Feedback requested",
+        "completed": "Feedback received"
       }
     },
     "publishModal": {

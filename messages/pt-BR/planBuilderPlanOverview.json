@@ -79,8 +79,8 @@
       "feedback": {
         "title": "Registrar",
         "none": "Sem feedback",
-        "request": "Feedback solicitado",
-        "complete": "Feedback recebido"
+        "requested": "Feedback solicitado",
+        "completed": "Feedback recebido"
       }
     },
     "publishModal": {
