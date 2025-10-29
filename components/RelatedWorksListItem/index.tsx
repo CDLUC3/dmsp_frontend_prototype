@@ -1,47 +1,46 @@
 import React, { useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { Button } from "react-aria-components";
-import { Author, RelatedWork, Status, Work } from "@/app/types";
 import styles from "./RelatedWorksListItem.module.scss";
 import DOMPurify from "dompurify";
 import ExpandButton from "@/components/ExpandButton";
 import { doiToUrl, orcidToUrl, rorToUrl } from "@/lib/idToUrl";
 import ExpandableNameList from "@/components/ExpandableNameList";
-import { scoreToConfidence } from "@/lib/relatedWorks";
+import { Author, RelatedWorkSearchResult, RelatedWorkStatus, WorkVersion } from "@/generated/graphql";
 
 const MAX_ITEMS = 10;
 const MAX_AUTHOR_CHARS = 40;
-const FADEOUT_TIMEOUT = 550;
 
 interface RelatedWorksListItemProps {
-  item: RelatedWork;
+  relatedWork: RelatedWorkSearchResult;
   highlightMatches: boolean;
-  acceptWork: (doi: string) => void;
-  discardWork: (doi: string) => void;
+  updateRelatedWorkStatus: (relatedWorkId: number, status: RelatedWorkStatus) => Promise<void>;
 }
 
-function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork }: RelatedWorksListItemProps) {
+function RelatedWorksListItem({ relatedWork, highlightMatches, updateRelatedWorkStatus }: RelatedWorksListItemProps) {
   const t = useTranslations("RelatedWorksListItem");
   const dataTypes = useTranslations("RelatedWorksDataTypes");
 
-  const work = item.work;
   const [fadeOut, setFadeOut] = useState(false);
   const [expanded, setExpanded] = useState<boolean>(false);
 
   // Create unique IDs for ARIA relationships
-  const expandedContentId = `${work.title.toLowerCase().replace(/\s+/g, "-")}-content`;
-  const headingId = `${work.title.toLowerCase().replace(/\s+/g, "-")}-heading`;
-  const { authorNames, containerTitle, publicationYear } = formatSubtitle(work, MAX_AUTHOR_CHARS);
+  const expandedContentId = `${relatedWork.workVersion?.title?.toLowerCase().replace(/\s+/g, "-")}-content`;
+  const headingId = `${relatedWork.workVersion?.title?.toLowerCase().replace(/\s+/g, "-")}-heading`;
+  const { authorNames, containerTitle, publicationYear } = formatSubtitle(
+    relatedWork.workVersion as WorkVersion,
+    MAX_AUTHOR_CHARS,
+  );
 
   // Format dates
-  const dateFound = useFormatDate(item.dateFound);
-  const dateReviewed = useFormatDate(item.dateReviewed);
+  const dateFound = useFormatDate(relatedWork.created);
+  const dateReviewed = useFormatDate(relatedWork.modified);
 
   return (
     <div
       className={[styles.relatedWorksItem, fadeOut ? styles.fadeOut : undefined].join(" ")}
       role="listitem"
-      data-testid={item.work.doi}
+      data-testid={relatedWork.workVersion.work.doi}
     >
       <div className={styles.overview}>
         <div className={styles.overviewHeader}>
@@ -49,18 +48,14 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
             <div>
               <section>
                 <h3 id={headingId}>
-                  {work.doi ? (
-                    <a
-                      href={doiToUrl(work.doi)}
-                      aria-label={`${t("header.title")}: ${work.title}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {work.title}
-                    </a>
-                  ) : (
-                    work.title
-                  )}
+                  <a
+                    href={doiToUrl(relatedWork.workVersion.work.doi)}
+                    aria-label={`${t("header.title")}: ${relatedWork.workVersion?.title}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {relatedWork.workVersion?.title}
+                  </a>
                 </h3>
                 <h4>
                   <span>{authorNames}</span>
@@ -72,18 +67,20 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
           </div>
 
           <div className={styles.overviewHeaderActions}>
-            <span
-              data-testid="confidence"
-              className={styles.confidence}
-            >
-              {t("fieldNames.confidence")}: {dataTypes(`confidence.${scoreToConfidence(item.score)}`)}
-            </span>
+            {relatedWork.confidence != null && (
+              <span
+                data-testid="confidence"
+                className={styles.confidence}
+              >
+                {t("fieldNames.confidence")}: {dataTypes(`confidence.${relatedWork.confidence}`)}
+              </span>
+            )}
 
             <ExpandButton
               aria-controls={expandedContentId}
               collapseLabel={t("buttons.collapse")}
               expandLabel={t("buttons.expand")}
-              aria-label={`${expanded ? t("buttons.collapse") : t("buttons.expand")} details for ${work.title}`}
+              aria-label={`${expanded ? t("buttons.collapse") : t("buttons.expand")} details for ${relatedWork.workVersion.title}`}
               expanded={expanded}
               setExpanded={setExpanded}
             />
@@ -92,57 +89,58 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
 
         <div className={styles.overviewFooter}>
           <div className={styles.overviewMetadata}>
-            {item.status === Status.Pending && (
+            {relatedWork.status === RelatedWorkStatus.Pending && (
               <span data-testid="dateFound">
                 {t("fieldNames.dateFound")}: {dateFound}
               </span>
             )}
-            {[Status.Related, Status.Discarded].includes(item.status) && (
+            {[RelatedWorkStatus.Accepted, RelatedWorkStatus.Rejected].includes(relatedWork.status) && (
               <span data-testid="dateReviewed">
                 {t("fieldNames.dateReviewed")}: {dateReviewed}
               </span>
             )}
-            {work.type !== null && (
-              <span data-testid="workType">
-                {t("fieldNames.type")}: {dataTypes(`workType.${work.type}`)}
-              </span>
-            )}
+            <span data-testid="workType">
+              {t("fieldNames.type")}: {dataTypes(`workType.${relatedWork.workVersion.workType}`)}
+            </span>
             <span>
               {t("fieldNames.source")}:{" "}
-              <a
-                href={work.source.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.sourceUrl}
-              >
-                {work.source.name}
-              </a>
+              {relatedWork.workVersion?.sourceUrl != null && (
+                <a
+                  href={relatedWork.workVersion.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.sourceUrl}
+                >
+                  {relatedWork.workVersion.sourceName}
+                </a>
+              )}
+              {relatedWork.workVersion?.sourceUrl == null && <>{relatedWork.workVersion.sourceName}</>}
             </span>
           </div>
 
           <div className={styles.overviewFooterActions}>
-            {[Status.Discarded, Status.Pending].includes(item.status) && (
+            {[RelatedWorkStatus.Rejected, RelatedWorkStatus.Pending].includes(relatedWork.status) && (
               <Button
-                onPress={() => {
+                onPress={async () => {
                   setFadeOut(true);
-                  setTimeout(() => {
-                    acceptWork(work.doi);
-                  }, FADEOUT_TIMEOUT);
+                  await updateRelatedWorkStatus(relatedWork.id, RelatedWorkStatus.Accepted);
                 }}
-                className={[item.status === Status.Pending ? "primary" : "secondary", "small"].join(" ")}
+                className={[relatedWork.status === RelatedWorkStatus.Pending ? "primary" : "secondary", "small"].join(
+                  " ",
+                )}
               >
                 {t("buttons.accept")}
               </Button>
             )}
-            {[Status.Pending, Status.Related].includes(item.status) && (
+            {[RelatedWorkStatus.Pending, RelatedWorkStatus.Accepted].includes(relatedWork.status) && (
               <Button
-                onPress={() => {
+                onPress={async () => {
                   setFadeOut(true);
-                  setTimeout(() => {
-                    discardWork(work.doi);
-                  }, FADEOUT_TIMEOUT);
+                  await updateRelatedWorkStatus(relatedWork.id, RelatedWorkStatus.Rejected);
                 }}
-                className={[item.status === Status.Pending ? "primary" : "secondary", "small"].join(" ")}
+                className={[relatedWork.status === RelatedWorkStatus.Pending ? "primary" : "secondary", "small"].join(
+                  " ",
+                )}
               >
                 {t("buttons.reject")}
               </Button>
@@ -155,11 +153,11 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
         (() => {
           const doiUrl = (
             <a
-              href={doiToUrl(work.doi)}
+              href={doiToUrl(relatedWork.workVersion.work.doi)}
               target="_blank"
               rel="noopener noreferrer"
             >
-              {work.doi}
+              {relatedWork.workVersion.work.doi}
             </a>
           );
 
@@ -173,75 +171,78 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
                 <div className={styles.detailsItem}>
                   <h5>{t("fieldNames.doi")}</h5>
                   <span className={highlightMatches ? styles.showContentHighlights : styles.hideContentHighlights}>
-                    {item.match.doi && <mark>{doiUrl}</mark>}
-                    {!item.match.doi && <>{doiUrl}</>}
+                    {relatedWork.doiMatch?.found && <mark>{doiUrl}</mark>}
+                    {!relatedWork.doiMatch?.found && <>{doiUrl}</>}
                   </span>
                 </div>
 
-                {item.match.title !== null && (
+                {relatedWork.contentMatch?.titleHighlight != null && (
                   <div className={styles.detailsItem}>
                     <h5>{t("fieldNames.title")}</h5>
                     <span
-                      dangerouslySetInnerHTML={{ __html: sanitiseHighlight(item.match.title) }}
+                      dangerouslySetInnerHTML={{ __html: sanitiseHighlight(relatedWork.contentMatch.titleHighlight) }}
                       className={highlightMatches ? styles.showContentHighlights : styles.hideContentHighlights}
                     />
                   </div>
                 )}
-                {item.match.title === null && (
+                {relatedWork.contentMatch?.titleHighlight == null && (
                   <div className={styles.detailsItem}>
                     <h5>Title</h5>
                     <span className={highlightMatches ? styles.showContentHighlights : styles.hideContentHighlights}>
-                      {item.work.title}
+                      {relatedWork.workVersion?.title}
                     </span>
                   </div>
                 )}
 
-                {item.match.abstract.length > 0 && (
-                  <div className={styles.detailsItem}>
-                    <h5>{t("fieldNames.abstract")}</h5>
-                    {item.match.abstract.map((abs, i) => (
-                      <span
-                        className={highlightMatches ? styles.showContentHighlights : styles.hideContentHighlights}
-                        key={i}
-                        dangerouslySetInnerHTML={{ __html: sanitiseHighlight(abs) }}
-                      />
-                    ))}
-                  </div>
-                )}
+                {relatedWork.contentMatch?.abstractHighlights != null &&
+                  relatedWork.contentMatch?.abstractHighlights.length > 0 && (
+                    <div className={styles.detailsItem}>
+                      <h5>{t("fieldNames.abstract")}</h5>
+                      {relatedWork.contentMatch.abstractHighlights.map((abs, i) => (
+                        <span
+                          className={highlightMatches ? styles.showContentHighlights : styles.hideContentHighlights}
+                          key={i}
+                          dangerouslySetInnerHTML={{ __html: sanitiseHighlight(abs) }}
+                        />
+                      ))}
+                    </div>
+                  )}
 
-                {work.awardIds.length > 0 && (
+                {relatedWork.workVersion.awards.length > 0 && (
                   <div className={styles.detailsItem}>
                     <h5>{t("fieldNames.awardIds")}</h5>
                     <ExpandableNameList
-                      items={work.awardIds}
-                      matches={item.match.awardIds}
+                      items={relatedWork.workVersion.awards}
+                      matches={relatedWork.awardMatches}
                       maxItems={MAX_ITEMS}
-                      renderItem={(awardId, isMatch) => {
+                      renderItem={(award, isMatch) => {
                         return (
-                          <span className={isMatch && highlightMatches ? styles.match : undefined}>{awardId}</span>
+                          <span className={isMatch && highlightMatches ? styles.match : undefined}>
+                            {award.awardId}
+                          </span>
                         );
                       }}
                     />
                   </div>
                 )}
 
-                {work.authors.length > 0 && (
+                {relatedWork.workVersion.authors.length > 0 && (
                   <div className={styles.detailsItem}>
                     <h5>{t("fieldNames.authors")}</h5>
                     <ExpandableNameList
-                      items={work.authors}
-                      matches={item.match.authors}
+                      items={relatedWork.workVersion.authors}
+                      matches={relatedWork.authorMatches}
                       maxItems={MAX_ITEMS}
                       renderItem={(author, isMatch) => {
                         const highlightMatch = isMatch && highlightMatches;
                         return (
                           <>
-                            {author.orcid === null && (
+                            {author.orcid == null && (
                               <span className={highlightMatch ? styles.match : undefined}>
                                 {formatAuthorNameFirstLast(author)}
                               </span>
                             )}
-                            {author.orcid !== null && (
+                            {author.orcid != null && (
                               <a
                                 href={orcidToUrl(author.orcid)}
                                 target="_blank"
@@ -258,21 +259,21 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
                   </div>
                 )}
 
-                {work.institutions.length > 0 && (
+                {relatedWork.workVersion.institutions.length > 0 && (
                   <div className={styles.detailsItem}>
                     <h5>{t("fieldNames.institutions")}</h5>
                     <ExpandableNameList
-                      items={work.institutions}
-                      matches={item.match.institutions}
+                      items={relatedWork.workVersion.institutions}
+                      matches={relatedWork.institutionMatches}
                       maxItems={MAX_ITEMS}
                       renderItem={(institution, isMatch) => {
                         const highlightMatch = isMatch && highlightMatches;
                         return (
                           <>
-                            {institution.ror === null && (
+                            {institution.ror == null && (
                               <span className={highlightMatch ? styles.match : undefined}>{institution.name}</span>
                             )}
-                            {institution.ror !== null && (
+                            {institution.ror != null && (
                               <a
                                 href={rorToUrl(institution.ror)}
                                 target="_blank"
@@ -289,22 +290,22 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
                   </div>
                 )}
 
-                {work.funders.length > 0 && (
+                {relatedWork.workVersion.funders.length > 0 && (
                   <div className={styles.detailsItem}>
                     <h5>{t("fieldNames.funders")}</h5>
 
                     <ExpandableNameList
-                      items={work.funders}
-                      matches={item.match.funders}
+                      items={relatedWork.workVersion.funders}
+                      matches={relatedWork.funderMatches}
                       maxItems={MAX_ITEMS}
                       renderItem={(funder, isMatch) => {
                         const highlightMatch = isMatch && highlightMatches;
                         return (
                           <>
-                            {funder.ror === null && (
+                            {funder.ror == null && (
                               <span className={highlightMatch ? styles.match : undefined}>{funder.name}</span>
                             )}
-                            {funder.ror !== null && (
+                            {funder.ror != null && (
                               <a
                                 href={rorToUrl(funder.ror)}
                                 target="_blank"
@@ -322,7 +323,7 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
                 )}
               </div>
 
-              <span className={styles.actionInstructions}>{t(`instructions.actions.${item.status}`)}</span>
+              <span className={styles.actionInstructions}>{t(`instructions.actions.${relatedWork.status}`)}</span>
             </div>
           );
         })()}
@@ -337,10 +338,14 @@ const sanitiseHighlight = (dirty: string): string => {
   });
 };
 
-const useFormatDate = (date: Date | null) => {
+const useFormatDate = (date: Date | string | null | undefined) => {
   const formatter = useFormatter();
-  if (date == null) {
+  if (date == null || date === "") {
     return "";
+  }
+
+  if (typeof date === "string") {
+    date = new Date(date);
   }
 
   const formattedDate = formatter.dateTime(date, {
@@ -362,8 +367,8 @@ const formatAuthorNameAbrev = (author: Author): string | null => {
     if (author.firstInitial) {
       initials.push(author.firstInitial);
     }
-    if (author.middleInitial) {
-      initials.push(author.middleInitial);
+    if (author.middleInitials) {
+      initials.push(author.middleInitials);
     }
     parts.push(initials.join("")); // Join initials
     parts.push(author.surname); // Add surname
@@ -390,11 +395,11 @@ const formatAuthorNameFirstLast = (author: Author): string | null => {
 };
 
 const formatSubtitle = (
-  work: Work,
+  workVersion: WorkVersion,
   maxAuthorChars: number,
 ): { authorNames: string; containerTitle: string; publicationYear: string } => {
   // Build author names
-  const names = work.authors.map(formatAuthorNameAbrev).filter((n): n is string => !!n);
+  const names = workVersion.authors.map(formatAuthorNameAbrev).filter((n): n is string => !!n);
 
   // Choose what names to display based on the total character length
   const authorNames = [];
@@ -410,14 +415,14 @@ const formatSubtitle = (
 
   // Build container title
   let containerTitle = "";
-  if (work.containerTitle) {
-    containerTitle = ` ${work.containerTitle}${work.publicationDate ? ", " : "."}`;
+  if (workVersion.publicationVenue) {
+    containerTitle = ` ${workVersion.publicationVenue}${workVersion.publicationDate ? ", " : "."}`;
   }
 
   // Build publication year
-  const publicationYear = work.publicationDate ? `${work.publicationDate.getFullYear()}.` : "";
+  const publicationYear = workVersion.publicationDate ? `${new Date(workVersion.publicationDate).getFullYear()}.` : "";
 
-  return { authorNames: authorNames.join(", ") + ".", containerTitle, publicationYear };
+  return { authorNames: authorNames.join(", ") + ". ", containerTitle, publicationYear };
 };
 
 export default RelatedWorksListItem;

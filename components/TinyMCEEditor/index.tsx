@@ -55,7 +55,7 @@ const TinyMCEEditor = ({ content, setContent, onChange, error, id, labelId, help
           'lists',
           'link'
         ],
-        toolbar: 'formatselect | bold italic | ' +
+        toolbar: 'formatselect | bold italic forecolor backcolor | ' +
           'alignleft aligncenter alignright | ' +
           'bullist numlist | ' +
           'link unlink | table',
