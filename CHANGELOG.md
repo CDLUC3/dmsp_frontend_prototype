@@ -1,4 +1,5 @@
 ### Added
+- Removed `Title` field from TinyMCEEditor's `Insert Link` form, and made `new window` the default for `Open link in...` [#874]
 - Integrated related works UI with GraphQL backend.
 - Added updated description that includes template source, affiliation name, version and publish date on the `Plan Overview` page [#621]
 

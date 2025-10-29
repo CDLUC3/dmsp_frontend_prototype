@@ -529,20 +529,6 @@ interface TestProvidersProps {
   defaultSortBy?: RelatedWorksSortBy;
 }
 
-const expectedDateFormat = (date: Date | null) => {
-  if (!date) {
-    return "";
-  }
-  const systemLocale = Intl.DateTimeFormat().resolvedOptions().locale;
-  return new Intl.DateTimeFormat(systemLocale, {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  })
-    .format(date)
-    .replace(/\//g, "-");
-};
-
 export const TestProviders: React.FC<TestProvidersProps> = ({ children }) => {
   const detectedLocale = Intl.DateTimeFormat().resolvedOptions().locale;
   const detectedTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
