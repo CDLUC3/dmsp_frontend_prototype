@@ -9,6 +9,7 @@
 
 ### Fixed
 - Fixed typo in some translation text for the `projects/[projectId]/collaboration/invite` page and added missing `Owner` access level radio option [#846]
+- Moved `ProjectsProjectCollaborationInvite` off of using `useReducer` to using `useState` instead [#846]
 
 ### Removed
 

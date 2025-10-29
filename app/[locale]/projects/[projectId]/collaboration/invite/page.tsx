@@ -53,7 +53,7 @@ const ProjectsProjectCollaborationInvite = () => {
   // To be used in the translation key for the modal
   const accessLevelDescription =
     accessLevel === 'comment'
-      ? t('accessLevelOn', { accessLevel: accessLevel })
+      ? t('accessLevelOn', { accessLevel })
       : accessLevel; //e.g.
 
   // Set refs for error messages and scrolling
