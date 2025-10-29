@@ -77,7 +77,10 @@
         "title": "Download"
       },
       "feedback": {
-        "title": "Feedback"
+        "title": "Feedback",
+        "none": "No feedback",
+        "request": "Feedback requested",
+        "complete": "Feedback received"
       }
     },
     "publishModal": {

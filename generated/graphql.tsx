@@ -1869,6 +1869,12 @@ export type PlanFeedbackErrors = {
   summaryText?: Maybe<Scalars['String']['output']>;
 };
 
+export enum PlanFeedbackStatusEnum {
+  Completed = 'COMPLETED',
+  None = 'NONE',
+  Requested = 'REQUESTED'
+}
+
 /** Funding associated with a plan */
 export type PlanFunding = {
   __typename?: 'PlanFunding';
@@ -2490,6 +2496,8 @@ export type Query = {
   planFeedback?: Maybe<Array<Maybe<PlanFeedback>>>;
   /** Get all of the comments associated with the round of admin feedback */
   planFeedbackComments?: Maybe<Array<Maybe<PlanFeedbackComment>>>;
+  /** Get the feedback status for a plan (NONE, REQUESTED, COMPLETED) */
+  planFeedbackStatus?: Maybe<PlanFeedbackStatusEnum>;
   /** Get all of the Funding information for the specific Plan */
   planFundings?: Maybe<Array<Maybe<PlanFunding>>>;
   /** Get all of the Users that are Members for the specific Plan */
@@ -2682,6 +2690,11 @@ export type QueryPlanFeedbackArgs = {
 
 export type QueryPlanFeedbackCommentsArgs = {
   planFeedbackId: Scalars['Int']['input'];
+  planId: Scalars['Int']['input'];
+};
+
+
+export type QueryPlanFeedbackStatusArgs = {
   planId: Scalars['Int']['input'];
 };
 
@@ -4773,6 +4786,13 @@ export type PlanQueryVariables = Exact<{
 
 
 export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, createdById?: number | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, version: string, created?: string | null, template?: { __typename?: 'Template', id?: number | null, name: string } | null, owner?: { __typename?: 'Affiliation', uri: string, displayName: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null, collaborators?: Array<{ __typename?: 'ProjectCollaborator', accessLevel?: ProjectCollaboratorAccessLevel | null, user?: { __typename?: 'User', id?: number | null } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number }> | null, progress?: { __typename?: 'PlanProgress', answeredQuestions: number, percentComplete: number, totalQuestions: number } | null, feedback?: Array<{ __typename?: 'PlanFeedback', id?: number | null, completed?: string | null }> | null } | null };
+
+export type PlanFeedbackStatusQueryVariables = Exact<{
+  planId: Scalars['Int']['input'];
+}>;
+
+
+export type PlanFeedbackStatusQuery = { __typename?: 'Query', planFeedbackStatus?: PlanFeedbackStatusEnum | null };
 
 export type PlanMembersQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -7708,6 +7728,44 @@ export type PlanQueryHookResult = ReturnType<typeof usePlanQuery>;
 export type PlanLazyQueryHookResult = ReturnType<typeof usePlanLazyQuery>;
 export type PlanSuspenseQueryHookResult = ReturnType<typeof usePlanSuspenseQuery>;
 export type PlanQueryResult = Apollo.QueryResult<PlanQuery, PlanQueryVariables>;
+export const PlanFeedbackStatusDocument = gql`
+    query PlanFeedbackStatus($planId: Int!) {
+  planFeedbackStatus(planId: $planId)
+}
+    `;
+
+/**
+ * __usePlanFeedbackStatusQuery__
+ *
+ * To run a query within a React component, call `usePlanFeedbackStatusQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePlanFeedbackStatusQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePlanFeedbackStatusQuery({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *   },
+ * });
+ */
+export function usePlanFeedbackStatusQuery(baseOptions: Apollo.QueryHookOptions<PlanFeedbackStatusQuery, PlanFeedbackStatusQueryVariables> & ({ variables: PlanFeedbackStatusQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PlanFeedbackStatusQuery, PlanFeedbackStatusQueryVariables>(PlanFeedbackStatusDocument, options);
+      }
+export function usePlanFeedbackStatusLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PlanFeedbackStatusQuery, PlanFeedbackStatusQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PlanFeedbackStatusQuery, PlanFeedbackStatusQueryVariables>(PlanFeedbackStatusDocument, options);
+        }
+export function usePlanFeedbackStatusSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PlanFeedbackStatusQuery, PlanFeedbackStatusQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PlanFeedbackStatusQuery, PlanFeedbackStatusQueryVariables>(PlanFeedbackStatusDocument, options);
+        }
+export type PlanFeedbackStatusQueryHookResult = ReturnType<typeof usePlanFeedbackStatusQuery>;
+export type PlanFeedbackStatusLazyQueryHookResult = ReturnType<typeof usePlanFeedbackStatusLazyQuery>;
+export type PlanFeedbackStatusSuspenseQueryHookResult = ReturnType<typeof usePlanFeedbackStatusSuspenseQuery>;
+export type PlanFeedbackStatusQueryResult = Apollo.QueryResult<PlanFeedbackStatusQuery, PlanFeedbackStatusQueryVariables>;
 export const PlanMembersDocument = gql`
     query PlanMembers($planId: Int!) {
   planMembers(planId: $planId) {
