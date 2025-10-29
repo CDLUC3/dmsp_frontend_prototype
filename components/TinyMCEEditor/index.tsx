@@ -41,6 +41,7 @@ const TinyMCEEditor = ({ content, setContent, onChange, error, id, labelId, help
         promotion: false,// Removes TinyMCE promotional link
         branding: false, // removed the tinyMCE branding
         statusbar: false, //removes the bottom status bar
+        link_title: false, // Disable automatic link title generation in Insert Link window
         selector: `#${elementId}`,
         base_url: '/tinymce', // Base URL for TinyMCE assets
         suffix: '.min', // Use the minified version
@@ -54,10 +55,15 @@ const TinyMCEEditor = ({ content, setContent, onChange, error, id, labelId, help
           'lists',
           'link'
         ],
-        toolbar: 'formatselect | bold italic | ' +
+        toolbar: 'formatselect | bold italic forecolor backcolor | ' +
           'alignleft aligncenter alignright | ' +
           'bullist numlist | ' +
           'link unlink | table',
+        default_link_target: '_blank',
+        link_target_list: [
+          { title: 'New window', value: '_blank' },
+          { title: 'Current window', value: '_self' },
+        ],
         content_style: `
           @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
           body { font-family: "Poppins", sans-serif; color:#393939;};
