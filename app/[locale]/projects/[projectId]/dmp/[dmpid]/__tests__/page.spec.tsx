@@ -57,6 +57,13 @@ jest.mock("@/generated/graphql", () => ({
     Organizational: 'ORGANIZATIONAL',
   },
   usePlanQuery: jest.fn(),
+
+  usePlanFeedbackStatusQuery: jest.fn().mockReturnValue({
+    data: { planFeedbackStatus: 'NONE' },
+    loading: false,
+    error: null,
+    refetch: jest.fn(),
+  }),
 }));
 
 import {
