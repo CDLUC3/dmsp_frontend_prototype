@@ -13,11 +13,14 @@ import {
   ListBoxItem,
   Modal,
   SearchField,
+  Select
 } from "react-aria-components";
 import {
+  CheckboxGroupComponent,
   FormInput,
   FormSelect,
 } from '@/components/Form';
+import { Card, CardBody } from "@/components/Card/card";
 import ExpandButton from "@/components/ExpandButton";
 
 import Pagination from '@/components/Pagination';
@@ -138,6 +141,8 @@ const RepositorySelectionSystem = ({
   const [selectedRepos, setSelectedRepos] = useState<RepositoryInterface[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCustomFormOpen, setIsCustomFormOpen] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchPerformed, setSearchPerformed] = useState(false);
   const [expandedDetails, setExpandedDetails] = useState<Record<string, boolean>>({});
   const [subjectArea, setSubjectArea] = useState('');
   const [repoType, setRepoType] = useState('');
@@ -153,6 +158,7 @@ const RepositorySelectionSystem = ({
 
   // Handle search for repositories
   const handleSearch = () => {
+    setIsSearching(true);
     //TODO: Implement actual search request to backend with pagination
     // with subjectArea, repoType, and searchTerm as parameters
     const filtered = originalRepositories.filter(repo =>
@@ -160,6 +166,7 @@ const RepositorySelectionSystem = ({
       repo.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       repo.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
     );
+    setSearchPerformed(true);
     setRepositories(filtered);
   }
 
@@ -400,9 +407,61 @@ const RepositorySelectionSystem = ({
                             {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
                           </FormSelect>
                         </div>
+
+                        <div className={styles.filterGroup}>
+                          <SearchField className={styles.searchRepos}>
+                            <Label>{Global('labels.searchTerm')}</Label>
+                            <Input
+                              id="search-term"
+                              value={searchTerm}
+                              onChange={(e) => handleSearchInput(e.target.value)}
+                              placeholder='e.g. DNA, titanium, FAIR, etc.'
+                            />
+                          </SearchField>
+                        </div>
+
+                        <div className={styles.filterGroup}>
+                          <Label>&nbsp;</Label>
+                          <Button
+                            className="primary medium"
+                            onPress={() => {
+                              handleSearch();
+                            }}
+                          >
+                            {Global('buttons.applyFilter')}
+                          </Button>
+                        </div>
                       </div>
 
-                      <div className={styles.filterRow}>
+                      <div className={styles.otherFilterOption}>
+                        <div className={styles.preferredFilter}>
+                          <CheckboxGroupComponent
+                            name="funders"
+                            onChange={(value) => console.log(value)}
+                            checkboxGroupLabel="Filter by preferred repositories"
+                            checkboxGroupDescription=""
+                          >
+                            <Checkbox>
+                              <div className="checkbox">
+                                <svg viewBox="0 0 18 18" aria-hidden="true">
+                                  <polyline points="1 9 7 14 15 4" />
+                                </svg>
+                              </div>
+                              Display only preferred repositories
+                            </Checkbox>
+                          </CheckboxGroupComponent>
+                        </div>
+                        <div>
+                          <Button
+                            onClick={() => setIsCustomFormOpen(!isCustomFormOpen)}
+                            className="secondary medium"
+                          >
+                            {QuestionAdd('researchOutput.repoSelector.buttons.addCustomRepo')}
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* <div className={styles.filterRow}>
                         <div className={styles.filterGroup}>
                           <div className={styles.searchWrapper}>
 
@@ -434,8 +493,9 @@ const RepositorySelectionSystem = ({
                             </div>
                           </div>
                         </div>
-                      </div>
+                      </div> */}
                     </div>
+
 
                     {/**To add Custom repositories- name, url and description fields */}
                     {isCustomFormOpen && (
@@ -489,66 +549,86 @@ const RepositorySelectionSystem = ({
                       </div>
                     )}
 
-                    <div className={styles.searchResults}>
-                      <div className={styles.paginationWrapper}>
-                        <span className={styles.paginationInfo}>
-                          Displaying repositories 1 - 10 of 4372 in total
-                        </span>
-                        <Pagination {...paginationProps} />
+                    <div className={styles.searchResults} role="region" aria-label="Search results">
+
+                      <div className={styles.paginationInfo}>
+                        Displaying repositories 1 - 10 of 4372 in total
                       </div>
+                      {/* Dedicated live region - visually hidden, only for announcements */}
+                      <div
+                        role="status"
+                        aria-live="polite"
+                        aria-atomic="true"
+                        className="sr-only"
+                      >
+                        {isSearching && 'Searching repositories...'}
+                        {!isSearching && searchPerformed && (
+                          repositories.length > 0
+                            ? `Found ${repositories.length} repositories`
+                            : 'No repositories found'
+                        )}
+                      </div>
+
 
                       {repositories.map((repo) => {
                         const isSelected = selectedRepos[repo.id];
                         return (
-                          <div
-                            key={repo.id}
-                            className={`${styles.searchResultItem} ${isSelected ? styles.selected : ''}`}
-                          >
-                            <div className={styles.searchResultHeader}>
-                              <div className={styles.searchResultTitle}>{repo.name}</div>
-                              <Button
-                                onClick={() => toggleSelection(repo)}
-                                className={`small ${isSelected ? 'danger' : 'primary'}`}
+                          <Card className={styles.card}>
+                            <CardBody>
+                              <div
+                                key={repo.id}
+                                className={`${styles.searchResultItem} ${isSelected ? styles.selected : ''}`}
                               >
-                                {isSelected ? Global('buttons.remove') : Global('buttons.select')}
-                              </Button>
-                            </div>
-                            <div className={styles.itemDescription}>{repo.description}</div>
-                            <div className={styles.tags}>
-                              {repo.tags.map(tag => (
-                                <span key={tag} className={styles.tag}>{tag}</span>
-                              ))}
-                            </div>
-                            <ExpandButton
-                              collapseLabel={Global('buttons.lessInfo')}
-                              data-testid="expand-button"
-                              expandLabel={Global('buttons.moreInfo')}
-                              className={`${styles.moreInfoToggle} link`}
-                              aria-label={expandedDetails[`modal-${repo.id}`] ? Global('buttons.lessInfo') : Global('buttons.moreInfo')}
-                              expanded={expandedDetails[`modal-${repo.id}`]}
-                              setExpanded={() => toggleDetails(repo.id, 'modal-')}
-                            />
-                            {expandedDetails[`modal-${repo.id}`] && (
-                              <div className={styles.repoDetails}>
-                                <dl>
-                                  <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.repoTitle')}</dt>
-                                  <dd>
-                                    <a href={repo.url} target="_blank" rel="noopener noreferrer">
-                                      {repo.url}
-                                    </a>
-                                  </dd>
-                                  <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.contactTitle')}</dt>
-                                  <dd>{repo.contact}</dd>
-                                  <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.dataAccessTitle')}</dt>
-                                  <dd>{repo.access}</dd>
-                                  <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.identifierTitle')}</dt>
-                                  <dd>{repo.identifier}</dd>
-                                </dl>
+                                <div className={styles.searchResultHeader}>
+                                  <div className={styles.searchResultTitle}>{repo.name}</div>
+                                  <Button
+                                    onClick={() => toggleSelection(repo)}
+                                    className={`small ${isSelected ? 'danger' : 'primary'}`}
+                                  >
+                                    {isSelected ? Global('buttons.remove') : Global('buttons.select')}
+                                  </Button>
+                                </div>
+                                <div className={styles.itemDescription}>{repo.description}</div>
+                                <div className={styles.tags}>
+                                  {repo.tags.map(tag => (
+                                    <span key={tag} className={styles.tag}>{tag}</span>
+                                  ))}
+                                </div>
+                                <ExpandButton
+                                  collapseLabel={Global('buttons.lessInfo')}
+                                  data-testid="expand-button"
+                                  expandLabel={Global('buttons.moreInfo')}
+                                  className={`${styles.moreInfoToggle} link`}
+                                  aria-label={expandedDetails[`modal-${repo.id}`] ? Global('buttons.lessInfo') : Global('buttons.moreInfo')}
+                                  expanded={expandedDetails[`modal-${repo.id}`]}
+                                  setExpanded={() => toggleDetails(repo.id, 'modal-')}
+                                />
+                                {expandedDetails[`modal-${repo.id}`] && (
+                                  <div className={styles.repoDetails}>
+                                    <dl>
+                                      <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.repoTitle')}</dt>
+                                      <dd>
+                                        <a href={repo.url} target="_blank" rel="noopener noreferrer">
+                                          {repo.url}
+                                        </a>
+                                      </dd>
+                                      <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.contactTitle')}</dt>
+                                      <dd>{repo.contact}</dd>
+                                      <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.dataAccessTitle')}</dt>
+                                      <dd>{repo.access}</dd>
+                                      <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.identifierTitle')}</dt>
+                                      <dd>{repo.identifier}</dd>
+                                    </dl>
+                                  </div>
+                                )}
                               </div>
-                            )}
-                          </div>
+                            </CardBody>
+                          </Card>
                         );
                       })}
+                      <div className={styles.paginationWrapper}>
+                        <Pagination {...paginationProps} />
+                      </div>
                     </div>
                   </div>
                 </div>

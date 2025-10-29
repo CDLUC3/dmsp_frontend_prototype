@@ -168,6 +168,7 @@
 
 .modal {
   width: 100%; // Full width on mobile
+  max-width: 1200px; // Cap width on large screens
   height: 90vh;
   display: flex;
   flex-direction: column;
@@ -221,13 +222,22 @@
 }
 
 .filterSection {
-  margin-bottom: var(--space-6);
+  background-color: var(--gray-75);
+  // border-radius: 8px;
+  // border: 1px solid var(--blue-900); 
+  // padding-top: var(--space-4);
+  // padding-bottom: var(--space-5);
+  
+  // legend {
+  //   padding: 0 var(--space-2);
+  // }
 }
 
 .filterRow {
   display: flex;
   gap: 15px;
-  margin-bottom: var(--space-4);
+  background-color: var(--background-color-base);
+  padding: var(--space-6);
   flex-wrap: wrap;
 }
 
@@ -235,11 +245,19 @@
   flex: 1;
   min-width: 200px;
 
-    :global {
-    .react-aria-Select {
-      margin-bottom: var(--space-2);
-    }
-  }
+  //   :global {
+  //   .react-aria-Select {
+  //     margin-bottom: var(--space-2);
+  //   }
+  // }
+  max-width: 250px;
+}
+
+.otherFilterOption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
 }
 
 .applyFilterBtn {
@@ -247,6 +265,9 @@
   color: var(--gray-50);
 }
 
+.customBtn {
+  background: var(--gray-50);
+}
 .customRepoForm {
   background: var(--slate-100);
   padding: 20px;
@@ -269,22 +290,31 @@
   margin-top: var(--space-4);
 }
 
+.card {
+  padding: 0 !important;
+}
+
+.searchInput {
+  max-width: 600px !important;
+}
+
 // Pagination and Search Results
 .paginationWrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 5px;
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-4);
   padding-bottom: var(--space-4);
-  border-bottom: 1px solid #dee2e6;
   flex-wrap: wrap;
 }
 
 .paginationInfo {
+  display: flex;
+  justify-content: flex-end;
   font-size: var(--fs-small);
   color: var(--slate-700);
-  margin-right: auto;
+  padding-bottom: var(--space-2);
 }
 
 .searchResultItem {
@@ -335,10 +365,18 @@
 
 .searchWrapper {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end; // Align buttons with input bottom
   justify-content: flex-start;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+.preferredFilter {
+  // margin-top: 0;
+  display: flex;
+  justify-content: flex-start;
+  // margin: 24px 24px 0 24px;
+  font-size: var(--fs-small);
 }
 
 .formSelect {
@@ -349,6 +387,7 @@
       font-weight: 600;
       font-size: var(--fs-small);
       line-height: 1.5;
+      color: var(--slate-700);
     }
 
     .react-aria-SelectValue[data-placeholder] {
@@ -356,11 +395,27 @@
       font-size: var(--fs-small);
       font-style:normal;
     }
+    
+    .react-aria-Button {
+      background: white;
+      border: 1px solid #d1d5db;
+      
+      &:hover {
+        border-color: #9ca3af;
+      }
+      
+      &:focus {
+        outline: 2px solid var(--blue-500);
+        outline-offset: 2px;
+      }
+    }
   }
 }
 
 .searchRepos {
-  flex: 1;
+  // Keep the search field from stretching across the whole row
+  flex: 0 1 600px;
+  max-width: 600px;
   min-width: 250px;
   display: flex;
   flex-direction: column;
@@ -370,31 +425,44 @@
     margin-bottom: 5px;
     font-weight: 600;
     font-size: 14px;
-    line-height: 1.5; // Ensure consistent height
+    line-height: 1.5;
+    color: var(--slate-700);
   }
   
   input {
     width: 100%;
     padding: 8px 12px;
-    border: 1px solid var(--border-color);
+    border: 1px solid #d1d5db;
     border-radius: 4px;
     font-size: var(--fs-small);
+    background: white;
+    
+    &:hover {
+      border-color: #9ca3af;
+    }
+    
+    &:focus {
+      outline: 2px solid var(--blue-500);
+      outline-offset: 0;
+      border-color: var(--blue-500);
+    }
   }
 }
 
 .filterActions {
   display: flex;
   gap: 10px;
-  width: 100%;
+  width: auto; // Sit alongside the search field
 
   button {
     flex: 0 0 auto; // keep buttons side by side
+    white-space: nowrap;
   }
 
   // For screens >= 640px
   @include r.device(sm) {
     width: auto;
-    margin-top: 26px; // Need this exact size to align with search field
+    margin-top: 0; // Align via parent align-items instead
   }
 
   // For medium
@@ -403,5 +471,3 @@
   }
 }
 /* End Modal Styles */
-
-

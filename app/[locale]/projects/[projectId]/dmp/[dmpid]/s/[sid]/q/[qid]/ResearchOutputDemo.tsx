@@ -1,14 +1,13 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Button, Checkbox, Label } from 'react-aria-components';
+import { Checkbox, Label } from 'react-aria-components';
 import { useTranslations } from "next-intl";
 import { ListBoxItem } from 'react-aria-components';
-import { parseDate, type DateValue } from '@internationalized/date';
+import { type DateValue } from '@internationalized/date';
 
 // Components 
 import { Card } from '@/components/Card/card';
-import TinyMCEEditor from '@/components/TinyMCEEditor';
 import RepositorySelectionSystem from '@/components/QuestionAdd/ReposSelector';
 import MetaDataStandardsSelector from '@/components/QuestionAdd/MetaDataStandards';
 import {
@@ -20,7 +19,6 @@ import {
 } from '@/components/Form';
 
 // Other
-import { useToast } from '@/context/ToastContext';
 import {
   MetaDataStandardInterface,
   MetaDataStandardFieldInterface,
@@ -57,6 +55,11 @@ type OutputType =
   | 'workflow'
   | 'other';
 
+interface CustomTextField {
+  id: string;
+  label: string;
+}
+
 interface ResearchOutputForm {
   outputType: OutputType | '';
   outputTypeDescription: string;
@@ -72,11 +75,19 @@ interface ResearchOutputForm {
   licenseId: string; // demo only
   fileSize?: number | '';
   fileSizeUnit?: 'mb' | 'gb' | 'tb' | 'pb' | '';
+  customFields?: Record<string, string>;
 }
 
 interface ResearchOutputDemoProps {
   onBack: () => void;
 }
+
+// Mock custom text fields (will come from backend in production)
+const MOCK_CUSTOM_TEXT_FIELDS: CustomTextField[] = [
+  { id: 'custom_field_1', label: 'Custom Field 1' },
+  { id: 'custom_field_2', label: 'Custom Field 2' },
+  { id: 'custom_field_3', label: 'Custom Field 3' },
+];
 
 const typeOptions = [
   { id: 'audiovisual', name: 'Audiovisual' },
@@ -114,7 +125,6 @@ const licenseOptions = [
 ];
 
 export const ResearchOutputDemo: React.FC<ResearchOutputDemoProps> = ({ onBack }) => {
-  const toast = useToast();
 
   const [form, setForm] = useState<ResearchOutputForm>({
     outputType: 'dataset',
@@ -131,6 +141,7 @@ export const ResearchOutputDemo: React.FC<ResearchOutputDemoProps> = ({ onBack }
     licenseId: '75',
     fileSize: '',
     fileSizeUnit: 'mb',
+    customFields: {},
   });
 
   // Repo selector config
@@ -146,8 +157,6 @@ export const ResearchOutputDemo: React.FC<ResearchOutputDemoProps> = ({ onBack }
     () => ({ id: 'metadataStandards', label: 'Metadata standards', enabled: true, metaDataConfig: { hasCustomStandards, customStandards: [] } }),
     [hasCustomStandards]
   );
-
-  const showOutputTypeDescription = form.outputType === 'other';
 
   // Localization
   const Global = useTranslations('Global');
@@ -204,7 +213,7 @@ export const ResearchOutputDemo: React.FC<ResearchOutputDemoProps> = ({ onBack }
         </div>
 
         {/* Description (Rich text) */}
-        <div className="form-group row">
+        <div>
 
           <FormTextArea
             name="research_output_description"
@@ -344,6 +353,28 @@ export const ResearchOutputDemo: React.FC<ResearchOutputDemoProps> = ({ onBack }
             {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
           </FormSelect>
         </div>
+
+        {/* Custom Text Fields */}
+        {MOCK_CUSTOM_TEXT_FIELDS.map((field) => (
+          <div key={field.id}>
+            <FormInput
+              label={field.label}
+              name={`custom_field_${field.id}`}
+              type="text"
+              isRequired={false}
+              value={form.customFields?.[field.id] || ''}
+              onChange={(e) =>
+                setForm((f) => ({
+                  ...f,
+                  customFields: {
+                    ...f.customFields,
+                    [field.id]: e.target.value,
+                  },
+                }))
+              }
+            />
+          </div>
+        ))}
       </Card >
     </div >
   );
