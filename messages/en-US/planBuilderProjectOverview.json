@@ -281,7 +281,7 @@
     }
   },
   "ProjectsProjectCollaborationInvite": {
-    "title": "Who should have access to this plan?",
+    "title": "Who should have access to this project?",
     "breadcrumbs": {
       "manageAccess": "Manage access"
     },
@@ -292,12 +292,13 @@
       "access": {
         "label": "What should this person be able to do?",
         "edit": "Edit the plan",
-        "comment": "Comment only"
+        "comment": "Comment only",
+        "own": "Own the plan"
       }
     },
     "accessLevelOn": "{accessLevel} on",
     "para1": "When you click <strong>Grant access</strong> we'll send an email to this person inviting them to view your plan.",
-    "para2": "If they aren't already a member of we'll invite them to join.",
+    "para2": "If they aren't already a member of the DMP Tool we'll invite them to join.",
     "para3": "We have sent an invite to <strong>{email}</strong>. They will have access to this project.",
     "para4": "To also add them as a Project Member, <projectmember> go to the Project Members page </projectmember>.",
     "para5": "They will have access to {access} DMPs in this project.",
