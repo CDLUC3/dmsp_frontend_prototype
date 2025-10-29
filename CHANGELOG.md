@@ -1,6 +1,6 @@
 ### Added
 - Added updated description that includes template source, affiliation name, version and publish date on the `Plan Overview` page [#621]
-
+- Added plan feedback status (Feedback received, Feedback requested, No feedback) to the `Plan Overview` page [#411]
 
 ### Updated
 - Updated `TinyMCEEditor` to allow users to change text color and background color.
