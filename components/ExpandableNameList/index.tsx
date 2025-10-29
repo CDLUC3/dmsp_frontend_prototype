@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import styles from "./ExpandableNameList.module.scss";
 import { Button } from "react-aria-components";
+import { ItemMatch } from "@/generated/graphql";
 
 type ExpandableNameListProps<T> = {
   items: T[];
-  matches: number[];
+  matches?: ItemMatch[] | null;
   maxItems: number;
   renderItem: (item: T, isMatch: boolean | null) => React.ReactNode;
 };
@@ -14,7 +15,7 @@ export default function ExpandableNameList<T>({ items, matches, maxItems, render
   const remainder = items.length - maxItems;
   const [isOpen, setOpen] = useState(!tooMany);
   const visible = items.slice(0, tooMany && !isOpen ? maxItems : items.length);
-  const matchSet = new Set(matches);
+  const matchSet = new Set(matches?.map((itemMatch) => itemMatch.index));
 
   if (items.length === 0) {
     return null;

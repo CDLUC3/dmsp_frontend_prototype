@@ -1,4 +1,6 @@
 ### Added
+- Removed `Title` field from TinyMCEEditor's `Insert Link` form, and made `new window` the default for `Open link in...` [#874]
+- Integrated related works UI with GraphQL backend.
 - Added updated description that includes template source, affiliation name, version and publish date on the `Plan Overview` page [#621]
 - Added plan feedback status (Feedback received, Feedback requested, No feedback) to the `Plan Overview` page [#411]
 
@@ -6,7 +8,8 @@
 - Updated `TinyMCEEditor` to allow users to change text color and background color.
 
 ### Fixed
-
+- Fixed typo in some translation text for the `projects/[projectId]/collaboration/invite` page and added missing `Owner` access level radio option [#846]
+- Moved `ProjectsProjectCollaborationInvite` off of using `useReducer` to using `useState` instead [#846]
 
 ### Removed
 
