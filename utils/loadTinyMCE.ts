@@ -6,9 +6,16 @@ export function loadTinymceScript(): Promise<void> {
   if (window.tinymce) return Promise.resolve();
   if (tinymceLoadPromise) return tinymceLoadPromise;
 
-  tinymceLoadPromise = new Promise((resolve, reject) => {
+  tinymceLoadPromise = new Promise((resolve, reject) => { //singleton pattern - subsequent calls in same page return the same promise
     const existing = document.querySelector('script[src="/tinymce/tinymce.min.js"]') as HTMLScriptElement | null;
+
     if (existing) {
+      // Check if already loaded
+      if (window.tinymce) {
+        resolve();
+        return;
+      }
+      // Still loading
       existing.addEventListener('load', () => resolve());
       existing.addEventListener('error', () => reject(new Error('Failed to load TinyMCE script')));
       return;
