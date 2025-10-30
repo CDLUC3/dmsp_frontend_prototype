@@ -187,6 +187,10 @@
     }
   },
   "PlanOverviewQuestionPage": {
+    "labels": {
+      "researchOutputType": "Research output type"
+    },
+    "pleaseSelectOne": "Please select one",
     "messages": {
       "success": {
         "questionSaved": "Question detail successfully saved"
@@ -200,6 +204,9 @@
       "commentSent": "Comment successfully added",
       "commentDeleted": "Comment successfully deleted",
       "commentUpdated": "Comment successfully updated"
+    },
+    "tooltips": {
+      "abbreviation": "Your research output abbreviation can be used as a reference when answering this plan's questions"
     },
     "licenseGuidance": "You can obtain more guidance on selecting a license from <link>Creative commons</link>",
     "buttons": {

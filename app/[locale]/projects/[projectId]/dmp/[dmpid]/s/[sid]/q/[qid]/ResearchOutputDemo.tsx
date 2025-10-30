@@ -159,7 +159,6 @@ export const ResearchOutputDemo: React.FC<ResearchOutputDemoProps> = ({ onBack }
   );
 
   // Localization
-  const Global = useTranslations('Global');
   const t = useTranslations('PlanOverviewQuestionPage');
 
   return (
@@ -172,14 +171,14 @@ export const ResearchOutputDemo: React.FC<ResearchOutputDemoProps> = ({ onBack }
         <div>
           <FormSelect
             name="research_output_type"
-            ariaLabel="Research output type"
+            ariaLabel={t('labels.researchOutputType')}
             isRequired={false}
             isRequiredVisualOnly={true}
             label="Type"
             items={typeOptions}
             selectedKey={form.outputType}
             includeEmptyOption={true}
-            emptyOptionLabel="--Please select one--"
+            emptyOptionLabel={`--${t('pleaseSelectOne')}--`}
             onChange={(value) => setForm((f) => ({ ...f, outputType: (value as OutputType) }))}
           >
             {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
@@ -208,6 +207,8 @@ export const ResearchOutputDemo: React.FC<ResearchOutputDemoProps> = ({ onBack }
               value={form.abbreviation}
               onChange={(e) => setForm((f) => ({ ...f, abbreviation: e.target.value.slice(0, 10) }))}
               maxLength={10}
+              tooltip={t('tooltips.abbreviation')}
+              tooltipPlacement="bottom"
             />
           </div>
         </div>

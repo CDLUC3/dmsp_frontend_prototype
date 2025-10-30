@@ -223,22 +223,19 @@
 
 .filterSection {
   background-color: var(--gray-75);
-  // border-radius: 8px;
-  // border: 1px solid var(--blue-900); 
-  // padding-top: var(--space-4);
-  // padding-bottom: var(--space-5);
-  
-  // legend {
-  //   padding: 0 var(--space-2);
-  // }
+  padding: var(--space-2);
 }
 
 .filterRow {
   display: flex;
   gap: 15px;
   background-color: var(--background-color-base);
-  padding: var(--space-6);
+  padding: var(--space-2);
   flex-wrap: wrap;
+
+  @include r.device(sm) {
+    padding: var(--space-4);
+  }
 }
 
 .filterGroup {
@@ -258,11 +255,25 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--space-2);
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: var(--space-4);
+  padding: 0 0 var(--space-4) 0;
+
+  flex-wrap: wrap;
+
+  @include r.device(sm) {
+  padding: var(--space-4) 186px 0 17px;
+  }
 }
 
 .applyFilterBtn {
   background: var(--blue-600) !important;
   color: var(--gray-50);
+}
+
+.applyFilterGroup {
+  padding-top: 26px;
 }
 
 .customBtn {
@@ -363,12 +374,32 @@
   color: var(--gray-600);
 }
 
-.searchWrapper {
+.searchWrapper,
+.searchWrapperStandards {
   display: flex;
   align-items: flex-end; // Align buttons with input bottom
   justify-content: flex-start;
   gap: 10px;
-  flex-wrap: wrap;
+}
+
+.searchWrapper {
+    flex-wrap: wrap;
+}
+
+/* Make standards search row responsive: single row on >=sm, wrap on mobile */
+.searchWrapperStandards {
+  width: 100%;
+  flex-wrap: wrap; // mobile-first: allow wrapping
+
+  @include r.device(sm) {
+    flex-wrap: nowrap; // keep on one row for >= sm
+  }
+}
+
+/* Let the standards search group span full width so buttons can sit alongside */
+.searchRowGroup {
+  max-width: none;
+  flex: 1 1 100%;
 }
 
 .preferredFilter {
@@ -380,6 +411,7 @@
 }
 
 .formSelect {
+  margin-bottom: 0 !important;
   :global {
     .react-aria-Label {
       display: block;
@@ -449,9 +481,48 @@
   }
 }
 
+/* Metadata standards search input sizing, aligned with searchRepos */
+.searchMetaDataStandards {
+  flex: 1 1 600px; // grow but cap width similar to repos search
+  max-width: 600px;
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--slate-700);
+  }
+
+  input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: var(--fs-small);
+    background: white;
+
+    &:hover {
+      border-color: #9ca3af;
+    }
+
+    &:focus {
+      outline: 2px solid var(--blue-500);
+      outline-offset: 0;
+      border-color: var(--blue-500);
+    }
+  }
+}
+
 .filterActions {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
   width: auto; // Sit alongside the search field
 
   button {

@@ -281,6 +281,7 @@
 .title {
   flex: 1 1 100%; // Full width on mobile
   min-width: 0; // Allow flex item to shrink
+  max-width: 400px;
 
   @include r.device(sm) {
     flex: 1 1 300px;
@@ -289,8 +290,28 @@
 
 .abbreviation {
   flex: 1 1 100%; // Full width on mobile
+  max-width: 188px;
   
   @include r.device(sm) {
     flex: 0 1 220px;
   }
+}
+
+.input-tooltip-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tooltip-trigger-btn {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+  font-size: 12px;
 }

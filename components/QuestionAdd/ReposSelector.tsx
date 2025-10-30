@@ -420,8 +420,7 @@ const RepositorySelectionSystem = ({
                           </SearchField>
                         </div>
 
-                        <div className={styles.filterGroup}>
-                          <Label>&nbsp;</Label>
+                        <div className={styles.applyFilterGroup}>
                           <Button
                             className="primary medium"
                             onPress={() => {

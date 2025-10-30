@@ -17,7 +17,7 @@ import {
 import {
   FormInput,
 } from '@/components/Form';
-
+import { Card, CardBody } from "@/components/Card/card";
 import Pagination from '@/components/Pagination';
 import { useToast } from '@/context/ToastContext';
 
@@ -277,10 +277,10 @@ const MetaDataStandardsSelector = ({
                   <div className={styles.modalBody}>
                     <div className={styles.filterSection}>
                       <div className={styles.filterRow}>
-                        <div className={styles.filterGroup}>
-                          <div className={styles.searchWrapper}>
+                        <div className={`${styles.filterGroup} ${styles.searchRowGroup}`}>
+                          <div className={styles.searchWrapperStandards}>
 
-                            <SearchField className={styles.searchRepos}>
+                            <SearchField className={styles.searchMetaDataStandards}>
                               <Label>{Global('labels.searchTerm')}</Label>
                               <Input
                                 id="search-term"
@@ -359,37 +359,43 @@ const MetaDataStandardsSelector = ({
                       </div>
                     )}
 
-                    <div className={styles.searchResults}>
-                      <div className={styles.paginationWrapper}>
-                        <span className={styles.paginationInfo}>
-                          Displaying standards 1 - 10 of 4372 in total
-                        </span>
-                        <Pagination {...paginationProps} />
+                    <div className={styles.searchResults} role="region" aria-label="Search results">
+
+                      <div className={styles.paginationInfo}>
+                        Displaying repositories 1 - 10 of 4372 in total
                       </div>
 
                       {metaStandards?.map((std) => {
                         const isSelected = selectedStandards[std.id];
                         return (
-                          <div
-                            key={std.id}
-                            className={`${styles.searchResultItem} ${isSelected ? styles.selected : ''}`}
-                          >
-                            <div className={styles.searchResultHeader}>
-                              <div className={styles.searchResultTitle}>{std.name}</div>
-                              <Button
-                                onClick={() => toggleSelection(std)}
-                                className={`small ${isSelected ? 'danger' : 'primary'}`}
+                          <Card className={styles.card}>
+                            <CardBody>
+                              <div
+                                key={std.id}
+                                className={`${styles.searchResultItem} ${isSelected ? styles.selected : ''}`}
                               >
-                                {isSelected ? Global('buttons.remove') : Global('buttons.select')}
-                              </Button>
-                            </div>
-                            <div className={styles.itemDescription}>
-                              {std.description}
-                              <Link href={std.url} className={styles.itemLink}>{std.url}</Link>
-                            </div>
-                          </div>
+                                <div className={styles.searchResultHeader}>
+                                  <div className={styles.searchResultTitle}>{std.name}</div>
+                                  <Button
+                                    onClick={() => toggleSelection(std)}
+                                    className={`small ${isSelected ? 'danger' : 'primary'}`}
+                                  >
+                                    {isSelected ? Global('buttons.remove') : Global('buttons.select')}
+                                  </Button>
+                                </div>
+                                <div className={styles.itemDescription}>
+                                  {std.description}
+                                  <Link href={std.url} className={styles.itemLink}>{std.url}</Link>
+                                </div>
+                              </div>
+
+                            </CardBody>
+                          </Card>
                         );
                       })}
+                      <div className={styles.paginationWrapper}>
+                        <Pagination {...paginationProps} />
+                      </div>
                     </div>
                   </div>
                 </div>
