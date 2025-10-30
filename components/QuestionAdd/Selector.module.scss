@@ -167,19 +167,13 @@
 }
 
 .modal {
-  width: 100%; // Full width on mobile
-  max-width: 1200px; // Cap width on large screens
+  width: min(900px, 90vw); // never exceeds viewport width
   height: 90vh;
   display: flex;
   flex-direction: column;
   border-radius: 6px;
   background: var(--gray-50);
   overflow: hidden;
-
-  // 70% width on tablet and larger
-  @include r.device(sm) {
-    width: 70vw;
-  }
 }
 
 .modalHeader {
@@ -222,48 +216,24 @@
 }
 
 .filterSection {
-  background-color: var(--gray-75);
-  padding: var(--space-2);
+  margin-bottom: var(--space-6);
 }
 
 .filterRow {
   display: flex;
   gap: 15px;
-  background-color: var(--background-color-base);
-  padding: var(--space-2);
+  margin-bottom: var(--space-4);
   flex-wrap: wrap;
-
-  @include r.device(sm) {
-    padding: var(--space-4);
-  }
 }
 
 .filterGroup {
   flex: 1;
   min-width: 200px;
 
-  //   :global {
-  //   .react-aria-Select {
-  //     margin-bottom: var(--space-2);
-  //   }
-  // }
-  max-width: 250px;
-}
-
-.otherFilterOption {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-2);
-  padding-left: 0;
-  padding-right: 0;
-  padding-bottom: var(--space-4);
-  padding: 0 0 var(--space-4) 0;
-
-  flex-wrap: wrap;
-
-  @include r.device(sm) {
-  padding: var(--space-4) 186px 0 17px;
+    :global {
+    .react-aria-Select {
+      margin-bottom: var(--space-2);
+    }
   }
 }
 
@@ -272,13 +242,6 @@
   color: var(--gray-50);
 }
 
-.applyFilterGroup {
-  padding-top: 26px;
-}
-
-.customBtn {
-  background: var(--gray-50);
-}
 .customRepoForm {
   background: var(--slate-100);
   padding: 20px;
@@ -301,31 +264,22 @@
   margin-top: var(--space-4);
 }
 
-.card {
-  padding: 0 !important;
-}
-
-.searchInput {
-  max-width: 600px !important;
-}
-
 // Pagination and Search Results
 .paginationWrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 5px;
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-2);
   padding-bottom: var(--space-4);
+  border-bottom: 1px solid #dee2e6;
   flex-wrap: wrap;
 }
 
 .paginationInfo {
-  display: flex;
-  justify-content: flex-end;
   font-size: var(--fs-small);
   color: var(--slate-700);
-  padding-bottom: var(--space-2);
+  margin-right: auto;
 }
 
 .searchResultItem {
@@ -374,44 +328,15 @@
   color: var(--gray-600);
 }
 
-.searchWrapper,
-.searchWrapperStandards {
+.searchWrapper {
   display: flex;
-  align-items: flex-end; // Align buttons with input bottom
+  align-items: flex-start;
   justify-content: flex-start;
   gap: 10px;
-}
-
-.searchWrapper {
-    flex-wrap: wrap;
-}
-
-/* Make standards search row responsive: single row on >=sm, wrap on mobile */
-.searchWrapperStandards {
-  width: 100%;
-  flex-wrap: wrap; // mobile-first: allow wrapping
-
-  @include r.device(sm) {
-    flex-wrap: nowrap; // keep on one row for >= sm
-  }
-}
-
-/* Let the standards search group span full width so buttons can sit alongside */
-.searchRowGroup {
-  max-width: none;
-  flex: 1 1 100%;
-}
-
-.preferredFilter {
-  // margin-top: 0;
-  display: flex;
-  justify-content: flex-start;
-  // margin: 24px 24px 0 24px;
-  font-size: var(--fs-small);
+  flex-wrap: wrap;
 }
 
 .formSelect {
-  margin-bottom: 0 !important;
   :global {
     .react-aria-Label {
       display: block;
@@ -419,7 +344,6 @@
       font-weight: 600;
       font-size: var(--fs-small);
       line-height: 1.5;
-      color: var(--slate-700);
     }
 
     .react-aria-SelectValue[data-placeholder] {
@@ -427,27 +351,11 @@
       font-size: var(--fs-small);
       font-style:normal;
     }
-    
-    .react-aria-Button {
-      background: white;
-      border: 1px solid #d1d5db;
-      
-      &:hover {
-        border-color: #9ca3af;
-      }
-      
-      &:focus {
-        outline: 2px solid var(--blue-500);
-        outline-offset: 2px;
-      }
-    }
   }
 }
 
 .searchRepos {
-  // Keep the search field from stretching across the whole row
-  flex: 0 1 600px;
-  max-width: 600px;
+  flex: 1;
   min-width: 250px;
   display: flex;
   flex-direction: column;
@@ -457,83 +365,31 @@
     margin-bottom: 5px;
     font-weight: 600;
     font-size: 14px;
-    line-height: 1.5;
-    color: var(--slate-700);
+    line-height: 1.5; // Ensure consistent height
   }
   
   input {
     width: 100%;
     padding: 8px 12px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: var(--fs-small);
-    background: white;
-    
-    &:hover {
-      border-color: #9ca3af;
-    }
-    
-    &:focus {
-      outline: 2px solid var(--blue-500);
-      outline-offset: 0;
-      border-color: var(--blue-500);
-    }
-  }
-}
-
-/* Metadata standards search input sizing, aligned with searchRepos */
-.searchMetaDataStandards {
-  flex: 1 1 600px; // grow but cap width similar to repos search
-  max-width: 600px;
-  min-width: 250px;
-  display: flex;
-  flex-direction: column;
-
-  label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 1.5;
-    color: var(--slate-700);
-  }
-
-  input {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    font-size: var(--fs-small);
-    background: white;
-
-    &:hover {
-      border-color: #9ca3af;
-    }
-
-    &:focus {
-      outline: 2px solid var(--blue-500);
-      outline-offset: 0;
-      border-color: var(--blue-500);
-    }
   }
 }
 
 .filterActions {
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
-  align-items: center;
-  width: auto; // Sit alongside the search field
+  width: 100%;
 
   button {
     flex: 0 0 auto; // keep buttons side by side
-    white-space: nowrap;
   }
 
   // For screens >= 640px
   @include r.device(sm) {
     width: auto;
-    margin-top: 0; // Align via parent align-items instead
+    margin-top: 26px; // Need this exact size to align with search field
   }
 
   // For medium
@@ -542,3 +398,33 @@
   }
 }
 /* End Modal Styles */
+
+
+.checkboxGroup {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  margin-top: var(--space-4);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-small);
+  font-weight: 500;
+  color: var(--slate-700);
+  cursor: pointer;
+  user-select: none;
+  
+  &:hover {
+    color: var(--slate-800);
+  }
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--blue-600);
+}
