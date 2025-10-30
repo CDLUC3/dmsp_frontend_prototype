@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Poppins } from "next/font/google";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
@@ -56,13 +55,7 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} className={font_sans_serif.variable}>
-      <head>
-        <Script
-          src="/tinymce/tinymce.min.js"
-          referrerPolicy="origin"
-          strategy="beforeInteractive"
-        />
-      </head>
+      <head></head>
       <body className={font_sans_serif.className}>
         <a href="#mainContent" className="skip-nav">Skip to main content</a>
         <NextIntlClientProvider messages={messages}>

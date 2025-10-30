@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { Editor as TinyMCEEditorType } from 'tinymce';
+import { loadTinymceScript } from '@/utils/loadTinyMCE';
 import styles from './tinyMCEEditor.module.scss';
 
 // We need to reference "window.tinymce" but TypeScript doesn't know about it.
@@ -24,7 +25,6 @@ interface TinyMCEEditorProps {
   helpText?: string;
 }
 
-
 const TinyMCEEditor = ({ content, setContent, onChange, error, id, labelId, helpText }: TinyMCEEditorProps) => {
   const editorRef = useRef<TinyMCEEditorType | null>(null); // Update the type here
   const elementId = id || 'tiny-editor';
@@ -32,6 +32,9 @@ const TinyMCEEditor = ({ content, setContent, onChange, error, id, labelId, help
 
   useEffect(() => {
     const initEditor = async () => {
+      // Ensure tinymce library is available
+      await loadTinymceScript();
+
       // Make sure previous instance is removed
       window.tinymce.remove(`#${elementId}`);
 
