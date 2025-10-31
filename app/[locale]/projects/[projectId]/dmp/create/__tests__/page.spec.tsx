@@ -11,6 +11,7 @@ import {
   PublishedTemplatesMetaDataDocument,
   AddPlanDocument,
   AddPlanFundingDocument,
+  MeDocument
 } from '@/generated/graphql';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { mockScrollIntoView, mockScrollTo } from '@/__mocks__/common';
@@ -49,7 +50,7 @@ const projectFundingsMocks = [
     },
     result: {
       data: {
-        projectFundings: Array.from({length: 3}, (_, i) => {
+        projectFundings: Array.from({ length: 3 }, (_, i) => {
           const count = i + 1;
           return {
             __typename: "ProjectFunding",
@@ -86,6 +87,51 @@ const projectFundingsMocks = [
   },
 ];
 
+
+// User Me query
+const meMocks = [
+  {
+    request: {
+      query: MeDocument,
+      variables: {},
+    },
+    result: {
+      data: {
+        me: {
+          __typename: "User",
+          id: 1,
+          languageId: "en-US",
+          givenName: "user",
+          surName: "Admin",
+          role: "SUPERADMIN",
+          emails: [
+            {
+              email: "user@example.com",
+              id: 16,
+              isConfirmed: true,
+              isPrimary: true,
+              __typename: "UserEmail"
+            }
+          ],
+          errors: {
+            __typename: "UserErrors",
+            general: null,
+            email: null,
+            password: null,
+            role: null,
+          },
+          affiliation: {
+            __typename: "Affiliation",
+            id: 16,
+            name: "User Affiliation",
+            searchName: "User Affiliation | user-affiliation.gov",
+            uri: "http://user-affiliation.gov",
+          },
+        },
+      },
+    },
+  },
+];
 
 // PublishedTemplatesMetaData query
 const publishedMetaDataMocks = [
@@ -149,7 +195,84 @@ const bestPracticeMocks = [
       },
     },
   },
-
+  {
+    request: {
+      query: PublishedTemplatesDocument,
+      variables: {
+        paginationOptions: {
+          offset: 0,
+          limit: 5,
+          type: "OFFSET",
+          sortDir: "DESC",
+          selectOwnerURIs: [],
+          bestPractice: false
+        },
+        term: ""
+      },
+    },
+    result: {
+      data: {
+        publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
+          limit: 5,
+          nextCursor: null,
+          totalCount: 8,
+          availableSortFields: ['vt.bestPractice'],
+          currentOffset: 1,
+          hasNextPage: true,
+          hasPreviousPage: false,
+          items: Array.from({ length: 5 }, (_, i) => {
+            const count = i + 1;
+            return {
+              __typename: "VersionedTemplateSearchResult",
+              id: count,
+              bestPractice: (count == 5) ? true : false,
+              description: `Template ${count} Description`,
+              name: `Template ${count} Name`,
+              visibility: "PUBLIC",
+              ownerDisplayName: `Template Owner ${count}`,
+              ownerURI: `http://template${count}.gov`,
+              modified: "2021-10-25 18:42:37",
+              modifiedByName: "John Doe",
+              modifiedById: 14,
+              ownerId: 100 + count,
+              version: "v5",
+              templateId: 10 + count,
+              ownerSearchName: `Owner ${count} Search`
+            }
+          }),
+        },
+      },
+    },
+  },
+  {
+    request: {
+      query: PublishedTemplatesMetaDataDocument,
+      variables: {
+        paginationOptions: {
+          offset: 0,
+          limit: 5,
+          type: "OFFSET",
+          sortDir: "DESC",
+          selectOwnerURIs: [],
+          bestPractice: false
+        },
+        term: ""
+      },
+    },
+    result: {
+      data: {
+        publishedTemplatesMetaData: {
+          __typename: "PublishedTemplateMetaDataResults",
+          availableAffiliations: [
+            "http://affiliation-1.gov",
+            "http://affiliation-2.gov"
+          ],
+          hasBestPracticeTemplates: true,
+        },
+      },
+    },
+  },
   {
     request: {
       query: PublishedTemplatesDocument,
@@ -176,7 +299,7 @@ const bestPracticeMocks = [
           currentOffset: 1,
           hasNextPage: false,
           hasPreviousPage: false,
-          items: Array.from({length: 2}, (_, i) => {
+          items: Array.from({ length: 2 }, (_, i) => {
             const count = i + 1;
             return {
               __typename: "VersionedTemplateSearchResult",
@@ -238,6 +361,7 @@ const bestPracticeMocks = [
 
 const publishedTemplatesMocks = [
   // Published Templates, no selectOwners
+
   {
     request: {
       query: PublishedTemplatesDocument,
@@ -264,7 +388,57 @@ const publishedTemplatesMocks = [
           currentOffset: 1,
           hasNextPage: true,
           hasPreviousPage: false,
-          items: Array.from({length: 5}, (_, i) => {
+          items: Array.from({ length: 5 }, (_, i) => {
+            const count = i + 1;
+            return {
+              __typename: "VersionedTemplateSearchResult",
+              id: count,
+              bestPractice: (count == 5) ? true : false,
+              description: `Template ${count} Description`,
+              name: `Template ${count} Name`,
+              visibility: "PUBLIC",
+              ownerDisplayName: `Template Owner ${count}`,
+              ownerURI: `http://template${count}.gov`,
+              modified: "2021-10-25 18:42:37",
+              modifiedByName: "John Doe",
+              modifiedById: 14,
+              ownerId: 100 + count,
+              version: "v5",
+              templateId: 10 + count,
+              ownerSearchName: `Owner ${count} Search`
+            }
+          }),
+        },
+      },
+    },
+  },
+  {
+    request: {
+      query: PublishedTemplatesDocument,
+      variables: {
+        paginationOptions: {
+          offset: 0,
+          limit: 5,
+          type: "OFFSET",
+          sortDir: "DESC",
+          selectOwnerURIs: [],
+          bestPractice: false
+        },
+        term: ""
+      },
+    },
+    result: {
+      data: {
+        publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
+          limit: 5,
+          nextCursor: null,
+          totalCount: 8,
+          availableSortFields: ['vt.bestPractice'],
+          currentOffset: 1,
+          hasNextPage: true,
+          hasPreviousPage: false,
+          items: Array.from({ length: 5 }, (_, i) => {
             const count = i + 1;
             return {
               __typename: "VersionedTemplateSearchResult",
@@ -319,7 +493,7 @@ const publishedTemplatesMocks = [
           currentOffset: 1,
           hasNextPage: true,
           hasPreviousPage: false,
-          items: Array.from({length: 5}, (_, i) => {
+          items: Array.from({ length: 5 }, (_, i) => {
             const count = i + 1;
             return {
               __typename: "VersionedTemplateSearchResult",
@@ -425,7 +599,7 @@ const publishedTemplatesMocks = [
           currentOffset: 1,
           hasNextPage: true,
           hasPreviousPage: false,
-          items: Array.from({length: 3}, (_, i) => {
+          items: Array.from({ length: 3 }, (_, i) => {
             const count = i + 6;
             return {
               __typename: "VersionedTemplateSearchResult",
@@ -720,6 +894,7 @@ const addPlanErrMocks = [
 
 
 const baseMocks = [
+  ...meMocks,
   ...projectFundingsMocks,
   ...publishedMetaDataMocks,
   ...publishedTemplatesMocks,
@@ -798,20 +973,29 @@ describe('PlanCreate Component using base mock', () => {
     });
 
     await waitFor(() => {
-      // We should have two checkboxes for project funders checked
-      expect(screen.getByRole('checkbox', { name: 'Affiliation 1 Name' })).toBeInTheDocument();
-      const checkbox = screen.getByRole('checkbox', { name: 'Affiliation 2 Name' });
-      expect(checkbox).toBeInTheDocument();
+      // Both checkboxes should be checked initially
+      const checkbox1 = screen.getByRole('checkbox', { name: 'Affiliation 1 Name' }) as HTMLInputElement;
+      const checkbox2 = screen.getByRole('checkbox', { name: 'Affiliation 2 Name' }) as HTMLInputElement;
+      expect(checkbox1).toBeInTheDocument();
+      expect(checkbox2).toBeInTheDocument();
+      expect(checkbox1.checked).toBe(true);
+      expect(checkbox2.checked).toBe(true);
 
       // Uncheck the second affiliation item
-      fireEvent.click(checkbox);
+      fireEvent.click(checkbox2);
     });
 
     await waitFor(() => {
-      // This should have re-fetched the funders with only a subset chosen, in
-      // our test mock, only 1
+      // Only Affiliation 1 should remain checked
+      const checkbox1 = screen.getByRole('checkbox', { name: 'Affiliation 1 Name' }) as HTMLInputElement;
+      expect(checkbox1.checked).toBe(true);
+      // Affiliation 2 should be unchecked
+      const checkbox2 = screen.getByRole('checkbox', { name: 'Affiliation 2 Name' }) as HTMLInputElement;
+      expect(checkbox2.checked).toBe(false);
+
+      // Only the filtered template should be shown
       expect(screen.getAllByText('buttons.select')).toHaveLength(1);
-      expect(screen.getByRole('heading', { level: 3, name: "Filtered Template Name" })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 3, name: 'Filtered Template Name' })).toBeInTheDocument();
     });
   });
 
@@ -946,6 +1130,7 @@ describe('PlanCreate Component using base mock', () => {
     mockUseParams.mockReturnValue({ projectId: '2' });
 
     const mocks = [
+      ...meMocks,
       ...projectFundingsMocks,
       ...bestPracticeMocks,
     ];
@@ -958,26 +1143,34 @@ describe('PlanCreate Component using base mock', () => {
       );
     });
 
-    const checkbox = screen.getByRole('checkbox', { name: "best practices" });
+
+    await waitFor(() => {
+      const search = screen.getByText('labels.searchByKeyword');
+      expect(search).toBeInTheDocument();
+    })
+    const checkbox = screen.getByTestId('checkbox-group');
     expect(checkbox).toBeInTheDocument();
     expect(screen.getByText('checkbox.filterByBestPracticesLabel')).toBeInTheDocument();
     expect(screen.getByText('checkbox.filterByBestPracticesDescription')).toBeInTheDocument();
     expect(screen.getByText("labels.dmpBestPractice")).toBeInTheDocument();
-
-    const listItems = screen
-      .getAllByRole('listitem')
-      .filter(item => item.classList.contains('templateItem'));
-    expect(listItems).toHaveLength(2);
-    expect(screen.getByRole('heading', {level: 3, name: "Template 1 Name"})).toBeInTheDocument();
-    expect(screen.getByRole('heading', {level: 3, name: "Template 2 Name"})).toBeInTheDocument();
-
+    const bestPracticeCheckbox = screen.getByRole('checkbox', { name: /best practices/i });
+    expect(bestPracticeCheckbox).toBeInTheDocument();
     // Now deselect bestPractice checkbox
-    fireEvent.click(checkbox);
+    fireEvent.click(bestPracticeCheckbox);
     await waitFor(() => {
       const listItems = screen
         .getAllByRole('listitem')
         .filter(item => item.classList.contains('templateItem'));
-      expect(listItems).toHaveLength(0);
+      expect(listItems).toHaveLength(5);
+    });
+
+    // Now select bestPractice checkbox
+    fireEvent.click(bestPracticeCheckbox);
+    await waitFor(() => {
+      const listItems = screen
+        .getAllByRole('listitem')
+        .filter(item => item.classList.contains('templateItem'));
+      expect(listItems).toHaveLength(2);
     });
   });
 
@@ -986,6 +1179,7 @@ describe('PlanCreate Component using base mock', () => {
     mockUseParams.mockReturnValue({ projectId: '2' });
 
     const mocks = [
+      ...meMocks,
       ...projectFundingsMocks,
       ...errorMocks,
     ];
@@ -1063,6 +1257,7 @@ describe('PlanCreate Component using base mock', () => {
 
   it('should handle server errors on addPlan mutation', async () => {
     const mocks = [
+      ...meMocks,
       ...projectFundingsMocks,
       ...publishedMetaDataMocks,
       ...publishedTemplatesMocks,
@@ -1103,6 +1298,7 @@ describe('PlanCreate Component using base mock', () => {
     mockUseParams.mockReturnValue({ projectId: '2' });
 
     const mocks = [
+      ...meMocks,
       ...projectFundingsMocks,
       ...publishedMetaDataMocks,
       ...publishedTemplatesMocks,

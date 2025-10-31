@@ -136,8 +136,8 @@
     "title": "Plano: Selecione um modelo DMP",
     "description": "Selecione um modelo para usar ao criar o DMP.",
     "checkbox": {
-      "filterByFunderLabel": "Filtrar por financiador",
-      "filterByFunderDescription": "Selecione se você quer ver apenas modelos pelo seu fundo.",
+      "filterByFunderLabel": "Filtrar por financiador ou organização",
+      "filterByFunderDescription": "Selecione se você quer ver apenas modelos pelo seu fundo ou organização.",
       "filterByBestPracticesLabel": "Filtrar por melhores práticas",
       "filterByBestPracticesDescription": "Selecione se você quer ver apenas os modelos de boas práticas"
     },
