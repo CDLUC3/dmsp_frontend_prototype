@@ -20,7 +20,8 @@ import {
   PlanSectionProgress,
   PlanStatus,
   PlanVisibility,
-  usePlanQuery
+  usePlanQuery,
+  usePlanFeedbackStatusQuery,
 } from "@/generated/graphql";
 
 //Components
@@ -174,6 +175,21 @@ const PlanOverviewPage: React.FC = () => {
     skip: isNaN(planId), // prevents the query from running when id is not a number
     notifyOnNetworkStatusChange: true,
   });
+
+  const {
+    data: feedbackData,
+    loading: feedbackLoading,
+    error: feedbackError,
+  } = usePlanFeedbackStatusQuery({
+    variables: { planId: Number(planId) },
+    skip: isNaN(planId),
+  });
+
+  useEffect(() => {
+    if (feedbackError) {
+      setErrorMessages(prev => [...prev, feedbackError.message]);
+    }
+  }, [feedbackError]);
 
   // Memoize URLs to prevent unnecessary recalculations
   const urls = useMemo(() => ({
@@ -648,6 +664,16 @@ const PlanOverviewPage: React.FC = () => {
               <div className={`panelRow mb-5`}>
                 <div>
                   <h3>{t("status.feedback.title")}</h3>
+                  <p>
+                    {feedbackLoading
+                      ? `${Global("messaging.loading")}...`
+                      : (() => {
+                        const raw = feedbackData?.planFeedbackStatus ?? "NONE";
+                        const key = `status.feedback.${String(raw).toLowerCase()}`;
+                        return t(key);
+                      })()
+                    }
+                  </p>
                 </div>
                 <Link
                   href={FEEDBACK_URL}
