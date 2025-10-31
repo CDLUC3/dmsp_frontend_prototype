@@ -1,6 +1,6 @@
 'use client';
 
-import React, {ChangeEvent, useState} from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -9,6 +9,11 @@ import {
   Radio,
   RadioGroup
 } from "react-aria-components";
+import { useParams } from "next/navigation";
+
+import {
+  usePlanQuery
+} from "@/generated/graphql";
 
 import PageHeader from "@/components/PageHeader";
 import {
@@ -16,17 +21,22 @@ import {
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
+import { DOI_REGEX } from "@/lib/constants";
+
 import styles from './ProjectsProjectPlanDownloadPage.module.scss';
+import { text } from 'stream/consumers';
 
 // Define types
 interface SettingsState {
-  includeProjectDetails: boolean;
+  includeCoverPage: boolean;
   includeSectionHeadings: boolean;
   includeQuestionText: boolean;
   includeUnansweredQuestions: boolean;
-  removeHtmlTags: boolean;
-  font: string;
+  includeResearchOutputs: boolean;
+  includeRelatedWorks: boolean;
+  fontFamily: string;
   fontSize: string;
+  lineHeight: string;
   margins: {
     top: string;
     bottom: string;
@@ -40,13 +50,15 @@ type FileFormatType = 'pdf' | 'doc' | 'html' | 'csv' | 'json';
 const ProjectsProjectPlanDownloadPage: React.FC = () => {
   // State for form values
   const [settings, setSettings] = useState<SettingsState>({
-    includeProjectDetails: false,
+    includeCoverPage: false,
     includeSectionHeadings: true,
     includeQuestionText: true,
     includeUnansweredQuestions: false,
-    removeHtmlTags: false,
-    font: 'Times-serif',
+    includeResearchOutputs: false,
+    includeRelatedWorks: false,
+    fontFamily: 'Tinos, serif',
     fontSize: '11pt',
+    lineHeight: '120',
     margins: {
       top: '25mm',
       bottom: '25mm',
@@ -55,15 +67,103 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
     }
   });
 
+  // Get planId params
+  const params = useParams();
+  const planId = String(params.dmpid);
+
   // State for selected file format
   const [selectedFormat, setSelectedFormat] = useState<FileFormatType>('pdf');
-  const fileName = 'Coastal Ocean Processes of North Greenland DMP';
+
+  // Get Plan using planId
+  const {
+    data,
+    loading,
+    error: queryError,
+    refetch,
+  } = usePlanQuery({
+    variables: { planId: Number(planId) },
+    skip: isNaN(Number(planId)),
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const dmpId = data?.plan?.dmpId || '';
+  const fileName = data?.plan?.title || 'untitled plan';
+
+  // decode percent-encoding if someone passed a URL-encoded DOI
+  const decoded = decodeURIComponent(dmpId);
+  const match = DOI_REGEX.exec(decoded);
+  const doi = match ? match[0] : decoded;
+
+
+
+  const handleDownload = async () => {
+    try {
+      // Build query parameters
+      const params = new URLSearchParams({
+        dmpId: doi, // Add dmpId as a query param
+        includeCoverPage: String(settings.includeCoverPage),
+        includeSectionHeadings: String(settings.includeSectionHeadings),
+        includeQuestionText: String(settings.includeQuestionText),
+        includeUnansweredQuestions: String(settings.includeUnansweredQuestions),
+        includeResearchOutputs: String(settings.includeResearchOutputs),
+        includeRelatedWorks: String(settings.includeRelatedWorks),
+        fontFamily: settings.fontFamily,
+        fontSize: settings.fontSize.replace('pt', ''),
+        lineHeight: settings.lineHeight,
+        marginTop: settings.margins.top.replace('mm', ''),
+        marginBottom: settings.margins.bottom.replace('mm', ''),
+        marginLeft: settings.margins.left.replace('mm', ''),
+        marginRight: settings.margins.right.replace('mm', ''),
+      });
+
+      // Map format to Accept header
+      const formatHeaders = {
+        pdf: 'application/pdf',
+        doc: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        html: 'text/html',
+        csv: 'text/csv',
+        json: 'application/json',
+        text: 'text/plain',
+      };
+
+      // Fetch through the Next.js API route
+      const response = await fetch(`/api/download-narrative?${params.toString()}`, {
+        headers: {
+          Accept: formatHeaders[selectedFormat],
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Download failed');
+      }
+
+      // Create blob from response
+      const blob = await response.blob();
+
+      // Create download link and trigger download
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${fileName}.${selectedFormat}`;
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error('Download error:', error);
+      // Handle error (show user notification, etc.)
+    }
+  };
 
   // Handler for font selection
   const handleFontChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setSettings(prev => ({
       ...prev,
-      font: e.target.value
+      fontFamily: e.target.value
     }));
   };
 
@@ -118,28 +218,22 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                 onChange={(value: string) => setSelectedFormat(value as FileFormatType)}
               >
                 <Radio value="pdf">
-                  {/* <FileIcon type="pdf"/> */}
                   PDF
                 </Radio>
-
                 <Radio value="doc">
-                  {/* <FileIcon type="doc"/> */}
                   DOC
                 </Radio>
-
                 <Radio value="html">
-                  {/* <FileIcon type="html"/> */}
                   HTML
                 </Radio>
-
                 <Radio value="csv">
-                  {/* <FileIcon type="csv"/> */}
                   CSV
                 </Radio>
-
                 <Radio value="json">
-                  {/* <FileIcon type="json"/> */}
                   JSON
+                </Radio>
+                <Radio value="text">
+                  TEXT
                 </Radio>
               </RadioGroup>
             </div>
@@ -150,12 +244,11 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
               Settings
             </h3>
             <div className={styles.checkboxGroup}>
-
               <Checkbox
-                isSelected={settings.includeProjectDetails}
+                isSelected={settings.includeCoverPage}
                 onChange={(isSelected: boolean) => setSettings(prev => ({
                   ...prev,
-                  includeProjectDetails: isSelected
+                  includeCoverPage: isSelected
                 }))}
                 className={styles.checkboxItem}
               >
@@ -214,22 +307,6 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                 </div>
                 Include any unanswered questions
               </Checkbox>
-
-              <Checkbox
-                isSelected={settings.removeHtmlTags}
-                onChange={(isSelected: boolean) => setSettings(prev => ({
-                  ...prev,
-                  removeHtmlTags: isSelected
-                }))}
-                className={styles.checkboxItem}
-              >
-                <div className={"checkbox"}>
-                  <svg viewBox="0 0 18 18" aria-hidden="true">
-                    <polyline points="1 9 7 14 15 4" />
-                  </svg>
-                </div>
-                Remove HTML tags
-              </Checkbox>
             </div>
           </section>
 
@@ -243,14 +320,12 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                 <h4 className={styles.optionHeading}>Font</h4>
                 <select
                   className={styles.select}
-                  value={settings.font}
+                  value={settings.fontFamily}
                   onChange={handleFontChange}
                   aria-label="Font"
                 >
-                  <option value="Times-serif">Times-serif-like Times New Roman
-                  </option>
-                  <option value="Arial-sans">Arial-sans</option>
-                  <option value="Courier-mono">Courier-mono</option>
+                  <option value="Tinos, serif">Tinos, serif</option>
+                  <option value="Roboto, sans-serif">Roboto, sans-serif</option>
                 </select>
               </div>
 
@@ -268,7 +343,6 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                   <option value="11pt">11pt</option>
                   <option value="12pt">12pt</option>
                   <option value="14pt">14pt</option>
-                  <option value="16pt">16pt</option>
                 </select>
               </div>
 
@@ -341,10 +415,9 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
 
           <section className={styles.downloadSection}>
             <p className={styles.downloadText}>
-              Download
-              &#34;{fileName}.{selectedFormat}&#34; {selectedFormat === 'pdf' ? '(532kb)' : ''}
+              Download &#34;{fileName}.{selectedFormat}&#34; {selectedFormat === 'pdf' ? '(532kb)' : ''}
             </p>
-            <button className={styles.downloadButton}>
+            <button className={styles.downloadButton} onClick={handleDownload}>
               Download {selectedFormat.toUpperCase()}
             </button>
           </section>
@@ -363,7 +436,6 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
             documents. Plus, most Funders require that DMPs be submitted in PDF
             format.
           </p>
-
           <p>
             If your organization, funder or project have specific requirements,
             you can also download your DMP in HTML, CSV or JSON formats.
