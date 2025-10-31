@@ -997,9 +997,9 @@ describe('PlanOverviewPage', () => {
     });
   });
 
-  it("should display 'Feedback received' when planFeedbackStatus is COMPLETE", async () => {
+  it("should display 'Feedback received' when planFeedbackStatus is RECEIVED", async () => {
     (usePlanFeedbackStatusQuery as jest.Mock).mockReturnValue({
-      data: { planFeedbackStatus: 'COMPLETE' },
+      data: { planFeedbackStatus: 'RECEIVED' },
       loading: false,
       error: null,
       refetch: jest.fn(),

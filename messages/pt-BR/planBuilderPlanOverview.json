@@ -80,7 +80,7 @@
         "title": "Registrar",
         "none": "Sem feedback",
         "requested": "Feedback solicitado",
-        "completed": "Feedback recebido"
+        "received": "Feedback recebido"
       }
     },
     "publishModal": {

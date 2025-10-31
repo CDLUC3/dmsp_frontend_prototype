@@ -80,7 +80,7 @@
         "title": "Feedback",
         "none": "No feedback",
         "requested": "Feedback requested",
-        "completed": "Feedback received"
+        "received": "Feedback received"
       }
     },
     "publishModal": {
