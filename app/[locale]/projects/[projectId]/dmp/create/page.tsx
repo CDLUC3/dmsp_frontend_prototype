@@ -110,7 +110,7 @@ const PlanCreate: React.FC = () => {
   });
 
   // User's data for user's affiliation
-  const { data: userData, loading: userLoading, error: userError, refetch } = useMeQuery();
+  const { data: userData, loading: userLoading, error: userError } = useMeQuery();
 
   // Get meta data about the available published templates
   const { data: templateMetaData, loading: templatesMetaDataLoading, error: templatesMetaDataError } = usePublishedTemplatesMetaDataQuery({

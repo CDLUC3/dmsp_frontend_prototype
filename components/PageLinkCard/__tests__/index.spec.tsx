@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import PageLinkCard, { PageLinkSection } from '../index';
 
@@ -139,7 +139,10 @@ describe('PageLinkCard', () => {
 
   it('should pass axe accessibility test', async () => {
     const { container } = render(<PageLinkCard sections={mockSections} />);
-    const results = await axe(container);
+    let results;
+    await act(async () => {
+      results = await axe(container);
+    });
     expect(results).toHaveNoViolations();
   });
 });
