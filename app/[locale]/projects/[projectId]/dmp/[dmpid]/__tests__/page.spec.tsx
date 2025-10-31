@@ -1010,7 +1010,7 @@ describe('PlanOverviewPage', () => {
     const sidebar = screen.getByTestId('sidebar-panel');
     await waitFor(() => {
       // translations are mocked, so we check for the translation key
-      expect(within(sidebar).getByText('status.feedback.complete')).toBeInTheDocument();
+      expect(within(sidebar).getByText('status.feedback.received')).toBeInTheDocument();
     });
   });
 });
