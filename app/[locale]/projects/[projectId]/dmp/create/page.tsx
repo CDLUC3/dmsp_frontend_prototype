@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -28,6 +28,7 @@ import Pagination from '@/components/Pagination';
 import {
   useAddPlanMutation,
   PlanErrors,
+  useMeQuery,
   useAddPlanFundingMutation,
   useProjectFundingsQuery,
   usePublishedTemplatesMetaDataQuery,
@@ -42,6 +43,7 @@ import { useToast } from '@/context/ToastContext';
 import { useFormatDate } from '@/hooks/useFormatDate';
 import { TemplateItemProps } from '@/app/types';
 import { checkErrors } from '@/utils/errorHandler';
+import styles from './planCreate.module.scss';
 
 // # of templates displayed per page
 const LIMIT = 5;
@@ -81,12 +83,10 @@ const PlanCreate: React.FC = () => {
   //states
   const [userHasInteracted, setUserHasInteracted] = useState(false);
   const [bestPractice, setBestPractice] = useState<boolean>(false);
-  const [selectedOwnerURIs, setSelectedOwnerURIs] = useState<string[]>([]);
-  const [hasBestPractice, setHasBestPractice] = useState<boolean>(false);
   const [selectedFunders, setSelectedFunders] = useState<string[]>([]);
   const [publicTemplatesList, setPublicTemplatesList] = useState<TemplateItemProps[]>([]);
   const [funders, setFunders] = useState<ProjectFundersInterface[]>([]);
-  const [selectedFilterItems, setSelectedFilterItems] = useState<string[]>([]);
+  const [selectedBestPracticeItems, setSelectedBestPracticeItems] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [errors, setErrors] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -94,6 +94,7 @@ const PlanCreate: React.FC = () => {
   const [hasNextPage, setHasNextPage] = useState<boolean | null>(false);
   const [hasPreviousPage, setHasPreviousPage] = useState<boolean | null>(false);
   const [initialSelectionApplied, setInitialSelectionApplied] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Localization keys
   const PlanCreate = useTranslations('PlanCreate');
@@ -108,6 +109,8 @@ const PlanCreate: React.FC = () => {
     variables: { projectId: Number(projectId) },
   });
 
+  // User's data for user's affiliation
+  const { data: userData, loading: userLoading, error: userError, refetch } = useMeQuery();
 
   // Get meta data about the available published templates
   const { data: templateMetaData, loading: templatesMetaDataLoading, error: templatesMetaDataError } = usePublishedTemplatesMetaDataQuery({
@@ -124,23 +127,37 @@ const PlanCreate: React.FC = () => {
     }
   });
 
+
   // Initialize the addPlan mutation
   const [addPlanMutation] = useAddPlanMutation({
     notifyOnNetworkStatusChange: true,
   });
 
+  // Initialize the addPlanFunding mutation
   const [addPlanFundingMutation] = useAddPlanFundingMutation({});
 
+  const fetchTemplatesForCurrentFilters = useCallback(async () => {
+    // After clearing, fetch templates for current filters
+    if (bestPractice) { // If best practice is checked, then filter on that
+      fetchTemplates({ page: currentPage, bestPractice: true, selectedOwnerURIs: [], searchTerm: '' });
+    } else if (selectedFunders.length > 0) { // If funders are checked, then filter on those
+      fetchTemplates({ page: currentPage, selectedOwnerURIs: selectedFunders, searchTerm: '' });
+    } else {
+      fetchTemplates({ page: currentPage, searchTerm: '' });
+    }
+  }, [bestPractice, selectedFunders, currentPage, searchTerm]);
+
+  // Reset search term to empty and fetch all templates
   const resetSearch = useCallback(() => {
     setSearchTerm('');
-    handleSearchInput('');
+    fetchTemplatesForCurrentFilters();
     scrollToTop(topRef);
-  }, [scrollToTop]);
+  }, [scrollToTop, fetchTemplatesForCurrentFilters]);
 
-  // Transform the templates data into more useable format
-  const transformTemplates = async (templates: (PublicTemplatesInterface | null)[]) => {
-    const transformedTemplates = await Promise.all(
-      templates.map(async (template: PublicTemplatesInterface | null) => ({
+  // Function to transform the templates data into more useable format
+  const transformTemplates = (templates: (PublicTemplatesInterface | null)[]) => {
+    const transformedTemplates =
+      templates.map((template: PublicTemplatesInterface | null) => ({
         id: template?.id,
         title: template?.name || "",
         description: template?.description || "",
@@ -162,89 +179,94 @@ const PlanCreate: React.FC = () => {
         visibility: template?.visibility,
         bestPractices: template?.bestPractice || false,
         publishStatus: Global('published') // All publishedTemplates returned are marked as 'Published'
-      }))
-    );
+      }));
     return transformedTemplates;
   };
 
-  // Handle search input
+  // Handle search input change
   const handleSearchInput = async (value: string) => {
     setSearchTerm(value);
-    if (value.length === 0) {
-      await fetchTemplates({ page: currentPage, bestPractice, selectedOwnerURIs })
-    }
   };
 
-  // Handle checkbox change
+  // Handle funder/best practice filter checkbox change
   const handleCheckboxChange = async (value: string[], typ: string) => {
+
     // Mark that user has interacted with checkboxes
     setUserHasInteracted(true);
 
-    // Reset the search field back to empty
-    setSearchTerm('');
-
     // Determine which templates to show based on selected filters
-    if (value.length === 0) {
-      setSelectedOwnerURIs([]);
+    if (value.length === 0) { // When checkbox is unchecked and there is no value, then fetch all templates
       setBestPractice(false);
       setSelectedFunders([]);
-      setSelectedFilterItems([]);
-      // Default to all templates when no criteria selected
-      await fetchTemplates({ page: currentPage });
+      setSelectedBestPracticeItems([]);
+      // Default to all templates when no criteria selected, or templates matching search term
+      await fetchTemplates({ page: currentPage, searchTerm });
 
     } else if (typ === 'funders') {
-      // Always dispatch selected filter items (whether empty or not)
+      // Always set selected filter items (whether empty or not)
       setSelectedFunders(value);
-      setSelectedOwnerURIs(value);
       setBestPractice(false);
       // Fetch templates for selected funders
-      await fetchTemplates({ selectedOwnerURIs: value });
+      await fetchTemplates({ selectedOwnerURIs: value, searchTerm });
     } else if (typ === 'bestPractice') {
-      setSelectedFilterItems(value);
-      setSelectedOwnerURIs([]);
+      setSelectedBestPracticeItems(value);
       setBestPractice(true);
       // Fetch best practice templates
-      await fetchTemplates({ bestPractice: true, selectedOwnerURIs: [] });
+      await fetchTemplates({ bestPractice: true, selectedOwnerURIs: [], searchTerm });
     }
   };
 
+  // Handle pagination page click
   const handlePageClick = async (page: number) => {
     setUserHasInteracted(true);
     await fetchTemplates({
       page,
       bestPractice,
-      selectedOwnerURIs,
+      selectedOwnerURIs: selectedFunders,
       searchTerm
     });
   };
 
-  const handleFiltering = async (term: string) => {
-    setErrors([]);
+  // Handle filtering when user clicks search button
+  const handleSearchButton = async (term: string) => {
+    setErrors([]); // Clear previous errors
     setSearchTerm(term);
+    setUserHasInteracted(true);
 
     // Reset to first page on new search
     setCurrentPage(1);
 
-    await fetchTemplates({ searchTerm: term })
+    // Fetch templates based on currently checked filters and search term
+    if (bestPractice) {
+      await fetchTemplates({ searchTerm: term, bestPractice: true, selectedOwnerURIs: [] });
+    } else if (selectedFunders.length > 0) {
+      await fetchTemplates({ searchTerm: term, selectedOwnerURIs: selectedFunders });
+    } else {
+      await fetchTemplates({ searchTerm: term });
+    }
   };
 
   // When user selects a template, we create a plan and redirect
   const onSelect = async (versionedTemplateId: number) => {
-    setErrors([]);  // Clear the errors
+    if (isSubmitting) return; // Prevent multiple submissions
 
-    let newPlanId: number;
+    setIsSubmitting(true);
+    setErrors([]);  // Clear previous errors
+
     const fundingIds: number[] = projectFundings
       ?.projectFundings
       ?.filter((item): item is { id: number } => !!item?.id)
       .map(item => item.id) ?? [];
 
-    // Add the new plan
-    addPlanMutation({
-      variables: {
-        projectId: Number(projectId),
-        versionedTemplateId
-      },
-    }).then(planResp => {
+    try {
+      const planResp = await addPlanMutation({
+        variables: {
+          projectId: Number(projectId),
+          versionedTemplateId
+        },
+      });
+
+      // Check for errors in the response
       const [hasErrors, errs] = checkErrors(
         planResp?.data?.addPlan?.errors as PlanErrors,
         ['general', 'versionedTemplateId', 'projectId']
@@ -253,28 +275,34 @@ const PlanCreate: React.FC = () => {
       if (hasErrors) {
         setErrors([String(errs.general)]);
         toastState.add(Global("messaging.somethingWentWrong"), { type: 'error' });
-      } else if (planResp?.data?.addPlan?.id) {
-        newPlanId = planResp.data.addPlan.id;
-        return addPlanFundingMutation({
-          variables: {
-            planId: newPlanId,
-            projectFundingIds: fundingIds,
-          },
+        logECS('error', 'addPlanMutation', {
+          error: errs,
+          url: {
+            path: routePath('projects.dmp.create', { projectId }),
+          }
         });
-      } else {
+        return; //Exit early
+      }
+
+      const newPlanId = planResp?.data?.addPlan?.id;
+      if (!newPlanId) {
         setErrors([Global("messaging.somethingWentWrong")]);
         toastState.add(Global("messaging.somethingWentWrong"), { type: 'error' });
         logECS('error', 'addPlanMutation', {
           error: "Invalid plan response data",
           url: {
-            path: routePath('projects.dmp.create', {projectId}),
+            path: routePath('projects.dmp.create', { projectId }),
           }
         });
+        return;
       }
-    }).then(() => {
-      // Early return if we don't have a plan ID set in the previous promise
-      // callback
-      if (!newPlanId) return;
+
+      await addPlanFundingMutation({
+        variables: {
+          planId: newPlanId,
+          projectFundingIds: fundingIds,
+        },
+      });
 
       // NOTE:: We need to redirect to the plan index page regardless of potential
       // errors returned by the AddPlanFundingMutation. This is because we already
@@ -284,18 +312,21 @@ const PlanCreate: React.FC = () => {
         projectId,
         dmpId: newPlanId,  // newPlanId was set in the preceding promise
       }));
-    }).catch(err => {
+    } catch (err) {
       logECS('error', 'addPlanMutation', {
         error: err,
         url: {
-          path: routePath('projects.dmp.create', {projectId}),
+          path: routePath('projects.dmp.create', { projectId }),
         }
       });
       toastState.add(Global("messaging.somethingWentWrong"), { type: 'error' });
       setErrors([(err as Error).message])
-    });
-  }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
+  // Fetch published templates based on page, filters and search term criteria
   const fetchTemplates = async ({
     page,
     bestPractice = false,
@@ -330,9 +361,13 @@ const PlanCreate: React.FC = () => {
 
   // Process templates when publishedTemplates changes
   useEffect(() => {
-    const processTemplates = async () => {
+    // If user navigates away while request is in flight, and the network response arrives,
+    // can't perform state update on unmounted component. So we track if component is mounted.
+    let isMounted = true; // Track if component is still mounted
+
+    const processTemplates = () => {
       if (publishedTemplates?.publishedTemplates?.items) {
-        const transformedTemplates = await transformTemplates(publishedTemplates.publishedTemplates.items);
+        const transformedTemplates = transformTemplates(publishedTemplates.publishedTemplates.items);
         setPublicTemplatesList(transformedTemplates);
         const totalCount = publishedTemplates?.publishedTemplates?.totalCount ?? 0;
         const totalPages = Math.ceil(totalCount / LIMIT);
@@ -342,88 +377,177 @@ const PlanCreate: React.FC = () => {
         const hasPreviousPage = publishedTemplates?.publishedTemplates?.hasPreviousPage ?? false;
         setHasPreviousPage(hasPreviousPage);
       } else {
-        setPublicTemplatesList([]);
+        if (isMounted) {
+          setPublicTemplatesList([]);
+        }
       }
     };
     processTemplates();
+
+    return () => {
+      isMounted = false; // Mark as unmounted
+    };
+
   }, [publishedTemplates]);
 
+  // Compute funders data based on project fundings and template affiliations
+  const fundersData = useMemo(() => {
+    // Return empty if data isn't ready yet
+    if (
+      loading ||
+      projectFundingsLoading ||
+      userLoading ||
+      templatesMetaDataLoading ||
+      !projectFundings?.projectFundings ||
+      !templateMetaData?.publishedTemplatesMetaData?.availableAffiliations
+    ) {
+      return [];
+    }
 
-  // Single useEffect for initial data fetching
-  useEffect(() => {
-    // Wait until both GraphQL queries finish
-    if (loading || projectFundingsLoading) return;
-    if (userHasInteracted || initialSelectionApplied) return;
-
-    const uniqueAffiliations = templateMetaData?.publishedTemplatesMetaData?.availableAffiliations?.filter(
+    const uniqueAffiliations = templateMetaData.publishedTemplatesMetaData.availableAffiliations.filter(
       (affiliation): affiliation is string => affiliation !== null
-    ) || [];
+    );
 
-    const hasBestPracticeTemplates = templateMetaData?.publishedTemplatesMetaData?.hasBestPracticeTemplates ?? false;
-    setHasBestPractice(hasBestPracticeTemplates);
+    // No affiliations available in templates
+    if (uniqueAffiliations.length === 0) return [];
 
-    // Get matching funders directly from `projectFundings` + `uniqueAffiliations`
-    let fundersData: { name: string; uri: string }[] = [];
-    let funderURIs: string[] = [];
+    // Matching project funders to available template affiliations
+    const matchingAffiliations = projectFundings.projectFundings.filter(
+      (item) => item?.affiliation && uniqueAffiliations.includes(item.affiliation.uri)
+    );
 
-    if (projectFundings?.projectFundings && uniqueAffiliations.length > 0) {
-      const matchingAffiliations = projectFundings.projectFundings.filter(
-        (item) =>
-          item?.affiliation &&
-          uniqueAffiliations.includes(item.affiliation.uri)
-      );
+    let result: { name: string; uri: string }[] = [];
 
-      if (matchingAffiliations.length > 0) {
-        fundersData = matchingAffiliations
-          .map((funder) => ({
-            name: funder?.affiliation?.displayName ?? null,
-            uri: funder?.affiliation?.uri ?? null,
-          }))
-          .filter(
-            (funder): funder is { name: string; uri: string } =>
-              funder.name !== null
-          );
+    // Add matching affiliations from project fundings
+    if (matchingAffiliations.length > 0) {
+      result = matchingAffiliations
+        .map((funder) => ({
+          name: funder?.affiliation?.displayName ?? null,
+          uri: funder?.affiliation?.uri ?? null,
+        }))
+        .filter((funder): funder is { name: string; uri: string } => funder.name !== null);
+    }
 
-        funderURIs = fundersData.map((funder) => funder.uri);
+    // Add user affiliation if it matches and isn't already included
+    const userAffiliation = userData?.me?.affiliation;
+    if (userAffiliation?.uri && uniqueAffiliations.includes(userAffiliation.uri)) {
+      const funderURIs = result.map(f => f.uri);
+      if (!funderURIs.includes(userAffiliation.uri)) {
+        result.push({
+          name: userAffiliation.name ?? userAffiliation.uri,
+          uri: userAffiliation.uri,
+        });
       }
     }
 
-    const setSelectionsAndFetch = async () => {
-      if (fundersData.length > 0) {
-        // Funders exist
-        setFunders(fundersData);
-        setSelectedFunders(funderURIs);
-        setBestPractice(false);
-        setSelectedOwnerURIs(funderURIs);
-        await fetchTemplates({ selectedOwnerURIs: funderURIs });
-      } else if (hasBestPracticeTemplates) {
-        // No funders, but best practice exists
-        setSelectedFilterItems(["DMP Best Practice"]);
-        setBestPractice(true);
-        setSelectedOwnerURIs([]);
-        await fetchTemplates({ bestPractice: true });
-      } else {
-        // No funders and no best practice
-        await fetchTemplates({ page: currentPage });
-      }
-      setInitialSelectionApplied(true);
-    };
-    if (!initialSelectionApplied) {
-      setSelectionsAndFetch();
-    }
+    return result;
   }, [
     loading,
-    templateMetaData,
     projectFundingsLoading,
     templatesMetaDataLoading,
-    userHasInteracted,
-    initialSelectionApplied
+    projectFundings,
+    templateMetaData,
+    userData
   ]);
 
+  const hasBestPracticeTemplates = useMemo(() => {
+    return templateMetaData?.publishedTemplatesMetaData?.hasBestPracticeTemplates ?? false;
+  }, [templateMetaData]);
+
+  const initialFilterConfig = useMemo(() => {
+    // Don't calculate if user has interacted or data isn't ready
+    if (
+      userHasInteracted ||
+      loading ||
+      projectFundingsLoading ||
+      templatesMetaDataLoading
+    ) {
+      return null;
+    }
+
+    const funderURIs = fundersData.map(f => f.uri);
+
+    // Filter out user affiliation URI from initial selection because it's unchecked initially
+    const userAffiliationURI = userData?.me?.affiliation?.uri;
+    const funderURIsWithoutUserAffiliation = userAffiliationURI
+      ? funderURIs.filter(uri => uri !== userAffiliationURI)
+      : funderURIs;
+
+    // Funders exist (excluding user affiliation)
+    if (funderURIsWithoutUserAffiliation.length > 0) {
+      return {
+        type: 'funders' as const,
+        fundersData,
+        funderURIs: funderURIsWithoutUserAffiliation,
+      };
+    }
+
+    // Best practice templates exist
+    if (hasBestPracticeTemplates) {
+      return {
+        type: 'bestPractice' as const,
+      };
+    }
+
+    // Show all templates
+    return {
+      type: 'all' as const,
+    };
+  }, [
+    fundersData,
+    hasBestPracticeTemplates,
+    userHasInteracted,
+    loading,
+    projectFundingsLoading,
+    templatesMetaDataLoading,
+    userData
+  ]);
+
+  // Only for initial data fetching
   useEffect(() => {
-    if (publishedTemplatesError || projectFundingsError || templatesMetaDataError) {
+    // Don't run if no config or already applied
+    if (!initialFilterConfig || initialSelectionApplied) return;
+
+    let isCancelled = false;
+
+    const applyInitialFilters = async () => {
+      if (isCancelled) return;
+
+      if (initialFilterConfig.type === 'funders') {
+        // Apply funder filters
+        setFunders(initialFilterConfig.fundersData);
+        setSelectedFunders(initialFilterConfig.funderURIs);
+        setBestPractice(false);
+        await fetchTemplates({ selectedOwnerURIs: initialFilterConfig.funderURIs });
+
+      } else if (initialFilterConfig.type === 'bestPractice') {
+        // Apply best practice filter
+        setSelectedBestPracticeItems(["DMP Best Practice"]);
+        setBestPractice(true);
+        await fetchTemplates({ bestPractice: true });
+
+      } else {
+        // Show all templates
+        await fetchTemplates({ page: currentPage });
+      }
+
+      if (!isCancelled) {
+        setInitialSelectionApplied(true);
+      }
+    };
+
+    applyInitialFilters();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [initialFilterConfig, initialSelectionApplied]);
+
+  // Handle errors from various queries
+  useEffect(() => {
+    if (publishedTemplatesError || projectFundingsError || userError || templatesMetaDataError) {
       logECS('error', 'Plan Create queries', {
-        error: "Error running queries",
+        error: publishedTemplatesError || projectFundingsError || userError || templatesMetaDataError,
         url: {
           path: routePath('projects.dmp.create', { projectId })
         }
@@ -431,7 +555,15 @@ const PlanCreate: React.FC = () => {
       toastState.add(Global("messaging.somethingWentWrong"), { type: 'error' });
       router.push(routePath('projects.show', { projectId }));
     }
-  }, [publishedTemplatesError, projectFundingsError, templatesMetaDataError]);
+  }, [publishedTemplatesError, projectFundingsError, userError, templatesMetaDataError]);
+
+
+  // trigger fetching all templates when searchTerm is manually cleared (place after all state/effect declarations)
+  useEffect(() => {
+    if (searchTerm === '') {
+      fetchTemplatesForCurrentFilters();
+    }
+  }, [searchTerm]);
 
   return (
     <>
@@ -455,55 +587,59 @@ const PlanCreate: React.FC = () => {
 
       <LayoutContainer>
         <ContentContainer className={"layout-content-container-full"}>
-          <div className="searchSection" role="search" ref={topRef}>
-            <SearchField aria-label="Template search">
-              <Label>{Global('labels.searchByKeyword')}</Label>
-              <Text slot="description" className="help">
-                {Global('helpText.searchHelpText')}
-              </Text>
-              <Input
-                aria-describedby="search-help"
-                value={searchTerm}
-                onChange={e => handleSearchInput(e.target.value)}
-              />
-              <Button
-                onPress={() => handleFiltering(searchTerm)}
-              >{Global('buttons.search')}</Button>
-              <FieldError />
-            </SearchField>
+          <div role="search" ref={topRef}>
+            <div className={styles.searchFieldWrapper}>
+              <SearchField aria-label="Template search">
+                <Label>{Global('labels.searchByKeyword')}</Label>
+                <Text slot="description" className="help">
+                  {Global('helpText.searchHelpText')}
+                </Text>
+                <Input
+                  aria-describedby="search-help"
+                  value={searchTerm}
+                  onChange={e => handleSearchInput(e.target.value)}
+                />
+                <Button
+                  onPress={() => handleSearchButton(searchTerm)}
+                >{Global('buttons.search')}</Button>
+                <FieldError />
+              </SearchField>
+            </div>
 
             {/**Only show filters if there are funders. If no funders, then show best practice filter if the results include them  */}
-            {funders.length > 0 && (
-              <CheckboxGroupComponent
-                name="funders"
-                value={selectedFunders}
-                onChange={(value) => handleCheckboxChange(value, 'funders')}
-                checkboxGroupLabel={PlanCreate('checkbox.filterByFunderLabel')}
-                checkboxGroupDescription={PlanCreate('checkbox.filterByFunderDescription')}
-              >
-                {funders.map((funder, index) => (
-                  <div key={index}>
-                    <Checkbox value={funder.uri}>
-                      <div className="checkbox">
-                        <svg viewBox="0 0 18 18" aria-hidden="true">
-                          <polyline points="1 9 7 14 15 4" />
-                        </svg>
-                      </div>
-                      <div className="">
-                        <span>
-                          {funder.name}
-                        </span>
-                      </div>
-                    </Checkbox>
-                  </div>
-                ))}
-              </CheckboxGroupComponent>
-            )}
+            <div className={styles.filterColumnsWrapper}>
+              {funders.length > 0 && (
+                <CheckboxGroupComponent
+                  name="funders"
+                  value={selectedFunders}
+                  onChange={(value) => handleCheckboxChange(value, 'funders')}
+                  checkboxGroupLabel={PlanCreate('checkbox.filterByFunderLabel')}
+                  checkboxGroupDescription={PlanCreate('checkbox.filterByFunderDescription')}
+                >
+                  {funders.map((funder, index) => (
+                    <div key={index}>
+                      <Checkbox value={funder.uri}>
+                        <div className="checkbox">
+                          <svg viewBox="0 0 18 18" aria-hidden="true">
+                            <polyline points="1 9 7 14 15 4" />
+                          </svg>
+                        </div>
+                        <div className="">
+                          <span>
+                            {funder.name}
+                          </span>
+                        </div>
+                      </Checkbox>
+                    </div>
+                  ))}
+                </CheckboxGroupComponent>
+              )}
+            </div>
 
-            {funders.length === 0 && hasBestPractice && (
+            {funders.length === 0 && hasBestPracticeTemplates && (
               <CheckboxGroupComponent
                 name="bestPractices"
-                value={selectedFilterItems}
+                value={selectedBestPracticeItems}
                 onChange={(value) => handleCheckboxChange(value, 'bestPractice')}
                 checkboxGroupLabel={PlanCreate('checkbox.filterByBestPracticesLabel')}
                 checkboxGroupDescription={PlanCreate('checkbox.filterByBestPracticesDescription')}
@@ -526,14 +662,14 @@ const PlanCreate: React.FC = () => {
 
           {searchTerm.length > 0 && (
             <div className="clear-filter">
-              <div className="search-match-text"><Button data-testid="clear-filter" onPress={resetSearch} className="search-match-text link">{Global('links.clearFilter')}</Button></div>
+              <div><Button data-testid="clear-filter" onPress={resetSearch} className={`${styles.clearFilter} search-match-text link`}>{Global('links.clearFilter')}</Button></div>
             </div>
           )}
 
           {(publicTemplatesList?.length > 0) ? (
             <>
               {/**Display list of published templates */}
-              <section className="mb-8" aria-labelledby="public-templates">
+              <section className={`${styles.templatesList} mb-8`} aria-labelledby="public-templates">
                 <div className="template-list" role="list" aria-label="Public templates">
                   <TemplateList
                     key={publicTemplatesList.length}
@@ -559,7 +695,7 @@ const PlanCreate: React.FC = () => {
           )}
 
         </ContentContainer>
-      </LayoutContainer>
+      </LayoutContainer >
     </>
   );
 };
