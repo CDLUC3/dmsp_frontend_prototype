@@ -88,3 +88,13 @@
   font-size: 0.9375rem;
   margin-bottom: var(--space-4);
 }
+
+/* Best Practices Sidebar Style */
+.headerWithLogo {
+  display: flex;
+  align-items: center; // vertically center the image and text
+  gap: 0.5rem;
+}
+.Logo {
+  display: inline-block;
+}

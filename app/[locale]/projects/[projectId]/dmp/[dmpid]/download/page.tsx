@@ -10,21 +10,25 @@ import {
   RadioGroup
 } from "react-aria-components";
 import { useParams } from "next/navigation";
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 import {
   usePlanQuery
 } from "@/generated/graphql";
 
+// Components
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
-import { DOI_REGEX } from "@/lib/constants";
 
+// Other
+import { DOI_REGEX } from "@/lib/constants";
+import { routePath } from "@/utils/routes";
 import styles from './ProjectsProjectPlanDownloadPage.module.scss';
-import { text } from 'stream/consumers';
 
 // Define types
 interface SettingsState {
@@ -45,7 +49,7 @@ interface SettingsState {
   };
 }
 
-type FileFormatType = 'pdf' | 'doc' | 'html' | 'csv' | 'json';
+type FileFormatType = 'pdf' | 'doc' | 'html' | 'csv' | 'json' | 'text';
 
 const ProjectsProjectPlanDownloadPage: React.FC = () => {
   // State for form values
@@ -70,9 +74,14 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
   // Get planId params
   const params = useParams();
   const planId = String(params.dmpid);
+  const projectId = String(params.projectId);
 
   // State for selected file format
   const [selectedFormat, setSelectedFormat] = useState<FileFormatType>('pdf');
+
+  // Localization keys
+  const t = useTranslations("ProjectsProjectPlanDownloadPage");
+  const Global = useTranslations("Global");
 
   // Get Plan using planId
   const {
@@ -189,17 +198,16 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
   return (
     <>
       <PageHeader
-        title="Download a plan"
-        description="You can download your Data Management Plan (DMP) in any of the formats listed below."
+        title={t('title')}
+        description={t('description')}
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb>
-              <Link href="/">Home</Link>
-            </Breadcrumb>
-            <Breadcrumb>
-              <Link href="/projects">Projects</Link>
-            </Breadcrumb>
+            <Breadcrumb><Link href={routePath("app.home")}>{Global("breadcrumbs.home")}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath("projects.index")}>{Global("breadcrumbs.projects")}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', { projectId: String(projectId) })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.dmp.show', { projectId, dmpId })}>{Global('breadcrumbs.planOverview')}</Link></Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.downloadPlan')}</Breadcrumb>
           </Breadcrumbs>
         }
         className="page-project-create-project-funding"
@@ -208,12 +216,12 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
         <ContentContainer>
           <section className={"sectionContainer"}>
             <h3 className={styles.sectionHeading}>
-              Choose file format
+              {t('headings.chooseFileFormat')}
             </h3>
             <div>
               <RadioGroup
                 className={styles.radioGroup}
-                aria-label="File format"
+                aria-label={t('labels.fileFormat')}
                 value={selectedFormat}
                 onChange={(value: string) => setSelectedFormat(value as FileFormatType)}
               >
@@ -241,7 +249,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
 
           <section className={"sectionContainer"}>
             <h3 className={styles.sectionHeading}>
-              Settings
+              {t('headings.settings')}
             </h3>
             <div className={styles.checkboxGroup}>
               <Checkbox
@@ -257,7 +265,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                     <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
-                Include a project details coversheet
+                {t('labels.includeCoverSheet')}
               </Checkbox>
 
               <Checkbox
@@ -273,7 +281,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                     <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
-                Include the section headings
+                {t('labels.includeSectionHeadings')}
               </Checkbox>
 
               <Checkbox
@@ -289,7 +297,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                     <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
-                Include the question text
+                {t('labels.includeQuestionText')}
               </Checkbox>
 
               <Checkbox
@@ -305,7 +313,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                     <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
-                Include any unanswered questions
+                {t('labels.includeUnansweredQuestions')}
               </Checkbox>
             </div>
           </section>
@@ -313,24 +321,24 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
           {selectedFormat === 'pdf' && (
             <section className={"sectionContainer"}>
               <h3 className={styles.sectionHeading}>
-                Formatting options (PDF only)
+                {t('headings.formattingOptions')}
               </h3>
 
               <div className={styles.formatSection}>
-                <h4 className={styles.optionHeading}>Font</h4>
+                <h4 className={styles.optionHeading}>{t('headings.font')}</h4>
                 <select
                   className={styles.select}
                   value={settings.fontFamily}
                   onChange={handleFontChange}
                   aria-label="Font"
                 >
-                  <option value="Tinos, serif">Tinos, serif</option>
-                  <option value="Roboto, sans-serif">Roboto, sans-serif</option>
+                  <option value="tinos">Tinos, serif</option>
+                  <option value="roboto">Roboto, sans-serif</option>
                 </select>
               </div>
 
               <div className={styles.formatSection}>
-                <h4 className={styles.optionHeading}>Font size</h4>
+                <h4 className={styles.optionHeading}>{t('headings.fontSize')}</h4>
                 <select
                   className={styles.select}
                   value={settings.fontSize}
@@ -347,10 +355,10 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
               </div>
 
               <div className={styles.formatSection}>
-                <h4 className={styles.optionHeading}>Margins</h4>
+                <h4 className={styles.optionHeading}>{t('headings.margins')}</h4>
                 <div className={styles.marginsContainer}>
                   <div className={styles.marginGroup}>
-                    <label className={styles.marginLabel}>Top</label>
+                    <label className={styles.marginLabel}>{t('labels.top')}</label>
                     <select
                       className={styles.marginSelect}
                       value={settings.margins.top}
@@ -365,7 +373,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                   </div>
 
                   <div className={styles.marginGroup}>
-                    <label className={styles.marginLabel}>Bottom</label>
+                    <label className={styles.marginLabel}>{t('labels.bottom')}</label>
                     <select
                       className={styles.marginSelect}
                       value={settings.margins.bottom}
@@ -380,7 +388,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                   </div>
 
                   <div className={styles.marginGroup}>
-                    <label className={styles.marginLabel}>Left</label>
+                    <label className={styles.marginLabel}>{t('labels.left')}</label>
                     <select
                       className={styles.marginSelect}
                       value={settings.margins.left}
@@ -395,7 +403,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                   </div>
 
                   <div className={styles.marginGroup}>
-                    <label className={styles.marginLabel}>Right</label>
+                    <label className={styles.marginLabel}>{t('labels.right')}</label>
                     <select
                       className={styles.marginSelect}
                       value={settings.margins.right}
@@ -415,31 +423,32 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
 
           <section className={styles.downloadSection}>
             <p className={styles.downloadText}>
-              Download &#34;{fileName}.{selectedFormat}&#34; {selectedFormat === 'pdf' ? '(532kb)' : ''}
+              {t('download')} &#34;{fileName}.{selectedFormat === 'text' ? 'txt' : selectedFormat}&#34;
             </p>
             <button className={styles.downloadButton} onClick={handleDownload}>
-              Download {selectedFormat.toUpperCase()}
+              {t('download')} {selectedFormat.toUpperCase()}
             </button>
           </section>
         </ContentContainer>
 
         <SidebarPanel>
-          <h2>Best Practice by DMP Tool</h2>
-          <p>
-            <strong>Downloading plans</strong>
-          </p>
-          <p>
-            PDFs offer universal compatibility and preserve formatting across
-            all devices and platforms, ensuring your document looks perfect
-            every time - unlike Word documents. Choose PDF to guarantee a
-            consistent, professional, and secure presentation for your
-            documents. Plus, most Funders require that DMPs be submitted in PDF
-            format.
-          </p>
-          <p>
-            If your organization, funder or project have specific requirements,
-            you can also download your DMP in HTML, CSV or JSON formats.
-          </p>
+          <div className={styles.headerWithLogo}>
+            <h2 className="h4">{Global('bestPractice')}</h2>
+            <Image
+              className={styles.Logo}
+              src="/images/DMP-logo.svg"
+              width="140"
+              height="16"
+              alt="DMP Tool"
+            />
+          </div>
+          {t.rich('bestPracticep1', {
+            p: (chunks) => <p>{chunks}</p>
+          })}
+
+          {t.rich('bestPracticep2', {
+            p: (chunks) => <p>{chunks}</p>
+          })}
         </SidebarPanel>
       </LayoutWithPanel>
     </>

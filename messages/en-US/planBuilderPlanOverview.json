@@ -256,5 +256,38 @@
         "encourageInfo": "Encourage your team to leave constructive comments or suggestions, this makes the collaborative process much smoother and ensures nothing is overlooked."
       }
     }
+  },
+  "ProjectsProjectPlanDownloadPage": {
+    "title": "Download plan",
+    "download": "Download",
+    "description": "You can download your Data Management Plan (DMP) in any of the formats listed below.",
+    "labels": {
+      "fileFormat": "File format",
+      "font": "Font",
+      "fontSize": "Font size",
+      "fontSizeUnit": "pt",
+      "includeCoverSheet": "Include a project details coversheet",
+      "includeSectionHeadings": "Include the section headings",
+      "includeQuestionText": "Include the question text",
+      "includeUnansweredQuestions": "Include any unanswered questions",
+      "top": "Top",
+      "bottom": "Bottom",
+      "left": "Left",
+      "right": "Right"
+    },
+    "downloadSection": {
+      "downloadText": "Download \"{fileName}.{fileExtension}\"",
+      "downloadButton": "Download {format}"
+    },
+    "headings": {
+      "chooseFileFormat": "Choose file format",
+      "settings": "Settings",
+      "formattingOptions": "Formatting options (PDF only)",
+      "font": "Font",
+      "fontSize": "Font size",
+      "margins": "Margins"
+    },
+    "bestPracticep1": "<p>PDFs offer universal compatibility and preserve formatting across all devices and platforms, ensuring your document looks perfect every time - unlike Word documents. Choose PDF to guarantee a consistent, professional, and secure presentation for your documents. Plus, most Funders require that DMPs be submitted in PDF format.</p>",
+    "bestPracticep2": "<p>If your organization, funder or project have specific requirements, you can also download your DMP in HTML, CSV or JSON formats.</p>"
   }
 }

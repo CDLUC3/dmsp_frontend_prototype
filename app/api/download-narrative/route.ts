@@ -4,9 +4,9 @@ import { cookies } from "next/headers";
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const dmpId = searchParams.get('dmpId');
+    const dmpId = searchParams.get('dmpId'); // Get the doi, passed as dmpId, from query parameters
 
-    // Get all cookies
+    // Get all cookies to pass in request header
     const cookieStore = await cookies();
     const cookieString = cookieStore.toString();
 
@@ -17,9 +17,8 @@ export async function GET(request: NextRequest) {
     // Build the narrative service URL
     // Use environment variable for the narrative service URL
     const narrativeServiceBase = process.env.NARRATIVE_SERVICE_URL || 'http://localhost:4030';
-    const narrativeUrl = new URL(`${narrativeServiceBase}/dmps/${encodeURIComponent(dmpId)}/narrative`);
+    const narrativeUrl = new URL(`${narrativeServiceBase}/dmps/${encodeURIComponent(dmpId)}/narrative`); // Encode dmpId for URL safety and because of forward slashes in DOIs
 
-    console.log("***NARRATIVE URL:", narrativeUrl.toString());
     // Forward all other query parameters
     searchParams.forEach((value, key) => {
       if (key !== 'dmpId') {
