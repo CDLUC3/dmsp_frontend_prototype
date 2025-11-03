@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from "next/headers";
+import { createLogger } from '@/utils/server/logger';
+
+const logger = createLogger();
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,7 +38,6 @@ export async function GET(request: NextRequest) {
       Cookie: cookieString,
     };
 
-
     // Fetch from the narrative service
     const response = await fetch(narrativeUrl.toString(), {
       headers
@@ -60,7 +62,10 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Download API error:', error);
+    logger.error({
+      error,
+      route: '/api/download-narrative',
+    }, 'Error downloading plan narrative');
     return NextResponse.json(
       { error: 'Failed to fetch narrative' },
       { status: 500 }

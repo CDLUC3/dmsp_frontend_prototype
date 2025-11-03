@@ -1,6 +1,6 @@
 'use client';
 
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useRef, useState } from 'react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -24,10 +24,12 @@ import {
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
+import ErrorMessages from '@/components/ErrorMessages';
 
 // Other
 import { DOI_REGEX } from "@/lib/constants";
 import { routePath } from "@/utils/routes";
+import logECS from "@/utils/clientLogger";
 import styles from './ProjectsProjectPlanDownloadPage.module.scss';
 
 // Define types
@@ -76,6 +78,10 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
   const planId = String(params.dmpid);
   const projectId = String(params.projectId);
 
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
+  // Errors returned from download attempt
+  const [errors, setErrors] = useState<string[]>([]);
   // State for selected file format
   const [selectedFormat, setSelectedFormat] = useState<FileFormatType>('pdf');
 
@@ -86,14 +92,12 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
   // Get Plan using planId
   const {
     data,
-    loading,
-    error: queryError,
-    refetch,
   } = usePlanQuery({
     variables: { planId: Number(planId) },
     skip: isNaN(Number(planId)),
     notifyOnNetworkStatusChange: true,
   });
+
 
   const dmpId = data?.plan?.dmpId || '';
   const fileName = data?.plan?.title || 'untitled plan';
@@ -163,8 +167,11 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
       window.URL.revokeObjectURL(url);
 
     } catch (error) {
-      console.error('Download error:', error);
-      // Handle error (show user notification, etc.)
+      setErrors(prev => [...prev, t('messages.errors.downloadFailed')]);
+      logECS('error', 'downloading plan', {
+        error,
+        url: { path: routePath('projects.dmp.download', { projectId, dmpId }) }
+      });
     }
   };
 
@@ -212,12 +219,14 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
         }
         className="page-project-create-project-funding"
       />
+
+      <ErrorMessages errors={errors} ref={errorRef} />
       <LayoutWithPanel>
         <ContentContainer>
           <section className={"sectionContainer"}>
-            <h3 className={styles.sectionHeading}>
+            <h2 className={`${styles.sectionHeading} h3`}>
               {t('headings.chooseFileFormat')}
-            </h3>
+            </h2>
             <div>
               <RadioGroup
                 className={styles.radioGroup}
@@ -248,9 +257,9 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
           </section>
 
           <section className={"sectionContainer"}>
-            <h3 className={styles.sectionHeading}>
+            <h2 className={`${styles.sectionHeading} h3`}>
               {t('headings.settings')}
-            </h3>
+            </h2>
             <div className={styles.checkboxGroup}>
               <Checkbox
                 isSelected={settings.includeCoverPage}
@@ -320,12 +329,12 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
 
           {selectedFormat === 'pdf' && (
             <section className={"sectionContainer"}>
-              <h3 className={styles.sectionHeading}>
+              <h2 className={`${styles.sectionHeading} h3`}>
                 {t('headings.formattingOptions')}
-              </h3>
+              </h2>
 
               <div className={styles.formatSection}>
-                <h4 className={styles.optionHeading}>{t('headings.font')}</h4>
+                <h3 className={`${styles.optionHeading} h4`}>{t('headings.font')}</h3>
                 <select
                   className={styles.select}
                   value={settings.fontFamily}
@@ -338,7 +347,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
               </div>
 
               <div className={styles.formatSection}>
-                <h4 className={styles.optionHeading}>{t('headings.fontSize')}</h4>
+                <h3 className={`${styles.optionHeading} h4`}>{t('headings.fontSize')}</h3>
                 <select
                   className={styles.select}
                   value={settings.fontSize}
@@ -355,7 +364,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
               </div>
 
               <div className={styles.formatSection}>
-                <h4 className={styles.optionHeading}>{t('headings.margins')}</h4>
+                <h3 className={`${styles.optionHeading} h4`}>{t('headings.margins')}</h3>
                 <div className={styles.marginsContainer}>
                   <div className={styles.marginGroup}>
                     <label className={styles.marginLabel}>{t('labels.top')}</label>
@@ -442,15 +451,11 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
               alt="DMP Tool"
             />
           </div>
-          {t.rich('bestPracticep1', {
-            p: (chunks) => <p>{chunks}</p>
-          })}
+          <p>{t('bestPracticep1')}</p>
 
-          {t.rich('bestPracticep2', {
-            p: (chunks) => <p>{chunks}</p>
-          })}
+          <p>{t('bestPracticep2')}</p>
         </SidebarPanel>
-      </LayoutWithPanel>
+      </LayoutWithPanel >
     </>
   );
 };

@@ -287,7 +287,12 @@
       "fontSize": "Font size",
       "margins": "Margins"
     },
-    "bestPracticep1": "<p>PDFs offer universal compatibility and preserve formatting across all devices and platforms, ensuring your document looks perfect every time - unlike Word documents. Choose PDF to guarantee a consistent, professional, and secure presentation for your documents. Plus, most Funders require that DMPs be submitted in PDF format.</p>",
-    "bestPracticep2": "<p>If your organization, funder or project have specific requirements, you can also download your DMP in HTML, CSV or JSON formats.</p>"
+    "bestPracticep1": "PDFs offer universal compatibility and preserve formatting across all devices and platforms, ensuring your document looks perfect every time - unlike Word documents. Choose PDF to guarantee a consistent, professional, and secure presentation for your documents. Plus, most Funders require that DMPs be submitted in PDF format.",
+    "bestPracticep2": "If your organization, funder or project have specific requirements, you can also download your DMP in HTML, CSV or JSON formats.",
+    "messages": {
+      "errors": {
+        "downloadFailed": "Download failed. Please try again."
+      }
+    }
   }
 }
