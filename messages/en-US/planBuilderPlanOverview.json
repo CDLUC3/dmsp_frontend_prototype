@@ -136,8 +136,8 @@
     "title": "Plan: Select a DMP template",
     "description": "Select a template to use when creating your DMP.",
     "checkbox": {
-      "filterByFunderLabel": "Filter by funder",
-      "filterByFunderDescription": "Select if you want to only see templates by your funder.",
+      "filterByFunderLabel": "Filter by funder or organization",
+      "filterByFunderDescription": "Select if you want to only see templates by your funder or organization.",
       "filterByBestPracticesLabel": "Filter by best practices",
       "filterByBestPracticesDescription": "Select if you want to only see best practice templates"
     },
