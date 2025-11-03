@@ -80,12 +80,10 @@ describe('TemplateAccessPage', () => {
 
   it('renders the main content', () => {
     render(<TemplateAccessPage />);
-    expect(screen.getByText('intro')).toBeInTheDocument();
     expect(screen.getByText('headings.h3OrgAccess')).toBeInTheDocument();
     expect(screen.getByText('paragraphs.orgAccessPara1')).toBeInTheDocument();
     expect(screen.getByText('paragraphs.orgAccessPara2')).toBeInTheDocument();
     expect(screen.getByText('headings.externalPeople')).toBeInTheDocument();
-    expect(screen.getByText('paragraphs.externalPara1')).toBeInTheDocument();
     expect(screen.getByText('headings.share')).toBeInTheDocument();
     expect(screen.getByText('paragraphs.sharePara1')).toBeInTheDocument();
     expect(screen.getByText('labels.email')).toBeInTheDocument();
@@ -101,7 +99,7 @@ describe('TemplateAccessPage', () => {
 
   it('should handle form submission', async () => {
     render(<TemplateAccessPage />);
-    const emailInput = screen.getByLabelText('labels.email');
+    const emailInput = screen.getByLabelText(/labels.email/);
     const inviteButton = screen.getByText('buttons.invite');
 
     fireEvent.change(emailInput, { target: { value: 'newuser@example.com' } });

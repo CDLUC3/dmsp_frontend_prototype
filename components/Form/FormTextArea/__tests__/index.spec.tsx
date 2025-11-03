@@ -13,12 +13,22 @@ describe('FormTextArea', () => {
         label="Name"
         placeholder="Enter your name"
         value="John Doe"
-        onChange={jest.fn()}
       />
     );
 
     expect(screen.getByLabelText('Name')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Enter your name')).toHaveValue('John Doe');
+  });
+
+  it('should render the help message if provided', () => {
+    render(
+      <FormTextArea
+        name="phone"
+        label="Phone"
+        helpMessage="Please enter your phone number in the format xxx-xxx-xxxx"
+      />
+    );
+    expect(screen.getByText('Please enter your phone number in the format xxx-xxx-xxxx')).toBeInTheDocument();
   });
 
   it('should handle invalid state correctly', () => {
@@ -36,9 +46,9 @@ describe('FormTextArea', () => {
     expect(screen.getByText('Please enter a valid email address')).toBeInTheDocument();
   });
 
-
   it('should call the onChange handler when the input value changes', () => {
     const onChange = jest.fn();
+
     render(
       <FormTextArea
         name="password"
@@ -52,27 +62,50 @@ describe('FormTextArea', () => {
     expect(onChange).toHaveBeenCalledTimes(1);
   });
 
-  it('should render the help message if provided', () => {
-    render(
-      <FormTextArea
-        name="phone"
-        label="Phone"
-        helpMessage="Please enter your phone number in the format xxx-xxx-xxxx"
-      />
-    );
-
-    expect(screen.getByText('Please enter your phone number in the format xxx-xxx-xxxx')).toBeInTheDocument();
-  });
-
   it('should pass axe accessibility test', async () => {
     const { container } = render(
       <FormTextArea
         name="phone"
         label="Phone"
+        isRequired={true}
+        isRequiredVisualOnly={true}
         helpMessage="Please enter your phone number in the format xxx-xxx-xxxx"
       />
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
-  })
+  });
+
+  it('should display "(required)" text when field is required', () => {
+    render(
+      <FormTextArea
+        name="email"
+        label="Email"
+        isRequired={true}
+      />
+    );
+
+    expect(screen.getByText('Email')).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
+  });
+
+  it('should support isRequiredVisualOnly', () => {
+    render(
+      <FormTextArea
+        name="email"
+        label="Email"
+        isRequiredVisualOnly={true}
+      />
+    );
+
+    // Check for "(required)" text in label
+    expect(screen.getByText('Email')).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
+
+    // Check that aria-required is FALSE on the textarea
+    const textarea = screen.getByRole('textbox', { name: 'Email' });
+    expect(textarea).toHaveAttribute('aria-required', 'false');
+  });
 });

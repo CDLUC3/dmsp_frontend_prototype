@@ -53,8 +53,8 @@ describe('QuestionOptionsComponent', () => {
       setFormSubmitted={jest.fn()}
     />);
 
-    expect(screen.getByLabelText('labels.order')).toBeInTheDocument();
-    expect(screen.getByLabelText('labels.text')).toBeInTheDocument();
+    expect(screen.getByLabelText(/labels.order/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/labels.text/)).toBeInTheDocument();
     expect(screen.getByLabelText('labels.default')).toBeInTheDocument();
   });
 
@@ -83,7 +83,7 @@ describe('QuestionOptionsComponent', () => {
       setFormSubmitted={jest.fn()}
     />);
 
-    const textInput = screen.getByLabelText('labels.text');
+    const textInput = screen.getByLabelText(/labels.text/);
     fireEvent.change(textInput, { target: { value: 'Updated Option' } });
 
     expect(setRows).toHaveBeenCalledWith([{ id: 1, isSelected: false, text: "Updated Option" }]);
@@ -99,7 +99,7 @@ describe('QuestionOptionsComponent', () => {
       setFormSubmitted={jest.fn()}
     />);
 
-    const textInput = screen.getByLabelText('labels.text');
+    const textInput = screen.getByLabelText(/labels.text/);
     fireEvent.change(textInput, { target: { value: 'Updated Option' } });
 
     expect(setRows).toHaveBeenCalledWith([{ id: 1, isSelected: false, text: "Updated Option" }]);
@@ -142,7 +142,7 @@ describe('QuestionOptionsComponent', () => {
 
     render(<Wrapper />);
 
-    const textInput = screen.getByLabelText('labels.text');
+    const textInput = screen.getByLabelText(/labels.text/);
     fireEvent.change(textInput, { target: { value: 'Option 1' } });
 
     const defaultCheckbox = screen.getByTestId('default-1');

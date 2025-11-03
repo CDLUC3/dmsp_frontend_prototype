@@ -50,10 +50,10 @@ const RelatedWorksPage = () => {
                 <h2 className="h3 m-0">{t("tabs.pending")}</h2>
               </Tab>
               <Tab id="related">
-                <h2 className="h3 m-0">{t("tabs.related")}</h2>
+                <h2 className="h3 m-0">{t("tabs.accepted")}</h2>
               </Tab>
               <Tab id="discarded">
-                <h2 className="h3 m-0">{t("tabs.discarded")}</h2>
+                <h2 className="h3 m-0">{t("tabs.rejected")}</h2>
               </Tab>
             </TabList>
             <RelatedWorksProvider>

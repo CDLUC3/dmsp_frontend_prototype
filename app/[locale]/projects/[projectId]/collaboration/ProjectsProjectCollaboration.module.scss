@@ -20,11 +20,19 @@
 
 .membersListItem {
   display: grid;
-  grid-template-columns: 2fr 1fr 2fr;
+  grid-template-columns: 1fr; // Mobile first (stacked)
+  gap: 1rem;
   align-items: start;
   padding: 1rem 0;
   border-bottom: 1px solid #eaeaea;
+
+  @include r.device(lg) {
+    grid-template-columns: 2fr 1fr 2fr; // Desktop layout
+    gap: 0; // Remove gap for desktop if desired
+  }
 }
+
+
 
 .memberInfo {
   display: flex;
@@ -40,12 +48,13 @@
 }
 
 .memberEmail {
-  color: #333;
-  font-size:1rem;
+  color: var(--text-color);
+  font-size: 1rem;
   margin: 0;
 }
 
-.memberRole, .accessRevoked {
+.memberRole,
+.accessRevoked {
   color: #666;
   font-size: 0.9rem;
   margin: 0;
@@ -59,16 +68,30 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  .react-aria-Checkbox{
-    margin: 0!important;
+
+  .react-aria-Checkbox {
+    margin: 0 !important;
     font-size: var(--fs-base);
   }
 }
-
-
 
 .memberActions {
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
+
+  h2 {
+    color: var(--color-danger);
+    font-size: 1.25rem;
+    margin: 0 0 1rem 0;
+  }
+
+  p {
+    margin: 0 0 1.5rem 0;
+    color: var(--text-secondary);
+  }
+}
+
+.modalOverride {
+  background-color: transparent !important;
 }

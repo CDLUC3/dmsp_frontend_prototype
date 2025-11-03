@@ -166,7 +166,7 @@ const PlanOverviewSectionPage: React.FC = () => {
               style={{ display: showNavigation ? 'block' : 'none' }}
               aria-labelledby="plan-nav-title"
             >
-              <h2 id="plan-nav-title" className={styles.srOnly}>Plan Navigation</h2>
+              <h2 id="plan-nav-title" className={"hidden-accessibly"}>Plan Navigation</h2>
 
               <Link
                 href={routePath('projects.dmp.show', { projectId, dmpId })}

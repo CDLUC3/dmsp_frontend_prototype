@@ -14,7 +14,8 @@
     "linkExpand": "Expand",
     "linkCollapse": "Collapse",
     "details": "details",
-    "additionalInfo": "Additional information goes here..."
+    "additionalInfo": "Additional information goes here...",
+    "templateList": "List of templates"
   },
   "EditTemplates": {
     "title": "Edit template",
@@ -30,9 +31,9 @@
     "links": {
       "addSection": "Add section",
       "edit": "Edit",
-      "manageAccess": "Manage access",
-      "templateHistory": "Template history",
-      "editTemplateTitle": "Edit template title"
+      "manageAccess": "Manage",
+      "templateHistory": "History",
+      "editTemplateTitle": "Edit"
     },
     "button": {
       "archiveTemplate": "Archive template",
@@ -74,8 +75,8 @@
     "radioBtn": {
       "public": "Public",
       "organizationOnly": "Organization only",
-      "publicHelpText": "This will be available and discoverable by plan builders.",
-      "orgOnlyHelpText": "Only your organization will be able to view and use this template."
+      "publicHelpText": "This template can be used by all plan writers.",
+      "orgOnlyHelpText": "Only plan writers from your organization will be able to view and use this template."
     },
     "descPublishedTemplate": "You can control who can use this published template.",
     "bullet": {
@@ -96,10 +97,13 @@
   },
   "EditQuestion": {
     "label": {
-      "question": "Question"
+      "question": "Question",
+      "funderQuestion": "Funder Question",
+      "organizationQuestion": "Organization Question"
     },
     "links": {
       "editQuestion": "Edit question",
+      "customizeQuestion": "Customize",
       "addQuestion": "Add question"
     },
     "buttons": {
@@ -108,6 +112,13 @@
     },
     "messages": {
       "questionMoved": "Question moved to position {displayOrder}"
+    },
+    "checklist": {
+      "requirements": "Requirements",
+      "guidance": "Guidance",
+      "sampleText": "Sample Text",
+      "completed": " completed",
+      "notCompleted": " not completed"
     }
   },
   "Sections": {
@@ -133,6 +144,12 @@
       },
       "questionMoved": "Question moved to position {displayOrder}",
       "sectionMoved": "Section moved to position {displayOrder}"
+    },
+    "checklist": {
+      "requirements": "Requirements",
+      "guidance": "Guidance",
+      "completed": " completed",
+      "notCompleted": " not completed"
     }
   },
   "SectionTypeSelectPage": {
@@ -179,7 +196,8 @@
   "CreateSectionPage": {
     "title": "Create section",
     "button": {
-      "createSection": "Create section"
+      "createSection": "Create section",
+      "creatingSection": "Creating section..."
     },
     "messages": {
       "fieldLengthValidation": "Name must be at least 2 characters.",
@@ -236,15 +254,17 @@
       "startNew": "Start"
     },
     "headings": {
-      "previouslyCreatedTemplates": "Use one of your previously created templates",
-      "publicTemplates": "Use one of the public templates",
+      "myOrgTemplates": "My organization templates",
+      "publicTemplates": "Public templates",
       "createNew": "Build a new template"
     },
     "messages": {
       "noItemsFound": "No items found",
       "missingTemplateName": "Template name cannot be blank.",
       "loadingError": "Error loading templates. Please try again later."
-    }
+    },
+    "loadMoreTemplates": "Load more templates",
+    "loadMoreSearchResults": "Load more search results"
   },
   "TemplateSelectListItem": {
     "messages": {
@@ -275,8 +295,8 @@
       "sampleText": "Plan creators will be able to copy the sample text into the field as a starting point, to speed up content entry."
     },
     "labels": {
-      "type": "Type (required)",
-      "questionText": "Question text (required)",
+      "type": "Type",
+      "questionText": "Question text",
       "requirementText": "Requirements plan writer must meet (optional but recommended)",
       "guidanceText": "Question guidance (optional but recommended)",
       "sampleText": "Sample text"
@@ -302,7 +322,7 @@
   "QuestionOptionsComponent": {
     "labels": {
       "order": "Order",
-      "text": "Text (required)",
+      "text": "Text",
       "default": "Default"
     },
     "buttons": {
@@ -335,10 +355,10 @@
     },
     "labels": {
       "order": "Order",
-      "text": "Text (required)",
+      "text": "Text",
       "default": "Default",
-      "type": "Type (required)",
-      "questionText": "Question text (required)",
+      "type": "Type",
+      "questionText": "Question text",
       "requirementText": "Requirements plan writer must meet (optional but recommended)",
       "guidanceText": "Question guidance (optional but recommended)",
       "sampleText": "Sample text"
@@ -372,7 +392,7 @@
   },
   "TemplateAccessPage": {
     "title": "Manage access",
-    "intro": "This template is accessible to everyone at {orgName} with full view and edit permissions. It can also be shared with people outside your organization.",
+    "intro": "This template is editable by everyone at {orgName}. It can also be shared with people outside your organization to allow them edit access.",
     "headings": {
       "h3OrgAccess": "Within organization",
       "externalPeople": "External people",
@@ -383,7 +403,6 @@
     "paragraphs": {
       "orgAccessPara1": "Everyone at {name} can view and edit",
       "orgAccessPara2": "{count} administrator(s) can manage access",
-      "externalPara1": "Share this template with people outside {orgName}",
       "sharePara1": "Enter their email address. If they do not already have a DMP Tool account they will be prompted to create one.",
       "modalPara1": "Please confirm that you want to remove {email}"
     },

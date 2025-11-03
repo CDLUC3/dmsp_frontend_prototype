@@ -1,7 +1,19 @@
 'use server'
 
 import { cookies } from "next/headers";
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import logger from "@/utils/server/logger";
+
+export interface JWTAccessToken extends JwtPayload {
+  id: number,
+  email: string,
+  givenName: string,
+  surName: string,
+  role: string,
+  affiliationId: string,
+  languageId: string,
+  jti: string,
+}
 
 class ServerAuthError extends Error {
   status: number | null;
@@ -26,7 +38,7 @@ class ServerAuthError extends Error {
     this.status = status;
     this.message = message;
 
-    logger.error(`${statusMsg} - ${source}`);
+    logger.error({ statusMsg, source }, "ServerAuthError");
   }
 }
 
@@ -85,7 +97,7 @@ export const serverRefreshAuthTokens = async () => {
       cookies: setCookieHeaders
     };
   } catch (err) {
-    logger.error("Error refreshing auth token", err);
+    logger.error(err, "Error refreshing auth token");
     return null;
   }
 };
@@ -105,7 +117,23 @@ export const serverFetchCsrfToken = async () => {
 
     return response;
   } catch (err) {
-    logger.error("Error getting CSRF token", err);
+    logger.error(err,"Error getting CSRF token");
     return null;
   }
 };
+
+// Fetch and decode the JWT Access Token
+export const serverFetchAccessToken = async (): Promise<JWTAccessToken | undefined> => {
+  try {
+    const cookieStore = await cookies();
+    const cookie = cookieStore.get("dmspt");
+    if (!cookie || !cookie.value) return undefined;
+
+    const secret = process.env.JWT_SECRET ?? "";
+    const token = jwt.verify(String(cookie?.value), secret) as JwtPayload;
+    return token ? token as JWTAccessToken : undefined;
+  } catch (err) {
+    logger.error(err, "Error decoding JWT Access Token");
+    return undefined;
+  }
+}

@@ -1,7 +1,12 @@
-import React from 'react';
-import { useTranslations } from 'next-intl';
-import styles from './SectionHeaderEdit.module.scss';
+import React from "react";
+import { useTranslations } from "next-intl";
+import styles from "./SectionHeaderEdit.module.scss";
 import { Button } from "react-aria-components";
+
+interface SectionChecklist {
+  requirements: boolean;
+  guidance: boolean;
+}
 
 interface SectionHeaderEditProps {
   title: string;
@@ -9,6 +14,8 @@ interface SectionHeaderEditProps {
   editUrl: string;
   onMoveUp?: (() => void) | undefined;
   onMoveDown?: (() => void) | undefined;
+  sectionAuthorType?: "funder" | "organization" | null;
+  checklist?: SectionChecklist;
 }
 
 const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
@@ -16,9 +23,11 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
   sectionNumber,
   editUrl,
   onMoveUp,
-  onMoveDown
+  onMoveDown,
+  sectionAuthorType,
+  checklist,
 }) => {
-  const Sections = useTranslations('Sections');
+  const Sections = useTranslations("Sections");
   const UpArrowIcon = () => (
     <svg
       width="24"
@@ -55,34 +64,86 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
     </svg>
   );
 
-
   return (
-    <div className={styles.sectionHeader} data-testid="section-edit-card">
-      <h2 className={styles.sectionTitle}>
-        <span className={styles.sectionNumber}>{Sections('labels.section')} {sectionNumber} </span>
-        {title}
-      </h2>
+    <div
+      className={styles.sectionHeader}
+      data-testid="section-edit-card"
+    >
+      <div className={styles.sectionHeaderContent}>
+        <h2 className={styles.sectionTitle}>
+          <span className={styles.sectionNumber}>
+            {Sections("labels.section")} {sectionNumber}{" "}
+          </span>
+          {title}
+        </h2>
+        {sectionAuthorType && checklist && (
+          <div
+            className={styles.sectionChecklist}
+            role="group"
+            aria-label="Section customization options"
+          >
+            <div className={`${styles.checklistItem} ${!checklist.requirements ? styles.unchecked : ""}`}>
+              <span
+                className={`${styles.checkIcon} ${checklist.requirements ? styles.checked : styles.unchecked}`}
+                aria-hidden="true"
+              >
+                ✓
+              </span>
+              <span className={styles.checkLabel}>
+                {Sections("checklist.requirements")}
+                <span className="hidden-accessibly">
+                  {checklist.requirements ? Sections("checklist.completed") : Sections("checklist.notCompleted")}
+                </span>
+              </span>
+            </div>
+            <div className={`${styles.checklistItem} ${!checklist.guidance ? styles.unchecked : ""}`}>
+              <span
+                className={`${styles.checkIcon} ${checklist.guidance ? styles.checked : styles.unchecked}`}
+                aria-hidden="true"
+              >
+                ✓
+              </span>
+              <span className={styles.checkLabel}>
+                {Sections("checklist.guidance")}
+                <span className="hidden-accessibly">
+                  {checklist.guidance ? Sections("checklist.completed") : Sections("checklist.notCompleted")}
+                </span>
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
       <div className={styles.buttonGroup}>
-        <a href={editUrl} className={styles.editButton}>{Sections('links.editSection')}</a>
-        {onMoveUp && (
-          <Button className={`${styles.btnDefault} ${styles.orderButton}`}
-            onPress={onMoveUp}
-            aria-label={Sections('buttons.moveUp', { title })}>
-            <UpArrowIcon />
-          </Button>
-        )}
+        <a
+          href={editUrl}
+          className={styles.editButton}
+        >
+          {Sections("links.editSection")}
+        </a>
 
-        {onMoveDown && (
-          <Button className={`${styles.btnDefault} ${styles.orderButton}`}
-            onPress={onMoveDown}
-            aria-label={Sections('buttons.moveDown', { title })}>
-            <DownArrowIcon />
-          </Button>
-        )}
+        <div className={styles.orderButtons}>
+          {onMoveUp && (
+            <Button
+              className={`${styles.btnDefault} ${styles.orderButton}`}
+              onPress={onMoveUp}
+              aria-label={Sections("buttons.moveUp", { title })}
+            >
+              <UpArrowIcon />
+            </Button>
+          )}
 
+          {onMoveDown && (
+            <Button
+              className={`${styles.btnDefault} ${styles.orderButton}`}
+              onPress={onMoveDown}
+              aria-label={Sections("buttons.moveDown", { title })}
+            >
+              <DownArrowIcon />
+            </Button>
+          )}
+        </div>
       </div>
     </div>
-
   );
 };
 

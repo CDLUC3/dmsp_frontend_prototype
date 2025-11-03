@@ -27,7 +27,9 @@
     "outputCount": "{count, plural, =0 {0 outputs} one {1 output} other {{count} outputs}}",
     "editOutputs": "Edit research outputs",
     "editResearchOutputs": "Edit research outputs",
+    "plan": "Plan",
     "plans": "Plans",
+    "sections": "Sections",
     "planActions": "Plan actions",
     "upload": "Upload plan",
     "uploadPlan": "Upload a new plan",
@@ -78,7 +80,7 @@
     "pageTitle": "Create a new project",
     "isThisMockProject": "Is this a mock project?",
     "form": {
-      "projectTitle": "What is the title for the project? (required)",
+      "projectTitle": "What is the title for the project?",
       "projectTitleHelpText": "You can change this at any time. If you already applied for funding, we recommend using the formal project title for consistency.",
       "checkboxGroupLabel": "This project is mock project for testing, practice, or educational purposes",
       "checkboxGroupHelpText": "This is a mock project intended solely for testing, practice, or educational purposes. It allows you to create a project and plans, but you will not be able to receive feedback or publish them.",
@@ -315,6 +317,87 @@
     },
     "headings": {
       "h2InviteSent": "Invite sent"
+    }
+  },
+  "ProjectsProjectCollaboration": {
+    "title": "Invite people and manage access",
+    "description": "When you invite a person, we'll send an email to this person inviting them to view your plan.",
+    "removeCollaborator": "Removing this member means they will no longer be able to collaborate on this plan.",
+    "canEdit": "Can edit plan",
+    "canComment": "Comment only",
+    "own": "Owner",
+    "cancelRemoval": "Cancel removal of project collaborator {name}",
+    "deleteCollaborator": "Delete project collaborator {name}",
+    "canEditPlanFor": "Can edit plan for {name}",
+    "canCommentPlanFor": "Can comment on plan for {name}",
+    "canOwnPlanFor": "Own plan for {name}",
+    "revokeAccessFor": "Revoke access for {name}",
+    "deleteInviteFor": "Delete invite for {name}",
+    "resendInviteFor": "Resend invite for {name}",
+    "headings": {
+      "hasAccess": "These people currently have access to this plan",
+      "removeCollaborator": "Remove project collaborator",
+      "pendingInvites": "These people have not accepted invite yet"
+    },
+    "buttons": {
+      "invite": "Invite Collaborators",
+      "isDeleting": "is Deleting...",
+      "revoke": "Revoke",
+      "deleteInvite": "Delete Invite",
+      "resend": "Resend"
+    },
+    "links": {
+      "inviteAPerson": "Invite a person"
+    },
+    "messages": {
+      "noCollaborators": "No collaborators found",
+      "success": {
+        "resentInvite": "Successfully resent invite to {name}",
+        "revokedAccess": "Successfully revoked access for {name}",
+        "updatedAccess": "Successfully updated access for {name} to {accessLevel}"
+      }
+    }
+  },
+  "ProjectsProjectMembersSearch": {
+    "title": "Who are the project members?",
+    "searchLabel": "Search by name, organization or ORCID",
+    "searchDescription": "Search by a person's name, organization and/or ORCiD. Entering more information will help narrow the search, for exampleFrederick Cook 0427.",
+    "ariaSearchInput": "Search",
+    "ariaSearchItemName": "Member: {name}",
+    "ariaAddMemberButton": "Add {name} as project member",
+    "createCollaboratorDescription": "If your collaborator isn't shown you can add their details manually",
+    "buttons": {
+      "createMember": "Create member"
+    },
+    "headings": {
+      "searchResultsHeader": "Showing 1-{length} of {total} results",
+      "createCollaboratorHeader": "Not in the list?"
+    },
+    "messaging": {
+      "errors": {
+        "failedToLoadCollaborators": "Failed to load more collaborators",
+        "failedToAddProjectMember": "Failed to add member. Please try again."
+      },
+      "success": {
+        "addedProjectMember": "Successfully added {name} as project member"
+      }
+    }
+  },
+  "ProjectsProjectMemberCreate": {
+    "title": "Add a new project member",
+    "description": "Add a new member to this project by filling in their details below.",
+    "projectRolesOptions": "Project roles options",
+    "messaging": {
+      "errors": {
+        "errorAddingMember": "Error adding member"
+      },
+      "success": {
+        "memberAdded": "Successfully added project member"
+      }
+    },
+    "breadcrumbs": {
+      "addProjectMember": "Add project member",
+      "projectMemberSearch": "Project member search"
     }
   }
 }

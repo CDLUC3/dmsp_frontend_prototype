@@ -2,7 +2,6 @@ import React, { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 import TemplateHistory from '../page';
 import { useTemplateVersionsQuery } from '@/generated/graphql';
-import { MockedProvider } from '@apollo/client/testing';
 import { useParams, useRouter } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { handleApolloErrors } from "@/utils/gqlErrorHandler";
@@ -10,12 +9,6 @@ import mockData from './mockedResponse.json';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
-
-// Mocking date returned from formatShortMonthDayYear so that it passes for all locales
-jest.mock('@/utils/dateUtils', () => ({
-  ...jest.requireActual('@/utils/dateUtils'),
-  formatShortMonthDayYear: jest.fn(() => 'Jun 25, 2014'),
-}));
 
 jest.mock('@/generated/graphql', () => ({
   useTemplateVersionsQuery: jest.fn(),
@@ -35,7 +28,16 @@ jest.mock('next-intl', () => ({
   useFormatter: jest.fn(() => ({
     dateTime: jest.fn(() => '01-01-2023'),
   })),
-  useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`
+  useTranslations: jest.fn((namespace) => {
+    if (namespace === 'Global') {
+      return jest.fn((key) => {
+        if (key === 'version') return 'version';
+        if (key === 'lastUpdated') return 'lastUpdated';
+        return key;
+      });
+    }
+    return jest.fn((key) => key);
+  }),
 }));
 
 jest.mock('@/components/BackButton', () => {
@@ -46,7 +48,7 @@ jest.mock('@/components/BackButton', () => {
 });
 
 jest.mock('@/components/PageHeader', () => {
-  const mockPageHeader = jest.fn(({ children }: { children: ReactNode, title: string }) => (
+  const mockPageHeader = jest.fn(({ children }: { children: ReactNode, title: string, description: string }) => (
     <div data-testid="mock-page-wrapper">{children}</div>
   ));
   return {
@@ -70,6 +72,9 @@ describe('TemplateHistory', () => {
 
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
+
+    // Clear all mocks between tests
+    jest.clearAllMocks();
   });
 
   it('should render the component with PageHeader', async () => {
@@ -82,7 +87,8 @@ describe('TemplateHistory', () => {
     const { getByTestId } = render(<TemplateHistory />);
 
     expect(getByTestId('mock-page-wrapper')).toBeInTheDocument();
-    expect(mockPageHeader).toHaveBeenCalledWith(expect.objectContaining({ title: titleProp, }), {})
+    // Check only the first argument (props) for the title prop
+    expect((mockPageHeader as jest.Mock).mock.calls[0][0]).toEqual(expect.objectContaining({ title: titleProp }));
   })
 
   it('should use the templateId from the param in the call to useTemplateVersionsQuery', () => {
@@ -92,11 +98,7 @@ describe('TemplateHistory', () => {
       error: null,
     });
 
-    render(
-      <MockedProvider>
-        <TemplateHistory />
-      </MockedProvider>
-    );
+    render(<TemplateHistory />);
 
     expect(useTemplateVersionsQuery).toHaveBeenCalledWith({ variables: { templateId: 123 } })
   });
@@ -141,18 +143,19 @@ describe('TemplateHistory', () => {
     expect(await screen.findByText('There was a problem.')).toBeInTheDocument();
   });
 
-  it('should render page heading and subheader correctly, which includes the title, by, version and date of latest publication', async () => {
+  it('should render subHeading and call mockPageHeader with correct descriptionAdded', async () => {
+    const titleProp = 'title';
+    const pageWrapper = await import('@/components/PageHeader');
+    const mockPageHeader = pageWrapper.default;
     (useTemplateVersionsQuery as jest.Mock).mockReturnValue({
       loading: false,
       data: mockData,
     });
 
-    const { getByTestId } = render(<TemplateHistory />);
-    const h2Element = await screen.findByRole('heading', { level: 2 });
-    expect(h2Element).toHaveTextContent('NIH-GDS: Genomic Data Sharing');
-    expect(getByTestId('author')).toHaveTextContent('by National Institutes of Health')
-    expect(getByTestId('latest-version')).toHaveTextContent('3.1')
-    expect(getByTestId('publication-date')).toHaveTextContent('published: Jun 25, 2014')
+    render(<TemplateHistory />);
+    const subHeading = screen.getByRole('heading', { level: 3, name: 'subHeading' });
+    expect(subHeading).toBeInTheDocument();
+    expect((mockPageHeader as jest.Mock).mock.calls[0][0]).toEqual(expect.objectContaining({ title: titleProp, description: 'by National Institutes of Health - version: v3.1 - lastUpdated: 01-01-2023' }));
   });
 
   it('should render correct headers for table', async () => {

@@ -1,0 +1,203 @@
+/* Styleguide-specific component styles using CSS modules */
+
+.componentExample {
+    margin: 2rem 0;
+    border: 1px solid var(--gray-300);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--white);
+}
+
+.componentExampleHeader {
+    padding: var(--space-4);
+    background: var(--gray-100);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.componentExampleTitle {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.componentExampleDescription {
+    margin: 0;
+    color: var(--gray-600);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.componentExampleContent {
+    padding: 1.5rem;
+}
+
+.componentExampleDemo {
+    padding: 1rem;
+    background: transparent;
+    margin-bottom: 1rem;
+}
+
+.componentExampleFooter {
+    padding: 1rem 1.5rem;
+    background: var(--gray-25);
+    border-top: 1px solid var(--gray-200);
+    font-size: 0.875rem;
+    color: var(--gray-600);
+}
+
+.codeBlock {
+    background: var(--gray-50);
+    color: var(--blue-900);
+    padding: 1rem;
+    border-radius: 6px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--gray-200);
+}
+
+.codeBlock code {
+    background: none;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+}
+
+.propsTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.875rem;
+}
+
+.propsTable th,
+.propsTable td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.propsTable th {
+    background: var(--gray-50);
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.propsTable td {
+    color: var(--gray-700);
+}
+
+.propsTable code {
+    background: var(--gray-100);
+    padding: 0.125rem 0.25rem;
+    border-radius: 3px;
+    font-size: 0.8125rem;
+    border: 1px solid var(--primary);
+}
+
+.guidelinesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.guidelineItem {
+    padding: 1.5rem;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    background: var(--white);
+}
+
+.guidelineItem h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.guidelineItem p {
+    margin: 0;
+    color: var(--gray-600);
+    line-height: 1.5;
+}
+
+.tocGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--gray-50);
+    border-radius: 8px;
+}
+
+.tocSection h3 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.tocSection ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tocSection li {
+    margin-bottom: 0.5rem;
+}
+
+.tocSection a {
+    color: var(--blue-600);
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.tocSection a:hover {
+    color: var(--blue-900);
+    text-decoration: underline;
+}
+
+.sectionHeading {
+    margin: 3rem 0 1rem 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    border-bottom: 2px solid var(--gray-200);
+    padding-bottom: 0.5rem;
+}
+
+.subHeading {
+    margin: 2rem 0 1rem 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gray-800);
+}
+
+.smallNote {
+    font-size: 0.8125rem;
+    color: var(--gray-500);
+    font-style: italic;
+    margin-top: 0.5rem;
+}
+
+.sectionHeading {
+    margin: 3rem 0 1rem 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    border-bottom: 2px solid var(--gray-200);
+    padding-bottom: 0.5rem;
+}
+
+.subHeading {
+    margin: 2rem 0 1rem 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gray-800);
+}

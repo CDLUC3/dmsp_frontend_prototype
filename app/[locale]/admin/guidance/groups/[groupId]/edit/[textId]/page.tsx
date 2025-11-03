@@ -1,0 +1,275 @@
+"use client";
+
+import React, { useState } from "react";
+import {
+  Breadcrumb,
+  Breadcrumbs,
+  Link,
+  Button,
+  Label,
+  Checkbox,
+  Dialog,
+  DialogTrigger,
+  OverlayArrow,
+  Popover,
+} from "react-aria-components";
+import { useTranslations } from "next-intl";
+import { useParams } from "next/navigation";
+
+// Components
+import PageHeader from "@/components/PageHeader";
+import { ContentContainer, LayoutWithPanel } from "@/components/Container";
+import TinyMCEEditor from "@/components/TinyMCEEditor";
+import { DmpIcon } from "@/components/Icons";
+import { FormInput, CheckboxGroupComponent } from "@/components/Form";
+
+import { routePath } from "@/utils/routes";
+import styles from "./guidanceTextEdit.module.scss";
+
+interface GuidanceText {
+  id: string;
+  title: string;
+  content: string;
+  status: "Published" | "Draft" | "Archived";
+  selectedTags: string[];
+}
+
+interface Tag {
+  id: number;
+  name: string;
+  description: string;
+}
+
+const GuidanceTextEditPage: React.FC = () => {
+  const params = useParams();
+  const groupId = String(params.groupId);
+  const textId = String(params.textId);
+
+  // For translations
+  const t = useTranslations("Guidance");
+  const Global = useTranslations("Global");
+
+  const [guidanceText, setGuidanceText] = useState<GuidanceText>({
+    id: textId,
+    title: "Research Ethics Guidelines",
+    content:
+      "This guidance text covers the ethical considerations that researchers must take into account when conducting health sciences research...",
+    status: "Published",
+    selectedTags: ["Data description", "Ethical considerations"],
+  });
+
+  // Fake tags data
+  const tags: Tag[] = [
+    {
+      id: 1,
+      name: "Data description",
+      description: "The types of data that will be collected along with their formats and estimated volumes.",
+    },
+    {
+      id: 2,
+      name: "Data organization & documentation",
+      description:
+        "Descriptions naming conventions, metadata standards that will be used along with data dictionaries and glossaries",
+    },
+    {
+      id: 3,
+      name: "Security & privacy",
+      description:
+        "Who will have access to the data and how that access will be controlled, how the data will be encrypted and relevant compliance with regulations or standards (e.g. HIPAA, GDPR)",
+    },
+    {
+      id: 4,
+      name: "Ethical considerations",
+      description:
+        "Ethical considerations during data collection, use or sharing and how informed consent will be obtained from participants",
+    },
+    {
+      id: 5,
+      name: "Training & support",
+      description:
+        "Training that will be provided to team members on data management practices and support for data issues",
+    },
+    {
+      id: 6,
+      name: "Budget",
+      description: "Costs associated with data management activities and resources needed",
+    },
+    {
+      id: 7,
+      name: "Data Collection",
+      description: "Methods and procedures for collecting research data",
+    },
+    {
+      id: 8,
+      name: "Data format",
+      description: "File formats and data structures used for storing research data",
+    },
+    {
+      id: 9,
+      name: "Data repository",
+      description: "Where and how research data will be stored and archived",
+    },
+    {
+      id: 10,
+      name: "Data sharing",
+      description: "Policies and procedures for sharing research data with other researchers",
+    },
+  ];
+
+  const handleSave = () => {
+    // TODO: Implement save functionality
+    // console.log("Saving guidance text:", guidanceText);
+  };
+
+  const handlePublish = () => {
+    // TODO: Implement publish functionality
+    // console.log("Publishing guidance text:", guidanceText);
+  };
+
+  return (
+    <>
+      <PageHeader
+        title={`${t("pages.textEdit.title")} ${guidanceText.title}`}
+        description={t("pages.textEdit.description")}
+        showBackButton={true}
+        breadcrumbs={
+          <Breadcrumbs>
+            <Breadcrumb>
+              <Link href={routePath("app.home")}>{Global("breadcrumbs.home")}</Link>
+            </Breadcrumb>
+            <Breadcrumb>
+              <Link href={routePath("admin.guidance.index")}>{t("breadcrumbs.guidanceGroups")}</Link>
+            </Breadcrumb>
+            <Breadcrumb>
+              <Link href={routePath("admin.guidance.groups.index", { groupId })}>{t("breadcrumbs.group")}</Link>
+            </Breadcrumb>
+            <Breadcrumb>{t("breadcrumbs.editText")}</Breadcrumb>
+          </Breadcrumbs>
+        }
+        className="page-guidance-text-edit"
+      />
+
+      <LayoutWithPanel>
+        <ContentContainer>
+          <form className={styles.editForm}>
+            {/* Guidance Text Content Section */}
+            <div className="sectionContainer mt-0">
+              <div className="sectionContent">
+                <div className={styles.formGroup}>
+                  <FormInput
+                    name="title"
+                    label={t("fields.title.label")}
+                    value={guidanceText.title}
+                    onChange={(e) => setGuidanceText({ ...guidanceText, title: e.target.value })}
+                    placeholder={t("fields.title.placeholder")}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <Label
+                    htmlFor="content"
+                    id="contentLabel"
+                  >
+                    {t("fields.guidanceText.label")}
+                  </Label>
+                  <TinyMCEEditor
+                    content={guidanceText.content}
+                    setContent={(value) => setGuidanceText({ ...guidanceText, content: value })}
+                    id="content"
+                    labelId="contentLabel"
+                    helpText={t("fields.guidanceText.helpText")}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <CheckboxGroupComponent
+                    name="guidanceTags"
+                    checkboxGroupLabel={t("fields.themes.label")}
+                    checkboxGroupDescription={t("fields.themes.helpText")}
+                    value={guidanceText.selectedTags}
+                    onChange={(value) => setGuidanceText({ ...guidanceText, selectedTags: value })}
+                  >
+                    <div className="checkbox-group-two-column">
+                      {tags &&
+                        tags.map((tag) => {
+                          const id = tag.id?.toString();
+                          return (
+                            <Checkbox
+                              value={tag.name}
+                              key={tag.name}
+                              id={id}
+                            >
+                              <div className="checkbox">
+                                <svg
+                                  viewBox="0 0 18 18"
+                                  aria-hidden="true"
+                                >
+                                  <polyline points="1 9 7 14 15 4" />
+                                </svg>
+                              </div>
+                              <span
+                                className="checkbox-label"
+                                data-testid="checkboxLabel"
+                              >
+                                <div className="checkbox-wrapper">
+                                  <div>{tag.name}</div>
+                                  <DialogTrigger>
+                                    <Button
+                                      className="popover-btn"
+                                      aria-label={`More information about ${tag.name}`}
+                                    >
+                                      <div className="icon">
+                                        <DmpIcon icon="info" />
+                                      </div>
+                                    </Button>
+                                    <Popover>
+                                      <OverlayArrow>
+                                        <svg
+                                          width={12}
+                                          height={12}
+                                          viewBox="0 0 12 12"
+                                        >
+                                          <path d="M0 0 L6 6 L12 0" />
+                                        </svg>
+                                      </OverlayArrow>
+                                      <Dialog>
+                                        <div className="flex-col">{tag.description}</div>
+                                      </Dialog>
+                                    </Popover>
+                                  </DialogTrigger>
+                                </div>
+                              </span>
+                            </Checkbox>
+                          );
+                        })}
+                    </div>
+                  </CheckboxGroupComponent>
+                </div>
+
+                <div className={styles.formGroup}>
+                  {guidanceText.status === "Draft" ? (
+                    <Button
+                      onPress={handlePublish}
+                      className="button button--primary"
+                    >
+                      {t("actions.publish")}
+                    </Button>
+                  ) : (
+                    <Button
+                      onPress={handleSave}
+                      className="button button--primary"
+                    >
+                      {t("actions.saveChanges")}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </form>
+        </ContentContainer>
+      </LayoutWithPanel>
+    </>
+  );
+};
+
+export default GuidanceTextEditPage;

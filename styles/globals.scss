@@ -1,11 +1,11 @@
 @use 'responsive' as r;
-@use 'spacing' as spacing;
 @use "typography";
 @use "elements";
 @use "messages";
 @use "page";
 @use "forms";
 @use "variables" as *;
+@use 'spacing' as spacing;
 
 *,
 *:before,
@@ -52,7 +52,9 @@ body {
 
 
   --fw-normal: 400;
-  --fw-bold: 600;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
 
   --border-radius-sm: 0.125rem;
   --border-radius-md: 0.25rem;
@@ -62,9 +64,10 @@ body {
 
   // Base colors
   --background-color: #f8f8f8;
+  --white: #ffffff;
   --bg-white: var(--gray-50);
   --bg-black: #000000;
-  --text-black: #000000;
+  --text-black: #05042E;
 
   // Interactive states
   --highlight-hover: rgb(0 0 0 / 0.07);
@@ -84,9 +87,9 @@ body {
   --overlay-background: var(--bg-white);
 
   // Focus
-  --focus-ring: #3B82F6;
+  --focus-ring: var(--blue-900);
   --focus-ring-offset: 2px;
-  --focus-ring-color: var(--purple-400);
+  --focus-ring-color: var(--blue-900);
 
 
   // Card
@@ -98,7 +101,7 @@ body {
 
 
   // Text
-  --text-color: var(--gray-600);
+  --text-color: var(--text-black);
   --text-color-base: var(--gray-500);
   --text-color-hover: var(--gray-600);
   --text-color-disabled: var(--gray-200);
@@ -108,10 +111,10 @@ body {
   --text-byline-color: var(--blue-500);
 
   // Links
-  --link-color: var(--brand-primary);
+  --link-color: var(--blue-500);
   --link-color-secondary: var(--brand-secondary);
-  --link-color-pressed: var(--purple-600);
-  --link-hover-color: var(--brand-tertiary);
+  --link-color-pressed: var(--blue-700);
+  --link-hover-color: var(--blue-900);
 
   // Borders
   --border-color: var(--gray-200);
@@ -121,10 +124,10 @@ body {
 
   // Form fields
   --field-background: var(--gray-50);
-  --field-text-color: var(--gray-600);
-  --field-label-color: #050a69;
+  --field-text-color: var(--text-black);
+  --field-label-color: var(--text-black);
   --field-bg-color: white;
-  --field-fg-color: #333;
+  --field-fg-color: var(--text-black);
   --field-border-color: #e1e1e1;
 
 
@@ -135,7 +138,7 @@ body {
   --button-background-pressed: var(--background-color);
 
   // Headings
-  --heading-color: var(--bg-black);
+  --heading-color: var(--text-black);
 
   // Error
   --brand-error: var(--red-500);
@@ -235,6 +238,10 @@ body {
   margin-bottom: var(--space-5);
 }
 
+.sidebar-section>button:not(:last-child) {
+  margin-right: var(--space-3);
+}
+
 .sidebar-section-title {
   margin-bottom: var(--space-2);
 }
@@ -286,21 +293,99 @@ body {
     font-size: var(--fs-base);
 
     a {
+      // Uses default text-link styling from above
       font-size: var(--fs-base);
-      color: var(--link-color);
-      text-decoration: underline;
-      transition: color 0.2s ease;
-
-      &:hover {
-        color: var(--link-hover-color);
-      }
-
-      &:focus-visible {
-        outline: 2px solid var(--focus-ring);
-        outline-offset: 2px;
-        border-radius: var(--border-radius-sm);
-      }
     }
+  }
+}
+
+// Default link styling - comprehensive link styles for all states
+a {
+  color: var(--blue-500);
+  font-weight: var(--fw-semibold);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--blue-900);
+  }
+
+  &:active {
+    color: var(--blue-700);
+  }
+
+  &:visited {
+    color: var(--blue-600);
+  }
+
+  &:focus {
+    outline: 2px solid var(--blue-900);
+    outline-offset: 2px;
+    //background-color: var(--yellow-200);
+  }
+}
+
+// Explicit text-link class for when you want to be specific
+.text-link {
+  color: var(--blue-500);
+  font-weight: var(--fw-semibold);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+
+  &:hover {
+    color: var(--blue-900);
+  }
+
+  &:focus {
+    outline: 2px solid var(--yellow-400);
+    outline-offset: 2px;
+  }
+}
+
+// Override default for button-style links and special components
+.button-link,
+.btn,
+.dmpui-frontend-btn,
+.card-link,
+.plan-link,
+.link,
+// Component-specific .link classes
+button[type="button"] a,
+button[type="submit"] a,
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  font-weight: var(--fw-normal);
+  text-decoration: none;
+  text-underline-offset: unset;
+  text-decoration-thickness: unset;
+
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+// Override for header navigation links
+header a,
+.dmpui-frontend-header a,
+nav a {
+  font-weight: var(--fw-normal);
+
+  // Let individual components handle their own styling
+  &.text-link {
+    font-weight: var(--fw-semibold);
+  }
+}
+
+// Override for footer links - they have their own white styling
+footer a {
+  font-weight: var(--fw-normal);
+
+  &.text-link {
+    font-weight: var(--fw-semibold);
   }
 }
 
@@ -320,15 +405,13 @@ body {
 .sidePanel {
 
   a {
+    // Uses default text-link styling from above
     font-size: var(--fs-base);
-    color: var(--link-color);
-    text-decoration: underline;
-    transition: color 0.2s ease;
     display: inline-block;
     margin-top: 0;
 
     &:hover {
-      color: var(--slate-900);
+      color: var(--blue-900);
     }
 
     &:focus-visible {
@@ -376,8 +459,9 @@ body {
     }
 
     h3,
-    .h3 {
-      font-size: var(--fs-base);
+    .h3,
+    .sidebar-label {
+      font-size: 16px;
       font-weight: 600;
       margin: 0;
       padding: 0;
@@ -402,7 +486,7 @@ body {
       flex-shrink: 0;
 
       &:hover {
-        color: var(--slate-900);
+        color: var(--blue-900);
       }
 
       &:focus-visible {
@@ -411,5 +495,51 @@ body {
         border-radius: var(--border-radius-sm);
       }
     }
+  }
+}
+
+// Button styled as link - removes all button styling and applies link styling
+// Using higher specificity and !important to override existing button-link styles
+.react-aria-Button.button-as-link,
+button.button-as-link {
+  // Remove all button styling
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  cursor: pointer !important;
+  border-radius: 0 !important;
+
+  // Apply default link styling with !important to override existing rules
+  color: var(--blue-500) !important;
+  font-weight: var(--fw-semibold) !important;
+  text-decoration: underline !important;
+  text-underline-offset: 0.2em !important;
+  text-decoration-thickness: 1px !important;
+  transition: color 0.2s ease !important;
+
+  &:hover {
+    color: var(--blue-900) !important;
+    text-decoration: underline !important;
+  }
+
+  &:active {
+    color: var(--blue-700) !important;
+    transform: none !important;
+  }
+
+  &:visited {
+    color: var(--blue-600) !important;
+  }
+
+  &:focus {
+    outline: 2px solid var(--blue-900) !important;
+    outline-offset: 2px !important;
+    background-color: var(--blue-900) !important;
+    color: var(--bg-white) !important;
+    //background-color: var(--yellow-200) !important;
   }
 }

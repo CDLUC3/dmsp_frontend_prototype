@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import { useTemplateVersionsQuery } from '@/generated/graphql';
 import {
   Breadcrumb,
@@ -23,11 +23,12 @@ import ErrorMessages from "@/components/ErrorMessages";
 
 
 import { handleApolloErrors } from "@/utils/gqlErrorHandler";
-import { formatShortMonthDayYear, formatWithTimeAndDate } from "@/utils/dateUtils"
+import { formatToDateOnly, formatWithTimeAndDate } from "@/utils/dateUtils"
 
 import styles from './history.module.scss';
 
 const TemplateHistory = () => {
+  const format = useFormatter();
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
   const params = useParams();
@@ -77,13 +78,21 @@ const TemplateHistory = () => {
   });
 
   const lastPublication = sortedTemplates.length > 0 ? sortedTemplates[0] : null;
-  const lastPublicationDate = lastPublication?.created ? formatShortMonthDayYear(lastPublication.created) : '';
+  const lastPublicationDate = lastPublication?.created ? formatToDateOnly(lastPublication.created, format.dateTime) : '';
+  const lastPublishVersion = lastPublication?.version ? lastPublication.version : '';
+
+  let description = '';
+  if (lastPublication) {
+    description = `by ${lastPublication?.versionedBy?.affiliation?.displayName}` +
+      (lastPublishVersion ? ` - ${Global('version')}: ${lastPublishVersion}` : '') +
+      (lastPublicationDate ? ` - ${Global('lastUpdated')}: ${lastPublicationDate}` : '');
+  }
 
   return (
     <>
       <PageHeader
         title={t('title')}
-        description=""
+        description={description}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
@@ -102,19 +111,6 @@ const TemplateHistory = () => {
       {loading && <p>{t('loading')}</p>}
       <LayoutContainer>
         <ContentContainer>
-          {lastPublication && (
-            <>
-              <h2 className="with-subheader">{lastPublication?.name || 'Unknown'}</h2>
-              <div className="subheader">
-                <div data-testid="author">{`${t('by')} ${lastPublication?.versionedBy?.affiliation?.displayName}`}</div>
-                <div>
-                  <span data-testid="latest-version" className={styles.historyVersion}>{t('version')} {lastPublication?.version.slice(1)}</span>
-                  <span data-testid="publication-date">{t('published')}: {lastPublicationDate}</span>
-                </div>
-              </div>
-            </>
-          )}
-
           <h3 id="templateHistoryHeading">{t('subHeading')}</h3>
           {sortedTemplates.length > 0 ? (
             <Table aria-labelledby="templateHistoryHeading" className="react-aria-Table">
@@ -128,7 +124,7 @@ const TemplateHistory = () => {
                 {
                   sortedTemplates.map((item, index) => {
 
-                    const publishDate = item?.created ? formatWithTimeAndDate(item?.created) : '';
+                    const publishDate = item?.created ? formatWithTimeAndDate(item?.created, format.dateTime) : '';
                     const versionedBy = item?.versionedBy;
 
                     return (

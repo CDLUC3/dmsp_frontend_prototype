@@ -26,6 +26,7 @@
       "requiredByFunderInfo": "The funder has marked this as a required question on their template. You can leave it blank in the tool but should complete it before submitting your grant.",
       "jumpToGuidance": "Jump to additional guidance",
       "viewSampleAnswer": "View sample answer",
+      "commentTooltip": "You need to save an answer before users can comment.",
       "guidanceBy": "Guidance by {funder}",
       "funderSampleText": "{funder} sample text",
       "participantsWillBeNotified": "Participants will be notified once submitted.",
@@ -38,11 +39,6 @@
     "members": {
       "title": "Plan members for this plan",
       "info": "{name} ({role})",
-      "edit": "Adjust for this plan"
-    },
-    "outputs": {
-      "title": "Research outputs for this plan",
-      "count": "{count} outputs",
       "edit": "Adjust for this plan"
     },
     "relatedWorks": {

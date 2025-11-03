@@ -1,0 +1,58 @@
+mutation UpdateProjectCollaborator($projectCollaboratorId: Int!, $accessLevel: ProjectCollaboratorAccessLevel!) {
+  updateProjectCollaborator(projectCollaboratorId: $projectCollaboratorId, accessLevel: $accessLevel) {
+    id
+    errors {
+      accessLevel
+      email
+      general
+      invitedById
+      planId
+      userId
+    }
+    accessLevel,
+    user {
+      givenName
+      id
+      surName
+    }
+  }
+}
+
+mutation RemoveProjectCollaborator($projectCollaboratorId: Int!) {
+  removeProjectCollaborator(projectCollaboratorId: $projectCollaboratorId) {
+    id
+    errors {
+      accessLevel
+      email
+      general
+      invitedById
+      planId
+      userId
+    }
+    user {
+      givenName
+      id
+      surName
+    }
+  }
+}
+
+mutation ResendInviteToProjectCollaborator($projectCollaboratorId: Int!) {
+  resendInviteToProjectCollaborator(projectCollaboratorId: $projectCollaboratorId) {
+    id
+    email
+    user {
+      id
+      givenName
+      surName
+    }
+    errors {
+      accessLevel
+      email
+      general
+      invitedById
+      planId
+      userId
+    }
+  }
+}
