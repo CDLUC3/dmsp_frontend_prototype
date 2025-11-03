@@ -33,6 +33,7 @@
 - `small` button CSS class.
 - Added curl to the AWS Dockerfile for session manager access
 - Added bash to the AWS Dockerfile for session manager access
+- Added `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` files to the repo
 - Added shared `dmptool-network` to the `docker-compose.yaml` file to allow nextJS server side actions to be able to reach the local apollo server
 - Static Feedback page with translation and text [#750]
 - Added `RelatedWorks` page and associated components `RelatedWorksList`, `RelatedWorksListItem`, `ExpandableNameList` and `LinkFilter`. [#672][#673]
@@ -58,6 +59,7 @@
 - Created the static page for the org admin user dashboard. [#782]
 
 ### Updated
+<<<<<<< HEAD
 
 - Removed some duplicate text from `template/[templateId]/access` under `External people` [#482]
 - Updated description on `template/[templateId]/access` and visibility text on template publish modal [#482]
@@ -76,6 +78,10 @@
 - Updated language used in RelatedWorks UI, moved accept and reject buttons into the cards out of the expand section and changed order of accept and reject buttons [#799]
 - Hooked up the `ProjectsProjectCollaboration` page. Added new `server actions` to handle access level changes, revoking collaborator and resending invite [#381]
 - Optimized the `graphqlServerActionHandler` so that we can normalize errors returned and simplify client-side handling [#381]
+=======
+- Updated the `CODE_OF_CONDUCT.md` to reflect CDLUC3's Code of Conduct
+- Updated the `CONTRIBUTING.md` to include steps for contributing to the repo
+>>>>>>> main
 - Updated the shared`RadioGroupComponent` and `CheckboxGroupComponent` components to be more like a wrapper to reduce duplicate of code and make it more flexible [#743]
 - Project over is now using sidebar to allow for collaboration [#750]
 - Sidebar is now using global styling rather than css modules [#750]
@@ -170,8 +176,12 @@
 - Deleted `__mocks__/mockQuestionTypes.json` as it is no longer needed [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Chore
+<<<<<<< HEAD
 - Fixed type error in `FormSelect` due to a change in `@types/react` versions when merging `stage` into `development`
 - Addressed `fast-redact` but upgrading `pino` version
+=======
+- Added `renovate.json` config file in order to get automatic PRs for dependency updates
+>>>>>>> main
 - Upgraded to `NextJS v15.5.2` to remove vulnerability and added `next-env.d.ts` to the ignore list for linting. [#751]
 
 ====================================================================================================================================
