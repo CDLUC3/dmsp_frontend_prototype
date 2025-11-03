@@ -14,6 +14,7 @@
 ### Removed
 
 ### Chore
+- Updated version of cypress to `14.5.4` and fixed broken cypress tests and removed loading of `tinymce` from `layout.tsx` into `TinyMCEEditor`
 - Trying another method of disabling the renovate `Apollo Graphql Group update` 
 - Disable `Apollo Graphql` renovate PR and fix missing logs from CHANGELOG
 - Added `renovate.json` config file in order to get automatic PRs for dependency updates
