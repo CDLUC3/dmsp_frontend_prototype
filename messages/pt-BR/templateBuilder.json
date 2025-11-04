@@ -31,9 +31,9 @@
     "links": {
       "addSection": "Adicionar seção",
       "edit": "Alterar",
-      "manageAccess": "Gerenciar",
+      "manageAccess": "Administrar",
       "templateHistory": "Histórico",
-      "editTemplateTitle": "Editar"
+      "editTemplateTitle": "Alterar"
     },
     "button": {
       "archiveTemplate": "Template de arquivo",
@@ -98,7 +98,7 @@
   "EditQuestion": {
     "label": {
       "question": "Pergunta",
-      "funderQuestion": "Pergunta do Financiador",
+      "funderQuestion": "Finalizar pergunta",
       "organizationQuestion": "Pergunta da Organização"
     },
     "links": {
@@ -118,7 +118,7 @@
       "guidance": "Orientação",
       "sampleText": "Texto de Exemplo",
       "completed": " concluído",
-      "notCompleted": " não concluído"
+      "notCompleted": " não completado"
     }
   },
   "Sections": {
@@ -188,7 +188,7 @@
     },
     "helpText": {
       "bestPracticeTagsDesc": "Selecione uma ou mais tags para associar a orientação de boas práticas globais escrita pela Ferramenta DMP.",
-      "sectionIntroduction": "Enter a short, concise introduction to the section.",
+      "sectionIntroduction": "Digite uma introdução curta e concisa para a seção.",
       "sectionRequirements": "Esboça os requisitos que um usuário deve considerar nesta seção.",
       "sectionGuidance": "Forneça aos usuários orientações úteis para ajudá-los a responder às perguntas da seção."
     }
@@ -361,7 +361,8 @@
       "questionText": "Texto da pergunta",
       "requirementText": "Escritor do plano de requisitos deve atender (opcional, mas recomendado)",
       "guidanceText": "Orientação para perguntas (opcional mas recomendado)",
-      "sampleText": "Texto de amostra"
+      "sampleText": "Texto de amostra",
+      "questionEditing": "Edição da questão"
     },
     "buttons": {
       "addRow": "Adicionar linha",
@@ -387,6 +388,140 @@
       },
       "success": {
         "questionAdded": "A pergunta foi adicionada com sucesso."
+      }
+    },
+    "researchOutput": {
+      "headings": {
+        "enableStandardFields": "Ativar campos padrão"
+      },
+      "description": "Selecione quais campos padrão para incluir na sua pergunta de saída da pesquisa. Você pode personalizar cada campo individualmente.",
+      "tooltip": {
+        "requiredFields": "Esses campos são necessários para todas as saídas de pesquisa."
+      },
+      "labels": {
+        "description": "Descrição:",
+        "descriptionLowerCase": "Descrição"
+      },
+      "legends": {
+        "dataFlag": "Quais bandeiras de dados a exibir"
+      },
+      "dataFlags": {
+        "description": "Selecione quais sinalizadores de sensibilidade de dados devem ser mostrados aos usuários.",
+        "options": {
+          "both": "Mostrar ambos",
+          "personalOnly": "Exibe apenas \"Pode conter informações que permitam identificação pessoal?\" caixa de seleção",
+          "sensitiveOnly": "Exibir apenas a caixa \"Pode conter dados sensíveis?\""
+        }
+      },
+      "repoSelector": {
+        "selectedCount": "{count} selecionado",
+        "repositorySelected": "",
+        "repositoriesSelected": "Repositórios selecionados",
+        "selectSubjectArea": "Selecione a área de assunto",
+        "selectRepoType": "Selecionar tipo de repositório",
+        "headings": {
+          "repoSearch": "Pesquisa no repositório",
+          "addNewRepo": "Adicionar um novo repositório para o seu modelo."
+        },
+        "descriptionLabel": "Descrição do campo Repositories",
+        "messages": {
+          "removedRepo": "{name} removido",
+          "addedRepo": "{name} adicionado",
+          "confirmRemovalAll": "Tem certeza que deseja remover todos os repositórios selecionados?",
+          "allRemoved": "Todos os repositórios removidos",
+          "customRepoAdded": "Repositório personalizado {name} adicionado com sucesso"
+        },
+        "errors": {
+          "customRepoError": "Por favor, preencha todos os campos para o repositório personalizado."
+        },
+        "labels": {
+          "createRepos": "Crie uma lista de repositórios preferidos",
+          "subjectArea": "Área de assunto",
+          "repoType": "Tipo de repositório"
+        },
+        "links": {
+          "viewRepository": "Ver repositório"
+        },
+        "buttons": {
+          "addRepo": "Adicionar um repositório",
+          "addRepository": "Adicionar repositório",
+          "addCustomRepo": "Adicionar repositório personalizado"
+        },
+        "descriptions": {
+          "repoTitle": "URL do Repositório",
+          "contactTitle": "E-mail de contato",
+          "urlTitle": "Descrição do repositório",
+          "dataAccessTitle": "Acesso aos dados",
+          "identifierTitle": "Persistent identifier"
+        }
+      },
+      "metaDataStandards": {
+        "headings": {
+          "dialogHeading": "Pesquisa padrão de metadados",
+          "addCustomHeading": "Adicionar um novo padrão de metadados para o seu modelo."
+        },
+        "descriptionLabel": "Descrição:",
+        "helpText": "Isto pode ser usado para fornecer orientações e/ou instruções personalizadas para investigadores.",
+        "messages": {
+          "confirmRemovalAll": "Tem certeza que deseja remover todos os metadados selecionados?",
+          "allRemoved": "Padrões de metadados removidos",
+          "fillInAllFields": "Por favor, preencha todos os campos",
+          "addedSuccessfully": "{name} adicionado com sucesso"
+        },
+        "labels": {
+          "createStandards": "Crie uma lista de padrões de metadados preferidos"
+        },
+        "buttons": {
+          "add": "Adicionar padrão de metadados",
+          "addToTemplate": "Adicionar o padrão de metadados ao seu modelo"
+        },
+        "singleMetaData": "Padrão de metadados",
+        "multipleMetaData": "Padrões de metadados",
+        "selectedCount": "{count} selecionado"
+      },
+      "outputType": {
+        "labels": {
+          "defineOutputTypes": "Definir os tipos de saída",
+          "enterOutputType": "Digite um tipo de saída",
+          "removeOutputType": "Remover {type}"
+        },
+        "legends": {
+          "default": "Tipos de saída padrão",
+          "myOutputs": "Meus tipos de saída"
+        },
+        "buttons": {
+          "addOutputType": "Adicionar tipo de saída"
+        }
+      },
+      "licenses": {
+        "labels": {
+          "define": "Definir licenças preferidas",
+          "defaultPreferred": "Licenças preferidas por padrão",
+          "addLicense": "Adicionar licença",
+          "myLicenses": "Minhas licenças"
+        },
+        "buttons": {
+          "addLicenseType": "Adicionar tipo de licença"
+        }
+      },
+      "additionalFields": {
+        "fieldLabel": {
+          "label": "Rótulo do campo",
+          "helpText": "O rótulo que será exibido para este campo"
+        },
+        "helpText": {
+          "label": "Help text",
+          "helpText": "Optional help text to guide users"
+        },
+        "maxLength": {
+          "label": "Maximum length",
+          "helpText": "Maximum number of characters allowed (leave empty for no limit)"
+        },
+        "defaultValue": {
+          "label": "Default value",
+          "helpText": "Default value for this field"
+        },
+        "addFieldBtn": "Add additional field"
       }
     }
   },

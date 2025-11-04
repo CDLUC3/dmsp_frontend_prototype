@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useReducer, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -26,56 +26,6 @@ import { useToast } from '@/context/ToastContext';
 import { addProjectCollaboratorAction } from './actions/index';
 import { CollaboratorResponse } from '@/app/types';
 
-// Define types for actions
-type Action =
-  | { type: 'SET_ACCESS_LEVEL'; payload: string }
-  | { type: 'SET_EMAIL'; payload: string }
-  | { type: 'SET_STATUS_MESSAGE'; payload: string }
-  | { type: 'SET_ERROR_MESSAGES'; payload: string[] }
-  | { type: 'SET_IS_MODAL_OPEN'; payload: boolean }
-  | { type: 'SET_INVITED_EMAIL'; payload: string }
-  | { type: 'SET_EMAIL_ERROR'; payload: string | null };
-
-
-// Define the initial state type
-type State = {
-  accessLevel: string;
-  email: string;
-  errorMessages: string[];
-  isModalOpen: boolean;
-  invitedEmail: string;
-  emailError: string | null;
-};
-// Define initial state for useReducer
-const initialState: State = {
-  accessLevel: 'edit',
-  email: '',
-  errorMessages: [] as string[],
-  isModalOpen: false,
-  invitedEmail: '',
-  emailError: null,
-};
-
-// Define reducer function
-const reducer = (state: typeof initialState, action: Action) => {
-  switch (action.type) {
-    case 'SET_ACCESS_LEVEL':
-      return { ...state, accessLevel: action.payload };
-    case 'SET_EMAIL':
-      return { ...state, email: action.payload, emailError: null };
-    case 'SET_ERROR_MESSAGES':
-      return { ...state, errorMessages: action.payload };
-    case 'SET_IS_MODAL_OPEN':
-      return { ...state, isModalOpen: action.payload };
-    case 'SET_INVITED_EMAIL':
-      return { ...state, invitedEmail: action.payload };
-    case 'SET_EMAIL_ERROR':
-      return { ...state, emailError: action.payload };
-    default:
-      return state;
-  }
-};
-
 // Email validation regex pattern
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -92,13 +42,19 @@ const ProjectsProjectCollaborationInvite = () => {
 
   const toastState = useToast(); // Access the toast state from context
 
-  const [state, dispatch] = useReducer(reducer, initialState);
+  // State management with useState
+  const [accessLevel, setAccessLevel] = useState<string>('edit');
+  const [email, setEmail] = useState<string>('');
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [invitedEmail, setInvitedEmail] = useState<string>('');
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   // To be used in the translation key for the modal
   const accessLevelDescription =
-    state.accessLevel === 'comment'
-      ? t('accessLevelOn', { accessLevel: state.accessLevel })
-      : state.accessLevel; //e.g.
+    accessLevel === 'comment'
+      ? t('accessLevelOn', { accessLevel })
+      : accessLevel; //e.g.
 
   // Set refs for error messages and scrolling
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -110,30 +66,30 @@ const ProjectsProjectCollaborationInvite = () => {
 
   // Handle access level radio button change
   const handleRadioChange = (value: string) => {
-    dispatch({ type: 'SET_ACCESS_LEVEL', payload: value });
+    setAccessLevel(value);
   };
 
   // Handle change to email input field
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Reset email error when user starts typing
-    dispatch({ type: 'SET_EMAIL_ERROR', payload: null });
-    dispatch({ type: 'SET_EMAIL', payload: e.target.value });
+    setEmailError(null);
+    setEmail(e.target.value);
   }
 
   // Close modal and redirect to Collaboration page
   const handleModalClose = () => {
-    dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false });
+    setIsModalOpen(false);
     // Reset form after closing the modal
-    dispatch({ type: 'SET_EMAIL', payload: '' });
+    setEmail('');
     // Redirect back to collaboration page
     router.push(COLLABORATION_ROUTE);
   };
 
   // Go to project page
   const handleGoToProject = () => {
-    dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false });
+    setIsModalOpen(false);
     // Reset form after closing the modal
-    dispatch({ type: 'SET_EMAIL', payload: '' });
+    setEmail('');
     // Redirect to project page
     router.push(`/projects/${projectId}`);
   };
@@ -171,15 +127,15 @@ const ProjectsProjectCollaborationInvite = () => {
     const formData = new FormData(form);
 
     // Extract email and access level from form data
-    const email = formData.get('email') as string;
+    const emailValue = formData.get('email') as string;
 
     // Validate email field
-    if (!email || !validateEmail(email)) {
-      dispatch({ type: 'SET_EMAIL_ERROR', payload: t('messaging.errors.email') });
+    if (!emailValue || !validateEmail(emailValue)) {
+      setEmailError(t('messaging.errors.email'));
       return;
     }
 
-    const result = await addProjectCollaborator(state.email, state.accessLevel);
+    const result = await addProjectCollaborator(email, accessLevel);
 
     if (!result.success) {
       const errors = result.errors;
@@ -191,7 +147,7 @@ const ProjectsProjectCollaborationInvite = () => {
           url: { path: INVITE_ROUTE }
         });
         //Handle errors as an array
-        dispatch({ type: 'SET_ERROR_MESSAGES', payload: [...state.errorMessages, Global('messaging.somethingWentWrong')] });
+        setErrorMessages([...errorMessages, Global('messaging.somethingWentWrong')]);
       } else if (result.data?.errors?.general) {
         // Handle general error from failed result
         toastState.add(result.data.errors.general, { type: 'error' });
@@ -202,13 +158,13 @@ const ProjectsProjectCollaborationInvite = () => {
         toastState.add(errorMsg, { type: 'error' });
       } else {
         if (result.data?.errors?.email) {
-          dispatch({ type: 'SET_ERROR_MESSAGES', payload: [...state.errorMessages, result.data.errors.email] });
+          setErrorMessages([...errorMessages, result.data.errors.email]);
         }
         // Store the email for use in the modal
-        dispatch({ type: 'SET_INVITED_EMAIL', payload: state.email });
+        setInvitedEmail(email);
 
         // Open the confirmation modal
-        dispatch({ type: 'SET_IS_MODAL_OPEN', payload: true });
+        setIsModalOpen(true);
       }
     }
   };
@@ -236,7 +192,7 @@ const ProjectsProjectCollaborationInvite = () => {
         className="page-project-members"
       />
 
-      <ErrorMessages errors={state.errorMessages} ref={errorRef} />
+      <ErrorMessages errors={errorMessages} ref={errorRef} />
       <LayoutContainer>
         <ContentContainer>
           <div >
@@ -245,12 +201,12 @@ const ProjectsProjectCollaborationInvite = () => {
                 <FormInput
                   name="email"
                   type="email"
-                  value={state.email}
+                  value={email}
                   onChange={handleInputChange}
                   isRequired={true}
                   label={t('formLabels.email')}
                   placeholder={t('placeHolders.email')}
-                  isInvalid={!state.emailError ? false : true}
+                  isInvalid={!emailError ? false : true}
                   errorMessage={t('messaging.errors.email')}
                 />
               </div>
@@ -258,7 +214,7 @@ const ProjectsProjectCollaborationInvite = () => {
               <div>
                 <RadioGroupComponent
                   name="accessLevel"
-                  value={state.accessLevel}
+                  value={accessLevel}
                   radioGroupLabel={t('radioButtons.access.label')}
                   onChange={handleRadioChange}
                 >
@@ -267,6 +223,9 @@ const ProjectsProjectCollaborationInvite = () => {
                   </div>
                   <div>
                     <Radio value="comment">{t('radioButtons.access.comment')}</Radio>
+                  </div>
+                  <div>
+                    <Radio value="own">{t('radioButtons.access.own')}</Radio>
                   </div>
                 </RadioGroupComponent>
               </div>
@@ -301,8 +260,8 @@ const ProjectsProjectCollaborationInvite = () => {
       {/* Confirmation Modal */}
       < Modal
         isDismissable
-        isOpen={state.isModalOpen}
-        onOpenChange={(isOpen) => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: isOpen })}
+        isOpen={isModalOpen}
+        onOpenChange={(isOpen) => setIsModalOpen(isOpen)}
         data-testid="invite-confirmation-modal"
       >
         <Dialog
@@ -313,7 +272,7 @@ const ProjectsProjectCollaborationInvite = () => {
             <p >
               {t.rich('para3', {
                 strong: (chunks) => <strong>{chunks}</strong>,
-                email: state.invitedEmail
+                email: invitedEmail
               })}
 
             </p>
@@ -329,7 +288,7 @@ const ProjectsProjectCollaborationInvite = () => {
               {t('para5', { access: accessLevelDescription })}
             </p>
           </div>
-          <div>
+          <div className="button-container">
             <Button className="react-aria-Button react-aria-Button--primary" onPress={handleGoToProject}>{Global('buttons.goToProject')}</Button>
             <Button data-secondary className="secondary" onPress={handleModalClose}>{Global('buttons.close')}</Button>
           </div>

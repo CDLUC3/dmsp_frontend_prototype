@@ -9,7 +9,10 @@ query Plan($planId: Int!) {
       name
       owner {
         uri
+        displayName
       }
+      version
+      created
     }
     fundings {
       id

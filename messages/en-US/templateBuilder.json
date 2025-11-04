@@ -361,7 +361,8 @@
       "questionText": "Question text",
       "requirementText": "Requirements plan writer must meet (optional but recommended)",
       "guidanceText": "Question guidance (optional but recommended)",
-      "sampleText": "Sample text"
+      "sampleText": "Sample text",
+      "questionEditing": "Question editing"
     },
     "buttons": {
       "addRow": "Add Row",
@@ -387,6 +388,142 @@
       },
       "success": {
         "questionAdded": "Question was successfully added."
+      }
+    },
+    "researchOutput": {
+      "headings": {
+        "enableStandardFields": "Enable standard fields",
+        "additionalTextFields": "Additional text fields"
+      },
+      "description": "Select which standard fields to include in your research output question. You can customize each field individually.",
+      "tooltip": {
+        "requiredFields": "These fields are required for all research outputs."
+      },
+      "labels": {
+        "description": "Description",
+        "descriptionLowerCase": "description"
+      },
+      "legends": {
+        "dataFlag": "Which data flags to display"
+      },
+      "dataFlags": {
+        "description": "Select which data sensitivity flags should be shown to users.",
+        "options": {
+          "both": "Display both",
+          "personalOnly": "Display only \"May contain personally identifiable information?\" checkbox",
+          "sensitiveOnly": "Display only \"May contain sensitive data?\" checkbox"
+        }
+      },
+      "repoSelector": {
+        "selectedCount": "{count} selected",
+        "repositorySelected": "repository selected",
+        "repositoriesSelected": "repositories selected",
+        "selectSubjectArea": "Select subject area",
+        "selectRepoType": "Select repository type",
+        "headings": {
+          "repoSearch": "Repository search",
+          "addNewRepo": "Add a new repository for your Template."
+        },
+        "descriptionLabel": "Description for Repositories field",
+        "messages": {
+          "removedRepo": "{name} removed",
+          "addedRepo": "{name} added",
+          "confirmRemoveAll": "Are you sure you want to remove all selected repositories?",
+          "allRemoved": "All repositories removed",
+          "customRepoAdded": "Custom repository {name} added successfully"
+        },
+        "errors": {
+          "customRepoError": "Please fill in all fields for custom repository."
+        },
+        "labels": {
+          "createRepos": "Create a list of preferred repositories",
+          "subjectArea": "Subject area",
+          "repoType": "Repository type"
+        },
+        "links": {
+          "viewRepository": "View repository"
+        },
+        "buttons": {
+          "addRepo": "Add a repository",
+          "addRepository": "Add repository",
+          "addCustomRepo": "Add custom repository"
+        },
+        "descriptions": {
+          "repoTitle": "Repository URL",
+          "contactTitle": "Contact email",
+          "urlTitle": "Repository description",
+          "dataAccessTitle": "Data access",
+          "identifierTitle": "Persistent identifier"
+        }
+      },
+      "metaDataStandards": {
+        "headings": {
+          "dialogHeading": "Metadata Standard search",
+          "addCustomHeading": "Add a new metadata standard for your Template."
+        },
+        "descriptionLabel": "Description",
+        "helpText": "This can be used to provide custom guidance and/or instructions for researchers.",
+        "messages": {
+          "confirmRemovalAll": "Are you sure you want to remove all selected metadatastandards?",
+          "allRemoved": "All metadata standards removed",
+          "fillInAllFields": "Please fill in all fields",
+          "addedSuccessfully": "{name} added successfully"
+        },
+        "labels": {
+          "createStandards": "Create a list of preferred metadata standards"
+        },
+        "buttons": {
+          "add": "Add metadata standard",
+          "addToTemplate": "Add metadata standard to your Template"
+        },
+        "singleMetaData": "Metadata standard",
+        "multipleMetaData": "Metadata standards",
+        "selectedCount": "{count} selected"
+      },
+      "outputType": {
+        "labels": {
+          "defineOutputTypes": "Define output types",
+          "enterOutputType": "Enter an output type",
+          "removeOutputType": "Remove {type}"
+        },
+        "legends": {
+          "default": "Default Output Types",
+          "myOutputs": "My Output Types"
+        },
+        "buttons": {
+          "addOutputType": "Add output type"
+        }
+      },
+      "licenses": {
+        "labels": {
+          "define": "Define preferred licenses",
+          "defaultPreferred": "Default preferred licenses",
+          "addLicense": "Add license",
+          "myLicenses": "My Licenses"
+        },
+        "buttons": {
+          "addLicenseType": "Add license type",
+          "removeLicenseType": "Remove {type}"
+        }
+      },
+      "additionalFields": {
+        "fieldLabel": {
+          "label": "Field label",
+          "helpText": "The label that will be displayed for this field"
+        },
+        "helpText": {
+          "label": "Help text",
+          "helpText": "Optional help text to guide users"
+        },
+        "maxLength": {
+          "label": "Maximum length",
+          "helpText": "Maximum number of characters allowed (leave empty for no limit)"
+        },
+        "defaultValue": {
+          "label": "Default value",
+          "helpText": "Default value for this field"
+        },
+        "addFieldBtn": "Add additional field"
       }
     }
   },

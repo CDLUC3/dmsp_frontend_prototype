@@ -237,8 +237,8 @@ a.button-link,
 input[type="submit"],
 input[type="reset"],
 input[type="button"] {
-  @include button-base;
   font-weight: 600; // Ensure consistent font-weight for all buttons
+  @include button-base;
 
   &[data-focus-visible],
   &:focus-visible {
@@ -320,6 +320,13 @@ button.small {
   padding: 6px 16px;
   border-radius: 0.5rem;
   font-size: 0.75rem;
+}
+
+button.medium {
+  padding: 8px 16px;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 14px;
 }
 
 // Button container for two buttons

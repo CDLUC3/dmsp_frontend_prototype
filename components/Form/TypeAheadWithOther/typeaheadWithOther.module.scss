@@ -58,7 +58,7 @@
   .autocompleteDropdownArrow {
     position: absolute;
     right: 7px;
-    top: 46%;
+    top: 35%;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -124,12 +124,12 @@
 }
 
 .errorMessage{
-  font-size: var(--fs-xsmall);
-  color: var(--brand-error);
+  font-size: var(--fs-small);
+  color: red;
 }
 
 .fieldError {
   input {
-    border: 1px solid var(--brand-error);
+    border: 1px solid red;
   }
 }

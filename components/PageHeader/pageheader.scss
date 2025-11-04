@@ -17,14 +17,15 @@
 
   .pageheader-title {
     margin-top: 0;
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-0);
     font-weight: var(--fw-bold);
   }
 
   .pageheader-intro {
     font-size: var(--fs-base);
     padding: 0;
-    margin-bottom: 0;
+    margin-bottom: var(--space-4);
+    margin-top: var(--space-0);
   }
 
   .heading-buttons-actions {

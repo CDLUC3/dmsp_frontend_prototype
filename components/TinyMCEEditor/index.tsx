@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { Editor as TinyMCEEditorType } from 'tinymce';
+import { loadTinymceScript } from '@/utils/loadTinyMCE';
 import styles from './tinyMCEEditor.module.scss';
 
 // We need to reference "window.tinymce" but TypeScript doesn't know about it.
@@ -24,7 +25,6 @@ interface TinyMCEEditorProps {
   helpText?: string;
 }
 
-
 const TinyMCEEditor = ({ content, setContent, onChange, error, id, labelId, helpText }: TinyMCEEditorProps) => {
   const editorRef = useRef<TinyMCEEditorType | null>(null); // Update the type here
   const elementId = id || 'tiny-editor';
@@ -32,6 +32,9 @@ const TinyMCEEditor = ({ content, setContent, onChange, error, id, labelId, help
 
   useEffect(() => {
     const initEditor = async () => {
+      // Ensure tinymce library is available
+      await loadTinymceScript();
+
       // Make sure previous instance is removed
       window.tinymce.remove(`#${elementId}`);
 
@@ -41,6 +44,7 @@ const TinyMCEEditor = ({ content, setContent, onChange, error, id, labelId, help
         promotion: false,// Removes TinyMCE promotional link
         branding: false, // removed the tinyMCE branding
         statusbar: false, //removes the bottom status bar
+        link_title: false, // Disable automatic link title generation in Insert Link window
         selector: `#${elementId}`,
         base_url: '/tinymce', // Base URL for TinyMCE assets
         suffix: '.min', // Use the minified version
@@ -54,10 +58,15 @@ const TinyMCEEditor = ({ content, setContent, onChange, error, id, labelId, help
           'lists',
           'link'
         ],
-        toolbar: 'formatselect | bold italic | ' +
+        toolbar: 'formatselect | bold italic forecolor backcolor | ' +
           'alignleft aligncenter alignright | ' +
           'bullist numlist | ' +
           'link unlink | table',
+        default_link_target: '_blank',
+        link_target_list: [
+          { title: 'New window', value: '_blank' },
+          { title: 'Current window', value: '_self' },
+        ],
         content_style: `
           @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
           body { font-family: "Poppins", sans-serif; color:#393939;};

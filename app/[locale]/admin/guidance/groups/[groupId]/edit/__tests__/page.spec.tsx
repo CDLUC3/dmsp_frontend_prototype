@@ -87,9 +87,17 @@ describe("GuidanceGroupEditPage", () => {
   it("should render setting descriptions", () => {
     render(<GuidanceGroupEditPage />);
 
-    // Check that setting descriptions/help text containers exist
-    const helpTexts = document.querySelectorAll(".help, .description, [id*='help']");
-    expect(helpTexts.length).toBeGreaterThan(0);
+
+    // Check that setting descriptions are rendered inline within checkbox labels
+    // Based on the HTML structure, descriptions are shown in parentheses after the setting names
+    expect(screen.getByText(/e\.g\. School\/ Department/)).toBeInTheDocument();
+    expect(screen.getByText(/for optimal guidance creation/)).toBeInTheDocument();
+    expect(screen.getByText(/for enhanced readability/)).toBeInTheDocument();
+
+    // Alternative approach: Check for the complete label text including descriptions
+    expect(screen.getByText(/Optional subset.*\(.*e\.g\. School\/ Department.*\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Requires coffee.*\(.*for optimal guidance creation.*\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Includes emojis.*\(.*for enhanced readability.*\)/)).toBeInTheDocument();
   });
 
   it("should pass accessibility tests", async () => {

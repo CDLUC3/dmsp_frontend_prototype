@@ -18,6 +18,7 @@ export type Scalars = {
   DateTimeISO: { input: any; output: any; }
   DmspId: { input: any; output: any; }
   EmailAddress: { input: any; output: any; }
+  MD5: { input: any; output: any; }
   Orcid: { input: any; output: any; }
   Ror: { input: any; output: any; }
   URL: { input: any; output: any; }
@@ -64,6 +65,8 @@ export type AddProjectFundingInput = {
 export type AddProjectMemberInput = {
   /** The Member's affiliation URI */
   affiliationId?: InputMaybe<Scalars['String']['input']>;
+  /** The Member's affiliation name */
+  affiliationName?: InputMaybe<Scalars['String']['input']>;
   /** The Member's email address */
   email?: InputMaybe<Scalars['String']['input']>;
   /** The Member's first/given name */
@@ -140,6 +143,37 @@ export type AddQuestionInput = {
   templateId: Scalars['Int']['input'];
   /** Boolean indicating whether we should use content from sampleText as the default answer */
   useSampleTextAsDefault?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type AddRelatedWorkInput = {
+  /** The abstract of the work */
+  abstractText?: InputMaybe<Scalars['String']['input']>;
+  /** The authors of the work */
+  authors: Array<AuthorInput>;
+  /** The awards that funded the work */
+  awards: Array<AwardInput>;
+  /** The Digital Object Identifier (DOI) of the work */
+  doi: Scalars['String']['input'];
+  /** The funders of the work */
+  funders: Array<FunderInput>;
+  /** A hash of the content of this version of a work */
+  hash: Scalars['MD5']['input'];
+  /** The unique institutions of the authors of the work */
+  institutions: Array<InstitutionInput>;
+  /** The unique identifier of the plan that this related work has been matched to */
+  planId?: InputMaybe<Scalars['Int']['input']>;
+  /** The date that the work was published YYYY-MM-DD */
+  publicationDate?: InputMaybe<Scalars['String']['input']>;
+  /** The venue where the work was published, e.g. IEEE Transactions on Software Engineering, Zenodo etc */
+  publicationVenue?: InputMaybe<Scalars['String']['input']>;
+  /** The name of the source where the work was found */
+  sourceName: Scalars['String']['input'];
+  /** The URL for the source of the work */
+  sourceUrl: Scalars['String']['input'];
+  /** The title of the work */
+  title?: InputMaybe<Scalars['String']['input']>;
+  /** The type of the work */
+  workType: WorkType;
 };
 
 export type AddRepositoryInput = {
@@ -478,6 +512,56 @@ export type AnswerCommentErrors = {
   general?: Maybe<Scalars['String']['output']>;
 };
 
+/** An author of a work */
+export type Author = {
+  __typename?: 'Author';
+  /** The author's first initial */
+  firstInitial?: Maybe<Scalars['String']['output']>;
+  /** The author's full name */
+  full?: Maybe<Scalars['String']['output']>;
+  /** The author's given name */
+  givenName?: Maybe<Scalars['String']['output']>;
+  /** The author's middle initials */
+  middleInitials?: Maybe<Scalars['String']['output']>;
+  /** The author's middle names */
+  middleNames?: Maybe<Scalars['String']['output']>;
+  /** The author's ORCID ID */
+  orcid?: Maybe<Scalars['String']['output']>;
+  /** The author's surname */
+  surname?: Maybe<Scalars['String']['output']>;
+};
+
+/** An author of a work */
+export type AuthorInput = {
+  /** The author's first initial */
+  firstInitial?: InputMaybe<Scalars['String']['input']>;
+  /** The author's full name */
+  full?: InputMaybe<Scalars['String']['input']>;
+  /** The author's given name */
+  givenName?: InputMaybe<Scalars['String']['input']>;
+  /** The author's middle initials */
+  middleInitials?: InputMaybe<Scalars['String']['input']>;
+  /** The author's middle names */
+  middleNames?: InputMaybe<Scalars['String']['input']>;
+  /** The author's ORCID ID */
+  orcid?: InputMaybe<Scalars['String']['input']>;
+  /** The author's surname */
+  surname?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** An award that funded a work */
+export type Award = {
+  __typename?: 'Award';
+  /** The Award ID */
+  awardId?: Maybe<Scalars['String']['output']>;
+};
+
+/** An award that funded a work */
+export type AwardInput = {
+  /** The Award ID */
+  awardId: Scalars['String']['input'];
+};
+
 /** The result of the findCollaborator query */
 export type CollaboratorSearchResult = {
   __typename?: 'CollaboratorSearchResult';
@@ -519,6 +603,36 @@ export type CollaboratorSearchResults = PaginatedQueryResults & {
   nextCursor?: Maybe<Scalars['String']['output']>;
   /** The total number of possible items */
   totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type ContentMatch = {
+  __typename?: 'ContentMatch';
+  /** Highlighted fragments from the abstract showing relevant matched terms */
+  abstractHighlights: Array<Scalars['String']['output']>;
+  /** The confidence score indicating how well the work content matches the plan content */
+  score: Scalars['Float']['output'];
+  /** Highlighted title showing relevant matched terms */
+  titleHighlight?: Maybe<Scalars['String']['output']>;
+};
+
+export type DoiMatch = {
+  __typename?: 'DoiMatch';
+  /** Indicates whether the work's DOI was found on a funder award page associated with the plan */
+  found: Scalars['Boolean']['output'];
+  /** A confidence score representing the strength or reliability of the DOI match */
+  score: Scalars['Float']['output'];
+  /** The funder award entries and specific award pages where the DOI was found */
+  sources: Array<DoiMatchSource>;
+};
+
+export type DoiMatchSource = {
+  __typename?: 'DoiMatchSource';
+  /** The award ID */
+  awardId: Scalars['String']['output'];
+  /** The award URL */
+  awardUrl: Scalars['String']['output'];
+  /** The parent award ID, if the award has a parent */
+  parentAwardId?: Maybe<Scalars['String']['output']>;
 };
 
 export type ExternalFunding = {
@@ -575,6 +689,23 @@ export type ExternalSearchInput = {
   piNames?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
+/** A funder of a work */
+export type Funder = {
+  __typename?: 'Funder';
+  /** The name of the funder */
+  name?: Maybe<Scalars['String']['output']>;
+  /** The ROR ID of the funder */
+  ror?: Maybe<Scalars['String']['output']>;
+};
+
+/** A funder of a work */
+export type FunderInput = {
+  /** The name of the funder */
+  name?: InputMaybe<Scalars['String']['input']>;
+  /** The ROR ID of the funder */
+  ror?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** A result of the most popular funders */
 export type FunderPopularityResult = {
   __typename?: 'FunderPopularityResult';
@@ -599,11 +730,38 @@ export type InitializePlanVersionOutput = {
   planIds?: Maybe<Array<Scalars['Int']['output']>>;
 };
 
+/** An institution of an author of a work */
+export type Institution = {
+  __typename?: 'Institution';
+  /** The name of the institution */
+  name?: Maybe<Scalars['String']['output']>;
+  /** The ROR ID of the institution */
+  ror?: Maybe<Scalars['String']['output']>;
+};
+
+/** An institution of an author of a work */
+export type InstitutionInput = {
+  /** The name of the institution */
+  name?: InputMaybe<Scalars['String']['input']>;
+  /** The ROR ID of the institution */
+  ror?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** The types of object a User can be invited to Collaborate on */
 export enum InvitedToType {
   Plan = 'PLAN',
   Template = 'TEMPLATE'
 }
+
+export type ItemMatch = {
+  __typename?: 'ItemMatch';
+  /** The specific fields that contributed to the match (e.g. name, orcid etc) */
+  fields?: Maybe<Array<Scalars['String']['output']>>;
+  /** The position of the matched item within the work (zero-based index) */
+  index: Scalars['Int']['output'];
+  /** A confidence score representing how strongly this item matches the corresponding item in the plan */
+  score: Scalars['Float']['output'];
+};
 
 /** A Language supported by the system */
 export type Language = {
@@ -804,6 +962,8 @@ export type Mutation = {
   addQuestion: Question;
   /** Create a new QuestionCondition associated with a question */
   addQuestionCondition: QuestionCondition;
+  /** Add a related work */
+  addRelatedWork?: Maybe<RelatedWorkSearchResult>;
   /** Add a new Repository */
   addRepository?: Maybe<Repository>;
   /** Create a new Section. Leave the 'copyFromVersionedSectionId' blank to create a new section from scratch */
@@ -934,6 +1094,8 @@ export type Mutation = {
   updateQuestionCondition?: Maybe<QuestionCondition>;
   /** Change the question's display order */
   updateQuestionDisplayOrder: ReorderQuestionsResult;
+  /** Update the status of a related work */
+  updateRelatedWorkStatus?: Maybe<RelatedWorkSearchResult>;
   /** Update a Repository record */
   updateRepository?: Maybe<Repository>;
   /** Update a Section */
@@ -1060,6 +1222,11 @@ export type MutationAddQuestionArgs = {
 
 export type MutationAddQuestionConditionArgs = {
   input: AddQuestionConditionInput;
+};
+
+
+export type MutationAddRelatedWorkArgs = {
+  input: AddRelatedWorkInput;
 };
 
 
@@ -1416,6 +1583,11 @@ export type MutationUpdateQuestionConditionArgs = {
 export type MutationUpdateQuestionDisplayOrderArgs = {
   newDisplayOrder: Scalars['Int']['input'];
   questionId: Scalars['Int']['input'];
+};
+
+
+export type MutationUpdateRelatedWorkStatusArgs = {
+  input: UpdateRelatedWorkStatusInput;
 };
 
 
@@ -2368,6 +2540,10 @@ export type Query = {
   questions?: Maybe<Array<Maybe<Question>>>;
   /** Return the recommended Licenses */
   recommendedLicenses?: Maybe<Array<Maybe<License>>>;
+  /** Get all of the related works for a plan */
+  relatedWorksByPlan?: Maybe<RelatedWorkSearchResults>;
+  /** Get all of the related works for a project */
+  relatedWorksByProject?: Maybe<RelatedWorkSearchResults>;
   /** Search for a repository */
   repositories?: Maybe<RepositorySearchResults>;
   /** Fetch a specific repository */
@@ -2629,6 +2805,20 @@ export type QueryRecommendedLicensesArgs = {
 };
 
 
+export type QueryRelatedWorksByPlanArgs = {
+  filterOptions?: InputMaybe<RelatedWorksFilterOptions>;
+  paginationOptions?: InputMaybe<PaginationOptions>;
+  planId: Scalars['Int']['input'];
+};
+
+
+export type QueryRelatedWorksByProjectArgs = {
+  filterOptions?: InputMaybe<RelatedWorksFilterOptions>;
+  paginationOptions?: InputMaybe<PaginationOptions>;
+  projectId: Scalars['Int']['input'];
+};
+
+
 export type QueryRepositoriesArgs = {
   input: RepositorySearchInput;
 };
@@ -2817,6 +3007,110 @@ export type QuestionErrors = {
   sectionId?: Maybe<Scalars['String']['output']>;
   sourceQestionId?: Maybe<Scalars['String']['output']>;
   templateId?: Maybe<Scalars['String']['output']>;
+};
+
+/** The confidence of the related work match */
+export enum RelatedWorkConfidence {
+  /** High confidence */
+  High = 'HIGH',
+  /** Low confidence */
+  Low = 'LOW',
+  /** Medium confidence */
+  Medium = 'MEDIUM'
+}
+
+export type RelatedWorkSearchResult = {
+  __typename?: 'RelatedWorkSearchResult';
+  /** Details which authors matched from the work and the fields they matched on */
+  authorMatches?: Maybe<Array<ItemMatch>>;
+  /** Details which awards matched from the work and the fields they matched on */
+  awardMatches?: Maybe<Array<ItemMatch>>;
+  /** The confidence of the related work match */
+  confidence?: Maybe<RelatedWorkConfidence>;
+  /** Details how relevant the title and abstract of the work were to the plan */
+  contentMatch?: Maybe<ContentMatch>;
+  /** The timestamp when the Object was created */
+  created: Scalars['String']['output'];
+  /** The user who created the Object. Null if the related work was automatically found */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** Details whether the work's DOI was found on a funder award page */
+  doiMatch?: Maybe<DoiMatch>;
+  /** Details which funders matched from the work and the fields they matched on */
+  funderMatches?: Maybe<Array<ItemMatch>>;
+  /** The unique identifier for the Object */
+  id: Scalars['Int']['output'];
+  /** Details which institutions matched from the work and the fields they matched on */
+  institutionMatches?: Maybe<Array<ItemMatch>>;
+  /** The timestamp when the Object was last modified */
+  modified: Scalars['String']['output'];
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The unique identifier of the plan that this related work has been matched to */
+  planId: Scalars['Int']['output'];
+  /** The confidence score indicating how well the work matches the plan */
+  score?: Maybe<Scalars['Float']['output']>;
+  /** The maximum confidence score returned when this work was matched to the plan */
+  scoreMax: Scalars['Float']['output'];
+  /** The normalised confidence score from 0.0-1.0 */
+  scoreNorm: Scalars['Float']['output'];
+  /** Whether the related work was automatically or manually added */
+  sourceType: RelatedWorkSourceType;
+  /** The status of the related work */
+  status: RelatedWorkStatus;
+  /** The version of the work that the plan was matched to */
+  workVersion: WorkVersion;
+};
+
+export type RelatedWorkSearchResults = PaginatedQueryResults & {
+  __typename?: 'RelatedWorkSearchResults';
+  /** The sortFields that are available for this query (for standard offset pagination only!) */
+  availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** Count of confidence values returned in the query */
+  confidenceCounts?: Maybe<Array<TypeCount>>;
+  /** The current offset of the results (for standard offset pagination) */
+  currentOffset?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not there is a next page */
+  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
+  /** Whether or not there is a previous page */
+  hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
+  /** The TemplateSearchResults that match the search criteria */
+  items?: Maybe<Array<Maybe<RelatedWorkSearchResult>>>;
+  /** The number of items returned */
+  limit?: Maybe<Scalars['Int']['output']>;
+  /** The cursor to use for the next page of results (for infinite scroll/load more) */
+  nextCursor?: Maybe<Scalars['String']['output']>;
+  /** The count of the number of related works after the status filter is applied but doesn't include any other filters */
+  statusOnlyCount?: Maybe<Scalars['Int']['output']>;
+  /** The total number of possible items */
+  totalCount?: Maybe<Scalars['Int']['output']>;
+  /** Counts of work types returned in the query */
+  workTypeCounts?: Maybe<Array<TypeCount>>;
+};
+
+/** The origin of the related work entry */
+export enum RelatedWorkSourceType {
+  SystemMatched = 'SYSTEM_MATCHED',
+  UserAdded = 'USER_ADDED'
+}
+
+/** The status of the related work */
+export enum RelatedWorkStatus {
+  /** The related work has been marked as related to a plan by a user */
+  Accepted = 'ACCEPTED',
+  /** The related work is pending assessment by a user */
+  Pending = 'PENDING',
+  /** The related work has been marked as not related to a plan by a user */
+  Rejected = 'REJECTED'
+}
+
+/** Related work search filter options */
+export type RelatedWorksFilterOptions = {
+  /** The confidence of the match */
+  confidence?: InputMaybe<RelatedWorkConfidence>;
+  /** Filter results by the related work status */
+  status?: InputMaybe<RelatedWorkStatus>;
+  /** The type of work to filter by */
+  workType?: InputMaybe<WorkType>;
 };
 
 /** The results of reordering the questions */
@@ -3252,6 +3546,12 @@ export enum TemplateVisibility {
   Public = 'PUBLIC'
 }
 
+export type TypeCount = {
+  __typename?: 'TypeCount';
+  count: Scalars['Int']['output'];
+  typeId: Scalars['String']['output'];
+};
+
 export type UpdateMetadataStandardInput = {
   /** A description of the metadata standard */
   description?: InputMaybe<Scalars['String']['input']>;
@@ -3372,6 +3672,13 @@ export type UpdateQuestionInput = {
   sampleText?: InputMaybe<Scalars['String']['input']>;
   /** Boolean indicating whether we should use content from sampleText as the default answer */
   useSampleTextAsDefault?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type UpdateRelatedWorkStatusInput = {
+  /** The related work ID */
+  id: Scalars['Int']['input'];
+  /** The status of the related work */
+  status?: InputMaybe<RelatedWorkStatus>;
 };
 
 export type UpdateRepositoryInput = {
@@ -3923,6 +4230,100 @@ export type VersionedTemplateSearchResult = {
   visibility?: Maybe<TemplateVisibility>;
 };
 
+export type Work = {
+  __typename?: 'Work';
+  /** The timestamp when the Object was created */
+  created: Scalars['String']['output'];
+  /** The user who created the Object. Null if the work was automatically found */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** The Digital Object Identifier (DOI) of the work */
+  doi: Scalars['String']['output'];
+  /** The unique identifier for the Object */
+  id: Scalars['Int']['output'];
+  /** The timestamp when the Object was last modified */
+  modified: Scalars['String']['output'];
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+};
+
+/** The type of work */
+export enum WorkType {
+  Article = 'ARTICLE',
+  AudioVisual = 'AUDIO_VISUAL',
+  Book = 'BOOK',
+  BookChapter = 'BOOK_CHAPTER',
+  Collection = 'COLLECTION',
+  Dataset = 'DATASET',
+  DataPaper = 'DATA_PAPER',
+  Dissertation = 'DISSERTATION',
+  Editorial = 'EDITORIAL',
+  Erratum = 'ERRATUM',
+  Event = 'EVENT',
+  Grant = 'GRANT',
+  Image = 'IMAGE',
+  InteractiveResource = 'INTERACTIVE_RESOURCE',
+  Letter = 'LETTER',
+  Libguides = 'LIBGUIDES',
+  Model = 'MODEL',
+  Other = 'OTHER',
+  Paratext = 'PARATEXT',
+  PeerReview = 'PEER_REVIEW',
+  PhysicalObject = 'PHYSICAL_OBJECT',
+  Preprint = 'PREPRINT',
+  PreRegistration = 'PRE_REGISTRATION',
+  Protocol = 'PROTOCOL',
+  ReferenceEntry = 'REFERENCE_ENTRY',
+  Report = 'REPORT',
+  Retraction = 'RETRACTION',
+  Review = 'REVIEW',
+  Service = 'SERVICE',
+  Software = 'SOFTWARE',
+  Sound = 'SOUND',
+  Standard = 'STANDARD',
+  SupplementaryMaterials = 'SUPPLEMENTARY_MATERIALS',
+  Text = 'TEXT',
+  TraditionalKnowledge = 'TRADITIONAL_KNOWLEDGE',
+  Workflow = 'WORKFLOW'
+}
+
+export type WorkVersion = {
+  __typename?: 'WorkVersion';
+  /** The authors of the work */
+  authors: Array<Author>;
+  /** The awards that funded the work */
+  awards: Array<Award>;
+  /** The timestamp when the Object was created */
+  created: Scalars['String']['output'];
+  /** The user who created the Object. Null if the work was automatically found */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** The funders of the work */
+  funders: Array<Funder>;
+  /** A hash of the content of this version of a work */
+  hash: Scalars['MD5']['output'];
+  /** The unique identifier for the Object */
+  id: Scalars['Int']['output'];
+  /** The unique institutions of the authors of the work */
+  institutions: Array<Institution>;
+  /** The timestamp when the Object was last modified */
+  modified: Scalars['String']['output'];
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The date that the work was published YYYY-MM-DD */
+  publicationDate?: Maybe<Scalars['String']['output']>;
+  /** The venue where the work was published, e.g. IEEE Transactions on Software Engineering, Zenodo etc */
+  publicationVenue?: Maybe<Scalars['String']['output']>;
+  /** The name of the source where the work was found */
+  sourceName: Scalars['String']['output'];
+  /** The URL for the source of the work */
+  sourceUrl?: Maybe<Scalars['String']['output']>;
+  /** The title of the work */
+  title?: Maybe<Scalars['String']['output']>;
+  /** The work */
+  work: Work;
+  /** The type of the work */
+  workType: WorkType;
+};
+
 export type AddAffiliationMutationVariables = Exact<{
   input: AffiliationInput;
 }>;
@@ -4190,6 +4591,13 @@ export type UpdateQuestionDisplayOrderMutationVariables = Exact<{
 
 export type UpdateQuestionDisplayOrderMutation = { __typename?: 'Mutation', updateQuestionDisplayOrder: { __typename?: 'ReorderQuestionsResult', questions?: Array<{ __typename?: 'Question', id?: number | null, displayOrder?: number | null, questionText?: string | null, sampleText?: string | null, requirementText?: string | null, guidanceText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null } | null }> | null } };
 
+export type UpdateRelatedWorkStatusMutationVariables = Exact<{
+  input: UpdateRelatedWorkStatusInput;
+}>;
+
+
+export type UpdateRelatedWorkStatusMutation = { __typename?: 'Mutation', updateRelatedWorkStatus?: { __typename?: 'RelatedWorkSearchResult', id: number, status: RelatedWorkStatus } | null };
+
 export type AddSectionMutationVariables = Exact<{
   input: AddSectionInput;
 }>;
@@ -4335,7 +4743,7 @@ export type FindCollaboratorQueryVariables = Exact<{
 }>;
 
 
-export type FindCollaboratorQuery = { __typename?: 'Query', findCollaborator?: { __typename?: 'CollaboratorSearchResults', limit?: number | null, availableSortFields?: Array<string | null> | null, nextCursor?: string | null, totalCount?: number | null, items?: Array<{ __typename?: 'CollaboratorSearchResult', id?: number | null, givenName?: string | null, email?: string | null, affiliationId?: string | null, affiliationURL?: string | null, orcid?: string | null, surName?: string | null, affiliationName?: string | null } | null> | null } | null };
+export type FindCollaboratorQuery = { __typename?: 'Query', findCollaborator?: { __typename?: 'CollaboratorSearchResults', limit?: number | null, availableSortFields?: Array<string | null> | null, nextCursor?: string | null, totalCount?: number | null, items?: Array<{ __typename?: 'CollaboratorSearchResult', id?: number | null, givenName?: string | null, email?: string | null, affiliationId?: string | null, affiliationRORId?: string | null, affiliationURL?: string | null, orcid?: string | null, surName?: string | null, affiliationName?: string | null } | null> | null } | null };
 
 export type ProjectFundingsQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4371,7 +4779,7 @@ export type PlanQueryVariables = Exact<{
 }>;
 
 
-export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, createdById?: number | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, template?: { __typename?: 'Template', id?: number | null, name: string } | null, owner?: { __typename?: 'Affiliation', uri: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null, collaborators?: Array<{ __typename?: 'ProjectCollaborator', accessLevel?: ProjectCollaboratorAccessLevel | null, user?: { __typename?: 'User', id?: number | null } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number }> | null, progress?: { __typename?: 'PlanProgress', answeredQuestions: number, percentComplete: number, totalQuestions: number } | null, feedback?: Array<{ __typename?: 'PlanFeedback', id?: number | null, completed?: string | null }> | null } | null };
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, createdById?: number | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, version: string, created?: string | null, template?: { __typename?: 'Template', id?: number | null, name: string } | null, owner?: { __typename?: 'Affiliation', uri: string, displayName: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null, collaborators?: Array<{ __typename?: 'ProjectCollaborator', accessLevel?: ProjectCollaboratorAccessLevel | null, user?: { __typename?: 'User', id?: number | null } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number }> | null, progress?: { __typename?: 'PlanProgress', answeredQuestions: number, percentComplete: number, totalQuestions: number } | null, feedback?: Array<{ __typename?: 'PlanFeedback', id?: number | null, completed?: string | null }> | null } | null };
 
 export type PlanMembersQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -4458,6 +4866,15 @@ export type PublishedQuestionQueryVariables = Exact<{
 
 
 export type PublishedQuestionQuery = { __typename?: 'Query', publishedQuestion?: { __typename?: 'VersionedQuestion', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, json?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, versionedSectionId: number, versionedTemplateId: number, required?: boolean | null, errors?: { __typename?: 'VersionedQuestionErrors', general?: string | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, displayOrder?: string | null, versionedSectionId?: string | null } | null } | null };
+
+export type RelatedWorksByPlanQueryVariables = Exact<{
+  planId: Scalars['Int']['input'];
+  paginationOptions?: InputMaybe<PaginationOptions>;
+  filterOptions?: InputMaybe<RelatedWorksFilterOptions>;
+}>;
+
+
+export type RelatedWorksByPlanQuery = { __typename?: 'Query', relatedWorksByPlan?: { __typename?: 'RelatedWorkSearchResults', totalCount?: number | null, limit?: number | null, currentOffset?: number | null, hasNextPage?: boolean | null, hasPreviousPage?: boolean | null, availableSortFields?: Array<string | null> | null, statusOnlyCount?: number | null, items?: Array<{ __typename?: 'RelatedWorkSearchResult', id: number, scoreNorm: number, confidence?: RelatedWorkConfidence | null, status: RelatedWorkStatus, created: string, modified: string, workVersion: { __typename?: 'WorkVersion', id: number, hash: any, workType: WorkType, publicationDate?: string | null, title?: string | null, publicationVenue?: string | null, sourceName: string, sourceUrl?: string | null, work: { __typename?: 'Work', id: number, doi: string }, authors: Array<{ __typename?: 'Author', orcid?: string | null, firstInitial?: string | null, givenName?: string | null, middleInitials?: string | null, middleNames?: string | null, surname?: string | null, full?: string | null }>, institutions: Array<{ __typename?: 'Institution', name?: string | null, ror?: string | null }>, funders: Array<{ __typename?: 'Funder', name?: string | null, ror?: string | null }>, awards: Array<{ __typename?: 'Award', awardId?: string | null }> }, doiMatch?: { __typename?: 'DoiMatch', found: boolean, score: number, sources: Array<{ __typename?: 'DoiMatchSource', parentAwardId?: string | null, awardId: string, awardUrl: string }> } | null, contentMatch?: { __typename?: 'ContentMatch', score: number, titleHighlight?: string | null, abstractHighlights: Array<string> } | null, authorMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, institutionMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, funderMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, awardMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null } | null> | null, workTypeCounts?: Array<{ __typename?: 'TypeCount', typeId: string, count: number }> | null, confidenceCounts?: Array<{ __typename?: 'TypeCount', typeId: string, count: number }> | null } | null };
 
 export type TopLevelResearchDomainsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -6039,6 +6456,40 @@ export function useUpdateQuestionDisplayOrderMutation(baseOptions?: Apollo.Mutat
 export type UpdateQuestionDisplayOrderMutationHookResult = ReturnType<typeof useUpdateQuestionDisplayOrderMutation>;
 export type UpdateQuestionDisplayOrderMutationResult = Apollo.MutationResult<UpdateQuestionDisplayOrderMutation>;
 export type UpdateQuestionDisplayOrderMutationOptions = Apollo.BaseMutationOptions<UpdateQuestionDisplayOrderMutation, UpdateQuestionDisplayOrderMutationVariables>;
+export const UpdateRelatedWorkStatusDocument = gql`
+    mutation UpdateRelatedWorkStatus($input: UpdateRelatedWorkStatusInput!) {
+  updateRelatedWorkStatus(input: $input) {
+    id
+    status
+  }
+}
+    `;
+export type UpdateRelatedWorkStatusMutationFn = Apollo.MutationFunction<UpdateRelatedWorkStatusMutation, UpdateRelatedWorkStatusMutationVariables>;
+
+/**
+ * __useUpdateRelatedWorkStatusMutation__
+ *
+ * To run a mutation, you first call `useUpdateRelatedWorkStatusMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateRelatedWorkStatusMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateRelatedWorkStatusMutation, { data, loading, error }] = useUpdateRelatedWorkStatusMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateRelatedWorkStatusMutation(baseOptions?: Apollo.MutationHookOptions<UpdateRelatedWorkStatusMutation, UpdateRelatedWorkStatusMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateRelatedWorkStatusMutation, UpdateRelatedWorkStatusMutationVariables>(UpdateRelatedWorkStatusDocument, options);
+      }
+export type UpdateRelatedWorkStatusMutationHookResult = ReturnType<typeof useUpdateRelatedWorkStatusMutation>;
+export type UpdateRelatedWorkStatusMutationResult = Apollo.MutationResult<UpdateRelatedWorkStatusMutation>;
+export type UpdateRelatedWorkStatusMutationOptions = Apollo.BaseMutationOptions<UpdateRelatedWorkStatusMutation, UpdateRelatedWorkStatusMutationVariables>;
 export const AddSectionDocument = gql`
     mutation AddSection($input: AddSectionInput!) {
   addSection(input: $input) {
@@ -6930,6 +7381,7 @@ export const FindCollaboratorDocument = gql`
       givenName
       email
       affiliationId
+      affiliationRORId
       affiliationURL
       orcid
       surName
@@ -7205,7 +7657,10 @@ export const PlanDocument = gql`
       name
       owner {
         uri
+        displayName
       }
+      version
+      created
     }
     fundings {
       id
@@ -7959,6 +8414,142 @@ export type PublishedQuestionQueryHookResult = ReturnType<typeof usePublishedQue
 export type PublishedQuestionLazyQueryHookResult = ReturnType<typeof usePublishedQuestionLazyQuery>;
 export type PublishedQuestionSuspenseQueryHookResult = ReturnType<typeof usePublishedQuestionSuspenseQuery>;
 export type PublishedQuestionQueryResult = Apollo.QueryResult<PublishedQuestionQuery, PublishedQuestionQueryVariables>;
+export const RelatedWorksByPlanDocument = gql`
+    query RelatedWorksByPlan($planId: Int!, $paginationOptions: PaginationOptions, $filterOptions: RelatedWorksFilterOptions) {
+  relatedWorksByPlan(
+    planId: $planId
+    paginationOptions: $paginationOptions
+    filterOptions: $filterOptions
+  ) {
+    items {
+      id
+      workVersion {
+        id
+        work {
+          id
+          doi
+        }
+        hash
+        workType
+        publicationDate
+        title
+        authors {
+          orcid
+          firstInitial
+          givenName
+          middleInitials
+          middleNames
+          surname
+          full
+        }
+        institutions {
+          name
+          ror
+        }
+        funders {
+          name
+          ror
+        }
+        awards {
+          awardId
+        }
+        publicationVenue
+        sourceName
+        sourceUrl
+      }
+      scoreNorm
+      confidence
+      status
+      doiMatch {
+        found
+        score
+        sources {
+          parentAwardId
+          awardId
+          awardUrl
+        }
+      }
+      contentMatch {
+        score
+        titleHighlight
+        abstractHighlights
+      }
+      authorMatches {
+        index
+        score
+        fields
+      }
+      institutionMatches {
+        index
+        score
+        fields
+      }
+      funderMatches {
+        index
+        score
+        fields
+      }
+      awardMatches {
+        index
+        score
+        fields
+      }
+      created
+      modified
+    }
+    totalCount
+    limit
+    currentOffset
+    hasNextPage
+    hasPreviousPage
+    availableSortFields
+    statusOnlyCount
+    workTypeCounts {
+      typeId
+      count
+    }
+    confidenceCounts {
+      typeId
+      count
+    }
+  }
+}
+    `;
+
+/**
+ * __useRelatedWorksByPlanQuery__
+ *
+ * To run a query within a React component, call `useRelatedWorksByPlanQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRelatedWorksByPlanQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useRelatedWorksByPlanQuery({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      paginationOptions: // value for 'paginationOptions'
+ *      filterOptions: // value for 'filterOptions'
+ *   },
+ * });
+ */
+export function useRelatedWorksByPlanQuery(baseOptions: Apollo.QueryHookOptions<RelatedWorksByPlanQuery, RelatedWorksByPlanQueryVariables> & ({ variables: RelatedWorksByPlanQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<RelatedWorksByPlanQuery, RelatedWorksByPlanQueryVariables>(RelatedWorksByPlanDocument, options);
+      }
+export function useRelatedWorksByPlanLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RelatedWorksByPlanQuery, RelatedWorksByPlanQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<RelatedWorksByPlanQuery, RelatedWorksByPlanQueryVariables>(RelatedWorksByPlanDocument, options);
+        }
+export function useRelatedWorksByPlanSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<RelatedWorksByPlanQuery, RelatedWorksByPlanQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<RelatedWorksByPlanQuery, RelatedWorksByPlanQueryVariables>(RelatedWorksByPlanDocument, options);
+        }
+export type RelatedWorksByPlanQueryHookResult = ReturnType<typeof useRelatedWorksByPlanQuery>;
+export type RelatedWorksByPlanLazyQueryHookResult = ReturnType<typeof useRelatedWorksByPlanLazyQuery>;
+export type RelatedWorksByPlanSuspenseQueryHookResult = ReturnType<typeof useRelatedWorksByPlanSuspenseQuery>;
+export type RelatedWorksByPlanQueryResult = Apollo.QueryResult<RelatedWorksByPlanQuery, RelatedWorksByPlanQueryVariables>;
 export const TopLevelResearchDomainsDocument = gql`
     query TopLevelResearchDomains {
   topLevelResearchDomains {

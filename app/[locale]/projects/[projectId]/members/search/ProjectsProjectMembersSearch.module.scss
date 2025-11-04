@@ -69,3 +69,14 @@
   align-items: center;
   margin-top: var(--space-4);
 }
+
+.memberRoles {
+  margin: var(--space-6) 0;
+}
+
+.resultsHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}

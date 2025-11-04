@@ -1,0 +1,28 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "enabledManagers": [
+    "npm"
+  ],
+  "baseBranches": [
+    "development"
+  ],
+  "ignorePaths": [
+    "public/**",
+    "Dockerfile*",
+    "docker-compose.yml",
+    ".nvmrc"
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "@apollo/client",
+        "@apollo/experimental-nextjs-app-support"
+      ],
+      "enabled": false,
+      "description": "Disable updates for specific Apollo GraphQL packages"
+    }
+  ]
+}

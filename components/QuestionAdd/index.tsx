@@ -43,6 +43,10 @@ import ErrorMessages from '@/components/ErrorMessages';
 import QuestionPreview from '@/components/QuestionPreview';
 import QuestionView from '@/components/QuestionView';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
+import RepositorySelectionSystem from './ReposSelector';
+import MetaDataStandards from './MetaDataStandards';
+import OutputTypeField from './OutputTypeField';
+import LicenseField, { otherLicenses } from './LicenseField';
 
 //Other
 import { useToast } from '@/context/ToastContext';
@@ -55,12 +59,21 @@ import {
   OPTIONS_QUESTION_TYPES,
   RANGE_QUESTION_TYPE,
   TYPEAHEAD_QUESTION_TYPE,
-  TEXT_AREA_QUESTION_TYPE
+  TEXT_AREA_QUESTION_TYPE,
+  RESEARCH_OUTPUT_QUESTION_TYPE
 } from '@/lib/constants';
 import {
   isOptionsType,
   getOverrides,
 } from './hooks/useAddQuestion';
+
+import {
+  StandardField,
+  MetaDataConfig,
+  RepositoryInterface,
+  MetaDataStandardInterface
+} from '@/app/types';
+
 import styles from './questionAdd.module.scss';
 
 const defaultQuestion = {
@@ -73,6 +86,84 @@ const defaultQuestion = {
 
 type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
 
+// Type guard function to check if a field has metaDataConfig
+const hasMetaDataConfig = (field: StandardField): field is StandardField & { metaDataConfig: MetaDataConfig } => {
+  return field.metaDataConfig !== undefined;
+};
+
+// Default licenses
+const defaultLicenses = [
+  'CC-BY-4.0',
+  'CC-BY-SA-4.0',
+  'CC-BY-NC-4.0',
+  'CC-BY-NC-SA-4.0',
+  'CC-BY-ND-4.0',
+  'CC-BY-NC-ND-4.0',
+  'CCo-1.0'
+];
+
+// Initial Standard Fields data
+const initialStandardFields: StandardField[] = [
+  { id: 'title', label: 'Title', enabled: true, required: true },
+  { id: 'description', label: 'Description', enabled: false, placeholder: '', helpText: '', maxLength: '', required: true, value: '' },
+  {
+    id: 'outputType',
+    label: 'Output Type',
+    enabled: true,
+    helpText: '',
+    required: true,
+    outputTypeConfig: {
+      mode: 'defaults' as 'defaults' | 'mine' | 'addToDefaults',
+      selectedDefaults: [] as string[],
+      customTypes: [] as string[]
+    }
+  },
+  {
+    id: 'dataFlags',
+    label: 'Data Flags',
+    enabled: false,
+    helpText: '',
+    flagsConfig: {
+      showSensitiveData: true,
+      showPersonalData: true,
+      mode: 'both' as 'sensitiveOnly' | 'personalOnly' | 'both'
+    }
+  },
+  {
+    id: 'repoSelector',
+    label: 'Repo selector',
+    enabled: false,
+    placeholder: '',
+    helpText: '',
+    value: '',
+    repoConfig: {
+      hasCustomRepos: false,
+      customRepos: [] as string[],
+    }
+  },
+  {
+    id: 'metadataStandards',
+    label: 'Metadata Standards',
+    enabled: false,
+    helpText: '',
+    metaDataConfig: {
+      hasCustomStandards: false,
+      customStandards: [] as string[],
+    }
+  },
+  {
+    id: 'licenses',
+    label: 'Licenses',
+    enabled: false,
+    defaultValue: '',
+    helpText: '',
+    licensesConfig: {
+      mode: 'defaults' as 'defaults' | 'addToDefaults',
+      selectedDefaults: [] as string[],
+      customTypes: defaultLicenses as string[],
+    }
+  },
+];
 
 const QuestionAdd = ({
   questionType,
@@ -115,6 +206,22 @@ const QuestionAdd = ({
   const [typeaheadHelpText, setTypeAheadHelpText] = useState<string>('');
   const [parsedQuestionJSON, setParsedQuestionJSON] = useState<AnyParsedQuestion>();
   const [dateRangeLabels, setDateRangeLabels] = useState<{ start: string; end: string }>({ start: '', end: '' });
+
+  // Which fields are expanded for customization
+  const [expandedFields, setExpandedFields] = useState<string[]>(['title', 'outputType']);
+
+  // Standard fields for research output questions
+  const [standardFields, setStandardFields] = useState(initialStandardFields);
+
+  // Additional fields for research output questions
+  const [additionalFields, setAdditionalFields] = useState([
+    { id: 'coverage', label: 'Coverage', enabled: true, defaultValue: '', customLabel: '', helpText: '', maxLength: '' },
+  ]);
+
+  // State for managing custom output types
+  const [newOutputType, setNewOutputType] = useState<string>('');
+  // State for managing custom license types
+  const [newLicenseType, setNewLicenseType] = useState<string>('');
 
   // localization keys
   const Global = useTranslations('Global');
@@ -172,6 +279,32 @@ const QuestionAdd = ({
     }
   };
 
+  // Handle updates to RepositorySelectionSystem component
+  const handleRepositoriesChange = (repos: RepositoryInterface[]) => {
+    // Store the selected repositories in the field config
+    const currentField = standardFields.find(f => f.id === 'repoSelector');
+    if (currentField && currentField.repoConfig) {
+      updateStandardFieldProperty('repoSelector', 'repoConfig', {
+        ...currentField.repoConfig,
+        customRepos: repos.map(r => ({ id: r.id, name: r.name, url: r.url })) // Store relevant data
+      });
+    }
+    setHasUnsavedChanges(true);
+  };
+
+  // Handle updates to MetaDataStandards component
+  const handleMetaDataStandardsChange = (standards: MetaDataStandardInterface[]) => {
+    // Store the selected metadata standards in the field config
+    const currentField = standardFields.find(f => f.id === 'metadataStandards');
+    if (currentField && currentField.metaDataConfig) {
+      updateStandardFieldProperty('metadataStandards', 'metaDataConfig', {
+        ...currentField.metaDataConfig,
+        customStandards: standards.map(s => ({ id: s.id, name: s.name, url: s.url })) // Store relevant data
+      });
+    }
+    setHasUnsavedChanges(true);
+  };
+
   // Handler for date range label changes
   const handleRangeLabelChange = (field: 'start' | 'end', value: string) => {
     setDateRangeLabels(prev => ({ ...prev, [field]: value }));
@@ -223,6 +356,142 @@ const QuestionAdd = ({
       }
     }
   };
+
+  // Shared function to update any property in standardFields
+  const updateStandardFieldProperty = (fieldId: string, propertyName: string, value: unknown) => {
+    setStandardFields(prev =>
+      prev.map(field =>
+        field.id === fieldId ? { ...field, [propertyName]: value } : field
+      )
+    );
+    setHasUnsavedChanges(true);
+  };
+
+  // Handler for standard field checkbox changes (for enabled property)
+  const handleStandardFieldChange = (fieldId: string, enabled: boolean) => {
+    updateStandardFieldProperty(fieldId, 'enabled', enabled);
+    if (enabled === true) {
+      handleCustomizeField(fieldId);
+    } else {
+      removeCustomizeField(fieldId);
+    }
+  };
+
+  const removeCustomizeField = (fieldId: string) => {
+    setExpandedFields(prev => prev.filter(id => id !== fieldId));
+  };
+
+  // Handler for customize button clicks
+  const handleCustomizeField = (fieldId: string) => {
+    setExpandedFields(prev =>
+      prev.includes(fieldId)
+        ? prev.filter(id => id !== fieldId) // collapse
+        : [...prev, fieldId]                // expand
+    );
+  };
+
+  // Handler for toggling metadata standards
+  const handleToggleMetaDataStandards = (hasCustomStandards: boolean) => {
+    const currentField = standardFields.find(f => f.id === 'metadataStandards');
+    if (currentField && currentField.metaDataConfig) {
+      updateStandardFieldProperty('metadataStandards', 'metaDataConfig', {
+        ...currentField.metaDataConfig,
+        hasCustomStandards
+      });
+    }
+  };
+
+  // Handler for toggling preferred repositories
+  const handleTogglePreferredRepositories = (hasCustomRepos: boolean) => {
+    const currentField = standardFields.find(f => f.id === 'repoSelector');
+    if (currentField && currentField.repoConfig) {
+      updateStandardFieldProperty('repoSelector', 'repoConfig', {
+        ...currentField.repoConfig,
+        hasCustomRepos
+      });
+    }
+  };
+
+  // Handler for license mode changes (defaults, add to defaults)
+  const handleLicenseModeChange = (mode: 'defaults' | 'addToDefaults') => {
+    const currentField = standardFields.find(f => f.id === 'licenses');
+    if (currentField && currentField.licensesConfig) {
+      updateStandardFieldProperty('licenses', 'licensesConfig', {
+        ...currentField.licensesConfig,
+        mode
+      });
+    }
+  };
+
+  // Handler for adding custom license types
+  const handleAddCustomLicenseType = () => {
+    if (newLicenseType.trim()) {
+      const currentField = standardFields.find(f => f.id === 'licenses');
+      if (currentField && currentField.licensesConfig) {
+        // Find the license object by ID and get its name
+        const selectedLicense = otherLicenses.find(license => license.id === newLicenseType.trim());
+        const licenseNameToAdd = selectedLicense ? selectedLicense.name : newLicenseType.trim();
+
+        const updatedCustomTypes = [...currentField.licensesConfig.customTypes, licenseNameToAdd];
+        updateStandardFieldProperty('licenses', 'licensesConfig', {
+          ...currentField.licensesConfig,
+          customTypes: updatedCustomTypes
+        });
+        setNewLicenseType('');
+      }
+    }
+  };
+
+  // Handler for removing custom license types
+  const handleRemoveCustomLicenseType = (typeToRemove: string) => {
+    const currentField = standardFields.find(f => f.id === 'licenses');
+    if (currentField && currentField.licensesConfig) {
+      const updatedCustomTypes = currentField.licensesConfig.customTypes.filter((type: string) => type !== typeToRemove);
+      updateStandardFieldProperty('licenses', 'licensesConfig', {
+        ...currentField.licensesConfig,
+        customTypes: updatedCustomTypes
+      });
+    }
+  };
+
+  // Handler for output type mode changes (defaults, mine, add to defaults)
+  const handleOutputTypeModeChange = (mode: 'defaults' | 'mine' | 'addToDefaults') => {
+    const currentField = standardFields.find(f => f.id === 'outputType');
+    if (currentField && currentField.outputTypeConfig) {
+      updateStandardFieldProperty('outputType', 'outputTypeConfig', {
+        ...currentField.outputTypeConfig,
+        mode
+      });
+    }
+  };
+
+  // Handler for adding custom output types
+  const handleAddCustomOutputType = () => {
+    if (newOutputType.trim()) {
+      const currentField = standardFields.find(f => f.id === 'outputType');
+      if (currentField && currentField.outputTypeConfig) {
+        const updatedCustomTypes = [...currentField.outputTypeConfig.customTypes, newOutputType.trim()];
+        updateStandardFieldProperty('outputType', 'outputTypeConfig', {
+          ...currentField.outputTypeConfig,
+          customTypes: updatedCustomTypes
+        });
+        setNewOutputType('');
+      }
+    }
+  };
+
+  // Handler for removing custom output types
+  const handleRemoveCustomOutputType = (typeToRemove: string) => {
+    const currentField = standardFields.find(f => f.id === 'outputType');
+    if (currentField && currentField.outputTypeConfig) {
+      const updatedCustomTypes = currentField.outputTypeConfig.customTypes.filter((type: string) => type !== typeToRemove);
+      updateStandardFieldProperty('outputType', 'outputTypeConfig', {
+        ...currentField.outputTypeConfig,
+        customTypes: updatedCustomTypes
+      });
+    }
+  };
+
 
   // Handle changes from RadioGroup
   const handleRadioChange = (value: string) => {
@@ -357,6 +626,39 @@ const QuestionAdd = ({
 
   };
 
+  const addAdditionalField = () => {
+    const newId = `custom_field_${Date.now()}`;
+    const newField = {
+      id: newId,
+      label: 'Custom Field',
+      enabled: true,
+      defaultValue: '',
+      customLabel: '',
+      helpText: '',
+      maxLength: ''
+    };
+
+    setAdditionalFields(prev => [...prev, newField]);
+    setExpandedFields(prev => [...prev, newId]); // Auto-expand for editing
+    setHasUnsavedChanges(true);
+  };
+
+  // Handler for deleting additional fields
+  const handleDeleteAdditionalField = (fieldId: string) => {
+    setAdditionalFields(prev => prev.filter(field => field.id !== fieldId));
+    setExpandedFields(prev => prev.filter(id => id !== fieldId));
+    setHasUnsavedChanges(true);
+  };
+
+  // Handler for updating additional field properties
+  const handleUpdateAdditionalField = (fieldId: string, propertyName: string, value: unknown) => {
+    setAdditionalFields(prev =>
+      prev.map(field =>
+        field.id === fieldId ? { ...field, [propertyName]: value } : field
+      )
+    );
+    setHasUnsavedChanges(true);
+  };
   // If questionType is missing, return user to the Question Types selection page
   // If sectionId is missing, return user back to the Edit Template page
   // This is to ensure that the user has selected a question type before proceeding
@@ -440,8 +742,9 @@ const QuestionAdd = ({
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.index', { templateId })}>{Global('breadcrumbs.templates')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.show', { templateId })}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
             <Breadcrumb><Link href={step1Url}>{Global('breadcrumbs.selectQuestionType')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
           </Breadcrumbs>
@@ -454,7 +757,7 @@ const QuestionAdd = ({
         <div className="main-content">
           <ErrorMessages errors={errors} ref={errorRef} />
           <Tabs>
-            <TabList aria-label="Question editing">
+            <TabList aria-label={QuestionAdd('labels.questionEditing')}>
               <Tab id="edit">{Global('tabs.editQuestion')}</Tab>
               <Tab id="options">{Global('tabs.options')}</Tab>
               <Tab id="logic">{Global('tabs.logic')}</Tab>
@@ -561,7 +864,6 @@ const QuestionAdd = ({
                   />
                 )}
 
-
                 {questionType === TEXT_AREA_QUESTION_TYPE && (
                   <Checkbox
                     onChange={() => handleInputChange('useSampleTextAsDefault', !question?.useSampleTextAsDefault)}
@@ -576,6 +878,286 @@ const QuestionAdd = ({
                   </Checkbox>
                 )}
 
+                {questionType === RESEARCH_OUTPUT_QUESTION_TYPE && (
+                  <div className={styles.fieldsContainer}>
+                    <h3>{QuestionAdd('researchOutput.headings.enableStandardFields')}</h3>
+
+                    <p className={styles.fieldsDescription}>
+                      {QuestionAdd('researchOutput.description')}
+                    </p>
+                    <div className={styles.fieldsList}>
+                      {standardFields.map((field, index) => {
+                        // These fields are always required and cannot be turned off
+                        const isDisabled = field.id === 'title' || field.id === 'outputType';
+
+                        return (
+                          <div key={field.id} className={styles.fieldRowWrapper}>
+                            <div className={styles.fieldRow}>
+                              <div className={isDisabled ? styles.tooltipWrapper : undefined}>
+
+                                <Checkbox
+                                  isSelected={field.enabled}
+                                  isDisabled={isDisabled}
+                                  className={
+                                    `react-aria-Checkbox ${(field.id === 'title' || field.id === 'outputType')
+                                      ? styles.disabledCheckbox
+                                      : ''
+                                    }`
+                                  }
+
+                                  onChange={(isSelected) => handleStandardFieldChange(field.id, isSelected)}
+                                >
+                                  <div className="checkbox">
+                                    <svg viewBox="0 0 18 18" aria-hidden="true">
+                                      <polyline points="1 9 7 14 15 4" />
+                                    </svg>
+                                  </div>
+                                  <span>{field.label}</span>
+                                </Checkbox>
+                                {isDisabled && <span className={styles.tooltipText}>{QuestionAdd('researchOutput.tooltip.requiredFields')}</span>}
+                              </div>
+                              {field.id !== 'title' && (
+                                <Button
+                                  type="button"
+                                  className={`buttonLink link`}
+                                  onPress={() => handleCustomizeField(field.id)}
+                                >
+                                  {expandedFields.includes(field.id) ? Global('buttons.close') : Global('buttons.customize')}
+                                </Button>
+                              )}
+
+                            </div>
+
+                            {/* Expanded panel OUTSIDE the .fieldRow flex container */}
+                            {expandedFields.includes(field.id) && (
+                              <div className={styles.fieldPanel}>
+                                {/** Description */}
+                                {field.id === 'description' && (
+                                  <FormTextArea
+                                    name={QuestionAdd('researchOutput.labels.descriptionLowerCase')}
+                                    isRequired={false}
+                                    richText={true}
+                                    label={QuestionAdd('researchOutput.labels.description')}
+                                    value={field.value}
+                                    onChange={(newValue) => updateStandardFieldProperty('description', 'value', newValue)}
+                                  />
+                                )}
+
+                                {/** Data Flags Configuration */}
+                                {field.id === 'dataFlags' && (
+                                  <div style={{ marginBottom: '1.5rem' }}>
+                                    <fieldset>
+                                      <legend>{QuestionAdd('researchOutput.legends.dataFlag')}</legend>
+                                      <div className={styles.dataFlagsConfig}>
+                                        <RadioGroupComponent
+                                          name="dataFlagsMode"
+                                          value={field.flagsConfig?.mode || 'both'}
+                                          description={QuestionAdd('researchOutput.dataFlags.description')}
+                                          onChange={(mode) => updateStandardFieldProperty('dataFlags', 'flagsConfig', {
+                                            ...field.flagsConfig,
+                                            mode,
+                                            showSensitiveData: mode === 'sensitiveOnly' || mode === 'both',
+                                            showPersonalData: mode === 'personalOnly' || mode === 'both'
+                                          })}
+                                        >
+                                          <div>
+                                            <Radio value="sensitiveOnly">{QuestionAdd('researchOutput.dataFlags.options.sensitiveOnly')}</Radio>
+                                          </div>
+                                          <div>
+                                            <Radio value="personalOnly">{QuestionAdd('researchOutput.dataFlags.options.personalOnly')}</Radio>
+                                          </div>
+                                          <div>
+                                            <Radio value="both">{QuestionAdd('researchOutput.dataFlags.options.both')}</Radio>
+                                          </div>
+                                        </RadioGroupComponent>
+                                      </div>
+                                    </fieldset>
+                                  </div>
+                                )}
+
+                                {/** Output Type Configuration */}
+                                {field.id === 'outputType' && (
+                                  <OutputTypeField
+                                    field={field}
+                                    newOutputType={newOutputType}
+                                    setNewOutputType={setNewOutputType}
+                                    onModeChange={handleOutputTypeModeChange}
+                                    onAddCustomType={handleAddCustomOutputType}
+                                    onRemoveCustomType={handleRemoveCustomOutputType}
+                                  />
+                                )}
+
+                                {/** Repository Selector */}
+                                {field.id === 'repoSelector' && (
+                                  <>
+                                    <RepositorySelectionSystem
+                                      field={field}
+                                      handleTogglePreferredRepositories={handleTogglePreferredRepositories}
+                                      onRepositoriesChange={handleRepositoriesChange}
+                                    />
+
+                                    <FormTextArea
+                                      name="repoSelectorDescription"
+                                      isRequired={false}
+                                      richText={true}
+                                      label={QuestionAdd('researchOutput.repoSelector.descriptionLabel')}
+                                      value={field.value}
+                                      onChange={(value) => updateStandardFieldProperty('repoSelector', 'value', value)}
+                                    />
+                                  </>
+                                )}
+
+                                {/** Metadata Standards */}
+                                {field.id === 'metadataStandards' && hasMetaDataConfig(field) && (
+                                  <>
+                                    <MetaDataStandards
+                                      field={field}
+                                      handleToggleMetaDataStandards={handleToggleMetaDataStandards}
+                                      onMetaDataStandardsChange={handleMetaDataStandardsChange}
+                                    />
+
+                                    <FormTextArea
+                                      name="metadataStandardsDescription"
+                                      isRequired={false}
+                                      richText={true}
+                                      label={QuestionAdd('researchOutput.metaDataStandards.descriptionLabel')}
+                                      value={field.value}
+                                      helpMessage={QuestionAdd('researchOutput.metaDataStandards.helpText')}
+                                      onChange={(value) => updateStandardFieldProperty('metaDataStandards', 'value', value)}
+                                    />
+                                  </>
+                                )}
+
+                                {/**License configurations */}
+                                {field.id === 'licenses' && (
+                                  <LicenseField
+                                    field={field}
+                                    newLicenseType={newLicenseType}
+                                    setNewLicenseType={setNewLicenseType}
+                                    onModeChange={handleLicenseModeChange}
+                                    onAddCustomType={handleAddCustomLicenseType}
+                                    onRemoveCustomType={handleRemoveCustomLicenseType}
+                                  />
+                                )}
+                              </div>
+                            )}
+                            {index < standardFields.length - 1 && <hr className={styles.fieldDivider} />}
+
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className={styles.fieldsContainer}>
+                      <h3>{QuestionAdd('researchOutput.headings.additionalTextFields')}</h3>
+                      <div className={styles.fieldsList}>
+                        {additionalFields.map((field, index) => {
+
+                          return (
+                            <div key={field.id} className={styles.fieldRowWrapper}>
+                              <div className={styles.fieldRow}>
+                                <Checkbox
+                                  isSelected={field.enabled}
+                                  onChange={(isSelected) => handleStandardFieldChange(field.id, isSelected)}
+                                >
+                                  <div className="checkbox">
+                                    <svg viewBox="0 0 18 18" aria-hidden="true">
+                                      <polyline points="1 9 7 14 15 4" />
+                                    </svg>
+                                  </div>
+                                  <span>{field.customLabel !== undefined && field.customLabel !== '' ? field.customLabel : field.label}</span>
+                                </Checkbox>
+                                <div className={styles.fieldActions}>
+                                  <Button
+                                    type="button"
+                                    className={`buttonLink link`}
+                                    onPress={() => handleCustomizeField(field.id)}
+                                  >
+                                    {expandedFields.includes(field.id) ? Global('buttons.close') : Global('buttons.customize')}
+                                  </Button>
+
+                                  <Button
+                                    type="button"
+                                    className={`buttonLink link ${styles.deleteButton}`}
+                                    onPress={() => handleDeleteAdditionalField(field.id)}
+                                    aria-label={`Delete ${field.label}`}
+                                  >
+                                    {Global('buttons.delete')}
+                                  </Button>
+
+                                </div>
+                              </div>
+
+                              {/* Expanded panel for Additional Custom Fields */}
+                              {expandedFields.includes(field.id) && (
+                                <div className={styles.customizePanel}>
+                                  <div className={styles.fieldCustomization}>
+                                    {/* Field Label */}
+                                    <FormInput
+                                      name={`${field.id}_label`}
+                                      type="text"
+                                      isRequired={false}
+                                      label={QuestionAdd('researchOutput.additionalFields.fieldLabel.label')}
+                                      value={field.customLabel !== undefined ? field.customLabel : field.label}
+                                      onChange={(e) => handleUpdateAdditionalField(field.id, 'customLabel', e.currentTarget.value)}
+                                      helpMessage={QuestionAdd('researchOutput.additionalFields.fieldLabel.helpText')}
+                                    />
+
+                                    {/* Help Text */}
+                                    <FormTextArea
+                                      name={`${field.id}_help`}
+                                      isRequired={false}
+                                      richText={false}
+                                      label={QuestionAdd('researchOutput.additionalFields.helpText.label')}
+                                      value={field.helpText}
+                                      onChange={(value) => handleUpdateAdditionalField(field.id, 'helpText', value)}
+                                      helpMessage={QuestionAdd('researchOutput.additionalFields.helpText.helpText')}
+                                    />
+
+                                    {/* Max Length for text field */}
+                                    <FormInput
+                                      name={`${field.id}_maxLength`}
+                                      type="number"
+                                      isRequired={false}
+                                      label={QuestionAdd('researchOutput.additionalFields.maxLength.label')}
+                                      value={field.maxLength || ''}
+                                      onChange={(e) => handleUpdateAdditionalField(field.id, 'maxLength', e.currentTarget.value)}
+                                      helpMessage={QuestionAdd('researchOutput.additionalFields.maxLength.helpText')}
+                                    />
+
+                                    {/* Default Value for the custom field */}
+                                    <FormInput
+                                      name={`${field.id}_defaultValue`}
+                                      type="text"
+                                      isRequired={false}
+                                      label={QuestionAdd('researchOutput.additionalFields.defaultValue.label')}
+                                      value={field.defaultValue}
+                                      onChange={(e) => handleUpdateAdditionalField(field.id, 'defaultValue', e.currentTarget.value)}
+                                      helpMessage={QuestionAdd('researchOutput.additionalFields.defaultValue.helpText')}
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                              {index < additionalFields.length - 1 && <hr className={styles.fieldDivider} />}
+                            </div>
+                          );
+                        })}
+                        <div className={styles.additionalFieldsContainer}>
+                          <Button
+                            type="button"
+                            className={styles.addFieldButton}
+                            onPress={addAdditionalField}
+                          >
+                            + {QuestionAdd('researchOutput.additionalFields.addFieldBtn')}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                )}
+
+                {/** Research Output question types have "required" at individual fields, and not on the whole question */}
                 <RadioGroupComponent
                   name="radioGroup"
                   value={question?.required ? 'yes' : 'no'}
