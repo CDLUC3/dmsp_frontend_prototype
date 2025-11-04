@@ -1,5 +1,9 @@
 ### Added
 - Hooked up the `Download plan` page and added a `download-narrative` api endpoint [#313]
+- Added user's org as a filter for the Plan Create (`projects/9/dmp/create`) page, and updated filter text to include `organization` [#735]
+  - Fixed filtering on the Plan Create (`projects/9/dmp/create`) page so that it takes search term into consideration when used with checked filters [#735]
+  - Moved checkbox filters below search field to make them more noticeable [#735]
+  - Made code improvements to the Plan Create page and updated unit tests [#735]
 - Removed `Title` field from TinyMCEEditor's `Insert Link` form, and made `new window` the default for `Open link in...` [#874]
 - Integrated related works UI with GraphQL backend.
 - Added updated description that includes template source, affiliation name, version and publish date on the `Plan Overview` page [#621]
@@ -15,6 +19,7 @@
 ### Removed
 
 ### Chore
+- Updated version of cypress to `14.5.4` and fixed broken cypress tests and removed loading of `tinymce` from `layout.tsx` into `TinyMCEEditor`
 - Trying another method of disabling the renovate `Apollo Graphql Group update` 
 - Disable `Apollo Graphql` renovate PR and fix missing logs from CHANGELOG
 - Added `renovate.json` config file in order to get automatic PRs for dependency updates

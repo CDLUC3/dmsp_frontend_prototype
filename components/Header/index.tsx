@@ -39,6 +39,7 @@ function Header() {
   }, [isAuthenticated]);
 
   const handleLogout = async () => {
+    setShowMobileMenu(false);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-signout`, {
         method: "POST",
@@ -308,6 +309,7 @@ function Header() {
                 <li role="menuitem">
                   <Button
                     className="react-aria-Button secondary"
+                    data-testid="logoutButtonDesktop"
                     onPress={handleLogout}
                   >
                     {t("btnLogout")}
@@ -580,6 +582,7 @@ function Header() {
                 <li role="menuitem">
                   <Button
                     className="react-aria-Button secondary"
+                    data-testid="logoutButtonMobile"
                     onPress={handleLogout}
                   >
                     {t("btnLogout")}
