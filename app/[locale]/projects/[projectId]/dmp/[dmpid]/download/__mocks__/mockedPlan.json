@@ -1,0 +1,102 @@
+{
+  "__typename": "Plan",
+  "id": 10,
+  "versionedTemplate": {
+    "__typename": "VersionedTemplate",
+    "template": {
+      "__typename": "Template",
+      "id": 34,
+      "name": "Super Admin Template 6"
+    },
+    "name": "Super Admin Template 6",
+    "owner": {
+      "__typename": "Affiliation",
+      "uri": "https://ror.org/03yrm5c26",
+      "displayName": "California Digital Library (cdlib.org)"
+    },
+    "version": "v1",
+    "created": "2025-10-30 22:23:29"
+  },
+  "fundings": [
+    {
+      "__typename": "PlanFunding",
+      "id": 8,
+      "projectFunding": {
+        "__typename": "ProjectFunding",
+        "affiliation": {
+          "__typename": "Affiliation",
+          "displayName": "National Science Foundation (nsf.gov)"
+        }
+      }
+    }
+  ],
+  "visibility": "PRIVATE",
+  "status": "DRAFT",
+  "project": {
+    "__typename": "Project",
+    "fundings": [
+      {
+        "__typename": "ProjectFunding",
+        "affiliation": {
+          "__typename": "Affiliation",
+          "displayName": "National Science Foundation (nsf.gov)",
+          "name": "National Science Foundation"
+        },
+        "funderOpportunityNumber": null
+      }
+    ],
+    "title": "Butterfly Migration",
+    "collaborators": [
+      {
+        "__typename": "ProjectCollaborator",
+        "user": {
+          "__typename": "User",
+          "id": 1
+        },
+        "accessLevel": "OWN"
+      }
+    ]
+  },
+  "members": [
+    {
+      "__typename": "PlanMember",
+      "isPrimaryContact": true,
+      "projectMember": {
+        "__typename": "ProjectMember",
+        "givenName": "Super",
+        "surName": "Admin",
+        "email": "super@example.com",
+        "orcid": null,
+        "memberRoles": [
+          {
+            "__typename": "MemberRole",
+            "label": "Other"
+          }
+        ]
+      }
+    }
+  ],
+  "versionedSections": [
+    {
+      "__typename": "PlanSectionProgress",
+      "answeredQuestions": 1,
+      "displayOrder": 1,
+      "versionedSectionId": 164,
+      "title": "Section Two",
+      "totalQuestions": 1
+    }
+  ],
+  "progress": {
+    "__typename": "PlanProgress",
+    "answeredQuestions": 1,
+    "percentComplete": 100,
+    "totalQuestions": 1
+  },
+  "created": "2025-10-31 23:34:02",
+  "createdById": 1,
+  "modified": "2025-10-31 23:34:02",
+  "dmpId": "https://doi.org/10.11111/ZZ10da46fd",
+  "registered": null,
+  "title": "Butterfly Migration",
+  "feedback": []
+}
