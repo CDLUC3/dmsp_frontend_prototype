@@ -1869,6 +1869,12 @@ export type PlanFeedbackErrors = {
   summaryText?: Maybe<Scalars['String']['output']>;
 };
 
+export enum PlanFeedbackStatusEnum {
+  Completed = 'COMPLETED',
+  None = 'NONE',
+  Requested = 'REQUESTED'
+}
+
 /** Funding associated with a plan */
 export type PlanFunding = {
   __typename?: 'PlanFunding';
@@ -2490,6 +2496,8 @@ export type Query = {
   planFeedback?: Maybe<Array<Maybe<PlanFeedback>>>;
   /** Get all of the comments associated with the round of admin feedback */
   planFeedbackComments?: Maybe<Array<Maybe<PlanFeedbackComment>>>;
+  /** Get the feedback status for a plan (NONE, REQUESTED, COMPLETED) */
+  planFeedbackStatus?: Maybe<PlanFeedbackStatusEnum>;
   /** Get all of the Funding information for the specific Plan */
   planFundings?: Maybe<Array<Maybe<PlanFunding>>>;
   /** Get all of the Users that are Members for the specific Plan */
@@ -2682,6 +2690,11 @@ export type QueryPlanFeedbackArgs = {
 
 export type QueryPlanFeedbackCommentsArgs = {
   planFeedbackId: Scalars['Int']['input'];
+  planId: Scalars['Int']['input'];
+};
+
+
+export type QueryPlanFeedbackStatusArgs = {
   planId: Scalars['Int']['input'];
 };
 
