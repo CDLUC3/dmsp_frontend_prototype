@@ -294,5 +294,14 @@
         "downloadFailed": "Download failed. Please try again."
       }
     }
+  },
+  "ProjectsProjectPlanNew": {
+    "title": "Options for new plan",
+    "description": "Do you want to start a brand new Data Management Plan (DMP) or upload an existing one?",
+    "labels": {
+      "startNewPlan": "Start a new plan",
+      "uploadExistingPlan": "Upload an existing plan",
+      "startNewOrUploadExisting": "Would you like to create a new plan or upload an existing one?"
+    }
   }
 }

@@ -1,8 +1,34 @@
 {
   "HomePage": {
     "title": "Página inicial",
-    "linkText": "Ir para a página de conexões",
-    "content": "É um fato estabelecido há muito tempo que um leitor se distrairá com o conteúdo legível de uma página ao observar sua disposição."
+    "createAndManage": {
+      "title": "Criar e Gerenciar",
+      "description": "Criar novos modelos e projetos"
+    },
+    "accountAndAdmin": {
+      "title": "Conta e Administração",
+      "description": "Gerenciar sua conta e acessar recursos administrativos"
+    },
+    "sections": {
+      "templateManagement": {
+        "title": "Gerenciamento de Modelos",
+        "description": "Criar e gerenciar modelos (É necessário ser administrador para acessar)"
+      },
+      "planDashboard": {
+        "title": "Painel de Planos",
+        "description": "Criar e gerenciar projetos"
+      },
+      "accountSettings": {
+        "title": "Configurações da Conta",
+        "description": "Visualizar e gerenciar sua conta"
+      },
+      "adminOverview": {
+        "title": "Visão Geral do Administrador",
+        "description": "Acessar funções administrativas"
+      }
+    },
+    "linkText": "Ir para a página de Conexões",
+    "content": "É um fato amplamente estabelecido que um leitor será distraído pelo conteúdo legível de uma página ao olhar para seu layout."
   },
   "About": {
     "title": "Bem-vindo à Ferramenta DMP"
@@ -11,7 +37,7 @@
     "menuDashboard": "Painel de controle",
     "menuUpload": "Carregar plano",
     "menuCreatePlan": "Criar plano",
-    "menuProjectsPlans": "Projetos e Planos",
+    "menuProjectsPlans": "Painel de Planos",
     "menuPublicPlans": "Planos públicos",
     "menuFunderRequirements": "Requisitos de Barbatana",
     "menuAbout": "Sobre",

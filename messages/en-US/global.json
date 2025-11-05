@@ -1,6 +1,32 @@
 {
   "HomePage": {
     "title": "Home page",
+    "createAndManage": {
+      "title": "Create & Manage",
+      "description": "Create new templates and projects"
+    },
+    "accountAndAdmin": {
+      "title": "Account & Administration",
+      "description": "Manage your account and access admin features"
+    },
+    "sections": {
+      "templateManagement": {
+        "title": "Template Management",
+        "description": "Create and manage templates (Must be Admin to access)"
+      },
+      "planDashboard": {
+        "title": "Plan Dashboard",
+        "description": "Create and manage projects and plans"
+      },
+      "accountSettings": {
+        "title": "Account Settings",
+        "description": "View and manage your account"
+      },
+      "adminOverview": {
+        "title": "Admin Overview",
+        "description": "Access administrative functions"
+      }
+    },
     "linkText": "Go to the Connections page",
     "content": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout."
   },
@@ -11,7 +37,7 @@
     "menuDashboard": "Dashboard",
     "menuUpload": "Upload Plan",
     "menuCreatePlan": "Create Plan",
-    "menuProjectsPlans": "Projects &amp; Plans",
+    "menuProjectsPlans": "Plan Dashboard",
     "menuPublicPlans": "Public Plans",
     "menuFunderRequirements": "Funder Requirements",
     "menuAbout": "About",
@@ -629,6 +655,7 @@
       "selectQuestionType": "Select Question Type",
       "project": "Project",
       "projects": "Projects",
+      "planDashboard": "Plan Dashboard",
       "projectOverview": "Project overview",
       "projectFunding": "Project funding",
       "projectFundingSearch": "Project funding search",
@@ -694,7 +721,8 @@
       "customize": "Customize",
       "applyFilter": "Apply filter(s)",
       "moreInfo": "More info",
-      "lessInfo": "Less info"
+      "lessInfo": "Less info",
+      "createNewPlan": "Create New DMP"
     },
     "labels": {
       "required": "required",

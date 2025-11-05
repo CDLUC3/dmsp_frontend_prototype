@@ -66,7 +66,7 @@
     }
   },
   "ProjectsListPage": {
-    "intro": "Manager or create DMSP project or by DMP",
+    "intro": "Manage your data management plans and projects. To create a new plan within the same research project, open the project below first and then create a new plan within it.",
     "buttons": {
       "createProject": "Create project"
     },
@@ -77,15 +77,13 @@
     }
   },
   "ProjectsCreateProject": {
-    "pageTitle": "Create a new project",
+    "pageTitle": "Create project details",
+    "description": "We'll start with asking for details about your research project so we can help you create the right data management plan for it. You can then add additional plans to the same project.",
     "isThisMockProject": "Is this a mock project?",
     "form": {
-      "projectTitle": "What is the title for the project?",
-      "projectTitleHelpText": "You can change this at any time. If you already applied for funding, we recommend using the formal project title for consistency.",
-      "checkboxGroupLabel": "This project is mock project for testing, practice, or educational purposes",
-      "checkboxGroupHelpText": "This is a mock project intended solely for testing, practice, or educational purposes. It allows you to create a project and plans, but you will not be able to receive feedback or publish them.",
-      "checkboxLabel": "Yes, set this project to a mock or a test project.",
-      "checkboxHelpText": "If you aim on publishing your DMSP eventually, we recommend leaving this unticked, so you get the full features. All real projects have a draft status you can use for testing."
+      "projectTitle": "What is the title of the research project for this DMP?",
+      "projectTitleHelpText": "You can change this at any time. If you already applied for funding, we recommend using the formal project title for consistency and to help find details in funder databases.",
+      "radioGroupLabel": "Is this a mock project for testing purposes or a real project?"
     },
     "messages": {
       "success": "Successfully created project",
@@ -94,6 +92,14 @@
         "title": "Project title is required",
         "createProjectError": "Error creating project"
       }
+    },
+    "labels": {
+      "mockProject": "Mock project",
+      "realProject": "Real project"
+    },
+    "descriptions": {
+      "mockProject": "For testing/educational purposes: cannot request feedback or publish plan, excluded from statistics.",
+      "realProject": "Full functionality. Cannot be changed back to Mock project."
     }
   },
   "ProjectsCreateProjectFunding": {

@@ -1,39 +1,41 @@
 'use client'
 
-import {ContentContainer, LayoutContainer} from '@/components/Container';
+import { useTranslations } from 'next-intl';
+import { ContentContainer, LayoutContainer } from '@/components/Container';
 import PageLinkCard, { PageLinkSection } from '@/components/PageLinkCard';
 import { routePath } from '@/utils/routes';
 
 const Home = () => {
+  const t = useTranslations('HomePage');
   const sections: PageLinkSection[] = [
     {
-      title: "Create & Manage",
-      description: "Create new templates and projects",
+      title: t('createAndManage.title'),
+      description: t('createAndManage.description'),
       items: [
         {
-          title: "Template Management",
-          description: "Create and manage templates (Must be Admin to access)",
+          title: t('sections.templateManagement.title'),
+          description: t('sections.templateManagement.description'),
           href: routePath('template.index')
         },
         {
-          title: "Project Management",
-          description: "Create and manage projects",
+          title: t('sections.planDashboard.title'),
+          description: t('sections.planDashboard.description'),
           href: routePath('projects.index')
         }
       ]
     },
     {
-      title: "Account & Administration",
-      description: "Manage your account and access admin features",
+      title: t('accountAndAdmin.title'),
+      description: t('accountAndAdmin.description'),
       items: [
         {
-          title: "Account Settings",
-          description: "View and manage your account",
+          title: t('sections.accountSettings.title'),
+          description: t('sections.accountSettings.description'),
           href: routePath('account.index')
         },
         {
-          title: "Admin Overview",
-          description: "Access administrative functions",
+          title: t('sections.adminOverview.title'),
+          description: t('sections.adminOverview.description'),
           href: routePath('admin.index')
         }
       ]

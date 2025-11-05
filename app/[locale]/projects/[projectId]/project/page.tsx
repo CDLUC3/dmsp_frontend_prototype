@@ -256,7 +256,7 @@ const ProjectsProjectDetail = () => {
         // Show success message
         showSuccessToast();
         // Redirect to the Project Overview page
-        router.push(routePath('projects.show', { projectId }))
+        router.push(routePath('projects.dmp.options', { projectId }))
       }
     }
   };

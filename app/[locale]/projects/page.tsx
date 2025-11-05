@@ -302,20 +302,20 @@ const ProjectsListPage: React.FC = () => {
   return (
     <>
       <PageHeader
-        title={Global('breadcrumbs.projects')}
+        title={Global('breadcrumbs.planDashboard')}
         description={Project('intro')}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-            <Breadcrumb>{Global('breadcrumbs.projects')}</Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.planDashboard')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={
           <>
             <Link href="/projects/create-project"
-              className={"button-link button--primary"}>{Project('buttons.createProject')}</Link>
+              className={"button-link button--primary"}>{Global('buttons.createNewPlan')}</Link>
           </>
         }
         className="page-project-list"

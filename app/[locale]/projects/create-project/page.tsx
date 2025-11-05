@@ -7,9 +7,10 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
-  Checkbox,
   Form,
   Link,
+  Radio,
+  Text
 } from "react-aria-components";
 
 //GraphQL
@@ -25,8 +26,8 @@ import {
   LayoutContainer,
 } from "@/components/Container";
 import {
-  CheckboxGroupComponent,
   FormInput,
+  RadioGroupComponent
 } from '@/components/Form';
 import ErrorMessages from '@/components/ErrorMessages';
 
@@ -36,16 +37,17 @@ import { scrollToTop } from '@/utils/general';
 import { routePath } from '@/utils/routes';
 import { useToast } from '@/context/ToastContext';
 import { checkErrors } from '@/utils/errorHandler';
+import styles from './projectsCreateProject.module.scss';
 
 
 interface CreateProjectInterface {
   projectName: string;
-  checkboxGroup?: string[];
+  radioGroup?: string;
 }
 
 interface CreateProjectErrorsInterface {
   projectName: string;
-  checkboxGroup?: string;
+  radioGroup?: string;
 }
 
 const ProjectsCreateProject = () => {
@@ -57,11 +59,11 @@ const ProjectsCreateProject = () => {
 
   const [fieldErrors, setFieldErrors] = useState<CreateProjectErrorsInterface>({
     projectName: '',
-    checkboxGroup: '',
+    radioGroup: '',
   });
   const [formData, setFormData] = useState<CreateProjectInterface>({
     projectName: '',
-    checkboxGroup: [],
+    radioGroup: ''
   })
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -84,14 +86,22 @@ const ProjectsCreateProject = () => {
     handleUpdate(name, value);
   };
 
-  // Handle changes from CheckboxGroup
-  const handleCheckboxChange = (value: string[]) => {
-    setFormSubmitted(false);
+  const updateProjectContent = (
+    key: string,
+    value: string
+  ) => {
     setFormData((prev) => ({
       ...prev,
-      checkboxGroup: value
+      [key]: value
     }))
   };
+
+  // Handle changes from CheckboxGroup
+  const handleRadioChange = (value: string) => {
+    setFormSubmitted(false);
+    updateProjectContent('radioGroup', value);
+  };
+
 
   // Show Success Message
   const showSuccessToast = () => {
@@ -115,7 +125,7 @@ const ProjectsCreateProject = () => {
   const isFormValid = (): boolean => {
     const errors: CreateProjectErrorsInterface = {
       projectName: '',
-      checkboxGroup: '',
+      radioGroup: '',
     };
 
     let hasError = false;
@@ -146,7 +156,7 @@ const ProjectsCreateProject = () => {
     setErrors([]);
 
     if (isFormValid()) {
-      const isTestProject = formData.checkboxGroup?.includes('checkboxGroup');
+      const isTestProject = formData.radioGroup === "true";
 
       // Create new section
       addProjectMutation({
@@ -197,7 +207,7 @@ const ProjectsCreateProject = () => {
     <>
       <PageHeader
         title={CreateProject('pageTitle')}
-        description=""
+        description={CreateProject('description')}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
@@ -230,33 +240,31 @@ const ProjectsCreateProject = () => {
               id="projectName"
             />
 
-            <CheckboxGroupComponent
-              name="checkboxGroup"
-              value={formData.checkboxGroup}
-              onChange={handleCheckboxChange}
-              isRequired={false}
-              checkboxGroupLabel={CreateProject('form.checkboxGroupLabel')}
-              checkboxGroupDescription={CreateProject('form.checkboxGroupHelpText')}
+            <RadioGroupComponent
+              name="projectType"
+              value={formData.radioGroup}
+              classes={`${styles.radioGroup} react-aria-RadioGroup`}
+              radioGroupLabel={CreateProject('form.radioGroupLabel')}
+              onChange={handleRadioChange}
             >
+              <div>
+                <Radio value="true">{CreateProject('labels.mockProject')}</Radio>
+                <Text
+                  slot="description"
+                >
+                  {CreateProject('descriptions.mockProject')}
+                </Text>
+              </div>
 
-              <Checkbox value="checkboxGroup" aria-label={CreateProject('isThisMockProject')}>
-                <div className="checkbox">
-                  <svg viewBox="0 0 18 18" aria-hidden="true">
-                    <polyline points="1 9 7 14 15 4" />
-                  </svg>
-                </div>
-                <div className="">
-                  <span>
-                    {CreateProject('form.checkboxLabel')}
-                  </span>
-                  <br />
-                  <span className="help">
-                    {CreateProject('form.checkboxHelpText')}
-                  </span>
-                </div>
-              </Checkbox>
-
-            </CheckboxGroupComponent>
+              <div>
+                <Radio value="false">{CreateProject('labels.realProject')}</Radio>
+                <Text
+                  slot="description"
+                >
+                  {CreateProject('descriptions.realProject')}
+                </Text>
+              </div>
+            </RadioGroupComponent>
 
             <Button
               type="submit"
