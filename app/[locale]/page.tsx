@@ -45,7 +45,7 @@ const Home = () => {
   return (
     <LayoutContainer>
       <ContentContainer>
-        <h1>Home Page</h1>
+        <h1>{t('title')}</h1>
         <PageLinkCard sections={sections} />
       </ContentContainer>
     </LayoutContainer>

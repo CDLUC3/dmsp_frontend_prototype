@@ -294,5 +294,13 @@
         "downloadFailed": "Falha no download. Por favor, tente novamente."
       }
     }
+  },
+  "ProjectsProjectPlanNew": {
+    "title": "Adicionar um Plano de Gerenciamento de Dados ao seu projeto",
+    "labels": {
+      "startNewPlan": "Criar um plano na ferramenta DMP",
+      "uploadExistingPlan": "Carregar um plano criado em outro lugar",
+      "startNewOrUploadExisting": "Você gostaria de criar um novo plano ou carregar um existente?"
+    }
   }
 }

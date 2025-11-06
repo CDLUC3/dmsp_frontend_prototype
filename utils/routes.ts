@@ -70,7 +70,7 @@ const routes = {
 
   // DMP (Data Management Plan) routes
   'projects.dmp.index': '/projects/:projectId/dmp',
-  'projects.dmp.options': '/projects/:projectId/dmp',
+  'projects.dmp.start': '/projects/:projectId/dmp/start',
   'projects.dmp.show': '/projects/:projectId/dmp/:dmpId',
   'projects.dmp.download': '/projects/:projectId/dmp/:dmpId/download',
   'projects.dmp.fundings': '/projects/:projectId/dmp/:dmpId/fundings',

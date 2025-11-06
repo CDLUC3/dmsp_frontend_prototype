@@ -36,7 +36,7 @@ const mocks = [
         funderOnly: true,
         paginationOptions: {
           type: "CURSOR",
-          limit: 50,
+          limit: 5,
         },
       },
     },
@@ -54,7 +54,7 @@ const mocks = [
             };
           }),
           totalCount: 50,
-          limit: 50,
+          limit: 5,
           nextCursor: null,
           currentOffset: null,
           hasNextPage: false,
@@ -96,7 +96,7 @@ const mocks = [
         funderOnly: true,
         paginationOptions: {
           type: "CURSOR",
-          limit: 50,
+          limit: 5,
         },
       },
     },
@@ -126,7 +126,7 @@ const mocks = [
         funderOnly: true,
         paginationOptions: {
           type: "CURSOR",
-          limit: 50,
+          limit: 5,
         },
       },
     },
@@ -144,7 +144,7 @@ const mocks = [
             };
           }),
           totalCount: 70,
-          limit: 50,
+          limit: 5,
           nextCursor: "page2",
           currentOffset: null,
           hasNextPage: true,
@@ -165,7 +165,7 @@ const mocks = [
         paginationOptions: {
           type: "CURSOR",
           cursor: "page2",
-          limit: 50,
+          limit: 5,
         },
       },
     },
@@ -183,7 +183,7 @@ const mocks = [
             };
           }),
           totalCount: 70,
-          limit: 50,
+          limit: 5,
           nextCursor: null,
           currentOffset: null,
           hasNextPage: true,

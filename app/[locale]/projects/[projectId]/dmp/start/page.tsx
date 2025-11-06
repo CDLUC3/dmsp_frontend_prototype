@@ -1,10 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
-import { CalendarDate, DateValue, parseDate } from "@internationalized/date";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -12,40 +10,20 @@ import {
   Form,
   Link,
   Radio,
-  Text
 } from "react-aria-components";
-
-//GraphQL
-import {
-  ProjectErrors,
-  useProjectQuery,
-  useUpdateProjectMutation,
-} from '@/generated/graphql';
 
 //Components
 import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutContainer } from "@/components/Container";
 import {
-  FormInput,
-  FormTextArea,
-  DateComponent,
   RadioGroupComponent
 } from "@/components/Form";
 
-import ErrorMessages from '@/components/ErrorMessages';
-import ResearchDomainCascadingDropdown
-  from '@/components/ResearchDomainCascadingDropdown';
-
-import { getCalendarDateValue } from "@/utils/dateUtils";
-import { scrollToTop } from '@/utils/general';
-import { logECS, routePath } from '@/utils/index';
-import { useToast } from '@/context/ToastContext';
+import { routePath } from '@/utils/index';
 import Loading from '@/components/Loading';
 
 
 const ProjectsProjectPlanNew = () => {
-  const toastState = useToast(); // Access the toast state from context
-
   // Get projectId param
   const params = useParams();
   const router = useRouter();
@@ -106,7 +84,7 @@ const ProjectsProjectPlanNew = () => {
                   href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
                 <Breadcrumb><Link
                   href={`/projects/${projectId}`}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
-                <Breadcrumb>{t('title')}</Breadcrumb>
+                <Breadcrumb>{Global('breadcrumbs.startDMP')}</Breadcrumb>
               </Breadcrumbs>
             }
             actions={null}
@@ -119,7 +97,8 @@ const ProjectsProjectPlanNew = () => {
                   <RadioGroupComponent
                     name="projectType"
                     value={dmpPlan.startNewPlan}
-                    radioGroupLabel={t('labels.startNewOrUploadExisting')}
+                    aria-label={t('labels.startNewOrUploadExisting')}
+                    radioGroupLabel=""
                     onChange={handleRadioChange}
                   >
                     <div>
@@ -132,7 +111,7 @@ const ProjectsProjectPlanNew = () => {
                   </RadioGroupComponent>
                 </div>
 
-                <Button type="submit" className="submit-button">{Global('buttons.save')}</Button>
+                <Button type="submit" className="submit-button">{Global('buttons.next')}</Button>
               </Form>
             </ContentContainer>
           </LayoutContainer >

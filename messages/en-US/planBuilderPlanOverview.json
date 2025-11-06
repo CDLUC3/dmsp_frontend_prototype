@@ -296,11 +296,10 @@
     }
   },
   "ProjectsProjectPlanNew": {
-    "title": "Options for new plan",
-    "description": "Do you want to start a brand new Data Management Plan (DMP) or upload an existing one?",
+    "title": "Add a Data Management Plan to your project",
     "labels": {
-      "startNewPlan": "Start a new plan",
-      "uploadExistingPlan": "Upload an existing plan",
+      "startNewPlan": "Create a plan in the DMP Tool",
+      "uploadExistingPlan": "Upload a plan created elsewhere",
       "startNewOrUploadExisting": "Would you like to create a new plan or upload an existing one?"
     }
   }
