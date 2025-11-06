@@ -1,6 +1,6 @@
 'use client';
 
-import React, {ChangeEvent, useState} from 'react';
+import React, { ChangeEvent, useRef, useState } from 'react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -9,24 +9,40 @@ import {
   Radio,
   RadioGroup
 } from "react-aria-components";
+import { useParams } from "next/navigation";
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
+import {
+  usePlanQuery
+} from "@/generated/graphql";
+
+// Components
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
+import ErrorMessages from '@/components/ErrorMessages';
+
+// Other
+import { DOI_REGEX } from "@/lib/constants";
+import { routePath } from "@/utils/routes";
+import logECS from "@/utils/clientLogger";
 import styles from './ProjectsProjectPlanDownloadPage.module.scss';
 
 // Define types
 interface SettingsState {
-  includeProjectDetails: boolean;
+  includeCoverPage: boolean;
   includeSectionHeadings: boolean;
   includeQuestionText: boolean;
   includeUnansweredQuestions: boolean;
-  removeHtmlTags: boolean;
-  font: string;
+  includeResearchOutputs: boolean;
+  includeRelatedWorks: boolean;
+  fontFamily: string;
   fontSize: string;
+  lineHeight: string;
   margins: {
     top: string;
     bottom: string;
@@ -35,18 +51,20 @@ interface SettingsState {
   };
 }
 
-type FileFormatType = 'pdf' | 'doc' | 'html' | 'csv' | 'json';
+type FileFormatType = 'pdf' | 'doc' | 'html' | 'csv' | 'json' | 'text';
 
 const ProjectsProjectPlanDownloadPage: React.FC = () => {
   // State for form values
   const [settings, setSettings] = useState<SettingsState>({
-    includeProjectDetails: false,
+    includeCoverPage: false,
     includeSectionHeadings: true,
     includeQuestionText: true,
     includeUnansweredQuestions: false,
-    removeHtmlTags: false,
-    font: 'Times-serif',
+    includeResearchOutputs: false,
+    includeRelatedWorks: false,
+    fontFamily: 'Tinos, serif',
     fontSize: '11pt',
+    lineHeight: '120',
     margins: {
       top: '25mm',
       bottom: '25mm',
@@ -55,15 +73,113 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
     }
   });
 
+  // Get planId params
+  const params = useParams();
+  const planId = String(params.dmpid);
+  const projectId = String(params.projectId);
+
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
+  // Errors returned from download attempt
+  const [errors, setErrors] = useState<string[]>([]);
   // State for selected file format
   const [selectedFormat, setSelectedFormat] = useState<FileFormatType>('pdf');
-  const fileName = 'Coastal Ocean Processes of North Greenland DMP';
+
+  // Localization keys
+  const t = useTranslations("ProjectsProjectPlanDownloadPage");
+  const Global = useTranslations("Global");
+
+  // Get Plan using planId
+  const {
+    data,
+  } = usePlanQuery({
+    variables: { planId: Number(planId) },
+    skip: isNaN(Number(planId)),
+    notifyOnNetworkStatusChange: true,
+  });
+
+
+  const dmpId = data?.plan?.dmpId || '';
+  const fileName = data?.plan?.title || 'untitled plan';
+
+  // decode percent-encoding if someone passed a URL-encoded DOI
+  const decoded = decodeURIComponent(dmpId);
+  const match = DOI_REGEX.exec(decoded);
+  const doi = match ? match[0] : decoded;
+
+
+
+  const handleDownload = async () => {
+    try {
+      // Build query parameters
+      const params = new URLSearchParams({
+        dmpId: doi, // Add dmpId as a query param
+        includeCoverPage: String(settings.includeCoverPage),
+        includeSectionHeadings: String(settings.includeSectionHeadings),
+        includeQuestionText: String(settings.includeQuestionText),
+        includeUnansweredQuestions: String(settings.includeUnansweredQuestions),
+        includeResearchOutputs: String(settings.includeResearchOutputs),
+        includeRelatedWorks: String(settings.includeRelatedWorks),
+        fontFamily: settings.fontFamily,
+        fontSize: settings.fontSize.replace('pt', ''),
+        lineHeight: settings.lineHeight,
+        marginTop: settings.margins.top.replace('mm', ''),
+        marginBottom: settings.margins.bottom.replace('mm', ''),
+        marginLeft: settings.margins.left.replace('mm', ''),
+        marginRight: settings.margins.right.replace('mm', ''),
+      });
+
+      // Map format to Accept header
+      const formatHeaders = {
+        pdf: 'application/pdf',
+        doc: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        html: 'text/html',
+        csv: 'text/csv',
+        json: 'application/json',
+        text: 'text/plain',
+      };
+
+      // Fetch through the Next.js API route
+      const response = await fetch(`/api/download-narrative?${params.toString()}`, {
+        headers: {
+          Accept: formatHeaders[selectedFormat],
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Download failed');
+      }
+
+      // Create blob from response
+      const blob = await response.blob();
+
+      // Create download link and trigger download
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${fileName}.${selectedFormat}`;
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      setErrors(prev => [...prev, t('messages.errors.downloadFailed')]);
+      logECS('error', 'downloading plan', {
+        error,
+        url: { path: routePath('projects.dmp.download', { projectId, dmpId }) }
+      });
+    }
+  };
 
   // Handler for font selection
   const handleFontChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setSettings(prev => ({
       ...prev,
-      font: e.target.value
+      fontFamily: e.target.value
     }));
   };
 
@@ -89,73 +205,67 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
   return (
     <>
       <PageHeader
-        title="Download a plan"
-        description="You can download your Data Management Plan (DMP) in any of the formats listed below."
+        title={t('title')}
+        description={t('description')}
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb>
-              <Link href="/">Home</Link>
-            </Breadcrumb>
-            <Breadcrumb>
-              <Link href="/projects">Projects</Link>
-            </Breadcrumb>
+            <Breadcrumb><Link href={routePath("app.home")}>{Global("breadcrumbs.home")}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath("projects.index")}>{Global("breadcrumbs.projects")}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', { projectId: String(projectId) })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.dmp.show', { projectId, dmpId })}>{Global('breadcrumbs.planOverview')}</Link></Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.downloadPlan')}</Breadcrumb>
           </Breadcrumbs>
         }
         className="page-project-create-project-funding"
       />
+
+      <ErrorMessages errors={errors} ref={errorRef} />
       <LayoutWithPanel>
         <ContentContainer>
           <section className={"sectionContainer"}>
-            <h3 className={styles.sectionHeading}>
-              Choose file format
-            </h3>
+            <h2 className={`${styles.sectionHeading} h3`}>
+              {t('headings.chooseFileFormat')}
+            </h2>
             <div>
               <RadioGroup
                 className={styles.radioGroup}
-                aria-label="File format"
+                aria-label={t('labels.fileFormat')}
                 value={selectedFormat}
                 onChange={(value: string) => setSelectedFormat(value as FileFormatType)}
               >
                 <Radio value="pdf">
-                  {/* <FileIcon type="pdf"/> */}
                   PDF
                 </Radio>
-
                 <Radio value="doc">
-                  {/* <FileIcon type="doc"/> */}
                   DOC
                 </Radio>
-
                 <Radio value="html">
-                  {/* <FileIcon type="html"/> */}
                   HTML
                 </Radio>
-
                 <Radio value="csv">
-                  {/* <FileIcon type="csv"/> */}
                   CSV
                 </Radio>
-
                 <Radio value="json">
-                  {/* <FileIcon type="json"/> */}
                   JSON
+                </Radio>
+                <Radio value="text">
+                  TEXT
                 </Radio>
               </RadioGroup>
             </div>
           </section>
 
           <section className={"sectionContainer"}>
-            <h3 className={styles.sectionHeading}>
-              Settings
-            </h3>
+            <h2 className={`${styles.sectionHeading} h3`}>
+              {t('headings.settings')}
+            </h2>
             <div className={styles.checkboxGroup}>
-
               <Checkbox
-                isSelected={settings.includeProjectDetails}
+                isSelected={settings.includeCoverPage}
                 onChange={(isSelected: boolean) => setSettings(prev => ({
                   ...prev,
-                  includeProjectDetails: isSelected
+                  includeCoverPage: isSelected
                 }))}
                 className={styles.checkboxItem}
               >
@@ -164,7 +274,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                     <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
-                Include a project details coversheet
+                {t('labels.includeCoverSheet')}
               </Checkbox>
 
               <Checkbox
@@ -180,7 +290,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                     <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
-                Include the section headings
+                {t('labels.includeSectionHeadings')}
               </Checkbox>
 
               <Checkbox
@@ -196,7 +306,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                     <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
-                Include the question text
+                {t('labels.includeQuestionText')}
               </Checkbox>
 
               <Checkbox
@@ -212,50 +322,32 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                     <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
-                Include any unanswered questions
-              </Checkbox>
-
-              <Checkbox
-                isSelected={settings.removeHtmlTags}
-                onChange={(isSelected: boolean) => setSettings(prev => ({
-                  ...prev,
-                  removeHtmlTags: isSelected
-                }))}
-                className={styles.checkboxItem}
-              >
-                <div className={"checkbox"}>
-                  <svg viewBox="0 0 18 18" aria-hidden="true">
-                    <polyline points="1 9 7 14 15 4" />
-                  </svg>
-                </div>
-                Remove HTML tags
+                {t('labels.includeUnansweredQuestions')}
               </Checkbox>
             </div>
           </section>
 
           {selectedFormat === 'pdf' && (
             <section className={"sectionContainer"}>
-              <h3 className={styles.sectionHeading}>
-                Formatting options (PDF only)
-              </h3>
+              <h2 className={`${styles.sectionHeading} h3`}>
+                {t('headings.formattingOptions')}
+              </h2>
 
               <div className={styles.formatSection}>
-                <h4 className={styles.optionHeading}>Font</h4>
+                <h3 className={`${styles.optionHeading} h4`}>{t('headings.font')}</h3>
                 <select
                   className={styles.select}
-                  value={settings.font}
+                  value={settings.fontFamily}
                   onChange={handleFontChange}
                   aria-label="Font"
                 >
-                  <option value="Times-serif">Times-serif-like Times New Roman
-                  </option>
-                  <option value="Arial-sans">Arial-sans</option>
-                  <option value="Courier-mono">Courier-mono</option>
+                  <option value="tinos">Tinos, serif</option>
+                  <option value="roboto">Roboto, sans-serif</option>
                 </select>
               </div>
 
               <div className={styles.formatSection}>
-                <h4 className={styles.optionHeading}>Font size</h4>
+                <h3 className={`${styles.optionHeading} h4`}>{t('headings.fontSize')}</h3>
                 <select
                   className={styles.select}
                   value={settings.fontSize}
@@ -268,15 +360,14 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                   <option value="11pt">11pt</option>
                   <option value="12pt">12pt</option>
                   <option value="14pt">14pt</option>
-                  <option value="16pt">16pt</option>
                 </select>
               </div>
 
               <div className={styles.formatSection}>
-                <h4 className={styles.optionHeading}>Margins</h4>
+                <h3 className={`${styles.optionHeading} h4`}>{t('headings.margins')}</h3>
                 <div className={styles.marginsContainer}>
                   <div className={styles.marginGroup}>
-                    <label className={styles.marginLabel}>Top</label>
+                    <label className={styles.marginLabel}>{t('labels.top')}</label>
                     <select
                       className={styles.marginSelect}
                       value={settings.margins.top}
@@ -291,7 +382,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                   </div>
 
                   <div className={styles.marginGroup}>
-                    <label className={styles.marginLabel}>Bottom</label>
+                    <label className={styles.marginLabel}>{t('labels.bottom')}</label>
                     <select
                       className={styles.marginSelect}
                       value={settings.margins.bottom}
@@ -306,7 +397,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                   </div>
 
                   <div className={styles.marginGroup}>
-                    <label className={styles.marginLabel}>Left</label>
+                    <label className={styles.marginLabel}>{t('labels.left')}</label>
                     <select
                       className={styles.marginSelect}
                       value={settings.margins.left}
@@ -321,7 +412,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
                   </div>
 
                   <div className={styles.marginGroup}>
-                    <label className={styles.marginLabel}>Right</label>
+                    <label className={styles.marginLabel}>{t('labels.right')}</label>
                     <select
                       className={styles.marginSelect}
                       value={settings.margins.right}
@@ -341,35 +432,30 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
 
           <section className={styles.downloadSection}>
             <p className={styles.downloadText}>
-              Download
-              &#34;{fileName}.{selectedFormat}&#34; {selectedFormat === 'pdf' ? '(532kb)' : ''}
+              {t('download')} &#34;{fileName}.{selectedFormat === 'text' ? 'txt' : selectedFormat}&#34;
             </p>
-            <button className={styles.downloadButton}>
-              Download {selectedFormat.toUpperCase()}
+            <button className={styles.downloadButton} onClick={handleDownload}>
+              {t('download')} {selectedFormat.toUpperCase()}
             </button>
           </section>
         </ContentContainer>
 
         <SidebarPanel>
-          <h2>Best Practice by DMP Tool</h2>
-          <p>
-            <strong>Downloading plans</strong>
-          </p>
-          <p>
-            PDFs offer universal compatibility and preserve formatting across
-            all devices and platforms, ensuring your document looks perfect
-            every time - unlike Word documents. Choose PDF to guarantee a
-            consistent, professional, and secure presentation for your
-            documents. Plus, most Funders require that DMPs be submitted in PDF
-            format.
-          </p>
+          <div className={styles.headerWithLogo}>
+            <h2 className="h4">{Global('bestPractice')}</h2>
+            <Image
+              className={styles.Logo}
+              src="/images/DMP-logo.svg"
+              width="140"
+              height="16"
+              alt="DMP Tool"
+            />
+          </div>
+          <p>{t('bestPracticep1')}</p>
 
-          <p>
-            If your organization, funder or project have specific requirements,
-            you can also download your DMP in HTML, CSV or JSON formats.
-          </p>
+          <p>{t('bestPracticep2')}</p>
         </SidebarPanel>
-      </LayoutWithPanel>
+      </LayoutWithPanel >
     </>
   );
 };

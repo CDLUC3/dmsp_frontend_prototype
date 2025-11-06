@@ -2247,3 +2247,68 @@ describe('Prevent unload when user has unsaved changes', () => {
     });
   });
 });
+
+describe('Auto save', () => {
+  it('should show saved message after auto-saving changes', async () => {
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+
+    // Mock window.tinymce
+    window.tinymce = {
+      init: jest.fn(),
+      remove: jest.fn(),
+    };
+
+    mockUseParams.mockReturnValue({ projectId: 1, dmpid: 1, sid: 22, qid: 344 });
+    mockUseRouter.mockReturnValue({
+      push: jest.fn(),
+    });
+
+    (useMeQuery as jest.Mock).mockReturnValue({
+      data: mockMeData,
+      loading: false,
+      error: undefined
+    });
+
+
+    (usePlanQuery as jest.Mock).mockReturnValue({
+      data: mockPlanData,
+      loading: false,
+      error: undefined,
+    });
+
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockCheckboxQuestion,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockCheckboxAnswer,
+      loading: false,
+      error: undefined,
+    });
+
+    const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    const checkboxGroup = screen.getByTestId('checkbox-group');
+    expect(checkboxGroup).toBeInTheDocument();
+    const checkboxes = within(checkboxGroup).getAllByRole('checkbox');
+    const alexCheckbox = checkboxes.find(
+      (checkbox) => (checkbox as HTMLInputElement).value === 'Alex'
+    );
+
+    fireEvent.click(alexCheckbox!);
+
+    const lastSavedText = screen.getByText('messages.unsavedChanges');
+    expect(lastSavedText).toBeInTheDocument();
+    // Verify timeout scheduled
+    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 3000);
+
+    setTimeoutSpy.mockRestore();
+  });
+});

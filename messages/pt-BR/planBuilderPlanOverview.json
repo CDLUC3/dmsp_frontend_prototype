@@ -139,8 +139,8 @@
     "title": "Plano: Selecione um modelo DMP",
     "description": "Selecione um modelo para usar ao criar o DMP.",
     "checkbox": {
-      "filterByFunderLabel": "Filtrar por financiador",
-      "filterByFunderDescription": "Selecione se você quer ver apenas modelos pelo seu fundo.",
+      "filterByFunderLabel": "Filtrar por financiador ou organização",
+      "filterByFunderDescription": "Selecione se você quer ver apenas modelos pelo seu fundo ou organização.",
       "filterByBestPracticesLabel": "Filtrar por melhores práticas",
       "filterByBestPracticesDescription": "Selecione se você quer ver apenas os modelos de boas práticas"
     },
@@ -257,6 +257,44 @@
           "Você gostaria de esclarecer responsabilidades ou preencher quaisquer detalhes ausentes"
         ],
         "encourageInfo": "Incentive sua equipe a deixar comentários ou sugestões construtivas, isso torna o processo de colaboração muito mais suave e garante que nada é ignorado."
+      }
+    }
+  },
+  "ProjectsProjectPlanDownloadPage": {
+    "title": "Baixar plano",
+    "download": "Baixar",
+    "description": "Você pode baixar seu Plano de Gerenciamento de Dados (DMP) em qualquer um dos formatos listados abaixo.",
+    "labels": {
+      "fileFormat": "FFormato do arquivo",
+      "font": "Fonte",
+      "fontSize": "Tamanho da fonte",
+      "fontSizeUnit": "pt",
+      "includeCoverSheet": "Incluir uma folha de rosto com detalhes do projeto",
+      "includeSectionHeadings": "Incluir os títulos das seções",
+      "includeQuestionText": "Incluir o texto da pergunta",
+      "includeUnansweredQuestions": "Incluir quaisquer perguntas não respondidas",
+      "top": "Superior",
+      "bottom": "Inferior",
+      "left": "Esquerda",
+      "right": "Direita"
+    },
+    "downloadSection": {
+      "downloadText": "Baixar \"{fileName}.{fileExtension}\"",
+      "downloadButton": "Baixar {format}"
+    },
+    "headings": {
+      "chooseFileFormat": "Escolher formato de arquivo",
+      "settings": "Configurações",
+      "formattingOptions": "Opções de formatação (somente PDF)",
+      "font": "Fonte",
+      "fontSize": "Tamanho da fonte",
+      "margins": "Margens"
+    },
+    "bestPracticep1": "PDFs oferecem compatibilidade universal e preservam a formatação em todos os dispositivos e plataformas, garantindo que seu documento tenha uma aparência perfeita a cada vez - ao contrário dos documentos do Word. Escolha PDF para garantir uma apresentação consistente, profissional e segura para seus documentos. Além disso, a maioria dos financiadores exige que os DMPs sejam enviados em formato PDF.",
+    "bestPracticep2": "Se sua organização, financiador ou projeto tiver requisitos específicos, você também pode baixar seu DMP nos formatos HTML, CSV ou JSON.",
+    "messages": {
+      "errors": {
+        "downloadFailed": "Falha no download. Por favor, tente novamente."
       }
     }
   }
