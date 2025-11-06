@@ -3,6 +3,7 @@
 - Hooked up the `Download plan` page and added a `download-narrative` api endpoint [#313]
 
 ### Updated
+- Updated Project Details subdomains field to only display once a user selects a research domain [#947]
 
 ### Fixed
 
