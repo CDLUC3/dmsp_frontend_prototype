@@ -1,6 +1,6 @@
 import React from 'react';
 import { act, fireEvent, render, screen, within, waitFor } from '@testing-library/react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { ApolloError } from '@apollo/client';
 
 import {
@@ -17,12 +17,15 @@ import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
+
+// At the top of your test file
+const push = jest.fn();
+
 jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
   useRouter: jest.fn(),
+  useSearchParams: jest.fn()
 }));
-
-const mockUseRouter = useRouter as jest.Mock;
 
 jest.mock('@/generated/graphql', () => ({
   useProjectQuery: jest.fn(),
@@ -41,6 +44,7 @@ const mockChildDomains = {
 const mockRefetch = jest.fn();
 
 describe('ProjectsProjectDetail', () => {
+  let mockRouter;
   const mockUseParams = useParams as jest.Mock;
   const mockUseProjectQuery = useProjectQuery as jest.Mock;
   const mockUseTopLevelResearchDomainsQuery = useTopLevelResearchDomainsQuery as jest.Mock;
@@ -51,9 +55,8 @@ describe('ProjectsProjectDetail', () => {
     mockScrollTo();
     mockUseParams.mockReturnValue({ projectId: '1' });
 
-    mockUseRouter.mockReturnValue({
-      push: jest.fn(),
-    })
+    mockRouter = { push: jest.fn() };
+    (useRouter as jest.Mock).mockReturnValue(mockRouter);
     mockUseProjectQuery.mockReturnValue({
       data: {
         project: {
@@ -85,6 +88,24 @@ describe('ProjectsProjectDetail', () => {
       data: mockChildDomains,
       loading: false, error: undefined,
     });
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { fromOverview: 'true' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { fromOverview: 'true' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
   });
 
   it('should render the project details form', () => {
@@ -150,8 +171,12 @@ describe('ProjectsProjectDetail', () => {
 
     render(<ProjectsProjectDetail />);
     fireEvent.change(screen.getByLabelText(/labels.projectName/), { target: { value: 'Updated Project' } });
-    fireEvent.submit(screen.getByRole('button', { name: /save/i }));
+    await waitFor(() => {
+      fireEvent.submit(screen.getByRole('button', { name: /save/i }));
+    })
 
+    // Verify that router.push was called with "/login"
+    expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/1');
     expect(mockUpdateProjectMutation).toHaveBeenCalledWith({
       variables: {
         input: {
@@ -269,7 +294,7 @@ describe('ProjectsProjectDetail', () => {
 
     const searchBtn = screen.getByTestId('search-projects-button');
     fireEvent.click(searchBtn);
-    expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/1/projects-search');
+    expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/1/projects-search');
   });
 
   it('should pass axe accessibility test', async () => {

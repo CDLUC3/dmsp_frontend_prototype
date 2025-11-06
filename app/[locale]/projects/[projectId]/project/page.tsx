@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import { useTranslations } from 'next-intl';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { CalendarDate, DateValue, parseDate } from "@internationalized/date";
 import {
   Breadcrumb,
@@ -61,6 +61,8 @@ const ProjectsProjectDetail = () => {
 
   // Get projectId param
   const params = useParams();
+  const searchParams = useSearchParams();
+  const fromOverview = searchParams.get('fromOverview');
   const router = useRouter();
   const projectId = String(params.projectId); // From route /projects/:projectId
 
@@ -255,8 +257,14 @@ const ProjectsProjectDetail = () => {
       } else {
         // Show success message
         showSuccessToast();
-        // Redirect to the Project Overview page
-        router.push(routePath('projects.dmp.start', { projectId }))
+
+        if (fromOverview) {
+          // If navigated from Project Overview, return user to the page
+          router.push(routePath('projects.show', { projectId }));
+        } else {
+          // Redirect to the DMP start page
+          router.push(routePath('projects.dmp.start', { projectId }))
+        }
       }
     }
   };
