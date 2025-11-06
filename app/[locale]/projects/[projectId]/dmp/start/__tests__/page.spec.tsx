@@ -1,6 +1,6 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import PlanCreate from '../page';
+import ProjectsProjectPlanNew from '../page';
 import { useParams, useRouter } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { mockScrollTo } from '@/__mocks__/common';
@@ -17,7 +17,7 @@ jest.mock('next/navigation', () => ({
 let mockRouter;
 
 
-describe('PlanCreate Component using base mock', () => {
+describe('ProjectsProjectPlanNew', () => {
   const mockUseParams = useParams as jest.Mock;
 
   beforeEach(() => {
@@ -35,7 +35,7 @@ describe('PlanCreate Component using base mock', () => {
 
   it('should render the page correctly', async () => {
 
-    render(<PlanCreate />);
+    render(<ProjectsProjectPlanNew />);
 
     // Check breadcrumb items
     const breadcrumb = screen.getByLabelText('Breadcrumbs');
@@ -55,7 +55,7 @@ describe('PlanCreate Component using base mock', () => {
 
   it('should redirect to correct url when selecting create new DMP option', async () => {
 
-    render(<PlanCreate />);
+    render(<ProjectsProjectPlanNew />);
     const radioStartNew = screen.getByLabelText('labels.startNewPlan');
     const nextButton = screen.getByRole('button', { name: 'buttons.next' });
 
@@ -70,7 +70,7 @@ describe('PlanCreate Component using base mock', () => {
 
   it('should redirect to correct url when selecting upload existing DMP option', async () => {
 
-    render(<PlanCreate />);
+    render(<ProjectsProjectPlanNew />);
     const radioUploadExisting = screen.getByLabelText('labels.uploadExistingPlan');
     const nextButton = screen.getByRole('button', { name: 'buttons.next' });
 
@@ -84,7 +84,7 @@ describe('PlanCreate Component using base mock', () => {
   });
 
   it('should pass axe accessibility test', async () => {
-    const { container } = render(<PlanCreate />);
+    const { container } = render(<ProjectsProjectPlanNew />);
 
     await act(async () => {
       const results = await axe(container);
