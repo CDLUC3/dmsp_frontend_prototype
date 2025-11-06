@@ -655,6 +655,8 @@
       "selectQuestionType": "Selecionar o tipo de questão",
       "project": "Projeto",
       "projects": "Projetos",
+      "planDashboard": "Painel do plano",
+      "startDMP": "Iniciar DMP",
       "projectOverview": "Visão geral do projeto",
       "projectFunding": "Orçamento do projeto",
       "projectFundingSearch": "Pesquisa de financiamento de projeto",
@@ -719,7 +721,8 @@
       "customize": "Personalizar",
       "applyFilter": "Aplicar filtro(s)",
       "moreInfo": "Mais informações",
-      "lessInfo": "Menos informações"
+      "lessInfo": "Menos informações",
+      "createNewPlan": "Criar novo DMP"
     },
     "labels": {
       "required": "Obrigatório",
