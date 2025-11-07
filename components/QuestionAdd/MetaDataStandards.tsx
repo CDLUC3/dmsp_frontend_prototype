@@ -202,7 +202,7 @@ const MetaDataStandardsSelector = ({
                   <Button
                     onClick={removeAllStandards}
                     isDisabled={selectedCount === 0}
-                    className="danger medium"
+                    className="secondary medium"
                   >
                     {Global('buttons.removeAll')}
                   </Button>
@@ -219,7 +219,7 @@ const MetaDataStandardsSelector = ({
                         </div>
                         <Button
                           onClick={() => removeStandard(std.id)}
-                          className="danger small"
+                          className="secondary small"
                         >
                           {Global('buttons.remove')}
                         </Button>
@@ -374,7 +374,7 @@ const MetaDataStandardsSelector = ({
                               <div className={styles.searchResultTitle}>{std.name}</div>
                               <Button
                                 onClick={() => toggleSelection(std)}
-                                className={`small ${isSelected ? 'danger' : 'primary'}`}
+                                className={`small ${isSelected ? 'secondary' : 'primary'}`}
                               >
                                 {isSelected ? Global('buttons.remove') : Global('buttons.select')}
                               </Button>
