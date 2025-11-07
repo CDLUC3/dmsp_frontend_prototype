@@ -78,7 +78,7 @@ const OutputTypeField = ({
                   <DialogTrigger>
                     <Button
                       className="popover-btn"
-                      aria-label="Click for more info"
+                      aria-label={QuestionAdd('labels.clickForMoreInfo')}
                       aria-describedby={`output-type-${outputType.id}`}
                     >
                       <div className="icon info"><DmpIcon icon="info" /></div>
@@ -89,7 +89,7 @@ const OutputTypeField = ({
                           <path d="M0 0 L6 6 L12 0" />
                         </svg>
                       </OverlayArrow>
-                      <Dialog aria-label={`${outputType.type} description`}>
+                      <Dialog aria-label={QuestionAdd('labels.typeDescription', { type: outputType.type })}>
                         <div className="flex-col">
                           {outputType.description}
                         </div>
@@ -108,7 +108,7 @@ const OutputTypeField = ({
         <div className={styles.customTypes}>
           <fieldset>
             <legend>{QuestionAdd('researchOutput.outputType.legends.myOutputs')}</legend>
-            <div role="form" aria-label="Add custom output type">
+            <div role="form" aria-label={QuestionAdd('labels.addCustomOutputType')}>
               <FormInput
                 name="custom_types_add"
                 type="text"
@@ -152,7 +152,7 @@ const OutputTypeField = ({
             </div>
 
             {field.outputTypeConfig?.customTypes?.length > 0 && (
-              <div role="region" aria-label="Custom output types list">
+              <div role="region" aria-label={QuestionAdd('labels.customTypeList')}>
                 <ul
                   className={`${styles.customTypesList} ${styles.deletableList}`}
                   role="list"
@@ -170,7 +170,7 @@ const OutputTypeField = ({
                         <DialogTrigger>
                           <Button
                             className="popover-btn"
-                            aria-label="Click for more info"
+                            aria-label={QuestionAdd('labels.clickForMoreInfo')}
                             aria-describedby={`custom-type-${index}`}
                           >
                             <div className="icon info"><DmpIcon icon="info" /></div>
@@ -181,7 +181,7 @@ const OutputTypeField = ({
                                 <path d="M0 0 L6 6 L12 0" />
                               </svg>
                             </OverlayArrow>
-                            <Dialog aria-label={`${customType.type} description`}>
+                            <Dialog aria-label={QuestionAdd('labels.typeDescription', { type: customType.type || '' })}>
                               <div className="flex-col">
                                 {customType.description}
                               </div>

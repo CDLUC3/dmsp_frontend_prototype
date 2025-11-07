@@ -362,7 +362,11 @@
       "requirementText": "Requirements plan writer must meet (optional but recommended)",
       "guidanceText": "Question guidance (optional but recommended)",
       "sampleText": "Sample text",
-      "questionEditing": "Question editing"
+      "questionEditing": "Question editing",
+      "clickForMoreInfo": "Click for more info",
+      "typeDescription": "{type} description",
+      "addCustomOutputType": "Add custom output type",
+      "customTypeList": "Custom output types list"
     },
     "buttons": {
       "addRow": "Add Row",

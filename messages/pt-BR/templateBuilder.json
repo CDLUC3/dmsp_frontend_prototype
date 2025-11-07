@@ -362,7 +362,11 @@
       "requirementText": "Escritor do plano de requisitos deve atender (opcional, mas recomendado)",
       "guidanceText": "Orientação para perguntas (opcional mas recomendado)",
       "sampleText": "Texto de amostra",
-      "questionEditing": "Edição da questão"
+      "questionEditing": "Edição da questão",
+      "clickForMoreInfo": "Clique para mais informações",
+      "typeDescription": "{type} descrição",
+      "addCustomOutputType": "Adicionar tipo de saída personalizado",
+      "customTypeList": "Lista de tipos de saída personalizados"
     },
     "buttons": {
       "addRow": "Adicionar linha",
