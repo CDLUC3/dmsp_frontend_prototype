@@ -367,7 +367,8 @@
     "buttons": {
       "addRow": "Add Row",
       "previewQuestion": "Preview question",
-      "changeType": "Change type"
+      "changeType": "Change type",
+      "removeType": "Remove {type}"
     },
     "helpText": {
       "textField": "Changing the question type, for example from Short question to Radio button, may result in some data being lost.",
@@ -483,7 +484,8 @@
       "outputType": {
         "labels": {
           "defineOutputTypes": "Define output types",
-          "enterOutputType": "Enter an output type",
+          "enterOutputType": "Enter type",
+          "typeDescription": "Type description",
           "removeOutputType": "Remove {type}"
         },
         "legends": {

@@ -3,6 +3,11 @@
 - Hooked up the `Download plan` page and added a `download-narrative` api endpoint [#313]
 
 ### Updated
+- Updated `Output Types` in static `Research Outputs` table [#962]
+  - Added a description field to custom types
+  - Added tooltip icons next to each default output type with the description
+  - Updated Output Types component to behave like the Licenses component, where users can delete default types
+  - Updated unit test
 - Updated Project Details subdomains field to only display once a user selects a research domain [#947]
 
 ### Fixed
