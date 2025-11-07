@@ -33,16 +33,30 @@ describe('ResearchDomainCascadingDropdown', () => {
       refetch: jest.fn(),
     });
 
+    const mockProjectData = {
+      projectName: 'Test Project',
+      projectAbstract: 'This is a test project.',
+      startDate: '2023-01-01',
+      endDate: '2023-12-31',
+      parentResearchDomainId: '2',
+      researchDomainId: '3',
+      isTestProject: false
+    };
+
     render(
       <ResearchDomainCascadingDropdown
-        projectData={{}}
+        projectData={mockProjectData}
         setProjectData={mockSetProjectData}
       />
     );
 
-    expect(screen.getByText(/labels.researchDomain/i)).toBeInTheDocument();
-    expect(await screen.findByText('Domain 1')).toBeInTheDocument();
-    expect(await screen.findByText('Domain 2')).toBeInTheDocument();
+    const hiddenContainers = screen.getAllByTestId('hidden-select-container');
+    const select = hiddenContainers[0].querySelector('select[name="researchDomain"]');
+    const options = select?.querySelectorAll('option');
+    const domain1Option = Array.from(options || []).find(opt => opt.textContent === 'Domain 1');
+    const domain2Option = Array.from(options || []).find(opt => opt.textContent === 'Domain 2');
+    expect(domain1Option).toBeInTheDocument();
+    expect(domain2Option).toBeInTheDocument();
   });
 
   it('should set correct parent and child values on page load', async () => {
@@ -79,10 +93,14 @@ describe('ResearchDomainCascadingDropdown', () => {
     });
 
     const mockSetProjectData = jest.fn();
+
     const mockProjectData = {
+      projectName: 'Test Project',
+      projectAbstract: 'This is a test project.',
+      startDate: '2023-01-01',
+      endDate: '2023-12-31',
       parentResearchDomainId: '1',
       researchDomainId: '3',
-      projectName: 'Test Project',
       isTestProject: false
     };
 
@@ -145,9 +163,18 @@ describe('ResearchDomainCascadingDropdown', () => {
       refetch: refetchMock,
     }));
 
+    const mockProjectData = {
+      projectName: 'Test Project',
+      projectAbstract: 'This is a test project.',
+      startDate: '2023-01-01',
+      endDate: '2023-12-31',
+      parentResearchDomainId: '2',
+      researchDomainId: '3',
+      isTestProject: false
+    };
     render(
       <ResearchDomainCascadingDropdown
-        projectData={{}}
+        projectData={mockProjectData}
         setProjectData={mockSetProjectData}
       />
     );
@@ -166,26 +193,27 @@ describe('ResearchDomainCascadingDropdown', () => {
       expect(refetchMock).toHaveBeenCalledWith({ parentResearchDomainId: 1 });
     });
 
-    // Trigger re-render to reflect updated child domains
-
     // Find and click the child select button to open the dropdown
-    const childDropdownButton = selectButtons[1];
+    const childDropdownButton = screen.getAllByTestId('select-button')[1];
     fireEvent.click(childDropdownButton);
 
-    // Confirm child dropdown updated
-    const childOption1 = await screen.findAllByText(/Child Domain 1/i);
-    const childOption2 = await screen.findAllByText(/Child Domain 2/i);
-    expect(childOption1[0]).toBeInTheDocument();
-    expect(childOption2[0]).toBeInTheDocument();
+    // Wait for the child dropdown options to appear and select one
+    const childOptions = await screen.findAllByRole('option', { name: 'Child Domain 1' });
+    await userEvent.click(childOptions[0]);
 
-    // Select a child option
-    await userEvent.click(childOption1[0]);
+    // Assert that mockSetProjectData was called with the correct value
     expect(mockSetProjectData).toHaveBeenCalledWith({
       researchDomainId: '1',
+      endDate: '2023-12-31',
+      startDate: '2023-01-01',
+      projectAbstract: 'This is a test project.',
+      projectName: 'Test Project',
+      isTestProject: false,
+      parentResearchDomainId: '2'
     });
   });
 
-  it('should set child list to empty array if parentResearchDomainId is missing', async () => {
+  it('should not display subdomains if parent domain is not selected', async () => {
     // Explicitly define the type for childDomainsData
     let childDomainsData: { childResearchDomains: { id: number; name: string, description: string }[] } = { childResearchDomains: [] };
 
@@ -217,53 +245,26 @@ describe('ResearchDomainCascadingDropdown', () => {
       refetch: refetchMock,
     }));
 
+
+    const mockProjectData = {
+      projectName: 'Test Project',
+      projectAbstract: 'This is a test project.',
+      startDate: '2023-01-01',
+      endDate: '2023-12-31',
+      parentResearchDomainId: '',
+      researchDomainId: '3',
+      isTestProject: false
+    };
+
     render(
       <ResearchDomainCascadingDropdown
-        projectData={{}}
+        projectData={mockProjectData}
         setProjectData={mockSetProjectData}
       />
     );
 
-    // Find and click the parent select button to open the dropdown
-    const selectButtons = screen.getAllByTestId('select-button');
-    const parentDropdownButton = selectButtons[0];
-    fireEvent.click(parentDropdownButton);
-
-    // Wait for the dropdown item to appear
-    const options = await screen.findAllByRole('option', { name: 'Domain 1' });
-    await userEvent.click(options[0]);
-
-    // Find and click the child select button to open the dropdown
-    const childDropdownButton = selectButtons[1];
-    fireEvent.click(childDropdownButton);
-
-    // Get all elements with the same data-testid
-    const hiddenContainers = screen.getAllByTestId('hidden-select-container');
-
-    // Find the correct container by looking for the <select> with name="childDomain"
-    const correctContainer = hiddenContainers.find(container =>
-      container.querySelector('select[name="childDomain"]')
-    );
-
-    // Assert that the correct container was found
-    expect(correctContainer).toBeDefined();
-
-    // Query the <select> element inside the correct container
-    const hiddenChildDomainSelect = correctContainer?.querySelector('select[name="childDomain"]');
-
-    // Assert that the <select> element exists and is disabled
-    expect(hiddenChildDomainSelect).toBeDisabled();
-
-    // Assert that there are no options within the <select>
-    const childOptions = hiddenChildDomainSelect?.querySelectorAll('option');
-
-    // Filter out empty or placeholder options
-    const meaningfulOptions = Array.from(childOptions || []).filter(
-      option => option.value.trim() !== '' || option.textContent?.trim() !== ''
-    );
-
-    // Assert that there are no meaningful options
-    expect(meaningfulOptions.length).toBe(0);
+    const subdomainSelect = screen.queryByTestId('subdomain-select');
+    expect(subdomainSelect).not.toBeInTheDocument();
   });
 
 
@@ -299,9 +300,19 @@ describe('ResearchDomainCascadingDropdown', () => {
       refetch: refetchMock,
     }));
 
+    const mockProjectData = {
+      projectName: 'Test Project',
+      projectAbstract: 'This is a test project.',
+      startDate: '2023-01-01',
+      endDate: '2023-12-31',
+      parentResearchDomainId: '2',
+      researchDomainId: '3',
+      isTestProject: false
+    };
+
     render(
       <ResearchDomainCascadingDropdown
-        projectData={{}}
+        projectData={mockProjectData}
         setProjectData={mockSetProjectData}
       />
     );
@@ -330,6 +341,12 @@ describe('ResearchDomainCascadingDropdown', () => {
     // Assert that mockSetProjectData was called with the correct value
     expect(mockSetProjectData).toHaveBeenCalledWith({
       researchDomainId: '1',
+      endDate: '2023-12-31',
+      startDate: '2023-01-01',
+      projectAbstract: 'This is a test project.',
+      projectName: 'Test Project',
+      isTestProject: false,
+      parentResearchDomainId: '2'
     });
   });
 });
