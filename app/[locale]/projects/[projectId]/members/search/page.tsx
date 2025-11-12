@@ -8,7 +8,6 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
-  Checkbox,
   Form,
   Input,
   Label,
@@ -29,10 +28,10 @@ import {
   LayoutContainer,
 } from "@/components/Container";
 import { OrcidIcon } from '@/components/Icons/orcid/';
-import { CheckboxGroupComponent, FormInput } from "@/components/Form";
+import { FormInput } from "@/components/Form";
 import { TypeAheadWithOther, useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
 import Loading from '@/components/Loading';
-
+import ProjectRoles from '../ProjectRoles';
 import ErrorMessages from '@/components/ErrorMessages';
 
 // Hooks
@@ -358,38 +357,19 @@ const ProjectsProjectMembersSearch = () => {
               />
 
               <div className={styles.memberRoles}>
-                <CheckboxGroupComponent
-                  name="memberRoles"
-                  value={roles}
-                  checkboxGroupLabel={t('labels.definedRole')}
-                  checkboxGroupDescription={rolesDescription}
-                  onChange={(newValues) => handleCheckboxChange(newValues)}
-                  isRequired={false}
+                <ProjectRoles
+                  roles={roles}
+                  handleCheckboxChange={handleCheckboxChange}
                   isInvalid={(!!fieldErrors.projectRoles)}
                   errorMessage={fieldErrors.projectRoles}
-                >
-                  {memberRoles.map((role, index) => (
-                    <Checkbox key={role?.id ?? index} value={role?.id?.toString() ?? ''} aria-label={t('labels.ariaMemberRoles')}>
-                      <div className="checkbox">
-                        <svg viewBox="0 0 18 18" aria-hidden="true">
-                          <polyline points="1 9 7 14 15 4" />
-                        </svg>
-                      </div>
-                      <div className="">
-                        <span>
-                          {role.label}
-                        </span>
-
-                      </div>
-                    </Checkbox>
-                  ))}
-                </CheckboxGroupComponent>
+                  memberRoles={memberRoles}
+                />
               </div>
               <Button type="submit" className="submit-button">{t('buttons.addToProject')}</Button>
             </Form>
           </section>
         </ContentContainer>
-      </LayoutContainer>
+      </LayoutContainer >
     </>
   );
 };
