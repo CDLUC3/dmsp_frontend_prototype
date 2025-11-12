@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { PlanSectionProgress, TemplateVisibility, PlanFeedback, ProjectFundingStatus } from "@/generated/graphql";
 import { AffiliationSearchQuestionType, AnyQuestionType } from '@dmptool/types';
+import { CalendarDate } from "@internationalized/date";
 
 // Re-export types from questionAdd module
 export * from './questionAdd';
@@ -513,3 +514,14 @@ export interface ProjectFundingInterface {
   funderOpportunityNumber: string;
   funderProjectNumber: string;
 }
+
+export interface ProjectDetailsFormInterface {
+  projectName: string;
+  projectAbstract: string;
+  startDate: string | CalendarDate | null;
+  endDate: string | CalendarDate | null;
+  researchDomainId: string | number;
+  isTestProject: string | boolean;
+  parentResearchDomainId: string | number;
+}
+

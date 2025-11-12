@@ -5,6 +5,8 @@
 
 ### Updated
 - Improved project creation steps by updating pages in the flow (header, home, plan dashboard, create project details,and funding search) to help users in creating a plan [#956]
+- Updated Project Details subdomains field to only display once a user selects a research domain [#947]
+- Updated `Remove` buttons to be `secondary` buttons, rather than `red` [#964]
 
 ### Fixed
 

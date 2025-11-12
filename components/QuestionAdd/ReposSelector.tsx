@@ -279,7 +279,7 @@ const RepositorySelectionSystem = ({
                   <Button
                     onClick={removeAllRepos}
                     isDisabled={selectedCount === 0}
-                    className="danger medium"
+                    className="medium secondary"
                   >
                     {Global('buttons.removeAll')}
                   </Button>
@@ -311,7 +311,7 @@ const RepositorySelectionSystem = ({
                         </div>
                         <Button
                           onClick={() => removeRepo(repo.id)}
-                          className={`${styles.removeBtn} danger small`}
+                          className={`${styles.removeBtn} secondary small`}
                         >
                           {Global('buttons.remove')}
                         </Button>
@@ -504,7 +504,7 @@ const RepositorySelectionSystem = ({
                               <div className={styles.searchResultTitle}>{repo.name}</div>
                               <Button
                                 onClick={() => toggleSelection(repo)}
-                                className={`small ${isSelected ? 'danger' : 'primary'}`}
+                                className={`small ${isSelected ? 'secondary' : 'primary'}`}
                               >
                                 {isSelected ? Global('buttons.remove') : Global('buttons.select')}
                               </Button>

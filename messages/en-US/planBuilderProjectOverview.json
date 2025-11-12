@@ -129,7 +129,7 @@
       "researchDomain": "Research domain",
       "mockProject": "Mock project",
       "realProject": "Real project",
-      "childDomain": "Select a subdomain for {name}:",
+      "childDomain": "Select a subdomain for {name}",
       "item": "Item"
     },
     "helpText": {

@@ -40,20 +40,12 @@ import { getCalendarDateValue } from "@/utils/dateUtils";
 import { scrollToTop } from '@/utils/general';
 import { logECS, routePath } from '@/utils/index';
 import { useToast } from '@/context/ToastContext';
+import { ProjectDetailsFormInterface } from "@/app/types";
+
 
 interface ProjectFormErrorsInterface {
   projectName: string;
   projectAbstract: string;
-}
-
-interface ProjectDetailsFormInterface {
-  projectName: string;
-  projectAbstract: string;
-  startDate: string | CalendarDate | null;
-  endDate: string | CalendarDate | null;
-  researchDomainId: string | number;
-  isTestProject: string | boolean;
-  parentResearchDomainId: string | number;
 }
 
 const ProjectsProjectDetail = () => {

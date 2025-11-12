@@ -129,7 +129,7 @@
       "researchDomain": "Domínio de pesquisa",
       "mockProject": "Projeto fictício",
       "realProject": "Projeto real",
-      "childDomain": "Selecione um subdomínio para {name}:",
+      "childDomain": "Selecione um subdomínio para {name}",
       "item": "Produto"
     },
     "helpText": {
