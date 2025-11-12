@@ -28,7 +28,7 @@ interface FunderSearchProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const FunderSearch = ({
-  limit = 50,
+  limit = 5,
   onResults,
   moreTrigger,
 }: FunderSearchProps) => {
@@ -36,8 +36,8 @@ const FunderSearch = ({
   const trans = useTranslations('Global');
   const [moreCounter, setMoreCounter] = useState<number>(0);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [fetchAffiliations, {data}] = useAffiliationFundersLazyQuery({});
-  const [nextCursor, setNextCursor] = useState<string|null>(null);
+  const [fetchAffiliations, { data }] = useAffiliationFundersLazyQuery({});
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [newSearch, setNewSearch] = useState<boolean>(true);
 
   const handleSubmit = (e: React.FormEvent) => {

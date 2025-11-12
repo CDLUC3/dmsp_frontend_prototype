@@ -574,9 +574,9 @@ describe("ProjectsListPage", () => {
     await waitFor(() => {
       expect(screen.getByRole("link", { name: /Global.breadcrumbs.home/i })).toBeInTheDocument();
       expect(screen.getByRole("link", { name: /Global.breadcrumbs.project/i })).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: /Global.breadcrumbs.projects/i })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: /Global.breadcrumbs.planDashboard/i })).toBeInTheDocument();
       expect(screen.getByText("ProjectsListPage.intro")).toBeInTheDocument();
-      expect(screen.getByText("ProjectsListPage.buttons.createProject")).toBeInTheDocument();
+      expect(screen.getByText("Global.buttons.createNewPlan")).toBeInTheDocument();
       expect(screen.getByText("Global.labels.searchByKeyword")).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /Clear search/i })).toBeInTheDocument();
       expect(screen.getByText("Global.helpText.searchHelpText") as HTMLElement).toBeInTheDocument();
