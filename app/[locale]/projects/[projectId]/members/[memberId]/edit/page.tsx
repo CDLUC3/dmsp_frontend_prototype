@@ -8,7 +8,6 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
-  Checkbox,
   Form,
   Link,
   Dialog,
@@ -23,8 +22,9 @@ import {
   ContentContainer,
   LayoutContainer
 } from "@/components/Container";
-import { FormInput, CheckboxGroupComponent } from "@/components/Form";
+import { FormInput } from "@/components/Form";
 import ErrorMessages from '@/components/ErrorMessages';
+import ProjectRoles from '../../ProjectRoles';
 
 // GraphQL
 import {
@@ -454,34 +454,15 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   errorMessage={fieldErrors.orcid || t('form.errors.orcid')}
                 />
 
-                <CheckboxGroupComponent
-                  name="projectRoles"
-                  value={checkboxRoles}
-                  onChange={(newValues) => handleCheckboxChange(newValues)}
-                  isRequired={true}
-                  checkboxGroupLabel={t('form.labels.checkboxGroupLabel')}
-                  checkboxGroupDescription={t('form.labels.checkboxGroupDescription')}
-                  isInvalid={checkboxRoles.length === 0}
-                  errorMessage={fieldErrors.projectRoles || t('form.errors.projectRoles')}
-                >
-                  {state.roles.map((role, index) => (
-                    <div key={index}>
-                      <Checkbox value={role?.id?.toString() ?? ''} aria-label="project roles option">
-                        <div className="checkbox">
-                          <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4" />
-                          </svg>
-                        </div>
-                        <div className="">
-                          <span>
-                            {role.label}
-                          </span>
-
-                        </div>
-                      </Checkbox>
-                    </div>
-                  ))}
-                </CheckboxGroupComponent>
+                <div className={styles.memberRoles}>
+                  <ProjectRoles
+                    roles={checkboxRoles}
+                    handleCheckboxChange={handleCheckboxChange}
+                    isInvalid={(!!fieldErrors.projectRoles)}
+                    errorMessage={fieldErrors.projectRoles}
+                    memberRoles={state.roles}
+                  />
+                </div>
 
                 <Button type="submit">{Global('buttons.saveChanges')}</Button>
               </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 import '@testing-library/jest-dom';
 import { useParams, useRouter } from 'next/navigation';
@@ -134,6 +134,12 @@ describe('ProjectsProjectMembersSearch Integration Tests', () => {
       expect(screen.getByRole('textbox', { name: /labels\.givenName/ })).toBeInTheDocument();
       expect(screen.getByRole('textbox', { name: /labels\.surName/ })).toBeInTheDocument();
       expect(screen.getByRole('textbox', { name: /labels\.email/ })).toBeInTheDocument();
+
+      // Check for checkbox group
+      const checkboxGroup = screen.getByTestId('checkbox-group');
+      expect(checkboxGroup).toBeInTheDocument();
+      expect(within(checkboxGroup).getByText('Principal Investigator')).toBeInTheDocument();
+      expect(within(checkboxGroup).getByText('Co-Investigator')).toBeInTheDocument();
     });
 
     it('should handle search input and calls hook methods correctly', () => {
