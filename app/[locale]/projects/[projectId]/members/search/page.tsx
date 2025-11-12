@@ -155,17 +155,6 @@ const ProjectsProjectMembersSearch = () => {
     }
   }, [term, clearAllFormFields, resetErrors])
 
-  // Description for the member roles checkbox radio group
-  const rolesDescription = t.rich('memberRolesDescription', {
-    p: (chunks) => <p>{chunks}</p>,
-    link: (chunks) => (
-      <Link href="https://credit.niso.org/" target="_blank" rel="noopener noreferrer">
-        {chunks}
-        <span className="hidden-accessibly">({Global('opensInNewTab')})</span>
-      </Link>
-    )
-  });
-
   return (
     <>
       <PageHeader

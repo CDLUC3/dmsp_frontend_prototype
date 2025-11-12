@@ -8,7 +8,6 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
-  Checkbox,
   Form,
   Link,
   Dialog,
@@ -23,7 +22,7 @@ import {
   ContentContainer,
   LayoutContainer
 } from "@/components/Container";
-import { FormInput, CheckboxGroupComponent } from "@/components/Form";
+import { FormInput } from "@/components/Form";
 import ErrorMessages from '@/components/ErrorMessages';
 import ProjectRoles from '../../ProjectRoles';
 
