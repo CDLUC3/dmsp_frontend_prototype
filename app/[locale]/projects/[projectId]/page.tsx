@@ -178,7 +178,7 @@ const ProjectOverviewPage: React.FC = () => {
             <OverviewSection
               heading={ProjectOverview("project")}
               headingId="project-title"
-              linkHref={routePath("projects.project.info", { projectId })}
+              linkHref={routePath("projects.project.info", { projectId }, { fromOverview: 'true' })}
               linkText={ProjectOverview("edit")}
               linkAriaLabel={ProjectOverview("editProject")}
             >
@@ -213,9 +213,9 @@ const ProjectOverviewPage: React.FC = () => {
                   >
                     {funding.grantId
                       ? ProjectOverview("fundingInfo", {
-                          name: funding.name,
-                          id: funding.grantId,
-                        })
+                        name: funding.name,
+                        id: funding.grantId,
+                      })
                       : funding.name}
                     {index < project.fundings.length - 1 && ", "}
                   </span>

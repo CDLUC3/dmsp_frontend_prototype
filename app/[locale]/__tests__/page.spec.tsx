@@ -10,37 +10,33 @@ describe('Home Page', () => {
     render(<Home />);
 
     // Check for the heading
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Home Page');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('title');
 
     // Check for the PageLinkCard sections
-    expect(screen.getByText('Create & Manage')).toBeInTheDocument();
-    expect(screen.getByText('Account & Administration')).toBeInTheDocument();
+    expect(screen.getByText('createAndManage.title')).toBeInTheDocument();
+    expect(screen.getByText('createAndManage.description')).toBeInTheDocument();
+    expect(screen.getByText('accountAndAdmin.title')).toBeInTheDocument();
+    expect(screen.getByText('accountAndAdmin.description')).toBeInTheDocument();
 
     // Check for section descriptions
-    expect(screen.getByText('Create new templates and projects')).toBeInTheDocument();
-    expect(screen.getByText('Manage your account and access admin features')).toBeInTheDocument();
+    expect(screen.getByText('sections.templateManagement.title')).toBeInTheDocument();
+    expect(screen.getByText('sections.templateManagement.description')).toBeInTheDocument();
+    expect(screen.getByText('sections.planDashboard.title')).toBeInTheDocument();
+    expect(screen.getByText('sections.planDashboard.description')).toBeInTheDocument();
+    expect(screen.getByText('sections.accountSettings.title')).toBeInTheDocument();
+    expect(screen.getByText('sections.accountSettings.description')).toBeInTheDocument();
+    expect(screen.getByText('sections.adminOverview.title')).toBeInTheDocument();
+    expect(screen.getByText('sections.adminOverview.description')).toBeInTheDocument();
 
     // Check for all links to be present
     const allLinks = screen.getAllByRole('link');
     expect(allLinks).toHaveLength(4);
 
-   
-    expect(screen.getByText('Template Management')).toBeInTheDocument();
-    expect(screen.getByText('Project Management')).toBeInTheDocument();
-    expect(screen.getByText('Account Settings')).toBeInTheDocument();
-    expect(screen.getByText('Admin Overview')).toBeInTheDocument();
 
-
-    expect(screen.getByText('Create and manage templates (Must be Admin to access)')).toBeInTheDocument();
-    expect(screen.getByText('Create and manage projects')).toBeInTheDocument();
-    expect(screen.getByText('View and manage your account')).toBeInTheDocument();
-    expect(screen.getByText('Access administrative functions')).toBeInTheDocument();
-
-
-    const templateManagementLink = screen.getByText('Template Management').closest('a');
-    const projectManagementLink = screen.getByText('Project Management').closest('a');
-    const accountSettingsLink = screen.getByText('Account Settings').closest('a');
-    const adminOverviewLink = screen.getByText('Admin Overview').closest('a');
+    const templateManagementLink = screen.getByText('sections.templateManagement.title').closest('a');
+    const projectManagementLink = screen.getByText('sections.planDashboard.title').closest('a');
+    const accountSettingsLink = screen.getByText('sections.accountSettings.title').closest('a');
+    const adminOverviewLink = screen.getByText('sections.adminOverview.title').closest('a');
 
     expect(templateManagementLink).toHaveAttribute('href', '/en-US/template');
     expect(projectManagementLink).toHaveAttribute('href', '/en-US/projects');

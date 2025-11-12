@@ -1,4 +1,5 @@
 ### Added
+- Added new `Start DMP` page at `projects/[projectId]/dmp/start` to direct user to create new plan or upload existing [#956]
 - Added `autosave` back to the `PlanOverviewQuestionpage` [#944]
 - Hooked up the `Download plan` page and added a `download-narrative` api endpoint [#313]
 
@@ -8,7 +9,9 @@
   - Added tooltip icons next to each default output type with the description
   - Updated Output Types component to behave like the Licenses component, where users can delete default types
   - Updated unit test
+- Improved project creation steps by updating pages in the flow (header, home, plan dashboard, create project details,and funding search) to help users in creating a plan [#956]
 - Updated Project Details subdomains field to only display once a user selects a research domain [#947]
+- Updated `Remove` buttons to be `secondary` buttons, rather than `red` [#964]
 
 ### Fixed
 

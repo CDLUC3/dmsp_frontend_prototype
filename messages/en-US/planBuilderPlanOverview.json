@@ -294,5 +294,13 @@
         "downloadFailed": "Download failed. Please try again."
       }
     }
+  },
+  "ProjectsProjectPlanNew": {
+    "title": "Add a Data Management Plan to your project",
+    "labels": {
+      "startNewPlan": "Create a plan in the DMP Tool",
+      "uploadExistingPlan": "Upload a plan created elsewhere",
+      "startNewOrUploadExisting": "Would you like to create a new plan or upload an existing one?"
+    }
   }
 }
