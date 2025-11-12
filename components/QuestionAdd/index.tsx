@@ -29,6 +29,10 @@ import {
   useQuestionsDisplayOrderQuery,
 } from '@/generated/graphql';
 
+import {
+  OutputTypeInterface
+} from '@/app/types';
+
 // Components
 import PageHeader from "@/components/PageHeader";
 import {
@@ -102,6 +106,23 @@ const defaultLicenses = [
   'CCo-1.0'
 ];
 
+const defaultOutputTypes = [
+  { id: 'Audiovisual', type: 'Audiovisual', description: 'A series of visual representations imparting an impression of motion when shown in succession. May or may not include sound.' },
+  { id: 'Collection', type: 'Collection', description: 'An aggregation of resources, which may encompass collections of one resourceType as well as those of mixed types. A collection is described as a group; its parts may also be separately described.' },
+  { id: 'Data paper', type: 'Data paper', description: 'A factual and objective publication with a focused intent to identify and describe specific data, sets of data, or data collections to facilitate discoverability.' },
+  { id: 'Dataset', type: 'Dataset', description: 'Data encoded in a defined structure.' },
+  { id: 'Event', type: 'Event', description: 'A non-persistent, time-based occurrence.' },
+  { id: 'Image', type: 'Image', description: 'A visual representation other than text.' },
+  { id: 'Interactive resource', type: 'Interactive resource', description: 'A resource requiring interaction from the user to be understood, executed, or experienced.' },
+  { id: 'Model representation', type: 'Model representation', description: 'An abstract, conceptual, graphical, mathematical or visualization model that represents empirical objects, phenomena, or physical processes.' },
+  { id: 'Physical object', type: 'Physical object', description: 'A physical object or substance.' },
+  { id: 'Service', type: 'Service', description: 'An organized system of apparatus, appliances, staff, etc., for supplying some function(s) required by end users.' },
+  { id: 'Software', type: 'Software', description: 'A computer program other than a computational notebook, in either source code (text) or compiled form. Use this type for general software components supporting scholarly research. Use the “ComputationalNotebook” value for virtual notebooks.' },
+  { id: 'Sound', type: 'Sound', description: 'A resource primarily intended to be heard.' },
+  { id: 'Text', type: 'Text', description: 'A resource consisting primarily of words for reading that is not covered by any other textual resource type in this list.' },
+  { id: 'Workflow', type: 'Workflow', description: 'A structured series of steps which can be executed to produce a final outcome, allowing users a means to specify and enact their work in a more reproducible manner.' }
+];
+
 // Initial Standard Fields data
 const initialStandardFields: StandardField[] = [
   { id: 'title', label: 'Title', enabled: true, required: true },
@@ -113,9 +134,9 @@ const initialStandardFields: StandardField[] = [
     helpText: '',
     required: true,
     outputTypeConfig: {
-      mode: 'defaults' as 'defaults' | 'mine' | 'addToDefaults',
+      mode: 'defaults' as 'defaults' | 'mine',
       selectedDefaults: [] as string[],
-      customTypes: [] as string[]
+      customTypes: [] as OutputTypeInterface[],
     }
   },
   {
@@ -219,7 +240,7 @@ const QuestionAdd = ({
   ]);
 
   // State for managing custom output types
-  const [newOutputType, setNewOutputType] = useState<string>('');
+  const [newOutputType, setNewOutputType] = useState<OutputTypeInterface>({ type: '', description: '' });
   // State for managing custom license types
   const [newLicenseType, setNewLicenseType] = useState<string>('');
 
@@ -454,28 +475,44 @@ const QuestionAdd = ({
     }
   };
 
-  // Handler for output type mode changes (defaults, mine, add to defaults)
-  const handleOutputTypeModeChange = (mode: 'defaults' | 'mine' | 'addToDefaults') => {
+  // Handler for output type mode changes (defaults, mine) and add defaults to customTypes
+  const handleOutputTypeModeChange = (mode: 'defaults' | 'mine') => {
     const currentField = standardFields.find(f => f.id === 'outputType');
     if (currentField && currentField.outputTypeConfig) {
+      // When switching to 'mine' mode, pre-populate with defaults if customTypes is empty
+      const customTypes = mode === 'mine' && currentField.outputTypeConfig.customTypes.length === 0
+        ? defaultOutputTypes
+        : currentField.outputTypeConfig.customTypes;
+
       updateStandardFieldProperty('outputType', 'outputTypeConfig', {
         ...currentField.outputTypeConfig,
-        mode
+        mode,
+        customTypes
       });
     }
   };
 
+
+
+
   // Handler for adding custom output types
   const handleAddCustomOutputType = () => {
-    if (newOutputType.trim()) {
+    if (newOutputType.type && newOutputType.type.trim()) {
       const currentField = standardFields.find(f => f.id === 'outputType');
       if (currentField && currentField.outputTypeConfig) {
-        const updatedCustomTypes = [...currentField.outputTypeConfig.customTypes, newOutputType.trim()];
+        // Add to customTypes array
+        const updatedCustomTypes = [
+          ...currentField.outputTypeConfig.customTypes,
+          { type: newOutputType.type.trim(), description: newOutputType.description?.trim() || '' }
+        ];
+
         updateStandardFieldProperty('outputType', 'outputTypeConfig', {
           ...currentField.outputTypeConfig,
           customTypes: updatedCustomTypes
         });
-        setNewOutputType('');
+
+        // Clear the input fields
+        setNewOutputType({ type: '', description: '' });
       }
     }
   };
@@ -484,7 +521,9 @@ const QuestionAdd = ({
   const handleRemoveCustomOutputType = (typeToRemove: string) => {
     const currentField = standardFields.find(f => f.id === 'outputType');
     if (currentField && currentField.outputTypeConfig) {
-      const updatedCustomTypes = currentField.outputTypeConfig.customTypes.filter((type: string) => type !== typeToRemove);
+      const updatedCustomTypes = currentField.outputTypeConfig.customTypes.filter(
+        (customType: OutputTypeInterface) => customType.type !== typeToRemove
+      );
       updateStandardFieldProperty('outputType', 'outputTypeConfig', {
         ...currentField.outputTypeConfig,
         customTypes: updatedCustomTypes

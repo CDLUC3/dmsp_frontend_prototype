@@ -28,7 +28,7 @@ export type StandardField = {
   outputTypeConfig?: {
     mode: 'defaults' | 'mine' | 'addToDefaults';
     selectedDefaults: string[];
-    customTypes: string[];
+    customTypes: OutputTypeInterface[];
   };
   flagsConfig?: DataFlagsConfig;
   repoConfig?: RepoConfig;
@@ -92,11 +92,16 @@ export interface LicenseFieldProps {
   onRemoveCustomType: (type: string) => void;
 }
 
+export interface OutputTypeInterface {
+  type?: string;
+  description?: string;
+}
+
 export interface OutputTypeFieldConfigProps {
   field: StandardField;
-  newOutputType: string;
-  setNewOutputType: (value: string) => void;
-  onModeChange: (mode: 'defaults' | 'mine' | 'addToDefaults') => void;
+  newOutputType: OutputTypeInterface;
+  setNewOutputType: (value: OutputTypeInterface) => void;
+  onModeChange: (mode: 'defaults' | 'mine') => void;
   onAddCustomType: () => void;
   onRemoveCustomType: (type: string) => void;
 }
