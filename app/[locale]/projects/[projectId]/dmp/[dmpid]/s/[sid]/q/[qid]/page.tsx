@@ -844,9 +844,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         required: q?.required ?? undefined // convert null to undefined
       };
 
-      console.log('Cleaned Question:', cleanedQuestion);
       const temp = cleanedQuestion?.json;
-      console.log(JSON.parse(temp || '{}'));
       try {
         const { parsed, error } = getParsedQuestionJSON(cleanedQuestion, routePath('projects.dmp.versionedQuestion.detail', routeParams), Global);
         if (!parsed?.type) {
@@ -866,6 +864,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         // Set data in state
         setQuestionType(questionType);
         setParsed(parsed);
+
         setQuestion(cleanedQuestion);
       } catch (error) {
         logECS('error', 'Parsing error', {
@@ -1156,6 +1155,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       </>
     );
   }
+
 
   return (
     <>

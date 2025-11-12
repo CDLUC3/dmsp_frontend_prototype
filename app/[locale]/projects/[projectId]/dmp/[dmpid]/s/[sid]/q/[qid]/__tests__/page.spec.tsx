@@ -1,7 +1,7 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import {
   useAnswerByVersionedQuestionIdQuery,
@@ -171,14 +171,27 @@ jest.mock('../actions/index', () => ({
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
-  useParams: jest.fn()
+  useParams: jest.fn(),
+  useSearchParams: jest.fn(),
 }));
+
+(useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+  return {
+    get: (key: string) => {
+      const params: Record<string, string> = { demo: '' };
+      return params[key] || null;
+    },
+    getAll: () => [],
+    has: (key: string) => key in { demo: '' },
+    keys() { },
+    values() { },
+    entries() { },
+    forEach() { },
+    toString() { return ''; },
+  } as unknown as ReturnType<typeof useSearchParams>;
+});
 
 jest.mock('@/lib/graphql/client/apollo-client');
-
-jest.mock('next-intl', () => ({
-  useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`,
-}));
 
 // Mock the PageHeader component
 jest.mock('@/components/PageHeader', () => ({

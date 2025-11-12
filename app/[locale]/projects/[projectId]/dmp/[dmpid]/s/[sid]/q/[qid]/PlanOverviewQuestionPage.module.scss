@@ -268,7 +268,7 @@
   width: 100%;
 }
 
-.titleRow {
+.titleRow{
   display: flex;
   gap: 0; // No gap on mobile
   flex-wrap: wrap;
@@ -276,6 +276,12 @@
   @include r.device(sm) {
     gap: var(--space-3);
   }
+}
+
+.fileSizeRow{
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
 }
 
 .title {

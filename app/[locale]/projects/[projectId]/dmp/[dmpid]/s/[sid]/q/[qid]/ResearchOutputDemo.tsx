@@ -73,8 +73,8 @@ interface ResearchOutputForm {
   access: 'open' | 'restricted' | 'closed' | '';
   releaseDate: DateValue | null;
   licenseId: string; // demo only
-  fileSize?: number | '';
-  fileSizeUnit?: 'mb' | 'gb' | 'tb' | 'pb' | '';
+  fileSize?: string;
+  fileSizeUnit?: 'mb' | 'gb' | 'tb' | 'pb' | 'bytes' | 'kb';
   customFields?: Record<string, string>;
 }
 
@@ -87,6 +87,15 @@ const MOCK_CUSTOM_TEXT_FIELDS: CustomTextField[] = [
   { id: 'custom_field_1', label: 'Custom Field 1' },
   { id: 'custom_field_2', label: 'Custom Field 2' },
   { id: 'custom_field_3', label: 'Custom Field 3' },
+];
+
+const fileSizeOptions = [
+  { id: 'bytes', name: 'bytes' },
+  { id: 'kb', name: 'KB' },
+  { id: 'mb', name: 'MB' },
+  { id: 'gb', name: 'GB' },
+  { id: 'tb', name: 'TB' },
+  { id: 'pb', name: 'PB' },
 ];
 
 const typeOptions = [
@@ -143,6 +152,9 @@ export const ResearchOutputDemo: React.FC<ResearchOutputDemoProps> = ({ onBack }
     fileSizeUnit: 'mb',
     customFields: {},
   });
+
+  // Output types that should show the file size field
+  const typeOptionsWithFileSize = ['dataset', 'data_paper', 'image', 'audiovisual', 'sound', 'model_representation', 'software', 'text'];
 
   // Repo selector config
   const [hasCustomRepos, setHasCustomRepos] = useState<boolean>(false);
@@ -355,27 +367,60 @@ export const ResearchOutputDemo: React.FC<ResearchOutputDemoProps> = ({ onBack }
           </FormSelect>
         </div>
 
-        {/* Custom Text Fields */}
-        {MOCK_CUSTOM_TEXT_FIELDS.map((field) => (
-          <div key={field.id}>
+        {/* File size - only display when certain output types are selected */}
+        {form.outputType && typeOptionsWithFileSize.includes(form.outputType) && (
+          <div className={styles.fileSizeRow} >
             <FormInput
-              label={field.label}
-              name={`custom_field_${field.id}`}
+              label="Anticipated file size"
+              name="research_output_file_size"
               type="text"
               isRequired={false}
-              value={form.customFields?.[field.id] || ''}
-              onChange={(e) =>
-                setForm((f) => ({
-                  ...f,
-                  customFields: {
-                    ...f.customFields,
-                    [field.id]: e.target.value,
-                  },
-                }))
-              }
+              value={form.fileSize || ''}
+              onChange={(e) => setForm((f) => ({ ...f, fileSize: e.target.value }))}
+              maxLength={10}
             />
+
+            <FormSelect
+              name="research_output_file_size"
+              ariaLabel="File size"
+              isRequired={false}
+              label=" Unit"
+              items={fileSizeOptions}
+              selectClasses={styles.fileSizeSelect}
+              selectedKey={form.fileSizeUnit}
+              includeEmptyOption={false}
+              placeholder={form.fileSizeUnit || 'mb'}
+              onChange={(value) => setForm((f) => ({ ...f, fileSizeUnit: value as ResearchOutputForm['fileSizeUnit'] }))}
+            >
+              {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
+            </FormSelect>
           </div>
-        ))}
+        )}
+
+
+        {/* Custom Text Fields */}
+        {
+          MOCK_CUSTOM_TEXT_FIELDS.map((field) => (
+            <div key={field.id}>
+              <FormInput
+                label={field.label}
+                name={`custom_field_${field.id}`}
+                type="text"
+                isRequired={false}
+                value={form.customFields?.[field.id] || ''}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    customFields: {
+                      ...f.customFields,
+                      [field.id]: e.target.value,
+                    },
+                  }))
+                }
+              />
+            </div>
+          ))
+        }
       </Card >
     </div >
   );
