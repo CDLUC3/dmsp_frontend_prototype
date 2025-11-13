@@ -366,6 +366,7 @@
       "clickForMoreInfo": "Click for more info",
       "typeDescription": "{type} description",
       "addCustomOutputType": "Add custom output type",
+      "addCustomAccessLevel": "Add custom access level",
       "customTypeList": "Custom output types list"
     },
     "buttons": {
@@ -498,6 +499,21 @@
         },
         "buttons": {
           "addOutputType": "Add output type"
+        }
+      },
+      "accessLevels": {
+        "labels": {
+          "defineAccessLevels": "Define access levels",
+          "enterAccessLevel": "Enter type",
+          "typeDescription": "Access level description",
+          "removeAccessLevel": "Remove {level}"
+        },
+        "legends": {
+          "default": "Default Access Levels",
+          "myAccessLevels": "My Access Levels"
+        },
+        "buttons": {
+          "addAccessLevel": "Add access level"
         }
       },
       "licenses": {

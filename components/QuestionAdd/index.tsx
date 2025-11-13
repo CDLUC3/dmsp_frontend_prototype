@@ -30,6 +30,7 @@ import {
 } from '@/generated/graphql';
 
 import {
+  AccessLevelInterface,
   OutputTypeInterface
 } from '@/app/types';
 
@@ -51,6 +52,7 @@ import RepositorySelectionSystem from './ReposSelector';
 import MetaDataStandards from './MetaDataStandards';
 import OutputTypeField from './OutputTypeField';
 import LicenseField, { otherLicenses } from './LicenseField';
+import InitialAccessLevel from './InitialAccessLevel';
 
 //Other
 import { useToast } from '@/context/ToastContext';
@@ -104,6 +106,20 @@ const defaultLicenses = [
   'CC-BY-ND-4.0',
   'CC-BY-NC-ND-4.0',
   'CCo-1.0'
+];
+
+// Default levels
+const defaultLevels = [
+  'Controlled Access',
+  'Unrestricted Access',
+  'Other',
+];
+
+
+const defaultAccessLevels = [
+  { id: 'controlledAccess', type: 'Controlled access', description: 'Restricts access to certain areas' },
+  { id: 'unrestrictedAccess', type: 'Unrestricted access', description: 'Allows access to all areas' },
+  { id: 'Other', type: 'Other', description: 'Other type of access' },
 ];
 
 const defaultOutputTypes = [
@@ -184,6 +200,18 @@ const initialStandardFields: StandardField[] = [
       customTypes: defaultLicenses as string[],
     }
   },
+  {
+    id: 'accessLevels',
+    label: 'Initial Access Levels',
+    enabled: false,
+    defaultValue: '',
+    helpText: '',
+    accessLevelsConfig: {
+      mode: 'defaults' as 'defaults' | 'mine',
+      selectedDefaults: [] as string[],
+      customTypes: [] as AccessLevelInterface[],
+    }
+  },
 ];
 
 const QuestionAdd = ({
@@ -243,6 +271,8 @@ const QuestionAdd = ({
   const [newOutputType, setNewOutputType] = useState<OutputTypeInterface>({ type: '', description: '' });
   // State for managing custom license types
   const [newLicenseType, setNewLicenseType] = useState<string>('');
+  // State for managing custom access levels
+  const [newAccessLevel, setNewAccessLevel] = useState<AccessLevelInterface>({ type: '', description: '' });
 
   // localization keys
   const Global = useTranslations('Global');
@@ -444,6 +474,23 @@ const QuestionAdd = ({
     }
   };
 
+  // Handler for access level mode changes (defaults, add to defaults)  
+  const handleAccessLevelModeChange = (mode: 'defaults' | 'mine') => {
+    const currentField = standardFields.find(f => f.id === 'accessLevels');
+    if (currentField && currentField.accessLevelsConfig) {
+      // When switching to 'mine' mode, pre-populate with defaults if customTypes is empty
+      const customTypes = mode === 'mine' && currentField.accessLevelsConfig.customTypes.length === 0
+        ? defaultAccessLevels
+        : currentField.accessLevelsConfig.customTypes;
+
+      updateStandardFieldProperty('accessLevels', 'accessLevelsConfig', {
+        ...currentField.accessLevelsConfig,
+        mode,
+        customTypes
+      });
+    }
+  };
+
   // Handler for adding custom license types
   const handleAddCustomLicenseType = () => {
     if (newLicenseType.trim()) {
@@ -475,7 +522,44 @@ const QuestionAdd = ({
     }
   };
 
-  // Handler for output type mode changes (defaults, mine) and add defaults to customTypes
+  // Handler for adding custom access levels
+  const handleAddCustomAccessLevel = () => {
+    if (newAccessLevel.type && newAccessLevel.type.trim()) {
+      const currentField = standardFields.find(f => f.id === 'accessLevels');
+      if (currentField && currentField.accessLevelsConfig) {
+        // Add to custom access levels array
+        const updatedCustomTypes = [
+          ...currentField.accessLevelsConfig.customTypes,
+          { type: newAccessLevel.type.trim(), description: newAccessLevel.description?.trim() || '' }
+        ];
+
+        updateStandardFieldProperty('accessLevels', 'accessLevelsConfig', {
+          ...currentField.accessLevelsConfig,
+          customTypes: updatedCustomTypes
+        });
+
+        // Clear the input fields
+        setNewAccessLevel({ type: '', description: '' });
+      }
+    }
+  };
+
+  // Handler for removing custom access levels
+  const handleRemoveCustomAccessLevels = (typeToRemove: string) => {
+    const currentField = standardFields.find(f => f.id === 'accessLevels');
+    if (currentField && currentField.accessLevelsConfig) {
+      const updatedCustomTypes = currentField.accessLevelsConfig.customTypes.filter(
+        (customType: AccessLevelInterface) => customType.type !== typeToRemove
+      );
+      updateStandardFieldProperty('accessLevels', 'accessLevelsConfig', {
+        ...currentField.accessLevelsConfig,
+        customTypes: updatedCustomTypes
+      });
+    }
+  };
+
+
+  // Handler for output type mode changes (defaults, mine, add to defaults)
   const handleOutputTypeModeChange = (mode: 'defaults' | 'mine') => {
     const currentField = standardFields.find(f => f.id === 'outputType');
     if (currentField && currentField.outputTypeConfig) {
@@ -491,9 +575,6 @@ const QuestionAdd = ({
       });
     }
   };
-
-
-
 
   // Handler for adding custom output types
   const handleAddCustomOutputType = () => {
@@ -1076,6 +1157,18 @@ const QuestionAdd = ({
                                     onModeChange={handleLicenseModeChange}
                                     onAddCustomType={handleAddCustomLicenseType}
                                     onRemoveCustomType={handleRemoveCustomLicenseType}
+                                  />
+                                )}
+
+                                {/**Access level configurations */}
+                                {field.id === 'accessLevels' && (
+                                  <InitialAccessLevel
+                                    field={field}
+                                    newAccessLevel={newAccessLevel}
+                                    setNewAccessLevel={setNewAccessLevel}
+                                    onModeChange={handleAccessLevelModeChange}
+                                    onAddCustomType={handleAddCustomAccessLevel}
+                                    onRemoveCustomType={handleRemoveCustomAccessLevels}
                                   />
                                 )}
                               </div>
