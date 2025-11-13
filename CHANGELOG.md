@@ -19,6 +19,7 @@
 - Removed `scrollToTop` from `Template Create` page [#950]
 
 ### Chore
+- Updated `renovate` and `dependabot` configs. Continuing to compare both.
 ====================================================================================================================================
 ## All changes above the line happened after the merge to the main branch on Nov 3, 2025
 ### Added
