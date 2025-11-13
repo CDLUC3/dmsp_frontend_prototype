@@ -108,14 +108,6 @@ const defaultLicenses = [
   'CCo-1.0'
 ];
 
-// Default levels
-const defaultLevels = [
-  'Controlled Access',
-  'Unrestricted Access',
-  'Other',
-];
-
-
 const defaultAccessLevels = [
   { id: 'controlledAccess', type: 'Controlled access', description: 'Restricts access to certain areas' },
   { id: 'unrestrictedAccess', type: 'Unrestricted access', description: 'Allows access to all areas' },

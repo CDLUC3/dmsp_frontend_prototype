@@ -397,13 +397,13 @@ describe('OutputTypeField', () => {
             outputTypeConfig: {
               customTypes: [],
               selectedDefaults: [],
-              mode: 'addToDefaults'
+              mode: 'mine'
             }
           },
         });
 
         const selectButton = screen.getByTestId('select-button');
-        expect(selectButton).toHaveTextContent('Select an itemOpen drop down');
+        expect(selectButton).toHaveTextContent('Customize output listOpen drop down');
       });
     });
 

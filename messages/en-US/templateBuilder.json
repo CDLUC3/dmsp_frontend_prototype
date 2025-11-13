@@ -504,7 +504,7 @@
       "accessLevels": {
         "labels": {
           "defineAccessLevels": "Define access levels",
-          "enterAccessLevel": "Enter type",
+          "enterAccessLevel": "Enter access level",
           "typeDescription": "Access level description",
           "removeAccessLevel": "Remove {level}"
         },

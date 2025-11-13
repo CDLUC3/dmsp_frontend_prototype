@@ -497,6 +497,21 @@
           "addOutputType": "Adicionar tipo de saída"
         }
       },
+      "accessLevels": {
+        "labels": {
+          "defineAccessLevels": "Definir níveis de acesso",
+          "enterAccessLevel": "Insira o nível de acesso",
+          "typeDescription": "Descrição do nível de acesso",
+          "removeAccessLevel": "Remover {level}"
+        },
+        "legends": {
+          "default": "Níveis de acesso padrão",
+          "myAccessLevels": "Meus níveis de acesso"
+        },
+        "buttons": {
+          "addAccessLevel": "Adicionar nível de acesso"
+        }
+      },
       "licenses": {
         "labels": {
           "define": "Definir licenças preferidas",
