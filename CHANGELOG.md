@@ -1,3 +1,6 @@
+### Chore
+- Updated `renovate` and `dependabot` configs for comparison purposes
+
 ==================================================================================================================
 <!-- Merged below to main branch on Friday, July 18th, 2025  -->
 ### Added
@@ -59,8 +62,6 @@
 - Created the static page for the org admin user dashboard. [#782]
 
 ### Updated
-<<<<<<< HEAD
-
 - Removed some duplicate text from `template/[templateId]/access` under `External people` [#482]
 - Updated description on `template/[templateId]/access` and visibility text on template publish modal [#482]
 - Updated `/template/[templateId]` to include the `View history` link in the header description [#430]
@@ -81,7 +82,6 @@
 =======
 - Updated the `CODE_OF_CONDUCT.md` to reflect CDLUC3's Code of Conduct
 - Updated the `CONTRIBUTING.md` to include steps for contributing to the repo
->>>>>>> main
 - Updated the shared`RadioGroupComponent` and `CheckboxGroupComponent` components to be more like a wrapper to reduce duplicate of code and make it more flexible [#743]
 - Project over is now using sidebar to allow for collaboration [#750]
 - Sidebar is now using global styling rather than css modules [#750]
