@@ -23,9 +23,9 @@ const accessLevelOptions = [
 ];
 
 const defaultAccessLevels = [
-  { id: 'controlledAccess', type: 'Controlled access', description: 'Restricts access to certain areas' },
-  { id: 'unrestrictedAccess', type: 'Unrestricted access', description: 'Allows access to all areas' },
-  { id: 'Other', type: 'Other', description: 'Other type of access' },
+  { id: 'controlledAccess', level: 'Controlled access', description: 'Restricts access to certain areas' },
+  { id: 'unrestrictedAccess', level: 'Unrestricted access', description: 'Allows access to all areas' },
+  { id: 'Other', level: 'Other', description: 'Other type of access' },
 ];
 
 const InitialAccessLevelField = ({
@@ -63,7 +63,7 @@ const InitialAccessLevelField = ({
             <ul className={`${styles.typesList} ${styles.bulletList}`} role="list">
               {defaultAccessLevels.map((accessLevel) => (
                 <li key={accessLevel.id} className={styles.typeItem}>
-                  <span id={`output-type-${accessLevel.id}`}>{accessLevel.type}</span>
+                  <span id={`custom-level-${accessLevel.id}`}>{accessLevel.level}</span>
                   <DialogTrigger>
                     <Button
                       className="popover-btn"
@@ -78,7 +78,7 @@ const InitialAccessLevelField = ({
                           <path d="M0 0 L6 6 L12 0" />
                         </svg>
                       </OverlayArrow>
-                      <Dialog aria-label={QuestionAdd('labels.typeDescription', { type: accessLevel.type })}>
+                      <Dialog aria-label={QuestionAdd('labels.accessLevelDescription', { level: accessLevel.level })}>
                         <div className="flex-col">
                           {accessLevel.description}
                         </div>
@@ -104,8 +104,8 @@ const InitialAccessLevelField = ({
                 isRequired={false}
                 label={QuestionAdd('researchOutput.accessLevels.labels.enterAccessLevel')}
                 className={styles.typeWrapper}
-                value={newAccessLevel.type}
-                onChange={(e) => setNewAccessLevel({ ...newAccessLevel, type: e.target.value })}
+                value={newAccessLevel.level}
+                onChange={(e) => setNewAccessLevel({ ...newAccessLevel, level: e.target.value })}
                 aria-label={QuestionAdd('researchOutput.accessLevels.labels.enterAccessLevel')}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
@@ -118,11 +118,11 @@ const InitialAccessLevelField = ({
                 name="custom_types_description"
                 type="text"
                 isRequired={false}
-                label={QuestionAdd('researchOutput.accessLevels.labels.typeDescription')}
+                label={QuestionAdd('researchOutput.accessLevels.labels.accessLevelDescription')}
                 className={styles.typeWrapper}
                 value={newAccessLevel.description}
                 onChange={(e) => setNewAccessLevel({ ...newAccessLevel, description: e.target.value })}
-                aria-label={QuestionAdd('researchOutput.accessLevels.labels.typeDescription')}
+                aria-label={QuestionAdd('researchOutput.accessLevels.labels.accessLevelDescription')}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
@@ -133,34 +133,34 @@ const InitialAccessLevelField = ({
               <Button
                 type="button"
                 onPress={onAddCustomType}
-                isDisabled={!newAccessLevel?.type?.trim()}
+                isDisabled={!newAccessLevel?.level?.trim()}
                 aria-label={QuestionAdd('researchOutput.accessLevels.buttons.addAccessLevel')}
               >
                 {QuestionAdd('researchOutput.accessLevels.buttons.addAccessLevel')}
               </Button>
             </div>
 
-            {field.accessLevelsConfig?.customTypes?.length > 0 && (
-              <div role="region" aria-label={QuestionAdd('labels.customTypeList')}>
+            {field.accessLevelsConfig?.customLevels?.length > 0 && (
+              <div role="region" aria-label={QuestionAdd('labels.customAccessLevelList')}>
                 <ul
                   className={`${styles.customTypesList} ${styles.deletableList}`}
                   role="list"
                   aria-live="polite"
                   aria-relevant="additions removals"
                 >
-                  {field.accessLevelsConfig.customTypes.map((customType: AccessLevelInterface, index: number) => (
+                  {field.accessLevelsConfig.customLevels.map((customLevel: AccessLevelInterface, index: number) => (
                     <li
                       key={index}
                       className={styles.customTypeItem}
                       role="listitem"
                     >
                       <div className={styles.infoWrapper}>
-                        <span id={`custom-type-${index}`}>{customType.type}</span>
+                        <span id={`custom-level-${index}`}>{customLevel.level}</span>
                         <DialogTrigger>
                           <Button
                             className="popover-btn"
                             aria-label={QuestionAdd('labels.clickForMoreInfo')}
-                            aria-describedby={`custom-type-${index}`}
+                            aria-describedby={`custom-level-${index}`}
                           >
                             <div className="icon info"><DmpIcon icon="info" /></div>
                           </Button>
@@ -170,9 +170,9 @@ const InitialAccessLevelField = ({
                                 <path d="M0 0 L6 6 L12 0" />
                               </svg>
                             </OverlayArrow>
-                            <Dialog aria-label={QuestionAdd('labels.typeDescription', { type: customType.type || '' })}>
+                            <Dialog aria-label={QuestionAdd('labels.accessLevelDescription', { level: customLevel.level || '' })}>
                               <div className="flex-col">
-                                {customType.description}
+                                {customLevel.description}
                               </div>
                             </Dialog>
                           </Popover>
@@ -181,11 +181,11 @@ const InitialAccessLevelField = ({
                       <Button
                         type="button"
                         className={styles.removeButton}
-                        onPress={() => onRemoveCustomType(customType.type ?? '')}
-                        aria-label={QuestionAdd('researchOutput.accessLevels.labels.removeAccessLevel', { level: customType.type ?? '' })}
+                        onPress={() => onRemoveCustomType(customLevel.level ?? '')}
+                        aria-label={QuestionAdd('researchOutput.accessLevels.labels.removeAccessLevel', { level: customLevel.level ?? '' })}
                       >
                         <span aria-hidden="true">x</span>
-                        <span className="hidden-accessibly">{QuestionAdd('buttons.removeType', { type: customType.type ?? '' })}</span>
+                        <span className="hidden-accessibly">{QuestionAdd('buttons.removeAccessLevel', { level: customLevel.level ?? '' })}</span>
                       </Button>
                     </li>
                   ))}

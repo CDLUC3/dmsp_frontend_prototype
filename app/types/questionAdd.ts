@@ -28,7 +28,7 @@ export type StandardField = {
   accessLevelsConfig?: {
     mode: 'defaults' | 'mine';
     selectedDefaults: string[];
-    customTypes: AccessLevelInterface[];
+    customLevels: AccessLevelInterface[];
   };
   outputTypeConfig?: {
     mode: 'defaults' | 'mine';
@@ -119,7 +119,7 @@ export interface OutputTypeInterface {
 }
 
 export interface AccessLevelInterface {
-  type?: string;
+  level?: string;
   description?: string;
 }
 

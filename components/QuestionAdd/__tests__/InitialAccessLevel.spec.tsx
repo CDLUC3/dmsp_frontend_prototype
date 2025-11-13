@@ -15,11 +15,11 @@ describe('InitialAccessLevelField', () => {
       enabled: true,
       accessLevelsConfig: {
         mode: 'defaults',
-        customTypes: [{ type: 'Controlled access', description: 'Restricts access to certain areas' }],
+        customLevels: [{ level: 'Controlled access', description: 'Restricts access to certain areas' }],
         selectedDefaults: [],
       },
     },
-    newAccessLevel: { type: '', description: '' },
+    newAccessLevel: { level: '', description: '' },
     setNewAccessLevel: jest.fn(),
     onModeChange: jest.fn(),
     onAddCustomType: jest.fn(),
@@ -46,6 +46,41 @@ describe('InitialAccessLevelField', () => {
       expect(screen.getByText('researchOutput.accessLevels.legends.default')).toBeInTheDocument();
     });
 
+    it('should render all access level options in the dropdown', async () => {
+      renderComponent();
+      const selectButton = screen.getByTestId('select-button');
+      await userEvent.click(selectButton);
+
+      // Check that both options are rendered
+      expect(screen.getByRole('option', { name: 'Use defaults' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Customize output list' })).toBeInTheDocument();
+    });
+
+    it('should handle customLevel.level being undefined or empty', () => {
+      const customLevels = [
+        { level: undefined, description: 'No level' },
+        { level: '', description: 'Empty level' },
+      ];
+      renderComponent({
+        field: {
+          ...defaultProps.field,
+          accessLevelsConfig: {
+            mode: 'mine',
+            customLevels,
+            selectedDefaults: [],
+          },
+        },
+      });
+
+      // All custom types should render with fallback '' for type
+      customLevels.forEach((_, index) => {
+        const span = document.getElementById(`custom-level-${index}`);
+        expect(span).toBeInTheDocument();
+        expect(span).toHaveTextContent('');
+      });
+
+    });
+
     it('should pass axe accessibility test', async () => {
       const { container } = render(
         <InitialAccessLevelField {...defaultProps} />
@@ -63,7 +98,7 @@ describe('InitialAccessLevelField', () => {
             ...defaultProps.field,
             accessLevelsConfig: {
               mode: 'defaults',
-              customTypes: [],
+              customLevels: [],
               selectedDefaults: [],
             },
           },
@@ -79,7 +114,7 @@ describe('InitialAccessLevelField', () => {
             ...defaultProps.field,
             accessLevelsConfig: {
               mode: 'defaults',
-              customTypes: [],
+              customLevels: [],
               selectedDefaults: [],
             },
           },
@@ -94,9 +129,9 @@ describe('InitialAccessLevelField', () => {
         ...defaultProps.field,
         accessLevelsConfig: {
           mode: 'mine' as const,
-          customTypes: [
-            { type: 'Custom Level 1', description: 'Description for Custom Level 1' },
-            { type: 'Custom Level 2', description: 'Description for Custom Level 2' }
+          customLevels: [
+            { level: 'Custom Level 1', description: 'Description for Custom Level 1' },
+            { level: 'Custom Level 2', description: 'Description for Custom Level 2' }
           ],
           selectedDefaults: [],
         },
@@ -126,7 +161,7 @@ describe('InitialAccessLevelField', () => {
             ...defaultProps.field,
             accessLevelsConfig: {
               mode: 'mine',
-              customTypes: [],
+              customLevels: [],
               selectedDefaults: [],
             },
           },
@@ -158,7 +193,7 @@ describe('InitialAccessLevelField', () => {
             ...defaultProps.field,
             accessLevelsConfig: {
               mode: 'mine',
-              customTypes: [],
+              customLevels: [],
               selectedDefaults: [],
             },
           },
@@ -166,7 +201,44 @@ describe('InitialAccessLevelField', () => {
         });
         const input = screen.getByLabelText('researchOutput.accessLevels.labels.enterAccessLevel');
         fireEvent.change(input, { target: { value: 'New Access Level' } });
-        expect(setNewAccessLevel).toHaveBeenCalledWith({ type: 'New Access Level', description: '' });
+        expect(setNewAccessLevel).toHaveBeenCalledWith({ level: 'New Access Level', description: '' });
+      });
+
+      it('should call setNewAccessLevel when description input value changes in mine mode', () => {
+        const setNewAccessLevel = jest.fn();
+        renderComponent({
+          field: {
+            ...defaultProps.field,
+            accessLevelsConfig: {
+              mode: 'mine',
+              customLevels: [],
+              selectedDefaults: [],
+            },
+          },
+          setNewAccessLevel,
+        });
+        const descInput = screen.getByLabelText('researchOutput.accessLevels.labels.accessLevelDescription');
+        fireEvent.change(descInput, { target: { value: 'New Description' } });
+        expect(setNewAccessLevel).toHaveBeenCalledWith({ level: '', description: 'New Description' });
+      });
+
+      it('should call onAddCustomType when Enter key is pressed in description input', () => {
+        const onAddCustomType = jest.fn();
+        renderComponent({
+          field: {
+            ...defaultProps.field,
+            accessLevelsConfig: {
+              mode: 'mine',
+              customLevels: [],
+              selectedDefaults: [],
+            },
+          },
+          newAccessLevel: { level: '', description: 'New Description' },
+          onAddCustomType,
+        });
+        const descInput = screen.getByLabelText('researchOutput.accessLevels.labels.accessLevelDescription');
+        fireEvent.keyDown(descInput, { key: 'Enter' });
+        expect(onAddCustomType).toHaveBeenCalled();
       });
 
       it('should call onAddCustomType when add button is clicked in mine mode', () => {
@@ -176,11 +248,11 @@ describe('InitialAccessLevelField', () => {
             ...defaultProps.field,
             accessLevelsConfig: {
               mode: 'mine',
-              customTypes: [],
+              customLevels: [],
               selectedDefaults: [],
             },
           },
-          newAccessLevel: { type: 'New Level', description: 'Description for New Level' },
+          newAccessLevel: { level: 'New Level', description: 'Description for New Level' },
           onAddCustomType,
         });
         const addButton = screen.getByText('researchOutput.accessLevels.buttons.addAccessLevel');
@@ -195,11 +267,11 @@ describe('InitialAccessLevelField', () => {
             ...defaultProps.field,
             accessLevelsConfig: {
               mode: 'mine',
-              customTypes: [],
+              customLevels: [],
               selectedDefaults: [],
             },
           },
-          newAccessLevel: { type: 'New Level', description: 'Description for New Level' },
+          newAccessLevel: { level: 'New Level', description: 'Description for New Level' },
           onAddCustomType,
         });
         const input = screen.getByLabelText('researchOutput.accessLevels.labels.enterAccessLevel');
@@ -213,11 +285,11 @@ describe('InitialAccessLevelField', () => {
             ...defaultProps.field,
             accessLevelsConfig: {
               mode: 'mine',
-              customTypes: [],
+              customLevels: [],
               selectedDefaults: [],
             },
           },
-          newAccessLevel: { type: ' ', description: '' },
+          newAccessLevel: { level: ' ', description: '' },
         });
         const addButton = screen.getByText('researchOutput.accessLevels.buttons.addAccessLevel');
         expect(addButton).toBeDisabled();
@@ -229,11 +301,11 @@ describe('InitialAccessLevelField', () => {
             ...defaultProps.field,
             accessLevelsConfig: {
               mode: 'mine',
-              customTypes: [],
+              customLevels: [],
               selectedDefaults: [],
             },
           },
-          newAccessLevel: { type: 'Valid Access Level', description: 'Description for Valid Access Level' },
+          newAccessLevel: { level: 'Valid Access Level', description: 'Description for Valid Access Level' },
         });
         const addButton = screen.getByText('researchOutput.accessLevels.buttons.addAccessLevel');
         expect(addButton).not.toBeDisabled();
@@ -246,9 +318,9 @@ describe('InitialAccessLevelField', () => {
             ...defaultProps.field,
             accessLevelsConfig: {
               mode: 'mine',
-              customTypes: [
-                { type: 'Test Level', description: 'Description for Custom Level 1' },
-                { type: 'Custom Level 2', description: 'Description for Custom Level 2' }
+              customLevels: [
+                { level: 'Test Level', description: 'Description for Custom Level 1' },
+                { level: 'Custom Level 2', description: 'Description for Custom Level 2' }
               ],
               selectedDefaults: [],
             },
@@ -282,7 +354,7 @@ describe('InitialAccessLevelField', () => {
             ...defaultProps.field,
             accessLevelsConfig: {
               mode: 'mine',
-              customTypes: [],
+              customLevels: [],
               selectedDefaults: [],
             },
           },
@@ -293,39 +365,39 @@ describe('InitialAccessLevelField', () => {
 
       it('should handle multiple custom levels correctly in mine mode', () => {
         const multipleCustomLevels = [
-          { type: 'Level A', description: 'Description for Level A' },
-          { type: 'Level B', description: 'Description for Level B' },
-          { type: 'Level C', description: 'Description for Level C' }
+          { level: 'Level A', description: 'Description for Level A' },
+          { level: 'Level B', description: 'Description for Level B' },
+          { level: 'Level C', description: 'Description for Level C' }
         ];
         renderComponent({
           field: {
             ...defaultProps.field,
             accessLevelsConfig: {
               mode: 'mine',
-              customTypes: multipleCustomLevels,
+              customLevels: multipleCustomLevels,
               selectedDefaults: [],
             },
           },
         });
         multipleCustomLevels.forEach(level => {
-          expect(screen.getByText(level.type)).toBeInTheDocument();
+          expect(screen.getByText(level.level)).toBeInTheDocument();
         });
         expect(screen.getAllByText('x')).toHaveLength(3);
       });
 
       it('should render correctly with special characters in custom access level names', () => {
-        const specialLevel = [{ type: 'Controlled (v2.0 - Enhanced)', description: 'Description for Controlled (v2.0 - Enhanced)' }];
+        const specialLevel = [{ level: 'Controlled (v2.0 - Enhanced)', description: 'Description for Controlled (v2.0 - Enhanced)' }];
         renderComponent({
           field: {
             ...defaultProps.field,
             accessLevelsConfig: {
               mode: 'mine',
-              customTypes: specialLevel,
+              customLevels: specialLevel,
               selectedDefaults: [],
             },
           },
         });
-        expect(screen.getByText(specialLevel[0].type)).toBeInTheDocument();
+        expect(screen.getByText(specialLevel[0].level)).toBeInTheDocument();
         expect(screen.getByText('x')).toBeInTheDocument();
       });
 
@@ -335,7 +407,7 @@ describe('InitialAccessLevelField', () => {
             ...defaultProps.field,
             accessLevelsConfig: {
               mode: 'defaults',
-              customTypes: [],
+              customLevels: [],
               selectedDefaults: [],
             },
           },

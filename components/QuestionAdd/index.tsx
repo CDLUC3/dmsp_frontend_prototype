@@ -109,9 +109,9 @@ const defaultLicenses = [
 ];
 
 const defaultAccessLevels = [
-  { id: 'controlledAccess', type: 'Controlled access', description: 'Restricts access to certain areas' },
-  { id: 'unrestrictedAccess', type: 'Unrestricted access', description: 'Allows access to all areas' },
-  { id: 'Other', type: 'Other', description: 'Other type of access' },
+  { id: 'controlledAccess', level: 'Controlled access', description: 'Restricts access to certain areas' },
+  { id: 'unrestrictedAccess', level: 'Unrestricted access', description: 'Allows access to all areas' },
+  { id: 'Other', level: 'Other', description: 'Other type of access' },
 ];
 
 const defaultOutputTypes = [
@@ -201,7 +201,7 @@ const initialStandardFields: StandardField[] = [
     accessLevelsConfig: {
       mode: 'defaults' as 'defaults' | 'mine',
       selectedDefaults: [] as string[],
-      customTypes: [] as AccessLevelInterface[],
+      customLevels: [] as AccessLevelInterface[],
     }
   },
 ];
@@ -264,7 +264,7 @@ const QuestionAdd = ({
   // State for managing custom license types
   const [newLicenseType, setNewLicenseType] = useState<string>('');
   // State for managing custom access levels
-  const [newAccessLevel, setNewAccessLevel] = useState<AccessLevelInterface>({ type: '', description: '' });
+  const [newAccessLevel, setNewAccessLevel] = useState<AccessLevelInterface>({ level: '', description: '' });
 
   // localization keys
   const Global = useTranslations('Global');
@@ -471,14 +471,14 @@ const QuestionAdd = ({
     const currentField = standardFields.find(f => f.id === 'accessLevels');
     if (currentField && currentField.accessLevelsConfig) {
       // When switching to 'mine' mode, pre-populate with defaults if customTypes is empty
-      const customTypes = mode === 'mine' && currentField.accessLevelsConfig.customTypes.length === 0
+      const customLevels = mode === 'mine' && currentField.accessLevelsConfig.customLevels.length === 0
         ? defaultAccessLevels
-        : currentField.accessLevelsConfig.customTypes;
+        : currentField.accessLevelsConfig.customLevels;
 
       updateStandardFieldProperty('accessLevels', 'accessLevelsConfig', {
         ...currentField.accessLevelsConfig,
         mode,
-        customTypes
+        customLevels
       });
     }
   };
@@ -516,36 +516,36 @@ const QuestionAdd = ({
 
   // Handler for adding custom access levels
   const handleAddCustomAccessLevel = () => {
-    if (newAccessLevel.type && newAccessLevel.type.trim()) {
+    if (newAccessLevel.level && newAccessLevel.level.trim()) {
       const currentField = standardFields.find(f => f.id === 'accessLevels');
       if (currentField && currentField.accessLevelsConfig) {
         // Add to custom access levels array
         const updatedCustomTypes = [
-          ...currentField.accessLevelsConfig.customTypes,
-          { type: newAccessLevel.type.trim(), description: newAccessLevel.description?.trim() || '' }
+          ...currentField.accessLevelsConfig.customLevels,
+          { level: newAccessLevel.level.trim(), description: newAccessLevel.description?.trim() || '' }
         ];
 
         updateStandardFieldProperty('accessLevels', 'accessLevelsConfig', {
           ...currentField.accessLevelsConfig,
-          customTypes: updatedCustomTypes
+          customLevels: updatedCustomTypes
         });
 
         // Clear the input fields
-        setNewAccessLevel({ type: '', description: '' });
+        setNewAccessLevel({ level: '', description: '' });
       }
     }
   };
 
   // Handler for removing custom access levels
-  const handleRemoveCustomAccessLevels = (typeToRemove: string) => {
+  const handleRemoveCustomAccessLevels = (levelToRemove: string) => {
     const currentField = standardFields.find(f => f.id === 'accessLevels');
     if (currentField && currentField.accessLevelsConfig) {
-      const updatedCustomTypes = currentField.accessLevelsConfig.customTypes.filter(
-        (customType: AccessLevelInterface) => customType.type !== typeToRemove
+      const updatedCustomLevels = currentField.accessLevelsConfig.customLevels.filter(
+        (customLevel: AccessLevelInterface) => customLevel.level !== levelToRemove
       );
       updateStandardFieldProperty('accessLevels', 'accessLevelsConfig', {
         ...currentField.accessLevelsConfig,
-        customTypes: updatedCustomTypes
+        customLevels: updatedCustomLevels
       });
     }
   };
