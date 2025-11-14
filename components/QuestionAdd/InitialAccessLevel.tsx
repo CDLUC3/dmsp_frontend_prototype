@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
-import { FormInput, FormSelect } from '@/components/Form';
+//import { FormInput, FormSelect } from '@/components/Form';
+import { FormInput } from '@/components/Form';
 import {
   AccessLevelInterface,
   AccessLevelsFieldProps,
@@ -9,7 +10,7 @@ import {
   Button,
   Dialog,
   DialogTrigger,
-  ListBoxItem,
+  //ListBoxItem,
   OverlayArrow,
   Popover,
 } from "react-aria-components";
@@ -17,10 +18,10 @@ import { DmpIcon } from "@/components/Icons";
 
 import styles from './questionAdd.module.scss';
 
-const accessLevelOptions = [
-  { id: 'defaults', name: 'Use defaults' },
-  { id: 'mine', name: 'Customize output list' },
-];
+// const accessLevelOptions = [
+//   { id: 'defaults', name: 'Use defaults' },
+//   { id: 'mine', name: 'Customize output list' },
+// ];
 
 const defaultAccessLevels = [
   { id: 'controlledAccess', level: 'Controlled access', description: 'Restricts access to certain areas' },
@@ -32,14 +33,14 @@ const InitialAccessLevelField = ({
   field,
   newAccessLevel,
   setNewAccessLevel,
-  onModeChange,
+  //onModeChange,
   onAddCustomType,
   onRemoveCustomType,
 }: AccessLevelsFieldProps) => {
   const QuestionAdd = useTranslations('QuestionAdd');
   return (
     <div className={styles.typeConfig}>
-      <div className={styles.typeModeSelector}>
+      {/* <div className={styles.typeModeSelector}>
         <FormSelect
           label={QuestionAdd('researchOutput.accessLevels.labels.defineAccessLevels')}
           ariaLabel={QuestionAdd('researchOutput.accessLevels.labels.defineAccessLevels')}
@@ -53,7 +54,7 @@ const InitialAccessLevelField = ({
         >
           {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
         </FormSelect>
-      </div>
+      </div> */}
 
       {/* USE DEFAULTS MODE */}
       {field.accessLevelsConfig?.mode === 'defaults' && (

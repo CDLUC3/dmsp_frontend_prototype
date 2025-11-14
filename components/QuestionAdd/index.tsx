@@ -160,7 +160,7 @@ const initialStandardFields: StandardField[] = [
   },
   {
     id: 'repoSelector',
-    label: 'Repo selector',
+    label: 'Repositories',
     enabled: false,
     placeholder: '',
     helpText: '',
@@ -250,6 +250,9 @@ const QuestionAdd = ({
 
   // Which fields are expanded for customization
   const [expandedFields, setExpandedFields] = useState<string[]>(['title', 'outputType']);
+
+  // Which fields cannot be customized
+  const nonCustomizableFieldIds = ['accessLevels'];
 
   // Standard fields for research output questions
   const [standardFields, setStandardFields] = useState(initialStandardFields);
@@ -1034,7 +1037,11 @@ const QuestionAdd = ({
                                   className={`buttonLink link`}
                                   onPress={() => handleCustomizeField(field.id)}
                                 >
-                                  {expandedFields.includes(field.id) ? Global('buttons.close') : Global('buttons.customize')}
+                                  {expandedFields.includes(field.id)
+                                    ? Global('buttons.close')
+                                    : nonCustomizableFieldIds.includes(field.id)
+                                      ? Global('links.expand')
+                                      : Global('buttons.customize')}
                                 </Button>
                               )}
 
