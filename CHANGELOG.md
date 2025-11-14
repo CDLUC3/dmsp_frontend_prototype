@@ -1,4 +1,5 @@
 ### Added
+- Added customizable `Initial Access Level` field to the QuestionAdd page for Research Outputs question type [#969]
 - Added new `Start DMP` page at `projects/[projectId]/dmp/start` to direct user to create new plan or upload existing [#956]
 - Added `autosave` back to the `PlanOverviewQuestionpage` [#944]
 - Hooked up the `Download plan` page and added a `download-narrative` api endpoint [#313]

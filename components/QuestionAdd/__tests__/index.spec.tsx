@@ -1471,7 +1471,7 @@ describe("Research Output Question Type", () => {
     expect(screen.getByText('Output Type')).toBeInTheDocument();
     expect(screen.getByText('Description')).toBeInTheDocument();
     expect(screen.getByText('Data Flags')).toBeInTheDocument();
-    expect(screen.getByText('Repo selector')).toBeInTheDocument();
+    expect(screen.getByText('Repositories')).toBeInTheDocument();
     expect(screen.getByText('Metadata Standards')).toBeInTheDocument();
     expect(screen.getByText('Licenses')).toBeInTheDocument();
   });
@@ -1830,7 +1830,7 @@ describe("Research Output Question Type", () => {
     });
 
     // Enable repo selector field
-    const repoSelectorCheckbox = screen.getByLabelText('Repo selector');
+    const repoSelectorCheckbox = screen.getByLabelText('Repositories');
     await act(async () => {
       fireEvent.click(repoSelectorCheckbox);
     });
@@ -2000,7 +2000,7 @@ describe("Research Output Question Type", () => {
     });
 
     // Enable repo selector field
-    const repoSelectorCheckbox = screen.getByLabelText('Repo selector');
+    const repoSelectorCheckbox = screen.getByLabelText('Repositories');
     await act(async () => {
       fireEvent.click(repoSelectorCheckbox);
     });

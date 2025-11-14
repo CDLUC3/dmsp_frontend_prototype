@@ -365,14 +365,18 @@
       "questionEditing": "Question editing",
       "clickForMoreInfo": "Click for more info",
       "typeDescription": "{type} description",
+      "accessLevelDescription": "{level} description",
       "addCustomOutputType": "Add custom output type",
-      "customTypeList": "Custom output types list"
+      "addCustomAccessLevel": "Add custom access level",
+      "customTypeList": "Custom output types list",
+      "customAccessLevelList": "Custom access levels list"
     },
     "buttons": {
       "addRow": "Add Row",
       "previewQuestion": "Preview question",
       "changeType": "Change type",
-      "removeType": "Remove {type}"
+      "removeType": "Remove {type}",
+      "removeAccessLevel": "Remove {level}"
     },
     "helpText": {
       "textField": "Changing the question type, for example from Short question to Radio button, may result in some data being lost.",
@@ -498,6 +502,21 @@
         },
         "buttons": {
           "addOutputType": "Add output type"
+        }
+      },
+      "accessLevels": {
+        "labels": {
+          "defineAccessLevels": "Define access levels",
+          "enterAccessLevel": "Enter access level",
+          "accessLevelDescription": "Access level description",
+          "removeAccessLevel": "Remove {level}"
+        },
+        "legends": {
+          "default": "Default Access Levels",
+          "myAccessLevels": "My Access Levels"
+        },
+        "buttons": {
+          "addAccessLevel": "Add access level"
         }
       },
       "licenses": {

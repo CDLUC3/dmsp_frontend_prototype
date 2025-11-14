@@ -30,6 +30,7 @@ import {
 } from '@/generated/graphql';
 
 import {
+  AccessLevelInterface,
   OutputTypeInterface
 } from '@/app/types';
 
@@ -51,6 +52,7 @@ import RepositorySelectionSystem from './ReposSelector';
 import MetaDataStandards from './MetaDataStandards';
 import OutputTypeField from './OutputTypeField';
 import LicenseField, { otherLicenses } from './LicenseField';
+import InitialAccessLevel from './InitialAccessLevel';
 
 //Other
 import { useToast } from '@/context/ToastContext';
@@ -106,6 +108,12 @@ const defaultLicenses = [
   'CCo-1.0'
 ];
 
+const defaultAccessLevels = [
+  { id: 'controlledAccess', level: 'Controlled access', description: 'Restricts access to certain areas' },
+  { id: 'unrestrictedAccess', level: 'Unrestricted access', description: 'Allows access to all areas' },
+  { id: 'Other', level: 'Other', description: 'Other type of access' },
+];
+
 const defaultOutputTypes = [
   { id: 'Audiovisual', type: 'Audiovisual', description: 'A series of visual representations imparting an impression of motion when shown in succession. May or may not include sound.' },
   { id: 'Collection', type: 'Collection', description: 'An aggregation of resources, which may encompass collections of one resourceType as well as those of mixed types. A collection is described as a group; its parts may also be separately described.' },
@@ -152,7 +160,7 @@ const initialStandardFields: StandardField[] = [
   },
   {
     id: 'repoSelector',
-    label: 'Repo selector',
+    label: 'Repositories',
     enabled: false,
     placeholder: '',
     helpText: '',
@@ -182,6 +190,18 @@ const initialStandardFields: StandardField[] = [
       mode: 'defaults' as 'defaults' | 'addToDefaults',
       selectedDefaults: [] as string[],
       customTypes: defaultLicenses as string[],
+    }
+  },
+  {
+    id: 'accessLevels',
+    label: 'Initial Access Levels',
+    enabled: false,
+    defaultValue: '',
+    helpText: '',
+    accessLevelsConfig: {
+      mode: 'defaults' as 'defaults' | 'mine',
+      selectedDefaults: [] as string[],
+      customLevels: [] as AccessLevelInterface[],
     }
   },
 ];
@@ -231,6 +251,9 @@ const QuestionAdd = ({
   // Which fields are expanded for customization
   const [expandedFields, setExpandedFields] = useState<string[]>(['title', 'outputType']);
 
+  // Which fields cannot be customized
+  const nonCustomizableFieldIds = ['accessLevels'];
+
   // Standard fields for research output questions
   const [standardFields, setStandardFields] = useState(initialStandardFields);
 
@@ -243,6 +266,8 @@ const QuestionAdd = ({
   const [newOutputType, setNewOutputType] = useState<OutputTypeInterface>({ type: '', description: '' });
   // State for managing custom license types
   const [newLicenseType, setNewLicenseType] = useState<string>('');
+  // State for managing custom access levels
+  const [newAccessLevel, setNewAccessLevel] = useState<AccessLevelInterface>({ level: '', description: '' });
 
   // localization keys
   const Global = useTranslations('Global');
@@ -444,6 +469,23 @@ const QuestionAdd = ({
     }
   };
 
+  // Handler for access level mode changes (defaults, add to defaults)  
+  const handleAccessLevelModeChange = (mode: 'defaults' | 'mine') => {
+    const currentField = standardFields.find(f => f.id === 'accessLevels');
+    if (currentField && currentField.accessLevelsConfig) {
+      // When switching to 'mine' mode, pre-populate with defaults if customTypes is empty
+      const customLevels = mode === 'mine' && currentField.accessLevelsConfig.customLevels.length === 0
+        ? defaultAccessLevels
+        : currentField.accessLevelsConfig.customLevels;
+
+      updateStandardFieldProperty('accessLevels', 'accessLevelsConfig', {
+        ...currentField.accessLevelsConfig,
+        mode,
+        customLevels
+      });
+    }
+  };
+
   // Handler for adding custom license types
   const handleAddCustomLicenseType = () => {
     if (newLicenseType.trim()) {
@@ -475,7 +517,44 @@ const QuestionAdd = ({
     }
   };
 
-  // Handler for output type mode changes (defaults, mine) and add defaults to customTypes
+  // Handler for adding custom access levels
+  const handleAddCustomAccessLevel = () => {
+    if (newAccessLevel.level && newAccessLevel.level.trim()) {
+      const currentField = standardFields.find(f => f.id === 'accessLevels');
+      if (currentField && currentField.accessLevelsConfig) {
+        // Add to custom access levels array
+        const updatedCustomTypes = [
+          ...currentField.accessLevelsConfig.customLevels,
+          { level: newAccessLevel.level.trim(), description: newAccessLevel.description?.trim() || '' }
+        ];
+
+        updateStandardFieldProperty('accessLevels', 'accessLevelsConfig', {
+          ...currentField.accessLevelsConfig,
+          customLevels: updatedCustomTypes
+        });
+
+        // Clear the input fields
+        setNewAccessLevel({ level: '', description: '' });
+      }
+    }
+  };
+
+  // Handler for removing custom access levels
+  const handleRemoveCustomAccessLevels = (levelToRemove: string) => {
+    const currentField = standardFields.find(f => f.id === 'accessLevels');
+    if (currentField && currentField.accessLevelsConfig) {
+      const updatedCustomLevels = currentField.accessLevelsConfig.customLevels.filter(
+        (customLevel: AccessLevelInterface) => customLevel.level !== levelToRemove
+      );
+      updateStandardFieldProperty('accessLevels', 'accessLevelsConfig', {
+        ...currentField.accessLevelsConfig,
+        customLevels: updatedCustomLevels
+      });
+    }
+  };
+
+
+  // Handler for output type mode changes (defaults, mine, add to defaults)
   const handleOutputTypeModeChange = (mode: 'defaults' | 'mine') => {
     const currentField = standardFields.find(f => f.id === 'outputType');
     if (currentField && currentField.outputTypeConfig) {
@@ -491,9 +570,6 @@ const QuestionAdd = ({
       });
     }
   };
-
-
-
 
   // Handler for adding custom output types
   const handleAddCustomOutputType = () => {
@@ -961,7 +1037,11 @@ const QuestionAdd = ({
                                   className={`buttonLink link`}
                                   onPress={() => handleCustomizeField(field.id)}
                                 >
-                                  {expandedFields.includes(field.id) ? Global('buttons.close') : Global('buttons.customize')}
+                                  {expandedFields.includes(field.id)
+                                    ? Global('buttons.close')
+                                    : nonCustomizableFieldIds.includes(field.id)
+                                      ? Global('links.expand')
+                                      : Global('buttons.customize')}
                                 </Button>
                               )}
 
@@ -1076,6 +1156,18 @@ const QuestionAdd = ({
                                     onModeChange={handleLicenseModeChange}
                                     onAddCustomType={handleAddCustomLicenseType}
                                     onRemoveCustomType={handleRemoveCustomLicenseType}
+                                  />
+                                )}
+
+                                {/**Access level configurations */}
+                                {field.id === 'accessLevels' && (
+                                  <InitialAccessLevel
+                                    field={field}
+                                    newAccessLevel={newAccessLevel}
+                                    setNewAccessLevel={setNewAccessLevel}
+                                    onModeChange={handleAccessLevelModeChange}
+                                    onAddCustomType={handleAddCustomAccessLevel}
+                                    onRemoveCustomType={handleRemoveCustomAccessLevels}
                                   />
                                 )}
                               </div>

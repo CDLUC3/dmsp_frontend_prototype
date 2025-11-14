@@ -25,8 +25,13 @@ export type StandardField = {
   maxLength?: string;
   value?: string;
   licensesConfig?: LicensesConfig;
+  accessLevelsConfig?: {
+    mode: 'defaults' | 'mine';
+    selectedDefaults: string[];
+    customLevels: AccessLevelInterface[];
+  };
   outputTypeConfig?: {
-    mode: 'defaults' | 'mine' | 'addToDefaults';
+    mode: 'defaults' | 'mine';
     selectedDefaults: string[];
     customTypes: OutputTypeInterface[];
   };
@@ -83,6 +88,13 @@ export type LicensesConfig = {
   customTypes: string[];
 };
 
+export type AccessLevelsConfig = {
+  mode: 'defaults' | 'addToDefaults';
+  selectedDefaults: string[];
+  customTypes: string[];
+};
+
+
 export interface LicenseFieldProps {
   field: StandardField;
   newLicenseType: string;
@@ -92,8 +104,22 @@ export interface LicenseFieldProps {
   onRemoveCustomType: (type: string) => void;
 }
 
+export interface AccessLevelsFieldProps {
+  field: StandardField;
+  newAccessLevel: AccessLevelInterface
+  setNewAccessLevel: (value: AccessLevelInterface) => void;
+  onModeChange: (mode: 'defaults' | 'mine') => void;
+  onAddCustomType: () => void;
+  onRemoveCustomType: (type: string) => void;
+}
+
 export interface OutputTypeInterface {
   type?: string;
+  description?: string;
+}
+
+export interface AccessLevelInterface {
+  level?: string;
   description?: string;
 }
 

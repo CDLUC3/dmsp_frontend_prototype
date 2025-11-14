@@ -365,8 +365,11 @@
       "questionEditing": "Edição da questão",
       "clickForMoreInfo": "Clique para mais informações",
       "typeDescription": "{type} descrição",
+      "accessLevelDescription": "{level} descrição",
       "addCustomOutputType": "Adicionar tipo de saída personalizado",
-      "customTypeList": "Lista de tipos de saída personalizados"
+      "addCustomAccessLevel": "Adicionar nível de acesso personalizado",
+      "customTypeList": "Lista de tipos de saída personalizados",
+      "customAccessLevelList": "Lista de níveis de acesso personalizados"
     },
     "buttons": {
       "addRow": "Adicionar linha",
@@ -495,6 +498,21 @@
         },
         "buttons": {
           "addOutputType": "Adicionar tipo de saída"
+        }
+      },
+      "accessLevels": {
+        "labels": {
+          "defineAccessLevels": "Definir níveis de acesso",
+          "enterAccessLevel": "Insira o nível de acesso",
+          "accessLevelDescription": "Descrição do nível de acesso",
+          "removeAccessLevel": "Remover {level}"
+        },
+        "legends": {
+          "default": "Níveis de acesso padrão",
+          "myAccessLevels": "Meus níveis de acesso"
+        },
+        "buttons": {
+          "addAccessLevel": "Adicionar nível de acesso"
         }
       },
       "licenses": {
