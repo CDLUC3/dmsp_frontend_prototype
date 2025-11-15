@@ -9,7 +9,7 @@ import {
   updatePlanStatusAction,
   updatePlanTitleAction
 } from '../actions';
-import { usePlanQuery } from '@/generated/graphql';
+import { usePlanQuery, usePlanFeedbackStatusQuery } from '@/generated/graphql';
 import { useToast } from '@/context/ToastContext';
 
 jest.mock('../actions/index', () => ({
@@ -57,6 +57,13 @@ jest.mock("@/generated/graphql", () => ({
     Organizational: 'ORGANIZATIONAL',
   },
   usePlanQuery: jest.fn(),
+
+  usePlanFeedbackStatusQuery: jest.fn().mockReturnValue({
+    data: { planFeedbackStatus: 'NONE' },
+    loading: false,
+    error: null,
+    refetch: jest.fn(),
+  }),
 }));
 
 import {
@@ -955,5 +962,55 @@ describe('PlanOverviewPage', () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
-});
 
+  it("should display 'No feedback' when planFeedbackStatus is NONE", async () => {
+    (usePlanFeedbackStatusQuery as jest.Mock).mockReturnValue({
+      data: { planFeedbackStatus: 'NONE' },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    render(<PlanOverviewPage />);
+
+    const sidebar = screen.getByTestId('sidebar-panel');
+    await waitFor(() => {
+      // translations are mocked, so we check for the translation key
+      expect(within(sidebar).getByText('status.feedback.none')).toBeInTheDocument();
+    });
+  });
+
+  it("should display 'Feedback requested' when planFeedbackStatus is REQUEST", async () => {
+    (usePlanFeedbackStatusQuery as jest.Mock).mockReturnValue({
+      data: { planFeedbackStatus: 'REQUEST' },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    render(<PlanOverviewPage />);
+
+    const sidebar = screen.getByTestId('sidebar-panel');
+    await waitFor(() => {
+      // translations are mocked, so we check for the translation key
+      expect(within(sidebar).getByText('status.feedback.request')).toBeInTheDocument();
+    });
+  });
+
+  it("should display 'Feedback received' when planFeedbackStatus is COMPLETE", async () => {
+    (usePlanFeedbackStatusQuery as jest.Mock).mockReturnValue({
+      data: { planFeedbackStatus: 'COMPLETE' },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    render(<PlanOverviewPage />);
+
+    const sidebar = screen.getByTestId('sidebar-panel');
+    await waitFor(() => {
+      // translations are mocked, so we check for the translation key
+      expect(within(sidebar).getByText('status.feedback.complete')).toBeInTheDocument();
+    });
+  });
+});
