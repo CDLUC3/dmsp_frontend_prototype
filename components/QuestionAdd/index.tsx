@@ -133,8 +133,22 @@ const defaultOutputTypes = [
 
 // Initial Standard Fields data
 const initialStandardFields: StandardField[] = [
-  { id: 'title', label: 'Title', enabled: true, required: true },
-  { id: 'description', label: 'Description', enabled: false, placeholder: '', helpText: '', maxLength: '', required: true, value: '' },
+  {
+    id: 'title',
+    label: 'Title',
+    enabled: true,
+    required: true
+  },
+  {
+    id: 'description',
+    label: 'Description',
+    enabled: false,
+    placeholder: '',
+    helpText: '',
+    maxLength: '',
+    required: true,
+    value: ''
+  },
   {
     id: 'outputType',
     label: 'Output Type',
@@ -1052,14 +1066,27 @@ const QuestionAdd = ({
                               <div className={styles.fieldPanel}>
                                 {/** Description */}
                                 {field.id === 'description' && (
-                                  <FormTextArea
-                                    name={QuestionAdd('researchOutput.labels.descriptionLowerCase')}
-                                    isRequired={false}
-                                    richText={true}
-                                    label={QuestionAdd('researchOutput.labels.description')}
-                                    value={field.value}
-                                    onChange={(newValue) => updateStandardFieldProperty('description', 'value', newValue)}
-                                  />
+                                  <>
+                                    <FormTextArea
+                                      name={QuestionAdd('researchOutput.labels.descriptionLowerCase')}
+                                      isRequired={false}
+                                      richText={true}
+                                      label={QuestionAdd('researchOutput.labels.description')}
+                                      value={field.value}
+                                      onChange={(newValue) => updateStandardFieldProperty('description', 'value', newValue)}
+                                    />
+
+                                    <FormInput
+                                      name="descriptionHelpText"
+                                      type="text"
+                                      isRequired={false}
+                                      label={QuestionAdd('labels.helpText', { fieldName: QuestionAdd('researchOutput.labels.description') })}
+                                      value={field.helpText || ''}
+                                      onChange={(e) => updateStandardFieldProperty('description', 'helpText', e.currentTarget.value)}
+                                      helpMessage={QuestionAdd('researchOutput.helpText')}
+                                      maxLength={300}
+                                    />
+                                  </>
                                 )}
 
                                 {/** Data Flags Configuration */}
@@ -1123,6 +1150,17 @@ const QuestionAdd = ({
                                       value={field.value}
                                       onChange={(value) => updateStandardFieldProperty('repoSelector', 'value', value)}
                                     />
+
+                                    <FormInput
+                                      name="repositoriesHelpText"
+                                      type="text"
+                                      isRequired={false}
+                                      label={QuestionAdd('labels.helpText', { fieldName: field.label })}
+                                      value={field.helpText || ''}
+                                      onChange={(e) => updateStandardFieldProperty('repoSelector', 'helpText', e.currentTarget.value)}
+                                      helpMessage={QuestionAdd('researchOutput.helpText')}
+                                      maxLength={300}
+                                    />
                                   </>
                                 )}
 
@@ -1144,31 +1182,67 @@ const QuestionAdd = ({
                                       helpMessage={QuestionAdd('researchOutput.metaDataStandards.helpText')}
                                       onChange={(value) => updateStandardFieldProperty('metaDataStandards', 'value', value)}
                                     />
+
+                                    <FormInput
+                                      name="metadataStandardsHelpText"
+                                      type="text"
+                                      isRequired={false}
+                                      label={QuestionAdd('labels.helpText', { fieldName: field.label })}
+                                      value={field.helpText || ''}
+                                      onChange={(e) => updateStandardFieldProperty('metadataStandards', 'helpText', e.currentTarget.value)}
+                                      helpMessage={QuestionAdd('researchOutput.helpText')}
+                                      maxLength={300}
+                                    />
                                   </>
                                 )}
 
                                 {/**License configurations */}
                                 {field.id === 'licenses' && (
-                                  <LicenseField
-                                    field={field}
-                                    newLicenseType={newLicenseType}
-                                    setNewLicenseType={setNewLicenseType}
-                                    onModeChange={handleLicenseModeChange}
-                                    onAddCustomType={handleAddCustomLicenseType}
-                                    onRemoveCustomType={handleRemoveCustomLicenseType}
-                                  />
+                                  <>
+                                    <LicenseField
+                                      field={field}
+                                      newLicenseType={newLicenseType}
+                                      setNewLicenseType={setNewLicenseType}
+                                      onModeChange={handleLicenseModeChange}
+                                      onAddCustomType={handleAddCustomLicenseType}
+                                      onRemoveCustomType={handleRemoveCustomLicenseType}
+                                    />
+                                    <FormInput
+                                      name="licensesHelpText"
+                                      type="text"
+                                      isRequired={false}
+                                      label={QuestionAdd('labels.helpText', { fieldName: field.label })}
+                                      value={field.helpText || ''}
+                                      onChange={(e) => updateStandardFieldProperty('licenses', 'helpText', e.currentTarget.value)}
+                                      helpMessage={QuestionAdd('researchOutput.helpText')}
+                                      maxLength={300}
+                                    />
+                                  </>
                                 )}
 
                                 {/**Access level configurations */}
                                 {field.id === 'accessLevels' && (
-                                  <InitialAccessLevel
-                                    field={field}
-                                    newAccessLevel={newAccessLevel}
-                                    setNewAccessLevel={setNewAccessLevel}
-                                    onModeChange={handleAccessLevelModeChange}
-                                    onAddCustomType={handleAddCustomAccessLevel}
-                                    onRemoveCustomType={handleRemoveCustomAccessLevels}
-                                  />
+                                  <>
+                                    <InitialAccessLevel
+                                      field={field}
+                                      newAccessLevel={newAccessLevel}
+                                      setNewAccessLevel={setNewAccessLevel}
+                                      onModeChange={handleAccessLevelModeChange}
+                                      onAddCustomType={handleAddCustomAccessLevel}
+                                      onRemoveCustomType={handleRemoveCustomAccessLevels}
+                                    />
+
+                                    <FormInput
+                                      name="accessLevelsHelpText"
+                                      type="text"
+                                      isRequired={false}
+                                      label={QuestionAdd('labels.helpText', { fieldName: field.label })}
+                                      value={field.helpText || ''}
+                                      onChange={(e) => updateStandardFieldProperty('accessLevels', 'helpText', e.currentTarget.value)}
+                                      helpMessage={QuestionAdd('researchOutput.helpText')}
+                                      maxLength={300}
+                                    />
+                                  </>
                                 )}
                               </div>
                             )}
@@ -1235,14 +1309,14 @@ const QuestionAdd = ({
                                     />
 
                                     {/* Help Text */}
-                                    <FormTextArea
+                                    <FormInput
                                       name={`${field.id}_help`}
                                       isRequired={false}
-                                      richText={false}
-                                      label={QuestionAdd('researchOutput.additionalFields.helpText.label')}
+                                      label={QuestionAdd('labels.helpText', { fieldName: field.customLabel || field.label })}
                                       value={field.helpText}
                                       onChange={(value) => handleUpdateAdditionalField(field.id, 'helpText', value)}
-                                      helpMessage={QuestionAdd('researchOutput.additionalFields.helpText.helpText')}
+                                      helpMessage={QuestionAdd('researchOutput.helpText')}
+                                      maxLength={300}
                                     />
 
                                     {/* Max Length for text field */}

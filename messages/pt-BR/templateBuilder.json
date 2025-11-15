@@ -369,7 +369,8 @@
       "addCustomOutputType": "Adicionar tipo de saída personalizado",
       "addCustomAccessLevel": "Adicionar nível de acesso personalizado",
       "customTypeList": "Lista de tipos de saída personalizados",
-      "customAccessLevelList": "Lista de níveis de acesso personalizados"
+      "customAccessLevelList": "Lista de níveis de acesso personalizados",
+      "helpText": "Texto de ajuda para {fieldName}"
     },
     "buttons": {
       "addRow": "Adicionar linha",
@@ -398,6 +399,7 @@
       }
     },
     "researchOutput": {
+      "helpText": "O comprimento máximo é de 300 caracteres.",
       "headings": {
         "enableStandardFields": "Ativar campos padrão"
       },
@@ -532,18 +534,18 @@
           "helpText": "O rótulo que será exibido para este campo"
         },
         "helpText": {
-          "label": "Help text",
-          "helpText": "Optional help text to guide users"
+          "label": "Texto de ajuda",
+          "helpText": "Texto de ajuda opcional para orientar os usuários. Comprimento máximo de 300 caracteres."
         },
         "maxLength": {
-          "label": "Maximum length",
-          "helpText": "Maximum number of characters allowed (leave empty for no limit)"
+          "label": "Comprimento máximo",
+          "helpText": "Número máximo de caracteres permitidos (deixe vazio para sem limite)"
         },
         "defaultValue": {
-          "label": "Default value",
-          "helpText": "Default value for this field"
+          "label": "Valor padrão",
+          "helpText": "Valor padrão para este campo"
         },
-        "addFieldBtn": "Add additional field"
+        "addFieldBtn": "Adicionar campo adicional"
       }
     }
   },

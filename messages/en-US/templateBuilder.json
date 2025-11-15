@@ -369,7 +369,8 @@
       "addCustomOutputType": "Add custom output type",
       "addCustomAccessLevel": "Add custom access level",
       "customTypeList": "Custom output types list",
-      "customAccessLevelList": "Custom access levels list"
+      "customAccessLevelList": "Custom access levels list",
+      "helpText": "Help text for {fieldName}"
     },
     "buttons": {
       "addRow": "Add Row",
@@ -400,6 +401,7 @@
       }
     },
     "researchOutput": {
+      "helpText": "Max length is 300 characters.",
       "headings": {
         "enableStandardFields": "Enable standard fields",
         "additionalTextFields": "Additional text fields"
@@ -538,7 +540,7 @@
         },
         "helpText": {
           "label": "Help text",
-          "helpText": "Optional help text to guide users"
+          "helpText": "Optional help text to guide users. Max length 300 characters."
         },
         "maxLength": {
           "label": "Maximum length",
