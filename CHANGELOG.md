@@ -6,6 +6,8 @@
 - Hooked up the `Download plan` page and added a `download-narrative` api endpoint [#313]
 
 ### Updated
+- For Research Outputs, updated repositories and metadata standards fields to be automatically enabled when user selects custom ones [#943]
+- Updated Licenses and Output Types to use label "Use custom list" [#943]
 - Updated `Output Types` in static `Research Outputs` table [#962]
   - Added a description field to custom types
   - Added tooltip icons next to each default output type with the description
@@ -16,7 +18,7 @@
 - Updated `Remove` buttons to be `secondary` buttons, rather than `red` [#964]
 
 ### Fixed
-
+- For Research Outputs, fixed custom Licenses select field to display selected value [#943]
 ### Removed
 - Removed `scrollToTop` from `Template Create` page [#950]
 

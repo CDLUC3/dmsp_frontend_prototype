@@ -341,6 +341,7 @@ const QuestionAdd = ({
 
   // Handle updates to RepositorySelectionSystem component
   const handleRepositoriesChange = (repos: RepositoryInterface[]) => {
+    console.log("Selected fields repos:", standardFields);
     // Store the selected repositories in the field config
     const currentField = standardFields.find(f => f.id === 'repoSelector');
     if (currentField && currentField.repoConfig) {
@@ -348,6 +349,10 @@ const QuestionAdd = ({
         ...currentField.repoConfig,
         customRepos: repos.map(r => ({ id: r.id, name: r.name, url: r.url })) // Store relevant data
       });
+    }
+    // If custom repos are added and repo selector is not enabled, then enable it
+    if (currentField && !currentField.enabled && currentField.repoConfig?.hasCustomRepos) {
+      updateStandardFieldProperty('repoSelector', 'enabled', true);
     }
     setHasUnsavedChanges(true);
   };
@@ -361,6 +366,11 @@ const QuestionAdd = ({
         ...currentField.metaDataConfig,
         customStandards: standards.map(s => ({ id: s.id, name: s.name, url: s.url })) // Store relevant data
       });
+    }
+
+    // If custom metadata standards are added and field is not enabled, then enable it
+    if (currentField && !currentField.enabled && currentField.metaDataConfig?.hasCustomStandards) {
+      updateStandardFieldProperty('metadataStandards', 'enabled', true);
     }
     setHasUnsavedChanges(true);
   };

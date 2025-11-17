@@ -9,7 +9,7 @@ import styles from './questionAdd.module.scss';
 
 const licenseTypeOptions = [
   { id: 'defaults', name: 'Use defaults' },
-  { id: 'addToDefaults', name: 'Use mine' }
+  { id: 'addToDefaults', name: 'Use custom list' }
 ];
 
 // Default licenses
@@ -94,7 +94,7 @@ const LicenseField = ({
                   items={otherLicenses}
                   selectClasses={styles.licenseSelector}
                   onChange={(value) => setNewLicenseType(value)}
-                  selectedKey={field.licensesConfig?.mode || 'defaults'}
+                  selectedKey={newLicenseType || 'defaults'}
                 >
                   {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
                 </FormSelect>
