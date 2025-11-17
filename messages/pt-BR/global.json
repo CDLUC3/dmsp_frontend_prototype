@@ -744,7 +744,7 @@
       "funderSearch": "Pesquisar por organização de pesquisa, nome do financiador ou palavras-chave relacionadas."
     },
     "descriptions": {
-      "requiredFieldDescription": "Esta pergunta deve incluir um aviso para o construtor do plano de que é necessária uma resposta como condição para aceitar o DMP? Os usuários poderão enviar o DMP, mesmo se eles não responderem)"
+      "requiredFieldDescription": "Avise os usuários que esta é considerada uma pergunta obrigatória para este modelo de DMP pela organização. Os usuários poderão optar por ignorá-la na ferramenta e não precisarão respondê-la antes de prosseguir."
     },
     "placeholders": {
       "funderSearch": "Insira o nome da pasta"

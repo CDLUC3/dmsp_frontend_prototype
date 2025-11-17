@@ -6,6 +6,7 @@
 - Hooked up the `Download plan` page and added a `download-narrative` api endpoint [#313]
 
 ### Updated
+- Made text changes to upcoming blog posts [#989]
 - Updated `Output Types` in static `Research Outputs` table [#962]
   - Added a description field to custom types
   - Added tooltip icons next to each default output type with the description

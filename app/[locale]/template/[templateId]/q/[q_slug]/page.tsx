@@ -640,7 +640,7 @@ const QuestionEdit = () => {
                   name="question_requirements"
                   isRequired={false}
                   richText={true}
-                  description={t('helpText.requirementText')}
+                  helpMessage={t('helpText.requirementText')}
                   textAreaClasses={styles.questionFormField}
                   label={t('labels.requirementText')}
                   value={question?.requirementText ? question.requirementText : ''}
@@ -667,6 +667,7 @@ const QuestionEdit = () => {
                     }));
                     setHasUnsavedChanges(true);
                   }}
+                  helpMessage={t('helpText.guidanceText')}
                 />
 
                 {questionType === TEXT_AREA_QUESTION_TYPE && (

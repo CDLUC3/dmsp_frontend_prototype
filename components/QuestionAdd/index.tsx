@@ -961,7 +961,6 @@ const QuestionAdd = ({
                   name="question_requirements"
                   isRequired={false}
                   richText={true}
-                  description={QuestionAdd('helpText.requirementText')}
                   textAreaClasses={styles.questionFormField}
                   label={QuestionAdd('labels.requirementText')}
                   value={question?.requirementText ? question.requirementText : ''}
@@ -977,6 +976,7 @@ const QuestionAdd = ({
                   label={QuestionAdd('labels.guidanceText')}
                   value={question?.guidanceText ? question?.guidanceText : ''}
                   onChange={(newValue) => handleInputChange('guidanceText', newValue)}
+                  helpMessage={QuestionAdd('helpText.guidanceText')}
                 />
 
                 {questionType === TEXT_AREA_QUESTION_TYPE && (
