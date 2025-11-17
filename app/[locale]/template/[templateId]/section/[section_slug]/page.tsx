@@ -445,7 +445,7 @@ const SectionUpdatePage: React.FC = () => {
                                 <div className="checkbox-wrapper">
                                   <div>{tag.name}</div>
                                   <DialogTrigger>
-                                    <Button className="popover-btn" aria-label="Click for more info"><div className="icon"><DmpIcon icon="info" /></div></Button>
+                                    <Button className={`${styles.infoIcon} popover-btn`} aria-label="Click for more info"><div className="icon info"><DmpIcon icon="info" /></div></Button>
                                     <Popover>
                                       <OverlayArrow>
                                         <svg width={12} height={12} viewBox="0 0 12 12">

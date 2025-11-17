@@ -1,10 +1,17 @@
 ### Added
 - Added new, shared `ProjectRoles` component that generates the list of Project Roles for both the Project Member Search and Edit Project member pages [#945]
+- Added `Help text` fields to `Description, Repositories, Metadata Standards, License, Access Level and Custom Text` fields in Research Output question type [#970]
+- Added customizable `Initial Access Level` field to the QuestionAdd page for Research Outputs question type [#969]
 - Added new `Start DMP` page at `projects/[projectId]/dmp/start` to direct user to create new plan or upload existing [#956]
 - Added `autosave` back to the `PlanOverviewQuestionpage` [#944]
 - Hooked up the `Download plan` page and added a `download-narrative` api endpoint [#313]
 
 ### Updated
+- Updated `Output Types` in static `Research Outputs` table [#962]
+  - Added a description field to custom types
+  - Added tooltip icons next to each default output type with the description
+  - Updated Output Types component to behave like the Licenses component, where users can delete default types
+  - Updated unit test
 - Improved project creation steps by updating pages in the flow (header, home, plan dashboard, create project details,and funding search) to help users in creating a plan [#956]
 - Updated Project Details subdomains field to only display once a user selects a research domain [#947]
 - Updated `Remove` buttons to be `secondary` buttons, rather than `red` [#964]

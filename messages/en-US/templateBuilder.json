@@ -362,12 +362,22 @@
       "requirementText": "Requirements plan writer must meet (optional but recommended)",
       "guidanceText": "Question guidance (optional but recommended)",
       "sampleText": "Sample text",
-      "questionEditing": "Question editing"
+      "questionEditing": "Question editing",
+      "clickForMoreInfo": "Click for more info",
+      "typeDescription": "{type} description",
+      "accessLevelDescription": "{level} description",
+      "addCustomOutputType": "Add custom output type",
+      "addCustomAccessLevel": "Add custom access level",
+      "customTypeList": "Custom output types list",
+      "customAccessLevelList": "Custom access levels list",
+      "helpText": "Help text for {fieldName}"
     },
     "buttons": {
       "addRow": "Add Row",
       "previewQuestion": "Preview question",
-      "changeType": "Change type"
+      "changeType": "Change type",
+      "removeType": "Remove {type}",
+      "removeAccessLevel": "Remove {level}"
     },
     "helpText": {
       "textField": "Changing the question type, for example from Short question to Radio button, may result in some data being lost.",
@@ -391,6 +401,7 @@
       }
     },
     "researchOutput": {
+      "helpText": "Max length is 300 characters.",
       "headings": {
         "enableStandardFields": "Enable standard fields",
         "additionalTextFields": "Additional text fields"
@@ -483,7 +494,8 @@
       "outputType": {
         "labels": {
           "defineOutputTypes": "Define output types",
-          "enterOutputType": "Enter an output type",
+          "enterOutputType": "Enter type",
+          "typeDescription": "Type description",
           "removeOutputType": "Remove {type}"
         },
         "legends": {
@@ -492,6 +504,21 @@
         },
         "buttons": {
           "addOutputType": "Add output type"
+        }
+      },
+      "accessLevels": {
+        "labels": {
+          "defineAccessLevels": "Define access levels",
+          "enterAccessLevel": "Enter access level",
+          "accessLevelDescription": "Access level description",
+          "removeAccessLevel": "Remove {level}"
+        },
+        "legends": {
+          "default": "Default Access Levels",
+          "myAccessLevels": "My Access Levels"
+        },
+        "buttons": {
+          "addAccessLevel": "Add access level"
         }
       },
       "licenses": {
@@ -513,7 +540,7 @@
         },
         "helpText": {
           "label": "Help text",
-          "helpText": "Optional help text to guide users"
+          "helpText": "Optional help text to guide users. Max length 300 characters."
         },
         "maxLength": {
           "label": "Maximum length",

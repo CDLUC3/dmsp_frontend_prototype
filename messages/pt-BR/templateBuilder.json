@@ -362,7 +362,15 @@
       "requirementText": "Escritor do plano de requisitos deve atender (opcional, mas recomendado)",
       "guidanceText": "Orientação para perguntas (opcional mas recomendado)",
       "sampleText": "Texto de amostra",
-      "questionEditing": "Edição da questão"
+      "questionEditing": "Edição da questão",
+      "clickForMoreInfo": "Clique para mais informações",
+      "typeDescription": "{type} descrição",
+      "accessLevelDescription": "{level} descrição",
+      "addCustomOutputType": "Adicionar tipo de saída personalizado",
+      "addCustomAccessLevel": "Adicionar nível de acesso personalizado",
+      "customTypeList": "Lista de tipos de saída personalizados",
+      "customAccessLevelList": "Lista de níveis de acesso personalizados",
+      "helpText": "Texto de ajuda para {fieldName}"
     },
     "buttons": {
       "addRow": "Adicionar linha",
@@ -391,6 +399,7 @@
       }
     },
     "researchOutput": {
+      "helpText": "O comprimento máximo é de 300 caracteres.",
       "headings": {
         "enableStandardFields": "Ativar campos padrão"
       },
@@ -493,6 +502,21 @@
           "addOutputType": "Adicionar tipo de saída"
         }
       },
+      "accessLevels": {
+        "labels": {
+          "defineAccessLevels": "Definir níveis de acesso",
+          "enterAccessLevel": "Insira o nível de acesso",
+          "accessLevelDescription": "Descrição do nível de acesso",
+          "removeAccessLevel": "Remover {level}"
+        },
+        "legends": {
+          "default": "Níveis de acesso padrão",
+          "myAccessLevels": "Meus níveis de acesso"
+        },
+        "buttons": {
+          "addAccessLevel": "Adicionar nível de acesso"
+        }
+      },
       "licenses": {
         "labels": {
           "define": "Definir licenças preferidas",
@@ -510,18 +534,18 @@
           "helpText": "O rótulo que será exibido para este campo"
         },
         "helpText": {
-          "label": "Help text",
-          "helpText": "Optional help text to guide users"
+          "label": "Texto de ajuda",
+          "helpText": "Texto de ajuda opcional para orientar os usuários. Comprimento máximo de 300 caracteres."
         },
         "maxLength": {
-          "label": "Maximum length",
-          "helpText": "Maximum number of characters allowed (leave empty for no limit)"
+          "label": "Comprimento máximo",
+          "helpText": "Número máximo de caracteres permitidos (deixe vazio para sem limite)"
         },
         "defaultValue": {
-          "label": "Default value",
-          "helpText": "Default value for this field"
+          "label": "Valor padrão",
+          "helpText": "Valor padrão para este campo"
         },
-        "addFieldBtn": "Add additional field"
+        "addFieldBtn": "Adicionar campo adicional"
       }
     }
   },
