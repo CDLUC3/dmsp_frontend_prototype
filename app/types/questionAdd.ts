@@ -6,12 +6,12 @@ export type DataFlagsConfig = {
 
 export type RepoConfig = {
   hasCustomRepos: boolean;
-  customRepos: string[];
+  customRepos: RepositoryInterface[];
 }
 
 export type MetaDataConfig = {
   hasCustomStandards: boolean;
-  customStandards: string[];
+  customStandards: MetaDataStandardInterface[];
 }
 
 export type StandardField = {
@@ -60,7 +60,7 @@ export interface RepositoryFieldInterface {
   value?: string;
   repoConfig?: {
     hasCustomRepos: boolean;
-    customRepos: string[];
+    customRepos: RepositoryInterface[];
   }
 }
 
@@ -78,7 +78,7 @@ export interface MetaDataStandardFieldInterface {
   helpText?: string;
   metaDataConfig: {
     hasCustomStandards: boolean;
-    customStandards: string[];
+    customStandards: MetaDataStandardInterface[];
   }
 }
 

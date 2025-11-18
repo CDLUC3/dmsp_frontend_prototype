@@ -19,7 +19,7 @@ import styles from './questionAdd.module.scss';
 
 const outputTypeOptions = [
   { id: 'defaults', name: 'Use defaults' },
-  { id: 'mine', name: 'Customize output list' },
+  { id: 'mine', name: 'Use custom list' },
 ];
 
 const defaultOutputTypes = [

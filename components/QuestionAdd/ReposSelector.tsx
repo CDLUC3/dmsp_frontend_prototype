@@ -132,8 +132,16 @@ const RepositorySelectionSystem = ({
   const Global = useTranslations("Global");
   const QuestionAdd = useTranslations("QuestionAdd");
 
-  // Component states
-  const [selectedRepos, setSelectedRepos] = useState<RepositoryInterface[]>([]);
+  // Selected repositories state - include any customRepos from field config as initial state
+  const [selectedRepos, setSelectedRepos] = useState<{ [id: string]: RepositoryInterface }>(() => {
+    const initial = field.repoConfig?.customRepos || [];
+    // Convert array to object keyed by id
+    return initial.reduce((acc: { [id: string]: RepositoryInterface }, repo) => {
+      acc[repo.id] = repo;
+      return acc;
+    }, {});
+  });
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCustomFormOpen, setIsCustomFormOpen] = useState(false);
   const [expandedDetails, setExpandedDetails] = useState<Record<string, boolean>>({});
@@ -206,7 +214,9 @@ const RepositorySelectionSystem = ({
   // Removal of all selected repositories from the non-modal view
   const removeAllRepos = () => {
     if (window.confirm(QuestionAdd('researchOutput.repoSelector.messages.confirmRemoveAll'))) {
-      setSelectedRepos([]);
+      setSelectedRepos({});
+      // Uncheck the "Create custom repositories" box as well
+      handleTogglePreferredRepositories(false);
       toastState.add(QuestionAdd('researchOutput.repoSelector.messages.allRemoved'), { type: 'success' });
     }
   };
@@ -229,7 +239,7 @@ const RepositorySelectionSystem = ({
     }
 
     const customRepo = {
-      id: `custom-${Date.now()}`,
+      id: Date.now(),
       name: name.trim(),
       description: description.trim(),
       url: url.trim(),
@@ -295,7 +305,7 @@ const RepositorySelectionSystem = ({
                         <div className={styles.itemContent}>
                           <div className={styles.itemTitle}>{repo.name}</div>
                           <div className={styles.itemMeta}>
-                            <span className={`${styles.itemBadge} ${repo.access.toLowerCase() === 'open' ? styles.open : ''}`}>
+                            <span className={`${styles.itemBadge} ${repo.access?.toLowerCase() === 'open' ? styles.open : ''}`}>
                               {repo.access}
                             </span>
                             <span className={styles.itemBadge}>{repo.identifier}</span>
