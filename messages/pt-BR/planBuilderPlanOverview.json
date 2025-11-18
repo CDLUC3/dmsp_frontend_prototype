@@ -77,7 +77,10 @@
         "title": "Baixar"
       },
       "feedback": {
-        "title": "Registrar"
+        "title": "Registrar",
+        "none": "Sem feedback",
+        "requested": "Feedback solicitado",
+        "completed": "Feedback recebido"
       }
     },
     "publishModal": {
