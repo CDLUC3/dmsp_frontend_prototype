@@ -18,6 +18,7 @@
 ### Fixed
 
 ### Removed
+- Removed `Description` fields for Research Output question fields [#970]
 - Removed `scrollToTop` from `Template Create` page [#950]
 
 ### Chore
