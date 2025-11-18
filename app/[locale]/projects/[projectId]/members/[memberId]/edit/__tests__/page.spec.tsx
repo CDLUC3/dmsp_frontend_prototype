@@ -182,9 +182,15 @@ describe("ProjectsProjectMembersEdit", () => {
     expect(screen.getByRole('textbox', { name: /email/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/form.labels.orcid/i)).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: /orcid/i })).toBeInTheDocument();
-    expect(screen.getByText('form.labels.checkboxGroupLabel')).toBeInTheDocument();
-    expect(screen.getByText('form.labels.checkboxGroupDescription')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /buttons.saveChanges/i })).toBeInTheDocument();
+
+    // Check for checkbox group
+    const checkboxGroup = screen.getByTestId('checkbox-group');
+    expect(checkboxGroup).toBeInTheDocument();
+    expect(screen.getByText('labels.definedRole')).toBeInTheDocument();
+    expect(screen.getByText('memberRolesDescription')).toBeInTheDocument();
+    expect(within(checkboxGroup).getByText('Principal Investigator (PI)')).toBeInTheDocument();
+    expect(within(checkboxGroup).getByText('Project Administrator')).toBeInTheDocument();
   });
 
   it("should handle form submission", async () => {
