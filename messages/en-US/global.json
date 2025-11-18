@@ -745,7 +745,7 @@
       "funderSearch": "Search by research organization, funder name, or related keywords."
     },
     "descriptions": {
-      "requiredFieldDescription": "Should this question include a warning to the plan builder that an answer is required as a condition of accepting the DMP?(Users will be able to submit the DMP even if they don't answer)"
+      "requiredFieldDescription": "Warn users that this is considered a required question for this DMP template by the organization. Users will be able to choose to ignore this within the tool and will not be required to answer before moving it."
     },
     "placeholders": {
       "funderSearch": "Enter funder name..."
