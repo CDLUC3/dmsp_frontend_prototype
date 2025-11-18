@@ -1,4 +1,5 @@
 ### Added
+- Added new, shared `ProjectRoles` component that generates the list of Project Roles for both the Project Member Search and Edit Project member pages [#945]
 - Added `Help text` fields to `Description, Repositories, Metadata Standards, License, Access Level and Custom Text` fields in Research Output question type [#970]
 - Added customizable `Initial Access Level` field to the QuestionAdd page for Research Outputs question type [#969]
 - Added new `Start DMP` page at `projects/[projectId]/dmp/start` to direct user to create new plan or upload existing [#956]
@@ -7,6 +8,8 @@
 
 ### Updated
 - Made text changes to upcoming blog posts [#989]
+- For Research Outputs, updated repositories and metadata standards fields to be automatically enabled when user selects custom ones [#943]
+- Updated Licenses and Output Types to use label "Use custom list" [#943]
 - Updated `Output Types` in static `Research Outputs` table [#962]
   - Added a description field to custom types
   - Added tooltip icons next to each default output type with the description
@@ -17,11 +20,13 @@
 - Updated `Remove` buttons to be `secondary` buttons, rather than `red` [#964]
 
 ### Fixed
-
+- For Research Outputs, fixed custom Licenses select field to display selected value [#943]
+- Fixed issue where custom repos and standards were not saving in state [#943]
 ### Removed
 - Removed `scrollToTop` from `Template Create` page [#950]
 
 ### Chore
+- Ran `npm audit fix` to address `glob` vulnerability and `js-yaml` vulnerability
 ====================================================================================================================================
 ## All changes above the line happened after the merge to the main branch on Nov 3, 2025
 ### Added

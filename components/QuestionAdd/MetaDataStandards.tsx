@@ -45,7 +45,14 @@ const MetaDataStandardsSelector = ({
   onMetaDataStandardsChange: (standards: MetaDataStandardInterface[]) => void;
 }) => {
   const toastState = useToast();
-  const [selectedStandards, setSelectedStandards] = useState<MetaDataStandardInterface[]>([]);
+  const [selectedStandards, setSelectedStandards] = useState<{ [id: string]: MetaDataStandardInterface }>(() => {
+    const initial = field.metaDataConfig?.customStandards || [];
+    // Convert array to object keyed by id
+    return initial.reduce((acc: { [id: string]: MetaDataStandardInterface }, repo) => {
+      acc[repo.id] = repo;
+      return acc;
+    }, {});
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCustomFormOpen, setIsCustomFormOpen] = useState(false);
   const [customForm, setCustomForm] = useState({ name: '', url: '', description: '' });
@@ -140,7 +147,9 @@ const MetaDataStandardsSelector = ({
 
   const removeAllStandards = () => {
     if (window.confirm(QuestionAdd('researchOutput.metaDataStandards.messages.confirmRemovalAll'))) {
-      setSelectedStandards([]);
+      setSelectedStandards({});
+      // Uncheck the "Create custom metadata standards" box as well
+      handleToggleMetaDataStandards(false);
       toastState.add(QuestionAdd('researchOutput.metaDataStandards.messages.allRemoved'), { type: 'success' });
     }
   };
@@ -154,7 +163,7 @@ const MetaDataStandardsSelector = ({
     }
 
     const customStandard = {
-      id: `custom-${Date.now()}`,
+      id: Date.now(),
       name: name.trim(),
       description: description.trim(),
       url: url.trim(),

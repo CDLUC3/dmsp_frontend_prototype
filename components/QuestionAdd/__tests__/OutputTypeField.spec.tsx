@@ -224,7 +224,7 @@ describe('OutputTypeField', () => {
         await userEvent.click(selectButton);
 
         // Find and click the "Use mine" option in the listbox
-        const mineOption = screen.getByRole('option', { name: 'Customize output list' });
+        const mineOption = screen.getByRole('option', { name: 'Use custom list' });
         await userEvent.click(mineOption);
 
         expect(onModeChange).toHaveBeenCalledWith('mine');
@@ -403,7 +403,7 @@ describe('OutputTypeField', () => {
         });
 
         const selectButton = screen.getByTestId('select-button');
-        expect(selectButton).toHaveTextContent('Customize output listOpen drop down');
+        expect(selectButton).toHaveTextContent('Use custom listOpen drop down');
       });
     });
 

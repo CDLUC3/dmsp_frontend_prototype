@@ -181,7 +181,7 @@ const initialStandardFields: StandardField[] = [
     value: '',
     repoConfig: {
       hasCustomRepos: false,
-      customRepos: [] as string[],
+      customRepos: [] as RepositoryInterface[],
     }
   },
   {
@@ -191,7 +191,7 @@ const initialStandardFields: StandardField[] = [
     helpText: '',
     metaDataConfig: {
       hasCustomStandards: false,
-      customStandards: [] as string[],
+      customStandards: [] as MetaDataStandardInterface[],
     }
   },
   {
@@ -344,11 +344,17 @@ const QuestionAdd = ({
     // Store the selected repositories in the field config
     const currentField = standardFields.find(f => f.id === 'repoSelector');
     if (currentField && currentField.repoConfig) {
+      const wasEnabled = currentField.enabled;
       updateStandardFieldProperty('repoSelector', 'repoConfig', {
         ...currentField.repoConfig,
-        customRepos: repos.map(r => ({ id: r.id, name: r.name, url: r.url })) // Store relevant data
+        customRepos: repos
       });
+      // Only enable if a repo is added and the box is currently unchecked
+      if (!wasEnabled && repos.length > (currentField.repoConfig.customRepos?.length || 0)) {
+        updateStandardFieldProperty('repoSelector', 'enabled', true);
+      }
     }
+
     setHasUnsavedChanges(true);
   };
 
@@ -357,10 +363,15 @@ const QuestionAdd = ({
     // Store the selected metadata standards in the field config
     const currentField = standardFields.find(f => f.id === 'metadataStandards');
     if (currentField && currentField.metaDataConfig) {
+      const wasEnabled = currentField.enabled;
       updateStandardFieldProperty('metadataStandards', 'metaDataConfig', {
         ...currentField.metaDataConfig,
-        customStandards: standards.map(s => ({ id: s.id, name: s.name, url: s.url })) // Store relevant data
+        customStandards: standards // Store metadata standard data
       });
+      // Only enable if a standard is added and the box is currently unchecked
+      if (!wasEnabled && standards.length > (currentField.metaDataConfig.customStandards?.length || 0)) {
+        updateStandardFieldProperty('metadataStandards', 'enabled', true);
+      }
     }
     setHasUnsavedChanges(true);
   };
@@ -431,14 +442,9 @@ const QuestionAdd = ({
   const handleStandardFieldChange = (fieldId: string, enabled: boolean) => {
     updateStandardFieldProperty(fieldId, 'enabled', enabled);
     if (enabled === true) {
-      handleCustomizeField(fieldId);
-    } else {
-      removeCustomizeField(fieldId);
+      setExpandedFields(prev => [...prev, fieldId]); //expanded
     }
-  };
-
-  const removeCustomizeField = (fieldId: string) => {
-    setExpandedFields(prev => prev.filter(id => id !== fieldId));
+    // Do NOT auto-collapse when unchecked
   };
 
   // Handler for customize button clicks
