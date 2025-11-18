@@ -1836,7 +1836,7 @@ describe("Research Output Question Type", () => {
     });
 
     // Should show repository configuration
-    expect(screen.getByText('researchOutput.repoSelector.descriptionLabel')).toBeInTheDocument();
+    expect(screen.getByText('labels.helpText')).toBeInTheDocument();
   });
 
   it('should handle metadata standards configuration', async () => {
@@ -1870,7 +1870,7 @@ describe("Research Output Question Type", () => {
     });
 
     // Should show metadata standards configuration
-    expect(screen.getByText('researchOutput.metaDataStandards.descriptionLabel')).toBeInTheDocument();
+    expect(screen.getByText('labels.helpText')).toBeInTheDocument();
   });
 
   it('should handle license configuration', async () => {

@@ -1072,27 +1072,16 @@ const QuestionAdd = ({
                               <div className={styles.fieldPanel}>
                                 {/** Description */}
                                 {field.id === 'description' && (
-                                  <>
-                                    <FormTextArea
-                                      name={QuestionAdd('researchOutput.labels.descriptionLowerCase')}
-                                      isRequired={false}
-                                      richText={true}
-                                      label={QuestionAdd('researchOutput.labels.description')}
-                                      value={field.value}
-                                      onChange={(newValue) => updateStandardFieldProperty('description', 'value', newValue)}
-                                    />
-
-                                    <FormInput
-                                      name="descriptionHelpText"
-                                      type="text"
-                                      isRequired={false}
-                                      label={QuestionAdd('labels.helpText', { fieldName: QuestionAdd('researchOutput.labels.description') })}
-                                      value={field.helpText || ''}
-                                      onChange={(e) => updateStandardFieldProperty('description', 'helpText', e.currentTarget.value)}
-                                      helpMessage={QuestionAdd('researchOutput.helpText')}
-                                      maxLength={300}
-                                    />
-                                  </>
+                                  <FormInput
+                                    name="descriptionHelpText"
+                                    type="text"
+                                    isRequired={false}
+                                    label={QuestionAdd('labels.helpText', { fieldName: QuestionAdd('researchOutput.labels.description') })}
+                                    value={field.helpText || ''}
+                                    onChange={(e) => updateStandardFieldProperty('description', 'helpText', e.currentTarget.value)}
+                                    helpMessage={QuestionAdd('researchOutput.helpText')}
+                                    maxLength={300}
+                                  />
                                 )}
 
                                 {/** Data Flags Configuration */}
@@ -1148,15 +1137,6 @@ const QuestionAdd = ({
                                       onRepositoriesChange={handleRepositoriesChange}
                                     />
 
-                                    <FormTextArea
-                                      name="repoSelectorDescription"
-                                      isRequired={false}
-                                      richText={true}
-                                      label={QuestionAdd('researchOutput.repoSelector.descriptionLabel')}
-                                      value={field.value}
-                                      onChange={(value) => updateStandardFieldProperty('repoSelector', 'value', value)}
-                                    />
-
                                     <FormInput
                                       name="repositoriesHelpText"
                                       type="text"
@@ -1177,16 +1157,6 @@ const QuestionAdd = ({
                                       field={field}
                                       handleToggleMetaDataStandards={handleToggleMetaDataStandards}
                                       onMetaDataStandardsChange={handleMetaDataStandardsChange}
-                                    />
-
-                                    <FormTextArea
-                                      name="metadataStandardsDescription"
-                                      isRequired={false}
-                                      richText={true}
-                                      label={QuestionAdd('researchOutput.metaDataStandards.descriptionLabel')}
-                                      value={field.value}
-                                      helpMessage={QuestionAdd('researchOutput.metaDataStandards.helpText')}
-                                      onChange={(value) => updateStandardFieldProperty('metaDataStandards', 'value', value)}
                                     />
 
                                     <FormInput

@@ -23,6 +23,7 @@
 - For Research Outputs, fixed custom Licenses select field to display selected value [#943]
 - Fixed issue where custom repos and standards were not saving in state [#943]
 ### Removed
+- Removed `Description` fields for Research Output question fields [#970]
 - Removed `scrollToTop` from `Template Create` page [#950]
 
 ### Chore
