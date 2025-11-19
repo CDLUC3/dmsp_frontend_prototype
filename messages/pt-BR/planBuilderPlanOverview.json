@@ -13,7 +13,8 @@
     },
     "headings": {
       "comments": "Comments",
-      "leaveAComment": "Deixar uma foto"
+      "leaveAComment": "Deixar uma foto",
+      "requirementsBy": "Requisitos definidos por {funder}"
     },
     "labels": {
       "saveAnswer": "Resposta salva",
@@ -28,7 +29,7 @@
       "jumpToGuidance": "Pule para orientação adicional",
       "viewSampleAnswer": "Ver amostra da resposta",
       "commentTooltip": "Você precisa salvar uma resposta antes que os usuários possam comentar.",
-      "guidanceBy": "Guia por {funder}",
+      "guidanceBy": "Guia por {name}",
       "funderSampleText": "{funder} texto de exemplo",
       "participantsWillBeNotified": "Os participantes serão notificados assim que submetidos.",
       "planTitlePlaceholder": "Inserir título do plano"

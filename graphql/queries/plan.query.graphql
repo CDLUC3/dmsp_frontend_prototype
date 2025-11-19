@@ -58,6 +58,10 @@ query Plan($planId: Int!) {
       versionedSectionId
       title
       totalQuestions
+      tags {
+        name
+        id
+      }
     }
     progress {
       answeredQuestions

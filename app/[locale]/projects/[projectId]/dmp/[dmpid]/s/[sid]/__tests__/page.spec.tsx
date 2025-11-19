@@ -8,6 +8,7 @@ import {
   PlanDocument,
   PublishedQuestionsDocument,
   PublishedSectionDocument,
+  GuidanceGroupsDocument
 } from '@/generated/graphql';
 
 import PlanOverviewSectionPage from "../page";
@@ -40,6 +41,66 @@ const mockParams = {
   projectId: '123',
   dmpid: '456',
   sid: '456',
+};
+
+
+const guidanceGroupsMock = {
+  data: {
+    guidanceGroups: [
+      {
+        id: 2,
+        guidance: [
+          {
+            tags: [
+              {
+                id: 1,
+                name: "Data description"
+              },
+              {
+                id: 3,
+                name: "Security & privacy"
+              }
+            ],
+            guidanceText: "Use the active voice whenever possible",
+            id: 3
+          }
+        ]
+      },
+      {
+        id: 1,
+        guidance: [
+          {
+            tags: [
+              {
+                id: 1,
+                name: "Data description"
+              },
+              {
+                id: 2,
+                name: "Data organization & documentation"
+              }
+            ],
+            guidanceText: "Make sure to double check your entries",
+            id: 1
+          },
+          {
+            tags: [
+              {
+                id: 1,
+                name: "Data description"
+              },
+              {
+                id: 3,
+                name: "Security & privacy"
+              }
+            ],
+            guidanceText: "Dot your i's and cross your t's",
+            id: 2
+          }
+        ]
+      }
+    ]
+  }
 };
 
 const versionedQuestionsMock = [
@@ -171,7 +232,11 @@ const planMock = {
       title: 'Data and Metadata Formats',
       totalQuestions: 3,
       answeredQuestions: 2,
-      displayOrder: 1
+      displayOrder: 1,
+      tags: [
+        { id: 1, name: 'Data description' },
+        { id: 2, name: 'Data organization & documentation' }
+      ]
     },
   ],
   created: '2024-01-01',
@@ -200,6 +265,18 @@ const mocks = [
     result: {
       data: {
         publishedQuestions: versionedQuestionsMock,
+      },
+    },
+  },
+  // Successful guidance groups query
+  {
+    request: {
+      query: GuidanceGroupsDocument,
+      variables: { affiliationId: 'some-affiliation-id' },
+    },
+    result: {
+      data: {
+        guidanceGroups: guidanceGroupsMock,
       },
     },
   },
@@ -329,7 +406,8 @@ describe('PlanOverviewSectionPage', () => {
     expect(screen.getByTestId('mock-page-header')).toBeInTheDocument();
 
     // Check that requirements section is rendered
-    expect(screen.getByText('Requirements by National Science Foundation')).toBeInTheDocument();
+    expect(screen.getByText('headings.requirementsBy')).toBeInTheDocument();
+    expect(screen.getByText('Requirements text for the section')).toBeInTheDocument();
     expect(screen.getByText('Requirements by University of California')).toBeInTheDocument();
 
     // Check for best practice content in sidebar
@@ -359,7 +437,7 @@ describe('PlanOverviewSectionPage', () => {
     expect(screen.queryByText('What types of data will be produced during your project?')).not.toBeInTheDocument();
 
     // Check that other content is still rendered
-    expect(screen.getByText('Requirements by National Science Foundation')).toBeInTheDocument();
+    expect(screen.getByText('headings.requirementsBy')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: 'bestPractice' })).toBeInTheDocument();
   });
 
