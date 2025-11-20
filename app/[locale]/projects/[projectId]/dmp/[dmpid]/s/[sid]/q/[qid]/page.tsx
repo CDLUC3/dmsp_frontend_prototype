@@ -240,27 +240,29 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Guidance texts that match current section tags (return objects so we have stable keys)
   interface MatchedGuidance { id: number; guidanceText: string; }
-  const matchedGuidanceTexts = React.useMemo<MatchedGuidance[]>(() => {
-    if (!guidanceData?.guidanceGroups || currentSectionTagIds.length === 0) return [] as MatchedGuidance[];
-    const tagSet = new Set(currentSectionTagIds);
-    const seenIds = new Set<number>();
-    const seenTexts = new Set<string>();
-    const matches: MatchedGuidance[] = [];
-    guidanceData.guidanceGroups.forEach(group => {
-      group.guidance?.forEach(g => {
-        const hasMatch = g.tags?.some(tag => tagSet.has(tag.id));
-        if (hasMatch && g.guidanceText) {
-          const guidanceId = typeof g.id === 'number' ? g.id : -1; // fallback if id missing
-          if (!seenIds.has(guidanceId) && !seenTexts.has(g.guidanceText)) {
-            if (guidanceId !== -1) seenIds.add(guidanceId);
-            seenTexts.add(g.guidanceText);
-            matches.push({ id: guidanceId, guidanceText: g.guidanceText });
-          }
+const matchedGuidanceTexts = React.useMemo<MatchedGuidance[]>(() => {
+  if (!guidanceData?.guidanceGroups || currentSectionTagIds.length === 0) return [] as MatchedGuidance[];
+  const tagSet = new Set(currentSectionTagIds);
+  const seenIds = new Set<number>();
+  const seenTexts = new Set<string>();
+  const matches: MatchedGuidance[] = [];
+  
+  guidanceData.guidanceGroups.forEach(group => {
+    group.guidance?.forEach(g => {
+      const hasMatch = g.tags?.some(tag => tagSet.has(tag.id));
+      if (hasMatch && g.guidanceText && typeof g.id === 'number') {
+        // Skip items without valid numeric IDs
+        if (!seenIds.has(g.id) && !seenTexts.has(g.guidanceText)) {
+          seenIds.add(g.id);
+          seenTexts.add(g.guidanceText);
+          matches.push({ id: g.id, guidanceText: g.guidanceText });
         }
-      });
+      }
     });
-    return matches;
-  }, [guidanceData, currentSectionTagIds]);
+  });
+  
+  return matches;
+}, [guidanceData, currentSectionTagIds]);
 
   // Get answer data
   const { data: answerData, loading: answerLoading, error: answerError } = useAnswerByVersionedQuestionIdQuery(
@@ -860,14 +862,14 @@ const PlanOverviewQuestionPage: React.FC = () => {
       }
     } else {
       // On success
+      setIsSubmitting(false);
       if (result.data?.errors && hasFieldLevelErrors(result.data.errors as unknown as MutationErrorsInterface)) {
         const mutationErrors = result.data.errors as unknown as MutationErrorsInterface;
         const extractedErrors = getExtractedErrorValues(mutationErrors);
         // Handle errors as an object with general or field-level errors
-        setErrors(extractedErrors)
+        setErrors(extractedErrors);
 
       } else {
-        setIsSubmitting(false);
         setHasUnsavedChanges(false);
         // Show user a success message and redirect back to the Section page
         showSuccessToast();
