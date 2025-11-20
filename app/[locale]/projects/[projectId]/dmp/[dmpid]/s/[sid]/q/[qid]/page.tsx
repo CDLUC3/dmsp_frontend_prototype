@@ -237,6 +237,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     return section?.tags?.map(t => t.id) ?? [];
   }, [planData, versionedSectionId]);
 
+
   // Guidance texts that match current section tags (return objects so we have stable keys)
   interface MatchedGuidance { id: number; guidanceText: string; }
   const matchedGuidanceTexts = React.useMemo<MatchedGuidance[]>(() => {
@@ -1192,7 +1193,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
             {/**Requirements by organization */}
             <section aria-label={"Requirements"}>
-              {/**TODO: need to get this data from backend once org guidance is available */}
+              {/**TODO: need to get this data from backend once org requirements are available */}
               <h3 className={"h4"}>Requirements by University of California</h3>
               <p>
                 The university requires data and metadata to be cleared by the ethics
