@@ -442,7 +442,7 @@ const CreateSectionPage: React.FC = () => {
                                   <DialogTrigger>
                                     <Button className="popover-btn"
                                       aria-label="Click for more info"><div
-                                        className="icon"><DmpIcon
+                                        className="icon info"><DmpIcon
                                           icon="info" /></div></Button>
                                     <Popover>
                                       <OverlayArrow>

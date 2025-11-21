@@ -1,0 +1,56 @@
+{
+  "guidanceGroups": [
+    {
+      "id": 2,
+      "guidance": [
+        {
+          "tags": [
+            {
+              "id": 1,
+              "name": "Data description"
+            },
+            {
+              "id": 3,
+              "name": "Security & privacy"
+            }
+          ],
+          "guidanceText": "Use the active voice whenever possible",
+          "id": 3
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "guidance": [
+        {
+          "tags": [
+            {
+              "id": 1,
+              "name": "Data description"
+            },
+            {
+              "id": 2,
+              "name": "Data organization & documentation"
+            }
+          ],
+          "guidanceText": "Make sure to double check your entries",
+          "id": 1
+        },
+        {
+          "tags": [
+            {
+              "id": 1,
+              "name": "Data description"
+            },
+            {
+              "id": 3,
+              "name": "Security & privacy"
+            }
+          ],
+          "guidanceText": "Dot your i's and cross your t's",
+          "id": 2
+        }
+      ]
+    }
+  ]
+}

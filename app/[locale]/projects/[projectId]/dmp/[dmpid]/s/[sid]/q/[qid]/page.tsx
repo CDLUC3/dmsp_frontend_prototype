@@ -17,7 +17,6 @@ import {
   TooltipTrigger
 } from "react-aria-components";
 import { CalendarDate, DateValue } from "@internationalized/date";
-import DOMPurify from 'dompurify';
 
 import styles from './PlanOverviewQuestionPage.module.scss';
 import { useTranslations } from "next-intl";
@@ -33,6 +32,7 @@ import {
   usePlanQuery,
   usePublishedQuestionQuery,
   useAnswerByVersionedQuestionIdQuery,
+  useGuidanceGroupsQuery
 } from '@/generated/graphql';
 
 // Components
@@ -44,6 +44,7 @@ import { DmpIcon } from "@/components/Icons";
 import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
 import ExpandableContentSection from '@/components/ExpandableContentSection';
 import CommentsDrawer from './CommentsDrawer';
+import SafeHtml from '@/components/SafeHtml';
 
 // Context
 import { useToast } from '@/context/ToastContext';
@@ -215,6 +216,13 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Run me query to get user's name
   const { data: me } = useMeQuery();
 
+  const { data: guidanceData } = useGuidanceGroupsQuery({
+    variables: {
+      affiliationId: plan?.orgId || null
+    },
+    skip: !me?.me?.affiliation?.uri // Prevent running until the me data exists
+  });
+
   // Get Plan using planId
   const { data: planData, loading: planQueryLoading, error: planQueryError } = usePlanQuery(
     {
@@ -222,6 +230,39 @@ const PlanOverviewQuestionPage: React.FC = () => {
       notifyOnNetworkStatusChange: true
     }
   );
+
+  // Tags assigned to current section
+  const currentSectionTagIds = React.useMemo(() => {
+    const section = planData?.plan?.versionedSections?.find(s => s.versionedSectionId === Number(versionedSectionId));
+    return section?.tags?.map(t => t.id) ?? [];
+  }, [planData, versionedSectionId]);
+
+
+  // Guidance texts that match current section tags (return objects so we have stable keys)
+  interface MatchedGuidance { id: number; guidanceText: string; }
+const matchedGuidanceTexts = React.useMemo<MatchedGuidance[]>(() => {
+  if (!guidanceData?.guidanceGroups || currentSectionTagIds.length === 0) return [] as MatchedGuidance[];
+  const tagSet = new Set(currentSectionTagIds);
+  const seenIds = new Set<number>();
+  const seenTexts = new Set<string>();
+  const matches: MatchedGuidance[] = [];
+  
+  guidanceData.guidanceGroups.forEach(group => {
+    group.guidance?.forEach(g => {
+      const hasMatch = g.tags?.some(tag => tagSet.has(tag.id));
+      if (hasMatch && g.guidanceText && typeof g.id === 'number') {
+        // Skip items without valid numeric IDs
+        if (!seenIds.has(g.id) && !seenTexts.has(g.guidanceText)) {
+          seenIds.add(g.id);
+          seenTexts.add(g.guidanceText);
+          matches.push({ id: g.id, guidanceText: g.guidanceText });
+        }
+      }
+    });
+  });
+  
+  return matches;
+}, [guidanceData, currentSectionTagIds]);
 
   // Get answer data
   const { data: answerData, loading: answerLoading, error: answerError } = useAnswerByVersionedQuestionIdQuery(
@@ -328,17 +369,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       toastState.add(t('messages.sampleTextAdded'), { type: 'success', timeout: 3000 });
     }
   }
-
-
-  const convertToHTML = (htmlString: string | null | undefined) => {
-    if (htmlString) {
-      const sanitizedHTML = DOMPurify.sanitize(htmlString);
-      return (
-        <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
-      );
-    }
-    return null;
-  };
 
   const updateCommentHandler = async (comment: MergedComment) => {
     handleUpdateComment(comment);
@@ -832,14 +862,14 @@ const PlanOverviewQuestionPage: React.FC = () => {
       }
     } else {
       // On success
+      setIsSubmitting(false);
       if (result.data?.errors && hasFieldLevelErrors(result.data.errors as unknown as MutationErrorsInterface)) {
         const mutationErrors = result.data.errors as unknown as MutationErrorsInterface;
         const extractedErrors = getExtractedErrorValues(mutationErrors);
         // Handle errors as an object with general or field-level errors
-        setErrors(extractedErrors)
+        setErrors(extractedErrors);
 
       } else {
-        setIsSubmitting(false);
         setHasUnsavedChanges(false);
         // Show user a success message and redirect back to the Section page
         showSuccessToast();
@@ -874,6 +904,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   useEffect(() => {
     if (selectedQuestion) {
       const q = selectedQuestion.publishedQuestion;
+
       const cleanedQuestion = {
         ...q,
         required: q?.required ?? undefined // convert null to undefined
@@ -1158,13 +1189,13 @@ const PlanOverviewQuestionPage: React.FC = () => {
             {question?.requirementText && (
               <section aria-label={PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}>
                 <h3 className={"h4"}>{PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}</h3>
-                {convertToHTML(question?.requirementText)}
+                <SafeHtml html={question?.requirementText} />
               </section>
             )}
 
             {/**Requirements by organization */}
             <section aria-label={"Requirements"}>
-              {/**TODO: need to get this data from backend */}
+              {/**TODO: need to get this data from backend once org requirements are available */}
               <h3 className={"h4"}>Requirements by University of California</h3>
               <p>
                 The university requires data and metadata to be cleared by the ethics
@@ -1186,7 +1217,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                   <div className={styles.requiredWrapper}>
                     <div><strong>{PlanOverview('page.requiredByFunder')}</strong></div>
                     <DialogTrigger>
-                      <Button className={`${styles.popOverButton} react-aria-Button`} aria-label="Required by funder"><div className={styles.infoIcon}><DmpIcon icon="info" /></div></Button>
+                      <Button className="popover-btn" aria-label="Required by funder"><div className="icon info"><DmpIcon icon="info" /></div></Button>
                       <Popover>
                         <OverlayArrow>
                           <svg width={12} height={12} viewBox="0 0 12 12">
@@ -1252,23 +1283,33 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 </div>
               </Card>
 
+
               <section aria-label={"Guidance"} id="guidance">
-                <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { funder: plan?.funder ?? '' })}</h3>
+                {/**Guidance from funder - if funder guidance exists, then display */}
+                {question?.guidanceText && (
+                  <>
+                    <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { name: plan?.funder ?? '' })}</h3>
+                    <SafeHtml html={question?.guidanceText} />
+                  </>
+                )}
 
-                {convertToHTML(question?.guidanceText)}
+                {/**Guidance from organization - if there is org guidance, then display */}
+                {matchedGuidanceTexts.length > 0 && (
+                  <>
+                    <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { name: planData?.plan?.versionedTemplate?.owner?.displayName ?? '' })}</h3>
+                    {/** Additional guidance matched by section tags */}
+                    {matchedGuidanceTexts.length > 0 && (
+                      <div className={styles.matchedGuidanceList} data-testid="matched-guidance">
+                        {matchedGuidanceTexts.map(g => (
+                          <React.Fragment key={g.id}>
+                            <SafeHtml html={g.guidanceText} />
+                          </React.Fragment>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
 
-
-                <h3 className={"h4"}>Guidance by University of California</h3>
-                <p>
-                  This is the most detailed section of the data management plan.
-                  Describe the categories of data being collected and how they tie
-                  into the data associated with the methods used to collect that
-                  data.
-                </p>
-                <p>
-                  Expect this section to be the most detailed section, taking up a
-                  large portion of your data management plan document.
-                </p>
               </section>
               <div className={styles.modalAction}>
                 <div>
@@ -1378,7 +1419,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
               <h3>{question?.questionText}</h3>
               <h4 className={`${styles.deEmphasize} h5`}>{PlanOverview('page.funderSampleText', { funder: plan?.funderName ?? '' })}</h4>
               <div className={styles.sampleText}>
-                {convertToHTML(question?.sampleText)}
+                <SafeHtml html={question?.sampleText} />
               </div>
               <div className="">
                 <Button className="small" onPress={() => handleUseAnswer(question?.sampleText)}>{PlanOverview('buttons.useAnswer')}</Button>

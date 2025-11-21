@@ -1,0 +1,13 @@
+query GuidanceGroups($affiliationId: String) {
+  guidanceGroups(affiliationId: $affiliationId) {
+    id
+    guidance {
+      tags {
+        id
+        name
+      }
+      guidanceText
+      id
+    }
+  }
+}

@@ -13,7 +13,8 @@
     },
     "headings": {
       "comments": "Comments",
-      "leaveAComment": "Leave a comment"
+      "leaveAComment": "Leave a comment",
+      "requirementsBy": "Requirements by {funder}"
     },
     "labels": {
       "saveAnswer": "Save answer",
@@ -28,7 +29,7 @@
       "jumpToGuidance": "Jump to additional guidance",
       "viewSampleAnswer": "View sample answer",
       "commentTooltip": "You need to save an answer before users can comment.",
-      "guidanceBy": "Guidance by {funder}",
+      "guidanceBy": "Guidance by {name}",
       "funderSampleText": "{funder} sample text",
       "participantsWillBeNotified": "Participants will be notified once submitted.",
       "planTitlePlaceholder": "Enter plan title"

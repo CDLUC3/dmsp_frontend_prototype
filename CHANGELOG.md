@@ -1,4 +1,5 @@
 ### Added
+- Added guidance text from the backend to the Question Answer page [#580]
 - Added new, shared `ProjectRoles` component that generates the list of Project Roles for both the Project Member Search and Edit Project member pages [#945]
 - Added `Help text` fields to `Description, Repositories, Metadata Standards, License, Access Level and Custom Text` fields in Research Output question type [#970]
 - Added customizable `Initial Access Level` field to the QuestionAdd page for Research Outputs question type [#969]
