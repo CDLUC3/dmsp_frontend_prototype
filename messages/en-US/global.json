@@ -588,8 +588,12 @@
     },
     "fields": {
       "groupName": {
-        "label": "Group Name",
+        "label": "Group name",
         "placeholder": "Enter group name"
+      },
+      "groupDescription": {
+        "label": "Group description",
+        "placeholder": "Enter group description"
       },
       "title": {
         "label": "Title",
@@ -612,7 +616,8 @@
       "draft": "Draft",
       "archived": "Archived",
       "lastUpdated": "Last Updated",
-      "status": "Status"
+      "status": "Status",
+      "publishedVersion": "Published Version"
     },
     "actions": {
       "createGroup": "Create Group",
@@ -632,7 +637,18 @@
     },
     "messages": {
       "noGroups": "No guidance groups found",
-      "noTexts": "No guidance texts found in this group"
+      "noTexts": "No guidance texts found in this group",
+      "loadingPleaseWait": "Loading, please wait...",
+      "success": {
+        "guidanceGroupCreated": "Guidance group {groupName} successfully created",
+        "guidanceGroupPublished": "Guidance group {groupName} successfully published",
+        "guidanceGroupUpdated": "Guidance group {groupName} successfully updated",
+        "guidanceTextAdded": "Guidance text {textTitle} successfully added to group",
+        "guidanceTextUpdated": "Guidance text {textTitle} successfully updated"
+      }
+    },
+    "labels": {
+      "optionalSubset": "Is this an optional subset for departmental use?"
     }
   },
   "Global": {

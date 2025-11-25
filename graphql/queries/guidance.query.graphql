@@ -1,13 +1,36 @@
-query GuidanceGroups($affiliationId: String) {
-  guidanceGroups(affiliationId: $affiliationId) {
-    id
-    guidance {
-      tags {
-        id
-        name
-      }
-      guidanceText
+query GuidanceByGroup($guidanceGroupId: Int!) {
+ guidanceByGroup(guidanceGroupId: $guidanceGroupId) {
+    user {
+      givenName
+      surName
       id
     }
+    guidanceText
+    title
+    id
+    tags {
+      id
+      name
+    }
+    errors {
+      general
+      tags
+      guidanceText
+      guidanceGroupId
+    }
+    modified
+  }
+}
+
+query Guidance($guidanceId: Int!) {
+  guidance(guidanceId: $guidanceId) {
+    id
+    tags {
+      id
+      name
+      description
+    }
+    title
+    guidanceText
   }
 }

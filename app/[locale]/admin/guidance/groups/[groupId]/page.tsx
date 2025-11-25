@@ -1,9 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useFormatter, useTranslations } from "next-intl";
 import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
-import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
+
+// GraphQL
+import {
+  useGuidanceByGroupQuery
+} from '@/generated/graphql';
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -20,7 +25,6 @@ interface GuidanceText {
   title: string;
   lastUpdated: string;
   lastUpdatedBy: string;
-  status: "Published" | "Draft" | "Archived";
   url: string;
 }
 
@@ -33,6 +37,8 @@ interface GuidanceGroup {
 const GuidanceGroupIndexPage: React.FC = () => {
   const params = useParams();
   const groupId = String(params.groupId);
+  const formatter = useFormatter();
+
   const [guidanceTexts, setGuidanceTexts] = useState<GuidanceText[]>([]);
   const [guidanceGroup, setGuidanceGroup] = useState<GuidanceGroup | null>(null);
 
@@ -44,47 +50,43 @@ const GuidanceGroupIndexPage: React.FC = () => {
   const GROUP_EDIT_URL = routePath("admin.guidance.groups.edit", { groupId });
   const TEXT_CREATE_URL = routePath("admin.guidance.groups.texts.create", { groupId });
 
-  // Fake guidance group data
-  const fakeGuidanceGroup: GuidanceGroup = {
-    id: groupId,
-    title: "School of Health Sciences",
-    description: "Comprehensive guidance for health sciences research and clinical practice",
-  };
+  // Fetch Guidance Texts by Group Id
+  const { data: guidance } = useGuidanceByGroupQuery({
+    variables: {
+      guidanceGroupId: parseInt(groupId, 10)
+    },
+    fetchPolicy: "cache-and-network", // Show cached data first, then update with fresh data
+  });
 
-  // Fake guidance texts data
-  const fakeGuidanceTexts: GuidanceText[] = [
-    {
-      id: "1",
-      title: "Research Ethics Guidelines",
-      lastUpdated: "2024-01-15",
-      lastUpdatedBy: "Dr. Sarah Johnson",
-      status: "Published",
-      url: routePath("admin.guidance.groups.texts.edit", { groupId, textId: "1" }),
-    },
-    {
-      id: "2",
-      title: "Data Collection Standards",
-      lastUpdated: "2024-01-12",
-      lastUpdatedBy: "Dr. Michael Chen",
-      status: "Published",
-      url: routePath("admin.guidance.groups.texts.edit", { groupId, textId: "2" }),
-    },
-    {
-      id: "3",
-      title: "Publication Guidelines",
-      lastUpdated: "2024-01-10",
-      lastUpdatedBy: "Dr. Emily Rodriguez",
-      status: "Draft",
-      url: routePath("admin.guidance.groups.texts.edit", { groupId, textId: "3" }),
-    },
-  ];
+  const formatDate = (date: string | number) => {
+    const parsedDate = typeof date === "number" ? new Date(date) : new Date(date.replace(/-/g, "/")); // Replace dashes with slashes for compatibility
+
+    if (isNaN(parsedDate.getTime())) {
+      return "Invalid Date"; // Handle invalid input gracefully
+    }
+
+    return formatter.dateTime(parsedDate, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
   useEffect(() => {
     // Set fake data on component mount
-    setGuidanceGroup(fakeGuidanceGroup);
-    setGuidanceTexts(fakeGuidanceTexts);
-  }, [groupId]);
+    //setGuidanceGroup(fakeGuidanceGroup);
+    if (guidance && guidance.guidanceByGroup.length > 0) {
 
+      const transformedGuidanceTexts = guidance.guidanceByGroup.map((g) => ({
+        id: String(g.id),
+        title: g.title || 'Untitled Guidance Text',
+        lastUpdated: g.modified ? formatDate(g.modified) : "",
+        lastUpdatedBy: `${g.user?.givenName} ${g.user?.surName}`, // Placeholder, replace with actual data if available
+        url: routePath("admin.guidance.groups.texts.edit", { groupId, guidanceId: Number(g.id) }),
+      }));
+      setGuidanceTexts(transformedGuidanceTexts);
+    };
+  }, [guidance]);
   return (
     <>
       <PageHeader
@@ -128,22 +130,19 @@ const GuidanceGroupIndexPage: React.FC = () => {
             aria-label="Guidance texts list"
             role="list"
           >
-            {guidanceTexts.map((text) => (
+            {guidanceTexts?.map((g) => (
               <DashboardListItem
-                key={text.id}
-                heading={text.title}
-                url={text.url}
+                key={g.id}
+                heading={g?.title || 'Untitled Guidance Text'}
+                url={routePath("admin.guidance.groups.texts.edit", { groupId, guidanceId: Number(g.id) })}
               >
                 <div className={parentStyles.guidanceContent}>
                   <div className={parentStyles.metadata}>
                     <span>
-                      {Global("lastRevisedBy")}: {text.lastUpdatedBy}
+                      {Global("lastRevisedBy")}: {g.lastUpdatedBy}
                     </span>
                     <span className={parentStyles.separator}>
-                      {Global("lastUpdated")}: {text.lastUpdated}
-                    </span>
-                    <span className={parentStyles.separator}>
-                      {t("status.status")}: {text.status}
+                      {Global("lastUpdated")}: {g.lastUpdated}
                     </span>
                   </div>
                 </div>

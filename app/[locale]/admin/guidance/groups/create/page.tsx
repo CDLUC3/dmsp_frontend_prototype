@@ -1,64 +1,144 @@
 "use client";
 
-import React, { useState } from "react";
-import { Breadcrumb, Breadcrumbs, Link, Button, Checkbox } from "react-aria-components";
+import React, { useCallback, useRef, useState } from "react";
+import {
+  Breadcrumb,
+  Breadcrumbs,
+  Button,
+  Checkbox,
+  Form,
+  Link,
+} from "react-aria-components";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+
+// GraphQL
+import {
+  useMeQuery,
+} from '@/generated/graphql';
+import { addGuidanceGroupAction } from "./actions";
 
 // Components
 import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutWithPanel } from "@/components/Container";
-import { FormInput, CheckboxGroupComponent } from "@/components/Form";
+import { FormInput } from "@/components/Form";
+import ErrorMessages from "@/components/ErrorMessages";
 
+// Utils, other
+import logECS from "@/utils/clientLogger";
 import { routePath } from "@/utils/routes";
+import { extractErrors } from "@/utils/errorHandler";
+import { useToast } from "@/context/ToastContext";
 import styles from "./guidanceGroupCreate.module.scss";
+import Loading from "@/components/Loading";
 
-interface GuidanceGroupSetting {
-  id: string;
+export interface GuidanceGroupInterface {
+  affiliationId: string;
+  bestPractice: boolean;
   name: string;
   description: string;
-  enabled: boolean;
+  optionalSubset: boolean;
 }
 
-interface GuidanceGroup {
-  title: string;
-  settings: GuidanceGroupSetting[];
-  status: "Published" | "Draft";
-}
+type AddGuidanceGroupErrors = {
+  general?: string;
+  affiliationId?: string;
+  bestPractice?: string;
+  name?: string;
+  description?: string;
+};
+
 
 const GuidanceGroupCreatePage: React.FC = () => {
+  const router = useRouter();
+  const toastState = useToast();
+
   // For translations
   const t = useTranslations("Guidance");
   const Global = useTranslations("Global");
 
-  const [guidanceGroup, setGuidanceGroup] = useState<GuidanceGroup>({
-    title: "",
-    settings: [
-      {
-        id: "optional-subset",
-        name: "Optional subset",
-        description: "e.g. School/ Department",
-        enabled: false,
-      },
-      {
-        id: "requires-coffee",
-        name: "Requires coffee",
-        description: "for optimal guidance creation",
-        enabled: false,
-      },
-      {
-        id: "includes-emojis",
-        name: "Includes emojis",
-        description: "for enhanced readability",
-        enabled: false,
-      },
-    ],
-    status: "Draft",
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
+
+  // Run me query to get user's affiliationId
+  const { data: me, loading } = useMeQuery();
+
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
+  const [guidanceGroup, setGuidanceGroup] = useState<GuidanceGroupInterface>({
+    affiliationId: "",
+    bestPractice: false,
+    name: "",
+    description: "",
+    optionalSubset: false,
   });
 
-  const handleSave = () => {
-    // TODO: Implement save functionality
-    // console.log("Creating guidance group:", guidanceGroup);
-  };
+  // Call Server Action addGuidanceGroupAction
+  const addGuidanceGroup = useCallback(async (guidanceGroup: GuidanceGroupInterface) => {
+    const response = await addGuidanceGroupAction(guidanceGroup);
+
+    if (response.redirect) {
+      router.push(response.redirect);
+    }
+
+    return {
+      success: response.success,
+      errors: response.errors,
+      data: response.data,
+    };
+  }, []);
+
+  const handleSubmit = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const affiliationId = me?.me?.affiliation?.uri;
+
+    if (!affiliationId) {
+      logECS("error", "creating Guidance Group", {
+        error: "no affiliation found for user",
+        url: { path: routePath("admin.guidance.groups.create") },
+      });
+      setErrorMessages([Global("messages.somethingWentWrong")]);
+      return;
+    }
+
+    const result = await addGuidanceGroup({
+      ...guidanceGroup,
+      affiliationId,
+    });
+
+    if (!result.success) {
+      const errors = result.errors;
+
+      //Check if errors is an array or an object
+      if (Array.isArray(errors)) {
+        //Handle errors as an array
+        setErrorMessages(errors.length > 0 ? errors : [Global("messaging.somethingWentWrong")]);
+        logECS("error", "creating Guidance Group", {
+          errors,
+          url: { path: routePath("admin.guidance.groups.create") },
+        });
+      }
+    } else {
+      if (result?.data?.errors) {
+        const errs = extractErrors<AddGuidanceGroupErrors>(result?.data?.errors, ["general", "affiliationId", "bestPractice", "name"]);
+
+        if (errs.length > 0) {
+          setErrorMessages(errs);
+          logECS("error", "creating Guidance Group", {
+            errors: errs,
+            url: { path: routePath("admin.guidance.groups.create") },
+          });
+        } else {
+          const successMessage = t("messages.success.guidanceGroupCreated", { groupName: guidanceGroup.name });
+          toastState.add(successMessage, { type: "success" });
+          router.push(routePath("admin.guidance.index"));
+        }
+      }
+    }
+  }, [me, guidanceGroup]);
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <>
@@ -80,63 +160,58 @@ const GuidanceGroupCreatePage: React.FC = () => {
         className="page-guidance-group-create"
       />
 
+      <ErrorMessages errors={errorMessages} ref={errorRef} />
+
       <LayoutWithPanel>
         <ContentContainer>
-          <form className={styles.createForm}>
+          <Form className={styles.createForm} onSubmit={handleSubmit}>
             {/* Guidance Group Section */}
 
             <div className="sectionContainer mt-0">
               <div className="sectionContent">
                 <div className={styles.formGroup}>
                   <FormInput
-                    name="title"
+                    name="name"
+                    id="name"
                     label={t("fields.groupName.label")}
-                    value={guidanceGroup.title}
-                    onChange={(e) => setGuidanceGroup({ ...guidanceGroup, title: e.target.value })}
+                    value={guidanceGroup.name}
+                    onChange={(e) => setGuidanceGroup({ ...guidanceGroup, name: e.target.value })}
                     placeholder={t("fields.groupName.placeholder")}
+                  />
+
+                  <FormInput
+                    name="description"
+                    id="description"
+                    label={t("fields.groupDescription.label")}
+                    value={guidanceGroup.description}
+                    onChange={(e) => setGuidanceGroup({ ...guidanceGroup, description: e.target.value })}
+                    placeholder={t("fields.groupDescription.placeholder")}
                   />
                 </div>
 
-                <div className={styles.formGroup}>
-                  <CheckboxGroupComponent
-                    name="guidanceGroupSettings"
-                    checkboxGroupLabel={t("fields.settings.label")}
-                    value={guidanceGroup.settings.filter((s) => s.enabled).map((s) => s.id)}
-                    onChange={(value) => {
-                      // Update all settings based on the new value array
-                      const updatedSettings = guidanceGroup.settings.map((setting) => ({
-                        ...setting,
-                        enabled: value.includes(setting.id),
-                      }));
-                      setGuidanceGroup({ ...guidanceGroup, settings: updatedSettings });
-                    }}
+                <div className="">
+                  <Checkbox
+                    name="optionalSubset"
+                    id="optionalSubset"
+                    isSelected={guidanceGroup.optionalSubset}
+                    onChange={(isSelected: boolean) => setGuidanceGroup(prev => ({
+                      ...prev,
+                      optionalSubset: isSelected
+                    }))}
+                    className={styles.checkboxItem}
                   >
-                    <div className="">
-                      {guidanceGroup.settings.map((setting) => (
-                        <Checkbox
-                          key={setting.id}
-                          value={setting.id}
-                        >
-                          <div className="checkbox">
-                            <svg
-                              viewBox="0 0 18 18"
-                              aria-hidden="true"
-                            >
-                              <polyline points="1 9 7 14 15 4" />
-                            </svg>
-                          </div>
-                          <span className="checkbox-label">
-                            {setting.name} ({setting.description})
-                          </span>
-                        </Checkbox>
-                      ))}
+                    <div className={"checkbox"}>
+                      <svg viewBox="0 0 18 18" aria-hidden="true">
+                        <polyline points="1 9 7 14 15 4" />
+                      </svg>
                     </div>
-                  </CheckboxGroupComponent>
+                    {t('labels.optionalSubset')}
+                  </Checkbox>
                 </div>
 
                 <div className={styles.formGroup}>
                   <Button
-                    onPress={handleSave}
+                    type="submit"
                     className="button button--primary"
                   >
                     {t("actions.createGroup")}
@@ -144,7 +219,7 @@ const GuidanceGroupCreatePage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </form>
+          </Form>
         </ContentContainer>
       </LayoutWithPanel>
     </>

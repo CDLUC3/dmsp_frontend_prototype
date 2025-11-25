@@ -1,0 +1,31 @@
+mutation AddGuidance($input: AddGuidanceInput!) {
+  addGuidance(input: $input) {
+    id
+    guidanceText
+    title
+    errors {
+      general
+      guidanceGroupId
+      guidanceText
+      tags
+    }
+  }
+}
+
+mutation UpdateGuidance($input: UpdateGuidanceInput!) {
+  updateGuidance(input: $input) {
+    id
+    guidanceText
+    title
+    tags {
+      id
+      name
+    }
+    errors {
+      general
+      guidanceGroupId
+      guidanceText
+      tags
+    }
+  }
+}

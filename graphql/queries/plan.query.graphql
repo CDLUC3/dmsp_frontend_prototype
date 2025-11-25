@@ -60,7 +60,9 @@ query Plan($planId: Int!) {
       totalQuestions
       tags {
         name
+        slug
         id
+        description
       }
     }
     progress {

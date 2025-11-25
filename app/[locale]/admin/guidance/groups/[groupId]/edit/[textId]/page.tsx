@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -14,7 +14,15 @@ import {
   Popover,
 } from "react-aria-components";
 import { useTranslations } from "next-intl";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+
+// GraphQL
+import {
+  useGuidanceQuery,
+  useTagsQuery
+} from '@/generated/graphql';
+import { updateGuidanceAction } from "./actions";
+import { TagsInterface } from '@/app/types';
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -22,26 +30,35 @@ import { ContentContainer, LayoutWithPanel } from "@/components/Container";
 import TinyMCEEditor from "@/components/TinyMCEEditor";
 import { DmpIcon } from "@/components/Icons";
 import { FormInput, CheckboxGroupComponent } from "@/components/Form";
+import ErrorMessages from "@/components/ErrorMessages";
 
+
+// Utils & other
+import { stripHtmlTags } from '@/utils/general';
 import { routePath } from "@/utils/routes";
+import { useToast } from "@/context/ToastContext";
+import logECS from "@/utils/clientLogger";
+import { extractErrors } from "@/utils/errorHandler";
 import styles from "./guidanceTextEdit.module.scss";
+
+type UpdateGuidanceTextErrors = {
+  general?: string;
+  guidanceGroupId?: string;
+  guidanceText?: string;
+  tags?: string;
+};
 
 interface GuidanceText {
   id: string;
   title: string;
-  content: string;
-  status: "Published" | "Draft" | "Archived";
-  selectedTags: string[];
+  guidanceText: string;
+  tags: TagsInterface[];
+  status?: "Published" | "Draft";
 }
-
-interface Tag {
-  id: number;
-  name: string;
-  description: string;
-}
-
 const GuidanceTextEditPage: React.FC = () => {
   const params = useParams();
+  const router = useRouter();
+  const toastState = useToast();
   const groupId = String(params.groupId);
   const textId = String(params.textId);
 
@@ -49,77 +66,154 @@ const GuidanceTextEditPage: React.FC = () => {
   const t = useTranslations("Guidance");
   const Global = useTranslations("Global");
 
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
+
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
+
+  //Store selection of tags in state
+  const [tags, setTags] = useState<TagsInterface[]>([]);
+
+  // Keep track of which checkboxes have been selected
+  const [selectedTags, setSelectedTags] = useState<TagsInterface[]>([]);
+  const [checkboxTags, setCheckboxTags] = useState<string[]>([]);
+
+
   const [guidanceText, setGuidanceText] = useState<GuidanceText>({
     id: textId,
-    title: "Research Ethics Guidelines",
-    content:
-      "This guidance text covers the ethical considerations that researchers must take into account when conducting health sciences research...",
-    status: "Published",
-    selectedTags: ["Data description", "Ethical considerations"],
+    title: "",
+    guidanceText: "",
+    tags: [],
   });
 
-  // Fake tags data
-  const tags: Tag[] = [
-    {
-      id: 1,
-      name: "Data description",
-      description: "The types of data that will be collected along with their formats and estimated volumes.",
-    },
-    {
-      id: 2,
-      name: "Data organization & documentation",
-      description:
-        "Descriptions naming conventions, metadata standards that will be used along with data dictionaries and glossaries",
-    },
-    {
-      id: 3,
-      name: "Security & privacy",
-      description:
-        "Who will have access to the data and how that access will be controlled, how the data will be encrypted and relevant compliance with regulations or standards (e.g. HIPAA, GDPR)",
-    },
-    {
-      id: 4,
-      name: "Ethical considerations",
-      description:
-        "Ethical considerations during data collection, use or sharing and how informed consent will be obtained from participants",
-    },
-    {
-      id: 5,
-      name: "Training & support",
-      description:
-        "Training that will be provided to team members on data management practices and support for data issues",
-    },
-    {
-      id: 6,
-      name: "Budget",
-      description: "Costs associated with data management activities and resources needed",
-    },
-    {
-      id: 7,
-      name: "Data Collection",
-      description: "Methods and procedures for collecting research data",
-    },
-    {
-      id: 8,
-      name: "Data format",
-      description: "File formats and data structures used for storing research data",
-    },
-    {
-      id: 9,
-      name: "Data repository",
-      description: "Where and how research data will be stored and archived",
-    },
-    {
-      id: 10,
-      name: "Data sharing",
-      description: "Policies and procedures for sharing research data with other researchers",
-    },
-  ];
+  // Query for all tags
+  const { data: tagsData } = useTagsQuery();
 
-  const handleSave = () => {
-    // TODO: Implement save functionality
-    // console.log("Saving guidance text:", guidanceText);
+  // Query for the specified guidance text
+  const { data, loading } = useGuidanceQuery({
+    variables: {
+      guidanceId: Number(textId)
+    },
+  })
+
+  useEffect(() => {
+    // Update state values from data results
+    if (data?.guidance) {
+      const guidance = data.guidance;
+      const cleanedGuidanceTitle = stripHtmlTags(guidance.title);
+
+      // Clean tags data - filter out nulls and remove __typename
+      const cleanedTags = guidance.tags
+        ? guidance.tags
+          .filter(tag => tag !== null && tag !== undefined && tag.id !== null && tag.id !== undefined)
+          .map(({ __typename, ...fields }) => ({
+            id: fields.id as number,
+            name: fields.name,
+            description: fields.description || ''
+          }))
+        : [];
+
+      if (data.guidance?.tags) {
+        const cleanedTags = data.guidance?.tags.filter(tag => tag !== null && tag !== undefined);
+        const cleanedData = cleanedTags.map(({ __typename, ...fields }) => fields);
+        setSelectedTags(cleanedData);
+        const selectedTagNames = cleanedData.map(tag => tag.name);
+        setCheckboxTags(selectedTagNames);
+      }
+
+      setGuidanceText((prev) => ({
+        ...prev,
+        title: cleanedGuidanceTitle,
+        guidanceText: guidance.guidanceText ? guidance.guidanceText : '',
+        tags: cleanedTags,
+      }));
+    }
+  }, [data])
+
+  useEffect(() => {
+    if (tagsData?.tags) {
+      // Remove __typename field from the tags selection
+      const cleanedData = tagsData.tags.map(({
+        __typename,
+        ...fields
+      }) => fields);
+      setTags(cleanedData);
+    }
+  }, [tagsData])
+
+  // Handle checkbox change for tags
+  // Handle changes to tag checkbox selection
+  const handleCheckboxChange = (tag: TagsInterface) => {
+    setSelectedTags(prevTags => {
+      const isCurrentlySelected = prevTags.some(selectedTag => selectedTag.id === tag.id);
+      const updatedTags = isCurrentlySelected
+        ? prevTags.filter(selectedTag => selectedTag.id !== tag.id)
+        : [...prevTags, tag];
+
+      // Update guidanceText.tags to match
+      setGuidanceText(prev => ({ ...prev, tags: updatedTags }));
+
+      // Update checkboxTags with tag names
+      setCheckboxTags(updatedTags.map(t => t.name));
+
+      return updatedTags;
+    });
   };
+
+  const handleSave = useCallback(async () => {
+    setErrorMessages([]);
+
+    if (!groupId) {
+      setErrorMessages(['Guidance Group ID is undefined']);
+      return;
+    }
+
+    const response = await updateGuidanceAction({
+      guidanceId: Number(textId),
+      title: guidanceText.title,
+      guidanceText: guidanceText.guidanceText,
+      tags: guidanceText.tags
+    });
+
+    if (response.redirect) {
+      router.push(response.redirect);
+      return;
+    }
+
+    if (!response.success) {
+      const errors = response.errors;
+
+      //Check if errors is an array or an object
+      if (Array.isArray(errors)) {
+        //Handle errors as an array
+        setErrorMessages(errors.length > 0 ? errors : [Global("messaging.somethingWentWrong")]);
+        logECS("error", "updating Guidance text", {
+          errors,
+          url: { path: routePath("admin.guidance.groups.index", { groupId }) },
+        });
+      }
+    } else {
+      // Check if there are any GraphQL errors
+      if (response?.data?.errors) {
+        const errs = extractErrors<UpdateGuidanceTextErrors>(response?.data?.errors, ["general", "guidanceGroupId", "guidanceText", "tags"]);
+
+        if (errs.length > 0) {
+          setErrorMessages(errs);
+          logECS("error", "updating Guidance text", {
+            errors: errs,
+            url: { path: routePath("admin.guidance.groups.index", { groupId }) },
+          });
+          return; // Don't show success if there are errors
+        }
+      }
+
+      // Success case - no errors
+      const successMessage = t("messages.success.guidanceTextUpdated", { textTitle: guidanceText.title });
+      toastState.add(successMessage, { type: "success" });
+      router.push(routePath("admin.guidance.groups.index", { groupId }));
+    }
+  }, [guidanceText.title, Global, router, groupId, toastState]);
+
 
   const handlePublish = () => {
     // TODO: Implement publish functionality
@@ -160,7 +254,7 @@ const GuidanceTextEditPage: React.FC = () => {
                     name="title"
                     label={t("fields.title.label")}
                     value={guidanceText.title}
-                    onChange={(e) => setGuidanceText({ ...guidanceText, title: e.target.value })}
+                    onChange={(e) => setGuidanceText((prev) => ({ ...prev, title: e.target.value }))}
                     placeholder={t("fields.title.placeholder")}
                   />
                 </div>
@@ -173,8 +267,8 @@ const GuidanceTextEditPage: React.FC = () => {
                     {t("fields.guidanceText.label")}
                   </Label>
                   <TinyMCEEditor
-                    content={guidanceText.content}
-                    setContent={(value) => setGuidanceText({ ...guidanceText, content: value })}
+                    content={guidanceText.guidanceText}
+                    setContent={(value) => setGuidanceText((prev) => ({ ...prev, guidanceText: value }))}
                     id="content"
                     labelId="contentLabel"
                     helpText={t("fields.guidanceText.helpText")}
@@ -184,20 +278,23 @@ const GuidanceTextEditPage: React.FC = () => {
                 <div className={styles.formGroup}>
                   <CheckboxGroupComponent
                     name="guidanceTags"
+                    value={checkboxTags}
                     checkboxGroupLabel={t("fields.themes.label")}
                     checkboxGroupDescription={t("fields.themes.helpText")}
-                    value={guidanceText.selectedTags}
-                    onChange={(value) => setGuidanceText({ ...guidanceText, selectedTags: value })}
                   >
                     <div className="checkbox-group-two-column">
                       {tags &&
                         tags.map((tag) => {
                           const id = tag.id?.toString();
+                          // Check if this tag is selected
+                          const isSelected = guidanceText.tags.some((selectedTag) => selectedTag.id === tag.id);
                           return (
                             <Checkbox
                               value={tag.name}
                               key={tag.name}
                               id={id}
+                              isSelected={isSelected}
+                              onChange={() => handleCheckboxChange(tag)}
                             >
                               <div className="checkbox">
                                 <svg
@@ -247,7 +344,13 @@ const GuidanceTextEditPage: React.FC = () => {
                 </div>
 
                 <div className={styles.formGroup}>
-                  {guidanceText.status === "Draft" ? (
+                  <Button
+                    onPress={handleSave}
+                    className="button button--primary"
+                  >
+                    {t("actions.saveChanges")}
+                  </Button>
+                  {/* {guidanceText.status === "Draft" ? (
                     <Button
                       onPress={handlePublish}
                       className="button button--primary"
@@ -261,7 +364,7 @@ const GuidanceTextEditPage: React.FC = () => {
                     >
                       {t("actions.saveChanges")}
                     </Button>
-                  )}
+                  )} */}
                 </div>
               </div>
             </div>

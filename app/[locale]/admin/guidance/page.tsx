@@ -2,7 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
+
+// GraphQL
+import {
+  useMeQuery,
+  useGuidanceGroupsQuery
+} from '@/generated/graphql';
+
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -19,12 +26,16 @@ interface GuidanceGroup {
   description: string;
   lastUpdated: string;
   lastUpdatedBy: string;
-  status: "Published" | "Draft" | "Archived";
+  latestPublishedVersion?: string;
+  latestPublishedDate?: string;
+  status: string;
   textCount: number;
   url: string;
 }
 
 const GuidancePage: React.FC = () => {
+  const formatter = useFormatter();
+
   const [guidanceGroups, setGuidanceGroups] = useState<GuidanceGroup[]>([]);
 
   // For translations
@@ -34,74 +45,52 @@ const GuidancePage: React.FC = () => {
   // Set URLs
   const GUIDANCE_CREATE_URL = routePath("admin.guidance.groups.create");
 
-  // Fake guidance groups data
-  const fakeGuidanceGroups: GuidanceGroup[] = [
-    {
-      id: "1",
-      title: "School of Health Sciences",
-      description: "Comprehensive guidance for health sciences research and clinical practice",
-      lastUpdated: "2024-01-15",
-      lastUpdatedBy: "Dr. Sarah Johnson",
-      status: "Published",
-      textCount: 14,
-      url: routePath("admin.guidance.groups.index", { groupId: "1" }),
+  // Run me query to get user's name
+  const { data: me } = useMeQuery();
+
+  const { data: guidanceGroupsData } = useGuidanceGroupsQuery({
+    variables: {
+      affiliationId: me?.me?.affiliation?.uri || null
     },
-    {
-      id: "2",
-      title: "Faculty of Engineering",
-      description: "Technical guidelines and best practices for engineering research",
-      lastUpdated: "2024-01-10",
-      lastUpdatedBy: "Prof. Michael Chen",
-      status: "Published",
-      textCount: 8,
-      url: routePath("admin.guidance.groups.index", { groupId: "2" }),
-    },
-    {
-      id: "3",
-      title: "Department of Computer Science",
-      description: "Software development and data science research guidelines",
-      lastUpdated: "2024-01-08",
-      lastUpdatedBy: "Dr. Emily Rodriguez",
-      status: "Draft",
-      textCount: 12,
-      url: routePath("admin.guidance.groups.index", { groupId: "3" }),
-    },
-    {
-      id: "4",
-      title: "School of Business",
-      description: "Business research methodologies and ethical guidelines",
-      lastUpdated: "2024-01-05",
-      lastUpdatedBy: "Dr. James Wilson",
-      status: "Published",
-      textCount: 6,
-      url: routePath("admin.guidance.groups.index", { groupId: "4" }),
-    },
-    {
-      id: "5",
-      title: "Faculty of Arts and Humanities",
-      description: "Research standards for humanities and social sciences",
-      lastUpdated: "2024-01-03",
-      lastUpdatedBy: "Prof. Lisa Anderson",
-      status: "Published",
-      textCount: 9,
-      url: routePath("admin.guidance.groups.index", { groupId: "5" }),
-    },
-    {
-      id: "6",
-      title: "Department of Physics",
-      description: "Laboratory safety and experimental design guidelines",
-      lastUpdated: "2024-01-01",
-      lastUpdatedBy: "Dr. Robert Kim",
-      status: "Published",
-      textCount: 5,
-      url: routePath("admin.guidance.groups.index", { groupId: "6" }),
-    },
-  ];
+    fetchPolicy: "network-only",
+    skip: !me?.me?.affiliation?.uri // Prevent running until the me data exists
+  });
+
+  const formatDate = (date: string | number) => {
+    const parsedDate = typeof date === "number" ? new Date(date) : new Date(date.replace(/-/g, "/")); // Replace dashes with slashes for compatibility
+
+    if (isNaN(parsedDate.getTime())) {
+      return "Invalid Date"; // Handle invalid input gracefully
+    }
+
+    return formatter.dateTime(parsedDate, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
   useEffect(() => {
     // Set fake data on component mount
-    setGuidanceGroups(fakeGuidanceGroups);
-  }, []);
+    //setGuidanceGroup(fakeGuidanceGroup);
+    if (guidanceGroupsData && guidanceGroupsData.guidanceGroups.length > 0) {
+
+      console.log("guidanceGroupsData:", guidanceGroupsData);
+      const transformedGuidanceGroups = guidanceGroupsData.guidanceGroups.map((g) => ({
+        id: String(g.id),
+        title: g.name || 'Untitled Guidance Group',
+        lastUpdated: g.modified ? formatDate(g.modified) : "",
+        lastUpdatedBy: `${g.user?.givenName} ${g.user?.surName}`,
+        latestPublishedVersion: `v${g.latestPublishedVersion}` || '',
+        latestPublishedDate: g.latestPublishedDate ? formatDate(g.latestPublishedDate) : '',
+        status: g.isDirty ? Global("notPublished") : Global("published"),
+        description: g.description || '',
+        textCount: g?.guidance?.length || 0,
+        url: routePath("admin.guidance.groups.index", { groupId: String(g.id) }),
+      }));
+      setGuidanceGroups(transformedGuidanceGroups);
+    };
+  }, [guidanceGroupsData]);
 
   return (
     <>
@@ -139,11 +128,11 @@ const GuidancePage: React.FC = () => {
             aria-label="Guidance groups list"
             role="list"
           >
-            {guidanceGroups.map((group) => (
+            {guidanceGroups?.map((group) => (
               <DashboardListItem
                 key={group.id}
                 heading={group.title}
-                url={group.url}
+                url={routePath("admin.guidance.groups.index", { groupId: Number(group.id) })}
               >
                 <div className={styles.guidanceContent}>
                   <p className={styles.description}>{group.description}</p>
@@ -152,18 +141,23 @@ const GuidancePage: React.FC = () => {
                       {Global("lastRevisedBy")}: {group.lastUpdatedBy}
                     </span>
                     <span className={styles.separator}>
-                      {Global("lastUpdated")}: {group.lastUpdated}
+                      {Global('lastUpdated')}: {group.lastUpdated}
                     </span>
                     <span className={styles.separator}>
                       {t("status.status")}: {group.status}
                     </span>
+                    {group.status === "Published" && group.latestPublishedVersion && (
+                      <span className={styles.separator}>
+                        {t("status.publishedVersion")}: {group.latestPublishedVersion}
+                      </span>
+                    )}
                   </div>
                 </div>
               </DashboardListItem>
             ))}
           </div>
         </ContentContainer>
-      </LayoutContainer>
+      </LayoutContainer >
     </>
   );
 };

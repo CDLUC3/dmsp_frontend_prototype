@@ -1,0 +1,42 @@
+mutation AddGuidanceGroup($input: AddGuidanceGroupInput!) {
+  addGuidanceGroup(input: $input) {
+    name
+    id
+    errors {
+      affiliationId
+      bestPractice
+      general
+      name
+    }
+  }
+}
+
+mutation PublishGuidanceGroup($guidanceGroupId: Int!) {
+  publishGuidanceGroup(guidanceGroupId: $guidanceGroupId) {
+    id
+    name
+    errors {
+      general
+      affiliationId
+      bestPractice
+      name
+      description
+    }
+  }
+}
+
+mutation UpdateGuidanceGroup($input: UpdateGuidanceGroupInput!) {
+  updateGuidanceGroup(input: $input) {
+    id
+    name
+    description
+    bestPractice
+    errors {
+      affiliationId
+      bestPractice
+      general
+      name
+      description
+    }
+  }
+}

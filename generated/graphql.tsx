@@ -40,6 +40,8 @@ export type AddGuidanceGroupInput = {
   affiliationId?: InputMaybe<Scalars['String']['input']>;
   /** Whether this is a best practice GuidanceGroup */
   bestPractice?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The description of the GuidanceGroup */
+  description?: InputMaybe<Scalars['String']['input']>;
   /** The name of the GuidanceGroup */
   name: Scalars['String']['input'];
   /** Whether this is an optional subset for departmental use */
@@ -54,6 +56,8 @@ export type AddGuidanceInput = {
   guidanceText?: InputMaybe<Scalars['String']['input']>;
   /** The Tags associated with this Guidance */
   tags?: InputMaybe<Array<TagInput>>;
+  /** The title of the Guidance item */
+  title?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type AddMetadataStandardInput = {
@@ -767,6 +771,10 @@ export type Guidance = {
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The Tags associated with this Guidance */
   tags?: Maybe<Array<Tag>>;
+  /** The title of the Guidance item */
+  title?: Maybe<Scalars['String']['output']>;
+  /** User who modified the guidance last */
+  user?: Maybe<User>;
 };
 
 /** A collection of errors related to Guidance */
@@ -790,6 +798,8 @@ export type GuidanceGroup = {
   created?: Maybe<Scalars['String']['output']>;
   /** The user who created the Object */
   createdById?: Maybe<Scalars['Int']['output']>;
+  /** The description of the GuidanceGroup */
+  description?: Maybe<Scalars['String']['output']>;
   /** Errors associated with the Object */
   errors?: Maybe<GuidanceGroupErrors>;
   /** The Guidance items in this group */
@@ -810,6 +820,8 @@ export type GuidanceGroup = {
   name: Scalars['String']['output'];
   /** Whether this is an optional subset for departmental use */
   optionalSubset: Scalars['Boolean']['output'];
+  /** User who modified the guidance group last */
+  user?: Maybe<User>;
 };
 
 /** A collection of errors related to the GuidanceGroup */
@@ -817,6 +829,7 @@ export type GuidanceGroupErrors = {
   __typename?: 'GuidanceGroupErrors';
   affiliationId?: Maybe<Scalars['String']['output']>;
   bestPractice?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
@@ -2613,6 +2626,8 @@ export type Query = {
   affiliationTypes?: Maybe<Array<Scalars['String']['output']>>;
   /** Perform a search for Affiliations matching the specified name */
   affiliations?: Maybe<AffiliationSearchResults>;
+  /** Get all projects for the Admin based on their role */
+  allProjects?: Maybe<ProjectSearchResults>;
   /** Get the specific answer */
   answer?: Maybe<Answer>;
   /** Get an answer by versionedQuestionId */
@@ -2769,6 +2784,13 @@ export type QueryAffiliationsArgs = {
   funderOnly?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   paginationOptions?: InputMaybe<PaginationOptions>;
+};
+
+
+export type QueryAllProjectsArgs = {
+  filterOptions?: InputMaybe<ProjectFilterOptions>;
+  paginationOptions?: InputMaybe<PaginationOptions>;
+  term?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -3571,6 +3593,8 @@ export type Tag = {
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The tag name */
   name: Scalars['String']['output'];
+  /** The slug */
+  slug: Scalars['String']['output'];
 };
 
 /** A collection of errors related to the Tag */
@@ -3589,7 +3613,9 @@ export type TagInput = {
   /** The unique identifier for the Tag */
   id?: InputMaybe<Scalars['Int']['input']>;
   /** The name of the Tag */
-  name: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  /** The slug of the Tag */
+  slug?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** A Template used to create DMPs */
@@ -3771,6 +3797,8 @@ export type TypeCount = {
 export type UpdateGuidanceGroupInput = {
   /** Whether this is a best practice GuidanceGroup */
   bestPractice?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The description of the GuidanceGroup */
+  description?: InputMaybe<Scalars['String']['input']>;
   /** The unique identifier for the GuidanceGroup to update */
   guidanceGroupId: Scalars['Int']['input'];
   /** The name of the GuidanceGroup */
@@ -3787,6 +3815,8 @@ export type UpdateGuidanceInput = {
   guidanceText?: InputMaybe<Scalars['String']['input']>;
   /** The Tags associated with this Guidance */
   tags?: InputMaybe<Array<TagInput>>;
+  /** The title of the Guidance item */
+  title?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateMetadataStandardInput = {
@@ -4747,6 +4777,41 @@ export type AddFeedbackCommentMutationVariables = Exact<{
 
 export type AddFeedbackCommentMutation = { __typename?: 'Mutation', addFeedbackComment?: { __typename?: 'PlanFeedbackComment', id?: number | null, answerId?: number | null, commentText?: string | null, errors?: { __typename?: 'PlanFeedbackCommentErrors', general?: string | null } | null } | null };
 
+export type AddGuidanceMutationVariables = Exact<{
+  input: AddGuidanceInput;
+}>;
+
+
+export type AddGuidanceMutation = { __typename?: 'Mutation', addGuidance: { __typename?: 'Guidance', id?: number | null, guidanceText?: string | null, title?: string | null, errors?: { __typename?: 'GuidanceErrors', general?: string | null, guidanceGroupId?: string | null, guidanceText?: string | null, tags?: string | null } | null } };
+
+export type UpdateGuidanceMutationVariables = Exact<{
+  input: UpdateGuidanceInput;
+}>;
+
+
+export type UpdateGuidanceMutation = { __typename?: 'Mutation', updateGuidance: { __typename?: 'Guidance', id?: number | null, guidanceText?: string | null, title?: string | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, name: string }> | null, errors?: { __typename?: 'GuidanceErrors', general?: string | null, guidanceGroupId?: string | null, guidanceText?: string | null, tags?: string | null } | null } };
+
+export type AddGuidanceGroupMutationVariables = Exact<{
+  input: AddGuidanceGroupInput;
+}>;
+
+
+export type AddGuidanceGroupMutation = { __typename?: 'Mutation', addGuidanceGroup: { __typename?: 'GuidanceGroup', name: string, id?: number | null, errors?: { __typename?: 'GuidanceGroupErrors', affiliationId?: string | null, bestPractice?: string | null, general?: string | null, name?: string | null } | null } };
+
+export type PublishGuidanceGroupMutationVariables = Exact<{
+  guidanceGroupId: Scalars['Int']['input'];
+}>;
+
+
+export type PublishGuidanceGroupMutation = { __typename?: 'Mutation', publishGuidanceGroup: { __typename?: 'GuidanceGroup', id?: number | null, name: string, errors?: { __typename?: 'GuidanceGroupErrors', general?: string | null, affiliationId?: string | null, bestPractice?: string | null, name?: string | null, description?: string | null } | null } };
+
+export type UpdateGuidanceGroupMutationVariables = Exact<{
+  input: UpdateGuidanceGroupInput;
+}>;
+
+
+export type UpdateGuidanceGroupMutation = { __typename?: 'Mutation', updateGuidanceGroup: { __typename?: 'GuidanceGroup', id?: number | null, name: string, description?: string | null, bestPractice: boolean, errors?: { __typename?: 'GuidanceGroupErrors', affiliationId?: string | null, bestPractice?: string | null, general?: string | null, name?: string | null, description?: string | null } | null } };
+
 export type AddPlanMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
   versionedTemplateId: Scalars['Int']['input'];
@@ -5088,12 +5153,33 @@ export type PopularFundersQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type PopularFundersQuery = { __typename?: 'Query', popularFunders?: Array<{ __typename?: 'FunderPopularityResult', displayName: string, id: number, nbrPlans: number, uri: string, apiTarget?: string | null } | null> | null };
 
+export type GuidanceByGroupQueryVariables = Exact<{
+  guidanceGroupId: Scalars['Int']['input'];
+}>;
+
+
+export type GuidanceByGroupQuery = { __typename?: 'Query', guidanceByGroup: Array<{ __typename?: 'Guidance', guidanceText?: string | null, title?: string | null, id?: number | null, modified?: string | null, user?: { __typename?: 'User', givenName?: string | null, surName?: string | null, id?: number | null } | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, name: string }> | null, errors?: { __typename?: 'GuidanceErrors', general?: string | null, tags?: string | null, guidanceText?: string | null, guidanceGroupId?: string | null } | null }> };
+
+export type GuidanceQueryVariables = Exact<{
+  guidanceId: Scalars['Int']['input'];
+}>;
+
+
+export type GuidanceQuery = { __typename?: 'Query', guidance?: { __typename?: 'Guidance', id?: number | null, title?: string | null, guidanceText?: string | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, name: string, description?: string | null }> | null } | null };
+
 export type GuidanceGroupsQueryVariables = Exact<{
   affiliationId?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type GuidanceGroupsQuery = { __typename?: 'Query', guidanceGroups: Array<{ __typename?: 'GuidanceGroup', id?: number | null, guidance?: Array<{ __typename?: 'Guidance', guidanceText?: string | null, id?: number | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, name: string }> | null }> | null }> };
+export type GuidanceGroupsQuery = { __typename?: 'Query', guidanceGroups: Array<{ __typename?: 'GuidanceGroup', id?: number | null, name: string, description?: string | null, latestPublishedVersion?: string | null, latestPublishedDate?: string | null, modified?: string | null, isDirty: boolean, guidance?: Array<{ __typename?: 'Guidance', guidanceText?: string | null, id?: number | null, title?: string | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, name: string }> | null }> | null, user?: { __typename?: 'User', givenName?: string | null, surName?: string | null, id?: number | null } | null }> };
+
+export type GuidanceGroupQueryVariables = Exact<{
+  guidanceGroupId: Scalars['Int']['input'];
+}>;
+
+
+export type GuidanceGroupQuery = { __typename?: 'Query', guidanceGroup?: { __typename?: 'GuidanceGroup', id?: number | null, name: string, description?: string | null, bestPractice: boolean, latestPublishedVersion?: string | null, latestPublishedDate?: string | null, optionalSubset: boolean, guidance?: Array<{ __typename?: 'Guidance', guidanceText?: string | null, id?: number | null, title?: string | null }> | null } | null };
 
 export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -5110,7 +5196,7 @@ export type PlanQueryVariables = Exact<{
 }>;
 
 
-export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, createdById?: number | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, version: string, created?: string | null, template?: { __typename?: 'Template', id?: number | null, name: string } | null, owner?: { __typename?: 'Affiliation', uri: string, displayName: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null, collaborators?: Array<{ __typename?: 'ProjectCollaborator', accessLevel?: ProjectCollaboratorAccessLevel | null, user?: { __typename?: 'User', id?: number | null } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number, tags?: Array<{ __typename?: 'Tag', name: string, id?: number | null }> | null }> | null, progress?: { __typename?: 'PlanProgress', answeredQuestions: number, percentComplete: number, totalQuestions: number } | null, feedback?: Array<{ __typename?: 'PlanFeedback', id?: number | null, completed?: string | null }> | null } | null };
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, createdById?: number | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, version: string, created?: string | null, template?: { __typename?: 'Template', id?: number | null, name: string } | null, owner?: { __typename?: 'Affiliation', uri: string, displayName: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null, collaborators?: Array<{ __typename?: 'ProjectCollaborator', accessLevel?: ProjectCollaboratorAccessLevel | null, user?: { __typename?: 'User', id?: number | null } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number, tags?: Array<{ __typename?: 'Tag', name: string, slug: string, id?: number | null, description?: string | null }> | null }> | null, progress?: { __typename?: 'PlanProgress', answeredQuestions: number, percentComplete: number, totalQuestions: number } | null, feedback?: Array<{ __typename?: 'PlanFeedback', id?: number | null, completed?: string | null }> | null } | null };
 
 export type PlanFeedbackStatusQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -5867,6 +5953,216 @@ export function useAddFeedbackCommentMutation(baseOptions?: Apollo.MutationHookO
 export type AddFeedbackCommentMutationHookResult = ReturnType<typeof useAddFeedbackCommentMutation>;
 export type AddFeedbackCommentMutationResult = Apollo.MutationResult<AddFeedbackCommentMutation>;
 export type AddFeedbackCommentMutationOptions = Apollo.BaseMutationOptions<AddFeedbackCommentMutation, AddFeedbackCommentMutationVariables>;
+export const AddGuidanceDocument = gql`
+    mutation AddGuidance($input: AddGuidanceInput!) {
+  addGuidance(input: $input) {
+    id
+    guidanceText
+    title
+    errors {
+      general
+      guidanceGroupId
+      guidanceText
+      tags
+    }
+  }
+}
+    `;
+export type AddGuidanceMutationFn = Apollo.MutationFunction<AddGuidanceMutation, AddGuidanceMutationVariables>;
+
+/**
+ * __useAddGuidanceMutation__
+ *
+ * To run a mutation, you first call `useAddGuidanceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddGuidanceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addGuidanceMutation, { data, loading, error }] = useAddGuidanceMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddGuidanceMutation(baseOptions?: Apollo.MutationHookOptions<AddGuidanceMutation, AddGuidanceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddGuidanceMutation, AddGuidanceMutationVariables>(AddGuidanceDocument, options);
+      }
+export type AddGuidanceMutationHookResult = ReturnType<typeof useAddGuidanceMutation>;
+export type AddGuidanceMutationResult = Apollo.MutationResult<AddGuidanceMutation>;
+export type AddGuidanceMutationOptions = Apollo.BaseMutationOptions<AddGuidanceMutation, AddGuidanceMutationVariables>;
+export const UpdateGuidanceDocument = gql`
+    mutation UpdateGuidance($input: UpdateGuidanceInput!) {
+  updateGuidance(input: $input) {
+    id
+    guidanceText
+    title
+    tags {
+      id
+      name
+    }
+    errors {
+      general
+      guidanceGroupId
+      guidanceText
+      tags
+    }
+  }
+}
+    `;
+export type UpdateGuidanceMutationFn = Apollo.MutationFunction<UpdateGuidanceMutation, UpdateGuidanceMutationVariables>;
+
+/**
+ * __useUpdateGuidanceMutation__
+ *
+ * To run a mutation, you first call `useUpdateGuidanceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateGuidanceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateGuidanceMutation, { data, loading, error }] = useUpdateGuidanceMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateGuidanceMutation(baseOptions?: Apollo.MutationHookOptions<UpdateGuidanceMutation, UpdateGuidanceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateGuidanceMutation, UpdateGuidanceMutationVariables>(UpdateGuidanceDocument, options);
+      }
+export type UpdateGuidanceMutationHookResult = ReturnType<typeof useUpdateGuidanceMutation>;
+export type UpdateGuidanceMutationResult = Apollo.MutationResult<UpdateGuidanceMutation>;
+export type UpdateGuidanceMutationOptions = Apollo.BaseMutationOptions<UpdateGuidanceMutation, UpdateGuidanceMutationVariables>;
+export const AddGuidanceGroupDocument = gql`
+    mutation AddGuidanceGroup($input: AddGuidanceGroupInput!) {
+  addGuidanceGroup(input: $input) {
+    name
+    id
+    errors {
+      affiliationId
+      bestPractice
+      general
+      name
+    }
+  }
+}
+    `;
+export type AddGuidanceGroupMutationFn = Apollo.MutationFunction<AddGuidanceGroupMutation, AddGuidanceGroupMutationVariables>;
+
+/**
+ * __useAddGuidanceGroupMutation__
+ *
+ * To run a mutation, you first call `useAddGuidanceGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddGuidanceGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addGuidanceGroupMutation, { data, loading, error }] = useAddGuidanceGroupMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddGuidanceGroupMutation(baseOptions?: Apollo.MutationHookOptions<AddGuidanceGroupMutation, AddGuidanceGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddGuidanceGroupMutation, AddGuidanceGroupMutationVariables>(AddGuidanceGroupDocument, options);
+      }
+export type AddGuidanceGroupMutationHookResult = ReturnType<typeof useAddGuidanceGroupMutation>;
+export type AddGuidanceGroupMutationResult = Apollo.MutationResult<AddGuidanceGroupMutation>;
+export type AddGuidanceGroupMutationOptions = Apollo.BaseMutationOptions<AddGuidanceGroupMutation, AddGuidanceGroupMutationVariables>;
+export const PublishGuidanceGroupDocument = gql`
+    mutation PublishGuidanceGroup($guidanceGroupId: Int!) {
+  publishGuidanceGroup(guidanceGroupId: $guidanceGroupId) {
+    id
+    name
+    errors {
+      general
+      affiliationId
+      bestPractice
+      name
+      description
+    }
+  }
+}
+    `;
+export type PublishGuidanceGroupMutationFn = Apollo.MutationFunction<PublishGuidanceGroupMutation, PublishGuidanceGroupMutationVariables>;
+
+/**
+ * __usePublishGuidanceGroupMutation__
+ *
+ * To run a mutation, you first call `usePublishGuidanceGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePublishGuidanceGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [publishGuidanceGroupMutation, { data, loading, error }] = usePublishGuidanceGroupMutation({
+ *   variables: {
+ *      guidanceGroupId: // value for 'guidanceGroupId'
+ *   },
+ * });
+ */
+export function usePublishGuidanceGroupMutation(baseOptions?: Apollo.MutationHookOptions<PublishGuidanceGroupMutation, PublishGuidanceGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<PublishGuidanceGroupMutation, PublishGuidanceGroupMutationVariables>(PublishGuidanceGroupDocument, options);
+      }
+export type PublishGuidanceGroupMutationHookResult = ReturnType<typeof usePublishGuidanceGroupMutation>;
+export type PublishGuidanceGroupMutationResult = Apollo.MutationResult<PublishGuidanceGroupMutation>;
+export type PublishGuidanceGroupMutationOptions = Apollo.BaseMutationOptions<PublishGuidanceGroupMutation, PublishGuidanceGroupMutationVariables>;
+export const UpdateGuidanceGroupDocument = gql`
+    mutation UpdateGuidanceGroup($input: UpdateGuidanceGroupInput!) {
+  updateGuidanceGroup(input: $input) {
+    id
+    name
+    description
+    bestPractice
+    errors {
+      affiliationId
+      bestPractice
+      general
+      name
+      description
+    }
+  }
+}
+    `;
+export type UpdateGuidanceGroupMutationFn = Apollo.MutationFunction<UpdateGuidanceGroupMutation, UpdateGuidanceGroupMutationVariables>;
+
+/**
+ * __useUpdateGuidanceGroupMutation__
+ *
+ * To run a mutation, you first call `useUpdateGuidanceGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateGuidanceGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateGuidanceGroupMutation, { data, loading, error }] = useUpdateGuidanceGroupMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateGuidanceGroupMutation(baseOptions?: Apollo.MutationHookOptions<UpdateGuidanceGroupMutation, UpdateGuidanceGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateGuidanceGroupMutation, UpdateGuidanceGroupMutationVariables>(UpdateGuidanceGroupDocument, options);
+      }
+export type UpdateGuidanceGroupMutationHookResult = ReturnType<typeof useUpdateGuidanceGroupMutation>;
+export type UpdateGuidanceGroupMutationResult = Apollo.MutationResult<UpdateGuidanceGroupMutation>;
+export type UpdateGuidanceGroupMutationOptions = Apollo.BaseMutationOptions<UpdateGuidanceGroupMutation, UpdateGuidanceGroupMutationVariables>;
 export const AddPlanDocument = gql`
     mutation AddPlan($projectId: Int!, $versionedTemplateId: Int!) {
   addPlan(projectId: $projectId, versionedTemplateId: $versionedTemplateId) {
@@ -7899,10 +8195,119 @@ export type PopularFundersQueryHookResult = ReturnType<typeof usePopularFundersQ
 export type PopularFundersLazyQueryHookResult = ReturnType<typeof usePopularFundersLazyQuery>;
 export type PopularFundersSuspenseQueryHookResult = ReturnType<typeof usePopularFundersSuspenseQuery>;
 export type PopularFundersQueryResult = Apollo.QueryResult<PopularFundersQuery, PopularFundersQueryVariables>;
+export const GuidanceByGroupDocument = gql`
+    query GuidanceByGroup($guidanceGroupId: Int!) {
+  guidanceByGroup(guidanceGroupId: $guidanceGroupId) {
+    user {
+      givenName
+      surName
+      id
+    }
+    guidanceText
+    title
+    id
+    tags {
+      id
+      name
+    }
+    errors {
+      general
+      tags
+      guidanceText
+      guidanceGroupId
+    }
+    modified
+  }
+}
+    `;
+
+/**
+ * __useGuidanceByGroupQuery__
+ *
+ * To run a query within a React component, call `useGuidanceByGroupQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGuidanceByGroupQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGuidanceByGroupQuery({
+ *   variables: {
+ *      guidanceGroupId: // value for 'guidanceGroupId'
+ *   },
+ * });
+ */
+export function useGuidanceByGroupQuery(baseOptions: Apollo.QueryHookOptions<GuidanceByGroupQuery, GuidanceByGroupQueryVariables> & ({ variables: GuidanceByGroupQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GuidanceByGroupQuery, GuidanceByGroupQueryVariables>(GuidanceByGroupDocument, options);
+      }
+export function useGuidanceByGroupLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GuidanceByGroupQuery, GuidanceByGroupQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GuidanceByGroupQuery, GuidanceByGroupQueryVariables>(GuidanceByGroupDocument, options);
+        }
+export function useGuidanceByGroupSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GuidanceByGroupQuery, GuidanceByGroupQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GuidanceByGroupQuery, GuidanceByGroupQueryVariables>(GuidanceByGroupDocument, options);
+        }
+export type GuidanceByGroupQueryHookResult = ReturnType<typeof useGuidanceByGroupQuery>;
+export type GuidanceByGroupLazyQueryHookResult = ReturnType<typeof useGuidanceByGroupLazyQuery>;
+export type GuidanceByGroupSuspenseQueryHookResult = ReturnType<typeof useGuidanceByGroupSuspenseQuery>;
+export type GuidanceByGroupQueryResult = Apollo.QueryResult<GuidanceByGroupQuery, GuidanceByGroupQueryVariables>;
+export const GuidanceDocument = gql`
+    query Guidance($guidanceId: Int!) {
+  guidance(guidanceId: $guidanceId) {
+    id
+    tags {
+      id
+      name
+      description
+    }
+    title
+    guidanceText
+  }
+}
+    `;
+
+/**
+ * __useGuidanceQuery__
+ *
+ * To run a query within a React component, call `useGuidanceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGuidanceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGuidanceQuery({
+ *   variables: {
+ *      guidanceId: // value for 'guidanceId'
+ *   },
+ * });
+ */
+export function useGuidanceQuery(baseOptions: Apollo.QueryHookOptions<GuidanceQuery, GuidanceQueryVariables> & ({ variables: GuidanceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GuidanceQuery, GuidanceQueryVariables>(GuidanceDocument, options);
+      }
+export function useGuidanceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GuidanceQuery, GuidanceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GuidanceQuery, GuidanceQueryVariables>(GuidanceDocument, options);
+        }
+export function useGuidanceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GuidanceQuery, GuidanceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GuidanceQuery, GuidanceQueryVariables>(GuidanceDocument, options);
+        }
+export type GuidanceQueryHookResult = ReturnType<typeof useGuidanceQuery>;
+export type GuidanceLazyQueryHookResult = ReturnType<typeof useGuidanceLazyQuery>;
+export type GuidanceSuspenseQueryHookResult = ReturnType<typeof useGuidanceSuspenseQuery>;
+export type GuidanceQueryResult = Apollo.QueryResult<GuidanceQuery, GuidanceQueryVariables>;
 export const GuidanceGroupsDocument = gql`
     query GuidanceGroups($affiliationId: String) {
   guidanceGroups(affiliationId: $affiliationId) {
     id
+    name
+    description
+    latestPublishedVersion
+    latestPublishedDate
     guidance {
       tags {
         id
@@ -7910,7 +8315,15 @@ export const GuidanceGroupsDocument = gql`
       }
       guidanceText
       id
+      title
     }
+    user {
+      givenName
+      surName
+      id
+    }
+    modified
+    isDirty
   }
 }
     `;
@@ -7947,6 +8360,57 @@ export type GuidanceGroupsQueryHookResult = ReturnType<typeof useGuidanceGroupsQ
 export type GuidanceGroupsLazyQueryHookResult = ReturnType<typeof useGuidanceGroupsLazyQuery>;
 export type GuidanceGroupsSuspenseQueryHookResult = ReturnType<typeof useGuidanceGroupsSuspenseQuery>;
 export type GuidanceGroupsQueryResult = Apollo.QueryResult<GuidanceGroupsQuery, GuidanceGroupsQueryVariables>;
+export const GuidanceGroupDocument = gql`
+    query GuidanceGroup($guidanceGroupId: Int!) {
+  guidanceGroup(guidanceGroupId: $guidanceGroupId) {
+    id
+    name
+    description
+    bestPractice
+    latestPublishedVersion
+    latestPublishedDate
+    guidance {
+      guidanceText
+      id
+      title
+    }
+    optionalSubset
+  }
+}
+    `;
+
+/**
+ * __useGuidanceGroupQuery__
+ *
+ * To run a query within a React component, call `useGuidanceGroupQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGuidanceGroupQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGuidanceGroupQuery({
+ *   variables: {
+ *      guidanceGroupId: // value for 'guidanceGroupId'
+ *   },
+ * });
+ */
+export function useGuidanceGroupQuery(baseOptions: Apollo.QueryHookOptions<GuidanceGroupQuery, GuidanceGroupQueryVariables> & ({ variables: GuidanceGroupQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GuidanceGroupQuery, GuidanceGroupQueryVariables>(GuidanceGroupDocument, options);
+      }
+export function useGuidanceGroupLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GuidanceGroupQuery, GuidanceGroupQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GuidanceGroupQuery, GuidanceGroupQueryVariables>(GuidanceGroupDocument, options);
+        }
+export function useGuidanceGroupSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GuidanceGroupQuery, GuidanceGroupQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GuidanceGroupQuery, GuidanceGroupQueryVariables>(GuidanceGroupDocument, options);
+        }
+export type GuidanceGroupQueryHookResult = ReturnType<typeof useGuidanceGroupQuery>;
+export type GuidanceGroupLazyQueryHookResult = ReturnType<typeof useGuidanceGroupLazyQuery>;
+export type GuidanceGroupSuspenseQueryHookResult = ReturnType<typeof useGuidanceGroupSuspenseQuery>;
+export type GuidanceGroupQueryResult = Apollo.QueryResult<GuidanceGroupQuery, GuidanceGroupQueryVariables>;
 export const LanguagesDocument = gql`
     query Languages {
   languages {
@@ -8094,7 +8558,9 @@ export const PlanDocument = gql`
       totalQuestions
       tags {
         name
+        slug
         id
+        description
       }
     }
     progress {

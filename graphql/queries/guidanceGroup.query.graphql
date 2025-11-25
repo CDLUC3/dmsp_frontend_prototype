@@ -1,0 +1,42 @@
+query GuidanceGroups($affiliationId: String) {
+  guidanceGroups(affiliationId: $affiliationId) {
+    id
+    name
+    description
+    latestPublishedVersion
+    latestPublishedDate
+    guidance {
+      tags {
+        id
+        name
+      }
+      guidanceText
+      id
+      title
+    }
+    user {
+      givenName
+      surName
+      id
+    }
+    modified
+    isDirty
+  }
+}
+
+query GuidanceGroup($guidanceGroupId: Int!) {
+  guidanceGroup(guidanceGroupId: $guidanceGroupId) {
+    id
+    name
+    description
+    bestPractice
+    latestPublishedVersion
+    latestPublishedDate
+    guidance {
+      guidanceText
+      id
+      title
+    }
+    optionalSubset
+  }
+}
