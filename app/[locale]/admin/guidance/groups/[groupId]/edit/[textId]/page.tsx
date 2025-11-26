@@ -50,7 +50,6 @@ type UpdateGuidanceTextErrors = {
 
 interface GuidanceText {
   id: string;
-  title: string;
   guidanceText: string;
   tags: TagsInterface[];
   status?: "Published" | "Draft";
@@ -81,7 +80,6 @@ const GuidanceTextEditPage: React.FC = () => {
 
   const [guidanceText, setGuidanceText] = useState<GuidanceText>({
     id: textId,
-    title: "",
     guidanceText: "",
     tags: [],
   });
@@ -100,7 +98,6 @@ const GuidanceTextEditPage: React.FC = () => {
     // Update state values from data results
     if (data?.guidance) {
       const guidance = data.guidance;
-      const cleanedGuidanceTitle = stripHtmlTags(guidance.title);
 
       // Clean tags data - filter out nulls and remove __typename
       const cleanedTags = guidance.tags
@@ -123,7 +120,6 @@ const GuidanceTextEditPage: React.FC = () => {
 
       setGuidanceText((prev) => ({
         ...prev,
-        title: cleanedGuidanceTitle,
         guidanceText: guidance.guidanceText ? guidance.guidanceText : '',
         tags: cleanedTags,
       }));
@@ -170,7 +166,6 @@ const GuidanceTextEditPage: React.FC = () => {
 
     const response = await updateGuidanceAction({
       guidanceId: Number(textId),
-      title: guidanceText.title,
       guidanceText: guidanceText.guidanceText,
       tags: guidanceText.tags
     });
@@ -208,11 +203,11 @@ const GuidanceTextEditPage: React.FC = () => {
       }
 
       // Success case - no errors
-      const successMessage = t("messages.success.guidanceTextUpdated", { textTitle: guidanceText.title });
+      const successMessage = t("messages.success.guidanceTextUpdated");
       toastState.add(successMessage, { type: "success" });
       router.push(routePath("admin.guidance.groups.index", { groupId }));
     }
-  }, [guidanceText.title, Global, router, groupId, toastState]);
+  }, [guidanceText.guidanceText, Global, router, groupId, toastState]);
 
 
   const handlePublish = () => {
@@ -223,7 +218,7 @@ const GuidanceTextEditPage: React.FC = () => {
   return (
     <>
       <PageHeader
-        title={`${t("pages.textEdit.title")} ${guidanceText.title}`}
+        title={`${t("pages.textEdit.title")}`}
         description={t("pages.textEdit.description")}
         showBackButton={true}
         breadcrumbs={
@@ -249,16 +244,6 @@ const GuidanceTextEditPage: React.FC = () => {
             {/* Guidance Text Content Section */}
             <div className="sectionContainer mt-0">
               <div className="sectionContent">
-                <div className={styles.formGroup}>
-                  <FormInput
-                    name="title"
-                    label={t("fields.title.label")}
-                    value={guidanceText.title}
-                    onChange={(e) => setGuidanceText((prev) => ({ ...prev, title: e.target.value }))}
-                    placeholder={t("fields.title.placeholder")}
-                  />
-                </div>
-
                 <div className={styles.formGroup}>
                   <Label
                     htmlFor="content"

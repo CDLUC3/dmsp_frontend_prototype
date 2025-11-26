@@ -56,8 +56,6 @@ export type AddGuidanceInput = {
   guidanceText?: InputMaybe<Scalars['String']['input']>;
   /** The Tags associated with this Guidance */
   tags?: InputMaybe<Array<TagInput>>;
-  /** The title of the Guidance item */
-  title?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type AddMetadataStandardInput = {
@@ -771,8 +769,6 @@ export type Guidance = {
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The Tags associated with this Guidance */
   tags?: Maybe<Array<Tag>>;
-  /** The title of the Guidance item */
-  title?: Maybe<Scalars['String']['output']>;
   /** User who modified the guidance last */
   user?: Maybe<User>;
 };
@@ -3815,8 +3811,6 @@ export type UpdateGuidanceInput = {
   guidanceText?: InputMaybe<Scalars['String']['input']>;
   /** The Tags associated with this Guidance */
   tags?: InputMaybe<Array<TagInput>>;
-  /** The title of the Guidance item */
-  title?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateMetadataStandardInput = {
@@ -4782,14 +4776,14 @@ export type AddGuidanceMutationVariables = Exact<{
 }>;
 
 
-export type AddGuidanceMutation = { __typename?: 'Mutation', addGuidance: { __typename?: 'Guidance', id?: number | null, guidanceText?: string | null, title?: string | null, errors?: { __typename?: 'GuidanceErrors', general?: string | null, guidanceGroupId?: string | null, guidanceText?: string | null, tags?: string | null } | null } };
+export type AddGuidanceMutation = { __typename?: 'Mutation', addGuidance: { __typename?: 'Guidance', id?: number | null, guidanceText?: string | null, errors?: { __typename?: 'GuidanceErrors', general?: string | null, guidanceGroupId?: string | null, guidanceText?: string | null, tags?: string | null } | null } };
 
 export type UpdateGuidanceMutationVariables = Exact<{
   input: UpdateGuidanceInput;
 }>;
 
 
-export type UpdateGuidanceMutation = { __typename?: 'Mutation', updateGuidance: { __typename?: 'Guidance', id?: number | null, guidanceText?: string | null, title?: string | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, name: string }> | null, errors?: { __typename?: 'GuidanceErrors', general?: string | null, guidanceGroupId?: string | null, guidanceText?: string | null, tags?: string | null } | null } };
+export type UpdateGuidanceMutation = { __typename?: 'Mutation', updateGuidance: { __typename?: 'Guidance', id?: number | null, guidanceText?: string | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, name: string }> | null, errors?: { __typename?: 'GuidanceErrors', general?: string | null, guidanceGroupId?: string | null, guidanceText?: string | null, tags?: string | null } | null } };
 
 export type AddGuidanceGroupMutationVariables = Exact<{
   input: AddGuidanceGroupInput;
@@ -5158,28 +5152,28 @@ export type GuidanceByGroupQueryVariables = Exact<{
 }>;
 
 
-export type GuidanceByGroupQuery = { __typename?: 'Query', guidanceByGroup: Array<{ __typename?: 'Guidance', guidanceText?: string | null, title?: string | null, id?: number | null, modified?: string | null, user?: { __typename?: 'User', givenName?: string | null, surName?: string | null, id?: number | null } | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, name: string }> | null, errors?: { __typename?: 'GuidanceErrors', general?: string | null, tags?: string | null, guidanceText?: string | null, guidanceGroupId?: string | null } | null }> };
+export type GuidanceByGroupQuery = { __typename?: 'Query', guidanceByGroup: Array<{ __typename?: 'Guidance', guidanceText?: string | null, id?: number | null, modified?: string | null, user?: { __typename?: 'User', givenName?: string | null, surName?: string | null, id?: number | null } | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, name: string }> | null, errors?: { __typename?: 'GuidanceErrors', general?: string | null, tags?: string | null, guidanceText?: string | null, guidanceGroupId?: string | null } | null }> };
 
 export type GuidanceQueryVariables = Exact<{
   guidanceId: Scalars['Int']['input'];
 }>;
 
 
-export type GuidanceQuery = { __typename?: 'Query', guidance?: { __typename?: 'Guidance', id?: number | null, title?: string | null, guidanceText?: string | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, name: string, description?: string | null }> | null } | null };
+export type GuidanceQuery = { __typename?: 'Query', guidance?: { __typename?: 'Guidance', id?: number | null, guidanceText?: string | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, name: string, description?: string | null }> | null } | null };
 
 export type GuidanceGroupsQueryVariables = Exact<{
   affiliationId?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type GuidanceGroupsQuery = { __typename?: 'Query', guidanceGroups: Array<{ __typename?: 'GuidanceGroup', id?: number | null, name: string, description?: string | null, latestPublishedVersion?: string | null, latestPublishedDate?: string | null, modified?: string | null, isDirty: boolean, guidance?: Array<{ __typename?: 'Guidance', guidanceText?: string | null, id?: number | null, title?: string | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, name: string }> | null }> | null, user?: { __typename?: 'User', givenName?: string | null, surName?: string | null, id?: number | null } | null }> };
+export type GuidanceGroupsQuery = { __typename?: 'Query', guidanceGroups: Array<{ __typename?: 'GuidanceGroup', id?: number | null, name: string, description?: string | null, latestPublishedVersion?: string | null, latestPublishedDate?: string | null, modified?: string | null, isDirty: boolean, guidance?: Array<{ __typename?: 'Guidance', guidanceText?: string | null, id?: number | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, name: string }> | null }> | null, user?: { __typename?: 'User', givenName?: string | null, surName?: string | null, id?: number | null } | null }> };
 
 export type GuidanceGroupQueryVariables = Exact<{
   guidanceGroupId: Scalars['Int']['input'];
 }>;
 
 
-export type GuidanceGroupQuery = { __typename?: 'Query', guidanceGroup?: { __typename?: 'GuidanceGroup', id?: number | null, name: string, description?: string | null, bestPractice: boolean, latestPublishedVersion?: string | null, latestPublishedDate?: string | null, optionalSubset: boolean, guidance?: Array<{ __typename?: 'Guidance', guidanceText?: string | null, id?: number | null, title?: string | null }> | null } | null };
+export type GuidanceGroupQuery = { __typename?: 'Query', guidanceGroup?: { __typename?: 'GuidanceGroup', id?: number | null, name: string, description?: string | null, bestPractice: boolean, latestPublishedVersion?: string | null, latestPublishedDate?: string | null, optionalSubset: boolean, guidance?: Array<{ __typename?: 'Guidance', guidanceText?: string | null, id?: number | null }> | null } | null };
 
 export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -5958,7 +5952,6 @@ export const AddGuidanceDocument = gql`
   addGuidance(input: $input) {
     id
     guidanceText
-    title
     errors {
       general
       guidanceGroupId
@@ -5999,7 +5992,6 @@ export const UpdateGuidanceDocument = gql`
   updateGuidance(input: $input) {
     id
     guidanceText
-    title
     tags {
       id
       name
@@ -8204,7 +8196,6 @@ export const GuidanceByGroupDocument = gql`
       id
     }
     guidanceText
-    title
     id
     tags {
       id
@@ -8262,7 +8253,6 @@ export const GuidanceDocument = gql`
       name
       description
     }
-    title
     guidanceText
   }
 }
@@ -8315,7 +8305,6 @@ export const GuidanceGroupsDocument = gql`
       }
       guidanceText
       id
-      title
     }
     user {
       givenName
@@ -8372,7 +8361,6 @@ export const GuidanceGroupDocument = gql`
     guidance {
       guidanceText
       id
-      title
     }
     optionalSubset
   }

@@ -7,3 +7,27 @@
         margin-right: 1rem;
     }
 }
+
+.tagWrapper {
+  display: flex;
+}
+
+.publishButton {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.guidanceListCard {
+  max-width: 600px;
+  border-bottom: 1px solid var(--gray-100);
+
+}
+
+.buttonWrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin: var(--space-4) 0;
+}

@@ -43,7 +43,6 @@ import { useToast } from "@/context/ToastContext";
 import styles from "./guidanceTextCreate.module.scss";
 
 interface GuidanceText {
-  title: string;
   guidanceText: string;
   status: "Published" | "Draft";
 }
@@ -69,7 +68,6 @@ const GuidanceTextCreatePage: React.FC = () => {
   const [selectedTags, setSelectedTags] = useState<TagsInterface[]>([]);
   //Store guidance text data in state
   const [guidanceText, setGuidanceText] = useState<GuidanceText>({
-    title: "",
     guidanceText: "",
     status: "Draft",
   });
@@ -126,7 +124,6 @@ const GuidanceTextCreatePage: React.FC = () => {
 
     const response = await addGuidanceTextAction({
       guidanceGroupId: Number(groupId),
-      title: guidanceText.title,
       guidanceText: guidanceText.guidanceText,
       tags: selectedTags
     });
@@ -164,11 +161,11 @@ const GuidanceTextCreatePage: React.FC = () => {
       }
 
       // Success case - no errors
-      const successMessage = t("messages.success.guidanceTextAdded", { textTitle: guidanceText.title });
+      const successMessage = t("messages.success.guidanceTextAdded");
       toastState.add(successMessage, { type: "success" });
       router.push(routePath("admin.guidance.groups.index", { groupId }));
     }
-  }, [guidanceText.title, Global, router, groupId, toastState]);
+  }, [guidanceText.guidanceText, Global, router, groupId, toastState]);
 
   useEffect(() => {
     if (tagsData?.tags) {
@@ -210,15 +207,6 @@ const GuidanceTextCreatePage: React.FC = () => {
             {/* Guidance Text Content Section */}
             <div className="sectionContainer mt-0">
               <div className="sectionContent">
-                <div className={styles.formGroup}>
-                  <FormInput
-                    name="title"
-                    label={t("fields.title.label")}
-                    value={guidanceText.title}
-                    onChange={(e) => setGuidanceText((prev) => ({ ...prev, title: e.target.value }))}
-                    placeholder={t("fields.title.placeholder")}
-                  />
-                </div>
 
                 <div>
                   <Label

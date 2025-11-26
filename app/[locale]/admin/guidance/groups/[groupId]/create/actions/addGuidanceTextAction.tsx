@@ -6,12 +6,10 @@ import { AddGuidanceDocument } from "@/generated/graphql";
 
 export async function addGuidanceTextAction({
   guidanceGroupId,
-  title,
   guidanceText,
   tags
 }: {
   guidanceGroupId: number;
-  title: string;
   guidanceText: string;
   tags: TagsInterface[];
 }): Promise<ActionResponse> {
@@ -21,7 +19,6 @@ export async function addGuidanceTextAction({
     variables: {
       input: {
         guidanceGroupId,
-        title,
         guidanceText,
         tags
       }

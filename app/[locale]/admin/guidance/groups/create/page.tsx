@@ -5,7 +5,6 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
-  Checkbox,
   Form,
   Link,
 } from "react-aria-components";
@@ -37,7 +36,6 @@ export interface GuidanceGroupInterface {
   bestPractice: boolean;
   name: string;
   description: string;
-  optionalSubset: boolean;
 }
 
 type AddGuidanceGroupErrors = {
@@ -69,7 +67,6 @@ const GuidanceGroupCreatePage: React.FC = () => {
     bestPractice: false,
     name: "",
     description: "",
-    optionalSubset: false,
   });
 
   // Call Server Action addGuidanceGroupAction
@@ -187,26 +184,6 @@ const GuidanceGroupCreatePage: React.FC = () => {
                     onChange={(e) => setGuidanceGroup({ ...guidanceGroup, description: e.target.value })}
                     placeholder={t("fields.groupDescription.placeholder")}
                   />
-                </div>
-
-                <div className="">
-                  <Checkbox
-                    name="optionalSubset"
-                    id="optionalSubset"
-                    isSelected={guidanceGroup.optionalSubset}
-                    onChange={(isSelected: boolean) => setGuidanceGroup(prev => ({
-                      ...prev,
-                      optionalSubset: isSelected
-                    }))}
-                    className={styles.checkboxItem}
-                  >
-                    <div className={"checkbox"}>
-                      <svg viewBox="0 0 18 18" aria-hidden="true">
-                        <polyline points="1 9 7 14 15 4" />
-                      </svg>
-                    </div>
-                    {t('labels.optionalSubset')}
-                  </Checkbox>
                 </div>
 
                 <div className={styles.formGroup}>

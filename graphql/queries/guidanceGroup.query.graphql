@@ -12,7 +12,6 @@ query GuidanceGroups($affiliationId: String) {
       }
       guidanceText
       id
-      title
     }
     user {
       givenName
@@ -35,7 +34,6 @@ query GuidanceGroup($guidanceGroupId: Int!) {
     guidance {
       guidanceText
       id
-      title
     }
     optionalSubset
   }

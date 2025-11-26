@@ -8,12 +8,10 @@ export async function updateGuidanceAction({
   guidanceId,
   guidanceText,
   tags,
-  title
 }: {
   guidanceId: number;
   guidanceText: string;
   tags: TagsInterface[];
-  title: string;
 }): Promise<ActionResponse> {
   // Execute the mutation using the shared handler
   return await executeGraphQLMutation({
@@ -21,7 +19,6 @@ export async function updateGuidanceAction({
     variables: {
       input: {
         guidanceId,
-        title,
         tags,
         guidanceText
       }

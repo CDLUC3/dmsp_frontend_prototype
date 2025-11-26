@@ -9,13 +9,11 @@ export async function addGuidanceGroupAction({
   bestPractice,
   name,
   description,
-  optionalSubset
 }: {
   affiliationId: string;
   bestPractice: boolean;
   name: string;
   description: string;
-  optionalSubset: boolean;
 }): Promise<ActionResponse> {
   // Execute the mutation using the shared handler
   return await executeGraphQLMutation({
@@ -26,7 +24,6 @@ export async function addGuidanceGroupAction({
         bestPractice,
         name,
         description,
-        optionalSubset
       }
     },
     dataPath: "addGuidanceGroup"

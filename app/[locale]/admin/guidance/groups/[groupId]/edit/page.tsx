@@ -188,7 +188,6 @@ const GuidanceGroupEditPage: React.FC = () => {
     };
   }, [guidanceGroupData]);
 
-  console.log("Guidance Group State:", guidanceGroup);
   return (
     <>
       <PageHeader

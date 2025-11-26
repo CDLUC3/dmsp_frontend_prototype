@@ -7,6 +7,7 @@ import { useFormatter, useTranslations } from "next-intl";
 // GraphQL
 import {
   useMeQuery,
+  useTagsQuery,
   useGuidanceGroupsQuery
 } from '@/generated/graphql';
 
@@ -29,7 +30,7 @@ interface GuidanceGroup {
   latestPublishedVersion?: string;
   latestPublishedDate?: string;
   status: string;
-  textCount: number;
+  textCount: string;
   url: string;
 }
 
@@ -47,6 +48,9 @@ const GuidancePage: React.FC = () => {
 
   // Run me query to get user's name
   const { data: me } = useMeQuery();
+
+  // Query for all tags
+  const { data: tagsData } = useTagsQuery();
 
   const { data: guidanceGroupsData } = useGuidanceGroupsQuery({
     variables: {
@@ -75,7 +79,6 @@ const GuidancePage: React.FC = () => {
     //setGuidanceGroup(fakeGuidanceGroup);
     if (guidanceGroupsData && guidanceGroupsData.guidanceGroups.length > 0) {
 
-      console.log("guidanceGroupsData:", guidanceGroupsData);
       const transformedGuidanceGroups = guidanceGroupsData.guidanceGroups.map((g) => ({
         id: String(g.id),
         title: g.name || 'Untitled Guidance Group',
@@ -83,9 +86,9 @@ const GuidancePage: React.FC = () => {
         lastUpdatedBy: `${g.user?.givenName} ${g.user?.surName}`,
         latestPublishedVersion: `v${g.latestPublishedVersion}` || '',
         latestPublishedDate: g.latestPublishedDate ? formatDate(g.latestPublishedDate) : '',
-        status: g.isDirty ? Global("notPublished") : Global("published"),
+        status: g.isDirty ? Global("draft") : Global("published"),
         description: g.description || '',
-        textCount: g?.guidance?.length || 0,
+        textCount: `${g?.guidance?.length || 0} / ${tagsData?.tags.length || 0} Tags with Guidance`,
         url: routePath("admin.guidance.groups.index", { groupId: String(g.id) }),
       }));
       setGuidanceGroups(transformedGuidanceGroups);
@@ -138,7 +141,7 @@ const GuidancePage: React.FC = () => {
                   <p className={styles.description}>{group.description}</p>
                   <div className={styles.metadata}>
                     <span>
-                      {Global("lastRevisedBy")}: {group.lastUpdatedBy}
+                      {group.textCount}
                     </span>
                     <span className={styles.separator}>
                       {Global('lastUpdated')}: {group.lastUpdated}
@@ -146,11 +149,6 @@ const GuidancePage: React.FC = () => {
                     <span className={styles.separator}>
                       {t("status.status")}: {group.status}
                     </span>
-                    {group.status === "Published" && group.latestPublishedVersion && (
-                      <span className={styles.separator}>
-                        {t("status.publishedVersion")}: {group.latestPublishedVersion}
-                      </span>
-                    )}
                   </div>
                 </div>
               </DashboardListItem>

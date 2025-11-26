@@ -6,7 +6,6 @@ query GuidanceByGroup($guidanceGroupId: Int!) {
       id
     }
     guidanceText
-    title
     id
     tags {
       id
@@ -30,7 +29,6 @@ query Guidance($guidanceId: Int!) {
       name
       description
     }
-    title
     guidanceText
   }
 }
