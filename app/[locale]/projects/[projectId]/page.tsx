@@ -28,17 +28,12 @@ interface ProjectMemberInterface {
   email: string;
 }
 
-interface ResearchOutputsInterface {
-  title: string;
-}
-
 interface ProjectOverviewInterface {
   title: string;
   startDate: string | null;
   endDate: string | null;
   fundings: FundingInterface[];
   projectMembers: ProjectMemberInterface[];
-  researchOutputs: ResearchOutputsInterface[];
   plans: PlanSearchResult[];
   dmpId?: string;
   modified?: string;
@@ -57,7 +52,6 @@ const ProjectOverviewPage: React.FC = () => {
     fundings: [],
     plans: [],
     projectMembers: [],
-    researchOutputs: [],
   });
 
   // Localization keys
@@ -129,12 +123,6 @@ const ProjectOverviewPage: React.FC = () => {
               fullname: `${member.givenName} ${member.surName}`,
               email: member.email ?? "",
               role: (member.memberRoles ?? []).map((role) => role.label),
-            })) ?? [], // Provide a default empty array
-        researchOutputs:
-          data.project.outputs
-            ?.filter((output) => output !== null) // Filter out null
-            .map((output) => ({
-              title: output.title ?? "",
             })) ?? [], // Provide a default empty array
       });
     }
@@ -243,18 +231,6 @@ const ProjectOverviewPage: React.FC = () => {
                     {index < project.projectMembers.length - 1 ? "; " : ""}
                   </span>
                 ))}
-              </p>
-            </OverviewSection>
-
-            <OverviewSection
-              heading={ProjectOverview("researchOutputs")}
-              headingId="outputs-title"
-              linkHref={routePath("projects.outputs.index", { projectId })}
-              linkText={ProjectOverview("editOutputs")}
-              linkAriaLabel={ProjectOverview("editOutputs")}
-            >
-              <p>
-                <strong>{ProjectOverview("outputCount", { count: project.researchOutputs.length })}</strong>
               </p>
             </OverviewSection>
           </div>
@@ -392,7 +368,7 @@ const ProjectOverviewPage: React.FC = () => {
                   {ProjectOverview("status.collaboration.link_text")}
                 </Link>
               </div>
-              {/** Feedback 
+              {/** Feedback
               <div className={`panelRow mb-5`}>
                 <div>
                   <h3>{ProjectOverview('status.feedback.title')}</h3>

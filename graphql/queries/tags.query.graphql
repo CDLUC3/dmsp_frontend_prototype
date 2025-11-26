@@ -3,5 +3,6 @@ query Tags {
     id
     name
     description
+    slug
   }
 }
