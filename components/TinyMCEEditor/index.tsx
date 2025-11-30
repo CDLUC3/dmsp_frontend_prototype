@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Editor as TinyMCEEditorType } from 'tinymce';
 import { loadTinymceScript } from '@/utils/loadTinyMCE';
+import EditorSkeleton from './EditorSkeleton';
 import styles from './tinyMCEEditor.module.scss';
 
 // We need to reference "window.tinymce" but TypeScript doesn't know about it.
@@ -112,16 +113,19 @@ const TinyMCEEditor = ({ content, setContent, onChange, error, id, labelId, help
 
   return (
     <div className={styles['tinyMCE-editor-container']}>
-      <textarea
-        id={elementId}
-        className={elementId}
-        aria-label={id ?? 'Editor input area'}
-        aria-labelledby={labelId ?? ''}
-        aria-describedby={helpText ? `${elementId}-help-text` : ''}
-        aria-invalid={error ? 'true' : 'false'}
-        style={{ visibility: 'hidden' }
-        }
-      />
+      {!isEditorReady && <EditorSkeleton />}
+      <div style={{ display: isEditorReady ? 'block' : 'none' }}>
+        <textarea
+          id={elementId}
+          className={elementId}
+          aria-label={id ?? 'Editor input area'}
+          aria-labelledby={labelId ?? ''}
+          aria-describedby={helpText ? `${elementId}-help-text` : ''}
+          aria-invalid={error ? 'true' : 'false'}
+          style={{ visibility: 'hidden' }
+          }
+        />
+      </div>
       {error && <div className={`${styles['editor-help-text']} error-message`}>{error}</div>}
       {helpText && <div className={`${styles['editor-help-text']} help-text`}>{helpText}</div>}
     </div >

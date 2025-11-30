@@ -1,5 +1,23 @@
 @use '@/styles/responsive.scss' as r;
 
+.dashboardItemLink {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+        text-decoration: none;
+    }
+
+    &:focus {
+        outline: 2px solid var(--focus-ring-color);
+        outline-offset: 2px;
+    }
+
+}
+
 .dashboardItem {
     padding: 1.25rem 1rem;
     margin-bottom: 1rem;
@@ -7,6 +25,7 @@
     background: var(--bg-white);
     box-shadow: var(--card-shadow);
     border: 1px solid var(--card-border);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .dashboardItemInner {
@@ -43,6 +62,8 @@
 
 .content {
     margin-bottom: 0rem;
+  color: var(--slate-900) !important;
+  font-weight: 400;
 }
 
 .updateLink {
@@ -51,6 +72,10 @@
     font-size: var(--fs-base);
     line-height: 1;
     font-family: var(--font-sans);
+
+    &:hover {
+    color: var(--link-color) !important;    
+    }
 }
 
 .titleLink {
@@ -60,3 +85,10 @@
         text-decoration: underline;
     }
 }
+
+// Underline title when card is hovered
+.dashboardItemLink:hover .titleLink,
+.dashboardItem:hover .titleLink {
+    text-decoration: underline;
+}
+

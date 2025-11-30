@@ -25,14 +25,6 @@ const font_sans_serif = Poppins({
   variable: '--font-sans-serif',
 });
 
-export const metadata: Metadata = {
-  title: "DMPTool",
-  description: "Best practice made easier. With a free, community- supported service that makes it easier to create machine-actionable data management and sharing plans(DMSPs) that meet funder requirements and follow open science best practice.",
-  icons: {
-    icon: '/favicon.ico',
-  }
-};
-
 export default async function LocaleLayout({
   children,
   params,

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
-import { useFormatter, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 
 // GraphQL
 import {
@@ -16,28 +16,15 @@ import {
 import PageHeader from "@/components/PageHeader";
 import DashboardListItem from "@/components/DashboardListItem";
 import { ContentContainer, LayoutContainer } from "@/components/Container";
+import Loading from "@/components/Loading";
 
+// Hooks
+import { useFormatDate } from "@/hooks/useFormatDate";
 import { routePath } from "@/utils/routes";
 import styles from "./guidance.module.scss";
 
-// Types for guidance groups
-interface GuidanceGroup {
-  id: string;
-  title: string;
-  description: string;
-  lastUpdated: string;
-  lastUpdatedBy: string;
-  latestPublishedVersion?: string;
-  latestPublishedDate?: string;
-  status: string;
-  textCount: string;
-  url: string;
-}
-
 const GuidancePage: React.FC = () => {
-  const formatter = useFormatter();
-
-  const [guidanceGroups, setGuidanceGroups] = useState<GuidanceGroup[]>([]);
+  const formatDate = useFormatDate();
 
   // For translations
   const t = useTranslations("Guidance");
@@ -47,12 +34,12 @@ const GuidancePage: React.FC = () => {
   const GUIDANCE_CREATE_URL = routePath("admin.guidance.groups.create");
 
   // Run me query to get user's name
-  const { data: me } = useMeQuery();
+  const { data: me, loading: meLoading } = useMeQuery();
 
   // Query for all tags
-  const { data: tagsData } = useTagsQuery();
+  const { data: tagsData, loading: tagsLoading } = useTagsQuery();
 
-  const { data: guidanceGroupsData } = useGuidanceGroupsQuery({
+  const { data: guidanceGroupsData, loading: guidanceGroupsLoading } = useGuidanceGroupsQuery({
     variables: {
       affiliationId: me?.me?.affiliation?.uri || null
     },
@@ -60,46 +47,35 @@ const GuidancePage: React.FC = () => {
     skip: !me?.me?.affiliation?.uri // Prevent running until the me data exists
   });
 
-  const formatDate = (date: string | number) => {
-    const parsedDate = typeof date === "number" ? new Date(date) : new Date(date.replace(/-/g, "/")); // Replace dashes with slashes for compatibility
+  // Only show loading if we're actually fetching data (not skipped)
+  const isLoading = meLoading || tagsLoading || (guidanceGroupsLoading && !!me?.me?.affiliation?.uri);
 
-    if (isNaN(parsedDate.getTime())) {
-      return "Invalid Date"; // Handle invalid input gracefully
+  const guidanceGroups = useMemo(() => {
+    if (!guidanceGroupsData?.guidanceGroups.length || !tagsData?.tags.length) {
+      return [];
     }
 
-    return formatter.dateTime(parsedDate, {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+    return guidanceGroupsData.guidanceGroups.map((g) => ({
+      id: String(g.id),
+      title: g.name || 'Untitled Guidance Group',
+      lastUpdated: g.modified ? formatDate(g.modified) : "",
+      lastUpdatedBy: `${g.user?.givenName} ${g.user?.surName}`,
+      latestPublishedVersion: `${g.latestPublishedVersion}` || '',
+      latestPublishedDate: g.latestPublishedDate ? formatDate(g.latestPublishedDate) : '',
+      status: g.isDirty ? Global("draft") : Global("published"),
+      description: g.description || '',
+      textCount: `${g?.guidance?.length || 0} / ${tagsData?.tags.length || 0} Tags with Guidance`,
+      url: routePath("admin.guidance.groups.index", { groupId: String(g.id) }),
+    }));
+  }, [guidanceGroupsData, tagsData, Global, formatDate]);
 
-  useEffect(() => {
-    // Set fake data on component mount
-    //setGuidanceGroup(fakeGuidanceGroup);
-    if (guidanceGroupsData && guidanceGroupsData.guidanceGroups.length > 0) {
-
-      const transformedGuidanceGroups = guidanceGroupsData.guidanceGroups.map((g) => ({
-        id: String(g.id),
-        title: g.name || 'Untitled Guidance Group',
-        lastUpdated: g.modified ? formatDate(g.modified) : "",
-        lastUpdatedBy: `${g.user?.givenName} ${g.user?.surName}`,
-        latestPublishedVersion: `v${g.latestPublishedVersion}` || '',
-        latestPublishedDate: g.latestPublishedDate ? formatDate(g.latestPublishedDate) : '',
-        status: g.isDirty ? Global("draft") : Global("published"),
-        description: g.description || '',
-        textCount: `${g?.guidance?.length || 0} / ${tagsData?.tags.length || 0} Tags with Guidance`,
-        url: routePath("admin.guidance.groups.index", { groupId: String(g.id) }),
-      }));
-      setGuidanceGroups(transformedGuidanceGroups);
-    };
-  }, [guidanceGroupsData]);
-
+  const title = t("pages.index.title");
+  const description = t("pages.index.description");
   return (
     <>
       <PageHeader
-        title={t("pages.index.title")}
-        description={t("pages.index.description")}
+        title={title}
+        description={description}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
@@ -126,34 +102,39 @@ const GuidancePage: React.FC = () => {
 
       <LayoutContainer>
         <ContentContainer>
-          <div
-            className="guidance-list"
-            aria-label="Guidance groups list"
-            role="list"
-          >
-            {guidanceGroups?.map((group) => (
-              <DashboardListItem
-                key={group.id}
-                heading={group.title}
-                url={routePath("admin.guidance.groups.index", { groupId: Number(group.id) })}
-              >
-                <div className={styles.guidanceContent}>
-                  <p className={styles.description}>{group.description}</p>
-                  <div className={styles.metadata}>
-                    <span>
-                      {group.textCount}
-                    </span>
-                    <span className={styles.separator}>
-                      {Global('lastUpdated')}: {group.lastUpdated}
-                    </span>
-                    <span className={styles.separator}>
-                      {t("status.status")}: {group.status}
-                    </span>
+          {isLoading ? (
+            <Loading message="Loading..." />
+          ) : (
+            <div
+              className="guidance-list"
+              aria-label="Guidance groups list"
+              role="list"
+            >
+              {guidanceGroups?.map((group) => (
+                <DashboardListItem
+                  key={group.id}
+                  heading={group.title}
+                  url={routePath("admin.guidance.groups.index", { groupId: Number(group.id) })}
+                  isFullyClickable={true}
+                >
+                  <div className={styles.guidanceContent}>
+                    <p className={styles.description}>{group.description}</p>
+                    <div className={styles.metadata}>
+                      <span>
+                        {group.textCount}
+                      </span>
+                      <span className={styles.separator}>
+                        {Global('lastUpdated')}: {group.lastUpdated}
+                      </span>
+                      <span className={styles.separator}>
+                        {t("status.status")}: {group.status}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </DashboardListItem>
-            ))}
-          </div>
+                </DashboardListItem>
+              ))}
+            </div>
+          )}
         </ContentContainer>
       </LayoutContainer >
     </>

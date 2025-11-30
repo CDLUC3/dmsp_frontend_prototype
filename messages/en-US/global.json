@@ -556,10 +556,10 @@
         "createGroup": "Create guidance group"
       },
       "groupIndex": {
-        "title": "Edit {orgName} Guidance Group",
+        "title": "Edit {groupName}",
         "description": "Below are all the Tags that are applied to Questions and Sections. Add your Guidance below and it will show up on templates when that Tag is selected.",
         "createText": "Create guidance text",
-        "editGroup": "Edit group",
+        "editGroup": "Edit group information",
         "noTags": "No guidance texts found in this group"
       },
       "groupCreate": {
@@ -613,6 +613,7 @@
       }
     },
     "status": {
+      "publicationStatus": "Publication Status",
       "published": "Published",
       "draft": "Draft",
       "archived": "Archived",
@@ -644,8 +645,8 @@
         "guidanceGroupCreated": "Guidance group {groupName} successfully created",
         "guidanceGroupPublished": "Guidance group {groupName} successfully published",
         "guidanceGroupUpdated": "Guidance group {groupName} successfully updated",
-        "guidanceTextAdded": "Guidance text successfully added to group",
-        "guidanceTextUpdated": "Guidance text successfully updated"
+        "guidanceTextAdded": "Guidance text successfully added to {tagName}",
+        "guidanceTextUpdated": "Guidance text for {tagName} successfully updated"
       }
     },
     "labels": {

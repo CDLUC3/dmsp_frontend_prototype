@@ -9,7 +9,7 @@ import { useParams, useRouter } from "next/navigation";
 import {
   useGuidanceGroupQuery,
 } from '@/generated/graphql';
-import { publishGuidanceGroupAction, updateGuidanceGroupAction } from "./actions";
+import { updateGuidanceGroupAction } from "./actions";
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -38,7 +38,7 @@ interface GuidanceGroup {
 }
 
 
-type PublishGuidanceGroupErrors = {
+type UpdateGuidanceGroupErrors = {
   general?: string;
   affiliationId?: string;
   bestPractice?: string;
@@ -93,20 +93,17 @@ const GuidanceGroupEditPage: React.FC = () => {
     }
 
     if (!response.success) {
-      const errors = response.errors;
-
-      //Check if errors is an array or an object
-      if (Array.isArray(errors)) {
-        //Handle errors as an array
-        setErrorMessages(errors.length > 0 ? errors : [Global("messaging.somethingWentWrong")]);
-        logECS("error", "publishing Guidance Group", {
-          errors,
-          url: { path: routePath("admin.guidance.groups.edit") },
-        });
-      }
+      setErrorMessages(
+        response.errors?.length ? response.errors : [Global("messaging.somethingWentWrong")]
+      )
+      logECS("error", "publishing Guidance Group", {
+        errors: response.errors,
+        url: { path: routePath("admin.guidance.groups.edit") },
+      });
+      return;
     } else {
       if (response?.data?.errors) {
-        const errs = extractErrors<PublishGuidanceGroupErrors>(response?.data?.errors, ["general", "affiliationId", "bestPractice", "name", "description"]);
+        const errs = extractErrors<UpdateGuidanceGroupErrors>(response?.data?.errors, ["general", "affiliationId", "bestPractice", "name", "description"]);
 
         if (errs.length > 0) {
           setErrorMessages(errs);
@@ -120,54 +117,6 @@ const GuidanceGroupEditPage: React.FC = () => {
       const successMessage = t("messages.success.guidanceGroupUpdated", { groupName: guidanceGroup?.name });
       toastState.add(successMessage, { type: "success" });
       router.push(routePath("admin.guidance.groups.index", { groupId: guidanceGroup.guidanceGroupId }));
-    }
-  }, [guidanceGroup, Global, router]);
-
-  const handlePublish = useCallback(async () => {
-    setErrorMessages([]);
-
-    if (guidanceGroup?.guidanceGroupId === undefined) {
-      setErrorMessages(['Guidance Group ID is undefined']);
-      return;
-    }
-
-    const response = await publishGuidanceGroupAction({
-      guidanceGroupId: guidanceGroup.guidanceGroupId
-    });
-
-    if (response.redirect) {
-      router.push(response.redirect);
-      return;
-    }
-
-    if (!response.success) {
-      const errors = response.errors;
-
-      //Check if errors is an array or an object
-      if (Array.isArray(errors)) {
-        //Handle errors as an array
-        setErrorMessages(errors.length > 0 ? errors : [Global("messaging.somethingWentWrong")]);
-        logECS("error", "creating Guidance Group", {
-          errors,
-          url: { path: routePath("admin.guidance.groups.create") },
-        });
-      }
-    } else {
-      if (response?.data?.errors) {
-        const errs = extractErrors<PublishGuidanceGroupErrors>(response?.data?.errors, ["general", "affiliationId", "bestPractice", "name", "description"]);
-
-        if (errs.length > 0) {
-          setErrorMessages(errs);
-          logECS("error", "publishing Guidance Group", {
-            errors: errs,
-            url: { path: routePath("admin.guidance.groups.create") },
-          });
-        } else {
-          const successMessage = t("messages.success.guidanceGroupPublished", { groupName: guidanceGroup?.name });
-          toastState.add(successMessage, { type: "success" });
-          router.push(routePath("admin.guidance.index"));
-        }
-      }
     }
   }, [guidanceGroup, Global, router]);
 
@@ -247,44 +196,14 @@ const GuidanceGroupEditPage: React.FC = () => {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <Checkbox
-                    name="optionalSubset"
-                    id="optionalSubset"
-                    isSelected={guidanceGroup?.optionalSubset}
-                    onChange={(isSelected: boolean) => {
-                      if (guidanceGroup) {
-                        setGuidanceGroup({ ...guidanceGroup, optionalSubset: isSelected });
-                      }
-                    }}
-                    className={styles.checkboxItem}
+                  <Button
+                    type="button"
+                    onPress={handleUpdate}
+                    className="button button--primary"
                   >
-                    <div className={"checkbox"}>
-                      <svg viewBox="0 0 18 18" aria-hidden="true">
-                        <polyline points="1 9 7 14 15 4" />
-                      </svg>
-                    </div>
-                    {t('labels.optionalSubset')}
-                  </Checkbox>
-                </div>
+                    {t("actions.saveChanges")}
+                  </Button>
 
-                <div className={styles.formGroup}>
-                  {guidanceGroup?.status === "Draft" ? (
-                    <Button
-                      type="button"
-                      onPress={handlePublish}
-                      className="button button--primary"
-                    >
-                      {t("actions.publish")}
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      onPress={handleUpdate}
-                      className="button button--primary"
-                    >
-                      {t("actions.saveChanges")}
-                    </Button>
-                  )}
                 </div>
               </div>
             </div>

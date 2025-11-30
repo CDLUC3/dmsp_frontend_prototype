@@ -97,26 +97,23 @@ const GuidanceGroupCreatePage: React.FC = () => {
       return;
     }
 
-    const result = await addGuidanceGroup({
+    const response = await addGuidanceGroup({
       ...guidanceGroup,
       affiliationId,
     });
 
-    if (!result.success) {
-      const errors = result.errors;
-
-      //Check if errors is an array or an object
-      if (Array.isArray(errors)) {
-        //Handle errors as an array
-        setErrorMessages(errors.length > 0 ? errors : [Global("messaging.somethingWentWrong")]);
-        logECS("error", "creating Guidance Group", {
-          errors,
-          url: { path: routePath("admin.guidance.groups.create") },
-        });
-      }
+    if (!response.success) {
+      setErrorMessages(
+        response.errors?.length ? response.errors : [Global("messaging.somethingWentWrong")]
+      )
+      logECS("error", "creating Guidance Group", {
+        errors: response.errors,
+        url: { path: routePath("admin.guidance.groups.create") },
+      });
+      return;
     } else {
-      if (result?.data?.errors) {
-        const errs = extractErrors<AddGuidanceGroupErrors>(result?.data?.errors, ["general", "affiliationId", "bestPractice", "name"]);
+      if (response?.data?.errors) {
+        const errs = extractErrors<AddGuidanceGroupErrors>(response?.data?.errors, ["general", "affiliationId", "bestPractice", "name"]);
 
         if (errs.length > 0) {
           setErrorMessages(errs);

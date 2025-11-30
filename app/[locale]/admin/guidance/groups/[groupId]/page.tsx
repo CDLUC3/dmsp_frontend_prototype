@@ -1,47 +1,81 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useFormatter, useTranslations } from "next-intl";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Breadcrumb,
   Breadcrumbs,
   Button,
   Dialog,
   DialogTrigger,
-  Label,
   Link,
   OverlayArrow,
   Popover,
 } from "react-aria-components";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 // GraphQL
 import {
   useMeQuery,
-  useAddGuidanceMutation,
+  useGuidanceGroupQuery,
   useGuidanceByGroupQuery,
-  useUpdateGuidanceMutation,
   useTagsQuery
 } from '@/generated/graphql';
+import {
+  addGuidanceTextAction,
+  publishGuidanceGroupAction,
+  updateGuidanceAction
+} from "./actions";
 
 // Components
 import PageHeader from "@/components/PageHeader";
 import { Card, } from "@/components/Card/card";
 import TinyMCEEditor from "@/components/TinyMCEEditor";
 import { DmpIcon } from "@/components/Icons";
+import Loading from "@/components/Loading";
+import ErrorMessages from "@/components/ErrorMessages";
 
-import DashboardListItem from "@/components/DashboardListItem";
+// Hooks
+import { useFormatDate } from '@/hooks/useFormatDate';
+
+// Utils, other
 import { ContentContainer, LayoutWithPanel, SidebarPanel } from "@/components/Container";
 import { stripHtmlTags } from '@/utils/general';
 import { routePath } from "@/utils/routes";
+import { useToast } from "@/context/ToastContext";
+import logECS from "@/utils/clientLogger";
+import { extractErrors } from "@/utils/errorHandler";
+import { TagsInterface } from "@/app/types";
+
 import styles from "./guidanceGroupIndex.module.scss";
-import parentStyles from "../../guidance.module.scss";
 
 // Types for guidance texts
 interface GuidanceTag {
   id: number;
   name: string;
 }
+
+type UpdateGuidanceTextErrors = {
+  general?: string;
+  guidanceGroupId?: string;
+  guidanceText?: string;
+  tags?: string;
+};
+
+type AddGuidanceTextErrors = {
+  general?: string;
+  guidanceGroupId?: string;
+  guidanceText?: string;
+  tags?: string;
+};
+
+type PublishGuidanceGroupErrors = {
+  general?: string;
+  affiliationId?: string;
+  bestPractice?: string;
+  name?: string;
+  description?: string;
+};
 
 interface GuidanceText {
   id: string;
@@ -52,33 +86,39 @@ interface GuidanceText {
   tags: GuidanceTag[];
 }
 
-interface Tag {
-  id: number;
-  name: string;
-  description?: string;
-}
-
 interface TagGuidanceItem {
-  tag: Tag;
+  tag: TagsInterface;
   guidance: GuidanceText | null;
 }
 
 interface GuidanceGroup {
-  id: string;
+  guidanceGroupId: number;
+  name: string;
   description: string;
+  optionalSubset: boolean;
+  bestPractice?: boolean;
+  status: string;
+  lastPublishedDate: string;
 }
+
 
 const GuidanceGroupIndexPage: React.FC = () => {
   const params = useParams();
-  const groupId = String(params.groupId);
-  const formatter = useFormatter();
+  const router = useRouter();
+  const toastState = useToast();
+  const formatDate = useFormatDate();
 
+  const groupId = String(params.groupId);
+
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
+
+  const [guidanceGroup, setGuidanceGroup] = useState<GuidanceGroup>();
   const [guidanceTexts, setGuidanceTexts] = useState<GuidanceText[]>([]);
-  const [guidanceGroup, setGuidanceGroup] = useState<GuidanceGroup | null>(null);
   const [tagGuidanceList, setTagGuidanceList] = useState<TagGuidanceItem[]>([]);
   const [savingGuidanceId, setSavingGuidanceId] = useState<string | null>(null);
-  // Track text changes for tags that don't have guidance yet
-  const [pendingTextChanges, setPendingTextChanges] = useState<Map<number, string>>(new Map());
+
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
   // For translations
   const t = useTranslations("Guidance");
@@ -86,77 +126,116 @@ const GuidanceGroupIndexPage: React.FC = () => {
 
   // Set URLs
   const GROUP_EDIT_URL = routePath("admin.guidance.groups.edit", { groupId });
-  const TEXT_CREATE_URL = routePath("admin.guidance.groups.texts.create", { groupId });
 
   // Query for all tags
-  const { data: tagsData } = useTagsQuery();
+  const { data: tagsData, loading: tagsLoading } = useTagsQuery();
 
   // Run me query to get user's name
   const { data: me } = useMeQuery();
 
-  console.log("Me data:", me);
-  // Fetch Guidance Texts by Group Id
-  const { data: guidance } = useGuidanceByGroupQuery({
+  // Fetch guidance group data
+  const { data: guidanceGroupData } = useGuidanceGroupQuery({
     variables: {
-      guidanceGroupId: parseInt(groupId, 10)
+      guidanceGroupId: Number(groupId)
+    },
+    fetchPolicy: "network-only",
+  });
+
+  // Fetch Guidance Texts by Group Id
+  const { data: guidance, refetch: refetchGuidance, loading: guidanceLoading } = useGuidanceByGroupQuery({
+    variables: {
+      guidanceGroupId: Number(groupId)
     },
     fetchPolicy: "cache-and-network", // Show cached data first, then update with fresh data
   });
 
-  console.log("GuidanceByGroup data:", guidance);
-  // Mutation for updating guidance
-  const [updateGuidanceMutation] = useUpdateGuidanceMutation();
-
-  // Mutation for adding new guidance
-  const [addGuidanceMutation] = useAddGuidanceMutation();
-
-  const formatDate = (date: string | number) => {
-    const parsedDate = typeof date === "number" ? new Date(date) : new Date(date.replace(/-/g, "/")); // Replace dashes with slashes for compatibility
-
-    if (isNaN(parsedDate.getTime())) {
-      return "Invalid Date"; // Handle invalid input gracefully
-    }
-
-    return formatter.dateTime(parsedDate, {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   // Handler to update guidance text in state
   const handleGuidanceTextChange = (tagId: number, newText: string) => {
     setTagGuidanceList(prevList =>
-      prevList.map(item =>
-        item.tag.id === tagId && item.guidance
-          ? { ...item, guidance: { ...item.guidance, guidanceText: newText } }
-          : item
-      )
+      prevList.map(item => {
+        if (item.tag.id === tagId) {
+          if (item.guidance) {
+            // Update existing guidance
+            return { ...item, guidance: { ...item.guidance, guidanceText: newText } };
+          } else {
+            // Create temporary guidance object for tags without existing guidance
+            return {
+              ...item,
+              guidance: {
+                id: `temp-${tagId}`,
+                guidanceText: newText,
+                lastUpdated: '',
+                lastUpdatedBy: '',
+                url: '',
+                tags: [{ id: tagId, name: item.tag.name }],
+              }
+            };
+          }
+        }
+        return item;
+      })
     );
-
-    // Also track changes for tags without existing guidance
-    setPendingTextChanges(prev => {
-      const newMap = new Map(prev);
-      newMap.set(tagId, newText);
-      return newMap;
-    });
   };
 
-  // Handler to save individual guidance
-  const handleSaveGuidance = async (tagId: number) => {
-    const tagItem = tagGuidanceList.find(item => item.tag.id === tagId);
-    if (!tagItem) {
-      console.error("Tag item not found for tagId:", tagId);
+  const handlePublish = useCallback(async () => {
+    setErrorMessages([]);
+
+    if (guidanceGroup?.guidanceGroupId === undefined) {
+      setErrorMessages(['Guidance Group ID is undefined']);
       return;
     }
 
-    // Determine the text to save (from existing guidance or pending changes)
-    const textToSave = tagItem.guidance?.guidanceText ?? pendingTextChanges.get(tagId) ?? "";
+    const response = await publishGuidanceGroupAction({
+      guidanceGroupId: guidanceGroup.guidanceGroupId
+    });
 
-    console.log("Save attempt for tag:", tagItem.tag.name, "tagId:", tagId);
-    console.log("Text to save:", textToSave);
-    console.log("Has existing guidance:", !!tagItem.guidance);
-    console.log("Pending changes:", pendingTextChanges);
+    if (response.redirect) {
+      router.push(response.redirect);
+      return;
+    }
+
+    if (!response.success) {
+      setErrorMessages(
+        response.errors?.length ? response.errors : [Global("messaging.somethingWentWrong")]
+      )
+      logECS("error", "publishing Guidance Group", {
+        errors: response.errors,
+        url: { path: routePath("admin.guidance.groups.create") },
+      });
+      return;
+    } else {
+      if (response?.data?.errors) {
+        const errs = extractErrors<PublishGuidanceGroupErrors>(response?.data?.errors, ["general", "affiliationId", "bestPractice", "name", "description"]);
+
+        if (errs.length > 0) {
+          setErrorMessages(errs);
+          logECS("error", "publishing Guidance Group", {
+            errors: errs,
+            url: { path: routePath("admin.guidance.groups.create") },
+          });
+        } else {
+          const successMessage = t("messages.success.guidanceGroupPublished", { groupName: guidanceGroup?.name });
+          toastState.add(successMessage, { type: "success" });
+          router.push(routePath("admin.guidance.index"));
+        }
+      }
+    }
+  }, [guidanceGroup, Global, router]);
+
+  // Handler to update guidance or add new one based on the tagId
+  const handleSaveGuidance = async (tagId: number) => {
+    setErrorMessages([]);
+
+    // Find the guidance based on the tagId
+    const tagItem = tagGuidanceList.find(item => item.tag.id === tagId);
+
+    // If none exists then return
+    if (!tagItem) {
+      return;
+    }
+
+    // Get the text to save from the guidance object
+    const textToSave = tagItem.guidance?.guidanceText ?? "";
 
     // Don't save if there's no text
     if (!textToSave.trim()) {
@@ -168,101 +247,135 @@ const GuidanceGroupIndexPage: React.FC = () => {
     const savingId = tagItem.guidance?.id ?? `new-${tagId}`;
     setSavingGuidanceId(savingId);
 
-    try {
-      if (tagItem.guidance) {
-        // Update existing guidance
-        console.log("Updating existing guidance with input:", {
-          guidanceId: parseInt(tagItem.guidance.id, 10),
-          guidanceText: textToSave,
-          tags: tagItem.guidance.tags,
-        });
+    // Check if this is a real guidance (has a numeric ID) or a temporary one
+    const isExistingGuidance = tagItem.guidance && !tagItem.guidance.id.startsWith('temp-');
 
-        const result = await updateGuidanceMutation({
-          variables: {
-            input: {
-              guidanceId: parseInt(tagItem.guidance.id, 10),
-              guidanceText: textToSave,
-              tags: tagItem.guidance.tags.map(tag => ({
-                id: tag.id,
-                name: tag.name,
-              })),
-            },
-          },
-        });
+    // If guidance exists, update it; otherwise, create new guidance
+    if (isExistingGuidance && tagItem.guidance) {
+      // Don't need a try-catch block here, as the error is handled in the action
+      const response = await updateGuidanceAction({
+        guidanceId: parseInt(tagItem.guidance.id, 10),
+        guidanceText: textToSave,
+        tags: tagItem.guidance.tags.map(tag => ({
+          id: tag.id,
+          name: tag.name,
+        })),
+      });
 
-        // Check if there are actual error messages (not just null values)
-        const errors = result.data?.updateGuidance?.errors;
-        const hasActualErrors = errors && (
-          errors.general ||
-          errors.guidanceGroupId ||
-          errors.guidanceText ||
-          errors.tags
-        );
-
-        if (hasActualErrors) {
-          console.error("Error updating guidance:", errors);
-          alert(`Error saving guidance: ${errors.general || 'Unknown error'}`);
-        } else {
-          console.log("Guidance updated successfully:", result.data?.updateGuidance);
-          alert("Guidance saved successfully!");
-        }
-      } else {
-        // Create new guidance
-        const inputData = {
-          guidanceGroupId: parseInt(groupId, 10),
-          guidanceText: textToSave,
-          tags: [{
-            id: tagId,
-            name: tagItem.tag.name,
-          }],
-        };
-
-        console.log("Creating new guidance with input:", inputData);
-        console.log("GroupId (string):", groupId, "Parsed:", parseInt(groupId, 10));
-
-        const result = await addGuidanceMutation({
-          variables: {
-            input: inputData,
-          },
-          // Refetch the guidance list after adding
-          refetchQueries: ['GuidanceByGroup'],
-        });
-
-        console.log("Add guidance result:", result);
-
-        // Check if there are actual error messages (not just null values)
-        const errors = result.data?.addGuidance?.errors;
-        const hasActualErrors = errors && (
-          errors.general ||
-          errors.guidanceGroupId ||
-          errors.guidanceText ||
-          errors.tags
-        );
-
-        if (hasActualErrors) {
-          console.error("Error creating guidance:", errors);
-          console.error("Full error object:", JSON.stringify(errors, null, 2));
-          alert(`Error creating guidance: ${errors.general || 'Unknown error'}`);
-        } else {
-          console.log("Guidance created successfully:", result.data?.addGuidance);
-          alert("Guidance created successfully!");
-          // Clear the pending change for this tag
-          setPendingTextChanges(prev => {
-            const newMap = new Map(prev);
-            newMap.delete(tagId);
-            return newMap;
-          });
-        }
+      if (response.redirect) {
+        router.push(response.redirect);
+        return;
       }
-    } catch (error) {
-      console.error("Error saving guidance:", error);
-      console.error("Full error:", JSON.stringify(error, null, 2));
-      alert("An error occurred while saving guidance.");
-    } finally {
-      setSavingGuidanceId(null);
+
+      if (!response.success) {
+        setErrorMessages(
+          response.errors?.length ? response.errors : [Global("messaging.somethingWentWrong")]
+        )
+        logECS("error", "updating Guidance text", {
+          errors: response.errors,
+          url: { path: routePath("admin.guidance.groups.index", { groupId }) },
+        });
+        return;
+      } else {
+        // Check if there are any GraphQL errors
+        if (response?.data?.errors) {
+          const errs = extractErrors<UpdateGuidanceTextErrors>(response?.data?.errors, ["general", "guidanceGroupId", "guidanceText", "tags"]);
+
+          if (errs.length > 0) {
+            setErrorMessages(errs);
+            logECS("error", "updating Guidance text", {
+              errors: errs,
+              url: { path: routePath("admin.guidance.groups.index", { groupId }) },
+            });
+            return; // Don't show success if there are errors
+          }
+        }
+
+        // Success case - no errors
+        const successMessage = t("messages.success.guidanceTextUpdated", { tagName: tagItem.tag.name });
+        toastState.add(successMessage, { type: "success" });
+      }
+    } else {
+      // Create new guidance since none exists for this tag
+      // Don't need a try-catch block here, as the error is handled in the action
+      const response = await addGuidanceTextAction({
+        guidanceGroupId: Number(groupId),
+        guidanceText: textToSave,
+        tags: [{
+          id: tagId,
+          name: tagItem.tag.name,
+        }],
+      });
+
+      if (response.redirect) {
+        router.push(response.redirect);
+        return;
+      }
+
+      if (!response.success) {
+        setErrorMessages(
+          response.errors?.length ? response.errors : [Global("messaging.somethingWentWrong")]
+        )
+        logECS("error", "adding Guidance text", {
+          errors: response.errors,
+          url: { path: routePath("admin.guidance.groups.index", { groupId }) },
+        });
+        return;
+      } else {
+        // Check if there are any GraphQL errors
+        if (response?.data?.errors) {
+          const errs = extractErrors<AddGuidanceTextErrors>(response?.data?.errors, ["general", "guidanceGroupId", "guidanceText", "tags"]);
+
+          if (errs.length > 0) {
+            setErrorMessages(errs);
+            logECS("error", "adding Guidance text", {
+              errors: errs,
+              url: { path: routePath("admin.guidance.groups.index", { groupId }) },
+            });
+            return; // Don't show success if there are errors
+          }
+        }
+        // Success case - no errors
+        // Optimistically update the local state to reflect the new guidance
+        const newGuidanceId = String((response as any)?.data?.id);
+        if (newGuidanceId) {
+          const newGuidance: GuidanceText = {
+            id: newGuidanceId,
+            guidanceText: textToSave,
+            lastUpdated: '',
+            lastUpdatedBy: `${me?.me?.givenName || ""} ${me?.me?.surName || ""}`.trim(),
+            url: routePath("admin.guidance.groups.texts.edit", { groupId, textId: Number(newGuidanceId) }),
+            tags: [{ id: tagId, name: tagItem.tag.name }],
+          };
+
+          // Update guidanceTexts array
+          setGuidanceTexts(prev => [...prev, newGuidance]);
+
+          // Update tagGuidanceList to link the new guidance to this tag
+          setTagGuidanceList(prev =>
+            prev.map(item =>
+              item.tag.id === tagId
+                ? { ...item, guidance: newGuidance }
+                : item
+            )
+          );
+        }
+
+        // Refetch from server to ensure we have the latest data
+        refetchGuidance().catch(err => {
+          // Non-critical: log but don't block the UI
+          console.error("Failed to refetch guidance after adding:", err);
+        });
+
+        const successMessage = t("messages.success.guidanceTextAdded", { tagName: tagItem.tag.name });
+        toastState.add(successMessage, { type: "success" });
+      }
+
     }
+    setSavingGuidanceId(null);
   };
 
+  // Set Guidance Texts data in state when fetched
   useEffect(() => {
     if (guidance && guidance.guidanceByGroup.length > 0) {
       const transformedGuidanceTexts = guidance.guidanceByGroup.map((g) => ({
@@ -270,11 +383,10 @@ const GuidanceGroupIndexPage: React.FC = () => {
         guidanceText: g.guidanceText || "",
         lastUpdated: g.modified ? formatDate(g.modified) : "",
         lastUpdatedBy: `${g.user?.givenName} ${g.user?.surName}`,
-        url: routePath("admin.guidance.groups.texts.edit", { groupId, guidanceId: Number(g.id) }),
+        url: routePath("admin.guidance.groups.texts.edit", { groupId, textId: Number(g.id) }),
         tags: g.tags?.filter(tag => tag.id !== null).map(tag => ({ id: tag.id!, name: tag.name })) || [],
       }));
 
-      console.log("Transformed Guidance Texts:", transformedGuidanceTexts);
       setGuidanceTexts(transformedGuidanceTexts);
     }
   }, [guidance]);
@@ -282,15 +394,18 @@ const GuidanceGroupIndexPage: React.FC = () => {
   // Build the tag-guidance mapping whenever tags or guidance data changes
   useEffect(() => {
     if (tagsData?.tags && guidanceTexts) {
-      const tagGuidanceMap: TagGuidanceItem[] = tagsData.tags.map(tag => {
+      // Only include tags that have a valid numeric id to avoid runtime/type errors downstream
+      const validTags = tagsData.tags.filter((tag) => typeof tag.id === 'number');
+
+      const tagGuidanceMap: TagGuidanceItem[] = validTags.map(tag => {
         // Find the guidance that has this tag
         const matchingGuidance = guidanceTexts.find(guidance =>
-          guidance.tags.some(t => t.id === tag.id)
+          guidance.tags.some(t => t.id === (tag.id as number))
         );
 
         return {
           tag: {
-            id: tag.id!,
+            id: tag.id as number,
             name: tag.name,
             description: tag.description || undefined,
           },
@@ -298,17 +413,35 @@ const GuidanceGroupIndexPage: React.FC = () => {
         };
       });
 
-      console.log("Tag-Guidance Map:", tagGuidanceMap);
       setTagGuidanceList(tagGuidanceMap);
     }
   }, [tagsData, guidanceTexts]);
 
 
+  useEffect(() => {
+    // Set Guidance Group data in state when fetched. We need this for publishing the group
+    if (guidanceGroupData && guidanceGroupData.guidanceGroup) {
+
+      console.log("guidanceGroupData:", guidanceGroupData);
+      const transformedGuidanceGroup: GuidanceGroup = {
+        guidanceGroupId: Number(guidanceGroupData.guidanceGroup?.id),
+        name: guidanceGroupData.guidanceGroup.name || 'Untitled Guidance Group',
+        description: guidanceGroupData.guidanceGroup.description || '',
+        optionalSubset: guidanceGroupData.guidanceGroup.optionalSubset || false,
+        bestPractice: guidanceGroupData.guidanceGroup.bestPractice || false,
+        status: guidanceGroupData.guidanceGroup.latestPublishedDate ? t('status.published') : t('status.draft'),
+        lastPublishedDate: guidanceGroupData.guidanceGroup.latestPublishedDate ? formatDate(guidanceGroupData.guidanceGroup.latestPublishedDate) : '',
+      }
+
+      setGuidanceGroup(transformedGuidanceGroup);
+    };
+  }, [guidanceGroupData]);
+
   return (
     <>
       <PageHeader
-        title={t("pages.groupIndex.title", { orgName: me?.me?.affiliation?.name || "" })}
-        description={guidanceGroup?.description || t("pages.groupIndex.description")}
+        title={t("pages.groupIndex.title", { groupName: guidanceGroup?.name || "" })}
+        description={t("pages.groupIndex.description")}
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
@@ -329,84 +462,89 @@ const GuidanceGroupIndexPage: React.FC = () => {
             >
               {t("pages.groupIndex.editGroup")}
             </Link>
-            <Link
-              href={TEXT_CREATE_URL}
-              className="button-link button--primary"
-            >
-              {t("pages.groupIndex.createText")}
-            </Link>
           </>
         }
         className="page-guidance-group-index"
       />
 
+      <ErrorMessages ref={errorRef} errors={errorMessages} />
+
       <LayoutWithPanel>
         <ContentContainer>
-          <Card data-testid='guidance-card'>
-            {tagGuidanceList.map((item, index) => (
-              <div
-                key={item.tag.id}
-                className={styles.guidanceListCard}
-              >
+          {tagsLoading || guidanceLoading ? (
+            <Loading />
+          ) : (
+            <Card data-testid='guidance-card'>
+              {tagGuidanceList
+                .filter((it) => typeof it.tag.id === 'number')
+                .map((item) => {
+                  const tagId = item.tag.id as number;
+                  return (
+                    <div
+                      key={tagId}
+                      className={styles.guidanceListCard}
+                    >
 
-                <div className={styles.tagWrapper}>
-                  <h3 id={`contentLabel-${item.tag.id}`}>
-                    {item.tag.name}
-                  </h3>
-                  <DialogTrigger>
-                    <Button className="popover-btn" aria-label="Click for more info"><div className="icon info"><DmpIcon icon="info" /></div></Button>
-                    <Popover>
-                      <OverlayArrow>
-                        <svg width={12} height={12} viewBox="0 0 12 12">
-                          <path d="M0 0 L6 6 L12 0" />
-                        </svg>
-                      </OverlayArrow>
-                      <Dialog>
-                        <div className="flex-col">
-                          {stripHtmlTags(item.tag.description)}
-                        </div>
-                      </Dialog>
-                    </Popover>
-                  </DialogTrigger>
+                      <div className={styles.tagWrapper}>
+                        <h3 id={`contentLabel-${item.tag.id}`}>
+                          {item.tag.name}
+                        </h3>
+                        <DialogTrigger>
+                          <Button className="popover-btn" aria-label="Click for more info"><div className="icon info"><DmpIcon icon="info" /></div></Button>
+                          <Popover>
+                            <OverlayArrow>
+                              <svg width={12} height={12} viewBox="0 0 12 12">
+                                <path d="M0 0 L6 6 L12 0" />
+                              </svg>
+                            </OverlayArrow>
+                            <Dialog>
+                              <div className="flex-col">
+                                {stripHtmlTags(item.tag.description)}
+                              </div>
+                            </Dialog>
+                          </Popover>
+                        </DialogTrigger>
+                      </div>
+
+
+                      <div>
+                        <TinyMCEEditor
+                          content={item.guidance?.guidanceText ?? ""}
+                          setContent={(value) => handleGuidanceTextChange(tagId, value)}
+                          id={`content-${tagId}`}
+                          labelId={`contentLabel-${tagId}`}
+                        />
+                      </div>
+
+                      <div className={styles.buttonWrapper}>
+                        <Button
+                          onPress={() => handleSaveGuidance(tagId)}
+                          isDisabled={savingGuidanceId === item.guidance?.id || savingGuidanceId === `new-${tagId}`}
+                          className="button--primary"
+                        >
+                          {(savingGuidanceId === item.guidance?.id || savingGuidanceId === `new-${tagId}`)
+                            ? Global("buttons.saving") || "Saving..."
+                            : Global("buttons.save") || "Save"}
+                        </Button>
+                      </div>
+                    </div>
+                  )
+                })}
+
+              {tagGuidanceList.length === 0 && (
+                <div style={{ padding: '2rem', textAlign: 'center' }}>
+                  <p>{t("pages.groupIndex.noTags") || "No tags available."}</p>
                 </div>
-
-
-                <div>
-                  <TinyMCEEditor
-                    content={item.guidance?.guidanceText ?? pendingTextChanges.get(item.tag.id) ?? ""}
-                    setContent={(value) => handleGuidanceTextChange(item.tag.id, value)}
-                    id={`content-${item.tag.id}`}
-                    labelId={`contentLabel-${item.tag.id}`}
-                  />
-                </div>
-
-                <div className={styles.buttonWrapper}>
-                  <Button
-                    onPress={() => handleSaveGuidance(item.tag.id)}
-                    isDisabled={savingGuidanceId === item.guidance?.id || savingGuidanceId === `new-${item.tag.id}`}
-                    className="button--primary"
-                  >
-                    {(savingGuidanceId === item.guidance?.id || savingGuidanceId === `new-${item.tag.id}`)
-                      ? Global("buttons.saving") || "Saving..."
-                      : Global("buttons.save") || "Save"}
-                  </Button>
-                </div>
-              </div>
-            ))}
-
-            {tagGuidanceList.length === 0 && (
-              <div style={{ padding: '2rem', textAlign: 'center' }}>
-                <p>{t("pages.groupIndex.noTags") || "No tags available."}</p>
-              </div>
-            )}
-          </Card>
+              )}
+            </Card>
+          )}
         </ContentContainer>
         <SidebarPanel>
           <div className={`statusPanelContent sidePanel`}>
             <div className="{`buttonContainer withBorder  mb-5`}">
               <Button
                 className={styles.publishButton}
-                onPress={() => console.log("Publish clicked")}
+                onPress={handlePublish}
               >
                 {Global("buttons.publish")}
               </Button>
@@ -414,8 +552,8 @@ const GuidanceGroupIndexPage: React.FC = () => {
             <div className="sidePanelContent">
               <div className={`panelRow mb-5`}>
                 <div>
-                  <h3>Publication Status</h3>
-                  <p>Published</p>
+                  <h3>{t('status.publicationStatus')}</h3>
+                  <p>{guidanceGroup?.status}</p>
                 </div>
               </div>
             </div>
@@ -423,7 +561,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
             <div className={`panelRow mb-5`}>
               <div>
                 <h3>Last Published</h3>
-                <p>Not yet published</p>
+                <p>{guidanceGroup?.lastPublishedDate || "Not yet published"}</p>
               </div>
             </div>
           </div>

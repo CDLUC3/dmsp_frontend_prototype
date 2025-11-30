@@ -8,6 +8,12 @@
 - Hooked up the `Download plan` page and added a `download-narrative` api endpoint [#313]
 
 ### Updated
+- Guidance page updates [#934]
+  - Hooked up `admin/guidance` page that lists all the `guidance groups` and offers `Create Guidance Group` button and edit options for existing Guidance Groups [#934]
+  - Hooked up `admin/guidance/groups/create`, and created a new page for `admin/guidance/groups/[groupId]` to include guidance text for all tags in one place and to allow    
+    publishing at that level [#934]
+  - Added skeleton for loading of TinyMCEEditor. Especially needed it for the new Guidance Group Edit page, since we are loading so many at once [#934] 
+  - Updated stripHtmlTags to include replacement of `&nbsp;` [#934]
 - Made text changes to upcoming blog posts [#989]
 - For Research Outputs, updated repositories and metadata standards fields to be automatically enabled when user selects custom ones [#943]
 - Updated Licenses and Output Types to use label "Use custom list" [#943]

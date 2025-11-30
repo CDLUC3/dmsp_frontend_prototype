@@ -120,7 +120,7 @@ const routes = {
   'admin.guidance.groups.edit': '/admin/guidance/groups/:groupId/edit',
   'admin.guidance.groups.create': '/admin/guidance/groups/create',
   'admin.guidance.groups.texts.create': '/admin/guidance/groups/:groupId/create',
-  'admin.guidance.groups.texts.edit': '/admin/guidance/groups/:groupId/edit/:guidanceId',
+  'admin.guidance.groups.texts.edit': '/admin/guidance/groups/:groupId/edit/:textId',
 
   'admin.projects': '/admin/projects',
   'admin.organizationDetails': '/admin/organization-details',

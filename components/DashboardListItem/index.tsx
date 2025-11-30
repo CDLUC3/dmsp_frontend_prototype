@@ -7,13 +7,50 @@ interface DashboardListItemProps {
   heading: string;
   url: string;
   children: React.ReactNode;
+  isFullyClickable?: boolean;
 }
 
-function DashboardListItem({ heading, url, children }: DashboardListItemProps) {
+function DashboardListItem({
+  heading,
+  url,
+  children,
+  isFullyClickable = true // Make whole card clickable by default
+}: DashboardListItemProps) {
   const Global = useTranslations("Global");
 
   // Create unique ID for ARIA relationship
   const headingId = `${heading.toLowerCase().replace(/\s+/g, "-")}-heading`;
+
+  if (isFullyClickable) {
+    return (
+      <Link
+        href={url}
+        className={styles.dashboardItemLink}
+        aria-label={`${Global("links.update")} ${heading}`}
+        data-testid="dashboard-list-item"
+      >
+        <div className={styles.dashboardItem} role="listitem">
+          <div className={styles.dashboardItemInner}>
+            <div className={styles.dashboardItemContent}>
+              <h2 id={headingId}>
+                <span className={styles.titleLink}>
+                  {heading}
+                </span>
+              </h2>
+
+              <div className={styles.content}>{children}</div>
+            </div>
+
+            <div className={styles.dashboardItemActions}>
+              <span className={styles.updateLink}>
+                {Global("links.update")}
+              </span>
+            </div>
+          </div>
+        </div>
+      </Link>
+    );
+  }
 
   return (
     <div
