@@ -29,12 +29,11 @@ import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutWithPanel } from "@/components/Container";
 import TinyMCEEditor from "@/components/TinyMCEEditor";
 import { DmpIcon } from "@/components/Icons";
-import { FormInput, CheckboxGroupComponent } from "@/components/Form";
+import { CheckboxGroupComponent } from "@/components/Form";
 import ErrorMessages from "@/components/ErrorMessages";
 
 
 // Utils & other
-import { stripHtmlTags } from '@/utils/general';
 import { routePath } from "@/utils/routes";
 import { useToast } from "@/context/ToastContext";
 import logECS from "@/utils/clientLogger";
@@ -88,7 +87,7 @@ const GuidanceTextEditPage: React.FC = () => {
   const { data: tagsData } = useTagsQuery();
 
   // Query for the specified guidance text
-  const { data, loading } = useGuidanceQuery({
+  const { data } = useGuidanceQuery({
     variables: {
       guidanceId: Number(textId)
     },
@@ -209,12 +208,7 @@ const GuidanceTextEditPage: React.FC = () => {
     }
   }, [guidanceText.guidanceText, Global, router, groupId, toastState]);
 
-
-  const handlePublish = () => {
-    // TODO: Implement publish functionality
-    // console.log("Publishing guidance text:", guidanceText);
-  };
-
+  console.log("Selected Tags:", selectedTags);
   return (
     <>
       <PageHeader
@@ -237,6 +231,8 @@ const GuidanceTextEditPage: React.FC = () => {
         }
         className="page-guidance-text-edit"
       />
+
+      <ErrorMessages errors={errorMessages} ref={errorRef} />
 
       <LayoutWithPanel>
         <ContentContainer>
@@ -335,21 +331,6 @@ const GuidanceTextEditPage: React.FC = () => {
                   >
                     {t("actions.saveChanges")}
                   </Button>
-                  {/* {guidanceText.status === "Draft" ? (
-                    <Button
-                      onPress={handlePublish}
-                      className="button button--primary"
-                    >
-                      {t("actions.publish")}
-                    </Button>
-                  ) : (
-                    <Button
-                      onPress={handleSave}
-                      className="button button--primary"
-                    >
-                      {t("actions.saveChanges")}
-                    </Button>
-                  )} */}
                 </div>
               </div>
             </div>

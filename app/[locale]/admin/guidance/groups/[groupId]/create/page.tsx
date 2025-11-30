@@ -29,7 +29,6 @@ import { ContentContainer, LayoutWithPanel, SidebarPanel } from "@/components/Co
 import TinyMCEEditor from "@/components/TinyMCEEditor";
 import { DmpIcon } from "@/components/Icons";
 import {
-  FormInput,
   CheckboxGroupComponent,
   FormSelect
 } from "@/components/Form";
@@ -201,6 +200,7 @@ const GuidanceTextCreatePage: React.FC = () => {
         className="page-guidance-text-create"
       />
 
+      <ErrorMessages errors={errorMessages} ref={errorRef} />
       <LayoutWithPanel>
         <ContentContainer>
           <form className={styles.createForm}>

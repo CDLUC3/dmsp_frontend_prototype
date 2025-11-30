@@ -19,7 +19,7 @@ import {
   useMeQuery,
   useGuidanceGroupQuery,
   useGuidanceByGroupQuery,
-  useTagsQuery
+  useTagsQuery,
 } from '@/generated/graphql';
 import {
   addGuidanceTextAction,
@@ -100,6 +100,18 @@ interface GuidanceGroup {
   status: string;
   lastPublishedDate: string;
 }
+
+interface AddGuidanceResponse {
+  success: boolean;
+  data?: {
+    id: number;
+    errors?: Record<string, string>;
+    guidanceText: string;
+  }
+  errors?: string[];
+  redirect?: string;
+}
+
 
 
 const GuidanceGroupIndexPage: React.FC = () => {
@@ -337,7 +349,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
         }
         // Success case - no errors
         // Optimistically update the local state to reflect the new guidance
-        const newGuidanceId = String((response as any)?.data?.id);
+        const newGuidanceId = String((response as AddGuidanceResponse)?.data?.id);
         if (newGuidanceId) {
           const newGuidance: GuidanceText = {
             id: newGuidanceId,

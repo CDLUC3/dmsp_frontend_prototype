@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 
 import {
   useSectionQuery,
-  Section,
   Question,
 } from '@/generated/graphql';
 import { useToast } from '@/context/ToastContext';

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Breadcrumb, Breadcrumbs, Link, Button, Checkbox } from "react-aria-components";
+import { Breadcrumb, Breadcrumbs, Link, Button } from "react-aria-components";
 import { useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
 
