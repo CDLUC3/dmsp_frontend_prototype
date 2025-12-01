@@ -23,39 +23,40 @@ function DashboardListItem({
 
   if (isFullyClickable) {
     return (
-      <Link
-        href={url}
-        className={styles.dashboardItemLink}
-        aria-label={`${Global("links.update")} ${heading}`}
-        data-testid="dashboard-list-item"
-      >
-        <div className={styles.dashboardItem} role="listitem">
-          <div className={styles.dashboardItemInner}>
-            <div className={styles.dashboardItemContent}>
-              <h2 id={headingId}>
-                <span className={styles.titleLink}>
-                  {heading}
+      <li>
+        <Link
+          href={url}
+          className={styles.dashboardItemLink}
+          aria-label={`${Global("links.update")} ${heading}`}
+          data-testid="dashboard-list-item"
+        >
+          <div className={styles.dashboardItem}>
+            <div className={styles.dashboardItemInner}>
+              <div className={styles.dashboardItemContent}>
+                <h2 id={headingId}>
+                  <span className={styles.titleLink}>
+                    {heading}
+                  </span>
+                </h2>
+
+                <div className={styles.content}>{children}</div>
+              </div>
+
+              <div className={styles.dashboardItemActions}>
+                <span className={styles.updateLink}>
+                  {Global("links.update")}
                 </span>
-              </h2>
-
-              <div className={styles.content}>{children}</div>
-            </div>
-
-            <div className={styles.dashboardItemActions}>
-              <span className={styles.updateLink}>
-                {Global("links.update")}
-              </span>
+              </div>
             </div>
           </div>
-        </div>
-      </Link>
+        </Link>
+      </li>
     );
   }
 
   return (
-    <div
+    <li
       className={styles.dashboardItem}
-      role="listitem"
       data-testid="dashboard-list-item"
     >
       <div className={styles.dashboardItemInner}>
@@ -83,7 +84,7 @@ function DashboardListItem({
           </Link>
         </div>
       </div>
-    </div>
+    </li>
   );
 }
 

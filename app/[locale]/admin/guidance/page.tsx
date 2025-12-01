@@ -105,10 +105,9 @@ const GuidancePage: React.FC = () => {
           {isLoading ? (
             <Loading message="Loading..." />
           ) : (
-            <div
-              className="guidance-list"
+            <ul
+              className={styles.guidanceList}
               aria-label="Guidance groups list"
-              role="list"
             >
               {guidanceGroups?.map((group) => (
                 <DashboardListItem
@@ -133,7 +132,7 @@ const GuidancePage: React.FC = () => {
                   </div>
                 </DashboardListItem>
               ))}
-            </div>
+            </ul>
           )}
         </ContentContainer>
       </LayoutContainer >
