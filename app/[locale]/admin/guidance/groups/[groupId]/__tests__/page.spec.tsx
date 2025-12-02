@@ -34,8 +34,6 @@ import mockTagsData from "../../../__mocks__/mockTagsData.json";
 import mockGuidanceByGroupData from "../__mocks__/mockGuidanceByGroupData.json";
 import mockGuidanceGroupData from "../__mocks__/mockGuidanceGroupData.json";
 import GuidanceGroupIndexPage from "../page";
-import { mock } from "node:test";
-import { error } from "console";
 
 // Mock TinyMCEEditor to simplify content updates in tests
 jest.mock('@/components/TinyMCEEditor', () => {

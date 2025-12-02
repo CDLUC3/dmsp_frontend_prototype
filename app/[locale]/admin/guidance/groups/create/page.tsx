@@ -112,6 +112,7 @@ const GuidanceGroupCreatePage: React.FC = () => {
       });
       return;
     } else {
+      console.log("Response data:", response.data);
       if (response?.data?.errors) {
         const errs = extractErrors<AddGuidanceGroupErrors>(response?.data?.errors, ["general", "affiliationId", "bestPractice", "name"]);
 
