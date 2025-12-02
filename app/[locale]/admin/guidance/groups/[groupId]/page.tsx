@@ -577,7 +577,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
                       className={`${styles.buttonSmallDisabled} secondary`}
                       aria-disabled={true}
                       aria-describedby="unpublish-help"
-                      onPress={(e) => {
+                      onPress={() => {
                         // Block activation when disabled
                         return;
                       }}
@@ -613,7 +613,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
                       className={`${styles.buttonSmallDisabled}`}
                       aria-disabled={true}
                       aria-describedby="publish-help"
-                      onPress={(e) => {
+                      onPress={() => {
                         // Block activation when disabled
                         return;
                       }}

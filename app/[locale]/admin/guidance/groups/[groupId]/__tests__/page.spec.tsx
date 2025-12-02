@@ -37,7 +37,7 @@ import GuidanceGroupIndexPage from "../page";
 
 // Mock TinyMCEEditor to simplify content updates in tests
 jest.mock('@/components/TinyMCEEditor', () => {
-  return ({ content, setContent, id }: { content: string; setContent: (v: string) => void; id: string }) => (
+  const TinyMCEEditorMock = ({ content, setContent, id }: { content: string; setContent: (v: string) => void; id: string }) => (
     <textarea
       data-testid={`editor-${id}`}
       aria-label={`editor-${id}`}
@@ -45,6 +45,8 @@ jest.mock('@/components/TinyMCEEditor', () => {
       onChange={(e) => setContent(e.target.value)}
     />
   );
+  TinyMCEEditorMock.displayName = 'TinyMCEEditorMock';
+  return TinyMCEEditorMock;
 });
 
 jest.mock('../actions/index', () => ({

@@ -12,7 +12,7 @@ import {
 import { axe, toHaveNoViolations } from "jest-axe";
 import mockMeData from "../__mocks__/mockMeData.json";
 import mockTagsData from "../__mocks__/mockTagsData.json";
-import mockGuidanceGroupsData from "../__mocks__/mockGuidanceGroupData.json";
+import mockGuidanceGroupsData from "../__mocks__/mockGuidanceGroupsData.json";
 import GuidancePage from "../page";
 
 // Mock next-intl hooks
