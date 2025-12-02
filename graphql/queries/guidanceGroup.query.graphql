@@ -31,9 +31,15 @@ query GuidanceGroup($guidanceGroupId: Int!) {
     bestPractice
     latestPublishedVersion
     latestPublishedDate
+    isDirty
     guidance {
       guidanceText
       id
+    }
+    versionedGuidanceGroup {
+      active
+      id
+      version
     }
     optionalSubset
   }

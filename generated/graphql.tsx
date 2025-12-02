@@ -818,6 +818,8 @@ export type GuidanceGroup = {
   optionalSubset: Scalars['Boolean']['output'];
   /** User who modified the guidance group last */
   user?: Maybe<User>;
+  /** VersionedGuidanceGroups associated with this GuidanceGroup */
+  versionedGuidanceGroup?: Maybe<Array<Maybe<VersionedGuidanceGroup>>>;
 };
 
 /** A collection of errors related to the GuidanceGroup */
@@ -4806,6 +4808,13 @@ export type UpdateGuidanceGroupMutationVariables = Exact<{
 
 export type UpdateGuidanceGroupMutation = { __typename?: 'Mutation', updateGuidanceGroup: { __typename?: 'GuidanceGroup', id?: number | null, name: string, description?: string | null, bestPractice: boolean, errors?: { __typename?: 'GuidanceGroupErrors', affiliationId?: string | null, bestPractice?: string | null, general?: string | null, name?: string | null, description?: string | null } | null } };
 
+export type UnpublishGuidanceGroupMutationVariables = Exact<{
+  guidanceGroupId: Scalars['Int']['input'];
+}>;
+
+
+export type UnpublishGuidanceGroupMutation = { __typename?: 'Mutation', unpublishGuidanceGroup: { __typename?: 'GuidanceGroup', id?: number | null, name: string, errors?: { __typename?: 'GuidanceGroupErrors', affiliationId?: string | null, bestPractice?: string | null, description?: string | null, general?: string | null, name?: string | null } | null } };
+
 export type AddPlanMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
   versionedTemplateId: Scalars['Int']['input'];
@@ -5173,7 +5182,7 @@ export type GuidanceGroupQueryVariables = Exact<{
 }>;
 
 
-export type GuidanceGroupQuery = { __typename?: 'Query', guidanceGroup?: { __typename?: 'GuidanceGroup', id?: number | null, name: string, description?: string | null, bestPractice: boolean, latestPublishedVersion?: string | null, latestPublishedDate?: string | null, optionalSubset: boolean, guidance?: Array<{ __typename?: 'Guidance', guidanceText?: string | null, id?: number | null }> | null } | null };
+export type GuidanceGroupQuery = { __typename?: 'Query', guidanceGroup?: { __typename?: 'GuidanceGroup', id?: number | null, name: string, description?: string | null, bestPractice: boolean, latestPublishedVersion?: string | null, latestPublishedDate?: string | null, isDirty: boolean, optionalSubset: boolean, guidance?: Array<{ __typename?: 'Guidance', guidanceText?: string | null, id?: number | null }> | null, versionedGuidanceGroup?: Array<{ __typename?: 'VersionedGuidanceGroup', active: boolean, id?: number | null, version?: number | null } | null> | null } | null };
 
 export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -6155,6 +6164,47 @@ export function useUpdateGuidanceGroupMutation(baseOptions?: Apollo.MutationHook
 export type UpdateGuidanceGroupMutationHookResult = ReturnType<typeof useUpdateGuidanceGroupMutation>;
 export type UpdateGuidanceGroupMutationResult = Apollo.MutationResult<UpdateGuidanceGroupMutation>;
 export type UpdateGuidanceGroupMutationOptions = Apollo.BaseMutationOptions<UpdateGuidanceGroupMutation, UpdateGuidanceGroupMutationVariables>;
+export const UnpublishGuidanceGroupDocument = gql`
+    mutation UnpublishGuidanceGroup($guidanceGroupId: Int!) {
+  unpublishGuidanceGroup(guidanceGroupId: $guidanceGroupId) {
+    id
+    name
+    errors {
+      affiliationId
+      bestPractice
+      description
+      general
+      name
+    }
+  }
+}
+    `;
+export type UnpublishGuidanceGroupMutationFn = Apollo.MutationFunction<UnpublishGuidanceGroupMutation, UnpublishGuidanceGroupMutationVariables>;
+
+/**
+ * __useUnpublishGuidanceGroupMutation__
+ *
+ * To run a mutation, you first call `useUnpublishGuidanceGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUnpublishGuidanceGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [unpublishGuidanceGroupMutation, { data, loading, error }] = useUnpublishGuidanceGroupMutation({
+ *   variables: {
+ *      guidanceGroupId: // value for 'guidanceGroupId'
+ *   },
+ * });
+ */
+export function useUnpublishGuidanceGroupMutation(baseOptions?: Apollo.MutationHookOptions<UnpublishGuidanceGroupMutation, UnpublishGuidanceGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UnpublishGuidanceGroupMutation, UnpublishGuidanceGroupMutationVariables>(UnpublishGuidanceGroupDocument, options);
+      }
+export type UnpublishGuidanceGroupMutationHookResult = ReturnType<typeof useUnpublishGuidanceGroupMutation>;
+export type UnpublishGuidanceGroupMutationResult = Apollo.MutationResult<UnpublishGuidanceGroupMutation>;
+export type UnpublishGuidanceGroupMutationOptions = Apollo.BaseMutationOptions<UnpublishGuidanceGroupMutation, UnpublishGuidanceGroupMutationVariables>;
 export const AddPlanDocument = gql`
     mutation AddPlan($projectId: Int!, $versionedTemplateId: Int!) {
   addPlan(projectId: $projectId, versionedTemplateId: $versionedTemplateId) {
@@ -8358,9 +8408,15 @@ export const GuidanceGroupDocument = gql`
     bestPractice
     latestPublishedVersion
     latestPublishedDate
+    isDirty
     guidance {
       guidanceText
       id
+    }
+    versionedGuidanceGroup {
+      active
+      id
+      version
     }
     optionalSubset
   }

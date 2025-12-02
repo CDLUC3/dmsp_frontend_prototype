@@ -1,7 +1,5 @@
 @use '@/styles/responsive.scss' as r;
 
-// Removed duplicate .guidanceContent - using shared styles from parent guidance.module.scss
-
 .editGroupButton {
     @include r.device(lg) {
         margin-right: 1rem;
@@ -10,6 +8,20 @@
 
 .tagWrapper {
   display: flex;
+}
+
+.tagDescription {
+  max-height: 200px;
+  max-width: 300px;
+  overflow-y: auto;
+}
+
+.tagInfoPopover {
+  max-width: 500px;
+  section {
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
 }
 
 .publishButton {
@@ -30,4 +42,15 @@
   display: flex;
   justify-content: flex-end;
   margin: var(--space-4) 0;
+}
+
+.buttonSmallDisabled {
+  opacity: 0.5; // visually indicate disabled state because tooltip does not work with disabled button
+}
+
+.tooltip {
+  background-color: var(--gray-500);
+  color: var(--gray-50);
+  border-radius: 0.375rem;
+  font-size: var(--fs-small);
 }

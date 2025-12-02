@@ -15,7 +15,7 @@
     {
       "__typename": "Tag",
       "id": 3,
-      "name": "Data Collection",
+      "name": "Data collection",
       "description": "<ul class=\"ul1\"><li class=\"li1\"><span class=\"s2\">Outline how the data will be collected and processed. This should cover relevant standards or methods, quality assurance, and data organization.</span></li><li class=\"li1\"><span class=\"s2\">Indicate how the data will be organized during the project, mentioning, e.g., naming conventions, version control, and folder structures. Consistent, well-ordered research data will be easier to find, understand, and reuse.</span></li><li class=\"li1\"><span class=\"s2\">Explain how the consistency and quality of data collection will be controlled and documented. This may include processes such as calibration, repeat samples or measurements, standardized data capture, data entry validation, peer review of data, or representation with controlled vocabularies.</span></li><li class=\"li1\"><span class=\"s2\">See the DataOne Best Practices for&nbsp;<a href=\"https://dataoneorg.github.io/Education//bestpractices/ensure-basic-quality\"><span class=\"s3\">data quality</span></a>.</span></li></ul>"
     },
     {

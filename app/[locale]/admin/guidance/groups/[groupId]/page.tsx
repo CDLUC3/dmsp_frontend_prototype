@@ -11,6 +11,8 @@ import {
   Link,
   OverlayArrow,
   Popover,
+  Tooltip,
+  TooltipTrigger
 } from "react-aria-components";
 import { useParams, useRouter } from "next/navigation";
 
@@ -24,6 +26,7 @@ import {
 import {
   addGuidanceTextAction,
   publishGuidanceGroupAction,
+  unPublishGuidanceGroupAction,
   updateGuidanceAction
 } from "./actions";
 
@@ -45,74 +48,19 @@ import { routePath } from "@/utils/routes";
 import { useToast } from "@/context/ToastContext";
 import logECS from "@/utils/clientLogger";
 import { extractErrors } from "@/utils/errorHandler";
-import { TagsInterface } from "@/app/types";
+
+// Types
+import {
+  GuidanceGroup,
+  GuidanceText,
+  TagGuidanceItem,
+  AddGuidanceResponse,
+  UpdateGuidanceTextErrors,
+  AddGuidanceTextErrors,
+  PublishGuidanceGroupErrors
+} from "@/app/types/guidance";
 
 import styles from "./guidanceGroupIndex.module.scss";
-
-// Types for guidance texts
-interface GuidanceTag {
-  id: number;
-  name: string;
-}
-
-type UpdateGuidanceTextErrors = {
-  general?: string;
-  guidanceGroupId?: string;
-  guidanceText?: string;
-  tags?: string;
-};
-
-type AddGuidanceTextErrors = {
-  general?: string;
-  guidanceGroupId?: string;
-  guidanceText?: string;
-  tags?: string;
-};
-
-type PublishGuidanceGroupErrors = {
-  general?: string;
-  affiliationId?: string;
-  bestPractice?: string;
-  name?: string;
-  description?: string;
-};
-
-interface GuidanceText {
-  id: string;
-  guidanceText: string;
-  lastUpdated: string;
-  lastUpdatedBy: string;
-  url: string;
-  tags: GuidanceTag[];
-}
-
-interface TagGuidanceItem {
-  tag: TagsInterface;
-  guidance: GuidanceText | null;
-}
-
-interface GuidanceGroup {
-  guidanceGroupId: number;
-  name: string;
-  description: string;
-  optionalSubset: boolean;
-  bestPractice?: boolean;
-  status: string;
-  lastPublishedDate: string;
-}
-
-interface AddGuidanceResponse {
-  success: boolean;
-  data?: {
-    id: number;
-    errors?: Record<string, string>;
-    guidanceText: string;
-  }
-  errors?: string[];
-  redirect?: string;
-}
-
-
 
 const GuidanceGroupIndexPage: React.FC = () => {
   const params = useParams();
@@ -125,6 +73,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
 
+  // States for guidance group and texts
   const [guidanceGroup, setGuidanceGroup] = useState<GuidanceGroup>();
   const [guidanceTexts, setGuidanceTexts] = useState<GuidanceText[]>([]);
   const [tagGuidanceList, setTagGuidanceList] = useState<TagGuidanceItem[]>([]);
@@ -150,15 +99,15 @@ const GuidanceGroupIndexPage: React.FC = () => {
     variables: {
       guidanceGroupId: Number(groupId)
     },
-    fetchPolicy: "network-only",
+    fetchPolicy: "cache-and-network",
   });
 
   // Fetch Guidance Texts by Group Id
-  const { data: guidance, refetch: refetchGuidance, loading: guidanceLoading } = useGuidanceByGroupQuery({
+  const { data: guidance, loading: guidanceLoading } = useGuidanceByGroupQuery({
     variables: {
       guidanceGroupId: Number(groupId)
     },
-    fetchPolicy: "cache-and-network", // Show cached data first, then update with fresh data
+    fetchPolicy: "cache-and-network",
   });
 
   // Handler to update guidance text in state
@@ -188,6 +137,52 @@ const GuidanceGroupIndexPage: React.FC = () => {
       })
     );
   };
+
+  const handleUnpublish = useCallback(async () => {
+    setErrorMessages([]);
+
+    if (guidanceGroup?.guidanceGroupId === undefined) {
+      setErrorMessages(['Guidance Group ID is undefined']);
+      return;
+    }
+
+    const response = await unPublishGuidanceGroupAction({
+      guidanceGroupId: guidanceGroup.guidanceGroupId
+    });
+
+    if (response.redirect) {
+      router.push(response.redirect);
+      return;
+    }
+
+    if (!response.success) {
+      setErrorMessages(
+        response.errors?.length ? response.errors : [Global("messaging.somethingWentWrong")]
+      )
+      logECS("error", "Unpublishing Guidance Group", {
+        errors: response.errors,
+        url: { path: routePath("admin.guidance.groups.create") },
+      });
+      return;
+    } else {
+      if (response?.data?.errors) {
+        const errs = extractErrors<PublishGuidanceGroupErrors>(response?.data?.errors, ["general", "affiliationId", "bestPractice", "name", "description"]);
+
+        if (errs.length > 0) {
+          setErrorMessages(errs);
+          logECS("error", "Unpublishing Guidance Group", {
+            errors: errs,
+            url: { path: routePath("admin.guidance.groups.create") },
+          });
+        } else {
+          const successMessage = t("messages.success.guidanceGroupUnpublished", { groupName: guidanceGroup?.name });
+          toastState.add(successMessage, { type: "success" });
+          router.push(routePath("admin.guidance.index"));
+        }
+      }
+    }
+  }, [guidanceGroup, Global, router]);
+
 
   const handlePublish = useCallback(async () => {
     setErrorMessages([]);
@@ -306,6 +301,11 @@ const GuidanceGroupIndexPage: React.FC = () => {
         // Success case - no errors
         const successMessage = t("messages.success.guidanceTextUpdated", { tagName: tagItem.tag.name });
         toastState.add(successMessage, { type: "success" });
+
+        // Optimistically update guidance group status if it was previously published
+        setGuidanceGroup(prev => prev && prev.status === t('status.published')
+          ? { ...prev, status: t('status.unpublishedChanges') }
+          : prev);
       }
     } else {
       // Create new guidance since none exists for this tag
@@ -373,11 +373,10 @@ const GuidanceGroupIndexPage: React.FC = () => {
           );
         }
 
-        // Refetch from server to ensure we have the latest data
-        refetchGuidance().catch(err => {
-          // Non-critical: log but don't block the UI
-          console.error("Failed to refetch guidance after adding:", err);
-        });
+        // Optimistically update guidance group status if it was previously published
+        setGuidanceGroup(prev => prev && prev.status === t('status.published')
+          ? { ...prev, status: t('status.unpublishedChanges') }
+          : prev);
 
         const successMessage = t("messages.success.guidanceTextAdded", { tagName: tagItem.tag.name });
         toastState.add(successMessage, { type: "success" });
@@ -434,20 +433,35 @@ const GuidanceGroupIndexPage: React.FC = () => {
     // Set Guidance Group data in state when fetched. We need this for publishing the group
     if (guidanceGroupData && guidanceGroupData.guidanceGroup) {
 
-      console.log("guidanceGroupData:", guidanceGroupData);
+      // Get the latest version and check if it's active
+      const latestVersion = guidanceGroupData.guidanceGroup.versionedGuidanceGroup?.[0];
+      const isLatestVersionActive = latestVersion?.active ?? false;
+
+      // Publish status is determined based on isDirty and latestPublishedDate, and on whether the latest version of versionedGuidanceGroup is active
+      const currentStatus = guidanceGroupData.guidanceGroup.isDirty && guidanceGroupData.guidanceGroup.latestPublishedDate
+        ? t('status.unpublishedChanges') // Unpublished changes
+        : !guidanceGroupData.guidanceGroup.latestPublishedDate || !isLatestVersionActive
+          ? t('status.draft')
+          : t('status.published');
+
       const transformedGuidanceGroup: GuidanceGroup = {
         guidanceGroupId: Number(guidanceGroupData.guidanceGroup?.id),
         name: guidanceGroupData.guidanceGroup.name || 'Untitled Guidance Group',
         description: guidanceGroupData.guidanceGroup.description || '',
         optionalSubset: guidanceGroupData.guidanceGroup.optionalSubset || false,
         bestPractice: guidanceGroupData.guidanceGroup.bestPractice || false,
-        status: guidanceGroupData.guidanceGroup.latestPublishedDate ? t('status.published') : t('status.draft'),
+        status: currentStatus,
         lastPublishedDate: guidanceGroupData.guidanceGroup.latestPublishedDate ? formatDate(guidanceGroupData.guidanceGroup.latestPublishedDate) : '',
       }
 
       setGuidanceGroup(transformedGuidanceGroup);
     };
   }, [guidanceGroupData]);
+
+  const isUnpublishUnavailable =
+    !guidanceGroup || guidanceGroup.status === t('status.draft');
+
+  const isPublishUnavailable = !guidanceGroup || guidanceGroup.status === t('status.published');
 
   return (
     <>
@@ -498,19 +512,20 @@ const GuidanceGroupIndexPage: React.FC = () => {
                     >
 
                       <div className={styles.tagWrapper}>
-                        <h3 id={`contentLabel-${item.tag.id}`}>
+                        <h2 id={`contentLabel-${item.tag.id}`} className="h3">
                           {item.tag.name}
-                        </h3>
+                        </h2>
+                        {/*Display tooltip to user when they click the info icon*/}
                         <DialogTrigger>
                           <Button className="popover-btn" aria-label="Click for more info"><div className="icon info"><DmpIcon icon="info" /></div></Button>
-                          <Popover>
+                          <Popover className={`${styles.tagInfoPopover} react-aria-Popover`}>
                             <OverlayArrow>
                               <svg width={12} height={12} viewBox="0 0 12 12">
                                 <path d="M0 0 L6 6 L12 0" />
                               </svg>
                             </OverlayArrow>
                             <Dialog>
-                              <div className="flex-col">
+                              <div className={styles.tagDescription}>
                                 {stripHtmlTags(item.tag.description)}
                               </div>
                             </Dialog>
@@ -553,13 +568,77 @@ const GuidanceGroupIndexPage: React.FC = () => {
         </ContentContainer>
         <SidebarPanel>
           <div className={`statusPanelContent sidePanel`}>
-            <div className="{`buttonContainer withBorder  mb-5`}">
-              <Button
-                className={styles.publishButton}
-                onPress={handlePublish}
-              >
-                {Global("buttons.publish")}
-              </Button>
+            <div className="button-container withBorder  mb-5">
+              {/*Unpublish Button*/}
+              {(isUnpublishUnavailable) ? (
+                <>
+                  <TooltipTrigger delay={0}>
+                    <Button
+                      className={`${styles.buttonSmallDisabled} secondary`}
+                      aria-disabled={true}
+                      aria-describedby="unpublish-help"
+                      onPress={(e) => {
+                        // Block activation when disabled
+                        return;
+                      }}
+                    >
+                      {Global("buttons.unpublish")}
+                    </Button>
+                    <Tooltip
+                      placement="bottom"
+                      className={`${styles.tooltip} py-2 px-2`}
+                    >
+                      {t('messages.unPublishBtnTooltipMessage')}
+                    </Tooltip>
+                  </TooltipTrigger>
+                  {/* Persistent description for screen readers */}
+                  <span id="unpublish-help" className="hidden-accessibly">
+                    {t('messages.unPublishBtnTooltipMessage')}
+                  </span>
+                </>
+              ) : (
+                <Button
+                  onPress={handleUnpublish}
+                  className="secondary"
+                >
+                  {Global("buttons.unpublish")}
+                </Button>
+              )}
+
+              {/*Publish Button*/}
+              {(isPublishUnavailable) ? (
+                <>
+                  <TooltipTrigger delay={0}>
+                    <Button
+                      className={`${styles.buttonSmallDisabled}`}
+                      aria-disabled={true}
+                      aria-describedby="publish-help"
+                      onPress={(e) => {
+                        // Block activation when disabled
+                        return;
+                      }}
+                    >
+                      {Global("buttons.publish")}
+                    </Button>
+                    <Tooltip
+                      placement="bottom"
+                      className={`${styles.tooltip} py-2 px-2`}
+                    >
+                      {t('messages.publishBtnTooltipMessage')}
+                    </Tooltip>
+                  </TooltipTrigger>
+                  {/* Persistent description for screen readers */}
+                  <span id="publish-help" className="hidden-accessibly">
+                    {t('messages.publishBtnTooltipMessage')}
+                  </span>
+                </>
+              ) : (
+                <Button
+                  onPress={handlePublish}
+                >
+                  {Global("buttons.publish")}
+                </Button>
+              )}
             </div>
             <div className="sidePanelContent">
               <div className={`panelRow mb-5`}>
@@ -572,8 +651,8 @@ const GuidanceGroupIndexPage: React.FC = () => {
 
             <div className={`panelRow mb-5`}>
               <div>
-                <h3>Last Published</h3>
-                <p>{guidanceGroup?.lastPublishedDate || "Not yet published"}</p>
+                <h3>{t('status.lastPublished')}</h3>
+                <p>{guidanceGroup?.lastPublishedDate || t('status.notYetPublished')}</p>
               </div>
             </div>
           </div>

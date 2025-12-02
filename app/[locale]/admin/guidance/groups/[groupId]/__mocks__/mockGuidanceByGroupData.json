@@ -1,0 +1,56 @@
+{
+  "guidanceByGroup": [
+    {
+      "__typename": "Guidance",
+      "user": {
+        "__typename": "User",
+        "givenName": "Super",
+        "surName": "Admin",
+        "id": 1
+      },
+      "guidanceText": "<p>This is the guidance for storage &amp; security</p>",
+      "id": 976,
+      "tags": [
+        {
+          "__typename": "Tag",
+          "id": 1,
+          "name": "Storage & security"
+        }
+      ],
+      "errors": {
+        "__typename": "GuidanceErrors",
+        "general": null,
+        "tags": null,
+        "guidanceText": null,
+        "guidanceGroupId": null
+      },
+      "modified": "2025-12-01 19:58:23"
+    },
+    {
+      "__typename": "Guidance",
+      "user": {
+        "__typename": "User",
+        "givenName": "Super",
+        "surName": "Admin",
+        "id": 1
+      },
+      "guidanceText": "<p>This is the guidance for Preservation</p>",
+      "id": 977,
+      "tags": [
+        {
+          "__typename": "Tag",
+          "id": 2,
+          "name": "Preservation"
+        }
+      ],
+      "errors": {
+        "__typename": "GuidanceErrors",
+        "general": null,
+        "tags": null,
+        "guidanceText": null,
+        "guidanceGroupId": null
+      },
+      "modified": "2025-12-01 20:00:36"
+    }
+  ]
+}

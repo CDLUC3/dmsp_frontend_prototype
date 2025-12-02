@@ -614,11 +614,14 @@
     },
     "status": {
       "publicationStatus": "Publication Status",
+      "lastPublished": "Last Published",
+      "notYetPublished": "Not yet published",
       "published": "Published",
       "draft": "Draft",
       "archived": "Archived",
       "lastUpdated": "Last Updated",
       "status": "Status",
+      "unpublishedChanges": "Unpublished changes",
       "publishedVersion": "Published Version"
     },
     "actions": {
@@ -641,12 +644,15 @@
       "noGroups": "No guidance groups found",
       "noTexts": "No guidance texts found in this group",
       "loadingPleaseWait": "Loading, please wait...",
+      "unPublishBtnTooltipMessage": "Cannot unpublish guidance group because there are no published versions.",
+      "publishBtnTooltipMessage": "Guidance group is already published.",
       "success": {
         "guidanceGroupCreated": "Guidance group {groupName} successfully created",
         "guidanceGroupPublished": "Guidance group {groupName} successfully published",
+        "guidanceGroupUnpublished": "Guidance group {groupName} successfully unpublished",
         "guidanceGroupUpdated": "Guidance group {groupName} successfully updated",
-        "guidanceTextAdded": "Guidance text successfully added to {tagName}",
-        "guidanceTextUpdated": "Guidance text for {tagName} successfully updated"
+        "guidanceTextAdded": "Guidance text successfully added to {tagName}. The change(s) need to be published to take effect.",
+        "guidanceTextUpdated": "Guidance text for {tagName} successfully updated. The change(s) need to be published to take effect."
       }
     },
     "labels": {
@@ -731,6 +737,8 @@
       "delete": "Delete",
       "preview": "Preview",
       "publish": "Publish",
+      "publishChanges": "Publish changes",
+      "unpublish": "Unpublish",
       "close": "Close",
       "closeModal": "Close modal",
       "loadMore": "Load more",

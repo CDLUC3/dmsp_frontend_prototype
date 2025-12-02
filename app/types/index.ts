@@ -5,6 +5,7 @@ import { CalendarDate } from "@internationalized/date";
 
 // Re-export types from questionAdd module
 export * from './questionAdd';
+export * from './guidance';
 
 export interface EmailInterface {
   id?: number | null;

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Editor as TinyMCEEditorType } from 'tinymce';
 import { loadTinymceScript } from '@/utils/loadTinyMCE';
 import EditorSkeleton from './EditorSkeleton';
+import { createEditorConfig } from './tinyMCEConfig';
 import styles from './tinyMCEEditor.module.scss';
 
 // We need to reference "window.tinymce" but TypeScript doesn't know about it.
@@ -37,52 +38,16 @@ const TinyMCEEditor = ({ content, setContent, onChange, error, id, labelId, help
       await loadTinymceScript();
 
       // Make sure previous instance is removed
-      window.tinymce.remove(`#${elementId}`);
+      if (window.tinymce) {
+        window.tinymce.remove(`#${elementId}`);
+      }
 
-      // Initialize new editor
+      // Create configuration using shared config
+      const editorConfig = createEditorConfig(elementId, content, setContent, onChange);
+
+      // Initialize new editor with callback to set ref and ready state
       window.tinymce.init({
-        license_key: 'gpl',
-        promotion: false,// Removes TinyMCE promotional link
-        branding: false, // removed the tinyMCE branding
-        statusbar: false, //removes the bottom status bar
-        link_title: false, // Disable automatic link title generation in Insert Link window
-        selector: `#${elementId}`,
-        base_url: '/tinymce', // Base URL for TinyMCE assets
-        suffix: '.min', // Use the minified version
-        menubar: false,
-        max_height: 400,
-        min_height: 100,
-        popup_container: 'body',
-        plugins: [
-          'autoresize',
-          'table',
-          'lists',
-          'link'
-        ],
-        toolbar: 'formatselect | bold italic forecolor backcolor | ' +
-          'alignleft aligncenter alignright | ' +
-          'bullist numlist | ' +
-          'link unlink | table',
-        default_link_target: '_blank',
-        link_target_list: [
-          { title: 'New window', value: '_blank' },
-          { title: 'Current window', value: '_self' },
-        ],
-        content_style: `
-          @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-          body { font-family: "Poppins", sans-serif; color:#393939;};
-          `,
-        setup: (editor: TinyMCEEditorType) => {
-          editor.on('Change KeyUp Input Blur', () => {
-            setContent(editor.getContent());
-            onChange?.();
-            // Close all remaining open menus when content changes. 
-            const openMenus = document.querySelectorAll('.tox-pop, .tox-menu, .tox-toolbar__overflow');
-            openMenus.forEach(menu => {
-              (menu as HTMLElement).style.display = 'none';
-            });
-          });
-        },
+        ...editorConfig,
         init_instance_callback: (editor: TinyMCEEditorType) => {
           editorRef.current = editor;
           editor.setContent(content);

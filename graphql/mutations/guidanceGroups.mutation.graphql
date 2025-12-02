@@ -40,3 +40,18 @@ mutation UpdateGuidanceGroup($input: UpdateGuidanceGroupInput!) {
     }
   }
 }
+
+
+mutation UnpublishGuidanceGroup($guidanceGroupId: Int!) {
+  unpublishGuidanceGroup(guidanceGroupId: $guidanceGroupId) {
+    id
+    name
+    errors {
+      affiliationId
+      bestPractice
+      description
+      general
+      name
+    }
+  }
+}
