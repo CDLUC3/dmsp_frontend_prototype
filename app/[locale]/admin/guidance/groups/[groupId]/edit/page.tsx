@@ -22,6 +22,7 @@ import logECS from "@/utils/clientLogger";
 import { routePath } from "@/utils/routes";
 import { extractErrors } from "@/utils/errorHandler";
 import { useToast } from "@/context/ToastContext";
+import Loading from "@/components/Loading";
 import styles from "./guidanceGroupEdit.module.scss";
 
 enum GuidanceStatus {
@@ -36,7 +37,6 @@ interface GuidanceGroup {
   bestPractice?: boolean;
   status?: GuidanceStatus;
 }
-
 
 type UpdateGuidanceGroupErrors = {
   general?: string;
@@ -64,7 +64,7 @@ const GuidanceGroupEditPage: React.FC = () => {
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
   // Fetch guidance group data
-  const { data: guidanceGroupData } = useGuidanceGroupQuery({
+  const { data: guidanceGroupData, loading } = useGuidanceGroupQuery({
     variables: {
       guidanceGroupId: parseInt(groupId, 10)
     },
@@ -98,7 +98,7 @@ const GuidanceGroupEditPage: React.FC = () => {
       )
       logECS("error", "publishing Guidance Group", {
         errors: response.errors,
-        url: { path: routePath("admin.guidance.groups.edit") },
+        url: { path: routePath("admin.guidance.groups.edit", { groupId: guidanceGroup.guidanceGroupId }) },
       });
       return;
     } else {
@@ -109,7 +109,7 @@ const GuidanceGroupEditPage: React.FC = () => {
           setErrorMessages(errs);
           logECS("error", "publishing Guidance Group", {
             errors: errs,
-            url: { path: routePath("admin.guidance.groups.edit") },
+            url: { path: routePath("admin.guidance.groups.edit", { groupId: guidanceGroup.guidanceGroupId }) },
           });
           return; // Don't proceed to success message if there are errors
         }
@@ -137,6 +137,9 @@ const GuidanceGroupEditPage: React.FC = () => {
     };
   }, [guidanceGroupData]);
 
+  if (loading) {
+    return <Loading />;
+  }
   return (
     <>
       <PageHeader

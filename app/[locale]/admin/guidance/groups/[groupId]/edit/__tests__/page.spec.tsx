@@ -1,112 +1,284 @@
 import React from "react";
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, waitForElementToBeRemoved } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { axe, toHaveNoViolations } from "jest-axe";
-
 import GuidanceGroupEditPage from "../page";
+import logECS from "@/utils/clientLogger";
+import { useTranslations } from "next-intl";
+import { MockedProvider } from "@apollo/client/testing";
+import { useParams, useRouter } from "next/navigation";
+import { GuidanceGroupDocument } from "@/generated/graphql";
+import { updateGuidanceGroupAction } from "../actions";
+import { useToast } from "@/context/ToastContext";
+// Use a minimal mock aligned to GuidanceGroupDocument's shape
 
-// Mock Next.js navigation
-jest.mock("next/navigation", () => ({
-  useParams: () => ({
-    groupId: "1",
-  }),
-  useRouter: () => ({
-    back: jest.fn(),
-    push: jest.fn(),
-    replace: jest.fn(),
-    refresh: jest.fn(),
-  }),
-}));
-
+// Extend jest-axe
 expect.extend(toHaveNoViolations);
 
+// Mocks
+jest.mock("next/navigation", () => ({
+  useRouter: jest.fn(),
+  useParams: jest.fn(),
+}));
+
+jest.mock("next-intl", () => ({
+  useTranslations: jest.fn(),
+}));
+
+// Do NOT mock generated GraphQL when using MockedProvider
+
+jest.mock("../actions", () => ({
+  updateGuidanceGroupAction: jest.fn(),
+}));
+
+jest.mock("@/context/ToastContext", () => ({
+  useToast: jest.fn(),
+}));
+
+jest.mock("@/utils/clientLogger", () => jest.fn());
+
+const mockRouter = { push: jest.fn(), replace: jest.fn(), refresh: jest.fn(), back: jest.fn() };
+const mockToast = { add: jest.fn() };
+
+
+const mocks = [
+  {
+    request: {
+      query: GuidanceGroupDocument,
+      variables: { guidanceGroupId: 2397 },
+    },
+    result: {
+      data: {
+        guidanceGroup: {
+          __typename: "GuidanceGroup",
+          id: 2397,
+          name: "Existing Guidance Group",
+          description: "Existing description",
+          optionalSubset: false,
+          bestPractice: false,
+          latestPublishedDate: null,
+          latestPublishedVersion: null,
+          isDirty: false,
+          versionedGuidanceGroup: null,
+          guidance: [],
+        },
+      },
+    },
+  },
+];
 describe("GuidanceGroupEditPage", () => {
   beforeEach(() => {
+    // General DOM mocks
     window.scrollTo = jest.fn();
+    HTMLElement.prototype.scrollIntoView = jest.fn();
+
+    // Params: groupId
+    (useParams as jest.Mock).mockReturnValue({ groupId: 2397 });
+
+    // Router
+    (useRouter as jest.Mock).mockReturnValue(mockRouter);
+
+    // Translations: return namespace.key
+    (useTranslations as jest.Mock).mockImplementation((ns: string) => (key: string) => `${ns}.${key}`);
+
+    // Toast
+    (useToast as jest.Mock).mockReturnValue(mockToast);
+
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it("should render the form with group name input", () => {
-    render(<GuidanceGroupEditPage />);
+  const getNameInput = () => screen.getByLabelText("Guidance.fields.groupName.label") as HTMLInputElement;
+  const getDescriptionInput = () => screen.getByLabelText("Guidance.fields.groupDescription.label") as HTMLInputElement;
 
-    const nameInput = screen.getByLabelText("fields.groupName.label") as HTMLInputElement;
-    expect(nameInput).toBeInTheDocument();
-    expect(nameInput).toHaveValue();
-    expect(nameInput.value.length).toBeGreaterThan(0);
-  });
+  it("should render form with loaded guidance group data", async () => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidanceGroupEditPage />
+      </MockedProvider>,
+    );
 
-  it("should render the settings section", () => {
-    render(<GuidanceGroupEditPage />);
-
-    expect(screen.getByText("fields.settings.label")).toBeInTheDocument();
-  });
-
-  it("should render settings checkboxes with current states", () => {
-    render(<GuidanceGroupEditPage />);
-
-    const checkboxes = screen.getAllByRole("checkbox") as HTMLInputElement[];
-    expect(checkboxes.length).toBeGreaterThan(0);
-
-    // Check that some checkboxes have different states (some checked, some not)
-    const checkedBoxes = checkboxes.filter((cb) => cb.checked);
-    const uncheckedBoxes = checkboxes.filter((cb) => !cb.checked);
-    expect(checkedBoxes.length).toBeGreaterThan(0);
-    expect(uncheckedBoxes.length).toBeGreaterThan(0);
-  });
-
-  it("should have form element present", () => {
-    render(<GuidanceGroupEditPage />);
-
-    const form = document.querySelector("form");
-    expect(form).toBeInTheDocument();
-  });
-
-  it("should handle group name input changes", () => {
-    render(<GuidanceGroupEditPage />);
-
-    const nameInput = screen.getByLabelText("fields.groupName.label") as HTMLInputElement;
-    fireEvent.change(nameInput, { target: { value: "Updated Group Name" } });
-
-    expect(nameInput.value).toBe("Updated Group Name");
-  });
-
-  it("should handle checkbox interactions", () => {
-    render(<GuidanceGroupEditPage />);
-
-    const checkboxes = screen.getAllByRole("checkbox") as HTMLInputElement[];
-    const firstCheckbox = checkboxes[0];
-
-    fireEvent.click(firstCheckbox);
-    // Just verify the click doesn't cause errors
-    expect(firstCheckbox).toBeInTheDocument();
-  });
-
-  it("should render setting descriptions", () => {
-    render(<GuidanceGroupEditPage />);
-
-
-    // Check that setting descriptions are rendered inline within checkbox labels
-    // Based on the HTML structure, descriptions are shown in parentheses after the setting names
-    expect(screen.getByText(/e\.g\. School\/ Department/)).toBeInTheDocument();
-    expect(screen.getByText(/for optimal guidance creation/)).toBeInTheDocument();
-    expect(screen.getByText(/for enhanced readability/)).toBeInTheDocument();
-
-    // Alternative approach: Check for the complete label text including descriptions
-    expect(screen.getByText(/Optional subset.*\(.*e\.g\. School\/ Department.*\)/)).toBeInTheDocument();
-    expect(screen.getByText(/Requires coffee.*\(.*for optimal guidance creation.*\)/)).toBeInTheDocument();
-    expect(screen.getByText(/Includes emojis.*\(.*for enhanced readability.*\)/)).toBeInTheDocument();
-  });
-
-  it("should pass accessibility tests", async () => {
-    const { container } = render(<GuidanceGroupEditPage />);
-
+    // Wait for heading to appear indicating data rendered
     await waitFor(() => {
-      expect(screen.getByLabelText("fields.groupName.label")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Guidance.pages.groupEdit.title" })).toBeInTheDocument();
     });
 
+    expect(screen.getByRole("heading", { name: "Guidance.pages.groupEdit.title" })).toBeInTheDocument();
+    expect(screen.getByText("Guidance.pages.groupEdit.description")).toBeInTheDocument();
+    expect(screen.getByLabelText("Guidance.fields.groupName.label")).toBeInTheDocument();
+    expect(screen.getByLabelText("Guidance.fields.groupDescription.label")).toBeInTheDocument();
+    const nameInput = getNameInput();
+    const descriptionInput = getDescriptionInput();
+    expect(nameInput.value).toBe("Existing Guidance Group");
+    expect(descriptionInput.value).toBe("Existing description");
+    expect(screen.getByRole("button", { name: "Guidance.actions.saveChanges" })).toBeInTheDocument();
+  });
+
+  it("should update group name input value", async () => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidanceGroupEditPage />
+      </MockedProvider>,
+    );
+
+    // Wait for heading to appear indicating data rendered
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Guidance.pages.groupEdit.title" })).toBeInTheDocument();
+    });
+
+    const nameInput = getNameInput();
+    expect(nameInput).toBeInTheDocument();
+    fireEvent.change(nameInput, { target: { value: "Updated Name" } });
+    expect(nameInput.value).toBe("Updated Name");
+  });
+
+  it("should update group description input value", async () => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidanceGroupEditPage />
+      </MockedProvider>,
+    );
+
+    // Wait for heading to appear indicating data rendered
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Guidance.pages.groupEdit.title" })).toBeInTheDocument();
+    });
+
+    const descriptionInput = getDescriptionInput();
+    expect(descriptionInput).toBeInTheDocument();
+    fireEvent.change(descriptionInput, { target: { value: "Updated description" } });
+    expect(descriptionInput.value).toBe("Updated description");
+  });
+
+  it("should handle successful update with toast and redirect", async () => {
+    (updateGuidanceGroupAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: { id: 2397, errors: {} },
+      redirect: undefined,
+    });
+
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidanceGroupEditPage />
+      </MockedProvider>,
+    );
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Guidance.pages.groupEdit.title" })).toBeInTheDocument();
+    });
+    const nameInput = getNameInput();
+    fireEvent.change(nameInput, { target: { value: "Changed Name" } });
+    const saveButton = screen.getByRole("button", { name: "Guidance.actions.saveChanges" });
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(updateGuidanceGroupAction).toHaveBeenCalledTimes(1);
+      expect(updateGuidanceGroupAction).toHaveBeenCalledWith({
+        guidanceGroupId: 2397,
+        name: "Changed Name",
+        description: "Existing description",
+        optionalSubset: false,
+        bestPractice: false,
+      });
+      expect(mockToast.add).toHaveBeenCalledWith("Guidance.messages.success.guidanceGroupUpdated", { type: "success" });
+      expect(mockRouter.push).toHaveBeenCalled();
+    });
+  });
+
+  it("should show errors when update action fails (success false)", async () => {
+    (updateGuidanceGroupAction as jest.Mock).mockResolvedValue({
+      success: false,
+      errors: ["Name already exists."],
+    });
+
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidanceGroupEditPage />
+      </MockedProvider>,
+    );
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Guidance.pages.groupEdit.title" })).toBeInTheDocument();
+    });
+
+    const saveButton = screen.getByRole("button", { name: "Guidance.actions.saveChanges" });
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(screen.getByText("Name already exists.")).toBeInTheDocument();
+      expect(logECS).toHaveBeenCalledWith(
+        "error",
+        "publishing Guidance Group",
+        expect.objectContaining({ errors: expect.anything(), url: expect.objectContaining({ path: expect.any(String) }) })
+      );
+    });
+  });
+
+  it("should show field-level errors when returned in data.errors", async () => {
+    (updateGuidanceGroupAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: { id: 2397, errors: { general: "There was a general error" } },
+      redirect: undefined,
+    });
+
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidanceGroupEditPage />
+      </MockedProvider>,
+    );
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Guidance.pages.groupEdit.title" })).toBeInTheDocument();
+    });
+
+    const saveButton = screen.getByRole("button", { name: "Guidance.actions.saveChanges" });
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(screen.getByText("There was a general error")).toBeInTheDocument();
+      expect(logECS).toHaveBeenCalledWith(
+        "error",
+        "publishing Guidance Group",
+        expect.objectContaining({ errors: expect.anything(), url: expect.objectContaining({ path: expect.any(String) }) })
+      );
+      expect(mockToast.add).not.toHaveBeenCalled();
+    });
+  });
+
+  it("should redirect if update action returns redirect", async () => {
+    (updateGuidanceGroupAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: { id: 2397, errors: {} },
+      redirect: "/en-US/admin/guidance/groups",
+    });
+
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidanceGroupEditPage />
+      </MockedProvider>,
+    );
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Guidance.pages.groupEdit.title" })).toBeInTheDocument();
+    });
+
+    const saveButton = screen.getByRole("button", { name: "Guidance.actions.saveChanges" });
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(mockRouter.push).toHaveBeenCalledWith("/en-US/admin/guidance/groups");
+    });
+  });
+
+  it("should pass accessibility check", async () => {
+    const { container } = render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidanceGroupEditPage />
+      </MockedProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Guidance.pages.groupEdit.title" })).toBeInTheDocument();
+    });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

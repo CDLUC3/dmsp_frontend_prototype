@@ -17,7 +17,6 @@ import { mockScrollIntoView } from '@/__mocks__/common';
 
 import mockMeData from "../../../__mocks__/mockMeData.json";
 import GuidanceGroupCreatePage from "../page";
-import { errors } from "jose";
 
 // Mock Next.js navigation
 jest.mock("next/navigation", () => ({
