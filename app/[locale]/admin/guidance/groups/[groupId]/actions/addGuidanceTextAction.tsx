@@ -1,17 +1,17 @@
 "use server";
 
 import { executeGraphQLMutation } from "@/utils/server/graphqlServerActionHandler";
-import { ActionResponse, TagsInterface } from "@/app/types";
+import { ActionResponse } from "@/app/types";
 import { AddGuidanceDocument } from "@/generated/graphql";
 
 export async function addGuidanceTextAction({
   guidanceGroupId,
   guidanceText,
-  tags
+  tagId
 }: {
   guidanceGroupId: number;
   guidanceText: string;
-  tags: TagsInterface[];
+  tagId: number;
 }): Promise<ActionResponse> {
   // Execute the mutation using the shared handler
   return await executeGraphQLMutation({
@@ -20,7 +20,7 @@ export async function addGuidanceTextAction({
       input: {
         guidanceGroupId,
         guidanceText,
-        tags
+        tagId
       }
     },
     dataPath: "addGuidanceText"

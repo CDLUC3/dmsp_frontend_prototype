@@ -12,12 +12,14 @@
       {
         "__typename": "Guidance",
         "guidanceText": "<p>This is the guidance for storage &amp; security</p>",
-        "id": 976
+        "id": 976,
+        "tagId": 1
       },
       {
         "__typename": "Guidance",
         "guidanceText": "<p>This is the guidance for Preservation</p>",
-        "id": 977
+        "id": 977,
+        "tagId": 2
       }
     ],
     "versionedGuidanceGroup": [

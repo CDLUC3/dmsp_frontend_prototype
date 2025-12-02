@@ -55,18 +55,31 @@ const GuidancePage: React.FC = () => {
       return [];
     }
 
-    return guidanceGroupsData.guidanceGroups.map((g) => ({
-      id: String(g.id),
-      title: g.name || 'Untitled Guidance Group',
-      lastUpdated: g.modified ? formatDate(g.modified) : "",
-      lastUpdatedBy: `${g.user?.givenName} ${g.user?.surName}`,
-      latestPublishedVersion: `${g.latestPublishedVersion}` || '',
-      latestPublishedDate: g.latestPublishedDate ? formatDate(g.latestPublishedDate) : '',
-      status: g.isDirty ? Global("draft") : Global("published"),
-      description: g.description || '',
-      textCount: `${g?.guidance?.length || 0} / ${tagsData?.tags.length || 0} Tags with Guidance`,
-      url: routePath("admin.guidance.groups.index", { groupId: String(g.id) }),
-    }));
+    return guidanceGroupsData.guidanceGroups.map((g) => {
+      // Get the latest version for this group and check if it's active
+      const latestVersionForGroup = g.versionedGuidanceGroup?.[0];
+      const isLatestVersionActiveForGroup = latestVersionForGroup?.active ?? false;
+
+      // Determine publish status for this specific group
+      const statusForGroup = g.isDirty && g.latestPublishedDate
+        ? t('status.unpublishedChanges')
+        : !g.latestPublishedDate || !isLatestVersionActiveForGroup
+          ? t('status.draft')
+          : t('status.published');
+
+      return {
+        id: String(g.id),
+        title: g.name || 'Untitled Guidance Group',
+        lastUpdated: g.modified ? formatDate(g.modified) : "",
+        lastUpdatedBy: `${g.user?.givenName} ${g.user?.surName}`,
+        latestPublishedVersion: `${g.latestPublishedVersion}` || '',
+        latestPublishedDate: g.latestPublishedDate ? formatDate(g.latestPublishedDate) : '',
+        status: statusForGroup,
+        description: g.description || '',
+        textCount: `${g?.guidance?.length || 0} / ${tagsData?.tags.length || 0} Tags with Guidance`,
+        url: routePath("admin.guidance.groups.index", { groupId: String(g.id) }),
+      };
+    });
   }, [guidanceGroupsData, tagsData, Global, formatDate]);
 
   const title = t("pages.index.title");

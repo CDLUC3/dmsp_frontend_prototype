@@ -7,13 +7,10 @@ query GuidanceByGroup($guidanceGroupId: Int!) {
     }
     guidanceText
     id
-    tags {
-      id
-      name
-    }
+    tagId
     errors {
       general
-      tags
+      tagId
       guidanceText
       guidanceGroupId
     }
@@ -24,11 +21,7 @@ query GuidanceByGroup($guidanceGroupId: Int!) {
 query Guidance($guidanceId: Int!) {
   guidance(guidanceId: $guidanceId) {
     id
-    tags {
-      id
-      name
-      description
-    }
     guidanceText
+    tagId
   }
 }

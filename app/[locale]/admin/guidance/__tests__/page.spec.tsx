@@ -133,7 +133,7 @@ describe("GuidancePage", () => {
 
     await waitFor(() => {
       const lastUpdatedElement = screen.getAllByText(/Global\.lastUpdated\s*:\s*11-25-2025/i);
-      const statusElement = screen.getAllByText(/Guidance\.status.status\s*:\s*Global.draft/i);
+      const statusElement = screen.getAllByText(/Guidance\.status\.status\s*:\s*Guidance.status.unpublishedChanges/i);
       const guidanceTextCountElement = screen.getByText(/10\s*\/\s*14\s*Tags with Guidance/i);
       expect(lastUpdatedElement.length).toBeGreaterThan(0);
       expect(statusElement.length).toBeGreaterThan(0);
@@ -162,8 +162,8 @@ describe("GuidancePage", () => {
     );
 
     await waitFor(() => {
-      const publishedElements = screen.getAllByText(/Guidance\.status\.status\s*:\s*Global.published/);
-      const draftElements = screen.getAllByText(/Guidance\.status\.status\s*:\s*Global.draft/);
+      const publishedElements = screen.getAllByText(/Guidance\.status\.status\s*:\s*Guidance.status.published/);
+      const draftElements = screen.getAllByText(/Guidance\.status\.status\s*:\s*Guidance.status.draft/);
       expect(publishedElements.length).toBeGreaterThan(0);
       expect(draftElements.length).toBeGreaterThan(0);
     });

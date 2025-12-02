@@ -1,17 +1,17 @@
 "use server";
 
 import { executeGraphQLMutation } from "@/utils/server/graphqlServerActionHandler";
-import { ActionResponse, TagsInterface } from "@/app/types";
+import { ActionResponse } from "@/app/types";
 import { UpdateGuidanceDocument } from "@/generated/graphql";
 
 export async function updateGuidanceAction({
   guidanceId,
   guidanceText,
-  tags,
+  tagId
 }: {
   guidanceId: number;
   guidanceText: string;
-  tags: TagsInterface[];
+  tagId: number;
 }): Promise<ActionResponse> {
   // Execute the mutation using the shared handler
   return await executeGraphQLMutation({
@@ -19,7 +19,7 @@ export async function updateGuidanceAction({
     variables: {
       input: {
         guidanceId,
-        tags,
+        tagId,
         guidanceText
       }
     },

@@ -10,17 +10,11 @@
       },
       "guidanceText": "<p>This is the guidance for storage &amp; security</p>",
       "id": 976,
-      "tags": [
-        {
-          "__typename": "Tag",
-          "id": 1,
-          "name": "Storage & security"
-        }
-      ],
+      "tagId": 1,
       "errors": {
         "__typename": "GuidanceErrors",
         "general": null,
-        "tags": null,
+        "tagId": null,
         "guidanceText": null,
         "guidanceGroupId": null
       },
@@ -36,17 +30,11 @@
       },
       "guidanceText": "<p>This is the guidance for Preservation</p>",
       "id": 977,
-      "tags": [
-        {
-          "__typename": "Tag",
-          "id": 2,
-          "name": "Preservation"
-        }
-      ],
+      "tagId": 2,
       "errors": {
         "__typename": "GuidanceErrors",
         "general": null,
-        "tags": null,
+        "tagId": null,
         "guidanceText": null,
         "guidanceGroupId": null
       },

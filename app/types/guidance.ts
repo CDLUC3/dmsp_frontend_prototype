@@ -9,14 +9,14 @@ export type UpdateGuidanceTextErrors = {
   general?: string;
   guidanceGroupId?: string;
   guidanceText?: string;
-  tags?: string;
+  tagId?: string;
 };
 
 export type AddGuidanceTextErrors = {
   general?: string;
   guidanceGroupId?: string;
   guidanceText?: string;
-  tags?: string;
+  tagId?: string;
 };
 
 export type PublishGuidanceGroupErrors = {
@@ -33,7 +33,7 @@ export interface GuidanceText {
   lastUpdated: string;
   lastUpdatedBy: string;
   url: string;
-  tags: GuidanceTag[];
+  tagId: number;
 }
 
 export interface TagGuidanceItem {

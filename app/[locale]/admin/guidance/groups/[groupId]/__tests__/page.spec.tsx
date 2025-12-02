@@ -352,7 +352,7 @@ describe("GuidanceGroupIndexPage", () => {
       expect(addGuidanceTextAction).toHaveBeenCalledWith({
         guidanceGroupId: 2397,
         guidanceText: 'New guidance for Data description',
-        tags: [{ id: 14, name: 'Data description' }],
+        tagId: 14
       });
     });
   });
@@ -465,7 +465,7 @@ describe("GuidanceGroupIndexPage", () => {
       expect(updateGuidanceAction).toHaveBeenCalledWith({
         guidanceId: 976,
         guidanceText: 'Updated text for Storage & security',
-        tags: [{ id: 1, name: 'Storage & security' }],
+        tagId: 1
       });
 
       // Success toast
@@ -554,7 +554,7 @@ describe("GuidanceGroupIndexPage", () => {
           general: 'Something went wrong',
           guidanceGroupId: null,
           guidanceText: null,
-          tags: null,
+          tagId: null,
         },
       },
       redirect: undefined,
@@ -653,7 +653,6 @@ describe("GuidanceGroupIndexPage", () => {
     fireEvent.click(unPublishBtn);
 
     await waitFor(() => {
-
       expect(mockRouter.push).not.toHaveBeenCalledWith('/en-US/admin/guidance/redirect-page')
     });
   });

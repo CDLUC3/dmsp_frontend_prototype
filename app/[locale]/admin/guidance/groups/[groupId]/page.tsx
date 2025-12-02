@@ -128,7 +128,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
                 lastUpdated: '',
                 lastUpdatedBy: '',
                 url: '',
-                tags: [{ id: tagId, name: item.tag.name }],
+                tagId,
               }
             };
           }
@@ -263,10 +263,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
       const response = await updateGuidanceAction({
         guidanceId: parseInt(tagItem.guidance.id, 10),
         guidanceText: textToSave,
-        tags: tagItem.guidance.tags.map(tag => ({
-          id: tag.id,
-          name: tag.name,
-        })),
+        tagId,
       });
 
       if (response.redirect) {
@@ -286,7 +283,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
       } else {
         // Check if there are any GraphQL errors
         if (response?.data?.errors) {
-          const errs = extractErrors<UpdateGuidanceTextErrors>(response?.data?.errors, ["general", "guidanceGroupId", "guidanceText", "tags"]);
+          const errs = extractErrors<UpdateGuidanceTextErrors>(response?.data?.errors, ["general", "guidanceGroupId", "guidanceText", "tagId"]);
 
           if (errs.length > 0) {
             setErrorMessages(errs);
@@ -313,10 +310,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
       const response = await addGuidanceTextAction({
         guidanceGroupId: Number(groupId),
         guidanceText: textToSave,
-        tags: [{
-          id: tagId,
-          name: tagItem.tag.name,
-        }],
+        tagId,
       });
 
       if (response.redirect) {
@@ -336,7 +330,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
       } else {
         // Check if there are any GraphQL errors
         if (response?.data?.errors) {
-          const errs = extractErrors<AddGuidanceTextErrors>(response?.data?.errors, ["general", "guidanceGroupId", "guidanceText", "tags"]);
+          const errs = extractErrors<AddGuidanceTextErrors>(response?.data?.errors, ["general", "guidanceGroupId", "guidanceText", "tagId"]);
 
           if (errs.length > 0) {
             setErrorMessages(errs);
@@ -357,7 +351,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
             lastUpdated: '',
             lastUpdatedBy: `${me?.me?.givenName || ""} ${me?.me?.surName || ""}`.trim(),
             url: routePath("admin.guidance.groups.texts.edit", { groupId, textId: Number(newGuidanceId) }),
-            tags: [{ id: tagId, name: tagItem.tag.name }],
+            tagId,
           };
 
           // Update guidanceTexts array
@@ -395,7 +389,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
         lastUpdated: g.modified ? formatDate(g.modified) : "",
         lastUpdatedBy: `${g.user?.givenName} ${g.user?.surName}`,
         url: routePath("admin.guidance.groups.texts.edit", { groupId, textId: Number(g.id) }),
-        tags: g.tags?.filter(tag => tag.id !== null).map(tag => ({ id: tag.id!, name: tag.name })) || [],
+        tagId: typeof g.tagId === 'number' ? g.tagId : 0,
       }));
 
       setGuidanceTexts(transformedGuidanceTexts);
@@ -410,9 +404,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
 
       const tagGuidanceMap: TagGuidanceItem[] = validTags.map(tag => {
         // Find the guidance that has this tag
-        const matchingGuidance = guidanceTexts.find(guidance =>
-          guidance.tags.some(t => t.id === (tag.id as number))
-        );
+        const matchingGuidance = guidanceTexts.find(g => g.tagId === (tag.id as number));
 
         return {
           tag: {

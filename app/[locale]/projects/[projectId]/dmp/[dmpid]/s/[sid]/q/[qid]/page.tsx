@@ -249,9 +249,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
     guidanceData.guidanceGroups.forEach(group => {
       group.guidance?.forEach(g => {
-        const hasMatch = g.tags?.some(tag => tagSet.has(tag.id));
+        // New API: guidance has a single tagId instead of tags array
+        const hasMatch = typeof g?.tagId === 'number' && tagSet.has(g.tagId);
         if (hasMatch && g.guidanceText && typeof g.id === 'number') {
-          // Skip items without valid numeric IDs
+          // Skip items without valid numeric IDs and dedupe by id/text
           if (!seenIds.has(g.id) && !seenTexts.has(g.guidanceText)) {
             seenIds.add(g.id);
             seenTexts.add(g.guidanceText);

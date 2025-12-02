@@ -6,10 +6,7 @@ query GuidanceGroups($affiliationId: String) {
     latestPublishedVersion
     latestPublishedDate
     guidance {
-      tags {
-        id
-        name
-      }
+      tagId
       guidanceText
       id
     }
@@ -20,6 +17,11 @@ query GuidanceGroups($affiliationId: String) {
     }
     modified
     isDirty
+    versionedGuidanceGroup {
+      active
+      id
+      version
+    }
   }
 }
 
@@ -35,6 +37,7 @@ query GuidanceGroup($guidanceGroupId: Int!) {
     guidance {
       guidanceText
       id
+      tagId
     }
     versionedGuidanceGroup {
       active

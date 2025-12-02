@@ -2,11 +2,11 @@ mutation AddGuidance($input: AddGuidanceInput!) {
   addGuidance(input: $input) {
     id
     guidanceText
+    tagId
     errors {
       general
       guidanceGroupId
       guidanceText
-      tags
     }
   }
 }
@@ -15,15 +15,11 @@ mutation UpdateGuidance($input: UpdateGuidanceInput!) {
   updateGuidance(input: $input) {
     id
     guidanceText
-    tags {
-      id
-      name
-    }
+    tagId
     errors {
       general
       guidanceGroupId
       guidanceText
-      tags
     }
   }
 }
