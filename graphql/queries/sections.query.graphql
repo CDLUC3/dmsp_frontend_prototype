@@ -39,6 +39,7 @@ query PublishedSection($versionedSectionId: Int!) {
       id
       description
       name
+      slug
     }
     errors {
       general
@@ -77,6 +78,7 @@ query Section($sectionId: Int!) {
       id
       description
       name
+      slug
     }
     errors {
       general

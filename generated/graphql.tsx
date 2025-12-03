@@ -24,16 +24,6 @@ export type Scalars = {
   URL: { input: any; output: any; }
 };
 
-/** The status of the funding */
-export enum AccessLevel {
-  /** Access requests must be reviewed and then permitted */
-  Controlled = 'CONTROLLED',
-  /** Any other type of access level */
-  Other = 'OTHER',
-  /** Access to the output will be public/open */
-  Unrestricted = 'UNRESTRICTED'
-}
-
 /** Input for adding a new GuidanceGroup */
 export type AddGuidanceGroupInput = {
   /** The affiliation (organization ror) that owns this GuidanceGroup. Optional: super-admins may set this; regular admins should omit it (their own affiliation will be used). */
@@ -101,31 +91,6 @@ export type AddProjectMemberInput = {
   projectId: Scalars['Int']['input'];
   /** The Member's last/sur name */
   surName?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type AddProjectOutputInput = {
-  /** The date the output is expected to be deposited (YYYY-MM-DD format) */
-  anticipatedReleaseDate?: InputMaybe<Scalars['String']['input']>;
-  /** A description of the output */
-  description?: InputMaybe<Scalars['String']['input']>;
-  /** The initial access level that will be allowed for the output */
-  initialAccessLevel?: InputMaybe<Scalars['String']['input']>;
-  /** The initial license that will apply to the output */
-  initialLicenseId?: InputMaybe<Scalars['Int']['input']>;
-  /** Whether or not the output may contain personally identifying information (PII) */
-  mayContainPII?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Whether or not the output may contain sensitive data */
-  mayContainSensitiveInformation?: InputMaybe<Scalars['Boolean']['input']>;
-  /** The metadata standards that will be used to describe the output */
-  metadataStandardIds?: InputMaybe<Array<Scalars['Int']['input']>>;
-  /** The type of output */
-  outputTypeId: Scalars['Int']['input'];
-  /** The id of the project you are adding the output to */
-  projectId: Scalars['Int']['input'];
-  /** The repositories the output will be deposited in */
-  respositoryIds?: InputMaybe<Array<Scalars['Int']['input']>>;
-  /** The title/name of the output */
-  title: Scalars['String']['input'];
 };
 
 /** Input for adding a new QuestionCondition */
@@ -1061,8 +1026,6 @@ export type Mutation = {
   addProjectFunding?: Maybe<ProjectFunding>;
   /** Add a Member to a research project */
   addProjectMember?: Maybe<ProjectMember>;
-  /** Add an output to a research project */
-  addProjectOutput?: Maybe<ProjectOutput>;
   /** Create a new Question */
   addQuestion: Question;
   /** Create a new QuestionCondition associated with a question */
@@ -1133,10 +1096,6 @@ export type Mutation = {
   removeProjectFunding?: Maybe<ProjectFunding>;
   /** Remove a research project Member */
   removeProjectMember?: Maybe<ProjectMember>;
-  /** Remove a research project output */
-  removeProjectOutput?: Maybe<ProjectOutput>;
-  /** Remove an Output from a Plan */
-  removeProjectOutputFromPlan?: Maybe<ProjectOutput>;
   /** Delete a Question */
   removeQuestion?: Maybe<Question>;
   /** Remove a QuestionCondition using a specific QuestionCondition id */
@@ -1157,8 +1116,6 @@ export type Mutation = {
   requestFeedback?: Maybe<PlanFeedback>;
   /** Resend an invite to a ProjectCollaborator */
   resendInviteToProjectCollaborator?: Maybe<ProjectCollaborator>;
-  /** Add an Output to a Plan */
-  selectProjectOutputForPlan?: Maybe<ProjectOutput>;
   /** Designate the email as the current user's primary email address */
   setPrimaryUserEmail?: Maybe<Array<Maybe<UserEmail>>>;
   /** Set the user's ORCID */
@@ -1203,8 +1160,6 @@ export type Mutation = {
   updateProjectFunding?: Maybe<ProjectFunding>;
   /** Update a Member on the research project */
   updateProjectMember?: Maybe<ProjectMember>;
-  /** Update an output on the research project */
-  updateProjectOutput?: Maybe<ProjectOutput>;
   /** Update a Question */
   updateQuestion: Question;
   /** Update a QuestionCondition for a specific QuestionCondition id */
@@ -1334,11 +1289,6 @@ export type MutationAddProjectFundingArgs = {
 
 export type MutationAddProjectMemberArgs = {
   input: AddProjectMemberInput;
-};
-
-
-export type MutationAddProjectOutputArgs = {
-  input: AddProjectOutputInput;
 };
 
 
@@ -1533,17 +1483,6 @@ export type MutationRemoveProjectMemberArgs = {
 };
 
 
-export type MutationRemoveProjectOutputArgs = {
-  projectOutputId: Scalars['Int']['input'];
-};
-
-
-export type MutationRemoveProjectOutputFromPlanArgs = {
-  planId: Scalars['Int']['input'];
-  projectOutputId: Scalars['Int']['input'];
-};
-
-
 export type MutationRemoveQuestionArgs = {
   questionId: Scalars['Int']['input'];
 };
@@ -1587,12 +1526,6 @@ export type MutationRequestFeedbackArgs = {
 
 export type MutationResendInviteToProjectCollaboratorArgs = {
   projectCollaboratorId: Scalars['Int']['input'];
-};
-
-
-export type MutationSelectProjectOutputForPlanArgs = {
-  planId: Scalars['Int']['input'];
-  projectOutputId: Scalars['Int']['input'];
 };
 
 
@@ -1722,11 +1655,6 @@ export type MutationUpdateProjectMemberArgs = {
 };
 
 
-export type MutationUpdateProjectOutputArgs = {
-  input: UpdateProjectOutputInput;
-};
-
-
 export type MutationUpdateQuestionArgs = {
   input: UpdateQuestionInput;
 };
@@ -1792,39 +1720,6 @@ export type MutationUploadPlanArgs = {
   fileContent?: InputMaybe<Scalars['String']['input']>;
   fileName?: InputMaybe<Scalars['String']['input']>;
   projectId: Scalars['Int']['input'];
-};
-
-/** An output collected/produced during or as a result of a research project */
-export type OutputType = {
-  __typename?: 'OutputType';
-  /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['String']['output']>;
-  /** The user who created the Object */
-  createdById?: Maybe<Scalars['Int']['output']>;
-  /** A description of the type of output to be collected/generated during the project */
-  description?: Maybe<Scalars['String']['output']>;
-  /** Errors associated with the Object */
-  errors?: Maybe<OutputTypeErrors>;
-  /** The unique identifer for the Object */
-  id?: Maybe<Scalars['Int']['output']>;
-  /** The timestamp when the Object was last modifed */
-  modified?: Maybe<Scalars['String']['output']>;
-  /** The user who last modified the Object */
-  modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The name of the output type */
-  name: Scalars['String']['output'];
-  /** The taxonomy URL of the output type */
-  uri: Scalars['String']['output'];
-};
-
-/** A collection of errors related to the OutputType */
-export type OutputTypeErrors = {
-  __typename?: 'OutputTypeErrors';
-  description?: Maybe<Scalars['String']['output']>;
-  /** General error messages such as the object already exists */
-  general?: Maybe<Scalars['String']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-  uri?: Maybe<Scalars['String']['output']>;
 };
 
 export type PaginatedQueryResults = {
@@ -1900,8 +1795,6 @@ export type Plan = {
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** Anticipated research outputs */
-  outputs?: Maybe<Array<PlanOutput>>;
   /** The progress the user has made within the plan */
   progress?: Maybe<PlanProgress>;
   /** The project the plan is associated with */
@@ -2102,29 +1995,6 @@ export type PlanMemberErrors = {
   projectMemberId?: Maybe<Scalars['String']['output']>;
 };
 
-export type PlanOutput = {
-  __typename?: 'PlanOutput';
-  /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['String']['output']>;
-  /** The user who created the Object */
-  createdById?: Maybe<Scalars['Int']['output']>;
-  /** Errors associated with the Object */
-  errors?: Maybe<PlanOutputErrors>;
-  /** The unique identifer for the Object */
-  id?: Maybe<Scalars['Int']['output']>;
-  /** The timestamp when the Object was last modifed */
-  modified?: Maybe<Scalars['String']['output']>;
-  /** The user who last modified the Object */
-  modifiedById?: Maybe<Scalars['Int']['output']>;
-};
-
-/** A collection of errors related to the PlanOutput */
-export type PlanOutputErrors = {
-  __typename?: 'PlanOutputErrors';
-  /** General error messages such as the object already exists */
-  general?: Maybe<Scalars['String']['output']>;
-};
-
 export type PlanProgress = {
   __typename?: 'PlanProgress';
   /** The total number of questions the user has answered */
@@ -2242,8 +2112,6 @@ export type Project = {
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The outputs that will be/were created as a reult of the research project */
-  outputs?: Maybe<Array<ProjectOutput>>;
   /** The plans that are associated with the research project */
   plans?: Maybe<Array<PlanSearchResult>>;
   /** The type of research being done */
@@ -2313,7 +2181,6 @@ export type ProjectErrors = {
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
   memberIds?: Maybe<Scalars['String']['output']>;
-  outputIds?: Maybe<Scalars['String']['output']>;
   researchDomainId?: Maybe<Scalars['String']['output']>;
   startDate?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
@@ -2431,61 +2298,6 @@ export type ProjectMemberErrors = {
   orcid?: Maybe<Scalars['String']['output']>;
   projectId?: Maybe<Scalars['String']['output']>;
   surName?: Maybe<Scalars['String']['output']>;
-};
-
-/** Something produced/collected as part of (or as a result of) a research project */
-export type ProjectOutput = {
-  __typename?: 'ProjectOutput';
-  /** The date the output is expected to be deposited (YYYY-MM-DD format) */
-  anticipatedReleaseDate?: Maybe<Scalars['String']['output']>;
-  /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['String']['output']>;
-  /** The user who created the Object */
-  createdById?: Maybe<Scalars['Int']['output']>;
-  /** A description of the output */
-  description?: Maybe<Scalars['String']['output']>;
-  /** Errors associated with the Object */
-  errors?: Maybe<ProjectOutputErrors>;
-  /** The unique identifer for the Object */
-  id?: Maybe<Scalars['Int']['output']>;
-  /** The initial access level that will be allowed for the output */
-  initialAccessLevel: AccessLevel;
-  /** The initial license that will apply to the output */
-  initialLicense?: Maybe<License>;
-  /** Whether or not the output may contain personally identifying information (PII) */
-  mayContainPII?: Maybe<Scalars['Boolean']['output']>;
-  /** Whether or not the output may contain sensitive data */
-  mayContainSensitiveInformation?: Maybe<Scalars['Boolean']['output']>;
-  /** The metadata standards that will be used to describe the output */
-  metadataStandards?: Maybe<Array<MetadataStandard>>;
-  /** The timestamp when the Object was last modifed */
-  modified?: Maybe<Scalars['String']['output']>;
-  /** The user who last modified the Object */
-  modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The type of output */
-  outputType?: Maybe<OutputType>;
-  /** The project associated with the output */
-  project?: Maybe<Project>;
-  /** The repositories the output will be deposited in */
-  repositories?: Maybe<Array<Repository>>;
-  /** The title/name of the output */
-  title: Scalars['String']['output'];
-};
-
-/** A collection of errors related to the ProjectOutput */
-export type ProjectOutputErrors = {
-  __typename?: 'ProjectOutputErrors';
-  anticipatedReleaseDate?: Maybe<Scalars['String']['output']>;
-  description?: Maybe<Scalars['String']['output']>;
-  /** General error messages such as the object already exists */
-  general?: Maybe<Scalars['String']['output']>;
-  initialAccessLevel?: Maybe<Scalars['String']['output']>;
-  initialLicenseId?: Maybe<Scalars['String']['output']>;
-  metadataStandardIds?: Maybe<Scalars['String']['output']>;
-  outputTypeId?: Maybe<Scalars['String']['output']>;
-  projectId?: Maybe<Scalars['String']['output']>;
-  repositoryIds?: Maybe<Scalars['String']['output']>;
-  title?: Maybe<Scalars['String']['output']>;
 };
 
 export type ProjectSearchResult = {
@@ -2613,6 +2425,8 @@ export type Query = {
   affiliationTypes?: Maybe<Array<Scalars['String']['output']>>;
   /** Perform a search for Affiliations matching the specified name */
   affiliations?: Maybe<AffiliationSearchResults>;
+  /** Get all projects for the Admin based on their role */
+  allProjects?: Maybe<ProjectSearchResults>;
   /** Get the specific answer */
   answer?: Maybe<Answer>;
   /** Get an answer by versionedQuestionId */
@@ -2671,8 +2485,6 @@ export type Query = {
   planFundings?: Maybe<Array<Maybe<PlanFunding>>>;
   /** Get all of the Users that are Members for the specific Plan */
   planMembers?: Maybe<Array<Maybe<PlanMember>>>;
-  /** The subset of project outputs associated with the sepcified Plan */
-  planOutputs?: Maybe<Array<Maybe<ProjectOutput>>>;
   /** Get all plans for the research project */
   plans?: Maybe<Array<PlanSearchResult>>;
   /** Returns a list of the top 20 funders ranked by popularity (nbr of plans) for the past year */
@@ -2689,12 +2501,6 @@ export type Query = {
   projectMember?: Maybe<ProjectMember>;
   /** Get all of the Users that a Members to the research project */
   projectMembers?: Maybe<Array<Maybe<ProjectMember>>>;
-  /** Fetch a single project output */
-  projectOutput?: Maybe<ProjectOutput>;
-  /** Get all the research output types */
-  projectOutputTypes?: Maybe<Array<Maybe<OutputType>>>;
-  /** Get all of the outputs for the research project */
-  projectOutputs?: Maybe<Array<Maybe<ProjectOutput>>>;
   /** Search for VersionedQuestions that belong to Section specified by sectionId */
   publishedConditionsForQuestion?: Maybe<Array<Maybe<VersionedQuestionCondition>>>;
   /** Get a specific VersionedQuestion based on versionedQuestionId */
@@ -2769,6 +2575,13 @@ export type QueryAffiliationsArgs = {
   funderOnly?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   paginationOptions?: InputMaybe<PaginationOptions>;
+};
+
+
+export type QueryAllProjectsArgs = {
+  filterOptions?: InputMaybe<ProjectFilterOptions>;
+  paginationOptions?: InputMaybe<PaginationOptions>;
+  term?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -2905,11 +2718,6 @@ export type QueryPlanMembersArgs = {
 };
 
 
-export type QueryPlanOutputsArgs = {
-  planId: Scalars['Int']['input'];
-};
-
-
 export type QueryPlansArgs = {
   projectId: Scalars['Int']['input'];
 };
@@ -2941,16 +2749,6 @@ export type QueryProjectMemberArgs = {
 
 
 export type QueryProjectMembersArgs = {
-  projectId: Scalars['Int']['input'];
-};
-
-
-export type QueryProjectOutputArgs = {
-  projectOutputId: Scalars['Int']['input'];
-};
-
-
-export type QueryProjectOutputsArgs = {
   projectId: Scalars['Int']['input'];
 };
 
@@ -3571,6 +3369,8 @@ export type Tag = {
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The tag name */
   name: Scalars['String']['output'];
+  /** The slug */
+  slug: Scalars['String']['output'];
 };
 
 /** A collection of errors related to the Tag */
@@ -3589,7 +3389,9 @@ export type TagInput = {
   /** The unique identifier for the Tag */
   id?: InputMaybe<Scalars['Int']['input']>;
   /** The name of the Tag */
-  name: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  /** The slug of the Tag */
+  slug?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** A Template used to create DMPs */
@@ -3849,31 +3651,6 @@ export type UpdateProjectMemberInput = {
   projectMemberId: Scalars['Int']['input'];
   /** The Member's last/sur name */
   surName?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type UpdateProjectOutputInput = {
-  /** The date the output is expected to be deposited (YYYY-MM-DD format) */
-  anticipatedReleaseDate?: InputMaybe<Scalars['String']['input']>;
-  /** A description of the output */
-  description?: InputMaybe<Scalars['String']['input']>;
-  /** The initial access level that will be allowed for the output */
-  initialAccessLevel?: InputMaybe<Scalars['String']['input']>;
-  /** The initial license that will apply to the output */
-  initialLicenseId?: InputMaybe<Scalars['Int']['input']>;
-  /** Whether or not the output may contain personally identifying information (PII) */
-  mayContainPII?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Whether or not the output may contain sensitive data */
-  mayContainSensitiveInformation?: InputMaybe<Scalars['Boolean']['input']>;
-  /** The metadata standards that will be used to describe the output */
-  metadataStandardIds?: InputMaybe<Array<Scalars['Int']['input']>>;
-  /** The type of output */
-  outputTypeId: Scalars['Int']['input'];
-  /** The id of the output */
-  projectOutputId: Scalars['Int']['input'];
-  /** The repositories the output will be deposited in */
-  respositoryIds?: InputMaybe<Array<Scalars['Int']['input']>>;
-  /** The title/name of the output */
-  title: Scalars['String']['input'];
 };
 
 /** Input for updating a new QuestionCondition based on a QuestionCondition id */
@@ -5093,7 +4870,7 @@ export type GuidanceGroupsQueryVariables = Exact<{
 }>;
 
 
-export type GuidanceGroupsQuery = { __typename?: 'Query', guidanceGroups: Array<{ __typename?: 'GuidanceGroup', id?: number | null, guidance?: Array<{ __typename?: 'Guidance', guidanceText?: string | null, id?: number | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, name: string }> | null }> | null }> };
+export type GuidanceGroupsQuery = { __typename?: 'Query', guidanceGroups: Array<{ __typename?: 'GuidanceGroup', id?: number | null, guidance?: Array<{ __typename?: 'Guidance', guidanceText?: string | null, id?: number | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, name: string, slug: string }> | null }> | null }> };
 
 export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -5110,7 +4887,7 @@ export type PlanQueryVariables = Exact<{
 }>;
 
 
-export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, createdById?: number | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, version: string, created?: string | null, template?: { __typename?: 'Template', id?: number | null, name: string } | null, owner?: { __typename?: 'Affiliation', uri: string, displayName: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null, collaborators?: Array<{ __typename?: 'ProjectCollaborator', accessLevel?: ProjectCollaboratorAccessLevel | null, user?: { __typename?: 'User', id?: number | null } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number, tags?: Array<{ __typename?: 'Tag', name: string, id?: number | null }> | null }> | null, progress?: { __typename?: 'PlanProgress', answeredQuestions: number, percentComplete: number, totalQuestions: number } | null, feedback?: Array<{ __typename?: 'PlanFeedback', id?: number | null, completed?: string | null }> | null } | null };
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, createdById?: number | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, version: string, created?: string | null, template?: { __typename?: 'Template', id?: number | null, name: string } | null, owner?: { __typename?: 'Affiliation', uri: string, displayName: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null, collaborators?: Array<{ __typename?: 'ProjectCollaborator', accessLevel?: ProjectCollaboratorAccessLevel | null, user?: { __typename?: 'User', id?: number | null } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number, tags?: Array<{ __typename?: 'Tag', name: string, id?: number | null, slug: string }> | null }> | null, progress?: { __typename?: 'PlanProgress', answeredQuestions: number, percentComplete: number, totalQuestions: number } | null, feedback?: Array<{ __typename?: 'PlanFeedback', id?: number | null, completed?: string | null }> | null } | null };
 
 export type PlanFeedbackStatusQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -5160,7 +4937,7 @@ export type ProjectQueryVariables = Exact<{
 }>;
 
 
-export type ProjectQuery = { __typename?: 'Query', project?: { __typename?: 'Project', title: string, abstractText?: string | null, startDate?: string | null, endDate?: string | null, isTestProject?: boolean | null, fundings?: Array<{ __typename?: 'ProjectFunding', id?: number | null, grantId?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null }> | null, members?: Array<{ __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', description?: string | null, displayOrder: number, label: string, uri: string }> | null }> | null, outputs?: Array<{ __typename?: 'ProjectOutput', title: string }> | null, researchDomain?: { __typename?: 'ResearchDomain', id?: number | null, parentResearchDomainId?: number | null } | null, plans?: Array<{ __typename?: 'PlanSearchResult', templateTitle?: string | null, id?: number | null, funding?: string | null, dmpId?: string | null, modified?: string | null, created?: string | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number }> | null }> | null } | null };
+export type ProjectQuery = { __typename?: 'Query', project?: { __typename?: 'Project', title: string, abstractText?: string | null, startDate?: string | null, endDate?: string | null, isTestProject?: boolean | null, fundings?: Array<{ __typename?: 'ProjectFunding', id?: number | null, grantId?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null }> | null, members?: Array<{ __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', description?: string | null, displayOrder: number, label: string, uri: string }> | null }> | null, researchDomain?: { __typename?: 'ResearchDomain', id?: number | null, parentResearchDomainId?: number | null } | null, plans?: Array<{ __typename?: 'PlanSearchResult', templateTitle?: string | null, id?: number | null, funding?: string | null, dmpId?: string | null, modified?: string | null, created?: string | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number }> | null }> | null } | null };
 
 export type ProjectFundingsApiQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -5253,19 +5030,19 @@ export type PublishedSectionQueryVariables = Exact<{
 }>;
 
 
-export type PublishedSectionQuery = { __typename?: 'Query', publishedSection?: { __typename?: 'VersionedSection', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder: number, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null, errors?: { __typename?: 'VersionedSectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null } | null };
+export type PublishedSectionQuery = { __typename?: 'Query', publishedSection?: { __typename?: 'VersionedSection', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder: number, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string, slug: string } | null> | null, errors?: { __typename?: 'VersionedSectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null } | null };
 
 export type SectionQueryVariables = Exact<{
   sectionId: Scalars['Int']['input'];
 }>;
 
 
-export type SectionQuery = { __typename?: 'Query', section?: { __typename?: 'Section', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null, template?: { __typename?: 'Template', id?: number | null, bestPractice: boolean, isDirty: boolean, languageId: string, name: string, latestPublishVisibility?: TemplateVisibility | null } | null } | null };
+export type SectionQuery = { __typename?: 'Query', section?: { __typename?: 'Section', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string, slug: string } | null> | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null, template?: { __typename?: 'Template', id?: number | null, bestPractice: boolean, isDirty: boolean, languageId: string, name: string, latestPublishVisibility?: TemplateVisibility | null } | null } | null };
 
 export type TagsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TagsQuery = { __typename?: 'Query', tags: Array<{ __typename?: 'Tag', id?: number | null, name: string, description?: string | null }> };
+export type TagsQuery = { __typename?: 'Query', tags: Array<{ __typename?: 'Tag', id?: number | null, name: string, description?: string | null, slug: string }> };
 
 export type TemplateVersionsQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -7907,6 +7684,7 @@ export const GuidanceGroupsDocument = gql`
       tags {
         id
         name
+        slug
       }
       guidanceText
       id
@@ -8095,6 +7873,7 @@ export const PlanDocument = gql`
       tags {
         name
         id
+        slug
       }
     }
     progress {
@@ -8483,9 +8262,6 @@ export const ProjectDocument = gql`
         uri
       }
       email
-    }
-    outputs {
-      title
     }
     researchDomain {
       id
@@ -9221,6 +8997,7 @@ export const PublishedSectionDocument = gql`
       id
       description
       name
+      slug
     }
     errors {
       general
@@ -9293,6 +9070,7 @@ export const SectionDocument = gql`
       id
       description
       name
+      slug
     }
     errors {
       general
@@ -9349,6 +9127,7 @@ export const TagsDocument = gql`
     id
     name
     description
+    slug
   }
 }
     `;

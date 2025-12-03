@@ -1,4 +1,5 @@
 ### Added
+- Added missing `slug` property to all `tags` in the graphQL queries 
 - Added guidance text from the backend to the Question Answer page [#580]
 - Added new, shared `ProjectRoles` component that generates the list of Project Roles for both the Project Member Search and Edit Project member pages [#945]
 - Added `Help text` fields to `Description, Repositories, Metadata Standards, License, Access Level and Custom Text` fields in Research Output question type [#970]
@@ -23,7 +24,10 @@
 ### Fixed
 - For Research Outputs, fixed custom Licenses select field to display selected value [#943]
 - Fixed issue where custom repos and standards were not saving in state [#943]
+
 ### Removed
+- Removed Research Outputs section from the plan overview page
+- Removed reference to the old `outputs` association on the graphQL query
 - Removed `Description` fields for Research Output question fields [#970]
 - Removed `scrollToTop` from `Template Create` page [#950]
 

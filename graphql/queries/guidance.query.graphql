@@ -5,6 +5,7 @@ query GuidanceGroups($affiliationId: String) {
       tags {
         id
         name
+        slug
       }
       guidanceText
       id
