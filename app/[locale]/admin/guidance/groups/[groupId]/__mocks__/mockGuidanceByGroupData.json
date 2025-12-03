@@ -2,7 +2,7 @@
   "guidanceByGroup": [
     {
       "__typename": "Guidance",
-      "user": {
+      "modifiedBy": {
         "__typename": "User",
         "givenName": "Super",
         "surName": "Admin",
@@ -22,7 +22,7 @@
     },
     {
       "__typename": "Guidance",
-      "user": {
+      "modifiedBy": {
         "__typename": "User",
         "givenName": "Super",
         "surName": "Admin",

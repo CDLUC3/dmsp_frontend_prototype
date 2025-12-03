@@ -1,6 +1,6 @@
 query GuidanceByGroup($guidanceGroupId: Int!) {
  guidanceByGroup(guidanceGroupId: $guidanceGroupId) {
-    user {
+    modifiedBy {
       givenName
       surName
       id

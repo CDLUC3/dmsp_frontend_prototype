@@ -54,7 +54,7 @@ export type AddGuidanceInput = {
   guidanceGroupId: Scalars['Int']['input'];
   /** The guidance text content */
   guidanceText?: InputMaybe<Scalars['String']['input']>;
-  /** The tag id associated with this Guidance */
+  /** The Tags associated with this Guidance */
   tagId?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -765,12 +765,14 @@ export type Guidance = {
   id?: Maybe<Scalars['Int']['output']>;
   /** The timestamp when the Object was last modified */
   modified?: Maybe<Scalars['String']['output']>;
+  /** User who modified the guidance last */
+  modifiedBy?: Maybe<User>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The Tag associated with the guidance */
+  tag?: Maybe<Tag>;
   /** The tag id associated with this Guidance */
   tagId?: Maybe<Scalars['Int']['output']>;
-  /** User who modified the guidance last */
-  user?: Maybe<User>;
 };
 
 /** A collection of errors related to Guidance */
@@ -810,14 +812,14 @@ export type GuidanceGroup = {
   latestPublishedVersion?: Maybe<Scalars['String']['output']>;
   /** The timestamp when the Object was last modified */
   modified?: Maybe<Scalars['String']['output']>;
+  /** User who modified the guidance group last */
+  modifiedBy?: Maybe<User>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The name of the GuidanceGroup */
   name: Scalars['String']['output'];
   /** Whether this is an optional subset for departmental use */
   optionalSubset: Scalars['Boolean']['output'];
-  /** User who modified the guidance group last */
-  user?: Maybe<User>;
   /** VersionedGuidanceGroups associated with this GuidanceGroup */
   versionedGuidanceGroup?: Maybe<Array<Maybe<VersionedGuidanceGroup>>>;
 };
@@ -1082,6 +1084,8 @@ export type Mutation = {
   addRelatedWork?: Maybe<RelatedWorkSearchResult>;
   /** Add a new Repository */
   addRepository?: Maybe<Repository>;
+  /** Add a new research output type (name must be unique!) */
+  addResearchOutputType?: Maybe<ResearchOutputType>;
   /** Create a new Section. Leave the 'copyFromVersionedSectionId' blank to create a new section from scratch */
   addSection: Section;
   /** Add a new tag to available list of tags */
@@ -1154,6 +1158,8 @@ export type Mutation = {
   removeQuestionCondition?: Maybe<QuestionCondition>;
   /** Delete a Repository */
   removeRepository?: Maybe<Repository>;
+  /** Delete the research output type */
+  removeResearchOutputType?: Maybe<ResearchOutputType>;
   /** Delete a section */
   removeSection: Section;
   /** Delete a tag */
@@ -1226,6 +1232,8 @@ export type Mutation = {
   updateRelatedWorkStatus?: Maybe<RelatedWorkSearchResult>;
   /** Update a Repository record */
   updateRepository?: Maybe<Repository>;
+  /** Update the research output type */
+  updateResearchOutputType?: Maybe<ResearchOutputType>;
   /** Update a Section */
   updateSection: Section;
   /** Change the section's display order */
@@ -1370,6 +1378,12 @@ export type MutationAddRelatedWorkArgs = {
 
 export type MutationAddRepositoryArgs = {
   input?: InputMaybe<AddRepositoryInput>;
+};
+
+
+export type MutationAddResearchOutputTypeArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
 };
 
 
@@ -1570,6 +1584,11 @@ export type MutationRemoveRepositoryArgs = {
 };
 
 
+export type MutationRemoveResearchOutputTypeArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
 export type MutationRemoveSectionArgs = {
   sectionId: Scalars['Int']['input'];
 };
@@ -1761,6 +1780,13 @@ export type MutationUpdateRelatedWorkStatusArgs = {
 
 export type MutationUpdateRepositoryArgs = {
   input?: InputMaybe<UpdateRepositoryInput>;
+};
+
+
+export type MutationUpdateResearchOutputTypeArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
 };
 
 
@@ -2638,6 +2664,8 @@ export type Query = {
   bestPracticeSections?: Maybe<Array<Maybe<VersionedSection>>>;
   /** Get all of the research domains related to the specified top level domain (more nuanced ones) */
   childResearchDomains?: Maybe<Array<Maybe<ResearchDomain>>>;
+  /** Get all of the research output types */
+  defaultResearchOutputTypes?: Maybe<Array<Maybe<ResearchOutputType>>>;
   /** Search for a User to add as a collaborator */
   findCollaborator?: Maybe<CollaboratorSearchResults>;
   /** Get a specific Guidance item by ID */
@@ -2738,6 +2766,10 @@ export type Query = {
   repositories?: Maybe<RepositorySearchResults>;
   /** Fetch a specific repository */
   repository?: Maybe<Repository>;
+  /** Get the research output type by it's id */
+  researchOutputType?: Maybe<ResearchOutputType>;
+  /** Get the research output type by it's name */
+  researchOutputTypeByName?: Maybe<ResearchOutputType>;
   /** Search for projects within external APIs */
   searchExternalProjects?: Maybe<Array<Maybe<ExternalProject>>>;
   /** Get the specified section */
@@ -3055,6 +3087,16 @@ export type QueryRepositoriesArgs = {
 
 export type QueryRepositoryArgs = {
   uri: Scalars['String']['input'];
+};
+
+
+export type QueryResearchOutputTypeArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type QueryResearchOutputTypeByNameArgs = {
+  name: Scalars['String']['input'];
 };
 
 
@@ -3512,6 +3554,37 @@ export type ResearchDomainSearchResults = PaginatedQueryResults & {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
+export type ResearchOutputType = {
+  __typename?: 'ResearchOutputType';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** A longer description of the research output type useful for tooltips */
+  description?: Maybe<Scalars['String']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<ResearchOutputTypeErrors>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name/label of the research output type */
+  name: Scalars['String']['output'];
+  /** The value/slug of the research output type */
+  value: Scalars['String']['output'];
+};
+
+/** A collection of errors related to the research output type */
+export type ResearchOutputTypeErrors = {
+  __typename?: 'ResearchOutputTypeErrors';
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  value?: Maybe<Scalars['String']['output']>;
+};
+
 /** A Section that contains a list of questions in a template */
 export type Section = {
   __typename?: 'Section';
@@ -3811,7 +3884,7 @@ export type UpdateGuidanceInput = {
   guidanceId: Scalars['Int']['input'];
   /** The guidance text content */
   guidanceText?: InputMaybe<Scalars['String']['input']>;
-  /** The tag id associated with this Guidance */
+  /** The Tags associated with this Guidance */
   tagId?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -5161,7 +5234,7 @@ export type GuidanceByGroupQueryVariables = Exact<{
 }>;
 
 
-export type GuidanceByGroupQuery = { __typename?: 'Query', guidanceByGroup: Array<{ __typename?: 'Guidance', guidanceText?: string | null, id?: number | null, tagId?: number | null, modified?: string | null, user?: { __typename?: 'User', givenName?: string | null, surName?: string | null, id?: number | null } | null, errors?: { __typename?: 'GuidanceErrors', general?: string | null, tagId?: string | null, guidanceText?: string | null, guidanceGroupId?: string | null } | null }> };
+export type GuidanceByGroupQuery = { __typename?: 'Query', guidanceByGroup: Array<{ __typename?: 'Guidance', guidanceText?: string | null, id?: number | null, tagId?: number | null, modified?: string | null, modifiedBy?: { __typename?: 'User', givenName?: string | null, surName?: string | null, id?: number | null } | null, errors?: { __typename?: 'GuidanceErrors', general?: string | null, tagId?: string | null, guidanceText?: string | null, guidanceGroupId?: string | null } | null }> };
 
 export type GuidanceQueryVariables = Exact<{
   guidanceId: Scalars['Int']['input'];
@@ -5175,7 +5248,7 @@ export type GuidanceGroupsQueryVariables = Exact<{
 }>;
 
 
-export type GuidanceGroupsQuery = { __typename?: 'Query', guidanceGroups: Array<{ __typename?: 'GuidanceGroup', id?: number | null, name: string, description?: string | null, latestPublishedVersion?: string | null, latestPublishedDate?: string | null, modified?: string | null, isDirty: boolean, guidance?: Array<{ __typename?: 'Guidance', tagId?: number | null, guidanceText?: string | null, id?: number | null }> | null, user?: { __typename?: 'User', givenName?: string | null, surName?: string | null, id?: number | null } | null, versionedGuidanceGroup?: Array<{ __typename?: 'VersionedGuidanceGroup', active: boolean, id?: number | null, version?: number | null } | null> | null }> };
+export type GuidanceGroupsQuery = { __typename?: 'Query', guidanceGroups: Array<{ __typename?: 'GuidanceGroup', id?: number | null, name: string, description?: string | null, latestPublishedVersion?: string | null, latestPublishedDate?: string | null, modified?: string | null, isDirty: boolean, guidance?: Array<{ __typename?: 'Guidance', tagId?: number | null, guidanceText?: string | null, id?: number | null }> | null, modifiedBy?: { __typename?: 'User', givenName?: string | null, surName?: string | null, id?: number | null } | null, versionedGuidanceGroup?: Array<{ __typename?: 'VersionedGuidanceGroup', active: boolean, id?: number | null, version?: number | null } | null> | null }> };
 
 export type GuidanceGroupQueryVariables = Exact<{
   guidanceGroupId: Scalars['Int']['input'];
@@ -8236,7 +8309,7 @@ export type PopularFundersQueryResult = Apollo.QueryResult<PopularFundersQuery, 
 export const GuidanceByGroupDocument = gql`
     query GuidanceByGroup($guidanceGroupId: Int!) {
   guidanceByGroup(guidanceGroupId: $guidanceGroupId) {
-    user {
+    modifiedBy {
       givenName
       surName
       id
@@ -8342,7 +8415,7 @@ export const GuidanceGroupsDocument = gql`
       guidanceText
       id
     }
-    user {
+    modifiedBy {
       givenName
       surName
       id

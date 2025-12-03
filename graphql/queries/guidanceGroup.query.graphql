@@ -10,7 +10,7 @@ query GuidanceGroups($affiliationId: String) {
       guidanceText
       id
     }
-    user {
+    modifiedBy {
       givenName
       surName
       id

@@ -387,7 +387,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
         id: String(g.id),
         guidanceText: g.guidanceText || "",
         lastUpdated: g.modified ? formatDate(g.modified) : "",
-        lastUpdatedBy: `${g.user?.givenName} ${g.user?.surName}`,
+        lastUpdatedBy: `${g.modifiedBy?.givenName} ${g.modifiedBy?.surName}`,
         url: routePath("admin.guidance.groups.texts.edit", { groupId, textId: Number(g.id) }),
         tagId: typeof g.tagId === 'number' ? g.tagId : 0,
       }));
@@ -461,6 +461,10 @@ const GuidanceGroupIndexPage: React.FC = () => {
       if (!confirmLeave) {
         // Push current state back to prevent navigation
         window.history.pushState(null, '', window.location.href);
+      } else {
+        // User confirmed - allow navigation by going back
+        setHasUnsavedChanges(false);
+        window.history.back();
       }
     };
 

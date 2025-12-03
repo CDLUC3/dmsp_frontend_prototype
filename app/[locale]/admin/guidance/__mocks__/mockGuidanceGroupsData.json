@@ -69,7 +69,7 @@
           "id": 983
         }
       ],
-      "user": {
+      "modifiedBy": {
         "__typename": "User",
         "givenName": "Super",
         "surName": "Admin",
@@ -94,7 +94,7 @@
       "latestPublishedVersion": null,
       "latestPublishedDate": null,
       "guidance": [],
-      "user": {
+      "modifiedBy": {
         "__typename": "User",
         "givenName": "Test",
         "surName": "Admin",
@@ -197,7 +197,7 @@
           "id": 973
         }
       ],
-      "user": {
+      "modifiedBy": {
         "__typename": "User",
         "givenName": "Test",
         "surName": "Admin",
@@ -235,7 +235,7 @@
           "id": 985
         }
       ],
-      "user": {
+      "modifiedBy": {
         "__typename": "User",
         "givenName": "Super",
         "surName": "Admin",

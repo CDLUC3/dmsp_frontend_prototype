@@ -72,7 +72,7 @@ const GuidancePage: React.FC = () => {
         id: String(g.id),
         title: g.name || 'Untitled Guidance Group',
         lastUpdated: g.modified ? formatDate(g.modified) : "",
-        lastUpdatedBy: `${g.user?.givenName} ${g.user?.surName}`,
+        lastUpdatedBy: `${g.modifiedBy?.givenName} ${g.modifiedBy?.surName}`,
         latestPublishedVersion: `${g.latestPublishedVersion}` || '',
         latestPublishedDate: g.latestPublishedDate ? formatDate(g.latestPublishedDate) : '',
         status: statusForGroup,
