@@ -78,8 +78,10 @@ const GuidanceGroupIndexPage: React.FC = () => {
   const [guidanceTexts, setGuidanceTexts] = useState<GuidanceText[]>([]);
   const [tagGuidanceList, setTagGuidanceList] = useState<TagGuidanceItem[]>([]);
   const [savingGuidanceId, setSavingGuidanceId] = useState<string | null>(null);
-
+  // State for error messages
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
+  // Track whether there are unsaved changes
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
   // For translations
   const t = useTranslations("Guidance");
@@ -175,6 +177,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
             url: { path: routePath("admin.guidance.groups.create") },
           });
         } else {
+          setHasUnsavedChanges(false);
           const successMessage = t("messages.success.guidanceGroupUnpublished", { groupName: guidanceGroup?.name });
           toastState.add(successMessage, { type: "success" });
           router.push(routePath("admin.guidance.index"));
@@ -221,6 +224,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
             url: { path: routePath("admin.guidance.groups.create") },
           });
         } else {
+          setHasUnsavedChanges(false);
           const successMessage = t("messages.success.guidanceGroupPublished", { groupName: guidanceGroup?.name });
           toastState.add(successMessage, { type: "success" });
           router.push(routePath("admin.guidance.index"));
@@ -290,6 +294,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
         }
 
         // Success case - no errors
+        setHasUnsavedChanges(false);
         const successMessage = t("messages.success.guidanceTextUpdated", { tagName: tagItem.tag.name });
         toastState.add(successMessage, { type: "success" });
 
@@ -336,6 +341,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
           }
         }
         // Success case - no errors
+        setHasUnsavedChanges(false);
         // Optimistically update the local state to reflect the new guidance
         const newGuidanceId = String((response as AddGuidanceResponse)?.data?.id);
         if (newGuidanceId) {
@@ -444,6 +450,46 @@ const GuidanceGroupIndexPage: React.FC = () => {
     };
   }, [guidanceGroupData]);
 
+  // Intercept browser back/forward navigation to warn user of unsaved changes
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+
+    const handlePopState = (e: PopStateEvent) => {
+      const confirmLeave = window.confirm(
+        Global("messaging.unsavedChangesWarning"));
+
+      if (!confirmLeave) {
+        // Push current state back to prevent navigation
+        window.history.pushState(null, '', window.location.href);
+      }
+    };
+
+    // Push a state to enable popstate detection
+    window.history.pushState(null, '', window.location.href);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [hasUnsavedChanges, Global]);
+
+  // Warn user of unsaved changes if they try to leave the page if they click on links or refresh/close the tab
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = ''; // Required for Chrome/Firefox to show the confirm dialog
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
+
+
+  // Determine button disabled states
   const isUnpublishUnavailable =
     !guidanceGroup || guidanceGroup.status === t('status.draft');
 
@@ -454,7 +500,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
       <PageHeader
         title={t("pages.groupIndex.title", { groupName: guidanceGroup?.name || "" })}
         description={t("pages.groupIndex.description")}
-        showBackButton={true}
+        showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb>
@@ -523,7 +569,10 @@ const GuidanceGroupIndexPage: React.FC = () => {
                       <div>
                         <TinyMCEEditor
                           content={item.guidance?.guidanceText ?? ""}
-                          setContent={(value) => handleGuidanceTextChange(tagId, value)}
+                          setContent={(value) => {
+                            handleGuidanceTextChange(tagId, value);
+                            setHasUnsavedChanges(true);
+                          }}
                           id={`content-${tagId}`}
                           labelId={`contentLabel-${tagId}`}
                         />

@@ -8,7 +8,6 @@ import {
   PlanDocument,
   PublishedQuestionsDocument,
   PublishedSectionDocument,
-  GuidanceGroupsDocument
 } from '@/generated/graphql';
 
 import PlanOverviewSectionPage from "../page";
@@ -41,66 +40,6 @@ const mockParams = {
   projectId: '123',
   dmpid: '456',
   sid: '456',
-};
-
-
-const guidanceGroupsMock = {
-  data: {
-    guidanceGroups: [
-      {
-        id: 2,
-        guidance: [
-          {
-            tags: [
-              {
-                id: 1,
-                name: "Data description"
-              },
-              {
-                id: 3,
-                name: "Security & privacy"
-              }
-            ],
-            guidanceText: "Use the active voice whenever possible",
-            id: 3
-          }
-        ]
-      },
-      {
-        id: 1,
-        guidance: [
-          {
-            tags: [
-              {
-                id: 1,
-                name: "Data description"
-              },
-              {
-                id: 2,
-                name: "Data organization & documentation"
-              }
-            ],
-            guidanceText: "Make sure to double check your entries",
-            id: 1
-          },
-          {
-            tags: [
-              {
-                id: 1,
-                name: "Data description"
-              },
-              {
-                id: 3,
-                name: "Security & privacy"
-              }
-            ],
-            guidanceText: "Dot your i's and cross your t's",
-            id: 2
-          }
-        ]
-      }
-    ]
-  }
 };
 
 const versionedQuestionsMock = [
@@ -234,8 +173,8 @@ const planMock = {
       answeredQuestions: 2,
       displayOrder: 1,
       tags: [
-        { id: 1, name: 'Data description' },
-        { id: 2, name: 'Data organization & documentation' }
+        { id: 1, name: 'Data description', slug: 'data-description', description: 'Data description tag' },
+        { id: 2, name: 'Data organization & documentation', slug: 'data-organization-documentation', description: 'Data organization & documentation tag' }
       ]
     },
   ],
@@ -265,18 +204,6 @@ const mocks = [
     result: {
       data: {
         publishedQuestions: versionedQuestionsMock,
-      },
-    },
-  },
-  // Successful guidance groups query
-  {
-    request: {
-      query: GuidanceGroupsDocument,
-      variables: { affiliationId: 'some-affiliation-id' },
-    },
-    result: {
-      data: {
-        guidanceGroups: guidanceGroupsMock,
       },
     },
   },

@@ -91,8 +91,8 @@ describe("GuidanceGroupEditPage", () => {
     jest.clearAllMocks();
   });
 
-  const getNameInput = () => screen.getByLabelText("Guidance.fields.groupName.label") as HTMLInputElement;
-  const getDescriptionInput = () => screen.getByLabelText("Guidance.fields.groupDescription.label") as HTMLInputElement;
+  const getNameInput = () => screen.getByLabelText("Guidance.fields.groupName.label", { exact: false }) as HTMLInputElement;
+  const getDescriptionInput = () => screen.getByLabelText("Guidance.fields.groupDescription.label", { exact: false }) as HTMLInputElement;
 
   it("should render form with loaded guidance group data", async () => {
     render(
@@ -108,8 +108,8 @@ describe("GuidanceGroupEditPage", () => {
 
     expect(screen.getByRole("heading", { name: "Guidance.pages.groupEdit.title" })).toBeInTheDocument();
     expect(screen.getByText("Guidance.pages.groupEdit.description")).toBeInTheDocument();
-    expect(screen.getByLabelText("Guidance.fields.groupName.label")).toBeInTheDocument();
-    expect(screen.getByLabelText("Guidance.fields.groupDescription.label")).toBeInTheDocument();
+    expect(screen.getByLabelText("Guidance.fields.groupName.label", { exact: false })).toBeInTheDocument();
+    expect(screen.getByLabelText("Guidance.fields.groupDescription.label", { exact: false })).toBeInTheDocument();
     const nameInput = getNameInput();
     const descriptionInput = getDescriptionInput();
     expect(nameInput.value).toBe("Existing Guidance Group");

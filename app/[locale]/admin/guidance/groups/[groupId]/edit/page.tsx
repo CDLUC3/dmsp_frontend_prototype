@@ -176,9 +176,11 @@ const GuidanceGroupEditPage: React.FC = () => {
                     name="name"
                     label={t("fields.groupName.label")}
                     value={guidanceGroup?.name}
+                    isRequired={true}
                     onChange={(e) => {
                       if (guidanceGroup) {
                         setGuidanceGroup({ ...guidanceGroup, name: e.target.value });
+                        setErrorMessages([]);
                       }
                     }}
                     placeholder={t("fields.groupName.placeholder")}
@@ -192,9 +194,11 @@ const GuidanceGroupEditPage: React.FC = () => {
                     onChange={(e) => {
                       if (guidanceGroup) {
                         setGuidanceGroup({ ...guidanceGroup, description: e.target.value });
+                        setErrorMessages([]);
                       }
                     }}
                     placeholder={t("fields.groupDescription.placeholder")}
+                    helpMessage={t("fields.groupDescription.helpText")}
                   />
                 </div>
 

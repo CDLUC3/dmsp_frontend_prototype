@@ -169,8 +169,12 @@ const GuidanceGroupCreatePage: React.FC = () => {
                     id="name"
                     label={t("fields.groupName.label")}
                     value={guidanceGroup.name}
-                    onChange={(e) => setGuidanceGroup({ ...guidanceGroup, name: e.target.value })}
+                    onChange={(e) => {
+                      setGuidanceGroup({ ...guidanceGroup, name: e.target.value });
+                      setErrorMessages([]);
+                    }}
                     placeholder={t("fields.groupName.placeholder")}
+                    isRequiredVisualOnly={true}
                   />
 
                   <FormInput
@@ -178,8 +182,12 @@ const GuidanceGroupCreatePage: React.FC = () => {
                     id="description"
                     label={t("fields.groupDescription.label")}
                     value={guidanceGroup.description}
-                    onChange={(e) => setGuidanceGroup({ ...guidanceGroup, description: e.target.value })}
+                    onChange={(e) => {
+                      setGuidanceGroup({ ...guidanceGroup, description: e.target.value });
+                      setErrorMessages([]);
+                    }}
                     placeholder={t("fields.groupDescription.placeholder")}
+                    helpMessage={t("fields.groupDescription.helpText")}
                   />
                 </div>
 

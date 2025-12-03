@@ -102,7 +102,7 @@ describe("GuidanceGroupCreatePage", () => {
     await waitForElementToBeRemoved(() => screen.getByText("Global.messaging.loading"));
     expect(screen.getByRole("heading", { name: "Guidance.pages.groupCreate.title" })).toBeInTheDocument();
     expect(screen.getByText("Guidance.pages.groupCreate.description")).toBeInTheDocument();
-    expect(screen.getByLabelText("Guidance.fields.groupName.label")).toBeInTheDocument();
+    expect(screen.getByLabelText("Guidance.fields.groupName.label", { exact: false })).toBeInTheDocument();
     const nameInput = document.querySelector('#name');
     expect(nameInput).toBeInTheDocument();
     expect(screen.getByLabelText("Guidance.fields.groupDescription.label")).toBeInTheDocument();

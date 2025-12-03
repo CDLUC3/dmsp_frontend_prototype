@@ -594,7 +594,8 @@
       },
       "groupDescription": {
         "label": "Group description",
-        "placeholder": "Enter group description"
+        "placeholder": "Enter group description",
+        "helpText": "Optional - for internal use only"
       },
       "title": {
         "label": "Title",

@@ -67,6 +67,7 @@ const GuidancePage: React.FC = () => {
           ? t('status.draft')
           : t('status.published');
 
+
       return {
         id: String(g.id),
         title: g.name || 'Untitled Guidance Group',
@@ -76,7 +77,7 @@ const GuidancePage: React.FC = () => {
         latestPublishedDate: g.latestPublishedDate ? formatDate(g.latestPublishedDate) : '',
         status: statusForGroup,
         description: g.description || '',
-        textCount: `${g?.guidance?.length || 0} / ${tagsData?.tags.length || 0} Tags with Guidance`,
+        textCount: `${g.guidance?.filter(guidance => guidance.tagId !== null).length ?? 0} / ${tagsData?.tags.length || 0} Tags with Guidance`,
         url: routePath("admin.guidance.groups.index", { groupId: String(g.id) }),
       };
     });
@@ -95,9 +96,7 @@ const GuidancePage: React.FC = () => {
             <Breadcrumb>
               <Link href={routePath("app.home")}>{Global("breadcrumbs.home")}</Link>
             </Breadcrumb>
-            <Breadcrumb>
-              <Link href={routePath("admin.guidance.index")}>{t("breadcrumbs.guidance")}</Link>
-            </Breadcrumb>
+            <Breadcrumb>{t("breadcrumbs.guidanceGroups")}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={
