@@ -799,6 +799,7 @@
       "unsupportedQuestionType": "Unsupported question type {questionType}",
       "sectionIsExpanded": "Section is expanded",
       "sectionIsCollapsed": "Section is collapsed",
+      "continueAnyway": "Continue anyway",
       "error": "Something went wrong. Please try again.",
       "errors": {
         "invalidQuestionType": "Invalid question type found.",

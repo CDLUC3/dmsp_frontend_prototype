@@ -57,7 +57,8 @@ import {
   AddGuidanceResponse,
   UpdateGuidanceTextErrors,
   AddGuidanceTextErrors,
-  PublishGuidanceGroupErrors
+  PublishGuidanceGroupErrors,
+  GuidanceGroupStatus
 } from "@/app/types/guidance";
 
 import styles from "./guidanceGroupIndex.module.scss";
@@ -89,6 +90,20 @@ const GuidanceGroupIndexPage: React.FC = () => {
 
   // Set URLs
   const GROUP_EDIT_URL = routePath("admin.guidance.groups.edit", { groupId });
+
+  // Helper function to get translated status label
+  const getStatusLabel = (status: GuidanceGroupStatus): string => {
+    switch (status) {
+      case GuidanceGroupStatus.DRAFT:
+        return "t('status.draft');"
+      case GuidanceGroupStatus.PUBLISHED:
+        return t('status.published');
+      case GuidanceGroupStatus.UNPUBLISHED_CHANGES:
+        return t('status.unpublishedChanges');
+      default:
+        return status;
+    }
+  };
 
   // Query for all tags
   const { data: tagsData, loading: tagsLoading } = useTagsQuery();
@@ -143,6 +158,15 @@ const GuidanceGroupIndexPage: React.FC = () => {
   const handleUnpublish = useCallback(async () => {
     setErrorMessages([]);
 
+    if (hasUnsavedChanges) {
+      const confirmProceed = window.confirm(
+        Global("messaging.unsavedChangesWarning") + " " + Global("messaging.continueAnyway")
+      );
+      if (!confirmProceed) {
+        return;
+      }
+    }
+
     if (guidanceGroup?.guidanceGroupId === undefined) {
       setErrorMessages(['Guidance Group ID is undefined']);
       return;
@@ -177,18 +201,26 @@ const GuidanceGroupIndexPage: React.FC = () => {
             url: { path: routePath("admin.guidance.groups.create") },
           });
         } else {
-          setHasUnsavedChanges(false);
           const successMessage = t("messages.success.guidanceGroupUnpublished", { groupName: guidanceGroup?.name });
           toastState.add(successMessage, { type: "success" });
           router.push(routePath("admin.guidance.index"));
         }
       }
     }
-  }, [guidanceGroup, Global, router]);
+  }, [guidanceGroup, Global, router, hasUnsavedChanges, t, toastState]);
 
 
   const handlePublish = useCallback(async () => {
     setErrorMessages([]);
+
+    if (hasUnsavedChanges) {
+      const confirmProceed = window.confirm(
+        Global("messaging.unsavedChangesWarning") + " " + Global("messaging.continueAnyway")
+      );
+      if (!confirmProceed) {
+        return;
+      }
+    }
 
     if (guidanceGroup?.guidanceGroupId === undefined) {
       setErrorMessages(['Guidance Group ID is undefined']);
@@ -224,14 +256,13 @@ const GuidanceGroupIndexPage: React.FC = () => {
             url: { path: routePath("admin.guidance.groups.create") },
           });
         } else {
-          setHasUnsavedChanges(false);
           const successMessage = t("messages.success.guidanceGroupPublished", { groupName: guidanceGroup?.name });
           toastState.add(successMessage, { type: "success" });
           router.push(routePath("admin.guidance.index"));
         }
       }
     }
-  }, [guidanceGroup, Global, router]);
+  }, [guidanceGroup, Global, router, hasUnsavedChanges, t, toastState]);
 
   // Handler to update guidance or add new one based on the tagId
   const handleSaveGuidance = async (tagId: number) => {
@@ -299,8 +330,8 @@ const GuidanceGroupIndexPage: React.FC = () => {
         toastState.add(successMessage, { type: "success" });
 
         // Optimistically update guidance group status if it was previously published
-        setGuidanceGroup(prev => prev && prev.status === t('status.published')
-          ? { ...prev, status: t('status.unpublishedChanges') }
+        setGuidanceGroup(prev => prev && prev.status === GuidanceGroupStatus.PUBLISHED
+          ? { ...prev, status: GuidanceGroupStatus.UNPUBLISHED_CHANGES }
           : prev);
       }
     } else {
@@ -368,8 +399,8 @@ const GuidanceGroupIndexPage: React.FC = () => {
         }
 
         // Optimistically update guidance group status if it was previously published
-        setGuidanceGroup(prev => prev && prev.status === t('status.published')
-          ? { ...prev, status: t('status.unpublishedChanges') }
+        setGuidanceGroup(prev => prev && prev.status === GuidanceGroupStatus.PUBLISHED
+          ? { ...prev, status: GuidanceGroupStatus.UNPUBLISHED_CHANGES }
           : prev);
 
         const successMessage = t("messages.success.guidanceTextAdded", { tagName: tagItem.tag.name });
@@ -431,10 +462,10 @@ const GuidanceGroupIndexPage: React.FC = () => {
 
       // Publish status is determined based on isDirty and latestPublishedDate, and on whether the latest version of versionedGuidanceGroup is active
       const currentStatus = guidanceGroupData.guidanceGroup.isDirty && guidanceGroupData.guidanceGroup.latestPublishedDate
-        ? t('status.unpublishedChanges') // Unpublished changes
+        ? GuidanceGroupStatus.UNPUBLISHED_CHANGES
         : !guidanceGroupData.guidanceGroup.latestPublishedDate || !isLatestVersionActive
-          ? t('status.draft')
-          : t('status.published');
+          ? GuidanceGroupStatus.DRAFT
+          : GuidanceGroupStatus.PUBLISHED;
 
       const transformedGuidanceGroup: GuidanceGroup = {
         guidanceGroupId: Number(guidanceGroupData.guidanceGroup?.id),
@@ -495,9 +526,9 @@ const GuidanceGroupIndexPage: React.FC = () => {
 
   // Determine button disabled states
   const isUnpublishUnavailable =
-    !guidanceGroup || guidanceGroup.status === t('status.draft');
+    !guidanceGroup || guidanceGroup.status === GuidanceGroupStatus.DRAFT;
 
-  const isPublishUnavailable = !guidanceGroup || guidanceGroup.status === t('status.published');
+  const isPublishUnavailable = !guidanceGroup || guidanceGroup.status === GuidanceGroupStatus.PUBLISHED;
 
   return (
     <>
@@ -683,7 +714,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
               <div className={`panelRow mb-5`}>
                 <div>
                   <h3>{t('status.publicationStatus')}</h3>
-                  <p>{guidanceGroup?.status}</p>
+                  <p>{guidanceGroup?.status ? getStatusLabel(guidanceGroup.status) : ''}</p>
                 </div>
               </div>
             </div>

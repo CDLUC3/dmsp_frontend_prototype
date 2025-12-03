@@ -1,5 +1,11 @@
 import { TagsInterface } from "@/app/types";
 
+export enum GuidanceGroupStatus {
+  DRAFT = 'draft',
+  PUBLISHED = 'published',
+  UNPUBLISHED_CHANGES = 'unpublishedChanges'
+}
+
 export interface GuidanceTag {
   id: number;
   name: string;
@@ -47,7 +53,7 @@ export interface GuidanceGroup {
   description: string;
   optionalSubset: boolean;
   bestPractice?: boolean;
-  status: string;
+  status: GuidanceGroupStatus;
   lastPublishedDate: string;
 }
 

@@ -788,6 +788,7 @@
       "unsupportedQuestionType": "Tipo de pergunta {questionType} sem suporte",
       "sectionIsExpanded": "Secção expandida",
       "sectionIsCollapsed": "Seção colapsada",
+      "continueAnyway": "Continuar assim mesmo",
       "error": "Ocorreu um erro. Tente novamente.",
       "errors": {
         "invalidQuestionType": "Tipo de questão inválido encontrado.",
