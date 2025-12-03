@@ -10,7 +10,7 @@ export async function updateGuidanceAction({
   tagId
 }: {
   guidanceId: number;
-  guidanceText: string;
+  guidanceText?: string;
   tagId: number;
 }): Promise<ActionResponse> {
   // Execute the mutation using the shared handler

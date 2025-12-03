@@ -244,12 +244,6 @@ const GuidanceGroupIndexPage: React.FC = () => {
     // Get the text to save from the guidance object
     const textToSave = tagItem.guidance?.guidanceText ?? "";
 
-    // Don't save if there's no text
-    if (!textToSave.trim()) {
-      alert("Please enter guidance text before saving.");
-      return;
-    }
-
     // Use a temporary ID for new guidance that's being saved
     const savingId = tagItem.guidance?.id ?? `new-${tagId}`;
     setSavingGuidanceId(savingId);
