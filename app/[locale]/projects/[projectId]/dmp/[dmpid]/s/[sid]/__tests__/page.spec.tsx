@@ -89,7 +89,8 @@ const versionedSectionMock = {
   tags: {
     id: 1,
     description: 'one',
-    name: 'one'
+    name: 'one',
+    slug: 'one'
   },
   versionedQuestions: {
     errors: {
