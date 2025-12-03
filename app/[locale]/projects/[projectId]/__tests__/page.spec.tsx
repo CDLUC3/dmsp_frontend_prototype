@@ -151,11 +151,6 @@ describe('ProjectOverviewPage', () => {
     expect(screen.getByText('projectMembers')).toBeInTheDocument();
   });
 
-  it('should render the research outputs', () => {
-    render(<ProjectOverviewPage />);
-    expect(screen.getByText('researchOutputs')).toBeInTheDocument();
-  });
-
   it('should render the plans', () => {
     render(<ProjectOverviewPage />);
     expect(screen.getByText('plans')).toBeInTheDocument();

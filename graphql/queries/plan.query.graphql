@@ -62,6 +62,7 @@ query Plan($planId: Int!) {
         name
         slug
         id
+        slug
         description
       }
     }
