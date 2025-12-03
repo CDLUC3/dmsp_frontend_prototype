@@ -454,7 +454,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
   useEffect(() => {
     if (!hasUnsavedChanges) return;
 
-    const handlePopState = (e: PopStateEvent) => {
+    const handlePopState = () => {
       const confirmLeave = window.confirm(
         Global("messaging.unsavedChangesWarning"));
 
