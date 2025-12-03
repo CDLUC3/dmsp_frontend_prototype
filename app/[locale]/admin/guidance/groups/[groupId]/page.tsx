@@ -95,7 +95,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
   const getStatusLabel = (status: GuidanceGroupStatus): string => {
     switch (status) {
       case GuidanceGroupStatus.DRAFT:
-        return "t('status.draft');"
+        return t('status.draft');
       case GuidanceGroupStatus.PUBLISHED:
         return t('status.published');
       case GuidanceGroupStatus.UNPUBLISHED_CHANGES:
