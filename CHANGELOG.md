@@ -32,6 +32,7 @@
 - Removed `scrollToTop` from `Template Create` page [#950]
 
 ### Chore
+- Updated `next` version to `15.5.7` due to vulnerability
 - Ran `npm audit fix` to address `glob` vulnerability and `js-yaml` vulnerability
 ====================================================================================================================================
 ## All changes above the line happened after the merge to the main branch on Nov 3, 2025
