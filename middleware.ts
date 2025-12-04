@@ -129,14 +129,12 @@ export async function middleware(request: NextRequest) {
         // We need to redirect to the same URL to ensure cookies are set properly in browser
         const newResponse = NextResponse.redirect(request.url);
 
-        // Copy Set-Cookie headers from backend → NextResponse
-        const setCookie = backendResponse.headers.get("set-cookie");
-        if (setCookie) {
-          // Multiple cookies can be comma-separated, handle them individually
-          setCookie.split(",").forEach(cookie => {
-            newResponse.headers.append("set-cookie", cookie);
-          });
-        }
+        // Copy Set-Cookie headers from backend response to NextResponse
+        backendResponse.headers.forEach((value, key) => {
+          if (key.toLowerCase() === 'set-cookie') {
+            newResponse.headers.append('set-cookie', value);
+          }
+        });
 
         return newResponse;
       }
