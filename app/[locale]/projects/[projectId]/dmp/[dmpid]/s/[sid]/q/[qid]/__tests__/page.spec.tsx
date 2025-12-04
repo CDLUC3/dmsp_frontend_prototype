@@ -7,7 +7,8 @@ import {
   useAnswerByVersionedQuestionIdQuery,
   usePublishedQuestionQuery,
   usePlanQuery,
-  useMeQuery
+  useMeQuery,
+  useGuidanceGroupsQuery
 } from '@/generated/graphql';
 import {
   addAnswerAction,
@@ -16,6 +17,7 @@ import {
 import mockAnswerData from '../__mocks__/mockAnswerData.json';
 import mockPlanData from '../__mocks__/mockPlanData.json';
 import mockPublishedQuestion from '../__mocks__/mockPublishedQuestion.json';
+import mockGuidanceGroupsData from '../__mocks__/mocksGuidanceGroupData.json';
 import mockMeData from '../__mocks__/mockMeQuery.json';
 // Mocked question data
 import mockCheckboxQuestion from '../__mocks__/mockCheckboxQuestion.json';
@@ -161,6 +163,7 @@ jest.mock("@/generated/graphql", () => ({
   usePlanQuery: jest.fn(),
   usePublishedQuestionQuery: jest.fn(),
   useAnswerByVersionedQuestionIdQuery: jest.fn(),
+  useGuidanceGroupsQuery: jest.fn(),
 }));
 
 // Mock actions
@@ -214,13 +217,20 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     mockUseComments.mockReturnValue(defaultMockReturn);
 
-    (usePlanQuery as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce(mockPlanData),
-      { loading: false, error: undefined },
-    ]);
+    (usePlanQuery as jest.Mock).mockReturnValue({
+      data: mockPlanData,
+      loading: false,
+      error: undefined,
+    });
 
     (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockPublishedQuestion,
+      loading: false,
+      error: undefined,
+    });
+
+    (useGuidanceGroupsQuery as jest.Mock).mockReturnValue({
+      data: mockGuidanceGroupsData,
       loading: false,
       error: undefined,
     });
@@ -270,9 +280,10 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByTestId('question-card')).toBeInTheDocument();
     // Should strip out HTML tags for the Question Text
     expect(screen.getByRole('heading', { level: 2, name: 'Text area question' })).toBeInTheDocument();
-    const requirementsByFunder = screen.getByText('page.requiredByFunder');
+    const requirementsByFunder = screen.getByText('page.requirementsBy');
     expect(requirementsByFunder).toBeInTheDocument();
-    expect(requirementsByFunder.tagName).toBe('STRONG');
+    expect(screen.getByText((content) => content.includes('is simply dummy requirements'))).toBeInTheDocument();
+    expect(requirementsByFunder.tagName).toBe('H3');
     // check for info icon button
     expect(screen.getByRole('button', { name: 'Required by funder' })).toBeInTheDocument();
     // check for drawer panel trigger buttons
@@ -282,13 +293,17 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByLabelText('question-text-editor')).toBeInTheDocument();
 
     // Check for guidance content
-    expect(screen.getByRole('heading', { level: 3, name: 'page.guidanceBy' })).toBeInTheDocument();
     const boldedGuidance = screen.getByText('Guidance text - Lorem Ipsum');
     expect(boldedGuidance).toBeInTheDocument();
     expect(boldedGuidance.tagName).toBe('STRONG');
     expect(screen.getByText((content) => content.includes('is simply dummy guidance text'))).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 3, name: 'Guidance by University of California' }));
-    const orgGuidance = screen.getByText(/This is the most detailed section/i);
+    // There are multiple h3 headings with 'page.guidanceBy' (one for funder, one for org)
+    const guidanceHeadings = screen.getAllByRole('heading', { level: 3, name: 'page.guidanceBy' });
+    expect(guidanceHeadings).toHaveLength(2);
+    expect(screen.getByText('Use the active voice whenever possible')).toBeInTheDocument();
+    expect(screen.getByText("Dot your i's and cross your t's")).toBeInTheDocument();
+    expect(screen.getByText('Guidance text - Lorem Ipsum')).toBeInTheDocument();
+    const orgGuidance = screen.getByText(/is simply dummy guidance text/i);
     expect(orgGuidance.tagName).toBe('P');
     expect(screen.getByRole('button', { name: 'labels.saveAnswer' })).toBeInTheDocument();
 
@@ -2245,5 +2260,70 @@ describe('Prevent unload when user has unsaved changes', () => {
         expect(event.returnValue).toBe('');
       }
     });
+  });
+});
+
+describe('Auto save', () => {
+  it('should show saved message after auto-saving changes', async () => {
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+
+    // Mock window.tinymce
+    window.tinymce = {
+      init: jest.fn(),
+      remove: jest.fn(),
+    };
+
+    mockUseParams.mockReturnValue({ projectId: 1, dmpid: 1, sid: 22, qid: 344 });
+    mockUseRouter.mockReturnValue({
+      push: jest.fn(),
+    });
+
+    (useMeQuery as jest.Mock).mockReturnValue({
+      data: mockMeData,
+      loading: false,
+      error: undefined
+    });
+
+
+    (usePlanQuery as jest.Mock).mockReturnValue({
+      data: mockPlanData,
+      loading: false,
+      error: undefined,
+    });
+
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockCheckboxQuestion,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockCheckboxAnswer,
+      loading: false,
+      error: undefined,
+    });
+
+    const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    const checkboxGroup = screen.getByTestId('checkbox-group');
+    expect(checkboxGroup).toBeInTheDocument();
+    const checkboxes = within(checkboxGroup).getAllByRole('checkbox');
+    const alexCheckbox = checkboxes.find(
+      (checkbox) => (checkbox as HTMLInputElement).value === 'Alex'
+    );
+
+    fireEvent.click(alexCheckbox!);
+
+    const lastSavedText = screen.getByText('messages.unsavedChanges');
+    expect(lastSavedText).toBeInTheDocument();
+    // Verify timeout scheduled
+    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 3000);
+
+    setTimeoutSpy.mockRestore();
   });
 });

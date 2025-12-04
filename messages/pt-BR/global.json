@@ -1,8 +1,34 @@
 {
   "HomePage": {
     "title": "Página inicial",
-    "linkText": "Ir para a página de conexões",
-    "content": "É um fato estabelecido há muito tempo que um leitor se distrairá com o conteúdo legível de uma página ao observar sua disposição."
+    "createAndManage": {
+      "title": "Criar e Gerenciar",
+      "description": "Criar novos modelos e projetos"
+    },
+    "accountAndAdmin": {
+      "title": "Conta e Administração",
+      "description": "Gerenciar sua conta e acessar recursos administrativos"
+    },
+    "sections": {
+      "templateManagement": {
+        "title": "Gerenciamento de Modelos",
+        "description": "Criar e gerenciar modelos (É necessário ser administrador para acessar)"
+      },
+      "planDashboard": {
+        "title": "Painel de Planos",
+        "description": "Criar e gerenciar projetos"
+      },
+      "accountSettings": {
+        "title": "Configurações da Conta",
+        "description": "Visualizar e gerenciar sua conta"
+      },
+      "adminOverview": {
+        "title": "Visão Geral do Administrador",
+        "description": "Acessar funções administrativas"
+      }
+    },
+    "linkText": "Ir para a página de Conexões",
+    "content": "É um fato amplamente estabelecido que um leitor será distraído pelo conteúdo legível de uma página ao olhar para seu layout."
   },
   "About": {
     "title": "Bem-vindo à Ferramenta DMP"
@@ -11,7 +37,7 @@
     "menuDashboard": "Painel de controle",
     "menuUpload": "Carregar plano",
     "menuCreatePlan": "Criar plano",
-    "menuProjectsPlans": "Projetos e Planos",
+    "menuProjectsPlans": "Painel de Planos",
     "menuPublicPlans": "Planos públicos",
     "menuFunderRequirements": "Requisitos de Barbatana",
     "menuAbout": "Sobre",
@@ -530,7 +556,7 @@
         "createGroup": "Criar grupo de orientação"
       },
       "groupIndex": {
-        "title": "Textos de Orientação",
+        "title": "Editar {groupName}",
         "description": "Gerenciar os textos de orientação neste grupo",
         "createText": "Criar texto de orientação",
         "editGroup": "Editar grupo"
@@ -586,7 +612,12 @@
       "draft": "Rascunho",
       "archived": "Arquivado",
       "lastUpdated": "Última atualização",
-      "status": "SItuação"
+      "status": "SItuação",
+      "publicationStatus": "Status da Publicação",
+      "lastPublished": "Última publicação",
+      "notYetPublished": "Ainda não publicado",
+      "unpublishedChanges": "Alterações não publicadas",
+      "publishedVersion": "Versão publicada"
     },
     "actions": {
       "createGroup": "Criar grupo",
@@ -606,7 +637,18 @@
     },
     "messages": {
       "noGroups": "Não foram encontrados grupos de orientação",
-      "noTexts": "Não há textos de orientação encontrados neste grupo"
+      "noTexts": "Não há textos de orientação encontrados neste grupo",
+      "loadingPleaseWait": "Carregando, por favor aguarde...",
+      "unPublishBtnTooltipMessage": "Não é possível despublicar o grupo de orientação porque não há versões publicadas.",
+      "publishBtnTooltipMessage": "O grupo de orientação já está publicado.",
+      "success": {
+        "guidanceGroupCreated": "Grupo de orientação {groupName} criado com sucesso",
+        "guidanceGroupPublished": "Grupo de orientação {groupName} publicado com sucesso",
+        "guidanceGroupUnpublished": "Grupo de orientação {groupName} despublicado com sucesso",
+        "guidanceGroupUpdated": "Grupo de orientação {groupName} atualizado com sucesso",
+        "guidanceTextAdded": "Texto de orientação adicionado com sucesso a {tagName}. As alterações precisam ser publicadas para entrarem em vigor.",
+        "guidanceTextUpdated": "Texto de orientação para {tagName} atualizado com sucesso. As alterações precisam ser publicadas para entrarem em vigor."
+      }
     }
   },
   "Global": {
@@ -629,6 +671,8 @@
       "selectQuestionType": "Selecionar o tipo de questão",
       "project": "Projeto",
       "projects": "Projetos",
+      "planDashboard": "Painel do plano",
+      "startDMP": "Iniciar DMP",
       "projectOverview": "Visão geral do projeto",
       "projectFunding": "Orçamento do projeto",
       "projectFundingSearch": "Pesquisa de financiamento de projeto",
@@ -683,6 +727,8 @@
       "delete": "Apagar",
       "preview": "Pré-visualizar",
       "publish": "Publicar",
+      "publishChanges": "Publicar alterações",
+      "unpublish": "Despublicar",
       "close": "Fechar",
       "closeModal": "Fechar modal",
       "loadMore": "Carregar mais",
@@ -693,7 +739,8 @@
       "customize": "Personalizar",
       "applyFilter": "Aplicar filtro(s)",
       "moreInfo": "Mais informações",
-      "lessInfo": "Menos informações"
+      "lessInfo": "Menos informações",
+      "createNewPlan": "Criar novo DMP"
     },
     "labels": {
       "required": "Obrigatório",
@@ -715,7 +762,7 @@
       "funderSearch": "Pesquisar por organização de pesquisa, nome do financiador ou palavras-chave relacionadas."
     },
     "descriptions": {
-      "requiredFieldDescription": "Esta pergunta deve incluir um aviso para o construtor do plano de que é necessária uma resposta como condição para aceitar o DMP? Os usuários poderão enviar o DMP, mesmo se eles não responderem)"
+      "requiredFieldDescription": "Avise os usuários que esta é considerada uma pergunta obrigatória para este modelo de DMP pela organização. Os usuários poderão optar por ignorá-la na ferramenta e não precisarão respondê-la antes de prosseguir."
     },
     "placeholders": {
       "funderSearch": "Insira o nome da pasta"
@@ -741,6 +788,7 @@
       "unsupportedQuestionType": "Tipo de pergunta {questionType} sem suporte",
       "sectionIsExpanded": "Secção expandida",
       "sectionIsCollapsed": "Seção colapsada",
+      "continueAnyway": "Continuar assim mesmo",
       "error": "Ocorreu um erro. Tente novamente.",
       "errors": {
         "invalidQuestionType": "Tipo de questão inválido encontrado.",

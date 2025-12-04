@@ -1471,7 +1471,7 @@ describe("Research Output Question Type", () => {
     expect(screen.getByText('Output Type')).toBeInTheDocument();
     expect(screen.getByText('Description')).toBeInTheDocument();
     expect(screen.getByText('Data Flags')).toBeInTheDocument();
-    expect(screen.getByText('Repo selector')).toBeInTheDocument();
+    expect(screen.getByText('Repositories')).toBeInTheDocument();
     expect(screen.getByText('Metadata Standards')).toBeInTheDocument();
     expect(screen.getByText('Licenses')).toBeInTheDocument();
   });
@@ -1830,13 +1830,13 @@ describe("Research Output Question Type", () => {
     });
 
     // Enable repo selector field
-    const repoSelectorCheckbox = screen.getByLabelText('Repo selector');
+    const repoSelectorCheckbox = screen.getByLabelText('Repositories');
     await act(async () => {
       fireEvent.click(repoSelectorCheckbox);
     });
 
     // Should show repository configuration
-    expect(screen.getByText('researchOutput.repoSelector.descriptionLabel')).toBeInTheDocument();
+    expect(screen.getByText('labels.helpText')).toBeInTheDocument();
   });
 
   it('should handle metadata standards configuration', async () => {
@@ -1870,7 +1870,7 @@ describe("Research Output Question Type", () => {
     });
 
     // Should show metadata standards configuration
-    expect(screen.getByText('researchOutput.metaDataStandards.descriptionLabel')).toBeInTheDocument();
+    expect(screen.getByText('labels.helpText')).toBeInTheDocument();
   });
 
   it('should handle license configuration', async () => {
@@ -2000,7 +2000,7 @@ describe("Research Output Question Type", () => {
     });
 
     // Enable repo selector field
-    const repoSelectorCheckbox = screen.getByLabelText('Repo selector');
+    const repoSelectorCheckbox = screen.getByLabelText('Repositories');
     await act(async () => {
       fireEvent.click(repoSelectorCheckbox);
     });

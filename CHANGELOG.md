@@ -1,4 +1,50 @@
 ### Added
+- Added missing `slug` property to all `tags` in the graphQL queries 
+- Added guidance text from the backend to the Question Answer page [#580]
+- Added new, shared `ProjectRoles` component that generates the list of Project Roles for both the Project Member Search and Edit Project member pages [#945]
+- Added `Help text` fields to `Description, Repositories, Metadata Standards, License, Access Level and Custom Text` fields in Research Output question type [#970]
+- Added customizable `Initial Access Level` field to the QuestionAdd page for Research Outputs question type [#969]
+- Added new `Start DMP` page at `projects/[projectId]/dmp/start` to direct user to create new plan or upload existing [#956]
+- Added `autosave` back to the `PlanOverviewQuestionpage` [#944]
+- Hooked up the `Download plan` page and added a `download-narrative` api endpoint [#313]
+
+### Updated
+- Guidance page updates [#934]
+  - Hooked up `admin/guidance` page that lists all the `guidance groups` and offers `Create Guidance Group` button and edit options for existing Guidance Groups [#934]
+  - Hooked up `admin/guidance/groups/create`, and created a new page for `admin/guidance/groups/[groupId]` to include guidance text for all tags in one place and to allow    
+    publishing at that level [#934]
+  - Added skeleton for loading of TinyMCEEditor. Especially needed it for the new Guidance Group Edit page, since we are loading so many at once [#934] 
+  - Updated stripHtmlTags to include replacement of `&nbsp;` [#934]
+  - Updated `DashboardListItem` to have the option to be fully clickable. This makes clicking on smaller devices easier [#934]
+- Made improvements to auth handling in `middleware` and `authHelper.ts` [#1035]
+- Made text changes to upcoming blog posts [#989]
+- For Research Outputs, updated repositories and metadata standards fields to be automatically enabled when user selects custom ones [#943]
+- Updated Licenses and Output Types to use label "Use custom list" [#943]
+- Updated `Output Types` in static `Research Outputs` table [#962]
+  - Added a description field to custom types
+  - Added tooltip icons next to each default output type with the description
+  - Updated Output Types component to behave like the Licenses component, where users can delete default types
+  - Updated unit test
+- Improved project creation steps by updating pages in the flow (header, home, plan dashboard, create project details,and funding search) to help users in creating a plan [#956]
+- Updated Project Details subdomains field to only display once a user selects a research domain [#947]
+- Updated `Remove` buttons to be `secondary` buttons, rather than `red` [#964]
+
+### Fixed
+- For Research Outputs, fixed custom Licenses select field to display selected value [#943]
+- Fixed issue where custom repos and standards were not saving in state [#943]
+
+### Removed
+- Removed Research Outputs section from the plan overview page
+- Removed reference to the old `outputs` association on the graphQL query
+- Removed `Description` fields for Research Output question fields [#970]
+- Removed `scrollToTop` from `Template Create` page [#950]
+
+### Chore
+- Updated `next` version to `15.5.7` due to vulnerability
+- Ran `npm audit fix` to address `glob` vulnerability and `js-yaml` vulnerability
+====================================================================================================================================
+## All changes above the line happened after the merge to the main branch on Nov 3, 2025
+### Added
 - Added user's org as a filter for the Plan Create (`projects/9/dmp/create`) page, and updated filter text to include `organization` [#735]
   - Fixed filtering on the Plan Create (`projects/9/dmp/create`) page so that it takes search term into consideration when used with checked filters [#735]
   - Moved checkbox filters below search field to make them more noticeable [#735]
@@ -6,7 +52,7 @@
 - Removed `Title` field from TinyMCEEditor's `Insert Link` form, and made `new window` the default for `Open link in...` [#874]
 - Integrated related works UI with GraphQL backend.
 - Added updated description that includes template source, affiliation name, version and publish date on the `Plan Overview` page [#621]
-
+- Added plan feedback status (Feedback received, Feedback requested, No feedback) to the `Plan Overview` page [#411]
 
 ### Updated
 - Updated `TinyMCEEditor` to allow users to change text color and background color.

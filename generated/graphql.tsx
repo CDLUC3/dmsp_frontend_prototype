@@ -24,15 +24,29 @@ export type Scalars = {
   URL: { input: any; output: any; }
 };
 
-/** The status of the funding */
-export enum AccessLevel {
-  /** Access requests must be reviewed and then permitted */
-  Controlled = 'CONTROLLED',
-  /** Any other type of access level */
-  Other = 'OTHER',
-  /** Access to the output will be public/open */
-  Unrestricted = 'UNRESTRICTED'
-}
+/** Input for adding a new GuidanceGroup */
+export type AddGuidanceGroupInput = {
+  /** The affiliation (organization ror) that owns this GuidanceGroup. Optional: super-admins may set this; regular admins should omit it (their own affiliation will be used). */
+  affiliationId?: InputMaybe<Scalars['String']['input']>;
+  /** Whether this is a best practice GuidanceGroup */
+  bestPractice?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The description of the GuidanceGroup */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** The name of the GuidanceGroup */
+  name: Scalars['String']['input'];
+  /** Whether this is an optional subset for departmental use */
+  optionalSubset?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** Input for adding a new Guidance item */
+export type AddGuidanceInput = {
+  /** The GuidanceGroup this Guidance belongs to */
+  guidanceGroupId: Scalars['Int']['input'];
+  /** The guidance text content */
+  guidanceText?: InputMaybe<Scalars['String']['input']>;
+  /** The Tags associated with this Guidance */
+  tagId?: InputMaybe<Scalars['Int']['input']>;
+};
 
 export type AddMetadataStandardInput = {
   /** A description of the metadata standard */
@@ -79,31 +93,6 @@ export type AddProjectMemberInput = {
   projectId: Scalars['Int']['input'];
   /** The Member's last/sur name */
   surName?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type AddProjectOutputInput = {
-  /** The date the output is expected to be deposited (YYYY-MM-DD format) */
-  anticipatedReleaseDate?: InputMaybe<Scalars['String']['input']>;
-  /** A description of the output */
-  description?: InputMaybe<Scalars['String']['input']>;
-  /** The initial access level that will be allowed for the output */
-  initialAccessLevel?: InputMaybe<Scalars['String']['input']>;
-  /** The initial license that will apply to the output */
-  initialLicenseId?: InputMaybe<Scalars['Int']['input']>;
-  /** Whether or not the output may contain personally identifying information (PII) */
-  mayContainPII?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Whether or not the output may contain sensitive data */
-  mayContainSensitiveInformation?: InputMaybe<Scalars['Boolean']['input']>;
-  /** The metadata standards that will be used to describe the output */
-  metadataStandardIds?: InputMaybe<Array<Scalars['Int']['input']>>;
-  /** The type of output */
-  outputTypeId: Scalars['Int']['input'];
-  /** The id of the project you are adding the output to */
-  projectId: Scalars['Int']['input'];
-  /** The repositories the output will be deposited in */
-  respositoryIds?: InputMaybe<Array<Scalars['Int']['input']>>;
-  /** The title/name of the output */
-  title: Scalars['String']['input'];
 };
 
 /** Input for adding a new QuestionCondition */
@@ -246,6 +235,7 @@ export type Affiliation = {
   funder: Scalars['Boolean']['output'];
   /** The Crossref Funder id */
   fundrefId?: Maybe<Scalars['String']['output']>;
+  guidanceGroups?: Maybe<Array<GuidanceGroup>>;
   /** The official homepage for the affiliation */
   homepage?: Maybe<Scalars['String']['output']>;
   /** The unique identifer for the affiliation (assigned by the Database) */
@@ -721,6 +711,95 @@ export type FunderPopularityResult = {
   uri: Scalars['String']['output'];
 };
 
+/** A Guidance item contains guidance text and associated tag id */
+export type Guidance = {
+  __typename?: 'Guidance';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<GuidanceErrors>;
+  /** The GuidanceGroup this Guidance belongs to */
+  guidanceGroup?: Maybe<GuidanceGroup>;
+  /** The GuidanceGroup this Guidance belongs to */
+  guidanceGroupId: Scalars['Int']['output'];
+  /** The guidance text content */
+  guidanceText?: Maybe<Scalars['String']['output']>;
+  /** The unique identifier for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The timestamp when the Object was last modified */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** User who modified the guidance last */
+  modifiedBy?: Maybe<User>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The Tag associated with the guidance */
+  tag?: Maybe<Tag>;
+  /** The tag id associated with this Guidance */
+  tagId?: Maybe<Scalars['Int']['output']>;
+};
+
+/** A collection of errors related to Guidance */
+export type GuidanceErrors = {
+  __typename?: 'GuidanceErrors';
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  guidanceGroupId?: Maybe<Scalars['String']['output']>;
+  guidanceText?: Maybe<Scalars['String']['output']>;
+  tagId?: Maybe<Scalars['String']['output']>;
+};
+
+/** A GuidanceGroup contains a collection of Guidance items for an organization */
+export type GuidanceGroup = {
+  __typename?: 'GuidanceGroup';
+  /** The affiliation (organization) that owns this GuidanceGroup */
+  affiliationId: Scalars['String']['output'];
+  /** Whether this is a best practice GuidanceGroup */
+  bestPractice: Scalars['Boolean']['output'];
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** The description of the GuidanceGroup */
+  description?: Maybe<Scalars['String']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<GuidanceGroupErrors>;
+  /** The Guidance items in this group */
+  guidance?: Maybe<Array<Guidance>>;
+  /** The unique identifier for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** Whether this GuidanceGroup has been modified since last publish */
+  isDirty: Scalars['Boolean']['output'];
+  /** The date when this was last published */
+  latestPublishedDate?: Maybe<Scalars['String']['output']>;
+  /** The version identifier of the latest published version */
+  latestPublishedVersion?: Maybe<Scalars['String']['output']>;
+  /** The timestamp when the Object was last modified */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** User who modified the guidance group last */
+  modifiedBy?: Maybe<User>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the GuidanceGroup */
+  name: Scalars['String']['output'];
+  /** Whether this is an optional subset for departmental use */
+  optionalSubset: Scalars['Boolean']['output'];
+  /** VersionedGuidanceGroups associated with this GuidanceGroup */
+  versionedGuidanceGroup?: Maybe<Array<Maybe<VersionedGuidanceGroup>>>;
+};
+
+/** A collection of errors related to the GuidanceGroup */
+export type GuidanceGroupErrors = {
+  __typename?: 'GuidanceGroupErrors';
+  affiliationId?: Maybe<Scalars['String']['output']>;
+  bestPractice?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+};
+
 /** Output type for the initializePlanVersion mutation */
 export type InitializePlanVersionOutput = {
   __typename?: 'InitializePlanVersionOutput';
@@ -936,6 +1015,10 @@ export type Mutation = {
   addAnswerComment?: Maybe<AnswerComment>;
   /** Add feedback comment for an answer within a round of feedback */
   addFeedbackComment?: Maybe<PlanFeedbackComment>;
+  /** Create a new Guidance item */
+  addGuidance: Guidance;
+  /** Create a new GuidanceGroup */
+  addGuidanceGroup: GuidanceGroup;
   /** Add a new License (don't make the URI up! should resolve to an taxonomy HTML/JSON representation of the object) */
   addLicense?: Maybe<License>;
   /** Add a new member role (URL and label must be unique!) */
@@ -956,8 +1039,6 @@ export type Mutation = {
   addProjectFunding?: Maybe<ProjectFunding>;
   /** Add a Member to a research project */
   addProjectMember?: Maybe<ProjectMember>;
-  /** Add an output to a research project */
-  addProjectOutput?: Maybe<ProjectOutput>;
   /** Create a new Question */
   addQuestion: Question;
   /** Create a new QuestionCondition associated with a question */
@@ -966,6 +1047,8 @@ export type Mutation = {
   addRelatedWork?: Maybe<RelatedWorkSearchResult>;
   /** Add a new Repository */
   addRepository?: Maybe<Repository>;
+  /** Add a new research output type (name must be unique!) */
+  addResearchOutputType?: Maybe<ResearchOutputType>;
   /** Create a new Section. Leave the 'copyFromVersionedSectionId' blank to create a new section from scratch */
   addSection: Section;
   /** Add a new tag to available list of tags */
@@ -998,6 +1081,8 @@ export type Mutation = {
   mergeUsers?: Maybe<User>;
   /** Import a project from an external source */
   projectImport?: Maybe<Project>;
+  /** Publish a GuidanceGroup (creates a VersionedGuidanceGroup snapshot) */
+  publishGuidanceGroup: GuidanceGroup;
   /** Publish a plan (changes status to PUBLISHED) */
   publishPlan?: Maybe<Plan>;
   /** Delete an Affiliation (only applicable to AffiliationProvenance == DMPTOOL) */
@@ -1006,6 +1091,10 @@ export type Mutation = {
   removeAnswerComment?: Maybe<AnswerComment>;
   /** Remove feedback comment for an answer within a round of feedback */
   removeFeedbackComment?: Maybe<PlanFeedbackComment>;
+  /** Delete a Guidance item */
+  removeGuidance: Guidance;
+  /** Delete a GuidanceGroup */
+  removeGuidanceGroup: GuidanceGroup;
   /** Delete a License */
   removeLicense?: Maybe<License>;
   /** Delete the member role */
@@ -1022,16 +1111,14 @@ export type Mutation = {
   removeProjectFunding?: Maybe<ProjectFunding>;
   /** Remove a research project Member */
   removeProjectMember?: Maybe<ProjectMember>;
-  /** Remove a research project output */
-  removeProjectOutput?: Maybe<ProjectOutput>;
-  /** Remove an Output from a Plan */
-  removeProjectOutputFromPlan?: Maybe<ProjectOutput>;
   /** Delete a Question */
   removeQuestion?: Maybe<Question>;
   /** Remove a QuestionCondition using a specific QuestionCondition id */
   removeQuestionCondition?: Maybe<QuestionCondition>;
   /** Delete a Repository */
   removeRepository?: Maybe<Repository>;
+  /** Delete the research output type */
+  removeResearchOutputType?: Maybe<ResearchOutputType>;
   /** Delete a section */
   removeSection: Section;
   /** Delete a tag */
@@ -1046,14 +1133,14 @@ export type Mutation = {
   requestFeedback?: Maybe<PlanFeedback>;
   /** Resend an invite to a ProjectCollaborator */
   resendInviteToProjectCollaborator?: Maybe<ProjectCollaborator>;
-  /** Add an Output to a Plan */
-  selectProjectOutputForPlan?: Maybe<ProjectOutput>;
   /** Designate the email as the current user's primary email address */
   setPrimaryUserEmail?: Maybe<Array<Maybe<UserEmail>>>;
   /** Set the user's ORCID */
   setUserOrcid?: Maybe<User>;
   /** Initialize an PLanVersion record in the DynamoDB for all Plans that do not have one */
   superInitializePlanVersions: InitializePlanVersionOutput;
+  /** Unpublish a GuidanceGroup (sets active flag to false on current version) */
+  unpublishGuidanceGroup: GuidanceGroup;
   /** Update an Affiliation */
   updateAffiliation?: Maybe<Affiliation>;
   /** Edit an answer */
@@ -1062,6 +1149,10 @@ export type Mutation = {
   updateAnswerComment?: Maybe<AnswerComment>;
   /** Update feedback comment for an answer within a round of feedback */
   updateFeedbackComment?: Maybe<PlanFeedbackComment>;
+  /** Update an existing Guidance item */
+  updateGuidance: Guidance;
+  /** Update an existing GuidanceGroup */
+  updateGuidanceGroup: GuidanceGroup;
   /** Update a License record */
   updateLicense?: Maybe<License>;
   /** Update the member role */
@@ -1086,8 +1177,6 @@ export type Mutation = {
   updateProjectFunding?: Maybe<ProjectFunding>;
   /** Update a Member on the research project */
   updateProjectMember?: Maybe<ProjectMember>;
-  /** Update an output on the research project */
-  updateProjectOutput?: Maybe<ProjectOutput>;
   /** Update a Question */
   updateQuestion: Question;
   /** Update a QuestionCondition for a specific QuestionCondition id */
@@ -1098,6 +1187,8 @@ export type Mutation = {
   updateRelatedWorkStatus?: Maybe<RelatedWorkSearchResult>;
   /** Update a Repository record */
   updateRepository?: Maybe<Repository>;
+  /** Update the research output type */
+  updateResearchOutputType?: Maybe<ResearchOutputType>;
   /** Update a Section */
   updateSection: Section;
   /** Change the section's display order */
@@ -1144,6 +1235,16 @@ export type MutationAddFeedbackCommentArgs = {
   commentText: Scalars['String']['input'];
   planFeedbackId: Scalars['Int']['input'];
   planId: Scalars['Int']['input'];
+};
+
+
+export type MutationAddGuidanceArgs = {
+  input: AddGuidanceInput;
+};
+
+
+export type MutationAddGuidanceGroupArgs = {
+  input: AddGuidanceGroupInput;
 };
 
 
@@ -1210,11 +1311,6 @@ export type MutationAddProjectMemberArgs = {
 };
 
 
-export type MutationAddProjectOutputArgs = {
-  input: AddProjectOutputInput;
-};
-
-
 export type MutationAddQuestionArgs = {
   input: AddQuestionInput;
 };
@@ -1232,6 +1328,12 @@ export type MutationAddRelatedWorkArgs = {
 
 export type MutationAddRepositoryArgs = {
   input?: InputMaybe<AddRepositoryInput>;
+};
+
+
+export type MutationAddResearchOutputTypeArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
 };
 
 
@@ -1328,6 +1430,11 @@ export type MutationProjectImportArgs = {
 };
 
 
+export type MutationPublishGuidanceGroupArgs = {
+  guidanceGroupId: Scalars['Int']['input'];
+};
+
+
 export type MutationPublishPlanArgs = {
   planId: Scalars['Int']['input'];
   visibility?: InputMaybe<PlanVisibility>;
@@ -1348,6 +1455,16 @@ export type MutationRemoveAnswerCommentArgs = {
 export type MutationRemoveFeedbackCommentArgs = {
   planFeedbackCommentId: Scalars['Int']['input'];
   planId: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveGuidanceArgs = {
+  guidanceId: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveGuidanceGroupArgs = {
+  guidanceGroupId: Scalars['Int']['input'];
 };
 
 
@@ -1391,17 +1508,6 @@ export type MutationRemoveProjectMemberArgs = {
 };
 
 
-export type MutationRemoveProjectOutputArgs = {
-  projectOutputId: Scalars['Int']['input'];
-};
-
-
-export type MutationRemoveProjectOutputFromPlanArgs = {
-  planId: Scalars['Int']['input'];
-  projectOutputId: Scalars['Int']['input'];
-};
-
-
 export type MutationRemoveQuestionArgs = {
   questionId: Scalars['Int']['input'];
 };
@@ -1414,6 +1520,11 @@ export type MutationRemoveQuestionConditionArgs = {
 
 export type MutationRemoveRepositoryArgs = {
   repositoryId: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveResearchOutputTypeArgs = {
+  id: Scalars['Int']['input'];
 };
 
 
@@ -1448,12 +1559,6 @@ export type MutationResendInviteToProjectCollaboratorArgs = {
 };
 
 
-export type MutationSelectProjectOutputForPlanArgs = {
-  planId: Scalars['Int']['input'];
-  projectOutputId: Scalars['Int']['input'];
-};
-
-
 export type MutationSetPrimaryUserEmailArgs = {
   email: Scalars['String']['input'];
 };
@@ -1461,6 +1566,11 @@ export type MutationSetPrimaryUserEmailArgs = {
 
 export type MutationSetUserOrcidArgs = {
   orcid: Scalars['String']['input'];
+};
+
+
+export type MutationUnpublishGuidanceGroupArgs = {
+  guidanceGroupId: Scalars['Int']['input'];
 };
 
 
@@ -1486,6 +1596,16 @@ export type MutationUpdateFeedbackCommentArgs = {
   commentText: Scalars['String']['input'];
   planFeedbackCommentId: Scalars['Int']['input'];
   planId: Scalars['Int']['input'];
+};
+
+
+export type MutationUpdateGuidanceArgs = {
+  input: UpdateGuidanceInput;
+};
+
+
+export type MutationUpdateGuidanceGroupArgs = {
+  input: UpdateGuidanceGroupInput;
 };
 
 
@@ -1565,11 +1685,6 @@ export type MutationUpdateProjectMemberArgs = {
 };
 
 
-export type MutationUpdateProjectOutputArgs = {
-  input: UpdateProjectOutputInput;
-};
-
-
 export type MutationUpdateQuestionArgs = {
   input: UpdateQuestionInput;
 };
@@ -1593,6 +1708,13 @@ export type MutationUpdateRelatedWorkStatusArgs = {
 
 export type MutationUpdateRepositoryArgs = {
   input?: InputMaybe<UpdateRepositoryInput>;
+};
+
+
+export type MutationUpdateResearchOutputTypeArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
 };
 
 
@@ -1635,39 +1757,6 @@ export type MutationUploadPlanArgs = {
   fileContent?: InputMaybe<Scalars['String']['input']>;
   fileName?: InputMaybe<Scalars['String']['input']>;
   projectId: Scalars['Int']['input'];
-};
-
-/** An output collected/produced during or as a result of a research project */
-export type OutputType = {
-  __typename?: 'OutputType';
-  /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['String']['output']>;
-  /** The user who created the Object */
-  createdById?: Maybe<Scalars['Int']['output']>;
-  /** A description of the type of output to be collected/generated during the project */
-  description?: Maybe<Scalars['String']['output']>;
-  /** Errors associated with the Object */
-  errors?: Maybe<OutputTypeErrors>;
-  /** The unique identifer for the Object */
-  id?: Maybe<Scalars['Int']['output']>;
-  /** The timestamp when the Object was last modifed */
-  modified?: Maybe<Scalars['String']['output']>;
-  /** The user who last modified the Object */
-  modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The name of the output type */
-  name: Scalars['String']['output'];
-  /** The taxonomy URL of the output type */
-  uri: Scalars['String']['output'];
-};
-
-/** A collection of errors related to the OutputType */
-export type OutputTypeErrors = {
-  __typename?: 'OutputTypeErrors';
-  description?: Maybe<Scalars['String']['output']>;
-  /** General error messages such as the object already exists */
-  general?: Maybe<Scalars['String']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-  uri?: Maybe<Scalars['String']['output']>;
 };
 
 export type PaginatedQueryResults = {
@@ -1743,8 +1832,6 @@ export type Plan = {
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** Anticipated research outputs */
-  outputs?: Maybe<Array<PlanOutput>>;
   /** The progress the user has made within the plan */
   progress?: Maybe<PlanProgress>;
   /** The project the plan is associated with */
@@ -1869,6 +1956,12 @@ export type PlanFeedbackErrors = {
   summaryText?: Maybe<Scalars['String']['output']>;
 };
 
+export enum PlanFeedbackStatusEnum {
+  Completed = 'COMPLETED',
+  None = 'NONE',
+  Requested = 'REQUESTED'
+}
+
 /** Funding associated with a plan */
 export type PlanFunding = {
   __typename?: 'PlanFunding';
@@ -1939,29 +2032,6 @@ export type PlanMemberErrors = {
   projectMemberId?: Maybe<Scalars['String']['output']>;
 };
 
-export type PlanOutput = {
-  __typename?: 'PlanOutput';
-  /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['String']['output']>;
-  /** The user who created the Object */
-  createdById?: Maybe<Scalars['Int']['output']>;
-  /** Errors associated with the Object */
-  errors?: Maybe<PlanOutputErrors>;
-  /** The unique identifer for the Object */
-  id?: Maybe<Scalars['Int']['output']>;
-  /** The timestamp when the Object was last modifed */
-  modified?: Maybe<Scalars['String']['output']>;
-  /** The user who last modified the Object */
-  modifiedById?: Maybe<Scalars['Int']['output']>;
-};
-
-/** A collection of errors related to the PlanOutput */
-export type PlanOutputErrors = {
-  __typename?: 'PlanOutputErrors';
-  /** General error messages such as the object already exists */
-  general?: Maybe<Scalars['String']['output']>;
-};
-
 export type PlanProgress = {
   __typename?: 'PlanProgress';
   /** The total number of questions the user has answered */
@@ -2013,6 +2083,8 @@ export type PlanSectionProgress = {
   answeredQuestions: Scalars['Int']['output'];
   /** The display order of the section */
   displayOrder: Scalars['Int']['output'];
+  /** Tags associated with the section */
+  tags?: Maybe<Array<Tag>>;
   /** The title of the section */
   title: Scalars['String']['output'];
   /** The number of questions in the section */
@@ -2077,8 +2149,6 @@ export type Project = {
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The outputs that will be/were created as a reult of the research project */
-  outputs?: Maybe<Array<ProjectOutput>>;
   /** The plans that are associated with the research project */
   plans?: Maybe<Array<PlanSearchResult>>;
   /** The type of research being done */
@@ -2148,7 +2218,6 @@ export type ProjectErrors = {
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
   memberIds?: Maybe<Scalars['String']['output']>;
-  outputIds?: Maybe<Scalars['String']['output']>;
   researchDomainId?: Maybe<Scalars['String']['output']>;
   startDate?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
@@ -2266,61 +2335,6 @@ export type ProjectMemberErrors = {
   orcid?: Maybe<Scalars['String']['output']>;
   projectId?: Maybe<Scalars['String']['output']>;
   surName?: Maybe<Scalars['String']['output']>;
-};
-
-/** Something produced/collected as part of (or as a result of) a research project */
-export type ProjectOutput = {
-  __typename?: 'ProjectOutput';
-  /** The date the output is expected to be deposited (YYYY-MM-DD format) */
-  anticipatedReleaseDate?: Maybe<Scalars['String']['output']>;
-  /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['String']['output']>;
-  /** The user who created the Object */
-  createdById?: Maybe<Scalars['Int']['output']>;
-  /** A description of the output */
-  description?: Maybe<Scalars['String']['output']>;
-  /** Errors associated with the Object */
-  errors?: Maybe<ProjectOutputErrors>;
-  /** The unique identifer for the Object */
-  id?: Maybe<Scalars['Int']['output']>;
-  /** The initial access level that will be allowed for the output */
-  initialAccessLevel: AccessLevel;
-  /** The initial license that will apply to the output */
-  initialLicense?: Maybe<License>;
-  /** Whether or not the output may contain personally identifying information (PII) */
-  mayContainPII?: Maybe<Scalars['Boolean']['output']>;
-  /** Whether or not the output may contain sensitive data */
-  mayContainSensitiveInformation?: Maybe<Scalars['Boolean']['output']>;
-  /** The metadata standards that will be used to describe the output */
-  metadataStandards?: Maybe<Array<MetadataStandard>>;
-  /** The timestamp when the Object was last modifed */
-  modified?: Maybe<Scalars['String']['output']>;
-  /** The user who last modified the Object */
-  modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The type of output */
-  outputType?: Maybe<OutputType>;
-  /** The project associated with the output */
-  project?: Maybe<Project>;
-  /** The repositories the output will be deposited in */
-  repositories?: Maybe<Array<Repository>>;
-  /** The title/name of the output */
-  title: Scalars['String']['output'];
-};
-
-/** A collection of errors related to the ProjectOutput */
-export type ProjectOutputErrors = {
-  __typename?: 'ProjectOutputErrors';
-  anticipatedReleaseDate?: Maybe<Scalars['String']['output']>;
-  description?: Maybe<Scalars['String']['output']>;
-  /** General error messages such as the object already exists */
-  general?: Maybe<Scalars['String']['output']>;
-  initialAccessLevel?: Maybe<Scalars['String']['output']>;
-  initialLicenseId?: Maybe<Scalars['String']['output']>;
-  metadataStandardIds?: Maybe<Scalars['String']['output']>;
-  outputTypeId?: Maybe<Scalars['String']['output']>;
-  projectId?: Maybe<Scalars['String']['output']>;
-  repositoryIds?: Maybe<Scalars['String']['output']>;
-  title?: Maybe<Scalars['String']['output']>;
 };
 
 export type ProjectSearchResult = {
@@ -2448,18 +2462,32 @@ export type Query = {
   affiliationTypes?: Maybe<Array<Scalars['String']['output']>>;
   /** Perform a search for Affiliations matching the specified name */
   affiliations?: Maybe<AffiliationSearchResults>;
+  /** Get all projects for the Admin based on their role */
+  allProjects?: Maybe<ProjectSearchResults>;
   /** Get the specific answer */
   answer?: Maybe<Answer>;
   /** Get an answer by versionedQuestionId */
   answerByVersionedQuestionId?: Maybe<Answer>;
   /** Get all answers for the given project and plan and section */
   answers?: Maybe<Array<Maybe<Answer>>>;
+  /** Get the best practice VersionedGuidance for given Tag IDs */
+  bestPracticeGuidance: Array<VersionedGuidance>;
   /** Get all of the best practice VersionedSection */
   bestPracticeSections?: Maybe<Array<Maybe<VersionedSection>>>;
   /** Get all of the research domains related to the specified top level domain (more nuanced ones) */
   childResearchDomains?: Maybe<Array<Maybe<ResearchDomain>>>;
+  /** Get all of the research output types */
+  defaultResearchOutputTypes?: Maybe<Array<Maybe<ResearchOutputType>>>;
   /** Search for a User to add as a collaborator */
   findCollaborator?: Maybe<CollaboratorSearchResults>;
+  /** Get a specific Guidance item by ID */
+  guidance?: Maybe<Guidance>;
+  /** Get all Guidance items for a specific GuidanceGroup */
+  guidanceByGroup: Array<Guidance>;
+  /** Get a specific GuidanceGroup by ID */
+  guidanceGroup?: Maybe<GuidanceGroup>;
+  /** Get all GuidanceGroups for the user's organization (or for a specified affiliationId if provided and permitted) */
+  guidanceGroups: Array<GuidanceGroup>;
   /** Get all of the supported Languages */
   languages?: Maybe<Array<Maybe<Language>>>;
   /** Fetch a specific license */
@@ -2490,12 +2518,12 @@ export type Query = {
   planFeedback?: Maybe<Array<Maybe<PlanFeedback>>>;
   /** Get all of the comments associated with the round of admin feedback */
   planFeedbackComments?: Maybe<Array<Maybe<PlanFeedbackComment>>>;
+  /** Get the feedback status for a plan (NONE, REQUESTED, COMPLETED) */
+  planFeedbackStatus?: Maybe<PlanFeedbackStatusEnum>;
   /** Get all of the Funding information for the specific Plan */
   planFundings?: Maybe<Array<Maybe<PlanFunding>>>;
   /** Get all of the Users that are Members for the specific Plan */
   planMembers?: Maybe<Array<Maybe<PlanMember>>>;
-  /** The subset of project outputs associated with the sepcified Plan */
-  planOutputs?: Maybe<Array<Maybe<ProjectOutput>>>;
   /** Get all plans for the research project */
   plans?: Maybe<Array<PlanSearchResult>>;
   /** Returns a list of the top 20 funders ranked by popularity (nbr of plans) for the past year */
@@ -2512,12 +2540,6 @@ export type Query = {
   projectMember?: Maybe<ProjectMember>;
   /** Get all of the Users that a Members to the research project */
   projectMembers?: Maybe<Array<Maybe<ProjectMember>>>;
-  /** Fetch a single project output */
-  projectOutput?: Maybe<ProjectOutput>;
-  /** Get all the research output types */
-  projectOutputTypes?: Maybe<Array<Maybe<OutputType>>>;
-  /** Get all of the outputs for the research project */
-  projectOutputs?: Maybe<Array<Maybe<ProjectOutput>>>;
   /** Search for VersionedQuestions that belong to Section specified by sectionId */
   publishedConditionsForQuestion?: Maybe<Array<Maybe<VersionedQuestionCondition>>>;
   /** Get a specific VersionedQuestion based on versionedQuestionId */
@@ -2548,6 +2570,10 @@ export type Query = {
   repositories?: Maybe<RepositorySearchResults>;
   /** Fetch a specific repository */
   repository?: Maybe<Repository>;
+  /** Get the research output type by it's id */
+  researchOutputType?: Maybe<ResearchOutputType>;
+  /** Get the research output type by it's name */
+  researchOutputTypeByName?: Maybe<ResearchOutputType>;
   /** Search for projects within external APIs */
   searchExternalProjects?: Maybe<Array<Maybe<ExternalProject>>>;
   /** Get the specified section */
@@ -2573,6 +2599,8 @@ export type Query = {
   user?: Maybe<User>;
   /** Returns all of the users associated with the current admin's affiliation (Super admins get everything) */
   users?: Maybe<UserSearchResults>;
+  /** Get all VersionedGuidance for a given affiliation and Tag IDs */
+  versionedGuidance: Array<VersionedGuidance>;
 };
 
 
@@ -2590,6 +2618,13 @@ export type QueryAffiliationsArgs = {
   funderOnly?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   paginationOptions?: InputMaybe<PaginationOptions>;
+};
+
+
+export type QueryAllProjectsArgs = {
+  filterOptions?: InputMaybe<ProjectFilterOptions>;
+  paginationOptions?: InputMaybe<PaginationOptions>;
+  term?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -2613,6 +2648,11 @@ export type QueryAnswersArgs = {
 };
 
 
+export type QueryBestPracticeGuidanceArgs = {
+  tagIds: Array<Scalars['Int']['input']>;
+};
+
+
 export type QueryChildResearchDomainsArgs = {
   parentResearchDomainId: Scalars['Int']['input'];
 };
@@ -2621,6 +2661,26 @@ export type QueryChildResearchDomainsArgs = {
 export type QueryFindCollaboratorArgs = {
   options?: InputMaybe<PaginationOptions>;
   term: Scalars['String']['input'];
+};
+
+
+export type QueryGuidanceArgs = {
+  guidanceId: Scalars['Int']['input'];
+};
+
+
+export type QueryGuidanceByGroupArgs = {
+  guidanceGroupId: Scalars['Int']['input'];
+};
+
+
+export type QueryGuidanceGroupArgs = {
+  guidanceGroupId: Scalars['Int']['input'];
+};
+
+
+export type QueryGuidanceGroupsArgs = {
+  affiliationId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -2686,17 +2746,17 @@ export type QueryPlanFeedbackCommentsArgs = {
 };
 
 
+export type QueryPlanFeedbackStatusArgs = {
+  planId: Scalars['Int']['input'];
+};
+
+
 export type QueryPlanFundingsArgs = {
   planId: Scalars['Int']['input'];
 };
 
 
 export type QueryPlanMembersArgs = {
-  planId: Scalars['Int']['input'];
-};
-
-
-export type QueryPlanOutputsArgs = {
   planId: Scalars['Int']['input'];
 };
 
@@ -2732,16 +2792,6 @@ export type QueryProjectMemberArgs = {
 
 
 export type QueryProjectMembersArgs = {
-  projectId: Scalars['Int']['input'];
-};
-
-
-export type QueryProjectOutputArgs = {
-  projectOutputId: Scalars['Int']['input'];
-};
-
-
-export type QueryProjectOutputsArgs = {
   projectId: Scalars['Int']['input'];
 };
 
@@ -2829,6 +2879,16 @@ export type QueryRepositoryArgs = {
 };
 
 
+export type QueryResearchOutputTypeArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type QueryResearchOutputTypeByNameArgs = {
+  name: Scalars['String']['input'];
+};
+
+
 export type QuerySearchExternalProjectsArgs = {
   input: ExternalSearchInput;
 };
@@ -2883,6 +2943,12 @@ export type QueryUserArgs = {
 export type QueryUsersArgs = {
   paginationOptions?: InputMaybe<PaginationOptions>;
   term?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryVersionedGuidanceArgs = {
+  affiliationId: Scalars['String']['input'];
+  tagIds: Array<Scalars['Int']['input']>;
 };
 
 /** Question always belongs to a Section, which always belongs to a Template */
@@ -3277,6 +3343,37 @@ export type ResearchDomainSearchResults = PaginatedQueryResults & {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
+export type ResearchOutputType = {
+  __typename?: 'ResearchOutputType';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** A longer description of the research output type useful for tooltips */
+  description?: Maybe<Scalars['String']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<ResearchOutputTypeErrors>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name/label of the research output type */
+  name: Scalars['String']['output'];
+  /** The value/slug of the research output type */
+  value: Scalars['String']['output'];
+};
+
+/** A collection of errors related to the research output type */
+export type ResearchOutputTypeErrors = {
+  __typename?: 'ResearchOutputTypeErrors';
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  value?: Maybe<Scalars['String']['output']>;
+};
+
 /** A Section that contains a list of questions in a template */
 export type Section = {
   __typename?: 'Section';
@@ -3356,6 +3453,8 @@ export type Tag = {
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The tag name */
   name: Scalars['String']['output'];
+  /** The slug */
+  slug: Scalars['String']['output'];
 };
 
 /** A collection of errors related to the Tag */
@@ -3374,7 +3473,9 @@ export type TagInput = {
   /** The unique identifier for the Tag */
   id?: InputMaybe<Scalars['Int']['input']>;
   /** The name of the Tag */
-  name: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  /** The slug of the Tag */
+  slug?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** A Template used to create DMPs */
@@ -3552,6 +3653,30 @@ export type TypeCount = {
   typeId: Scalars['String']['output'];
 };
 
+/** Input for updating a GuidanceGroup */
+export type UpdateGuidanceGroupInput = {
+  /** Whether this is a best practice GuidanceGroup */
+  bestPractice?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The description of the GuidanceGroup */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** The unique identifier for the GuidanceGroup to update */
+  guidanceGroupId: Scalars['Int']['input'];
+  /** The name of the GuidanceGroup */
+  name?: InputMaybe<Scalars['String']['input']>;
+  /** Whether this is an optional subset for departmental use */
+  optionalSubset?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** Input for updating a Guidance item */
+export type UpdateGuidanceInput = {
+  /** The unique identifier for the Guidance */
+  guidanceId: Scalars['Int']['input'];
+  /** The guidance text content */
+  guidanceText?: InputMaybe<Scalars['String']['input']>;
+  /** The Tags associated with this Guidance */
+  tagId?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type UpdateMetadataStandardInput = {
   /** A description of the metadata standard */
   description?: InputMaybe<Scalars['String']['input']>;
@@ -3612,31 +3737,6 @@ export type UpdateProjectMemberInput = {
   projectMemberId: Scalars['Int']['input'];
   /** The Member's last/sur name */
   surName?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type UpdateProjectOutputInput = {
-  /** The date the output is expected to be deposited (YYYY-MM-DD format) */
-  anticipatedReleaseDate?: InputMaybe<Scalars['String']['input']>;
-  /** A description of the output */
-  description?: InputMaybe<Scalars['String']['input']>;
-  /** The initial access level that will be allowed for the output */
-  initialAccessLevel?: InputMaybe<Scalars['String']['input']>;
-  /** The initial license that will apply to the output */
-  initialLicenseId?: InputMaybe<Scalars['Int']['input']>;
-  /** Whether or not the output may contain personally identifying information (PII) */
-  mayContainPII?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Whether or not the output may contain sensitive data */
-  mayContainSensitiveInformation?: InputMaybe<Scalars['Boolean']['input']>;
-  /** The metadata standards that will be used to describe the output */
-  metadataStandardIds?: InputMaybe<Array<Scalars['Int']['input']>>;
-  /** The type of output */
-  outputTypeId: Scalars['Int']['input'];
-  /** The id of the output */
-  projectOutputId: Scalars['Int']['input'];
-  /** The repositories the output will be deposited in */
-  respositoryIds?: InputMaybe<Array<Scalars['Int']['input']>>;
-  /** The title/name of the output */
-  title: Scalars['String']['input'];
 };
 
 /** Input for updating a new QuestionCondition based on a QuestionCondition id */
@@ -3878,6 +3978,93 @@ export type UserSearchResults = PaginatedQueryResults & {
   nextCursor?: Maybe<Scalars['String']['output']>;
   /** The total number of possible items */
   totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+/** A snapshot of a Guidance item when its GuidanceGroup was published */
+export type VersionedGuidance = {
+  __typename?: 'VersionedGuidance';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<VersionedGuidanceErrors>;
+  /** The Guidance this is a snapshot of */
+  guidance?: Maybe<Guidance>;
+  /** The Guidance this is a snapshot of */
+  guidanceId?: Maybe<Scalars['Int']['output']>;
+  /** The guidance text content */
+  guidanceText?: Maybe<Scalars['String']['output']>;
+  /** The unique identifier for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The timestamp when the Object was last modified */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The Tag ID (one of the associated tags) */
+  tagId: Scalars['Int']['output'];
+  /** All Tags associated with this VersionedGuidance */
+  tags?: Maybe<Array<Tag>>;
+  /** The VersionedGuidanceGroup this belongs to */
+  versionedGuidanceGroup?: Maybe<VersionedGuidanceGroup>;
+  /** The VersionedGuidanceGroup this belongs to */
+  versionedGuidanceGroupId: Scalars['Int']['output'];
+};
+
+/** A collection of errors related to VersionedGuidance */
+export type VersionedGuidanceErrors = {
+  __typename?: 'VersionedGuidanceErrors';
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  guidanceId?: Maybe<Scalars['String']['output']>;
+  guidanceText?: Maybe<Scalars['String']['output']>;
+  tagId?: Maybe<Scalars['String']['output']>;
+  versionedGuidanceGroupId?: Maybe<Scalars['String']['output']>;
+};
+
+/** A snapshot of a GuidanceGroup when it was published */
+export type VersionedGuidanceGroup = {
+  __typename?: 'VersionedGuidanceGroup';
+  /** Whether this is the currently active version */
+  active: Scalars['Boolean']['output'];
+  /** Whether this is a best practice VersionedGuidanceGroup */
+  bestPractice: Scalars['Boolean']['output'];
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<VersionedGuidanceGroupErrors>;
+  /** The GuidanceGroup this is a snapshot of */
+  guidanceGroup?: Maybe<GuidanceGroup>;
+  /** The GuidanceGroup this is a snapshot of */
+  guidanceGroupId: Scalars['Int']['output'];
+  /** The unique identifier for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The timestamp when the Object was last modified */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the VersionedGuidanceGroup */
+  name: Scalars['String']['output'];
+  /** Whether this is an optional subset for departmental use */
+  optionalSubset: Scalars['Boolean']['output'];
+  /** The version number of this snapshot */
+  version?: Maybe<Scalars['Int']['output']>;
+  /** The VersionedGuidance items in this group */
+  versionedGuidance?: Maybe<Array<VersionedGuidance>>;
+};
+
+/** A collection of errors related to VersionedGuidanceGroup */
+export type VersionedGuidanceGroupErrors = {
+  __typename?: 'VersionedGuidanceGroupErrors';
+  active?: Maybe<Scalars['String']['output']>;
+  bestPractice?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  guidanceGroupId?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  version?: Maybe<Scalars['String']['output']>;
 };
 
 /** A snapshot of a Question when it became published. */
@@ -4423,6 +4610,48 @@ export type AddFeedbackCommentMutationVariables = Exact<{
 
 export type AddFeedbackCommentMutation = { __typename?: 'Mutation', addFeedbackComment?: { __typename?: 'PlanFeedbackComment', id?: number | null, answerId?: number | null, commentText?: string | null, errors?: { __typename?: 'PlanFeedbackCommentErrors', general?: string | null } | null } | null };
 
+export type AddGuidanceMutationVariables = Exact<{
+  input: AddGuidanceInput;
+}>;
+
+
+export type AddGuidanceMutation = { __typename?: 'Mutation', addGuidance: { __typename?: 'Guidance', id?: number | null, guidanceText?: string | null, tagId?: number | null, errors?: { __typename?: 'GuidanceErrors', general?: string | null, guidanceGroupId?: string | null, guidanceText?: string | null } | null } };
+
+export type UpdateGuidanceMutationVariables = Exact<{
+  input: UpdateGuidanceInput;
+}>;
+
+
+export type UpdateGuidanceMutation = { __typename?: 'Mutation', updateGuidance: { __typename?: 'Guidance', id?: number | null, guidanceText?: string | null, tagId?: number | null, errors?: { __typename?: 'GuidanceErrors', general?: string | null, guidanceGroupId?: string | null, guidanceText?: string | null } | null } };
+
+export type AddGuidanceGroupMutationVariables = Exact<{
+  input: AddGuidanceGroupInput;
+}>;
+
+
+export type AddGuidanceGroupMutation = { __typename?: 'Mutation', addGuidanceGroup: { __typename?: 'GuidanceGroup', name: string, id?: number | null, errors?: { __typename?: 'GuidanceGroupErrors', affiliationId?: string | null, bestPractice?: string | null, general?: string | null, name?: string | null } | null } };
+
+export type PublishGuidanceGroupMutationVariables = Exact<{
+  guidanceGroupId: Scalars['Int']['input'];
+}>;
+
+
+export type PublishGuidanceGroupMutation = { __typename?: 'Mutation', publishGuidanceGroup: { __typename?: 'GuidanceGroup', id?: number | null, name: string, errors?: { __typename?: 'GuidanceGroupErrors', general?: string | null, affiliationId?: string | null, bestPractice?: string | null, name?: string | null, description?: string | null } | null } };
+
+export type UpdateGuidanceGroupMutationVariables = Exact<{
+  input: UpdateGuidanceGroupInput;
+}>;
+
+
+export type UpdateGuidanceGroupMutation = { __typename?: 'Mutation', updateGuidanceGroup: { __typename?: 'GuidanceGroup', id?: number | null, name: string, description?: string | null, bestPractice: boolean, errors?: { __typename?: 'GuidanceGroupErrors', affiliationId?: string | null, bestPractice?: string | null, general?: string | null, name?: string | null, description?: string | null } | null } };
+
+export type UnpublishGuidanceGroupMutationVariables = Exact<{
+  guidanceGroupId: Scalars['Int']['input'];
+}>;
+
+
+export type UnpublishGuidanceGroupMutation = { __typename?: 'Mutation', unpublishGuidanceGroup: { __typename?: 'GuidanceGroup', id?: number | null, name: string, errors?: { __typename?: 'GuidanceGroupErrors', affiliationId?: string | null, bestPractice?: string | null, description?: string | null, general?: string | null, name?: string | null } | null } };
+
 export type AddPlanMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
   versionedTemplateId: Scalars['Int']['input'];
@@ -4764,6 +4993,34 @@ export type PopularFundersQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type PopularFundersQuery = { __typename?: 'Query', popularFunders?: Array<{ __typename?: 'FunderPopularityResult', displayName: string, id: number, nbrPlans: number, uri: string, apiTarget?: string | null } | null> | null };
 
+export type GuidanceByGroupQueryVariables = Exact<{
+  guidanceGroupId: Scalars['Int']['input'];
+}>;
+
+
+export type GuidanceByGroupQuery = { __typename?: 'Query', guidanceByGroup: Array<{ __typename?: 'Guidance', guidanceText?: string | null, id?: number | null, tagId?: number | null, modified?: string | null, modifiedBy?: { __typename?: 'User', givenName?: string | null, surName?: string | null, id?: number | null } | null, errors?: { __typename?: 'GuidanceErrors', general?: string | null, tagId?: string | null, guidanceText?: string | null, guidanceGroupId?: string | null } | null }> };
+
+export type GuidanceQueryVariables = Exact<{
+  guidanceId: Scalars['Int']['input'];
+}>;
+
+
+export type GuidanceQuery = { __typename?: 'Query', guidance?: { __typename?: 'Guidance', id?: number | null, guidanceText?: string | null, tagId?: number | null } | null };
+
+export type GuidanceGroupsQueryVariables = Exact<{
+  affiliationId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GuidanceGroupsQuery = { __typename?: 'Query', guidanceGroups: Array<{ __typename?: 'GuidanceGroup', id?: number | null, name: string, description?: string | null, latestPublishedVersion?: string | null, latestPublishedDate?: string | null, modified?: string | null, isDirty: boolean, guidance?: Array<{ __typename?: 'Guidance', tagId?: number | null, guidanceText?: string | null, id?: number | null }> | null, modifiedBy?: { __typename?: 'User', givenName?: string | null, surName?: string | null, id?: number | null } | null, versionedGuidanceGroup?: Array<{ __typename?: 'VersionedGuidanceGroup', active: boolean, id?: number | null, version?: number | null } | null> | null }> };
+
+export type GuidanceGroupQueryVariables = Exact<{
+  guidanceGroupId: Scalars['Int']['input'];
+}>;
+
+
+export type GuidanceGroupQuery = { __typename?: 'Query', guidanceGroup?: { __typename?: 'GuidanceGroup', id?: number | null, name: string, description?: string | null, bestPractice: boolean, latestPublishedVersion?: string | null, latestPublishedDate?: string | null, isDirty: boolean, optionalSubset: boolean, guidance?: Array<{ __typename?: 'Guidance', guidanceText?: string | null, id?: number | null, tagId?: number | null }> | null, versionedGuidanceGroup?: Array<{ __typename?: 'VersionedGuidanceGroup', active: boolean, id?: number | null, version?: number | null } | null> | null } | null };
+
 export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -4779,7 +5036,14 @@ export type PlanQueryVariables = Exact<{
 }>;
 
 
-export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, createdById?: number | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, version: string, created?: string | null, template?: { __typename?: 'Template', id?: number | null, name: string } | null, owner?: { __typename?: 'Affiliation', uri: string, displayName: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null, collaborators?: Array<{ __typename?: 'ProjectCollaborator', accessLevel?: ProjectCollaboratorAccessLevel | null, user?: { __typename?: 'User', id?: number | null } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number }> | null, progress?: { __typename?: 'PlanProgress', answeredQuestions: number, percentComplete: number, totalQuestions: number } | null, feedback?: Array<{ __typename?: 'PlanFeedback', id?: number | null, completed?: string | null }> | null } | null };
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, createdById?: number | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, version: string, created?: string | null, template?: { __typename?: 'Template', id?: number | null, name: string } | null, owner?: { __typename?: 'Affiliation', uri: string, displayName: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null, collaborators?: Array<{ __typename?: 'ProjectCollaborator', accessLevel?: ProjectCollaboratorAccessLevel | null, user?: { __typename?: 'User', id?: number | null } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number, tags?: Array<{ __typename?: 'Tag', name: string, slug: string, id?: number | null, description?: string | null }> | null }> | null, progress?: { __typename?: 'PlanProgress', answeredQuestions: number, percentComplete: number, totalQuestions: number } | null, feedback?: Array<{ __typename?: 'PlanFeedback', id?: number | null, completed?: string | null }> | null } | null };
+
+export type PlanFeedbackStatusQueryVariables = Exact<{
+  planId: Scalars['Int']['input'];
+}>;
+
+
+export type PlanFeedbackStatusQuery = { __typename?: 'Query', planFeedbackStatus?: PlanFeedbackStatusEnum | null };
 
 export type PlanMembersQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -4822,7 +5086,7 @@ export type ProjectQueryVariables = Exact<{
 }>;
 
 
-export type ProjectQuery = { __typename?: 'Query', project?: { __typename?: 'Project', title: string, abstractText?: string | null, startDate?: string | null, endDate?: string | null, isTestProject?: boolean | null, fundings?: Array<{ __typename?: 'ProjectFunding', id?: number | null, grantId?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null }> | null, members?: Array<{ __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', description?: string | null, displayOrder: number, label: string, uri: string }> | null }> | null, outputs?: Array<{ __typename?: 'ProjectOutput', title: string }> | null, researchDomain?: { __typename?: 'ResearchDomain', id?: number | null, parentResearchDomainId?: number | null } | null, plans?: Array<{ __typename?: 'PlanSearchResult', templateTitle?: string | null, id?: number | null, funding?: string | null, dmpId?: string | null, modified?: string | null, created?: string | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number }> | null }> | null } | null };
+export type ProjectQuery = { __typename?: 'Query', project?: { __typename?: 'Project', title: string, abstractText?: string | null, startDate?: string | null, endDate?: string | null, isTestProject?: boolean | null, fundings?: Array<{ __typename?: 'ProjectFunding', id?: number | null, grantId?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null }> | null, members?: Array<{ __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', description?: string | null, displayOrder: number, label: string, uri: string }> | null }> | null, researchDomain?: { __typename?: 'ResearchDomain', id?: number | null, parentResearchDomainId?: number | null } | null, plans?: Array<{ __typename?: 'PlanSearchResult', templateTitle?: string | null, id?: number | null, funding?: string | null, dmpId?: string | null, modified?: string | null, created?: string | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number }> | null }> | null } | null };
 
 export type ProjectFundingsApiQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4915,19 +5179,19 @@ export type PublishedSectionQueryVariables = Exact<{
 }>;
 
 
-export type PublishedSectionQuery = { __typename?: 'Query', publishedSection?: { __typename?: 'VersionedSection', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder: number, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null, errors?: { __typename?: 'VersionedSectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null } | null };
+export type PublishedSectionQuery = { __typename?: 'Query', publishedSection?: { __typename?: 'VersionedSection', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder: number, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string, slug: string } | null> | null, errors?: { __typename?: 'VersionedSectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null } | null };
 
 export type SectionQueryVariables = Exact<{
   sectionId: Scalars['Int']['input'];
 }>;
 
 
-export type SectionQuery = { __typename?: 'Query', section?: { __typename?: 'Section', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null, template?: { __typename?: 'Template', id?: number | null, bestPractice: boolean, isDirty: boolean, languageId: string, name: string, latestPublishVisibility?: TemplateVisibility | null } | null } | null };
+export type SectionQuery = { __typename?: 'Query', section?: { __typename?: 'Section', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string, slug: string } | null> | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null, template?: { __typename?: 'Template', id?: number | null, bestPractice: boolean, isDirty: boolean, languageId: string, name: string, latestPublishVisibility?: TemplateVisibility | null } | null } | null };
 
 export type TagsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TagsQuery = { __typename?: 'Query', tags: Array<{ __typename?: 'Tag', id?: number | null, name: string, description?: string | null }> };
+export type TagsQuery = { __typename?: 'Query', tags: Array<{ __typename?: 'Tag', id?: number | null, name: string, description?: string | null, slug: string }> };
 
 export type TemplateVersionsQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -5529,6 +5793,251 @@ export function useAddFeedbackCommentMutation(baseOptions?: Apollo.MutationHookO
 export type AddFeedbackCommentMutationHookResult = ReturnType<typeof useAddFeedbackCommentMutation>;
 export type AddFeedbackCommentMutationResult = Apollo.MutationResult<AddFeedbackCommentMutation>;
 export type AddFeedbackCommentMutationOptions = Apollo.BaseMutationOptions<AddFeedbackCommentMutation, AddFeedbackCommentMutationVariables>;
+export const AddGuidanceDocument = gql`
+    mutation AddGuidance($input: AddGuidanceInput!) {
+  addGuidance(input: $input) {
+    id
+    guidanceText
+    tagId
+    errors {
+      general
+      guidanceGroupId
+      guidanceText
+    }
+  }
+}
+    `;
+export type AddGuidanceMutationFn = Apollo.MutationFunction<AddGuidanceMutation, AddGuidanceMutationVariables>;
+
+/**
+ * __useAddGuidanceMutation__
+ *
+ * To run a mutation, you first call `useAddGuidanceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddGuidanceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addGuidanceMutation, { data, loading, error }] = useAddGuidanceMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddGuidanceMutation(baseOptions?: Apollo.MutationHookOptions<AddGuidanceMutation, AddGuidanceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddGuidanceMutation, AddGuidanceMutationVariables>(AddGuidanceDocument, options);
+      }
+export type AddGuidanceMutationHookResult = ReturnType<typeof useAddGuidanceMutation>;
+export type AddGuidanceMutationResult = Apollo.MutationResult<AddGuidanceMutation>;
+export type AddGuidanceMutationOptions = Apollo.BaseMutationOptions<AddGuidanceMutation, AddGuidanceMutationVariables>;
+export const UpdateGuidanceDocument = gql`
+    mutation UpdateGuidance($input: UpdateGuidanceInput!) {
+  updateGuidance(input: $input) {
+    id
+    guidanceText
+    tagId
+    errors {
+      general
+      guidanceGroupId
+      guidanceText
+    }
+  }
+}
+    `;
+export type UpdateGuidanceMutationFn = Apollo.MutationFunction<UpdateGuidanceMutation, UpdateGuidanceMutationVariables>;
+
+/**
+ * __useUpdateGuidanceMutation__
+ *
+ * To run a mutation, you first call `useUpdateGuidanceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateGuidanceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateGuidanceMutation, { data, loading, error }] = useUpdateGuidanceMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateGuidanceMutation(baseOptions?: Apollo.MutationHookOptions<UpdateGuidanceMutation, UpdateGuidanceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateGuidanceMutation, UpdateGuidanceMutationVariables>(UpdateGuidanceDocument, options);
+      }
+export type UpdateGuidanceMutationHookResult = ReturnType<typeof useUpdateGuidanceMutation>;
+export type UpdateGuidanceMutationResult = Apollo.MutationResult<UpdateGuidanceMutation>;
+export type UpdateGuidanceMutationOptions = Apollo.BaseMutationOptions<UpdateGuidanceMutation, UpdateGuidanceMutationVariables>;
+export const AddGuidanceGroupDocument = gql`
+    mutation AddGuidanceGroup($input: AddGuidanceGroupInput!) {
+  addGuidanceGroup(input: $input) {
+    name
+    id
+    errors {
+      affiliationId
+      bestPractice
+      general
+      name
+    }
+  }
+}
+    `;
+export type AddGuidanceGroupMutationFn = Apollo.MutationFunction<AddGuidanceGroupMutation, AddGuidanceGroupMutationVariables>;
+
+/**
+ * __useAddGuidanceGroupMutation__
+ *
+ * To run a mutation, you first call `useAddGuidanceGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddGuidanceGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addGuidanceGroupMutation, { data, loading, error }] = useAddGuidanceGroupMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddGuidanceGroupMutation(baseOptions?: Apollo.MutationHookOptions<AddGuidanceGroupMutation, AddGuidanceGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddGuidanceGroupMutation, AddGuidanceGroupMutationVariables>(AddGuidanceGroupDocument, options);
+      }
+export type AddGuidanceGroupMutationHookResult = ReturnType<typeof useAddGuidanceGroupMutation>;
+export type AddGuidanceGroupMutationResult = Apollo.MutationResult<AddGuidanceGroupMutation>;
+export type AddGuidanceGroupMutationOptions = Apollo.BaseMutationOptions<AddGuidanceGroupMutation, AddGuidanceGroupMutationVariables>;
+export const PublishGuidanceGroupDocument = gql`
+    mutation PublishGuidanceGroup($guidanceGroupId: Int!) {
+  publishGuidanceGroup(guidanceGroupId: $guidanceGroupId) {
+    id
+    name
+    errors {
+      general
+      affiliationId
+      bestPractice
+      name
+      description
+    }
+  }
+}
+    `;
+export type PublishGuidanceGroupMutationFn = Apollo.MutationFunction<PublishGuidanceGroupMutation, PublishGuidanceGroupMutationVariables>;
+
+/**
+ * __usePublishGuidanceGroupMutation__
+ *
+ * To run a mutation, you first call `usePublishGuidanceGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePublishGuidanceGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [publishGuidanceGroupMutation, { data, loading, error }] = usePublishGuidanceGroupMutation({
+ *   variables: {
+ *      guidanceGroupId: // value for 'guidanceGroupId'
+ *   },
+ * });
+ */
+export function usePublishGuidanceGroupMutation(baseOptions?: Apollo.MutationHookOptions<PublishGuidanceGroupMutation, PublishGuidanceGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<PublishGuidanceGroupMutation, PublishGuidanceGroupMutationVariables>(PublishGuidanceGroupDocument, options);
+      }
+export type PublishGuidanceGroupMutationHookResult = ReturnType<typeof usePublishGuidanceGroupMutation>;
+export type PublishGuidanceGroupMutationResult = Apollo.MutationResult<PublishGuidanceGroupMutation>;
+export type PublishGuidanceGroupMutationOptions = Apollo.BaseMutationOptions<PublishGuidanceGroupMutation, PublishGuidanceGroupMutationVariables>;
+export const UpdateGuidanceGroupDocument = gql`
+    mutation UpdateGuidanceGroup($input: UpdateGuidanceGroupInput!) {
+  updateGuidanceGroup(input: $input) {
+    id
+    name
+    description
+    bestPractice
+    errors {
+      affiliationId
+      bestPractice
+      general
+      name
+      description
+    }
+  }
+}
+    `;
+export type UpdateGuidanceGroupMutationFn = Apollo.MutationFunction<UpdateGuidanceGroupMutation, UpdateGuidanceGroupMutationVariables>;
+
+/**
+ * __useUpdateGuidanceGroupMutation__
+ *
+ * To run a mutation, you first call `useUpdateGuidanceGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateGuidanceGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateGuidanceGroupMutation, { data, loading, error }] = useUpdateGuidanceGroupMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateGuidanceGroupMutation(baseOptions?: Apollo.MutationHookOptions<UpdateGuidanceGroupMutation, UpdateGuidanceGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateGuidanceGroupMutation, UpdateGuidanceGroupMutationVariables>(UpdateGuidanceGroupDocument, options);
+      }
+export type UpdateGuidanceGroupMutationHookResult = ReturnType<typeof useUpdateGuidanceGroupMutation>;
+export type UpdateGuidanceGroupMutationResult = Apollo.MutationResult<UpdateGuidanceGroupMutation>;
+export type UpdateGuidanceGroupMutationOptions = Apollo.BaseMutationOptions<UpdateGuidanceGroupMutation, UpdateGuidanceGroupMutationVariables>;
+export const UnpublishGuidanceGroupDocument = gql`
+    mutation UnpublishGuidanceGroup($guidanceGroupId: Int!) {
+  unpublishGuidanceGroup(guidanceGroupId: $guidanceGroupId) {
+    id
+    name
+    errors {
+      affiliationId
+      bestPractice
+      description
+      general
+      name
+    }
+  }
+}
+    `;
+export type UnpublishGuidanceGroupMutationFn = Apollo.MutationFunction<UnpublishGuidanceGroupMutation, UnpublishGuidanceGroupMutationVariables>;
+
+/**
+ * __useUnpublishGuidanceGroupMutation__
+ *
+ * To run a mutation, you first call `useUnpublishGuidanceGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUnpublishGuidanceGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [unpublishGuidanceGroupMutation, { data, loading, error }] = useUnpublishGuidanceGroupMutation({
+ *   variables: {
+ *      guidanceGroupId: // value for 'guidanceGroupId'
+ *   },
+ * });
+ */
+export function useUnpublishGuidanceGroupMutation(baseOptions?: Apollo.MutationHookOptions<UnpublishGuidanceGroupMutation, UnpublishGuidanceGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UnpublishGuidanceGroupMutation, UnpublishGuidanceGroupMutationVariables>(UnpublishGuidanceGroupDocument, options);
+      }
+export type UnpublishGuidanceGroupMutationHookResult = ReturnType<typeof useUnpublishGuidanceGroupMutation>;
+export type UnpublishGuidanceGroupMutationResult = Apollo.MutationResult<UnpublishGuidanceGroupMutation>;
+export type UnpublishGuidanceGroupMutationOptions = Apollo.BaseMutationOptions<UnpublishGuidanceGroupMutation, UnpublishGuidanceGroupMutationVariables>;
 export const AddPlanDocument = gql`
     mutation AddPlan($projectId: Int!, $versionedTemplateId: Int!) {
   addPlan(projectId: $projectId, versionedTemplateId: $versionedTemplateId) {
@@ -7561,6 +8070,220 @@ export type PopularFundersQueryHookResult = ReturnType<typeof usePopularFundersQ
 export type PopularFundersLazyQueryHookResult = ReturnType<typeof usePopularFundersLazyQuery>;
 export type PopularFundersSuspenseQueryHookResult = ReturnType<typeof usePopularFundersSuspenseQuery>;
 export type PopularFundersQueryResult = Apollo.QueryResult<PopularFundersQuery, PopularFundersQueryVariables>;
+export const GuidanceByGroupDocument = gql`
+    query GuidanceByGroup($guidanceGroupId: Int!) {
+  guidanceByGroup(guidanceGroupId: $guidanceGroupId) {
+    modifiedBy {
+      givenName
+      surName
+      id
+    }
+    guidanceText
+    id
+    tagId
+    errors {
+      general
+      tagId
+      guidanceText
+      guidanceGroupId
+    }
+    modified
+  }
+}
+    `;
+
+/**
+ * __useGuidanceByGroupQuery__
+ *
+ * To run a query within a React component, call `useGuidanceByGroupQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGuidanceByGroupQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGuidanceByGroupQuery({
+ *   variables: {
+ *      guidanceGroupId: // value for 'guidanceGroupId'
+ *   },
+ * });
+ */
+export function useGuidanceByGroupQuery(baseOptions: Apollo.QueryHookOptions<GuidanceByGroupQuery, GuidanceByGroupQueryVariables> & ({ variables: GuidanceByGroupQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GuidanceByGroupQuery, GuidanceByGroupQueryVariables>(GuidanceByGroupDocument, options);
+      }
+export function useGuidanceByGroupLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GuidanceByGroupQuery, GuidanceByGroupQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GuidanceByGroupQuery, GuidanceByGroupQueryVariables>(GuidanceByGroupDocument, options);
+        }
+export function useGuidanceByGroupSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GuidanceByGroupQuery, GuidanceByGroupQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GuidanceByGroupQuery, GuidanceByGroupQueryVariables>(GuidanceByGroupDocument, options);
+        }
+export type GuidanceByGroupQueryHookResult = ReturnType<typeof useGuidanceByGroupQuery>;
+export type GuidanceByGroupLazyQueryHookResult = ReturnType<typeof useGuidanceByGroupLazyQuery>;
+export type GuidanceByGroupSuspenseQueryHookResult = ReturnType<typeof useGuidanceByGroupSuspenseQuery>;
+export type GuidanceByGroupQueryResult = Apollo.QueryResult<GuidanceByGroupQuery, GuidanceByGroupQueryVariables>;
+export const GuidanceDocument = gql`
+    query Guidance($guidanceId: Int!) {
+  guidance(guidanceId: $guidanceId) {
+    id
+    guidanceText
+    tagId
+  }
+}
+    `;
+
+/**
+ * __useGuidanceQuery__
+ *
+ * To run a query within a React component, call `useGuidanceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGuidanceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGuidanceQuery({
+ *   variables: {
+ *      guidanceId: // value for 'guidanceId'
+ *   },
+ * });
+ */
+export function useGuidanceQuery(baseOptions: Apollo.QueryHookOptions<GuidanceQuery, GuidanceQueryVariables> & ({ variables: GuidanceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GuidanceQuery, GuidanceQueryVariables>(GuidanceDocument, options);
+      }
+export function useGuidanceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GuidanceQuery, GuidanceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GuidanceQuery, GuidanceQueryVariables>(GuidanceDocument, options);
+        }
+export function useGuidanceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GuidanceQuery, GuidanceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GuidanceQuery, GuidanceQueryVariables>(GuidanceDocument, options);
+        }
+export type GuidanceQueryHookResult = ReturnType<typeof useGuidanceQuery>;
+export type GuidanceLazyQueryHookResult = ReturnType<typeof useGuidanceLazyQuery>;
+export type GuidanceSuspenseQueryHookResult = ReturnType<typeof useGuidanceSuspenseQuery>;
+export type GuidanceQueryResult = Apollo.QueryResult<GuidanceQuery, GuidanceQueryVariables>;
+export const GuidanceGroupsDocument = gql`
+    query GuidanceGroups($affiliationId: String) {
+  guidanceGroups(affiliationId: $affiliationId) {
+    id
+    name
+    description
+    latestPublishedVersion
+    latestPublishedDate
+    guidance {
+      tagId
+      guidanceText
+      id
+    }
+    modifiedBy {
+      givenName
+      surName
+      id
+    }
+    modified
+    isDirty
+    versionedGuidanceGroup {
+      active
+      id
+      version
+    }
+  }
+}
+    `;
+
+/**
+ * __useGuidanceGroupsQuery__
+ *
+ * To run a query within a React component, call `useGuidanceGroupsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGuidanceGroupsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGuidanceGroupsQuery({
+ *   variables: {
+ *      affiliationId: // value for 'affiliationId'
+ *   },
+ * });
+ */
+export function useGuidanceGroupsQuery(baseOptions?: Apollo.QueryHookOptions<GuidanceGroupsQuery, GuidanceGroupsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GuidanceGroupsQuery, GuidanceGroupsQueryVariables>(GuidanceGroupsDocument, options);
+      }
+export function useGuidanceGroupsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GuidanceGroupsQuery, GuidanceGroupsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GuidanceGroupsQuery, GuidanceGroupsQueryVariables>(GuidanceGroupsDocument, options);
+        }
+export function useGuidanceGroupsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GuidanceGroupsQuery, GuidanceGroupsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GuidanceGroupsQuery, GuidanceGroupsQueryVariables>(GuidanceGroupsDocument, options);
+        }
+export type GuidanceGroupsQueryHookResult = ReturnType<typeof useGuidanceGroupsQuery>;
+export type GuidanceGroupsLazyQueryHookResult = ReturnType<typeof useGuidanceGroupsLazyQuery>;
+export type GuidanceGroupsSuspenseQueryHookResult = ReturnType<typeof useGuidanceGroupsSuspenseQuery>;
+export type GuidanceGroupsQueryResult = Apollo.QueryResult<GuidanceGroupsQuery, GuidanceGroupsQueryVariables>;
+export const GuidanceGroupDocument = gql`
+    query GuidanceGroup($guidanceGroupId: Int!) {
+  guidanceGroup(guidanceGroupId: $guidanceGroupId) {
+    id
+    name
+    description
+    bestPractice
+    latestPublishedVersion
+    latestPublishedDate
+    isDirty
+    guidance {
+      guidanceText
+      id
+      tagId
+    }
+    versionedGuidanceGroup {
+      active
+      id
+      version
+    }
+    optionalSubset
+  }
+}
+    `;
+
+/**
+ * __useGuidanceGroupQuery__
+ *
+ * To run a query within a React component, call `useGuidanceGroupQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGuidanceGroupQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGuidanceGroupQuery({
+ *   variables: {
+ *      guidanceGroupId: // value for 'guidanceGroupId'
+ *   },
+ * });
+ */
+export function useGuidanceGroupQuery(baseOptions: Apollo.QueryHookOptions<GuidanceGroupQuery, GuidanceGroupQueryVariables> & ({ variables: GuidanceGroupQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GuidanceGroupQuery, GuidanceGroupQueryVariables>(GuidanceGroupDocument, options);
+      }
+export function useGuidanceGroupLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GuidanceGroupQuery, GuidanceGroupQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GuidanceGroupQuery, GuidanceGroupQueryVariables>(GuidanceGroupDocument, options);
+        }
+export function useGuidanceGroupSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GuidanceGroupQuery, GuidanceGroupQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GuidanceGroupQuery, GuidanceGroupQueryVariables>(GuidanceGroupDocument, options);
+        }
+export type GuidanceGroupQueryHookResult = ReturnType<typeof useGuidanceGroupQuery>;
+export type GuidanceGroupLazyQueryHookResult = ReturnType<typeof useGuidanceGroupLazyQuery>;
+export type GuidanceGroupSuspenseQueryHookResult = ReturnType<typeof useGuidanceGroupSuspenseQuery>;
+export type GuidanceGroupQueryResult = Apollo.QueryResult<GuidanceGroupQuery, GuidanceGroupQueryVariables>;
 export const LanguagesDocument = gql`
     query Languages {
   languages {
@@ -7706,6 +8429,13 @@ export const PlanDocument = gql`
       versionedSectionId
       title
       totalQuestions
+      tags {
+        name
+        slug
+        id
+        slug
+        description
+      }
     }
     progress {
       answeredQuestions
@@ -7758,6 +8488,44 @@ export type PlanQueryHookResult = ReturnType<typeof usePlanQuery>;
 export type PlanLazyQueryHookResult = ReturnType<typeof usePlanLazyQuery>;
 export type PlanSuspenseQueryHookResult = ReturnType<typeof usePlanSuspenseQuery>;
 export type PlanQueryResult = Apollo.QueryResult<PlanQuery, PlanQueryVariables>;
+export const PlanFeedbackStatusDocument = gql`
+    query PlanFeedbackStatus($planId: Int!) {
+  planFeedbackStatus(planId: $planId)
+}
+    `;
+
+/**
+ * __usePlanFeedbackStatusQuery__
+ *
+ * To run a query within a React component, call `usePlanFeedbackStatusQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePlanFeedbackStatusQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePlanFeedbackStatusQuery({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *   },
+ * });
+ */
+export function usePlanFeedbackStatusQuery(baseOptions: Apollo.QueryHookOptions<PlanFeedbackStatusQuery, PlanFeedbackStatusQueryVariables> & ({ variables: PlanFeedbackStatusQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PlanFeedbackStatusQuery, PlanFeedbackStatusQueryVariables>(PlanFeedbackStatusDocument, options);
+      }
+export function usePlanFeedbackStatusLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PlanFeedbackStatusQuery, PlanFeedbackStatusQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PlanFeedbackStatusQuery, PlanFeedbackStatusQueryVariables>(PlanFeedbackStatusDocument, options);
+        }
+export function usePlanFeedbackStatusSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PlanFeedbackStatusQuery, PlanFeedbackStatusQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PlanFeedbackStatusQuery, PlanFeedbackStatusQueryVariables>(PlanFeedbackStatusDocument, options);
+        }
+export type PlanFeedbackStatusQueryHookResult = ReturnType<typeof usePlanFeedbackStatusQuery>;
+export type PlanFeedbackStatusLazyQueryHookResult = ReturnType<typeof usePlanFeedbackStatusLazyQuery>;
+export type PlanFeedbackStatusSuspenseQueryHookResult = ReturnType<typeof usePlanFeedbackStatusSuspenseQuery>;
+export type PlanFeedbackStatusQueryResult = Apollo.QueryResult<PlanFeedbackStatusQuery, PlanFeedbackStatusQueryVariables>;
 export const PlanMembersDocument = gql`
     query PlanMembers($planId: Int!) {
   planMembers(planId: $planId) {
@@ -8055,9 +8823,6 @@ export const ProjectDocument = gql`
         uri
       }
       email
-    }
-    outputs {
-      title
     }
     researchDomain {
       id
@@ -8793,6 +9558,7 @@ export const PublishedSectionDocument = gql`
       id
       description
       name
+      slug
     }
     errors {
       general
@@ -8865,6 +9631,7 @@ export const SectionDocument = gql`
       id
       description
       name
+      slug
     }
     errors {
       general
@@ -8921,6 +9688,7 @@ export const TagsDocument = gql`
     id
     name
     description
+    slug
   }
 }
     `;

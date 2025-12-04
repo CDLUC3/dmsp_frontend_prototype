@@ -5,6 +5,9 @@ import React from 'react';
 import { act, render, screen, fireEvent } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import RepositorySelectionSystem from '../ReposSelector';
+import {
+  RepositoryInterface,
+} from '@/app/types';
 
 expect.extend(toHaveNoViolations);
 
@@ -21,7 +24,7 @@ jest.mock('@/context/ToastContext', () => ({
 }));
 
 // ---- Test data ----
-const createMockField = (hasCustomRepos: boolean = true, customRepos: string[] = []) => ({
+const createMockField = (hasCustomRepos: boolean = true, customRepos: RepositoryInterface[] = []) => ({
   id: 'repoSelector',
   label: 'Repo selector',
   enabled: false,

@@ -29,6 +29,11 @@ import {
   useQuestionsDisplayOrderQuery,
 } from '@/generated/graphql';
 
+import {
+  AccessLevelInterface,
+  OutputTypeInterface
+} from '@/app/types';
+
 // Components
 import PageHeader from "@/components/PageHeader";
 import {
@@ -47,6 +52,7 @@ import RepositorySelectionSystem from './ReposSelector';
 import MetaDataStandards from './MetaDataStandards';
 import OutputTypeField from './OutputTypeField';
 import LicenseField, { otherLicenses } from './LicenseField';
+import InitialAccessLevel from './InitialAccessLevel';
 
 //Other
 import { useToast } from '@/context/ToastContext';
@@ -102,10 +108,47 @@ const defaultLicenses = [
   'CCo-1.0'
 ];
 
+const defaultAccessLevels = [
+  { id: 'controlledAccess', level: 'Controlled access', description: 'Restricts access to certain areas' },
+  { id: 'unrestrictedAccess', level: 'Unrestricted access', description: 'Allows access to all areas' },
+  { id: 'Other', level: 'Other', description: 'Other type of access' },
+];
+
+const defaultOutputTypes = [
+  { id: 'Audiovisual', type: 'Audiovisual', description: 'A series of visual representations imparting an impression of motion when shown in succession. May or may not include sound.' },
+  { id: 'Collection', type: 'Collection', description: 'An aggregation of resources, which may encompass collections of one resourceType as well as those of mixed types. A collection is described as a group; its parts may also be separately described.' },
+  { id: 'Data paper', type: 'Data paper', description: 'A factual and objective publication with a focused intent to identify and describe specific data, sets of data, or data collections to facilitate discoverability.' },
+  { id: 'Dataset', type: 'Dataset', description: 'Data encoded in a defined structure.' },
+  { id: 'Event', type: 'Event', description: 'A non-persistent, time-based occurrence.' },
+  { id: 'Image', type: 'Image', description: 'A visual representation other than text.' },
+  { id: 'Interactive resource', type: 'Interactive resource', description: 'A resource requiring interaction from the user to be understood, executed, or experienced.' },
+  { id: 'Model representation', type: 'Model representation', description: 'An abstract, conceptual, graphical, mathematical or visualization model that represents empirical objects, phenomena, or physical processes.' },
+  { id: 'Physical object', type: 'Physical object', description: 'A physical object or substance.' },
+  { id: 'Service', type: 'Service', description: 'An organized system of apparatus, appliances, staff, etc., for supplying some function(s) required by end users.' },
+  { id: 'Software', type: 'Software', description: 'A computer program other than a computational notebook, in either source code (text) or compiled form. Use this type for general software components supporting scholarly research. Use the “ComputationalNotebook” value for virtual notebooks.' },
+  { id: 'Sound', type: 'Sound', description: 'A resource primarily intended to be heard.' },
+  { id: 'Text', type: 'Text', description: 'A resource consisting primarily of words for reading that is not covered by any other textual resource type in this list.' },
+  { id: 'Workflow', type: 'Workflow', description: 'A structured series of steps which can be executed to produce a final outcome, allowing users a means to specify and enact their work in a more reproducible manner.' }
+];
+
 // Initial Standard Fields data
 const initialStandardFields: StandardField[] = [
-  { id: 'title', label: 'Title', enabled: true, required: true },
-  { id: 'description', label: 'Description', enabled: false, placeholder: '', helpText: '', maxLength: '', required: true, value: '' },
+  {
+    id: 'title',
+    label: 'Title',
+    enabled: true,
+    required: true
+  },
+  {
+    id: 'description',
+    label: 'Description',
+    enabled: false,
+    placeholder: '',
+    helpText: '',
+    maxLength: '',
+    required: true,
+    value: ''
+  },
   {
     id: 'outputType',
     label: 'Output Type',
@@ -113,9 +156,9 @@ const initialStandardFields: StandardField[] = [
     helpText: '',
     required: true,
     outputTypeConfig: {
-      mode: 'defaults' as 'defaults' | 'mine' | 'addToDefaults',
+      mode: 'defaults' as 'defaults' | 'mine',
       selectedDefaults: [] as string[],
-      customTypes: [] as string[]
+      customTypes: [] as OutputTypeInterface[],
     }
   },
   {
@@ -131,14 +174,14 @@ const initialStandardFields: StandardField[] = [
   },
   {
     id: 'repoSelector',
-    label: 'Repo selector',
+    label: 'Repositories',
     enabled: false,
     placeholder: '',
     helpText: '',
     value: '',
     repoConfig: {
       hasCustomRepos: false,
-      customRepos: [] as string[],
+      customRepos: [] as RepositoryInterface[],
     }
   },
   {
@@ -148,7 +191,7 @@ const initialStandardFields: StandardField[] = [
     helpText: '',
     metaDataConfig: {
       hasCustomStandards: false,
-      customStandards: [] as string[],
+      customStandards: [] as MetaDataStandardInterface[],
     }
   },
   {
@@ -161,6 +204,18 @@ const initialStandardFields: StandardField[] = [
       mode: 'defaults' as 'defaults' | 'addToDefaults',
       selectedDefaults: [] as string[],
       customTypes: defaultLicenses as string[],
+    }
+  },
+  {
+    id: 'accessLevels',
+    label: 'Initial Access Levels',
+    enabled: false,
+    defaultValue: '',
+    helpText: '',
+    accessLevelsConfig: {
+      mode: 'defaults' as 'defaults' | 'mine',
+      selectedDefaults: [] as string[],
+      customLevels: [] as AccessLevelInterface[],
     }
   },
 ];
@@ -210,6 +265,9 @@ const QuestionAdd = ({
   // Which fields are expanded for customization
   const [expandedFields, setExpandedFields] = useState<string[]>(['title', 'outputType']);
 
+  // Which fields cannot be customized
+  const nonCustomizableFieldIds = ['accessLevels'];
+
   // Standard fields for research output questions
   const [standardFields, setStandardFields] = useState(initialStandardFields);
 
@@ -219,9 +277,11 @@ const QuestionAdd = ({
   ]);
 
   // State for managing custom output types
-  const [newOutputType, setNewOutputType] = useState<string>('');
+  const [newOutputType, setNewOutputType] = useState<OutputTypeInterface>({ type: '', description: '' });
   // State for managing custom license types
   const [newLicenseType, setNewLicenseType] = useState<string>('');
+  // State for managing custom access levels
+  const [newAccessLevel, setNewAccessLevel] = useState<AccessLevelInterface>({ level: '', description: '' });
 
   // localization keys
   const Global = useTranslations('Global');
@@ -284,11 +344,17 @@ const QuestionAdd = ({
     // Store the selected repositories in the field config
     const currentField = standardFields.find(f => f.id === 'repoSelector');
     if (currentField && currentField.repoConfig) {
+      const wasEnabled = currentField.enabled;
       updateStandardFieldProperty('repoSelector', 'repoConfig', {
         ...currentField.repoConfig,
-        customRepos: repos.map(r => ({ id: r.id, name: r.name, url: r.url })) // Store relevant data
+        customRepos: repos
       });
+      // Only enable if a repo is added and the box is currently unchecked
+      if (!wasEnabled && repos.length > (currentField.repoConfig.customRepos?.length || 0)) {
+        updateStandardFieldProperty('repoSelector', 'enabled', true);
+      }
     }
+
     setHasUnsavedChanges(true);
   };
 
@@ -297,10 +363,15 @@ const QuestionAdd = ({
     // Store the selected metadata standards in the field config
     const currentField = standardFields.find(f => f.id === 'metadataStandards');
     if (currentField && currentField.metaDataConfig) {
+      const wasEnabled = currentField.enabled;
       updateStandardFieldProperty('metadataStandards', 'metaDataConfig', {
         ...currentField.metaDataConfig,
-        customStandards: standards.map(s => ({ id: s.id, name: s.name, url: s.url })) // Store relevant data
+        customStandards: standards // Store metadata standard data
       });
+      // Only enable if a standard is added and the box is currently unchecked
+      if (!wasEnabled && standards.length > (currentField.metaDataConfig.customStandards?.length || 0)) {
+        updateStandardFieldProperty('metadataStandards', 'enabled', true);
+      }
     }
     setHasUnsavedChanges(true);
   };
@@ -371,14 +442,9 @@ const QuestionAdd = ({
   const handleStandardFieldChange = (fieldId: string, enabled: boolean) => {
     updateStandardFieldProperty(fieldId, 'enabled', enabled);
     if (enabled === true) {
-      handleCustomizeField(fieldId);
-    } else {
-      removeCustomizeField(fieldId);
+      setExpandedFields(prev => [...prev, fieldId]); //expanded
     }
-  };
-
-  const removeCustomizeField = (fieldId: string) => {
-    setExpandedFields(prev => prev.filter(id => id !== fieldId));
+    // Do NOT auto-collapse when unchecked
   };
 
   // Handler for customize button clicks
@@ -423,6 +489,23 @@ const QuestionAdd = ({
     }
   };
 
+  // Handler for access level mode changes (defaults, add to defaults)  
+  const handleAccessLevelModeChange = (mode: 'defaults' | 'mine') => {
+    const currentField = standardFields.find(f => f.id === 'accessLevels');
+    if (currentField && currentField.accessLevelsConfig) {
+      // When switching to 'mine' mode, pre-populate with defaults if customTypes is empty
+      const customLevels = mode === 'mine' && currentField.accessLevelsConfig.customLevels.length === 0
+        ? defaultAccessLevels
+        : currentField.accessLevelsConfig.customLevels;
+
+      updateStandardFieldProperty('accessLevels', 'accessLevelsConfig', {
+        ...currentField.accessLevelsConfig,
+        mode,
+        customLevels
+      });
+    }
+  };
+
   // Handler for adding custom license types
   const handleAddCustomLicenseType = () => {
     if (newLicenseType.trim()) {
@@ -454,28 +537,78 @@ const QuestionAdd = ({
     }
   };
 
+  // Handler for adding custom access levels
+  const handleAddCustomAccessLevel = () => {
+    if (newAccessLevel.level && newAccessLevel.level.trim()) {
+      const currentField = standardFields.find(f => f.id === 'accessLevels');
+      if (currentField && currentField.accessLevelsConfig) {
+        // Add to custom access levels array
+        const updatedCustomTypes = [
+          ...currentField.accessLevelsConfig.customLevels,
+          { level: newAccessLevel.level.trim(), description: newAccessLevel.description?.trim() || '' }
+        ];
+
+        updateStandardFieldProperty('accessLevels', 'accessLevelsConfig', {
+          ...currentField.accessLevelsConfig,
+          customLevels: updatedCustomTypes
+        });
+
+        // Clear the input fields
+        setNewAccessLevel({ level: '', description: '' });
+      }
+    }
+  };
+
+  // Handler for removing custom access levels
+  const handleRemoveCustomAccessLevels = (levelToRemove: string) => {
+    const currentField = standardFields.find(f => f.id === 'accessLevels');
+    if (currentField && currentField.accessLevelsConfig) {
+      const updatedCustomLevels = currentField.accessLevelsConfig.customLevels.filter(
+        (customLevel: AccessLevelInterface) => customLevel.level !== levelToRemove
+      );
+      updateStandardFieldProperty('accessLevels', 'accessLevelsConfig', {
+        ...currentField.accessLevelsConfig,
+        customLevels: updatedCustomLevels
+      });
+    }
+  };
+
+
   // Handler for output type mode changes (defaults, mine, add to defaults)
-  const handleOutputTypeModeChange = (mode: 'defaults' | 'mine' | 'addToDefaults') => {
+  const handleOutputTypeModeChange = (mode: 'defaults' | 'mine') => {
     const currentField = standardFields.find(f => f.id === 'outputType');
     if (currentField && currentField.outputTypeConfig) {
+      // When switching to 'mine' mode, pre-populate with defaults if customTypes is empty
+      const customTypes = mode === 'mine' && currentField.outputTypeConfig.customTypes.length === 0
+        ? defaultOutputTypes
+        : currentField.outputTypeConfig.customTypes;
+
       updateStandardFieldProperty('outputType', 'outputTypeConfig', {
         ...currentField.outputTypeConfig,
-        mode
+        mode,
+        customTypes
       });
     }
   };
 
   // Handler for adding custom output types
   const handleAddCustomOutputType = () => {
-    if (newOutputType.trim()) {
+    if (newOutputType.type && newOutputType.type.trim()) {
       const currentField = standardFields.find(f => f.id === 'outputType');
       if (currentField && currentField.outputTypeConfig) {
-        const updatedCustomTypes = [...currentField.outputTypeConfig.customTypes, newOutputType.trim()];
+        // Add to customTypes array
+        const updatedCustomTypes = [
+          ...currentField.outputTypeConfig.customTypes,
+          { type: newOutputType.type.trim(), description: newOutputType.description?.trim() || '' }
+        ];
+
         updateStandardFieldProperty('outputType', 'outputTypeConfig', {
           ...currentField.outputTypeConfig,
           customTypes: updatedCustomTypes
         });
-        setNewOutputType('');
+
+        // Clear the input fields
+        setNewOutputType({ type: '', description: '' });
       }
     }
   };
@@ -484,7 +617,9 @@ const QuestionAdd = ({
   const handleRemoveCustomOutputType = (typeToRemove: string) => {
     const currentField = standardFields.find(f => f.id === 'outputType');
     if (currentField && currentField.outputTypeConfig) {
-      const updatedCustomTypes = currentField.outputTypeConfig.customTypes.filter((type: string) => type !== typeToRemove);
+      const updatedCustomTypes = currentField.outputTypeConfig.customTypes.filter(
+        (customType: OutputTypeInterface) => customType.type !== typeToRemove
+      );
       updateStandardFieldProperty('outputType', 'outputTypeConfig', {
         ...currentField.outputTypeConfig,
         customTypes: updatedCustomTypes
@@ -832,7 +967,6 @@ const QuestionAdd = ({
                   name="question_requirements"
                   isRequired={false}
                   richText={true}
-                  description={QuestionAdd('helpText.requirementText')}
                   textAreaClasses={styles.questionFormField}
                   label={QuestionAdd('labels.requirementText')}
                   value={question?.requirementText ? question.requirementText : ''}
@@ -848,6 +982,7 @@ const QuestionAdd = ({
                   label={QuestionAdd('labels.guidanceText')}
                   value={question?.guidanceText ? question?.guidanceText : ''}
                   onChange={(newValue) => handleInputChange('guidanceText', newValue)}
+                  helpMessage={QuestionAdd('helpText.guidanceText')}
                 />
 
                 {questionType === TEXT_AREA_QUESTION_TYPE && (
@@ -922,7 +1057,11 @@ const QuestionAdd = ({
                                   className={`buttonLink link`}
                                   onPress={() => handleCustomizeField(field.id)}
                                 >
-                                  {expandedFields.includes(field.id) ? Global('buttons.close') : Global('buttons.customize')}
+                                  {expandedFields.includes(field.id)
+                                    ? Global('buttons.close')
+                                    : nonCustomizableFieldIds.includes(field.id)
+                                      ? Global('links.expand')
+                                      : Global('buttons.customize')}
                                 </Button>
                               )}
 
@@ -933,13 +1072,15 @@ const QuestionAdd = ({
                               <div className={styles.fieldPanel}>
                                 {/** Description */}
                                 {field.id === 'description' && (
-                                  <FormTextArea
-                                    name={QuestionAdd('researchOutput.labels.descriptionLowerCase')}
+                                  <FormInput
+                                    name="descriptionHelpText"
+                                    type="text"
                                     isRequired={false}
-                                    richText={true}
-                                    label={QuestionAdd('researchOutput.labels.description')}
-                                    value={field.value}
-                                    onChange={(newValue) => updateStandardFieldProperty('description', 'value', newValue)}
+                                    label={QuestionAdd('labels.helpText', { fieldName: QuestionAdd('researchOutput.labels.description') })}
+                                    value={field.helpText || ''}
+                                    onChange={(e) => updateStandardFieldProperty('description', 'helpText', e.currentTarget.value)}
+                                    helpMessage={QuestionAdd('researchOutput.helpText')}
+                                    maxLength={300}
                                   />
                                 )}
 
@@ -996,13 +1137,15 @@ const QuestionAdd = ({
                                       onRepositoriesChange={handleRepositoriesChange}
                                     />
 
-                                    <FormTextArea
-                                      name="repoSelectorDescription"
+                                    <FormInput
+                                      name="repositoriesHelpText"
+                                      type="text"
                                       isRequired={false}
-                                      richText={true}
-                                      label={QuestionAdd('researchOutput.repoSelector.descriptionLabel')}
-                                      value={field.value}
-                                      onChange={(value) => updateStandardFieldProperty('repoSelector', 'value', value)}
+                                      label={QuestionAdd('labels.helpText', { fieldName: field.label })}
+                                      value={field.helpText || ''}
+                                      onChange={(e) => updateStandardFieldProperty('repoSelector', 'helpText', e.currentTarget.value)}
+                                      helpMessage={QuestionAdd('researchOutput.helpText')}
+                                      maxLength={300}
                                     />
                                   </>
                                 )}
@@ -1016,28 +1159,66 @@ const QuestionAdd = ({
                                       onMetaDataStandardsChange={handleMetaDataStandardsChange}
                                     />
 
-                                    <FormTextArea
-                                      name="metadataStandardsDescription"
+                                    <FormInput
+                                      name="metadataStandardsHelpText"
+                                      type="text"
                                       isRequired={false}
-                                      richText={true}
-                                      label={QuestionAdd('researchOutput.metaDataStandards.descriptionLabel')}
-                                      value={field.value}
-                                      helpMessage={QuestionAdd('researchOutput.metaDataStandards.helpText')}
-                                      onChange={(value) => updateStandardFieldProperty('metaDataStandards', 'value', value)}
+                                      label={QuestionAdd('labels.helpText', { fieldName: field.label })}
+                                      value={field.helpText || ''}
+                                      onChange={(e) => updateStandardFieldProperty('metadataStandards', 'helpText', e.currentTarget.value)}
+                                      helpMessage={QuestionAdd('researchOutput.helpText')}
+                                      maxLength={300}
                                     />
                                   </>
                                 )}
 
                                 {/**License configurations */}
                                 {field.id === 'licenses' && (
-                                  <LicenseField
-                                    field={field}
-                                    newLicenseType={newLicenseType}
-                                    setNewLicenseType={setNewLicenseType}
-                                    onModeChange={handleLicenseModeChange}
-                                    onAddCustomType={handleAddCustomLicenseType}
-                                    onRemoveCustomType={handleRemoveCustomLicenseType}
-                                  />
+                                  <>
+                                    <LicenseField
+                                      field={field}
+                                      newLicenseType={newLicenseType}
+                                      setNewLicenseType={setNewLicenseType}
+                                      onModeChange={handleLicenseModeChange}
+                                      onAddCustomType={handleAddCustomLicenseType}
+                                      onRemoveCustomType={handleRemoveCustomLicenseType}
+                                    />
+                                    <FormInput
+                                      name="licensesHelpText"
+                                      type="text"
+                                      isRequired={false}
+                                      label={QuestionAdd('labels.helpText', { fieldName: field.label })}
+                                      value={field.helpText || ''}
+                                      onChange={(e) => updateStandardFieldProperty('licenses', 'helpText', e.currentTarget.value)}
+                                      helpMessage={QuestionAdd('researchOutput.helpText')}
+                                      maxLength={300}
+                                    />
+                                  </>
+                                )}
+
+                                {/**Access level configurations */}
+                                {field.id === 'accessLevels' && (
+                                  <>
+                                    <InitialAccessLevel
+                                      field={field}
+                                      newAccessLevel={newAccessLevel}
+                                      setNewAccessLevel={setNewAccessLevel}
+                                      onModeChange={handleAccessLevelModeChange}
+                                      onAddCustomType={handleAddCustomAccessLevel}
+                                      onRemoveCustomType={handleRemoveCustomAccessLevels}
+                                    />
+
+                                    <FormInput
+                                      name="accessLevelsHelpText"
+                                      type="text"
+                                      isRequired={false}
+                                      label={QuestionAdd('labels.helpText', { fieldName: field.label })}
+                                      value={field.helpText || ''}
+                                      onChange={(e) => updateStandardFieldProperty('accessLevels', 'helpText', e.currentTarget.value)}
+                                      helpMessage={QuestionAdd('researchOutput.helpText')}
+                                      maxLength={300}
+                                    />
+                                  </>
                                 )}
                               </div>
                             )}
@@ -1104,14 +1285,14 @@ const QuestionAdd = ({
                                     />
 
                                     {/* Help Text */}
-                                    <FormTextArea
+                                    <FormInput
                                       name={`${field.id}_help`}
                                       isRequired={false}
-                                      richText={false}
-                                      label={QuestionAdd('researchOutput.additionalFields.helpText.label')}
+                                      label={QuestionAdd('labels.helpText', { fieldName: field.customLabel || field.label })}
                                       value={field.helpText}
                                       onChange={(value) => handleUpdateAdditionalField(field.id, 'helpText', value)}
-                                      helpMessage={QuestionAdd('researchOutput.additionalFields.helpText.helpText')}
+                                      helpMessage={QuestionAdd('researchOutput.helpText')}
+                                      maxLength={300}
                                     />
 
                                     {/* Max Length for text field */}

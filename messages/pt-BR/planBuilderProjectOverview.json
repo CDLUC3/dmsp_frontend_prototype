@@ -23,10 +23,6 @@
     "memberInfo": "{name} ({role})",
     "editMembers": "Editar Detalhes do Projeto",
     "editProjectMembers": "Editar Detalhes do Projeto",
-    "researchOutputs": "Resultados da pesquisa",
-    "outputCount": "{count, plural, =0 {0 outputs} one {1 output} other {{count} outputs}}",
-    "editOutputs": "Editar resultados de pesquisa",
-    "editResearchOutputs": "Editar resultados de pesquisa",
     "plan": "Planejamento",
     "plans": "Planos",
     "sections": "Turmas",
@@ -66,7 +62,7 @@
     }
   },
   "ProjectsListPage": {
-    "intro": "Gerenciador ou criar projeto DMSP ou por DMP",
+    "intro": "Gerencie seus planos de gerenciamento de dados e projetos. Para criar um novo plano dentro do mesmo projeto de pesquisa, abra o projeto abaixo primeiro e depois crie um novo plano dentro dele.",
     "buttons": {
       "createProject": "Criar projeto"
     },
@@ -77,15 +73,13 @@
     }
   },
   "ProjectsCreateProject": {
-    "pageTitle": "Criar um novo blog",
+    "pageTitle": "Criar detalhes do projeto",
+    "description": "Começaremos pedindo detalhes sobre seu projeto de pesquisa para que possamos ajudá-lo a criar o plano de gerenciamento de dados certo para ele. Você pode então adicionar planos adicionais ao mesmo projeto.",
     "isThisMockProject": "Este é um projeto fictício?",
     "form": {
-      "projectTitle": "Qual é o título do projeto?",
+      "projectTitle": "Qual é o título do projeto de pesquisa para este DMP?",
       "projectTitleHelpText": "Você pode mudar isso a qualquer momento. Se já solicitou financiamento, recomendamos que se utilize o título formal do projeto para ser consistente.",
-      "checkboxGroupLabel": "Este projeto é uma simulação (mock, em inglês) para fins de teste, prática ou educacional",
-      "checkboxGroupHelpText": "Este é um projeto simulado (mock, em inglês) destinado exclusivamente a testes, práticas ou propósitos educativos. Isso permite que você crie um projeto e planos, mas você não poderá receber comentários ou publicá-los.",
-      "checkboxLabel": "Sim, defina este projeto para um simulação (mock, em inglês) ou um projeto de teste.",
-      "checkboxHelpText": "Sim, defina este projeto para um simulação (mock, em inglês) ou um projeto de teste."
+      "radioGroupLabel": "Este é um projeto fictício para fins de teste ou um projeto real?"
     },
     "messages": {
       "success": "Projeto criado com sucesso",
@@ -94,6 +88,14 @@
         "title": "Título do projeto é obrigatório",
         "createProjectError": "Erro ao criar projeto"
       }
+    },
+    "labels": {
+      "mockProject": "Projeto simulado",
+      "realProject": "Projeto real"
+    },
+    "descriptions": {
+      "mockProject": "Para fins de teste/educação: não é possível solicitar feedback ou publicar plano, excluído das estatísticas.",
+      "realProject": "Funcionalidade completa. Não pode ser alterado de volta para projeto fictício."
     }
   },
   "ProjectsCreateProjectFunding": {
@@ -123,7 +125,7 @@
       "researchDomain": "Domínio de pesquisa",
       "mockProject": "Projeto fictício",
       "realProject": "Projeto real",
-      "childDomain": "Selecione um subdomínio para {name}:",
+      "childDomain": "Selecione um subdomínio para {name}",
       "item": "Produto"
     },
     "helpText": {

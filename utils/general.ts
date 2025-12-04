@@ -44,10 +44,10 @@ export const stripHtmlTags = (input: string | null | undefined, tagsToRemove?: s
       // Remove only the specified tags
       const pattern = `<\\/?(?:${tagsToRemove.join('|')})\\b[^>]*>`;
       const regex = new RegExp(pattern, 'gi');
-      return input.replace(regex, ' ');
+      return input.replace(regex, ' ').replace(/&nbsp;/g, ' ');
     } else {
       // Remove all tags
-      return input.replace(/<[^>]*>/g, ' ');
+      return input.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ');
     }
   }
   return '';

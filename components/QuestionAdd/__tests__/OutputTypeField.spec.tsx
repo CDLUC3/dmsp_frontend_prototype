@@ -15,11 +15,11 @@ describe('OutputTypeField', () => {
       enabled: true,
       outputTypeConfig: {
         mode: 'defaults',
-        customTypes: [],
+        customTypes: [{ type: "Audiovisual", description: "A type of output that includes both visual and auditory content." }],
         selectedDefaults: [],
       },
     },
-    newOutputType: '',
+    newOutputType: { type: '', description: '' },
     setNewOutputType: jest.fn(),
     onModeChange: jest.fn(),
     onAddCustomType: jest.fn(),
@@ -112,7 +112,7 @@ describe('OutputTypeField', () => {
         ...defaultProps.field,
         outputTypeConfig: {
           mode: 'mine' as const,
-          customTypes: ['Custom Type 1', 'Custom Type 2'],
+          customTypes: [{ type: 'Custom Type 1', description: 'Description for Custom Type 1' }, { type: 'Custom Type 2', description: 'Description for Custom Type 2' }],
           selectedDefaults: [],
         },
       };
@@ -165,29 +165,18 @@ describe('OutputTypeField', () => {
       const addToDefaultsField = {
         ...defaultProps.field,
         outputTypeConfig: {
-          mode: 'addToDefaults' as const,
-          customTypes: ['Custom Type 1', 'Custom Type 2'],
+          mode: 'mine' as const,
+          customTypes: [{ type: 'Custom Type 1', description: 'Description for Custom Type 1' }, { type: 'Custom Type 2', description: 'Description for Custom Type 2' }],
           selectedDefaults: [],
         },
       };
-
-      it('displays both default and custom output type sections when mode is "addToDefaults"', () => {
-        renderComponent({
-          field: addToDefaultsField,
-        });
-
-        expect(screen.getByText('researchOutput.outputType.legends.default')).toBeInTheDocument();
-        expect(screen.getByText('researchOutput.outputType.legends.myOutputs')).toBeInTheDocument();
-      });
 
       it('displays all default output types in addToDefaults mode', () => {
         renderComponent({
           field: addToDefaultsField,
         });
 
-        expect(screen.getByText('Audiovisual')).toBeInTheDocument();
-        expect(screen.getByText('Dataset')).toBeInTheDocument();
-        expect(screen.getByText('Text')).toBeInTheDocument();
+        expect(screen.getByText('Custom Type 1')).toBeInTheDocument();
       });
 
       it('displays custom output types when they exist', () => {
@@ -213,7 +202,7 @@ describe('OutputTypeField', () => {
           field: {
             ...defaultProps.field,
             outputTypeConfig: {
-              mode: 'addToDefaults',
+              mode: 'mine',
               customTypes: [],
               selectedDefaults: [],
             },
@@ -235,7 +224,7 @@ describe('OutputTypeField', () => {
         await userEvent.click(selectButton);
 
         // Find and click the "Use mine" option in the listbox
-        const mineOption = screen.getByRole('option', { name: 'Use mine' });
+        const mineOption = screen.getByRole('option', { name: 'Use custom list' });
         await userEvent.click(mineOption);
 
         expect(onModeChange).toHaveBeenCalledWith('mine');
@@ -258,7 +247,7 @@ describe('OutputTypeField', () => {
         const input = screen.getByLabelText('researchOutput.outputType.labels.enterOutputType');
         fireEvent.change(input, { target: { value: 'New Output Type' } });
 
-        expect(setNewOutputType).toHaveBeenCalledWith('New Output Type');
+        expect(setNewOutputType).toHaveBeenCalledWith({ description: '', type: 'New Output Type' });
       });
 
       it('calls onAddCustomType when add button is clicked in mine mode', () => {
@@ -272,9 +261,12 @@ describe('OutputTypeField', () => {
               selectedDefaults: [],
             },
           },
-          newOutputType: 'New Type',
+          newOutputType: { type: 'New Type', description: 'Description for New Type' },
           onAddCustomType,
         });
+
+        const input = screen.getByLabelText('researchOutput.outputType.labels.enterOutputType');
+        fireEvent.change(input, { target: { value: 'New Output Type' } });
 
         const addButton = screen.getByText('researchOutput.outputType.buttons.addOutputType');
         fireEvent.click(addButton);
@@ -293,7 +285,7 @@ describe('OutputTypeField', () => {
               selectedDefaults: [],
             },
           },
-          newOutputType: 'New Type',
+          newOutputType: { type: 'New Type', description: 'Description for New Type' },
           onAddCustomType,
         });
 
@@ -313,7 +305,7 @@ describe('OutputTypeField', () => {
               selectedDefaults: [],
             },
           },
-          newOutputType: '   ',
+          newOutputType: { type: ' ', description: '' },
         });
 
         const addButton = screen.getByText('researchOutput.outputType.buttons.addOutputType');
@@ -330,7 +322,7 @@ describe('OutputTypeField', () => {
               selectedDefaults: [],
             },
           },
-          newOutputType: 'Valid Output Type',
+          newOutputType: { type: 'Valid Output Type', description: 'Description for Valid Output Type' },
         });
 
         const addButton = screen.getByText('researchOutput.outputType.buttons.addOutputType');
@@ -344,15 +336,15 @@ describe('OutputTypeField', () => {
             ...defaultProps.field,
             outputTypeConfig: {
               mode: 'mine',
-              customTypes: ['Test Type'],
+              customTypes: [{ type: 'Test Type', description: 'Description for Custom Type 1' }, { type: 'Custom Type 2', description: 'Description for Custom Type 2' }],
               selectedDefaults: [],
             },
           },
           onRemoveCustomType,
         });
 
-        const removeButton = screen.getByText('x');
-        fireEvent.click(removeButton);
+        const removeButtons = screen.getAllByText('x');
+        fireEvent.click(removeButtons[0]);
 
         expect(onRemoveCustomType).toHaveBeenCalledWith('Test Type');
       });
@@ -364,15 +356,19 @@ describe('OutputTypeField', () => {
           field: {
             ...defaultProps.field,
             outputTypeConfig: {
-              mode: 'addToDefaults',
+              mode: 'mine',
               customTypes: [],
               selectedDefaults: [],
             },
           },
-          newOutputType: 'New Type',
+          newOutputType: { type: 'New Type', description: 'Description for New Type' },
           onAddCustomType,
           setNewOutputType,
         });
+
+        const input = screen.getByLabelText('researchOutput.outputType.labels.enterOutputType');
+        fireEvent.keyDown(input, { key: 'Enter' });
+
 
         const addButtons = screen.getByText('researchOutput.outputType.buttons.addOutputType');
         fireEvent.click(addButtons); // Click the add button in custom types section
@@ -401,13 +397,13 @@ describe('OutputTypeField', () => {
             outputTypeConfig: {
               customTypes: [],
               selectedDefaults: [],
-              mode: 'addToDefaults'
+              mode: 'mine'
             }
           },
         });
 
         const selectButton = screen.getByTestId('select-button');
-        expect(selectButton).toHaveTextContent('Add mine to defaultsOpen drop down');
+        expect(selectButton).toHaveTextContent('Use custom listOpen drop down');
       });
     });
 
@@ -429,7 +425,8 @@ describe('OutputTypeField', () => {
       });
 
       it('handles multiple custom types correctly in mine mode', () => {
-        const multipleCustomTypes = ['Type A', 'Type B', 'Type C'];
+        const multipleCustomTypes = [{ type: 'Type A', description: 'Description for Type A' }, { type: 'Type B', description: 'Description for Type B' }, { type: 'Type C', description: 'Description for Type C' }];
+
         renderComponent({
           field: {
             ...defaultProps.field,
@@ -442,26 +439,26 @@ describe('OutputTypeField', () => {
         });
 
         multipleCustomTypes.forEach(type => {
-          expect(screen.getByText(type)).toBeInTheDocument();
+          expect(screen.getByText(type.type)).toBeInTheDocument();
         });
 
         expect(screen.getAllByText('x')).toHaveLength(3);
       });
 
       it('renders correctly with special characters in custom output type names', () => {
-        const specialType = 'Dataset (v2.0 - Enhanced)';
+        const specialType = [{ type: 'Dataset (v2.0 - Enhanced)', description: 'Description for Dataset (v2.0 - Enhanced)' }];
         renderComponent({
           field: {
             ...defaultProps.field,
             outputTypeConfig: {
               mode: 'mine',
-              customTypes: [specialType],
+              customTypes: specialType,
               selectedDefaults: [],
             },
           },
         });
 
-        expect(screen.getByText(specialType)).toBeInTheDocument();
+        expect(screen.getByText(specialType[0].type)).toBeInTheDocument();
         expect(screen.getByText('x')).toBeInTheDocument();
       });
 

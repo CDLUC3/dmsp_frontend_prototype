@@ -51,6 +51,25 @@ const mocks = [
     },
   },
 
+  {
+    request: {
+      query: AddProjectDocument,
+      variables: {
+        title: "Test Project",
+        isTestProject: false,
+      },
+    },
+
+    result: {
+      data: {
+        addProject: {
+          id: 123,
+          errors: [],
+        },
+      }
+    },
+  },
+
   // This is to create the error result
   {
     request: {
@@ -94,6 +113,17 @@ const mocks = [
         },
       },
     },
+  },
+  // Mock error response for addProject
+  {
+    request: {
+      query: AddProjectDocument,
+      variables: {
+        title: "Server Error",
+        isTestProject: false,
+      },
+    },
+    error: new Error('Server Error'),
   },
 
   // Mocked Server error for addProjectFunding
@@ -156,11 +186,8 @@ describe('ProjectsCreateProject', () => {
     expect(screen.getByRole('heading', { level: 1, name: /pageTitle/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/form.projectTitle/i)).toBeInTheDocument();
     expect(screen.getByText(/form.projectTitleHelpText/i)).toBeInTheDocument();
-    expect(screen.getByText(/form.checkboxLabel/i)).toBeInTheDocument();
-    expect(screen.getByText(/form.checkboxHelpText/i)).toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: "isThisMockProject" })).toBeInTheDocument();
-    expect(screen.getByText(/form.checkboxGroupLabel/i)).toBeInTheDocument();
-    expect(screen.getByText(/form.checkboxGroupHelpText/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('labels.realProject')).toBeInTheDocument();
+    expect(screen.getByLabelText('labels.mockProject')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /buttons.continue/i })).toBeInTheDocument();
   });
 
@@ -174,7 +201,7 @@ describe('ProjectsCreateProject', () => {
     });
 
     fireEvent.change(screen.getByLabelText(/form.projectTitle/i), { target: { value: 'Test Project' } });
-    fireEvent.click(screen.getByLabelText(/form.checkboxLabel/i));
+    fireEvent.click(screen.getByLabelText('labels.realProject'));
     fireEvent.click(screen.getByRole('button', { name: /buttons.continue/i }));
 
     await waitFor(() => {
@@ -192,7 +219,13 @@ describe('ProjectsCreateProject', () => {
       );
     });
 
+    // Fill in project title
     fireEvent.change(screen.getByLabelText(/form.projectTitle/i), { target: { value: 'Non-Test Project' } });
+
+    // Select "Real project" radio
+    fireEvent.click(screen.getByLabelText('labels.realProject'));
+
+    // Submit the form
     fireEvent.click(screen.getByRole('button', { name: /buttons.continue/i }));
 
     await waitFor(() => {
@@ -211,7 +244,9 @@ describe('ProjectsCreateProject', () => {
     });
 
     fireEvent.change(screen.getByLabelText(/form.projectTitle/i), { target: { value: '' } });
-    fireEvent.click(screen.getByLabelText(/form.checkboxLabel/i));
+    // Select "Real project" radio
+    fireEvent.click(screen.getByLabelText('labels.realProject'));
+
     fireEvent.click(screen.getByRole('button', { name: /buttons.continue/i }));
 
     await waitFor(() => {
@@ -266,7 +301,8 @@ describe('ProjectsCreateProject', () => {
     });
 
     fireEvent.change(screen.getByLabelText(/form.projectTitle/i), { target: { value: 'Server Error' } });
-    fireEvent.click(screen.getByLabelText(/form.checkboxLabel/i));
+    // Select "Real project" radio
+    fireEvent.click(screen.getByLabelText('labels.realProject'));
     fireEvent.click(screen.getByRole('button', { name: /buttons.continue/i }));
 
     await waitFor(() => {

@@ -1,6 +1,32 @@
 {
   "HomePage": {
     "title": "Home page",
+    "createAndManage": {
+      "title": "Create & Manage",
+      "description": "Create new templates and projects"
+    },
+    "accountAndAdmin": {
+      "title": "Account & Administration",
+      "description": "Manage your account and access admin features"
+    },
+    "sections": {
+      "templateManagement": {
+        "title": "Template Management",
+        "description": "Create and manage templates (Must be Admin to access)"
+      },
+      "planDashboard": {
+        "title": "Plan Dashboard",
+        "description": "Create and manage projects and plans"
+      },
+      "accountSettings": {
+        "title": "Account Settings",
+        "description": "View and manage your account"
+      },
+      "adminOverview": {
+        "title": "Admin Overview",
+        "description": "Access administrative functions"
+      }
+    },
     "linkText": "Go to the Connections page",
     "content": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout."
   },
@@ -11,7 +37,7 @@
     "menuDashboard": "Dashboard",
     "menuUpload": "Upload Plan",
     "menuCreatePlan": "Create Plan",
-    "menuProjectsPlans": "Projects &amp; Plans",
+    "menuProjectsPlans": "Plan Dashboard",
     "menuPublicPlans": "Public Plans",
     "menuFunderRequirements": "Funder Requirements",
     "menuAbout": "About",
@@ -530,10 +556,11 @@
         "createGroup": "Create guidance group"
       },
       "groupIndex": {
-        "title": "Guidance Texts",
-        "description": "Manage guidance texts within this group",
+        "title": "Edit {groupName}",
+        "description": "Below are all the Tags that are applied to Questions and Sections. Add your Guidance below and it will show up on templates when that Tag is selected.",
         "createText": "Create guidance text",
-        "editGroup": "Edit group"
+        "editGroup": "Edit group information",
+        "noTags": "No guidance texts found in this group"
       },
       "groupCreate": {
         "title": "Create New Guidance Group",
@@ -562,8 +589,13 @@
     },
     "fields": {
       "groupName": {
-        "label": "Group Name",
+        "label": "Group name",
         "placeholder": "Enter group name"
+      },
+      "groupDescription": {
+        "label": "Group description",
+        "placeholder": "Enter group description",
+        "helpText": "Optional - for internal use only"
       },
       "title": {
         "label": "Title",
@@ -582,11 +614,16 @@
       }
     },
     "status": {
+      "publicationStatus": "Publication Status",
+      "lastPublished": "Last Published",
+      "notYetPublished": "Not yet published",
       "published": "Published",
       "draft": "Draft",
       "archived": "Archived",
       "lastUpdated": "Last Updated",
-      "status": "Status"
+      "status": "Status",
+      "unpublishedChanges": "Unpublished changes",
+      "publishedVersion": "Published Version"
     },
     "actions": {
       "createGroup": "Create Group",
@@ -606,7 +643,21 @@
     },
     "messages": {
       "noGroups": "No guidance groups found",
-      "noTexts": "No guidance texts found in this group"
+      "noTexts": "No guidance texts found in this group",
+      "loadingPleaseWait": "Loading, please wait...",
+      "unPublishBtnTooltipMessage": "Cannot unpublish guidance group because there are no published versions.",
+      "publishBtnTooltipMessage": "Guidance group is already published.",
+      "success": {
+        "guidanceGroupCreated": "Guidance group {groupName} successfully created",
+        "guidanceGroupPublished": "Guidance group {groupName} successfully published",
+        "guidanceGroupUnpublished": "Guidance group {groupName} successfully unpublished",
+        "guidanceGroupUpdated": "Guidance group {groupName} successfully updated",
+        "guidanceTextAdded": "Guidance text successfully added to {tagName}. The change(s) need to be published to take effect.",
+        "guidanceTextUpdated": "Guidance text for {tagName} successfully updated. The change(s) need to be published to take effect."
+      }
+    },
+    "labels": {
+      "optionalSubset": "Is this an optional subset for departmental use?"
     }
   },
   "Global": {
@@ -629,11 +680,14 @@
       "selectQuestionType": "Select Question Type",
       "project": "Project",
       "projects": "Projects",
+      "planDashboard": "Plan Dashboard",
+      "startDMP": "Start DMP",
       "projectOverview": "Project overview",
       "projectFunding": "Project funding",
       "projectFundingSearch": "Project funding search",
       "planOverview": "Plan overview",
       "planFunding": "Plan funding",
+      "downloadPlan": "Download plan",
       "sectionOverview": "Section overview",
       "feedback": "Feedback",
       "questionDetails": "Question details",
@@ -652,6 +706,7 @@
     "lastRevisedBy": "Last revised by",
     "lastUpdated": "Last updated",
     "published": "Published",
+    "draft": "Draft",
     "visibility": "Visibility",
     "notPublished": "Not published",
     "editTitle": "Edit title",
@@ -683,6 +738,8 @@
       "delete": "Delete",
       "preview": "Preview",
       "publish": "Publish",
+      "publishChanges": "Publish changes",
+      "unpublish": "Unpublish",
       "close": "Close",
       "closeModal": "Close modal",
       "loadMore": "Load more",
@@ -693,7 +750,8 @@
       "customize": "Customize",
       "applyFilter": "Apply filter(s)",
       "moreInfo": "More info",
-      "lessInfo": "Less info"
+      "lessInfo": "Less info",
+      "createNewPlan": "Create New DMP"
     },
     "labels": {
       "required": "required",
@@ -715,7 +773,7 @@
       "funderSearch": "Search by research organization, funder name, or related keywords."
     },
     "descriptions": {
-      "requiredFieldDescription": "Should this question include a warning to the plan builder that an answer is required as a condition of accepting the DMP?(Users will be able to submit the DMP even if they don't answer)"
+      "requiredFieldDescription": "Warn users that this is considered a required question for this DMP template by the organization. Users will be able to choose to ignore this within the tool and will not be required to answer before moving it."
     },
     "placeholders": {
       "funderSearch": "Enter funder name..."
@@ -741,6 +799,7 @@
       "unsupportedQuestionType": "Unsupported question type {questionType}",
       "sectionIsExpanded": "Section is expanded",
       "sectionIsCollapsed": "Section is collapsed",
+      "continueAnyway": "Continue anyway",
       "error": "Something went wrong. Please try again.",
       "errors": {
         "invalidQuestionType": "Invalid question type found.",

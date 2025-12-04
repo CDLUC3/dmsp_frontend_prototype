@@ -12,6 +12,7 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    gap: 1rem;
 
   }
 
@@ -33,6 +34,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
+    flex-shrink: 0; //button should not shrink
 
     @include r.device(md) {
       justify-content: flex-start;

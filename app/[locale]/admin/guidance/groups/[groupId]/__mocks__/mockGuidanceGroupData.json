@@ -1,0 +1,41 @@
+{
+  "guidanceGroup": {
+    "__typename": "GuidanceGroup",
+    "id": 2398,
+    "name": "CDL Guidance Group",
+    "description": "The guidance group for CDL",
+    "bestPractice": false,
+    "latestPublishedVersion": "2",
+    "latestPublishedDate": "2025-12-01 20:00:45",
+    "isDirty": false,
+    "guidance": [
+      {
+        "__typename": "Guidance",
+        "guidanceText": "<p>This is the guidance for storage &amp; security</p>",
+        "id": 976,
+        "tagId": 1
+      },
+      {
+        "__typename": "Guidance",
+        "guidanceText": "<p>This is the guidance for Preservation</p>",
+        "id": 977,
+        "tagId": 2
+      }
+    ],
+    "versionedGuidanceGroup": [
+      {
+        "__typename": "VersionedGuidanceGroup",
+        "active": true,
+        "id": 213,
+        "version": 2
+      },
+      {
+        "__typename": "VersionedGuidanceGroup",
+        "active": false,
+        "id": 212,
+        "version": 1
+      }
+    ],
+    "optionalSubset": false
+  }
+}

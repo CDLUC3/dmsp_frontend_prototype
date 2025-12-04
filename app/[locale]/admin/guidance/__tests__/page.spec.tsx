@@ -1,9 +1,25 @@
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { axe, toHaveNoViolations } from "jest-axe";
+import { MockedProvider } from "@apollo/client/testing";
+import { useFormatter, useTranslations } from "next-intl";
+import {
+  MeDocument,
+  TagsDocument,
+  GuidanceGroupsDocument
+} from "@/generated/graphql";
 
+import { axe, toHaveNoViolations } from "jest-axe";
+import mockMeData from "../__mocks__/mockMeData.json";
+import mockTagsData from "../__mocks__/mockTagsData.json";
+import mockGuidanceGroupsData from "../__mocks__/mockGuidanceGroupsData.json";
 import GuidancePage from "../page";
+
+// Mock next-intl hooks
+jest.mock("next-intl", () => ({
+  useFormatter: jest.fn(),
+  useTranslations: jest.fn(),
+}));
 
 // Mock Next.js navigation
 jest.mock("next/navigation", () => ({
@@ -17,84 +33,187 @@ jest.mock("next/navigation", () => ({
 
 expect.extend(toHaveNoViolations);
 
+const mocks = [
+  {
+    request: {
+      query: MeDocument,
+    },
+    result: {
+      data: mockMeData,
+    },
+  },
+  {
+    request: {
+      query: TagsDocument,
+    },
+    result: {
+      data: mockTagsData,
+    },
+  },
+  {
+    request: {
+      query: GuidanceGroupsDocument,
+      variables: {
+        affiliationId: "https://ror.org/03yrm5c12",
+      }
+    },
+    result: {
+      data: mockGuidanceGroupsData,
+    },
+  },
+]
 describe("GuidancePage", () => {
   beforeEach(() => {
     window.scrollTo = jest.fn();
+    (useFormatter as jest.Mock).mockReturnValue({
+      dateTime: jest.fn((date) => date.toLocaleDateString()),
+    });
+
+    (useTranslations as jest.Mock).mockImplementation((namespace) => {
+      return (key: string) => `${namespace}.${key}`;
+    });
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  it("should render the create group button", async () => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidancePage />
+      </MockedProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Guidance.pages.index.createGroup")).toBeInTheDocument();
+    });
   });
 
-  it("should render the create group button", () => {
-    render(<GuidancePage />);
+  it("should initially render loading message", () => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidancePage />
+      </MockedProvider>,
+    );
 
-    expect(screen.getByText("pages.index.createGroup")).toBeInTheDocument();
+    expect(screen.getByText("Loading...")).toBeInTheDocument();
   });
 
-  it("should render guidance groups list", () => {
-    render(<GuidancePage />);
+  it("should render guidance groups list", async () => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidancePage />
+      </MockedProvider>,
+    );
 
-    const listContainer = screen.getByLabelText("Guidance groups list");
-    expect(listContainer).toBeInTheDocument();
-    expect(listContainer).toHaveAttribute("role", "list");
+    await waitFor(() => {
+      const listContainer = screen.getByLabelText("Guidance groups list");
+      expect(listContainer).toBeInTheDocument();
+      expect(listContainer.tagName).toBe('UL');
+
+    });
   });
 
-  it("should render guidance group items", () => {
-    render(<GuidancePage />);
+  it("should render guidance group items", async () => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidancePage />
+      </MockedProvider>,
+    );
 
-    const listItems = document.querySelectorAll('[role="listitem"], .guidance-content');
-    expect(listItems.length).toBeGreaterThan(0);
+    await waitFor(() => {
+      const listItems = document.querySelectorAll('.guidanceContent');
+      expect(listItems.length).toBeGreaterThan(0);
+    })
   });
 
-  it("should render guidance group metadata", () => {
-    render(<GuidancePage />);
+  it("should render guidance group metadata", async () => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidancePage />
+      </MockedProvider>,
+    );
 
-    const lastRevisedElements = screen.getAllByText(/lastRevisedBy/);
-    const lastUpdatedElements = screen.getAllByText(/lastUpdated/);
-    expect(lastRevisedElements.length).toBeGreaterThan(0);
-    expect(lastUpdatedElements.length).toBeGreaterThan(0);
+    await waitFor(() => {
+      const lastUpdatedElement = screen.getAllByText(/Global\.lastUpdated\s*:\s*11-25-2025/i);
+      const statusElement = screen.getAllByText(/Guidance\.status\.status\s*:\s*Guidance.status.unpublishedChanges/i);
+      const guidanceTextCountElement = screen.getByText(/10\s*\/\s*14\s*Tags with Guidance/i);
+      expect(lastUpdatedElement.length).toBeGreaterThan(0);
+      expect(statusElement.length).toBeGreaterThan(0);
+      expect(guidanceTextCountElement).toBeInTheDocument();
+    });
   });
 
-  it("should render guidance group descriptions", () => {
-    render(<GuidancePage />);
+  it("should render guidance group descriptions", async () => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidancePage />
+      </MockedProvider>,
+    );
 
-    const descriptions = document.querySelectorAll(".description");
-    expect(descriptions.length).toBeGreaterThan(0);
+    await waitFor(() => {
+      const descriptions = document.querySelectorAll(".description");
+      expect(descriptions.length).toBeGreaterThan(0);
+    });
   });
 
-  it("should render guidance group status information", () => {
-    render(<GuidancePage />);
+  it("should render guidance group status information", async () => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidancePage />
+      </MockedProvider>,
+    );
 
-    const publishedElements = screen.getAllByText(/status\.status\s*:\s*Published/);
-    const draftElements = screen.getAllByText(/status\.status\s*:\s*Draft/);
-    expect(publishedElements.length).toBeGreaterThan(0);
-    expect(draftElements.length).toBeGreaterThan(0);
+    await waitFor(() => {
+      const publishedElements = screen.getAllByText(/Guidance\.status\.status\s*:\s*Guidance.status.published/);
+      const draftElements = screen.getAllByText(/Guidance\.status\.status\s*:\s*Guidance.status.draft/);
+      expect(publishedElements.length).toBeGreaterThan(0);
+      expect(draftElements.length).toBeGreaterThan(0);
+    });
   });
 
-  it("should render multiple guidance groups", () => {
-    render(<GuidancePage />);
+  it("should render multiple guidance groups", async () => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidancePage />
+      </MockedProvider>,
+    );
 
-    const guidanceItems = document.querySelectorAll(".guidance-list > *");
-    expect(guidanceItems.length).toBeGreaterThan(1);
+    await waitFor(() => {
+      const guidanceItems = document.querySelectorAll(".guidanceList > *");
+      expect(guidanceItems.length).toBeGreaterThan(1);
+    })
   });
 
-  it("should have guidance-specific structure", () => {
-    render(<GuidancePage />);
+  it("should have guidance-specific structure", async () => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidancePage />
+      </MockedProvider>,
+    );
 
-    const guidanceList = document.querySelector(".guidance-list");
-    expect(guidanceList).toBeInTheDocument();
+    await waitFor(() => {
+      const guidanceList = document.querySelector(".guidanceList");
+      expect(guidanceList).toBeInTheDocument();
+    });
   });
 
-  it("should render author information in metadata", () => {
-    render(<GuidancePage />);
+  it("should render author information in metadata", async () => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidancePage />
+      </MockedProvider>,
+    );
 
-    const metadata = document.querySelectorAll(".metadata");
-    expect(metadata.length).toBeGreaterThan(0);
+    await waitFor(() => {
+      const metadata = document.querySelectorAll(".metadata");
+      expect(metadata.length).toBeGreaterThan(0);
+    });
   });
 
   it("should pass accessibility tests", async () => {
-    const { container } = render(<GuidancePage />);
+    const { container } = render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <GuidancePage />
+      </MockedProvider>,
+    );
 
     await waitFor(() => {
       expect(screen.getByLabelText("Guidance groups list")).toBeInTheDocument();

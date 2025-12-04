@@ -6,12 +6,12 @@ export type DataFlagsConfig = {
 
 export type RepoConfig = {
   hasCustomRepos: boolean;
-  customRepos: string[];
+  customRepos: RepositoryInterface[];
 }
 
 export type MetaDataConfig = {
   hasCustomStandards: boolean;
-  customStandards: string[];
+  customStandards: MetaDataStandardInterface[];
 }
 
 export type StandardField = {
@@ -25,10 +25,15 @@ export type StandardField = {
   maxLength?: string;
   value?: string;
   licensesConfig?: LicensesConfig;
-  outputTypeConfig?: {
-    mode: 'defaults' | 'mine' | 'addToDefaults';
+  accessLevelsConfig?: {
+    mode: 'defaults' | 'mine';
     selectedDefaults: string[];
-    customTypes: string[];
+    customLevels: AccessLevelInterface[];
+  };
+  outputTypeConfig?: {
+    mode: 'defaults' | 'mine';
+    selectedDefaults: string[];
+    customTypes: OutputTypeInterface[];
   };
   flagsConfig?: DataFlagsConfig;
   repoConfig?: RepoConfig;
@@ -55,7 +60,7 @@ export interface RepositoryFieldInterface {
   value?: string;
   repoConfig?: {
     hasCustomRepos: boolean;
-    customRepos: string[];
+    customRepos: RepositoryInterface[];
   }
 }
 
@@ -73,7 +78,7 @@ export interface MetaDataStandardFieldInterface {
   helpText?: string;
   metaDataConfig: {
     hasCustomStandards: boolean;
-    customStandards: string[];
+    customStandards: MetaDataStandardInterface[];
   }
 }
 
@@ -82,6 +87,13 @@ export type LicensesConfig = {
   selectedDefaults: string[];
   customTypes: string[];
 };
+
+export type AccessLevelsConfig = {
+  mode: 'defaults' | 'addToDefaults';
+  selectedDefaults: string[];
+  customTypes: string[];
+};
+
 
 export interface LicenseFieldProps {
   field: StandardField;
@@ -92,11 +104,30 @@ export interface LicenseFieldProps {
   onRemoveCustomType: (type: string) => void;
 }
 
+export interface AccessLevelsFieldProps {
+  field: StandardField;
+  newAccessLevel: AccessLevelInterface
+  setNewAccessLevel: (value: AccessLevelInterface) => void;
+  onModeChange: (mode: 'defaults' | 'mine') => void;
+  onAddCustomType: () => void;
+  onRemoveCustomType: (type: string) => void;
+}
+
+export interface OutputTypeInterface {
+  type?: string;
+  description?: string;
+}
+
+export interface AccessLevelInterface {
+  level?: string;
+  description?: string;
+}
+
 export interface OutputTypeFieldConfigProps {
   field: StandardField;
-  newOutputType: string;
-  setNewOutputType: (value: string) => void;
-  onModeChange: (mode: 'defaults' | 'mine' | 'addToDefaults') => void;
+  newOutputType: OutputTypeInterface;
+  setNewOutputType: (value: OutputTypeInterface) => void;
+  onModeChange: (mode: 'defaults' | 'mine') => void;
   onAddCustomType: () => void;
   onRemoveCustomType: (type: string) => void;
 }
