@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
@@ -24,14 +23,6 @@ const font_sans_serif = Poppins({
   weight: ['400', '600'],
   variable: '--font-sans-serif',
 });
-
-export const metadata: Metadata = {
-  title: "DMPTool",
-  description: "Best practice made easier. With a free, community- supported service that makes it easier to create machine-actionable data management and sharing plans(DMSPs) that meet funder requirements and follow open science best practice.",
-  icons: {
-    icon: '/favicon.ico',
-  }
-};
 
 export default async function LocaleLayout({
   children,

@@ -83,7 +83,8 @@
       "displayOrder": 1,
       "versionedSectionId": 164,
       "title": "Section Two",
-      "totalQuestions": 1
+      "totalQuestions": 1,
+      "tags": []
     }
   ],
   "progress": {

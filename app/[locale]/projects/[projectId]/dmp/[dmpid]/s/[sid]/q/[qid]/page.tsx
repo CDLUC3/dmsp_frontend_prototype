@@ -240,29 +240,30 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Guidance texts that match current section tags (return objects so we have stable keys)
   interface MatchedGuidance { id: number; guidanceText: string; }
-const matchedGuidanceTexts = React.useMemo<MatchedGuidance[]>(() => {
-  if (!guidanceData?.guidanceGroups || currentSectionTagIds.length === 0) return [] as MatchedGuidance[];
-  const tagSet = new Set(currentSectionTagIds);
-  const seenIds = new Set<number>();
-  const seenTexts = new Set<string>();
-  const matches: MatchedGuidance[] = [];
-  
-  guidanceData.guidanceGroups.forEach(group => {
-    group.guidance?.forEach(g => {
-      const hasMatch = g.tags?.some(tag => tagSet.has(tag.id));
-      if (hasMatch && g.guidanceText && typeof g.id === 'number') {
-        // Skip items without valid numeric IDs
-        if (!seenIds.has(g.id) && !seenTexts.has(g.guidanceText)) {
-          seenIds.add(g.id);
-          seenTexts.add(g.guidanceText);
-          matches.push({ id: g.id, guidanceText: g.guidanceText });
+  const matchedGuidanceTexts = React.useMemo<MatchedGuidance[]>(() => {
+    if (!guidanceData?.guidanceGroups || currentSectionTagIds.length === 0) return [] as MatchedGuidance[];
+    const tagSet = new Set(currentSectionTagIds);
+    const seenIds = new Set<number>();
+    const seenTexts = new Set<string>();
+    const matches: MatchedGuidance[] = [];
+
+    guidanceData.guidanceGroups.forEach(group => {
+      group.guidance?.forEach(g => {
+        // New API: guidance has a single tagId instead of tags array
+        const hasMatch = typeof g?.tagId === 'number' && tagSet.has(g.tagId);
+        if (hasMatch && g.guidanceText && typeof g.id === 'number') {
+          // Skip items without valid numeric IDs and dedupe by id/text
+          if (!seenIds.has(g.id) && !seenTexts.has(g.guidanceText)) {
+            seenIds.add(g.id);
+            seenTexts.add(g.guidanceText);
+            matches.push({ id: g.id, guidanceText: g.guidanceText });
+          }
         }
-      }
+      });
     });
-  });
-  
-  return matches;
-}, [guidanceData, currentSectionTagIds]);
+
+    return matches;
+  }, [guidanceData, currentSectionTagIds]);
 
   // Get answer data
   const { data: answerData, loading: answerLoading, error: answerError } = useAnswerByVersionedQuestionIdQuery(
@@ -1261,6 +1262,7 @@ const matchedGuidanceTexts = React.useMemo<MatchedGuidance[]>(() => {
                         <Button
                           ref={openCommentsButtonRef}
                           className={styles.buttonSmallDisabled}
+                          aria-disabled={true}
                         >
                           {t('buttons.commentWithNumber', { number: mergedComments.length })}
                         </Button>

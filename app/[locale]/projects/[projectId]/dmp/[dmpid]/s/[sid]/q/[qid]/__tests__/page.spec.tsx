@@ -301,8 +301,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     const guidanceHeadings = screen.getAllByRole('heading', { level: 3, name: 'page.guidanceBy' });
     expect(guidanceHeadings).toHaveLength(2);
     expect(screen.getByText('Use the active voice whenever possible')).toBeInTheDocument();
-    expect(screen.getByText('Make sure to double check your entries')).toBeInTheDocument();
-    expect(screen.getByText('Dot your i\'s and cross your t\'s')).toBeInTheDocument();
+    expect(screen.getByText("Dot your i's and cross your t's")).toBeInTheDocument();
     expect(screen.getByText('Guidance text - Lorem Ipsum')).toBeInTheDocument();
     const orgGuidance = screen.getByText(/is simply dummy guidance text/i);
     expect(orgGuidance.tagName).toBe('P');

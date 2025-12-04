@@ -556,7 +556,7 @@
         "createGroup": "Criar grupo de orientação"
       },
       "groupIndex": {
-        "title": "Textos de Orientação",
+        "title": "Editar {groupName}",
         "description": "Gerenciar os textos de orientação neste grupo",
         "createText": "Criar texto de orientação",
         "editGroup": "Editar grupo"
@@ -612,7 +612,12 @@
       "draft": "Rascunho",
       "archived": "Arquivado",
       "lastUpdated": "Última atualização",
-      "status": "SItuação"
+      "status": "SItuação",
+      "publicationStatus": "Status da Publicação",
+      "lastPublished": "Última publicação",
+      "notYetPublished": "Ainda não publicado",
+      "unpublishedChanges": "Alterações não publicadas",
+      "publishedVersion": "Versão publicada"
     },
     "actions": {
       "createGroup": "Criar grupo",
@@ -632,7 +637,18 @@
     },
     "messages": {
       "noGroups": "Não foram encontrados grupos de orientação",
-      "noTexts": "Não há textos de orientação encontrados neste grupo"
+      "noTexts": "Não há textos de orientação encontrados neste grupo",
+      "loadingPleaseWait": "Carregando, por favor aguarde...",
+      "unPublishBtnTooltipMessage": "Não é possível despublicar o grupo de orientação porque não há versões publicadas.",
+      "publishBtnTooltipMessage": "O grupo de orientação já está publicado.",
+      "success": {
+        "guidanceGroupCreated": "Grupo de orientação {groupName} criado com sucesso",
+        "guidanceGroupPublished": "Grupo de orientação {groupName} publicado com sucesso",
+        "guidanceGroupUnpublished": "Grupo de orientação {groupName} despublicado com sucesso",
+        "guidanceGroupUpdated": "Grupo de orientação {groupName} atualizado com sucesso",
+        "guidanceTextAdded": "Texto de orientação adicionado com sucesso a {tagName}. As alterações precisam ser publicadas para entrarem em vigor.",
+        "guidanceTextUpdated": "Texto de orientação para {tagName} atualizado com sucesso. As alterações precisam ser publicadas para entrarem em vigor."
+      }
     }
   },
   "Global": {
@@ -711,6 +727,8 @@
       "delete": "Apagar",
       "preview": "Pré-visualizar",
       "publish": "Publicar",
+      "publishChanges": "Publicar alterações",
+      "unpublish": "Despublicar",
       "close": "Fechar",
       "closeModal": "Fechar modal",
       "loadMore": "Carregar mais",
@@ -770,6 +788,7 @@
       "unsupportedQuestionType": "Tipo de pergunta {questionType} sem suporte",
       "sectionIsExpanded": "Secção expandida",
       "sectionIsCollapsed": "Seção colapsada",
+      "continueAnyway": "Continuar assim mesmo",
       "error": "Ocorreu um erro. Tente novamente.",
       "errors": {
         "invalidQuestionType": "Tipo de questão inválido encontrado.",
