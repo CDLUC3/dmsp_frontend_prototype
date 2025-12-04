@@ -32,8 +32,6 @@ import {
   VersionedTemplateSearchResult,
 } from '@/generated/graphql';
 
-// Hooks
-import { useScrollToTop } from '@/hooks/scrollToTop';
 // Other
 import { logECS, routePath } from '@/utils/index';
 import {
@@ -63,7 +61,6 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   const topRef = useRef<HTMLDivElement>(null);
   const formatDate = useFormatDate();
   const router = useRouter();
-  const { scrollToTop } = useScrollToTop();
   const toastState = useToast();
 
   // State
@@ -165,7 +162,6 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   const resetSearch = () => {
     setSearchTerm('');
     handleSearchInput('');
-    scrollToTop(topRef);
   }
 
 

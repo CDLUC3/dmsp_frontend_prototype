@@ -24,6 +24,19 @@ interface JWTAccessToken extends JwtPayload {
 // TODO: These routes will need to be updated.
 const excludedPaths = ['/email', '/favicon.ico', '/_next', '/api', '/login', '/signup', '/styleguide'];
 
+// Check if the request is for a server action
+function isServerAction(request: NextRequest): boolean {
+  // Server actions are POST requests with specific content types
+  return (
+    request.method === 'POST' &&
+    (
+      request.headers.get('content-type')?.includes('text/plain') ||
+      request.headers.get('next-action') !== null ||
+      request.headers.get('next-router-state-tree') !== null
+    )
+  );
+}
+
 const handleI18nRouting = createMiddleware(routing);
 
 async function getLocaleFromJWT(): Promise<string | null> {
@@ -86,6 +99,9 @@ export async function middleware(request: NextRequest) {
   // Exclude paths from authentication checks
   const isExcludedPath = excludedPaths.some((path) => pathname.includes(path));
 
+  // Also exclude server actions from authentication middleware
+  const isServerActionRequest = isServerAction(request);
+
   // Build cookie header string from NextRequest cookies
   const cookieHeader = request.cookies
     .getAll()
@@ -97,7 +113,7 @@ export async function middleware(request: NextRequest) {
   const locale = await getLocale(request);
 
   // Redirect to login if no tokens are found
-  if (!isExcludedPath) {
+  if (!isExcludedPath && !isServerActionRequest) {
     if (!accessToken && !refreshToken) {
       return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
     }
@@ -113,14 +129,12 @@ export async function middleware(request: NextRequest) {
         // We need to redirect to the same URL to ensure cookies are set properly in browser
         const newResponse = NextResponse.redirect(request.url);
 
-        // Copy Set-Cookie headers from backend → NextResponse
-        const setCookie = backendResponse.headers.get("set-cookie");
-        if (setCookie) {
-          // Multiple cookies can be comma-separated, handle them individually
-          setCookie.split(",").forEach(cookie => {
-            newResponse.headers.append("set-cookie", cookie);
-          });
-        }
+        // Copy Set-Cookie headers from backend response to NextResponse
+        backendResponse.headers.forEach((value, key) => {
+          if (key.toLowerCase() === 'set-cookie') {
+            newResponse.headers.append('set-cookie', value);
+          }
+        });
 
         return newResponse;
       }

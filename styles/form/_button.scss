@@ -71,7 +71,7 @@
 }
 
 @mixin button-secondary {
-  background: transparent;
+  background: var(--bg-white);
 
   // box-shadow makes border appear on the inside of button, keeping it same size as primary button, as opposed to
   // border, which renders the border on the outside of the button, making secondary larger than primary. An
@@ -237,8 +237,8 @@ a.button-link,
 input[type="submit"],
 input[type="reset"],
 input[type="button"] {
-  @include button-base;
   font-weight: 600; // Ensure consistent font-weight for all buttons
+  @include button-base;
 
   &[data-focus-visible],
   &:focus-visible {
@@ -322,10 +322,45 @@ button.small {
   font-size: 0.75rem;
 }
 
+button.medium {
+  padding: 8px 16px;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 14px;
+}
+
 // Button container for two buttons
 .button-container {
   display: flex;
   gap: 10px; // Space between buttons
   align-items: flex-start;
+  justify-content: space-around;
 
+}
+
+// For info icon buttons used in popovers
+.popover-btn {
+  display: inline-flex;
+  align-items: center;
+  background: none;
+  padding: 0 0 0 0.1rem;
+  border: none;
+  vertical-align: middle;
+  cursor: pointer;
+
+  &:hover {
+    background: none !important;
+  }
+
+  .icon.info {
+    svg {
+      fill: var(--blue-500);
+      width: 20px;
+      height: 20px;
+
+      &:hover {
+        fill: var(--blue-900);
+      }
+    }
+  }
 }

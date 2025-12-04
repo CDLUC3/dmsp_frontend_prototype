@@ -31,9 +31,9 @@
     "links": {
       "addSection": "Adicionar seção",
       "edit": "Alterar",
-      "manageAccess": "Gerenciar",
+      "manageAccess": "Administrar",
       "templateHistory": "Histórico",
-      "editTemplateTitle": "Editar"
+      "editTemplateTitle": "Alterar"
     },
     "button": {
       "archiveTemplate": "Template de arquivo",
@@ -98,7 +98,7 @@
   "EditQuestion": {
     "label": {
       "question": "Pergunta",
-      "funderQuestion": "Pergunta do Financiador",
+      "funderQuestion": "Finalizar pergunta",
       "organizationQuestion": "Pergunta da Organização"
     },
     "links": {
@@ -118,7 +118,7 @@
       "guidance": "Orientação",
       "sampleText": "Texto de Exemplo",
       "completed": " concluído",
-      "notCompleted": " não concluído"
+      "notCompleted": " não completado"
     }
   },
   "Sections": {
@@ -188,7 +188,7 @@
     },
     "helpText": {
       "bestPracticeTagsDesc": "Selecione uma ou mais tags para associar a orientação de boas práticas globais escrita pela Ferramenta DMP.",
-      "sectionIntroduction": "Enter a short, concise introduction to the section.",
+      "sectionIntroduction": "Digite uma introdução curta e concisa para a seção.",
       "sectionRequirements": "Esboça os requisitos que um usuário deve considerar nesta seção.",
       "sectionGuidance": "Forneça aos usuários orientações úteis para ajudá-los a responder às perguntas da seção."
     }
@@ -282,22 +282,23 @@
       "sampleText": "Forneça um exemplo ou modelo de resposta esperada (opcional, mas recomendado)",
       "sampleTextAsDefault": "Peça que esta resposta entre no DMP por padrão",
       "previewText": "Veja como esta pergunta ficará para os usuários.",
-      "bestPracticePara1": "Mantenha a pergunta concisa e clara. Use os requisitos ou orientações para fornecer explicações adicionais.",
-      "bestPracticePara2": "Esboça os requisitos que um usuário deve considerar para esta pergunta.",
-      "bestPracticePara3": "Pesquisadores poderão copiar o texto de amostra para o campo como ponto de partida, como uma maneira de acelerar a entrada de conteúdo.",
+      "bestPracticePara1": "Mantenha a pergunta concisa para que possa ser usada como título no DMP final.",
+      "bestPracticePara2": "Utilize os Requisitos para adicionar instruções mais detalhadas à pergunta, certificando-se de incluir todas as instruções sobre o que precisa ser respondido na pergunta.",
+      "bestPracticePara3": "Use a seção de Orientações para adicionar conselhos sobre como elaborar respostas para a pergunta. Seja conciso e específico para que os usuários possam obter as informações necessárias para responder à pergunta. Você pode adicionar links para recursos externos, como documentos de políticas mais extensos que não aparecem tão bem na ferramenta.",
       "deleteWarning": "Esta pergunta será removida do modelo. Isso não é reversível."
     },
     "helpText": {
-      "textField": "Alterar o tipo de questão, por exemplo, da pergunta curta para o botão Rádio, pode resultar na perda de alguns dados.",
+      "textField": "Alterar o tipo de pergunta, por exemplo, de Campo de Texto para Botões de Opção, pode resultar na perda de alguns dados.",
       "questionOptions": "Por favor, insira as opções de resposta para o {questionType}",
       "questionText": "Mantenha a pergunta concisa e clara. Use os requisitos ou orientações para fornecer explicações adicionais.",
-      "requirementText": "Tente ser preciso e conciso, para que os autores do plano não faltem a quaisquer requisitos. Orientação às perguntas é melhor para conselhos mais gerais.",
+      "requirementText": "Use isto para obter instruções específicas sobre o que os pesquisadores devem incluir em suas respostas, como por exemplo, quais propriedades dos dados eles devem listar.",
+      "guidanceText": "Informe aos pesquisadores como fornecer as melhores respostas aos requisitos, como políticas a serem consideradas da sua organização ou quais fatores levar em conta.",
       "sampleText": "Pesquisadores poderão copiar o texto de amostra para o campo como ponto de partida, como uma maneira de acelerar a entrada de conteúdo."
     },
     "labels": {
       "type": "Tipo",
       "questionText": "Texto da questão",
-      "requirementText": "Escritor do plano de requisitos deve atender (opcional, mas recomendado)",
+      "requirementText": "Requisitos de perguntas (opcional, mas recomendado)",
       "guidanceText": "Orientação para perguntas (opcional mas recomendado)",
       "sampleText": "Texto de amostra"
     },
@@ -349,9 +350,9 @@
       "sampleText": "Forneça um exemplo ou modelo de resposta esperada (opcional, mas recomendado)",
       "sampleTextAsDefault": "Peça que esta resposta entre no DMP por padrão",
       "previewText": "Veja como esta pergunta ficará para os usuários.",
-      "bestPracticePara1": "Mantenha a pergunta concisa e clara. Use os requisitos ou orientações para fornecer explicações adicionais.",
-      "bestPracticePara2": "Esboça os requisitos que um usuário deve considerar para esta pergunta.",
-      "bestPracticePara3": "Pesquisadores poderão copiar o texto de amostra para o campo como ponto de partida, como uma maneira de acelerar a entrada de conteúdo."
+      "bestPracticePara1": "Mantenha a pergunta concisa para que possa ser usada como título no DMP final.",
+      "bestPracticePara2": "Utilize os Requisitos para adicionar instruções mais detalhadas à pergunta, certificando-se de incluir todas as instruções sobre o que precisa ser respondido na pergunta.",
+      "bestPracticePara3": "Use a seção de Orientações para adicionar conselhos sobre como elaborar respostas para a pergunta. Seja conciso e específico para que os usuários possam obter as informações necessárias para responder à pergunta. Você pode adicionar links para recursos externos, como documentos de políticas mais extensos que não aparecem tão bem na ferramenta."
     },
     "labels": {
       "order": "Ordem",
@@ -359,9 +360,18 @@
       "default": "Padrão",
       "type": "Tipo",
       "questionText": "Texto da pergunta",
-      "requirementText": "Escritor do plano de requisitos deve atender (opcional, mas recomendado)",
+      "requirementText": "Requisitos de perguntas (opcional, mas recomendado)",
       "guidanceText": "Orientação para perguntas (opcional mas recomendado)",
-      "sampleText": "Texto de amostra"
+      "sampleText": "Texto de amostra",
+      "questionEditing": "Edição da questão",
+      "clickForMoreInfo": "Clique para mais informações",
+      "typeDescription": "{type} descrição",
+      "accessLevelDescription": "{level} descrição",
+      "addCustomOutputType": "Adicionar tipo de saída personalizado",
+      "addCustomAccessLevel": "Adicionar nível de acesso personalizado",
+      "customTypeList": "Lista de tipos de saída personalizados",
+      "customAccessLevelList": "Lista de níveis de acesso personalizados",
+      "helpText": "Texto de ajuda para {fieldName}"
     },
     "buttons": {
       "addRow": "Adicionar linha",
@@ -369,10 +379,11 @@
       "changeType": "Mudar os Tipos"
     },
     "helpText": {
-      "textField": "Alterar o tipo de questão, por exemplo, da pergunta curta para o botão Rádio, pode resultar na perda de alguns dados.",
+      "textField": "Alterar o tipo de pergunta, por exemplo, de Campo de Texto para Botões de Opção, pode resultar na perda de alguns dados.",
       "questionOptions": "Por favor, insira as opções de resposta para o {questionName}",
       "questionText": "Mantenha a pergunta concisa e clara. Use os requisitos ou orientações para fornecer explicações adicionais.",
-      "requirementText": "Tente ser preciso e conciso, para que os autores do plano não faltem a quaisquer requisitos. Orientação às perguntas é melhor para conselhos mais gerais.",
+      "requirementText": "Use isto para obter instruções específicas sobre o que os pesquisadores devem incluir em suas respostas, como por exemplo, quais propriedades dos dados eles devem listar.",
+      "guidanceText": "Informe aos pesquisadores como fornecer as melhores respostas aos requisitos, como políticas a serem consideradas da sua organização ou quais fatores levar em conta.",
       "sampleText": "Os criadores de planos poderão copiar o texto da amostra para o campo como ponto de partida, para acelerar a entrada de conteúdo."
     },
     "headings": {
@@ -387,6 +398,156 @@
       },
       "success": {
         "questionAdded": "A pergunta foi adicionada com sucesso."
+      }
+    },
+    "researchOutput": {
+      "helpText": "O comprimento máximo é de 300 caracteres.",
+      "headings": {
+        "enableStandardFields": "Ativar campos padrão"
+      },
+      "description": "Selecione quais campos padrão para incluir na sua pergunta de saída da pesquisa. Você pode personalizar cada campo individualmente.",
+      "tooltip": {
+        "requiredFields": "Esses campos são necessários para todas as saídas de pesquisa."
+      },
+      "labels": {
+        "description": "Descrição:",
+        "descriptionLowerCase": "Descrição"
+      },
+      "legends": {
+        "dataFlag": "Quais bandeiras de dados a exibir"
+      },
+      "dataFlags": {
+        "description": "Selecione quais sinalizadores de sensibilidade de dados devem ser mostrados aos usuários.",
+        "options": {
+          "both": "Mostrar ambos",
+          "personalOnly": "Exibe apenas \"Pode conter informações que permitam identificação pessoal?\" caixa de seleção",
+          "sensitiveOnly": "Exibir apenas a caixa \"Pode conter dados sensíveis?\""
+        }
+      },
+      "repoSelector": {
+        "selectedCount": "{count} selecionado",
+        "repositorySelected": "",
+        "repositoriesSelected": "Repositórios selecionados",
+        "selectSubjectArea": "Selecione a área de assunto",
+        "selectRepoType": "Selecionar tipo de repositório",
+        "headings": {
+          "repoSearch": "Pesquisa no repositório",
+          "addNewRepo": "Adicionar um novo repositório para o seu modelo."
+        },
+        "descriptionLabel": "Descrição do campo Repositories",
+        "messages": {
+          "removedRepo": "{name} removido",
+          "addedRepo": "{name} adicionado",
+          "confirmRemovalAll": "Tem certeza que deseja remover todos os repositórios selecionados?",
+          "allRemoved": "Todos os repositórios removidos",
+          "customRepoAdded": "Repositório personalizado {name} adicionado com sucesso"
+        },
+        "errors": {
+          "customRepoError": "Por favor, preencha todos os campos para o repositório personalizado."
+        },
+        "labels": {
+          "createRepos": "Crie uma lista de repositórios preferidos",
+          "subjectArea": "Área de assunto",
+          "repoType": "Tipo de repositório"
+        },
+        "links": {
+          "viewRepository": "Ver repositório"
+        },
+        "buttons": {
+          "addRepo": "Adicionar um repositório",
+          "addRepository": "Adicionar repositório",
+          "addCustomRepo": "Adicionar repositório personalizado"
+        },
+        "descriptions": {
+          "repoTitle": "URL do Repositório",
+          "contactTitle": "E-mail de contato",
+          "urlTitle": "Descrição do repositório",
+          "dataAccessTitle": "Acesso aos dados",
+          "identifierTitle": "Persistent identifier"
+        }
+      },
+      "metaDataStandards": {
+        "headings": {
+          "dialogHeading": "Pesquisa padrão de metadados",
+          "addCustomHeading": "Adicionar um novo padrão de metadados para o seu modelo."
+        },
+        "descriptionLabel": "Descrição:",
+        "helpText": "Isto pode ser usado para fornecer orientações e/ou instruções personalizadas para investigadores.",
+        "messages": {
+          "confirmRemovalAll": "Tem certeza que deseja remover todos os metadados selecionados?",
+          "allRemoved": "Padrões de metadados removidos",
+          "fillInAllFields": "Por favor, preencha todos os campos",
+          "addedSuccessfully": "{name} adicionado com sucesso"
+        },
+        "labels": {
+          "createStandards": "Crie uma lista de padrões de metadados preferidos"
+        },
+        "buttons": {
+          "add": "Adicionar padrão de metadados",
+          "addToTemplate": "Adicionar o padrão de metadados ao seu modelo"
+        },
+        "singleMetaData": "Padrão de metadados",
+        "multipleMetaData": "Padrões de metadados",
+        "selectedCount": "{count} selecionado"
+      },
+      "outputType": {
+        "labels": {
+          "defineOutputTypes": "Definir os tipos de saída",
+          "enterOutputType": "Digite um tipo de saída",
+          "removeOutputType": "Remover {type}"
+        },
+        "legends": {
+          "default": "Tipos de saída padrão",
+          "myOutputs": "Meus tipos de saída"
+        },
+        "buttons": {
+          "addOutputType": "Adicionar tipo de saída"
+        }
+      },
+      "accessLevels": {
+        "labels": {
+          "defineAccessLevels": "Definir níveis de acesso",
+          "enterAccessLevel": "Insira o nível de acesso",
+          "accessLevelDescription": "Descrição do nível de acesso",
+          "removeAccessLevel": "Remover {level}"
+        },
+        "legends": {
+          "default": "Níveis de acesso padrão",
+          "myAccessLevels": "Meus níveis de acesso"
+        },
+        "buttons": {
+          "addAccessLevel": "Adicionar nível de acesso"
+        }
+      },
+      "licenses": {
+        "labels": {
+          "define": "Definir licenças preferidas",
+          "defaultPreferred": "Licenças preferidas por padrão",
+          "addLicense": "Adicionar licença",
+          "myLicenses": "Minhas licenças"
+        },
+        "buttons": {
+          "addLicenseType": "Adicionar tipo de licença"
+        }
+      },
+      "additionalFields": {
+        "fieldLabel": {
+          "label": "Rótulo do campo",
+          "helpText": "O rótulo que será exibido para este campo"
+        },
+        "helpText": {
+          "label": "Texto de ajuda",
+          "helpText": "Texto de ajuda opcional para orientar os usuários. Comprimento máximo de 300 caracteres."
+        },
+        "maxLength": {
+          "label": "Comprimento máximo",
+          "helpText": "Número máximo de caracteres permitidos (deixe vazio para sem limite)"
+        },
+        "defaultValue": {
+          "label": "Valor padrão",
+          "helpText": "Valor padrão para este campo"
+        },
+        "addFieldBtn": "Adicionar campo adicional"
       }
     }
   },

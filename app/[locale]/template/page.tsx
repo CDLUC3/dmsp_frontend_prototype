@@ -12,7 +12,8 @@ import {
   SearchField,
   Text
 } from 'react-aria-components';
-import { useFormatter, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { useFormatDate } from '@/hooks/useFormatDate';
 
 //GraphQL
 import { useTemplatesLazyQuery } from '@/generated/graphql';
@@ -40,7 +41,7 @@ const LIMIT = 5;
 
 
 const TemplateListPage: React.FC = () => {
-  const formatter = useFormatter();
+  const formatDate = useFormatDate();
   const { scrollToTop } = useScrollToTop();
 
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -164,17 +165,6 @@ const TemplateListPage: React.FC = () => {
       },
     });
   };
-
-  // Format date using next-intl date formatter
-  const formatDate = (date: string) => {
-    const formattedDate = formatter.dateTime(new Date(Number(date)), {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    })
-    // Replace slashes with hyphens
-    return formattedDate.replace(/\//g, '-');
-  }
 
   useEffect(() => {
     // Need this to set list of projects back to original, full list after filtering

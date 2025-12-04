@@ -24,6 +24,7 @@ interface InputProps {
   inputClasses?: string;
   disabled?: boolean;
   isRequired?: boolean;
+  isRecommended?: boolean;
   isRequiredVisualOnly?: boolean;
   isInvalid?: boolean;
   errorMessage?: string;
@@ -50,6 +51,7 @@ const FormInput = React.forwardRef<HTMLInputElement, InputProps & React.InputHTM
   disabled = false,
   isRequired = false,
   isRequiredVisualOnly = false,
+  isRecommended = false,
   isInvalid = false,
   errorMessage = '',
   helpMessage = '',
@@ -72,11 +74,16 @@ const FormInput = React.forwardRef<HTMLInputElement, InputProps & React.InputHTM
         data-testid="field-wrapper"
       >
         <Label htmlFor={id} className={labelClasses}>
-        {label}{showRequired && <span className="is-required" aria-hidden="true"> ({t('required')})</span>}
+          {label}
+          {showRequired && <span className="is-required" aria-hidden="true"> ({t('required')})</span>}
+          {isRecommended && <span className="is-recommended" aria-hidden="true"> ({t('recommended')})</span>}
         </Label>
-        <Text slot="description" className="help">
-          {description}
-        </Text>
+        {description && (
+          <Text slot="description" className="help">
+            {description}
+          </Text>
+        )}
+
         <Input
           ref={ref}
           id={id}

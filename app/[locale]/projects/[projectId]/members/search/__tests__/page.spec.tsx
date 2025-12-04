@@ -1,672 +1,321 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 import '@testing-library/jest-dom';
 import { useParams, useRouter } from 'next/navigation';
-import { addProjectMemberAction } from '@/app/actions';
-import findCollaboratorMock from '../__mocks__/searchCollaboratorsMock.json';
-import loadMoreCollaboratorsMock from '../__mocks__/loadMoreCollaboratorsMock.json';
-
 import { axe, toHaveNoViolations } from 'jest-axe';
-
-import {
-  FindCollaboratorDocument,
-} from '@/generated/graphql';
-
-import ProjectsProjectMembersSearch from '../page';
-import logECS from '@/utils/clientLogger';
 expect.extend(toHaveNoViolations);
 
+import ProjectsProjectMembersSearch from '../page';
+import { useCollaboratorSearch } from '../hooks/useCollaboratorSearch';
+import { useProjectMemberForm } from '../hooks/useProjectMemberForm';
+
+// Mock next/navigation
 jest.mock('next/navigation', () => ({
+  useParams: jest.fn(),
   useRouter: jest.fn(),
-  useParams: jest.fn()
 }));
 
-jest.mock('@/app/actions', () => ({
-  addProjectMemberAction: jest.fn()
+// Mock the custom hooks
+jest.mock('../hooks/useCollaboratorSearch');
+jest.mock('../hooks/useProjectMemberForm');
+
+// Mock react-aria-components Form to avoid requestSubmit issues
+jest.mock('react-aria-components', () => ({
+  ...jest.requireActual('react-aria-components'),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any  
+  Form: ({ children, onSubmit, ...props }: any) => (
+    < form {...props} onSubmit={(e) => {
+      e.preventDefault();
+      if (onSubmit) onSubmit(e);
+    }}>
+      {children}
+    </form >
+  ),
 }));
 
-const mockRouter = {
-  push: jest.fn(),
+// Mock data
+const mockCollaboratorResult = {
+  id: 1,
+  givenName: 'John',
+  surName: 'Doe',
+  email: 'john.doe@example.com',
+  orcid: '0000-0000-0000-0001',
+  affiliationName: 'Test University',
+  affiliationId: 'test-uni-id',
 };
 
-const mockAddProjectMemberAction = addProjectMemberAction as jest.MockedFunction<typeof addProjectMemberAction>;
-
-const MOCKS = [
-  {
-    request: {
-      query: FindCollaboratorDocument,
-      variables: {
-        options: {
-          type: "CURSOR",
-          cursor: null, // Start fresh search
-          limit: 5,
-        },
-        term: "admin",
-      },
-    },
-    result: {
-      data: findCollaboratorMock,
-    },
-  },
-  { //Empty search results
-    request: {
-      query: FindCollaboratorDocument,
-      variables: {
-        options: {
-          type: "CURSOR",
-          cursor: null, // Start fresh search
-          limit: 5,
-        },
-        term: "gibberishxyz",
-      },
-    },
-    result: {
-      data: {
-        findCollaborator: {
-          __typename: "CollaboratorSearchResults",
-          limit: 5,
-          items: [],
-          availableSortFields: [],
-          nextCursor: null,
-          totalCount: 0
-        }
-      },
-    },
-  },
-  { //Load more results
-    request: {
-      query: FindCollaboratorDocument,
-      variables: {
-        options: {
-          type: "CURSOR",
-          cursor: "admin@stanford.edu5", // Cursor from previous result
-          limit: 5,
-        },
-        term: "admin",
-      },
-    },
-    result: {
-      data: loadMoreCollaboratorsMock,
-    },
-  },
+const mockMemberRoles = [
+  { id: 1, label: 'Principal Investigator', displayOrder: 1, uri: 'http://credit.niso.org/test1/' },
+  { id: 2, label: 'Co-Investigator', displayOrder: 2, uri: 'http://credit.niso.org/test2/' },
 ];
 
-const ERROR_MOCKS = [
-  {
-    request: {
-      query: FindCollaboratorDocument,
-      variables: {
-        options: {
-          type: "CURSOR",
-          cursor: null, // Start fresh search
-          limit: 5,
-        },
-        term: "admin",
-      },
-    },
-    result: {
-      data: findCollaboratorMock,
-    },
-  },
-  { //Load more results
-    request: {
-      query: FindCollaboratorDocument,
-      variables: {
-        options: {
-          type: "CURSOR",
-          cursor: "admin@stanford.edu5", // Cursor from previous result
-          limit: 5,
-        },
-        term: "admin",
-      },
-    },
-    error: new Error('Server Error')
-  }
-];
+describe('ProjectsProjectMembersSearch Integration Tests', () => {
+  const mockUseCollaboratorSearch = useCollaboratorSearch as jest.MockedFunction<typeof useCollaboratorSearch>;
+  const mockUseProjectMemberForm = useProjectMemberForm as jest.MockedFunction<typeof useProjectMemberForm>;
 
-// Create a mock that throws an exception for the load more call
-const NETWORK_ERROR_MOCKS = [
-  {
-    request: {
-      query: FindCollaboratorDocument,
-      variables: {
-        options: {
-          type: "CURSOR",
-          cursor: null,
-          limit: 5,
-        },
-        term: "admin",
-      },
+  const defaultCollaboratorSearch = {
+    term: '',
+    results: [],
+    isSearching: false,
+    loading: false,
+    errors: [],
+    setSearchTerm: jest.fn(),
+    handleMemberSearch: jest.fn(),
+    clearSearch: jest.fn(),
+  };
+
+  const defaultProjectMemberForm = {
+    projectMember: {
+      givenName: '',
+      surName: '',
+      email: '',
+      orcid: '',
+      affiliationName: '',
+      affiliationId: '',
+      otherAffiliationName: '',
     },
-    result: {
-      data: findCollaboratorMock,
+    setProjectMember: jest.fn(),
+    roles: [],
+    memberRoles: mockMemberRoles,
+    errors: [],
+    fieldErrors: {
+      givenName: '',
+      surName: '',
+      affiliationId: '',
+      affiliationName: '',
+      email: '',
+      projectRoles: '',
     },
-  },
-  {
-    request: {
-      query: FindCollaboratorDocument,
-      variables: {
-        options: {
-          type: "CURSOR",
-          cursor: "admin@stanford.edu5",
-          limit: 5,
-        },
-        term: "admin",
-      },
-    },
-    // Use networkError instead of throwing in result function to avoid unhandled rejection
-    networkError: new Error('Network connection failed')
-  },
-];
-describe('ProjectsProjectMembersSearch', () => {
+    handleCheckboxChange: jest.fn(),
+    handleFormSubmit: jest.fn(),
+    resetErrors: jest.fn(),
+    updateAffiliationFormData: jest.fn(),
+    clearAllFieldErrors: jest.fn(),
+    clearAllFormFields: jest.fn(),
+    setErrors: jest.fn(),
+  };
+
   beforeEach(() => {
-    window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
-
-    // Mock scrollIntoView for all elements
-    window.HTMLElement.prototype.scrollIntoView = jest.fn();
-
-    const mockUseParams = useParams as jest.Mock;
-    // Mock the return value of useParams
-    mockUseParams.mockReturnValue({ projectId: "6" });
-
-    (useRouter as jest.Mock).mockReturnValue(mockRouter);
-
-    // Mock the addProjectMemberAction to return success
-    mockAddProjectMemberAction.mockResolvedValue({
-      success: true,
-      redirect: '/en-US/projects/1/members',
-      data: undefined,
-      errors: []
+    (useParams as jest.Mock).mockReturnValue({ projectId: '123' });
+    (useRouter as jest.Mock).mockReturnValue({
+      back: jest.fn(),
+      forward: jest.fn(),
+      refresh: jest.fn(),
+      push: jest.fn(),
+      replace: jest.fn(),
+      prefetch: jest.fn(),
     });
-  })
+    mockUseCollaboratorSearch.mockReturnValue(defaultCollaboratorSearch);
+    mockUseProjectMemberForm.mockReturnValue(defaultProjectMemberForm);
+
+    // Mock DOM methods
+    window.scrollTo = jest.fn();
+    window.HTMLElement.prototype.scrollIntoView = jest.fn();
+  });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should render the page header with title', async () => {
-    render(
-      <MockedProvider>
-        <ProjectsProjectMembersSearch />
-      </MockedProvider>
-    );
-
-    expect(screen.getByText('title')).toBeInTheDocument();
-  });
-
-  it('should render the search field with label and description', async () => {
-    render(
-      <MockedProvider>
-        <ProjectsProjectMembersSearch />
-      </MockedProvider>
-    );
-
-    expect(screen.getByLabelText('searchLabel')).toBeInTheDocument();
-    expect(screen.getByText("searchDescription")).toBeInTheDocument();
-  });
-
-  it('should execute search and displays results', async () => {
-    render(
-      <MockedProvider mocks={MOCKS}>
-        <ProjectsProjectMembersSearch />
-      </MockedProvider>
-    );
-
-    const input = screen.getByLabelText('searchLabel');
-    const searchButton = screen.getByRole('button', { name: /Search/i });
-
-    // Enter search term and click search
-    fireEvent.change(input, { target: { value: 'admin' } });
-    fireEvent.click(searchButton);
-
-    // Wait for the GraphQL query to complete and results to render
-    await waitFor(() => {
-      expect(screen.getByText('headings.searchResultsHeader')).toBeInTheDocument();
-    });
-
-    // Wait for results to be rendered
-    await waitFor(() => {
-      const results = screen.getAllByTestId(/result-/);
-      expect(results.length).toBe(5); // Should display 5 results as per the mock
-    });
-
-    // Check that specific affiliations are displayed
-    expect(screen.getByText('California Digital Library')).toBeInTheDocument();
-
-    // This text appears in both name and organization, so use getAllByText and check it exists
-    const uniElements = screen.getAllByText('Universidade de São Paulo', { exact: false });
-    expect(uniElements.length).toBeGreaterThan(0);
-
-    expect(screen.getByText('United States Geological Survey')).toBeInTheDocument();
-
-    expect(screen.getByTestId('search-load-more-btn')).toBeInTheDocument();
-    expect(screen.getByText('links.clearFilter')).toBeInTheDocument();
-  });
-
-  it('should execute and load more items when "Load More" button is clicked', async () => {
-    render(
-      <MockedProvider mocks={MOCKS}>
-        <ProjectsProjectMembersSearch />
-      </MockedProvider>
-    );
-
-    const input = screen.getByLabelText('searchLabel');
-    const searchButton = screen.getByRole('button', { name: /Search/i });
-
-    // Enter search term and click search
-    fireEvent.change(input, { target: { value: 'admin' } });
-    fireEvent.click(searchButton);
-
-    // Wait for the GraphQL query to complete and results to render
-    await waitFor(() => {
-      expect(screen.getByText('headings.searchResultsHeader')).toBeInTheDocument();
-    });
-
-    // Wait for results to be rendered
-    await waitFor(() => {
-      const results = screen.getAllByTestId(/result-/);
-      expect(results.length).toBe(5); // Should display 5 results as per the mock
-    });
-
-    const loadMoreButton = screen.getByTestId('search-load-more-btn');
-    fireEvent.click(loadMoreButton);
-
-    // Wait for results to be rendered
-    await waitFor(() => {
-      const results = screen.getAllByTestId(/result-/);
-      expect(results.length).toBe(10); // Should display 10 results
-    });
-  });
-
-  it('should log error if load more returns an error', async () => {
-    render(
-      <MockedProvider mocks={ERROR_MOCKS}>
-        <ProjectsProjectMembersSearch />
-      </MockedProvider>
-    );
-
-    const input = screen.getByLabelText('searchLabel');
-    const searchButton = screen.getByRole('button', { name: /Search/i });
-
-    // Enter search term and click search
-    fireEvent.change(input, { target: { value: 'admin' } });
-    fireEvent.click(searchButton);
-
-    // Wait for the GraphQL query to complete and results to render
-    await waitFor(() => {
-      expect(screen.getByText('headings.searchResultsHeader')).toBeInTheDocument();
-    });
-
-    // Wait for results to be rendered
-    await waitFor(() => {
-      const results = screen.getAllByTestId(/result-/);
-      expect(results.length).toBe(5); // Should display 5 results as per the mock
-    });
-
-    const loadMoreButton = screen.getByTestId('search-load-more-btn');
-    fireEvent.click(loadMoreButton);
-
-    // Wait for results to be rendered
-    await waitFor(() => {
-      expect(screen.getByText('messaging.errors.failedToLoadMoreCollaborators')).toBeInTheDocument();
-      expect(logECS).toHaveBeenCalledWith(
-        'error',
-        'handleSearchLoadMore',
-        expect.objectContaining({
-          error: expect.anything(),
-          url: { path: '/en-US/projects/6/members/search' },
-        })
+  describe('Component Integration', () => {
+    it('should render main sections and integrates hooks properly', () => {
+      render(
+        <MockedProvider>
+          <ProjectsProjectMembersSearch />
+        </MockedProvider>
       );
-    });
-  });
 
-  it('should handle network errors in catch block during load more', async () => {
+      // Verify main sections are rendered
+      expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument(); // Page title
+      expect(screen.getByRole('search')).toBeInTheDocument();
 
-    render(
-      <MockedProvider mocks={NETWORK_ERROR_MOCKS}>
-        <ProjectsProjectMembersSearch />
-      </MockedProvider>
-    );
+      // Verify form fields are rendered with initial values
+      expect(screen.getByRole('textbox', { name: /labels\.givenName/ })).toBeInTheDocument();
+      expect(screen.getByRole('textbox', { name: /labels\.surName/ })).toBeInTheDocument();
+      expect(screen.getByRole('textbox', { name: /labels\.email/ })).toBeInTheDocument();
 
-    const input = screen.getByLabelText('searchLabel');
-    const searchButton = screen.getByRole('button', { name: /Search/i });
-
-    // Enter search term and click search
-    fireEvent.change(input, { target: { value: 'admin' } });
-    fireEvent.click(searchButton);
-
-    // Wait for the GraphQL query to complete and results to render
-    await waitFor(() => {
-      expect(screen.getByText('headings.searchResultsHeader')).toBeInTheDocument();
+      // Check for checkbox group
+      const checkboxGroup = screen.getByTestId('checkbox-group');
+      expect(checkboxGroup).toBeInTheDocument();
+      expect(within(checkboxGroup).getByText('Principal Investigator')).toBeInTheDocument();
+      expect(within(checkboxGroup).getByText('Co-Investigator')).toBeInTheDocument();
     });
 
-    // Wait for results to be rendered
-    await waitFor(() => {
-      const results = screen.getAllByTestId(/result-/);
-      expect(results.length).toBe(5);
-    });
+    it('should handle search input and calls hook methods correctly', () => {
+      const mockSetSearchTerm = jest.fn();
+      const mockResetErrors = jest.fn();
+      const mockClearAllFormFields = jest.fn();
 
-    const loadMoreButton = screen.getByTestId('search-load-more-btn');
-    fireEvent.click(loadMoreButton);
+      mockUseCollaboratorSearch.mockReturnValue({
+        ...defaultCollaboratorSearch,
+        setSearchTerm: mockSetSearchTerm,
+      });
 
-    // Wait for error to be caught in catch block
-    await waitFor(() => {
-      expect(screen.getByText('messaging.errors.failedToLoadMoreCollaborators')).toBeInTheDocument();
-      expect(logECS).toHaveBeenCalledWith(
-        'error',
-        'handleSearchLoadMore',
-        expect.objectContaining({
-          error: expect.any(Error),
-          url: { path: '/en-US/projects/6/members/search' },
-        })
+      mockUseProjectMemberForm.mockReturnValue({
+        ...defaultProjectMemberForm,
+        resetErrors: mockResetErrors,
+        clearAllFormFields: mockClearAllFormFields,
+      });
+
+      render(
+        <MockedProvider>
+          <ProjectsProjectMembersSearch />
+        </MockedProvider>
       );
-    });
-  });
 
-  it('should not run search when search button is clicked with an empty input', async () => {
-    render(
-      <MockedProvider mocks={MOCKS}>
-        <ProjectsProjectMembersSearch />
-      </MockedProvider>
-    );
+      const searchInput = screen.getByRole('searchbox');
+      fireEvent.change(searchInput, { target: { value: 'john doe' } });
 
-    const input = screen.getByLabelText('searchLabel');
-    const searchButton = screen.getByRole('button', { name: /Search/i });
-
-    // Enter search term and click search
-    fireEvent.change(input, { target: { value: '' } });
-    fireEvent.click(searchButton);
-
-    // Wait for the GraphQL query to complete and results to render
-    await waitFor(() => {
-      expect(screen.queryByText('headings.searchResultsHeader')).not.toBeInTheDocument();
-    });
-  });
-
-  it('should clear search results when user clicks on clear filter', async () => {
-    render(
-      <MockedProvider mocks={MOCKS}>
-        <ProjectsProjectMembersSearch />
-      </MockedProvider>
-    );
-
-    const input = screen.getByLabelText('searchLabel');
-    const searchButton = screen.getByRole('button', { name: /Search/i });
-
-    // Enter search term and click search
-    fireEvent.change(input, { target: { value: 'admin' } });
-    fireEvent.click(searchButton);
-
-    // Wait for the GraphQL query to complete and results to render
-    await waitFor(() => {
-      expect(screen.getByText('headings.searchResultsHeader')).toBeInTheDocument();
+      expect(mockSetSearchTerm).toHaveBeenCalledWith('john doe');
+      expect(mockResetErrors).toHaveBeenCalled();
+      expect(mockClearAllFormFields).toHaveBeenCalled();
     });
 
-    // Wait for results to be rendered
-    await waitFor(() => {
-      const results = screen.getAllByTestId(/result-/);
-      expect(results.length).toBe(5); // Should display 5 results as per the mock
+    it('should display search results when available', () => {
+      mockUseCollaboratorSearch.mockReturnValue({
+        ...defaultCollaboratorSearch,
+        isSearching: true,
+        results: [mockCollaboratorResult],
+      });
+
+      render(
+        <MockedProvider>
+          <ProjectsProjectMembersSearch />
+        </MockedProvider>
+      );
+
+      expect(screen.getByText('John Doe')).toBeInTheDocument();
+      expect(screen.getByText('Test University')).toBeInTheDocument();
+      expect(screen.getByText('0000-0000-0000-0001')).toBeInTheDocument();
+      expect(screen.getByTestId('orcidIconSvg')).toBeInTheDocument();
     });
 
-    // Check that specific affiliations are displayed
-    expect(screen.getByText('California Digital Library')).toBeInTheDocument();
+    it('should handle search result selection and populates form', () => {
+      const mockSetProjectMember = jest.fn();
+      const mockResetErrors = jest.fn();
 
-    const clearFilterLink = screen.getByText('links.clearFilter');
-    fireEvent.click(clearFilterLink);
+      mockUseCollaboratorSearch.mockReturnValue({
+        ...defaultCollaboratorSearch,
+        isSearching: true,
+        results: [mockCollaboratorResult],
+      });
 
-    await waitFor(() => {
-      // Should clear the search results
-      expect(screen.queryByText('California Digital Library')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('result-0')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('search-load-more-btn')).not.toBeInTheDocument();
-      expect(screen.queryByText('links.clearFilter')).not.toBeInTheDocument();
-    });
-  });
+      mockUseProjectMemberForm.mockReturnValue({
+        ...defaultProjectMemberForm,
+        setProjectMember: mockSetProjectMember,
+        resetErrors: mockResetErrors,
+      });
 
-  it('should handle "Add" button click for a search result', async () => {
-    render(
-      <MockedProvider mocks={MOCKS}>
-        <ProjectsProjectMembersSearch />
-      </MockedProvider>
-    );
+      render(
+        <MockedProvider>
+          <ProjectsProjectMembersSearch />
+        </MockedProvider>
+      );
 
-    const input = screen.getByLabelText('searchLabel');
-    const searchButton = screen.getByRole('button', { name: /Search/i });
+      const searchResult = screen.getByTestId('result-0');
+      fireEvent.click(searchResult);
 
-    // Enter search term and click search
-    fireEvent.change(input, { target: { value: 'admin' } });
-    fireEvent.click(searchButton);
-
-    // Wait for the GraphQL query to complete and results to render
-    await waitFor(() => {
-      expect(screen.getByText('headings.searchResultsHeader')).toBeInTheDocument();
-    });
-
-    // Wait for results to be rendered
-    await waitFor(() => {
-      const results = screen.getAllByTestId(/result-/);
-      expect(results.length).toBe(5); // Should display 5 results as per the mock
+      expect(mockSetProjectMember).toHaveBeenCalledWith({
+        givenName: 'John',
+        surName: 'Doe',
+        email: 'john.doe@example.com',
+        orcid: '0000-0000-0000-0001',
+        affiliationName: 'Test University',
+        affiliationId: 'test-uni-id',
+        otherAffiliationName: '',
+      });
+      expect(mockResetErrors).toHaveBeenCalled();
     });
 
-    // Find the first result by data-result-index="0"
-    const firstResult = screen.getByTestId('result-0');
-    expect(firstResult).toBeInTheDocument();
+    it('should show loading state during search', () => {
+      mockUseCollaboratorSearch.mockReturnValue({
+        ...defaultCollaboratorSearch,
+        isSearching: true,
+        loading: true,
+      });
 
-    // Find the Add button within the first result
-    const addButton = within(firstResult).getByRole('button');
-    fireEvent.click(addButton);
+      render(
+        <MockedProvider>
+          <ProjectsProjectMembersSearch />
+        </MockedProvider>
+      );
 
-    await waitFor(() => {
-      // Should redirect to the members page when successfully added
-      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/6/members');
-    });
-  });
-
-  it('should display error addProjectMember response.success is false', async () => {
-    // Override the mock for this specific test to return success: false
-    mockAddProjectMemberAction.mockResolvedValueOnce({
-      success: false,
-      errors: ['Failed to add member'],
-      data: undefined
+      expect(screen.getByRole('status')).toBeInTheDocument();
+      expect(screen.getByText('messaging.loading')).toBeInTheDocument();
     });
 
-    render(
-      <MockedProvider mocks={ERROR_MOCKS}>
-        <ProjectsProjectMembersSearch />
-      </MockedProvider>
-    );
+    it('should display errors from both hooks', () => {
+      mockUseCollaboratorSearch.mockReturnValue({
+        ...defaultCollaboratorSearch,
+        errors: ['Search failed'],
+      });
 
-    const input = screen.getByLabelText('searchLabel');
-    const searchButton = screen.getByRole('button', { name: /Search/i });
+      mockUseProjectMemberForm.mockReturnValue({
+        ...defaultProjectMemberForm,
+        errors: ['Form error'],
+      });
 
-    // Enter search term and click search
-    fireEvent.change(input, { target: { value: 'admin' } });
-    fireEvent.click(searchButton);
+      render(
+        <MockedProvider>
+          <ProjectsProjectMembersSearch />
+        </MockedProvider>
+      );
 
-    // Wait for the GraphQL query to complete and results to render
-    await waitFor(() => {
-      expect(screen.getByText('headings.searchResultsHeader')).toBeInTheDocument();
+      expect(screen.getByText('Search failed')).toBeInTheDocument();
+      expect(screen.getByText('Form error')).toBeInTheDocument();
     });
 
-    // Wait for results to be rendered
-    await waitFor(() => {
-      const results = screen.getAllByTestId(/result-/);
-      expect(results.length).toBe(5); // Should display 5 results as per the mock
+    it('should handle form submission', () => {
+      const mockHandleFormSubmit = jest.fn();
+
+      mockUseProjectMemberForm.mockReturnValue({
+        ...defaultProjectMemberForm,
+        handleFormSubmit: mockHandleFormSubmit,
+      });
+
+      render(
+        <MockedProvider>
+          <ProjectsProjectMembersSearch />
+        </MockedProvider>
+      );
+
+      const submitButton = screen.getByRole('button', { name: /buttons.addToProject/ });
+      fireEvent.click(submitButton);
+
+      expect(mockHandleFormSubmit).toHaveBeenCalled();
     });
 
-    // Find the first result by data-result-index="0"
-    const firstResult = screen.getByTestId('result-0');
-    expect(firstResult).toBeInTheDocument();
+    it('should auto-populate form when search results change', () => {
+      const mockSetProjectMember = jest.fn();
 
-    // Find the Add button within the first result
-    const addButton = within(firstResult).getByRole('button');
-    fireEvent.click(addButton);
+      mockUseCollaboratorSearch.mockReturnValue({
+        ...defaultCollaboratorSearch,
+        results: [mockCollaboratorResult],
+      });
 
-    await waitFor(() => {
-      // Should display error message
-      expect(screen.getByText('messaging.errors.failedToAddProjectMember')).toBeInTheDocument();
+      mockUseProjectMemberForm.mockReturnValue({
+        ...defaultProjectMemberForm,
+        setProjectMember: mockSetProjectMember,
+      });
+
+      render(
+        <MockedProvider>
+          <ProjectsProjectMembersSearch />
+        </MockedProvider>
+      );
+
+      // The useEffect should trigger auto-population
+      expect(mockSetProjectMember).toHaveBeenCalledWith({
+        givenName: 'John',
+        surName: 'Doe',
+        email: 'john.doe@example.com',
+        orcid: '0000-0000-0000-0001',
+        affiliationName: 'Test University',
+        affiliationId: 'test-uni-id',
+        otherAffiliationName: '',
+      });
     });
-  });
-
-  it('should display field-level errors returned in response', async () => {
-    // Override the mock for this specific test to return success: true with errors
-    mockAddProjectMemberAction.mockResolvedValueOnce({
-      success: true,
-      errors: [],
-      data: {
-        id: 31,
-        givenName: 'NIH',
-        surName: 'Admin',
-        email: '',
-        affiliation: {
-          id: 1,
-          name: 'Test Org',
-          uri: 'https://ror.org/test'
-        },
-        orcid: null,
-        errors: {
-          general: 'Failed to add member',
-        }
-      }
-    });
-
-    render(
-      <MockedProvider mocks={ERROR_MOCKS}>
-        <ProjectsProjectMembersSearch />
-      </MockedProvider>
-    );
-
-    const input = screen.getByLabelText('searchLabel');
-    const searchButton = screen.getByRole('button', { name: /Search/i });
-
-    // Enter search term and click search
-    fireEvent.change(input, { target: { value: 'admin' } });
-    fireEvent.click(searchButton);
-
-    // Wait for the GraphQL query to complete and results to render
-    await waitFor(() => {
-      expect(screen.getByText('headings.searchResultsHeader')).toBeInTheDocument();
-    });
-
-    // Wait for results to be rendered
-    await waitFor(() => {
-      const results = screen.getAllByTestId(/result-/);
-      expect(results.length).toBe(5); // Should display 5 results as per the mock
-    });
-
-    // Find the first result by data-result-index="0"
-    const firstResult = screen.getByTestId('result-0');
-    expect(firstResult).toBeInTheDocument();
-
-    // Find the Add button within the first result
-    const addButton = within(firstResult).getByRole('button');
-    fireEvent.click(addButton);
-
-    await waitFor(() => {
-      // Should display the field-level error message
-      expect(screen.getByText('Failed to add member')).toBeInTheDocument();
-    });
-  });
-
-  it('should display validation errors from addProjectMember response.data.errors', async () => {
-    // Mock to return success: true but with validation errors in data.errors
-    mockAddProjectMemberAction.mockResolvedValueOnce({
-      success: true,
-      data: {
-        id: 31,
-        givenName: 'NIH',
-        surName: 'Admin',
-        email: '',
-        affiliation: {
-          id: 1,
-          name: 'Test Org',
-          uri: 'https://ror.org/test'
-        },
-        orcid: null,
-        errors: {
-          email: 'User with this email already exists.'
-        }
-      }
-    });
-
-    render(
-      <MockedProvider mocks={MOCKS}>
-        <ProjectsProjectMembersSearch />
-      </MockedProvider>
-    );
-
-    const input = screen.getByLabelText('searchLabel');
-    const searchButton = screen.getByRole('button', { name: /Search/i });
-
-    // Enter search term and click search
-    fireEvent.change(input, { target: { value: 'admin' } });
-    fireEvent.click(searchButton);
-
-    // Wait for the GraphQL query to complete and results to render
-    await waitFor(() => {
-      expect(screen.getByText('headings.searchResultsHeader')).toBeInTheDocument();
-    });
-
-    // Wait for results to be rendered
-    await waitFor(() => {
-      const results = screen.getAllByTestId(/result-/);
-      expect(results.length).toBe(5);
-    });
-
-    // Find the first result and click Add button
-    const firstResult = screen.getByTestId('result-0');
-    const addButton = within(firstResult).getByRole('button');
-    fireEvent.click(addButton);
-
-    await waitFor(() => {
-      // Should display the specific validation error
-      expect(screen.getByText('User with this email already exists.')).toBeInTheDocument();
-    });
-  });
-
-  it('should handle "Create collaborator" button click', async () => {
-    render(
-      <MockedProvider mocks={MOCKS}>
-        <ProjectsProjectMembersSearch />
-      </MockedProvider>
-    );
-
-    const createCollaboratorButton = screen.getByRole('button', { name: "buttons.createMember" });
-    fireEvent.click(createCollaboratorButton);
-
-    await waitFor(() => {
-      // Should redirect to the create member page
-      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/6/members/create');
-    });
-  });
-
-  it('should display no results when search term returns empty', async () => {
-    render(
-      <MockedProvider mocks={MOCKS}>
-        <ProjectsProjectMembersSearch />
-      </MockedProvider>
-    );
-
-    const input = screen.getByLabelText('searchLabel');
-    const searchButton = screen.getByRole('button', { name: /Search/i });
-
-    // Search for something that returns no results
-    fireEvent.change(input, { target: { value: 'gibberishxyz' } });
-    fireEvent.click(searchButton);
-
-    // Wait for the GraphQL query to complete
-    await waitFor(() => {
-      // Should show the "no items found" message
-      expect(screen.getByText('messaging.noItemsFound')).toBeInTheDocument();
-    });
-
-    // Should not show any search results
-    expect(screen.queryByText('California Digital Library')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('result-0')).not.toBeInTheDocument();
-
-    // Should not show "Load More" button since there are no results
-    expect(screen.queryByTestId('search-load-more-btn')).not.toBeInTheDocument();
   });
 
   it('should pass accessibility tests', async () => {
@@ -675,6 +324,7 @@ describe('ProjectsProjectMembersSearch', () => {
         <ProjectsProjectMembersSearch />
       </MockedProvider>
     );
+
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

@@ -7,11 +7,9 @@ import {
 } from '@/generated/graphql';
 
 import { FormSelect, } from "@/components/Form";
-
-
+import { ProjectDetailsFormInterface } from "@/app/types";
 import styles from './researchDomainDropdowns.module.scss';
 
-// Type definitions
 interface ChildOption {
   id: string;
   name: string;
@@ -21,10 +19,9 @@ interface ResearchDomainInterface {
   id: string;
   name: string;
 }
-/* eslint-disable @typescript-eslint/no-explicit-any */
 interface CascadingDropdownProps {
-  projectData: any;
-  setProjectData: (data: any) => void;
+  projectData: ProjectDetailsFormInterface;
+  setProjectData: (data: ProjectDetailsFormInterface) => void;
 }
 
 const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ projectData, setProjectData }) => {
@@ -32,11 +29,9 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
   const [selectedChild, setSelectedChild] = useState('');
   const [rDomains, setRDomains] = useState<ResearchDomainInterface[]>([]);
   const [childOptionsList, setChildOptionsList] = useState<ChildOption[]>([]);
-  const childSelectRef = useRef<HTMLButtonElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
   const initialLoadRef = useRef(true);
 
-  // Localization keys
   const ProjectDetail = useTranslations('ProjectsProjectDetail');
 
   // Get all Research Domains
@@ -58,14 +53,6 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
 
     if (parentResearchDomainId) {
       await refetch({ parentResearchDomainId: Number(parentResearchDomainId) });
-      // Set a brief timeout to ensure DOM is updated before focusing
-      setTimeout(() => {
-        if (childSelectRef.current) {
-          childSelectRef.current.focus();
-        }
-      }, 50);
-    } else {
-      setChildOptionsList([]);
     }
   };
 
@@ -106,15 +93,13 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
           statusRef.current.textContent = '';
         }
       }
-    } else {
-      setChildOptionsList([]);
     }
   }, [myChildDomains]);
 
   useEffect(() => {
     const handleResearchDomains = async () => {
-      if (myResearchDomains) {
-        const researchDomains = (myResearchDomains?.topLevelResearchDomains || [])
+      if (myResearchDomains && myResearchDomains.topLevelResearchDomains) {
+        const researchDomains = (myResearchDomains?.topLevelResearchDomains)
           .filter((domain) => domain !== null)
           .map((domain) => ({
             id: domain.id?.toString() ?? '',
@@ -142,9 +127,6 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
     }
   }, [projectData]);
 
-  // Disable child dropdown if no parent is selected or no child options are available
-  const isChildDisabled = Boolean(selectedParent === '' || childOptionsList.length === 0);
-
   return (
     <div className="cascading-dropdown">
       <div className="form-group">
@@ -157,7 +139,7 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
           selectedKey={selectedParent}
           placeholder={ProjectDetail('placeholder.selectDomain')}
         >
-          {rDomains && rDomains.map((domain) => {
+          {rDomains.map((domain) => {
             return (
               <ListBoxItem key={domain.id} textValue={String(domain.id)}>{domain.id}</ListBoxItem>
             )
@@ -166,35 +148,33 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
         </FormSelect>
       </div>
 
-      <div className="form-group">
-        <FormSelect
-          label={(selectedParent && myResearchDomains?.topLevelResearchDomains) ? ProjectDetail('labels.childDomain', { name: selectedParentDomain?.description || '' }) : ProjectDetail('labels.item')}
-          isDisabled={isChildDisabled}
-          name="childDomain"
-          items={childOptionsList}
-          selectClasses={styles.researchDomainSelect}
-          onChange={selected => handleChildChange(selected as string)}
-          helpMessage={(selectedParent || selectedChild) ? getSelectionText() : ''}
-          selectedKey={selectedChild}
-          aria-labelledby="child-label"
-          aria-invalid={isChildDisabled}
-          isRequired={true}
-          ref={childSelectRef}
-          placeholder={ProjectDetail('placeholder.selectSubDomain')}
-        >
-          <option value="">
-            {isChildDisabled
-              ? ProjectDetail('helpText.selectResearchDomain')
-              : ProjectDetail('labels.childDomain', { name: selectedParentDomain?.description || '' })}
-          </option>
-          {childOptionsList && childOptionsList.map((option) => {
-            return (
-              <ListBoxItem key={option.id} textValue={option.name}>{option.name}</ListBoxItem>
-            )
+      {(selectedParent && myResearchDomains?.topLevelResearchDomains) && (
+        <div className="form-group">
+          <FormSelect
+            label={ProjectDetail('labels.childDomain', { name: selectedParentDomain?.description || '' })}
+            name="childDomain"
+            items={childOptionsList}
+            selectClasses={styles.researchDomainSelect}
+            onChange={selected => handleChildChange(selected as string)}
+            helpMessage={getSelectionText()}
+            selectedKey={selectedChild}
+            aria-labelledby="child-label"
+            placeholder={ProjectDetail('placeholder.selectSubDomain')}
+            data-testid="subdomain-select"
+          >
+            <option value="">
+              {ProjectDetail('labels.childDomain', { name: selectedParentDomain?.description || '' })}
+            </option>
+            {childOptionsList && childOptionsList.map((option) => {
+              return (
+                <ListBoxItem key={option.id} textValue={option.name}>{option.name}</ListBoxItem>
+              )
 
-          })}
-        </FormSelect>
-      </div>
+            })}
+          </FormSelect>
+        </div>
+      )}
+
 
       {/* Live region to announce changes */}
       <div

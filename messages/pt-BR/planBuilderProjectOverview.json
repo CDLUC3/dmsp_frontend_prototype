@@ -23,13 +23,9 @@
     "memberInfo": "{name} ({role})",
     "editMembers": "Editar Detalhes do Projeto",
     "editProjectMembers": "Editar Detalhes do Projeto",
-    "researchOutputs": "Resultados da pesquisa",
-    "outputCount": "{count, plural, =0 {0 outputs} one {1 output} other {{count} outputs}}",
-    "editOutputs": "Editar resultados de pesquisa",
-    "editResearchOutputs": "Editar resultados de pesquisa",
-    "plan": "Plano",
-    "plans": "Plans",
-    "sections": "Seções",
+    "plan": "Planejamento",
+    "plans": "Planos",
+    "sections": "Turmas",
     "planActions": "Planejar ações",
     "upload": "Carregar plano",
     "uploadPlan": "Enviar um novo plano",
@@ -66,7 +62,7 @@
     }
   },
   "ProjectsListPage": {
-    "intro": "Gerenciador ou criar projeto DMSP ou por DMP",
+    "intro": "Gerencie seus planos de gerenciamento de dados e projetos. Para criar um novo plano dentro do mesmo projeto de pesquisa, abra o projeto abaixo primeiro e depois crie um novo plano dentro dele.",
     "buttons": {
       "createProject": "Criar projeto"
     },
@@ -77,15 +73,13 @@
     }
   },
   "ProjectsCreateProject": {
-    "pageTitle": "Criar um novo blog",
+    "pageTitle": "Criar detalhes do projeto",
+    "description": "Começaremos pedindo detalhes sobre seu projeto de pesquisa para que possamos ajudá-lo a criar o plano de gerenciamento de dados certo para ele. Você pode então adicionar planos adicionais ao mesmo projeto.",
     "isThisMockProject": "Este é um projeto fictício?",
     "form": {
-      "projectTitle": "Qual é o título do projeto?",
+      "projectTitle": "Qual é o título do projeto de pesquisa para este DMP?",
       "projectTitleHelpText": "Você pode mudar isso a qualquer momento. Se já solicitou financiamento, recomendamos que se utilize o título formal do projeto para ser consistente.",
-      "checkboxGroupLabel": "Este projeto é uma simulação (mock, em inglês) para fins de teste, prática ou educacional",
-      "checkboxGroupHelpText": "Este é um projeto simulado (mock, em inglês) destinado exclusivamente a testes, práticas ou propósitos educativos. Isso permite que você crie um projeto e planos, mas você não poderá receber comentários ou publicá-los.",
-      "checkboxLabel": "Sim, defina este projeto para um simulação (mock, em inglês) ou um projeto de teste.",
-      "checkboxHelpText": "Sim, defina este projeto para um simulação (mock, em inglês) ou um projeto de teste."
+      "radioGroupLabel": "Este é um projeto fictício para fins de teste ou um projeto real?"
     },
     "messages": {
       "success": "Projeto criado com sucesso",
@@ -94,6 +88,14 @@
         "title": "Título do projeto é obrigatório",
         "createProjectError": "Erro ao criar projeto"
       }
+    },
+    "labels": {
+      "mockProject": "Projeto simulado",
+      "realProject": "Projeto real"
+    },
+    "descriptions": {
+      "mockProject": "Para fins de teste/educação: não é possível solicitar feedback ou publicar plano, excluído das estatísticas.",
+      "realProject": "Funcionalidade completa. Não pode ser alterado de volta para projeto fictício."
     }
   },
   "ProjectsCreateProjectFunding": {
@@ -123,7 +125,7 @@
       "researchDomain": "Domínio de pesquisa",
       "mockProject": "Projeto fictício",
       "realProject": "Projeto real",
-      "childDomain": "Selecione um subdomínio para {name}:",
+      "childDomain": "Selecione um subdomínio para {name}",
       "item": "Produto"
     },
     "helpText": {
@@ -281,7 +283,7 @@
     }
   },
   "ProjectsProjectCollaborationInvite": {
-    "title": "Quem deve ter acesso a este plano?",
+    "title": "Quem deve ter acesso a este projeto?",
     "breadcrumbs": {
       "manageAccess": "Gerenciar acesso"
     },
@@ -297,9 +299,9 @@
     },
     "accessLevelOn": "{accessLevel} em",
     "para1": "When you click <strong>Grant access</strong> we'll send an email to this person inviting them to view your plan.",
-    "para2": "Se ainda não for membro, nós os convidaremos a entrar.",
+    "para2": "Se eles ainda não forem membros da Ferramenta DMP, nós os convidaremos a participar.",
     "para3": "Enviamos um convite para <strong>{email}</strong>. Eles terão acesso a este projeto.",
-    "para4": "Para também adicioná-los como membro do projeto, <projectmember> vá para a página de membros do projeto </projectmember>.",
+    "para4": "Para também adicioná-los como membro do projeto, <projectmember>vá para a página de membros do projeto</projectmember>.",
     "para5": "Eles terão acesso a DMPs {access} neste projeto.",
     "messaging": {
       "errors": {
@@ -359,29 +361,58 @@
     }
   },
   "ProjectsProjectMembersSearch": {
-    "title": "Quem são os membros do projeto?",
-    "searchLabel": "Pesquisar por nome, organização ou ORCID",
-    "searchDescription": "Pesquisar por nome, organização e/ou ORCiD de uma pessoa. A introdução de mais informações ajudará a limitar a pesquisa, por exemplo, Frederick Cook 0427.",
+    "title": "Adicionar membro ao projeto",
+    "description": "Se você conhece o ORCiD completo de 16 caracteres de uma pessoa, insira-o abaixo e use o botão Pesquisar para associá-la a este projeto. Se você não souber o ORCiD dela, basta inserir as informações dela abaixo.",
+    "searchLabel": "ID do ORCiD (recomendado)",
+    "searchDescription": "Se conhecido, insira o ORCiD completo de 16 caracteres do membro do projeto no formato XXXX-XXXX-XXXX-XXXX e clique em Pesquisar. Caso contrário, preencha as informações abaixo manualmente.",
     "ariaSearchInput": "Pesquisa",
     "ariaSearchItemName": "Membro: {name}",
+    "ariaSelectSearchResult": "Selecionar {name} para preencher formulário",
     "ariaAddMemberButton": "Adicionar {name} como membro do projeto",
     "createCollaboratorDescription": "Se seu colaborador não estiver mostrado, você pode adicionar seus detalhes manualmente",
     "buttons": {
-      "createMember": "Criar membro"
+      "addToProject": "Adicionar ao projeto",
+      "clearForm": "Limpar formulário"
     },
     "headings": {
       "searchResultsHeader": "Mostrando 1-{length} dos resultados {total}",
-      "createCollaboratorHeader": "Não está na lista?"
+      "enterMemberDetails": "Inserir detalhes do membro"
     },
     "messaging": {
+      "noSearchResultsFound": "Nenhum registro associado a esse ORCiD foi encontrado. Verifique o ORCiD e tente novamente.",
       "errors": {
         "failedToLoadCollaborators": "Falha ao carregar mais colaboradores",
-        "failedToAddProjectMember": "Falha ao adicionar membro. Por favor, tente novamente."
+        "failedToAddProjectMember": "Falha ao adicionar membro. Por favor, tente novamente.",
+        "surNameRequired": "Sobrenome é obrigatório",
+        "givenNameRequired": "Nome é obrigatório",
+        "emailRequired": "Endereço de e-mail é obrigatório",
+        "invalidEmail": "Por favor, insira um endereço de e-mail válido",
+        "projectRolesRequired": "Pelo menos um papel do projeto deve ser selecionado",
+        "affiliationRequired": "Afiliação é obrigatória",
+        "searchTermRequired": "Por favor, insira um ORCiD ou uma URL contendo um ORCiD para pesquisar",
+        "valueOrcidRequired": "Por favor, insira um ORCiD válido no formato XXXX-XXXX-XXXX-XXXX ou uma URL contendo um ORCiD"
       },
       "success": {
         "addedProjectMember": "Adicionado com sucesso {name} como membro do projeto"
       }
-    }
+    },
+    "labels": {
+      "givenName": "Nome",
+      "surName": "Sobrenome",
+      "affiliation": "Afiliação",
+      "otherAffiliationName": "Outro nome de afiliação",
+      "email": "Endereço de e-mail",
+      "definedRole": "Definir o(s) papel(éis) do membro neste projeto",
+      "ariaMemberRoles": "Opções de papéis do membro do projeto",
+      "selected": "Selecionado",
+      "selectedFromSearch": "Selecionado da pesquisa",
+      "orcid": "ORCID",
+      "orcidFromSearch": "ORCID do resultado da pesquisa"
+    },
+    "links": {
+      "learnMoreAboutCreditTaxonomy": "Saiba mais sobre cada papel"
+    },
+    "memberRolesDescription": "<p>Selecione uma ou mais funções que descrevem melhor as contribuições desta pessoa para este projeto.</p>"
   },
   "ProjectsProjectMemberCreate": {
     "title": "Adicionar um novo membro ao projeto",

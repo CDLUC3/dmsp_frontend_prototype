@@ -1,20 +1,47 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { act, render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter } from 'next/navigation';
+import { RichTranslationValues } from 'next-intl';
 import { cookies } from "next/headers";
 import {
   publishPlanAction,
   updatePlanStatusAction,
   updatePlanTitleAction
 } from '../actions';
-import { usePlanQuery } from '@/generated/graphql';
+import { usePlanQuery, usePlanFeedbackStatusQuery } from '@/generated/graphql';
 import { useToast } from '@/context/ToastContext';
 
 jest.mock('../actions/index', () => ({
   publishPlanAction: jest.fn(),
   updatePlanStatusAction: jest.fn(),
   updatePlanTitleAction: jest.fn(),
+}));
+
+type MockUseTranslations = {
+  (key: string, ...args: unknown[]): string;
+  rich: (key: string, values?: RichTranslationValues) => ReactNode;
+};
+
+
+// Mock useFormatter from next-intl
+jest.mock('next-intl', () => ({
+  useFormatter: jest.fn(() => ({
+    dateTime: jest.fn(() => '01-01-2023'),
+  })),
+  useTranslations: jest.fn(() => {
+    const mockUseTranslations: MockUseTranslations = ((key: string) => key) as MockUseTranslations;
+
+    mockUseTranslations.rich = (key, values) => {
+      const p = values?.p;
+      if (typeof p === 'function') {
+        return p(key); // Can return JSX
+      }
+      return key; // fallback
+    };
+
+    return mockUseTranslations;
+  }),
 }));
 
 // Mock the graphql hooks
@@ -30,6 +57,13 @@ jest.mock("@/generated/graphql", () => ({
     Organizational: 'ORGANIZATIONAL',
   },
   usePlanQuery: jest.fn(),
+
+  usePlanFeedbackStatusQuery: jest.fn().mockReturnValue({
+    data: { planFeedbackStatus: 'NONE' },
+    loading: false,
+    error: null,
+    refetch: jest.fn(),
+  }),
 }));
 
 import {
@@ -112,6 +146,7 @@ describe('PlanOverviewPage', () => {
 
     expect(screen.getByRole('heading', { name: 'Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations' })).toBeInTheDocument();
     expect(screen.getByText('National Science Foundation (nsf.gov), Irish Research Council (research.ie)')).toBeInTheDocument();
+    expect(screen.getByText('description - version: v2, published: 01-01-2023')).toBeInTheDocument();
     expect(screen.getByText('members.title')).toBeInTheDocument();
     expect(screen.getByText('members.info')).toBeInTheDocument();
     expect(screen.getByText('members.edit')).toBeInTheDocument();
@@ -927,5 +962,55 @@ describe('PlanOverviewPage', () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
-});
 
+  it("should display 'No feedback' when planFeedbackStatus is NONE", async () => {
+    (usePlanFeedbackStatusQuery as jest.Mock).mockReturnValue({
+      data: { planFeedbackStatus: 'NONE' },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    render(<PlanOverviewPage />);
+
+    const sidebar = screen.getByTestId('sidebar-panel');
+    await waitFor(() => {
+      // translations are mocked, so we check for the translation key
+      expect(within(sidebar).getByText('status.feedback.none')).toBeInTheDocument();
+    });
+  });
+
+  it("should display 'Feedback requested' when planFeedbackStatus is REQUEST", async () => {
+    (usePlanFeedbackStatusQuery as jest.Mock).mockReturnValue({
+      data: { planFeedbackStatus: 'REQUEST' },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    render(<PlanOverviewPage />);
+
+    const sidebar = screen.getByTestId('sidebar-panel');
+    await waitFor(() => {
+      // translations are mocked, so we check for the translation key
+      expect(within(sidebar).getByText('status.feedback.request')).toBeInTheDocument();
+    });
+  });
+
+  it("should display 'Feedback received' when planFeedbackStatus is COMPLETE", async () => {
+    (usePlanFeedbackStatusQuery as jest.Mock).mockReturnValue({
+      data: { planFeedbackStatus: 'COMPLETE' },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    render(<PlanOverviewPage />);
+
+    const sidebar = screen.getByTestId('sidebar-panel');
+    await waitFor(() => {
+      // translations are mocked, so we check for the translation key
+      expect(within(sidebar).getByText('status.feedback.complete')).toBeInTheDocument();
+    });
+  });
+});

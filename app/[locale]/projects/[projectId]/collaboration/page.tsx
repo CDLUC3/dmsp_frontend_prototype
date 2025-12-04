@@ -453,7 +453,7 @@ const ProjectsProjectCollaboration = () => {
                                 <>
                                   <h3>{t('headings.removeCollaborator')}</h3>
                                   <p>{t('removeCollaborator')}</p>
-                                  <div className={styles.deleteConfirmButtons}>
+                                  <div className="button-container">
                                     <Button
                                       className="secondary"
                                       aria-label={t('cancelRemoval', { name: pendingName ?? pending.email })}

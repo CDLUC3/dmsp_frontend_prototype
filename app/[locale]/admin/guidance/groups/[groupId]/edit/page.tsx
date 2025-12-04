@@ -1,82 +1,145 @@
 "use client";
 
-import React, { useState } from "react";
-import { Breadcrumb, Breadcrumbs, Link, Button, Checkbox } from "react-aria-components";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Breadcrumb, Breadcrumbs, Link, Button } from "react-aria-components";
 import { useTranslations } from "next-intl";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+
+// GraphQL
+import {
+  useGuidanceGroupQuery,
+} from '@/generated/graphql';
+import { updateGuidanceGroupAction } from "./actions";
 
 // Components
 import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutWithPanel } from "@/components/Container";
-import { FormInput, CheckboxGroupComponent } from "@/components/Form";
+import { FormInput } from "@/components/Form";
+import ErrorMessages from "@/components/ErrorMessages";
 
+// Utils, other
+import logECS from "@/utils/clientLogger";
 import { routePath } from "@/utils/routes";
+import { extractErrors } from "@/utils/errorHandler";
+import { useToast } from "@/context/ToastContext";
+import Loading from "@/components/Loading";
 import styles from "./guidanceGroupEdit.module.scss";
 
-interface GuidanceGroupSetting {
-  id: string;
+enum GuidanceStatus {
+  PUBLISHED = "Published",
+  DRAFT = "Draft",
+}
+interface GuidanceGroup {
+  guidanceGroupId: number;
   name: string;
   description: string;
-  enabled: boolean;
+  optionalSubset: boolean;
+  bestPractice?: boolean;
+  status?: GuidanceStatus;
 }
 
-interface GuidanceGroup {
-  id: string;
-  title: string;
-  settings: GuidanceGroupSetting[];
-  status: "Published" | "Draft";
-}
+type UpdateGuidanceGroupErrors = {
+  general?: string;
+  affiliationId?: string;
+  bestPractice?: string;
+  name?: string;
+  description?: string;
+};
 
 const GuidanceGroupEditPage: React.FC = () => {
   const params = useParams();
+  const router = useRouter();
+  const toastState = useToast();
+
   const groupId = String(params.groupId);
 
   // For translations
   const t = useTranslations("Guidance");
+  const Global = useTranslations("Global");
 
-  const [guidanceGroup, setGuidanceGroup] = useState<GuidanceGroup>({
-    id: groupId,
-    title: "School of Health Sciences",
-    settings: [
-      {
-        id: "optional-subset",
-        name: "Optional subset",
-        description: "e.g. School/ Department",
-        enabled: false,
-      },
-      {
-        id: "requires-coffee",
-        name: "Requires coffee",
-        description: "for optimal guidance creation",
-        enabled: true,
-      },
-      {
-        id: "includes-emojis",
-        name: "Includes emojis",
-        description: "for enhanced readability",
-        enabled: false,
-      },
-      {
-        id: "has-secret-sauce",
-        name: "Has secret sauce",
-        description: "for that extra sparkle",
-        enabled: false,
-      },
-    ],
-    status: "Draft",
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
+
+  const [guidanceGroup, setGuidanceGroup] = useState<GuidanceGroup>();
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
+
+  // Fetch guidance group data
+  const { data: guidanceGroupData, loading } = useGuidanceGroupQuery({
+    variables: {
+      guidanceGroupId: parseInt(groupId, 10)
+    },
   });
 
+  // Handle update of guidance group
+  const handleUpdate = useCallback(async () => {
+    setErrorMessages([]);
 
-  const handleSave = () => {
-    // TODO: Implement save functionality
-    // console.log("Saving guidance group:", guidanceGroup);
-  };
+    if (guidanceGroup?.guidanceGroupId === undefined) {
+      setErrorMessages(['Guidance Group ID is undefined']);
+      return;
+    }
 
-  const handlePublish = () => {
-    // TODO: Implement publish functionality
-    // console.log("Publishing guidance group:", guidanceGroup);
-  };
+    const response = await updateGuidanceGroupAction({
+      guidanceGroupId: guidanceGroup.guidanceGroupId,
+      name: guidanceGroup.name,
+      description: guidanceGroup.description,
+      optionalSubset: guidanceGroup.optionalSubset,
+      bestPractice: guidanceGroup.bestPractice || false
+    });
 
+    if (response.redirect) {
+      router.push(response.redirect);
+      return;
+    }
+
+    if (!response.success) {
+      setErrorMessages(
+        response.errors?.length ? response.errors : [Global("messaging.somethingWentWrong")]
+      )
+      logECS("error", "publishing Guidance Group", {
+        errors: response.errors,
+        url: { path: routePath("admin.guidance.groups.edit", { groupId: guidanceGroup.guidanceGroupId }) },
+      });
+      return;
+    } else {
+      if (response?.data?.errors) {
+        const errs = extractErrors<UpdateGuidanceGroupErrors>(response?.data?.errors, ["general", "affiliationId", "bestPractice", "name", "description"]);
+
+        if (errs.length > 0) {
+          setErrorMessages(errs);
+          logECS("error", "publishing Guidance Group", {
+            errors: errs,
+            url: { path: routePath("admin.guidance.groups.edit", { groupId: guidanceGroup.guidanceGroupId }) },
+          });
+          return; // Don't proceed to success message if there are errors
+        }
+      }
+      const successMessage = t("messages.success.guidanceGroupUpdated", { groupName: guidanceGroup?.name });
+      toastState.add(successMessage, { type: "success" });
+      router.push(routePath("admin.guidance.groups.index", { groupId: guidanceGroup.guidanceGroupId }));
+    }
+  }, [guidanceGroup, Global, router]);
+
+  useEffect(() => {
+    // Set Guidance Group data in state when fetched
+    if (guidanceGroupData && guidanceGroupData.guidanceGroup) {
+
+      const transformedGuidanceGroup: GuidanceGroup = {
+        guidanceGroupId: Number(guidanceGroupData.guidanceGroup?.id),
+        name: guidanceGroupData.guidanceGroup.name || 'Untitled Guidance Group',
+        description: guidanceGroupData.guidanceGroup.description || '',
+        optionalSubset: guidanceGroupData.guidanceGroup.optionalSubset || false,
+        bestPractice: guidanceGroupData.guidanceGroup.bestPractice || false,
+        status: guidanceGroupData.guidanceGroup.latestPublishedDate ? GuidanceStatus.PUBLISHED : GuidanceStatus.DRAFT
+      }
+
+      setGuidanceGroup(transformedGuidanceGroup);
+    };
+  }, [guidanceGroupData]);
+
+  if (loading) {
+    return <Loading />;
+  }
   return (
     <>
       <PageHeader
@@ -92,13 +155,15 @@ const GuidanceGroupEditPage: React.FC = () => {
               <Link href={routePath("admin.guidance.index")}>{t("breadcrumbs.guidance")}</Link>
             </Breadcrumb>
             <Breadcrumb>
-              <Link href={routePath("admin.guidance.groups.index", { groupId })}>{guidanceGroup.title}</Link>
+              <Link href={routePath("admin.guidance.groups.index", { groupId })}>{guidanceGroup?.name}</Link>
             </Breadcrumb>
             <Breadcrumb>{t("breadcrumbs.editGroup")}</Breadcrumb>
           </Breadcrumbs>
         }
         className="page-guidance-group-edit"
       />
+
+      <ErrorMessages errors={errorMessages} ref={errorRef} />
 
       <LayoutWithPanel>
         <ContentContainer>
@@ -108,73 +173,50 @@ const GuidanceGroupEditPage: React.FC = () => {
               <div className="sectionContent">
                 <div className={styles.formGroup}>
                   <FormInput
-                    name="title"
+                    name="name"
                     label={t("fields.groupName.label")}
-                    value={guidanceGroup.title}
-                    onChange={(e) => setGuidanceGroup({ ...guidanceGroup, title: e.target.value })}
+                    value={guidanceGroup?.name}
+                    isRequired={true}
+                    onChange={(e) => {
+                      if (guidanceGroup) {
+                        setGuidanceGroup({ ...guidanceGroup, name: e.target.value });
+                        setErrorMessages([]);
+                      }
+                    }}
                     placeholder={t("fields.groupName.placeholder")}
+                  />
+
+                  <FormInput
+                    name="description"
+                    id="description"
+                    label={t("fields.groupDescription.label")}
+                    value={guidanceGroup?.description}
+                    onChange={(e) => {
+                      if (guidanceGroup) {
+                        setGuidanceGroup({ ...guidanceGroup, description: e.target.value });
+                        setErrorMessages([]);
+                      }
+                    }}
+                    placeholder={t("fields.groupDescription.placeholder")}
+                    helpMessage={t("fields.groupDescription.helpText")}
                   />
                 </div>
 
                 <div className={styles.formGroup}>
-                  <CheckboxGroupComponent
-                    name="guidanceGroupSettings"
-                    checkboxGroupLabel={t("fields.settings.label")}
-                    value={guidanceGroup.settings.filter((s) => s.enabled).map((s) => s.id)}
-                    onChange={(value) => {
-                      // Update all settings based on the new value array
-                      const updatedSettings = guidanceGroup.settings.map((setting) => ({
-                        ...setting,
-                        enabled: value.includes(setting.id),
-                      }));
-                      setGuidanceGroup({ ...guidanceGroup, settings: updatedSettings });
-                    }}
+                  <Button
+                    type="button"
+                    onPress={handleUpdate}
+                    className="button button--primary"
                   >
-                    <div className="">
-                      {guidanceGroup.settings.map((setting) => (
-                        <Checkbox
-                          key={setting.id}
-                          value={setting.id}
-                        >
-                          <div className="checkbox">
-                            <svg
-                              viewBox="0 0 18 18"
-                              aria-hidden="true"
-                            >
-                              <polyline points="1 9 7 14 15 4" />
-                            </svg>
-                          </div>
-                          <span className="checkbox-label">
-                            {setting.name} ({setting.description})
-                          </span>
-                        </Checkbox>
-                      ))}
-                    </div>
-                  </CheckboxGroupComponent>
-                </div>
+                    {t("actions.saveChanges")}
+                  </Button>
 
-                <div className={styles.formGroup}>
-                  {guidanceGroup.status === "Draft" ? (
-                    <Button
-                      onPress={handlePublish}
-                      className="button button--primary"
-                    >
-                      {t("actions.publish")}
-                    </Button>
-                  ) : (
-                    <Button
-                      onPress={handleSave}
-                      className="button button--primary"
-                    >
-                      {t("actions.saveChanges")}
-                    </Button>
-                  )}
                 </div>
               </div>
             </div>
           </form>
         </ContentContainer>
-      </LayoutWithPanel>
+      </LayoutWithPanel >
     </>
   );
 };

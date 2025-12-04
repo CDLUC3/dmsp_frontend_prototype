@@ -17,7 +17,6 @@ import {
   TooltipTrigger
 } from "react-aria-components";
 import { CalendarDate, DateValue } from "@internationalized/date";
-import DOMPurify from 'dompurify';
 
 import styles from './PlanOverviewQuestionPage.module.scss';
 import { useTranslations } from "next-intl";
@@ -33,6 +32,7 @@ import {
   usePlanQuery,
   usePublishedQuestionQuery,
   useAnswerByVersionedQuestionIdQuery,
+  useGuidanceGroupsQuery
 } from '@/generated/graphql';
 
 // Components
@@ -44,6 +44,7 @@ import { DmpIcon } from "@/components/Icons";
 import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
 import ExpandableContentSection from '@/components/ExpandableContentSection';
 import CommentsDrawer from './CommentsDrawer';
+import SafeHtml from '@/components/SafeHtml';
 
 // Context
 import { useToast } from '@/context/ToastContext';
@@ -186,6 +187,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   // Track whether there are unsaved changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  const [isAutoSaving, setIsAutoSaving] = useState<boolean>(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Localization
   const Global = useTranslations('Global');
@@ -211,6 +216,13 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Run me query to get user's name
   const { data: me } = useMeQuery();
 
+  const { data: guidanceData } = useGuidanceGroupsQuery({
+    variables: {
+      affiliationId: plan?.orgId || null
+    },
+    skip: !me?.me?.affiliation?.uri // Prevent running until the me data exists
+  });
+
   // Get Plan using planId
   const { data: planData, loading: planQueryLoading, error: planQueryError } = usePlanQuery(
     {
@@ -218,6 +230,40 @@ const PlanOverviewQuestionPage: React.FC = () => {
       notifyOnNetworkStatusChange: true
     }
   );
+
+  // Tags assigned to current section
+  const currentSectionTagIds = React.useMemo(() => {
+    const section = planData?.plan?.versionedSections?.find(s => s.versionedSectionId === Number(versionedSectionId));
+    return section?.tags?.map(t => t.id) ?? [];
+  }, [planData, versionedSectionId]);
+
+
+  // Guidance texts that match current section tags (return objects so we have stable keys)
+  interface MatchedGuidance { id: number; guidanceText: string; }
+  const matchedGuidanceTexts = React.useMemo<MatchedGuidance[]>(() => {
+    if (!guidanceData?.guidanceGroups || currentSectionTagIds.length === 0) return [] as MatchedGuidance[];
+    const tagSet = new Set(currentSectionTagIds);
+    const seenIds = new Set<number>();
+    const seenTexts = new Set<string>();
+    const matches: MatchedGuidance[] = [];
+
+    guidanceData.guidanceGroups.forEach(group => {
+      group.guidance?.forEach(g => {
+        // New API: guidance has a single tagId instead of tags array
+        const hasMatch = typeof g?.tagId === 'number' && tagSet.has(g.tagId);
+        if (hasMatch && g.guidanceText && typeof g.id === 'number') {
+          // Skip items without valid numeric IDs and dedupe by id/text
+          if (!seenIds.has(g.id) && !seenTexts.has(g.guidanceText)) {
+            seenIds.add(g.id);
+            seenTexts.add(g.guidanceText);
+            matches.push({ id: g.id, guidanceText: g.guidanceText });
+          }
+        }
+      });
+    });
+
+    return matches;
+  }, [guidanceData, currentSectionTagIds]);
 
   // Get answer data
   const { data: answerData, loading: answerLoading, error: answerError } = useAnswerByVersionedQuestionIdQuery(
@@ -325,17 +371,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   }
 
-
-  const convertToHTML = (htmlString: string | null | undefined) => {
-    if (htmlString) {
-      const sanitizedHTML = DOMPurify.sanitize(htmlString);
-      return (
-        <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
-      );
-    }
-    return null;
-  };
-
   const updateCommentHandler = async (comment: MergedComment) => {
     handleUpdateComment(comment);
     // Keep drawer open so the user can see that they comment changed
@@ -366,6 +401,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       otherAffiliationName: value
     }));
+    setHasUnsavedChanges(true);
   };
 
   // Update the selected radio value when user selects different option
@@ -750,7 +786,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
   };
 
   // Call Server Action updateAnswerAction or addAnswerAction to save answer
-  const addAnswer = async () => {
+  const addAnswer = async (isAutoSave = false) => {
+    if (isAutoSave) {
+      setIsAutoSaving(true);
+    }
+
     const jsonPayload = getAnswerJson();
     // Check is answer already exists. If so, we want to call an update mutation rather than add
     const isUpdate = Boolean(answerData?.answerByVersionedQuestionId);
@@ -785,6 +825,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
             path: routePath('projects.dmp.versionedQuestion.detail', { projectId, dmpId, versionedSectionId, versionedQuestionId })
           }
         });
+      } finally {
+        if (isAutoSave) {
+          setIsAutoSaving(false);
+          setHasUnsavedChanges(false);
+        }
       }
     }
     return {
@@ -804,6 +849,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
 
+    // Clear any pending auto-save
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+
     const result = await addAnswer();
 
     if (!result.success) {
@@ -813,20 +863,41 @@ const PlanOverviewQuestionPage: React.FC = () => {
       }
     } else {
       // On success
+      setIsSubmitting(false);
       if (result.data?.errors && hasFieldLevelErrors(result.data.errors as unknown as MutationErrorsInterface)) {
         const mutationErrors = result.data.errors as unknown as MutationErrorsInterface;
         const extractedErrors = getExtractedErrorValues(mutationErrors);
         // Handle errors as an object with general or field-level errors
-        setErrors(extractedErrors)
+        setErrors(extractedErrors);
 
       } else {
-        setIsSubmitting(false);
         setHasUnsavedChanges(false);
         // Show user a success message and redirect back to the Section page
         showSuccessToast();
         router.push(routePath('projects.dmp.versionedSection', { projectId, dmpId, versionedSectionId }))
-
       }
+    }
+  };
+
+  // Helper function to format the last saved messaging
+  const getLastSavedText = () => {
+
+    if (isAutoSaving) {
+      return `${Global('buttons.saving')}...`;
+    }
+
+    if (!lastSavedAt) {
+      return hasUnsavedChanges ? t('messages.unsavedChanges') : '';
+    }
+
+    const diffInMinutes = Math.floor(Math.abs(currentTime.getTime() - lastSavedAt.getTime()) / (1000 * 60));
+
+    if (diffInMinutes === 0) {
+      return t('messages.savedJustNow');
+    } else if (diffInMinutes === 1) {
+      return t('messages.lastSavedOneMinuteAgo');
+    } else {
+      return t('messages.lastSaves', { minutes: diffInMinutes });
     }
   };
 
@@ -834,6 +905,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   useEffect(() => {
     if (selectedQuestion) {
       const q = selectedQuestion.publishedQuestion;
+
       const cleanedQuestion = {
         ...q,
         required: q?.required ?? undefined // convert null to undefined
@@ -934,8 +1006,37 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   }, [answerData, questionType]);
 
-  // Warn user of unsaved changes if they try to leave the page
+
+  // Auto-save logic
   useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    if (!versionedQuestionId || !versionedSectionId || !question) return;
+
+    // Set a timeout to auto-save after 3 seconds of inactivity
+    autoSaveTimeoutRef.current = setTimeout(async () => {
+      const { success } = await addAnswer(true);
+      if (success) {
+        setLastSavedAt(new Date());
+        setHasUnsavedChanges(false);
+      }
+    }, 3000);
+
+    return () => clearTimeout(autoSaveTimeoutRef.current);
+  }, [formData, versionedQuestionId, versionedSectionId, question, hasUnsavedChanges]);
+
+
+
+  // Auto-save on window blur and before unload
+  useEffect(() => {
+    const handleWindowBlur = () => {
+      if (hasUnsavedChanges && !isAutoSaving) {
+        if (autoSaveTimeoutRef.current) {
+          clearTimeout(autoSaveTimeoutRef.current);
+        }
+        addAnswer(true);
+      }
+    };
+
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
         e.preventDefault();
@@ -943,11 +1044,27 @@ const PlanOverviewQuestionPage: React.FC = () => {
       }
     };
 
+    window.addEventListener('blur', handleWindowBlur);
     window.addEventListener('beforeunload', handleBeforeUnload);
+
     return () => {
+      window.removeEventListener('blur', handleWindowBlur);
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
     };
-  }, [hasUnsavedChanges]);
+  }, [hasUnsavedChanges, isAutoSaving]);
+
+
+  // Set up an interval to update the current time every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60 * 1000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     // Set whether current user can add comments based on their role and plan data
@@ -1073,13 +1190,13 @@ const PlanOverviewQuestionPage: React.FC = () => {
             {question?.requirementText && (
               <section aria-label={PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}>
                 <h3 className={"h4"}>{PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}</h3>
-                {convertToHTML(question?.requirementText)}
+                <SafeHtml html={question?.requirementText} />
               </section>
             )}
 
             {/**Requirements by organization */}
             <section aria-label={"Requirements"}>
-              {/**TODO: need to get this data from backend */}
+              {/**TODO: need to get this data from backend once org requirements are available */}
               <h3 className={"h4"}>Requirements by University of California</h3>
               <p>
                 The university requires data and metadata to be cleared by the ethics
@@ -1101,7 +1218,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                   <div className={styles.requiredWrapper}>
                     <div><strong>{PlanOverview('page.requiredByFunder')}</strong></div>
                     <DialogTrigger>
-                      <Button className={`${styles.popOverButton} react-aria-Button`} aria-label="Required by funder"><div className={styles.infoIcon}><DmpIcon icon="info" /></div></Button>
+                      <Button className="popover-btn" aria-label="Required by funder"><div className="icon info"><DmpIcon icon="info" /></div></Button>
                       <Popover>
                         <OverlayArrow>
                           <svg width={12} height={12} viewBox="0 0 12 12">
@@ -1145,6 +1262,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                         <Button
                           ref={openCommentsButtonRef}
                           className={styles.buttonSmallDisabled}
+                          aria-disabled={true}
                         >
                           {t('buttons.commentWithNumber', { number: mergedComments.length })}
                         </Button>
@@ -1159,27 +1277,41 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
                   </div>
                   {parsed && questionField}
-
+                </div>
+                <div className="lastSaved mt-5"
+                  aria-live="polite"
+                  role="status">
+                  {getLastSavedText()}
                 </div>
               </Card>
 
+
               <section aria-label={"Guidance"} id="guidance">
-                <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { funder: plan?.funder ?? '' })}</h3>
+                {/**Guidance from funder - if funder guidance exists, then display */}
+                {question?.guidanceText && (
+                  <>
+                    <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { name: plan?.funder ?? '' })}</h3>
+                    <SafeHtml html={question?.guidanceText} />
+                  </>
+                )}
 
-                {convertToHTML(question?.guidanceText)}
+                {/**Guidance from organization - if there is org guidance, then display */}
+                {matchedGuidanceTexts.length > 0 && (
+                  <>
+                    <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { name: planData?.plan?.versionedTemplate?.owner?.displayName ?? '' })}</h3>
+                    {/** Additional guidance matched by section tags */}
+                    {matchedGuidanceTexts.length > 0 && (
+                      <div className={styles.matchedGuidanceList} data-testid="matched-guidance">
+                        {matchedGuidanceTexts.map(g => (
+                          <React.Fragment key={g.id}>
+                            <SafeHtml html={g.guidanceText} />
+                          </React.Fragment>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
 
-
-                <h3 className={"h4"}>Guidance by University of California</h3>
-                <p>
-                  This is the most detailed section of the data management plan.
-                  Describe the categories of data being collected and how they tie
-                  into the data associated with the methods used to collect that
-                  data.
-                </p>
-                <p>
-                  Expect this section to be the most detailed section, taking up a
-                  large portion of your data management plan document.
-                </p>
               </section>
               <div className={styles.modalAction}>
                 <div>
@@ -1289,7 +1421,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
               <h3>{question?.questionText}</h3>
               <h4 className={`${styles.deEmphasize} h5`}>{PlanOverview('page.funderSampleText', { funder: plan?.funderName ?? '' })}</h4>
               <div className={styles.sampleText}>
-                {convertToHTML(question?.sampleText)}
+                <SafeHtml html={question?.sampleText} />
               </div>
               <div className="">
                 <Button className="small" onPress={() => handleUseAnswer(question?.sampleText)}>{PlanOverview('buttons.useAnswer')}</Button>

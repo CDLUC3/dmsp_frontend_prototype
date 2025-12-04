@@ -176,29 +176,6 @@
 /* End For link to jump down to Guidance section*/
 
 
-/* 'Required by funder' info icon tooltip*/
-.popOverButton {
-  display: inline-flex;
-  align-items: center;
-  background: none;
-  padding: 0 0 0 0.25rem;
-  border: none;
-  vertical-align: middle;
-  cursor: pointer;
-
-  &:hover,
-  &:hover:not(:disabled) {
-    background: none;
-  }
-}
-
-.infoIcon svg {
-  width: 18px;
-  height: 18px;
-  fill: var(--brand-primary);
-  vertical-align: middle;
-}
-
 .requiredWrapper {
   display: inline-flex;
   white-space: nowrap;

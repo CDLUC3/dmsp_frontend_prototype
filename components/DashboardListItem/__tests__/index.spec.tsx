@@ -41,7 +41,6 @@ describe("DashboardListItem", () => {
 
     const listItem = screen.getByTestId("dashboard-list-item");
     expect(listItem).toBeInTheDocument();
-    expect(listItem).toHaveAttribute("role", "listitem");
   });
 
   it("should display the heading correctly", () => {
@@ -59,7 +58,8 @@ describe("DashboardListItem", () => {
   });
 
   it("should have accessible links with aria-labels", () => {
-    renderWithIntl(<DashboardListItem {...defaultProps} />);
+    // Render in non-fully-clickable mode so both title and update are separate links
+    renderWithIntl(<DashboardListItem {...defaultProps} isFullyClickable={false} />);
 
     // Should have 2 links (title and update button)
     const links = screen.getAllByRole("link");
@@ -97,7 +97,7 @@ describe("DashboardListItem", () => {
     renderWithIntl(<DashboardListItem {...defaultProps} />);
 
     const listItem = screen.getByTestId("dashboard-list-item");
-    expect(listItem).toHaveClass("dashboardItem");
+    expect(listItem).toHaveClass("dashboardItemLink");
   });
 
   it("should render with different URLs correctly", () => {

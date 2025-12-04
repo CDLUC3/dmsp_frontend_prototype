@@ -1,5 +1,3 @@
-import type { Metadata } from "next";
-import Script from "next/script";
 import { Poppins } from "next/font/google";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
@@ -26,14 +24,6 @@ const font_sans_serif = Poppins({
   variable: '--font-sans-serif',
 });
 
-export const metadata: Metadata = {
-  title: "DMPTool",
-  description: "Best practice made easier. With a free, community- supported service that makes it easier to create machine-actionable data management and sharing plans(DMSPs) that meet funder requirements and follow open science best practice.",
-  icons: {
-    icon: '/favicon.ico',
-  }
-};
-
 export default async function LocaleLayout({
   children,
   params,
@@ -56,13 +46,7 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} className={font_sans_serif.variable}>
-      <head>
-        <Script
-          src="/tinymce/tinymce.min.js"
-          referrerPolicy="origin"
-          strategy="beforeInteractive"
-        />
-      </head>
+      <head></head>
       <body className={font_sans_serif.className}>
         <a href="#mainContent" className="skip-nav">Skip to main content</a>
         <NextIntlClientProvider messages={messages}>

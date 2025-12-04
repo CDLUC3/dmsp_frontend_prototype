@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 
 import {
   useSectionQuery,
-  Section,
   Question,
 } from '@/generated/graphql';
 import { useToast } from '@/context/ToastContext';
@@ -216,7 +215,7 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
   if (loading) return <div>Loading section...</div>;
   if (error || !data?.section) return <div>{t('messages.errors.failedToLoadSection')}</div>;
 
-  const section: Section = data.section;
+  const section = data.section!;
 
   return (
     <div role="list" aria-label="Questions list" style={{ marginBottom: '40px' }}>

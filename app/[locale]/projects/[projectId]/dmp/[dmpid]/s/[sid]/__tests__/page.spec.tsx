@@ -89,7 +89,8 @@ const versionedSectionMock = {
   tags: {
     id: 1,
     description: 'one',
-    name: 'one'
+    name: 'one',
+    slug: 'one'
   },
   versionedQuestions: {
     errors: {
@@ -131,7 +132,10 @@ const planMock = {
     name: 'Test Template',
     owner: {
       uri: 'https://example.com/owner',
-    }
+      displayName: 'Test Owner',
+    },
+    version: 1,
+    created: '2024-01-01',
   },
   fundings: {
     id: 1,
@@ -168,13 +172,16 @@ const planMock = {
       title: 'Data and Metadata Formats',
       totalQuestions: 3,
       answeredQuestions: 2,
-      displayOrder: 1
+      displayOrder: 1,
+      tags: [
+        { id: 1, name: 'Data description', slug: 'data-description', description: 'Data description tag' },
+        { id: 2, name: 'Data organization & documentation', slug: 'data-organization-documentation', description: 'Data organization & documentation tag' }
+      ]
     },
   ],
   created: '2024-01-01',
   createdById: 1,
   modified: '2024-01-01',
-  modifiedById: 1,
   dmpId: 'doi-456',
   registered: true,
   feedback: {
@@ -327,7 +334,8 @@ describe('PlanOverviewSectionPage', () => {
     expect(screen.getByTestId('mock-page-header')).toBeInTheDocument();
 
     // Check that requirements section is rendered
-    expect(screen.getByText('Requirements by National Science Foundation')).toBeInTheDocument();
+    expect(screen.getByText('headings.requirementsBy')).toBeInTheDocument();
+    expect(screen.getByText('Requirements text for the section')).toBeInTheDocument();
     expect(screen.getByText('Requirements by University of California')).toBeInTheDocument();
 
     // Check for best practice content in sidebar
@@ -357,7 +365,7 @@ describe('PlanOverviewSectionPage', () => {
     expect(screen.queryByText('What types of data will be produced during your project?')).not.toBeInTheDocument();
 
     // Check that other content is still rendered
-    expect(screen.getByText('Requirements by National Science Foundation')).toBeInTheDocument();
+    expect(screen.getByText('headings.requirementsBy')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: 'bestPractice' })).toBeInTheDocument();
   });
 

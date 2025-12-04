@@ -29,6 +29,7 @@ query FindCollaborator($term: String!, $options: PaginationOptions) {
       givenName
       email
       affiliationId
+      affiliationRORId
       affiliationURL
       orcid
       surName

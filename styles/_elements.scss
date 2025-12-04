@@ -85,7 +85,11 @@
   background: var(--background-color);
   color: var(--text-color);
   outline: none;
-  max-width: 250px;
+  max-width: fit-content; // On mobile span width of content
+
+    @include r.device(sm) { // On desktop, limit to 300px
+      max-width: 300px;
+    }
 
   .react-aria-OverlayArrow svg {
     display: block;
@@ -633,6 +637,7 @@
       "input button"
       "help help";
     align-items: end;
+    row-gap: 0; // No added gap between the rows to maintain consistent spacing with form fields
     /* Aligns input and button to bottom */
   }
 
@@ -655,7 +660,6 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
-
 
 // This is used to contain the content of a section
 .sectionContainer {

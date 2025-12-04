@@ -51,9 +51,6 @@ query Project($projectId: Int!) {
       }
       email
     }
-    outputs {
-      title
-    }
     researchDomain {
       id
       parentResearchDomainId

@@ -3,26 +3,32 @@
 import React, { useEffect, useState } from 'react';
 import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
 import { useParams } from 'next/navigation';
-import PageHeader from "@/components/PageHeader";
-import styles from './PlanOverviewSectionPage.module.scss';
 import { useTranslations } from "next-intl";
 import Image from 'next/image';
-import {
-  ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel
-} from "@/components/Container";
+
 import {
   usePublishedQuestionsQuery,
   usePublishedSectionQuery,
   usePlanQuery,
 } from '@/generated/graphql';
-import { stripHtml } from '@/utils/general';
-import { routePath } from '@/utils/routes';
+
+
+// Components
+import {
+  ContentContainer,
+  LayoutWithPanel,
+  SidebarPanel
+} from "@/components/Container";
 import { DmpIcon } from '@/components/Icons';
 import ErrorMessages from '@/components/ErrorMessages';
 import ExpandableContentSection from '@/components/ExpandableContentSection';
+import PageHeader from "@/components/PageHeader";
+import SafeHtml from '@/components/SafeHtml';
 
+// Other
+import { stripHtml } from '@/utils/general';
+import { routePath } from '@/utils/routes';
+import styles from './PlanOverviewSectionPage.module.scss';
 interface VersionedQuestion {
   id: string;
   title: string;
@@ -200,16 +206,12 @@ const PlanOverviewSectionPage: React.FC = () => {
 
             <div className="container">
               <section aria-label={"Requirements"}>
-                <h4>Requirements by {plan.funder_name}</h4>
-                <p>
-                  (DUMMY DATA) The Arctic Data Center requires when submitting to the Center,
-                  include methods to create these types of data.
-                </p>
-                <p>
-                  If using proprietary formats like Excel or MATLAB, plan to
-                  convert them to open-source formats before submission. If
-                  conversion isn&apos;t possible, explain why
-                </p>
+                {sectionData?.publishedSection?.requirements && (
+                  <>
+                    <h4>{t('headings.requirementsBy', { funder: plan.funder_name })}</h4>
+                    <SafeHtml html={sectionData?.publishedSection?.requirements} />
+                  </>
+                )}
 
                 <h4>Requirements by University of California</h4>
                 <p>

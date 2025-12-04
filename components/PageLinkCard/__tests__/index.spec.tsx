@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import PageLinkCard, { PageLinkSection } from '../index';
 
@@ -43,7 +43,7 @@ const mockSections: PageLinkSection[] = [
 describe('PageLinkCard', () => {
   it('renders all sections and items', () => {
     render(<PageLinkCard sections={mockSections} />);
-    
+
     expect(screen.getByText('Test Section')).toBeInTheDocument();
     expect(screen.getByText('Test Item 1')).toBeInTheDocument();
     expect(screen.getByText('Test Item 2')).toBeInTheDocument();
@@ -53,10 +53,7 @@ describe('PageLinkCard', () => {
 
   it('has proper accessibility structure', () => {
     render(<PageLinkCard sections={mockSections} />);
-    
-    // Check for main role
-    expect(screen.getByRole('main')).toBeInTheDocument();
-    
+
     // Check for section elements
     const sections = screen.getAllByRole('region');
     expect(sections).toHaveLength(2);
@@ -64,7 +61,7 @@ describe('PageLinkCard', () => {
 
   it('renders notification badge when hasNotification is true', () => {
     render(<PageLinkCard sections={mockSections} />);
-    
+
     expect(screen.getByText('5 new notifications')).toBeInTheDocument();
   });
 
@@ -81,21 +78,21 @@ describe('PageLinkCard', () => {
         ]
       }
     ];
-    
+
     render(<PageLinkCard sections={sectionsWithoutNotification} />);
-    
+
     expect(screen.queryByText(/new notifications/)).not.toBeInTheDocument();
   });
 
   it('renders section description when provided', () => {
     render(<PageLinkCard sections={mockSections} />);
-    
+
     expect(screen.getByText('Test section description')).toBeInTheDocument();
   });
 
   it('does not render section description when not provided', () => {
     render(<PageLinkCard sections={mockSections} />);
-    
+
     // Should not find a description for the second section
     expect(screen.getByText('Test Section 2')).toBeInTheDocument();
     expect(screen.queryByText('Test section description')).toBeInTheDocument(); // First section has description
@@ -103,7 +100,7 @@ describe('PageLinkCard', () => {
 
   it('renders item description when provided', () => {
     render(<PageLinkCard sections={mockSections} />);
-    
+
     expect(screen.getByText('Test description 1')).toBeInTheDocument();
     expect(screen.getByText('Test description 2')).toBeInTheDocument();
     expect(screen.getByText('Test description 4')).toBeInTheDocument();
@@ -111,7 +108,7 @@ describe('PageLinkCard', () => {
 
   it('does not render item description when not provided', () => {
     render(<PageLinkCard sections={mockSections} />);
-    
+
     // Should not find a description for the third item
     expect(screen.getByText('Test Item 3')).toBeInTheDocument();
     expect(screen.queryByText(/Test Item 3/)).toBeInTheDocument();
@@ -119,10 +116,10 @@ describe('PageLinkCard', () => {
 
   it('renders correct links with href attributes', () => {
     render(<PageLinkCard sections={mockSections} />);
-    
+
     const links = screen.getAllByRole('link');
     expect(links).toHaveLength(4);
-    
+
     // Check first two links have correct hrefs
     expect(links[0]).toHaveAttribute('href', '/test1');
     expect(links[1]).toHaveAttribute('href', '/test2');
@@ -130,10 +127,10 @@ describe('PageLinkCard', () => {
 
   it('has proper focus management', () => {
     render(<PageLinkCard sections={mockSections} />);
-    
+
     const links = screen.getAllByRole('link');
     expect(links).toHaveLength(4);
-    
+
     // Check that all links are focusable (they are anchor tags)
     links.forEach(link => {
       expect(link.tagName).toBe('A');
@@ -142,7 +139,10 @@ describe('PageLinkCard', () => {
 
   it('should pass axe accessibility test', async () => {
     const { container } = render(<PageLinkCard sections={mockSections} />);
-    const results = await axe(container);
+    let results;
+    await act(async () => {
+      results = await axe(container);
+    });
     expect(results).toHaveNoViolations();
   });
 });

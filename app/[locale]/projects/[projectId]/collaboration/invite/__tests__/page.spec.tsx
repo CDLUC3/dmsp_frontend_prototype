@@ -14,8 +14,6 @@ jest.mock('../actions/index', () => ({
   addProjectMemberAction: jest.fn(),
 }));
 
-//import { mockUserData } from "../__mocks__/mockuserData.json";
-
 jest.mock("next/headers", () => ({
   cookies: jest.fn(),
 }));

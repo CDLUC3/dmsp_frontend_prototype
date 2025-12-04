@@ -43,8 +43,8 @@ const TypeAheadWithOther = ({
   className,
   suggestions,
   onSearch,
-  isRequired=false,
-  isRequiredVisualOnly=false,
+  isRequired = false,
+  isRequiredVisualOnly = false,
   otherText = "Other",
 }: TypeAheadInputProps) => {
 
@@ -175,6 +175,11 @@ const TypeAheadWithOther = ({
     }
   }, [inputValue]);
 
+  // Sync inputValue with the value prop when it changes
+  useEffect(() => {
+    setInputValue(value ?? "");
+  }, [value]);
+
   useEffect(() => {
     // Function to handle click outside the input and list
     const handleClickOutside = (e: MouseEvent) => {
@@ -206,7 +211,7 @@ const TypeAheadWithOther = ({
       >
         <Label>
           {label}
-          {showRequired && <span className="is-required" aria-hidden="true">({Global('required')})</span>}
+          {showRequired && <span className="is-required" aria-hidden="true">{' '}({Global('required')})</span>}
         </Label>
         <Input
           name={fieldName}

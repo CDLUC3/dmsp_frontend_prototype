@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useReducer, useRef } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -16,7 +16,13 @@ import {
   Radio,
   Text,
 } from "react-aria-components";
-import { PlanSectionProgress, PlanStatus, PlanVisibility, usePlanQuery } from "@/generated/graphql";
+import {
+  PlanSectionProgress,
+  PlanStatus,
+  PlanVisibility,
+  usePlanQuery,
+  usePlanFeedbackStatusQuery,
+} from "@/generated/graphql";
 
 //Components
 import { ContentContainer, LayoutWithPanel, SidebarPanel } from "@/components/Container";
@@ -31,7 +37,10 @@ import { toTitleCase } from "@/utils/general";
 import { extractErrors } from "@/utils/errorHandler";
 import { useToast } from "@/context/ToastContext";
 import { publishPlanAction, updatePlanStatusAction, updatePlanTitleAction } from "./actions";
-import { ListItemsInterface, PlanMember, PlanOverviewInterface } from "@/app/types";
+import {
+  PlanMember,
+  PlanOverviewInterface,
+} from "@/app/types";
 import { DOI_REGEX } from "@/lib/constants";
 import styles from "./PlanOverviewPage.module.scss";
 
@@ -60,73 +69,9 @@ type PublishPlanErrors = {
   status?: string;
 };
 
-const initialState: {
-  isModalOpen: boolean;
-  checkListItems: ListItemsInterface[];
-  errorMessages: string[];
-  planVisibility: PlanVisibility;
-  planStatus: PlanStatus | null;
-  step: number;
-  isEditingPlanStatus: boolean;
-  planData: PlanOverviewInterface;
-} = {
-  isModalOpen: false,
-  checkListItems: [] as ListItemsInterface[],
-  errorMessages: [] as string[],
-  planVisibility: PlanVisibility.Private,
-  planStatus: null,
-  step: 1,
-  isEditingPlanStatus: false,
-  planData: {
-    id: null,
-    dmpId: "",
-    registered: "",
-    title: "",
-    status: "",
-    funderName: "",
-    primaryContact: "",
-    members: [] as PlanMember[],
-    versionedSections: [] as PlanSectionProgress[],
-    percentageAnswered: 0,
-  },
-};
 
-type Action =
-  | { type: "SET_IS_MODAL_OPEN"; payload: boolean }
-  | { type: "SET_CHECKLIST_ITEMS"; payload: ListItemsInterface[] }
-  | { type: "SET_ERROR_MESSAGES"; payload: string[] }
-  | { type: "SET_PLAN_VISIBILITY"; payload: PlanVisibility }
-  | { type: "SET_PLAN_STATUS"; payload: PlanStatus | null }
-  | { type: "SET_STEP"; payload: number }
-  | { type: "SET_IS_EDITING_PLAN_STATUS"; payload: boolean }
-  | { type: "SET_PLAN_DATA"; payload: PlanOverviewInterface };
 
-type State = typeof initialState;
-
-const reducer = (state: State, action: Action): State => {
-  switch (action.type) {
-    case "SET_IS_MODAL_OPEN":
-      return { ...state, isModalOpen: action.payload };
-    case "SET_CHECKLIST_ITEMS":
-      return { ...state, checkListItems: action.payload };
-    case "SET_ERROR_MESSAGES":
-      return { ...state, errorMessages: action.payload };
-    case "SET_PLAN_VISIBILITY":
-      return { ...state, planVisibility: action.payload };
-    case "SET_PLAN_STATUS":
-      return { ...state, planStatus: action.payload };
-    case "SET_STEP":
-      return { ...state, step: action.payload };
-    case "SET_IS_EDITING_PLAN_STATUS":
-      return { ...state, isEditingPlanStatus: action.payload };
-    case "SET_PLAN_DATA":
-      return { ...state, planData: action.payload };
-    default:
-      return state;
-  }
-};
-
-// Extract the dmpId from the DOI URL
+// Extract the dmpId from the DOI URL - moved outside component to prevent recreation
 function extractDOI(value: string): string {
   if (!value) return "";
   // decode percent-encoding if someone passed a URL-encoded DOI
@@ -135,9 +80,9 @@ function extractDOI(value: string): string {
   return match ? match[1] : "";
 }
 
-// Construct the narrative URL based on environment
+// Construct the narrative URL based on environment - moved outside component to prevent recreation
 // When running narrative generator locally, it uses port 3030, so we need a separate domain for that
-const getNarrativeUrl = (dmpId: string) => {
+const getNarrativeUrl = (dmpId: string): string => {
   let narrativeUrl = "";
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const localBaseUrl = process.env.NEXT_PUBLIC_NARRATIVE_ENDPOINT || "http://localhost:3030";
@@ -148,8 +93,62 @@ const getNarrativeUrl = (dmpId: string) => {
   return `${narrativeUrl}/dmps/${dmpId}/narrative.html?includeCoverSheet=false&includeResearchOutputs=false&includeRelatedWorks=false`;
 };
 
+// Format date utility - moved outside component to prevent recreation
+const formatPublishDate = (date: string | null, formatter: ReturnType<typeof useFormatter>): string | null => {
+  if (!date) return null;
+
+  let dateObj: Date;
+
+  // Check if date is a timestamp (numeric string) or ISO string
+  if (/^\d+$/.test(date)) {
+    // It's a timestamp, convert to number
+    dateObj = new Date(Number(date));
+  } else {
+    // It's likely an ISO string or other format
+    dateObj = new Date(date);
+  }
+
+  // Check if the date is valid
+  if (isNaN(dateObj.getTime())) {
+    return date; // Return original if invalid
+  }
+
+  const formattedDate = formatter.dateTime(dateObj, {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  // Replace slashes with hyphens
+  return formattedDate.replace(/\//g, "-");
+};
+
 const PlanOverviewPage: React.FC = () => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const formatter = useFormatter();
+  // State hooks
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
+  const [planVisibility, setPlanVisibility] = useState<PlanVisibility>(PlanVisibility.Private);
+  const [planStatus, setPlanStatus] = useState<PlanStatus | null>(null);
+  const [step, setStep] = useState(1);
+  const [isEditingPlanStatus, setIsEditingPlanStatus] = useState(false);
+  const [planData, setPlanData] = useState<PlanOverviewInterface>({
+    id: null,
+    dmpId: "",
+    registered: "",
+    title: "",
+    status: "",
+    funderName: "",
+    primaryContact: "",
+    members: [] as PlanMember[],
+    versionedSections: [] as PlanSectionProgress[],
+    affiliationName: "",
+    sourceTemplate: "",
+    templateVersion: "",
+    templatePublished: "",
+    percentageAnswered: 0,
+  });
 
   // Get projectId and planId params
   const params = useParams();
@@ -177,47 +176,56 @@ const PlanOverviewPage: React.FC = () => {
     notifyOnNetworkStatusChange: true,
   });
 
-  // Set URLs
-  const FUNDINGS_URL = routePath("projects.dmp.fundings", { projectId, dmpId: planId });
-  const MEMBERS_URL = routePath("projects.dmp.members", { projectId, dmpId: planId });
-  const DOWNLOAD_URL = routePath("projects.dmp.download", { projectId, dmpId: planId });
-  const FEEDBACK_URL = routePath("projects.dmp.feedback", { projectId, dmpId: planId });
-  const CHANGE_PRIMARY_CONTACT_URL = routePath("projects.dmp.members", { projectId, dmpId: planId });
-  const RELATED_WORKS_URL = routePath("projects.dmp.relatedWorks", { projectId, dmpId: planId });
+  const {
+    data: feedbackData,
+    loading: feedbackLoading,
+    error: feedbackError,
+  } = usePlanFeedbackStatusQuery({
+    variables: { planId: Number(planId) },
+    skip: isNaN(planId),
+  });
+
+  useEffect(() => {
+    if (feedbackError) {
+      setErrorMessages(prev => [...prev, feedbackError.message]);
+    }
+  }, [feedbackError]);
+
+  // Memoize URLs to prevent unnecessary recalculations
+  const urls = useMemo(() => ({
+    FUNDINGS_URL: routePath("projects.dmp.fundings", { projectId, dmpId: planId }),
+    MEMBERS_URL: routePath("projects.dmp.members", { projectId, dmpId: planId }),
+    DOWNLOAD_URL: routePath("projects.dmp.download", { projectId, dmpId: planId }),
+    FEEDBACK_URL: routePath("projects.dmp.feedback", { projectId, dmpId: planId }),
+    CHANGE_PRIMARY_CONTACT_URL: routePath("projects.dmp.members", { projectId, dmpId: planId }),
+    RELATED_WORKS_URL: routePath("projects.dmp.relatedWorks", { projectId, dmpId: planId }),
+  }), [projectId, planId]);
+
+  const { FUNDINGS_URL, MEMBERS_URL, DOWNLOAD_URL, FEEDBACK_URL, CHANGE_PRIMARY_CONTACT_URL, RELATED_WORKS_URL } = urls;
 
   //TODO: Get related works count from backend
   const relatedWorksCount = 3;
 
+  // Format the publish date - no memoization needed since date doesn't change after load
+  const formattedPublishDate = formatPublishDate(planData?.templatePublished ?? null, formatter);
+
   // Handle changes from RadioGroup
   const handleRadioChange = (value: string) => {
     const selection = value.toUpperCase();
-
-    dispatch({
-      type: "SET_PLAN_VISIBILITY",
-      payload: selection as PlanVisibility,
-    });
+    setPlanVisibility(selection as PlanVisibility);
   };
 
   const handlePlanStatusChange = () => {
-    dispatch({
-      type: "SET_IS_EDITING_PLAN_STATUS",
-      payload: true,
-    });
+    setIsEditingPlanStatus(true);
   };
 
   const handleDialogCloseBtn = () => {
-    dispatch({
-      type: "SET_IS_MODAL_OPEN",
-      payload: false,
-    });
-    dispatch({
-      type: "SET_STEP",
-      payload: 1,
-    });
+    setIsModalOpen(false);
+    setStep(1);
   };
 
   // Call Server Action updatePlanStatusAction to run the updatePlanStatusMutation
-  const updateStatus = async (status: PlanStatus) => {
+  const updateStatus = useCallback(async (status: PlanStatus) => {
     // Don't need a try-catch block here, as the error is handled in the action
     const response = await updatePlanStatusAction({
       planId: Number(planId),
@@ -233,17 +241,14 @@ const PlanOverviewPage: React.FC = () => {
       errors: response.errors,
       data: response.data,
     };
-  };
+  }, [planId, router]);
 
-  const handlePlanStatusForm = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handlePlanStatusForm = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    dispatch({
-      type: "SET_IS_EDITING_PLAN_STATUS",
-      payload: false,
-    });
+    setIsEditingPlanStatus(false);
 
-    const status = state.planStatus ?? (state.planData.status as PlanStatus);
+    const status = planStatus ?? (planData.status as PlanStatus);
 
     const result = await updateStatus(status);
 
@@ -253,43 +258,31 @@ const PlanOverviewPage: React.FC = () => {
       //Check if errors is an array or an object
       if (Array.isArray(errors)) {
         //Handle errors as an array
-        dispatch({
-          type: "SET_ERROR_MESSAGES",
-          payload: errors,
-        });
+        setErrorMessages(errors);
       }
     } else {
       if (result?.data?.errors) {
         const errs = extractErrors<UpdateStatusErrors>(result?.data?.errors, ["general", "status"]);
         if (errs.length > 0) {
-          dispatch({
-            type: "SET_ERROR_MESSAGES",
-            payload: errs,
-          });
+          setErrorMessages(errs);
         } else {
           // Optimistically update status so UI reflects it smoothly
-          dispatch({
-            type: "SET_PLAN_STATUS",
-            payload: status,
-          });
+          setPlanStatus(status);
 
           // ALSO update the planData.status so the display paragraph updates
-          dispatch({
-            type: "SET_PLAN_DATA",
-            payload: {
-              ...state.planData,
-              status,
-            },
-          });
+          setPlanData(prev => ({
+            ...prev,
+            status,
+          }));
           const successMessage = t("messages.success.successfullyUpdatedStatus");
           toastState.add(successMessage, { type: "success" });
         }
       }
     }
-  };
+  }, [planStatus, planData.status, updateStatus, t, toastState]);
 
   // Call Server Action publishPlanAction to run the publishPlanMutation
-  const publishPlan = async (visibility: PlanVisibility) => {
+  const publishPlan = useCallback(async (visibility: PlanVisibility) => {
     const response = await publishPlanAction({
       planId: Number(planId),
       visibility,
@@ -304,22 +297,16 @@ const PlanOverviewPage: React.FC = () => {
       errors: response.errors,
       data: response.data,
     };
-  };
+  }, [planId, router]);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     // Close modal
-    dispatch({
-      type: "SET_IS_MODAL_OPEN",
-      payload: false,
-    });
+    setIsModalOpen(false);
 
     // Set step back to Step 1
-    dispatch({
-      type: "SET_STEP",
-      payload: 1,
-    });
+    setStep(1);
 
     const form = event.target as HTMLFormElement;
     const formData = new FormData(form);
@@ -335,19 +322,13 @@ const PlanOverviewPage: React.FC = () => {
       //Check if errors is an array or an object
       if (Array.isArray(errors)) {
         //Handle errors as an array
-        dispatch({
-          type: "SET_ERROR_MESSAGES",
-          payload: errors.length > 0 ? errors : [Global("messaging.somethingWentWrong")],
-        });
+        setErrorMessages(errors.length > 0 ? errors : [Global("messaging.somethingWentWrong")]);
       }
     } else {
       if (result?.data?.errors) {
         const errs = extractErrors<PublishPlanErrors>(result?.data?.errors, ["general", "visibility", "status"]);
         if (errs.length > 0) {
-          dispatch({
-            type: "SET_ERROR_MESSAGES",
-            payload: errs,
-          });
+          setErrorMessages(errs);
         } else {
           const successMessage = t("messages.success.successfullyPublished");
           toastState.add(successMessage, { type: "success" });
@@ -356,10 +337,10 @@ const PlanOverviewPage: React.FC = () => {
       //Need to refetch plan data to refresh the info that was changed
       await refetch();
     }
-  };
+  }, [publishPlan, Global, t, toastState, refetch]);
 
   // Call Server Action updatePlanTitleAction to run the updatePlanTitleMutation
-  const updateTitle = async (title: string) => {
+  const updateTitle = useCallback(async (title: string) => {
     // Don't need a try-catch block here, as the error is handled in the action
     const response = await updatePlanTitleAction({
       planId: Number(planId),
@@ -375,181 +356,174 @@ const PlanOverviewPage: React.FC = () => {
       errors: response.errors,
       data: response.data,
     };
-  };
+  }, [planId, router]);
 
-  const handleTitleChange = async (newTitle: string) => {
+  const handleTitleChange = useCallback(async (newTitle: string) => {
     const result = await updateTitle(newTitle);
 
     if (!result.success) {
-      dispatch({
-        type: "SET_ERROR_MESSAGES",
-        payload: [...state.errorMessages, t("messages.errors.updateTitleError")],
-      });
+      setErrorMessages(prev => [...prev, t("messages.errors.updateTitleError")]);
     } else {
       if (result.data?.errors) {
         // Handle errors as an object with general or field-level errors
         const errs = extractErrors<UpdateTitleErrors>(result?.data?.errors, ["general", "title"]);
         if (errs.length > 0) {
-          dispatch({
-            type: "SET_ERROR_MESSAGES",
-            payload: errs,
-          });
+          setErrorMessages(errs);
           return;
         }
 
         // Optimistically update state so UI reflects it smoothly
-        dispatch({
-          type: "SET_PLAN_DATA",
-          payload: {
-            ...state.planData,
-            title: newTitle,
-          },
-        });
+        setPlanData(prev => ({
+          ...prev,
+          title: newTitle,
+        }));
 
         const successMessage = t("messages.success.successfullyUpdatedTitle");
         toastState.add(successMessage, { type: "success" });
       }
     }
-  };
+  }, [updateTitle, t, toastState]);
 
   useEffect(() => {
     // When data from backend changes, set project data in state
     if (data && data.plan) {
-      dispatch({
-        type: "SET_PLAN_DATA",
-        payload: {
-          id: Number(data?.plan.id) ?? null,
-          dmpId: extractDOI(data?.plan.dmpId ?? ""),
-          registered: data?.plan.registered ?? "",
-          title: data?.plan?.title ?? "",
-          status: data?.plan?.status ?? "",
-          funderName:
-            data?.plan?.fundings
-              ?.map((f) => f?.projectFunding?.affiliation?.displayName)
-              .filter(Boolean)
-              .join(", ") ?? "",
-          primaryContact:
-            data.plan.members
-              ?.filter((member) => member?.isPrimaryContact === true)
-              ?.map((member) => member?.projectMember?.givenName + " " + member?.projectMember?.surName)
-              ?.join(", ") ?? "",
-          members:
-            data.plan.members
-              ?.filter((member) => member !== null) // Filter out null
-              .map((member) => ({
-                fullname: `${member?.projectMember?.givenName} ${member?.projectMember?.surName}`,
-                email: member?.projectMember?.email ?? "",
-                orcid: member?.projectMember?.orcid ?? "",
-                isPrimaryContact: member?.isPrimaryContact ?? false,
-                role: (member?.projectMember?.memberRoles ?? []).map((role) => role.label),
-              })) ?? [],
-          versionedSections: data?.plan?.versionedSections ?? [],
-          percentageAnswered: data?.plan?.progress?.percentComplete ?? 0,
-        },
+      setPlanData({
+        id: Number(data?.plan.id) ?? null,
+        dmpId: extractDOI(data?.plan.dmpId ?? ""),
+        registered: data?.plan.registered ?? "",
+        title: data?.plan?.title ?? "",
+        status: data?.plan?.status ?? "",
+        funderName:
+          data?.plan?.fundings
+            ?.map((f) => f?.projectFunding?.affiliation?.displayName)
+            .filter(Boolean)
+            .join(", ") ?? "",
+        primaryContact:
+          data.plan.members
+            ?.filter((member) => member?.isPrimaryContact === true)
+            ?.map((member) => member?.projectMember?.givenName + " " + member?.projectMember?.surName)
+            ?.join(", ") ?? "",
+        members:
+          data.plan.members
+            ?.filter((member) => member !== null) // Filter out null
+            .map((member) => ({
+              fullname: `${member?.projectMember?.givenName} ${member?.projectMember?.surName}`,
+              email: member?.projectMember?.email ?? "",
+              orcid: member?.projectMember?.orcid ?? "",
+              isPrimaryContact: member?.isPrimaryContact ?? false,
+              role: (member?.projectMember?.memberRoles ?? []).map((role) => role.label),
+            })) ?? [],
+        versionedSections: data?.plan?.versionedSections ?? [],
+        sourceTemplate: data?.plan?.versionedTemplate?.template?.name ?? "",
+        affiliationName: data?.plan?.versionedTemplate?.owner?.displayName ?? "",
+        templateVersion: data?.plan?.versionedTemplate?.version ?? "",
+        templatePublished: data?.plan?.versionedTemplate?.created ?? "",
+        percentageAnswered: data?.plan?.progress?.percentComplete ?? 0,
       });
-      dispatch({
-        type: "SET_PLAN_VISIBILITY",
-        payload: data.plan.visibility as PlanVisibility,
-      });
+      setPlanVisibility(data.plan.visibility as PlanVisibility);
     }
   }, [data]);
 
   useEffect(() => {
     if (queryError) {
-      dispatch({
-        type: "SET_ERROR_MESSAGES",
-        payload: [...state.errorMessages, queryError.message],
-      });
+      setErrorMessages(prev => [...prev, queryError.message]);
     }
   }, [queryError]);
 
-  useEffect(() => {
-    const listItems = [
-      {
-        id: 1,
-        content: (
-          <>
-            <strong>
-              {t("publishModal.publish.checklistItem.primaryContact")}{" "}
-              <Link
-                href={CHANGE_PRIMARY_CONTACT_URL}
-                onPress={() => dispatch({ type: "SET_IS_MODAL_OPEN", payload: false })}
-              >
-                {state.planData.primaryContact}
-              </Link>
-            </strong>
-          </>
-        ),
-        completed: state.planData.members.some((member) => member.isPrimaryContact),
-      },
-      {
-        id: 2,
-        content: <>{t("publishModal.publish.checklistItem.complete")}</>,
-        completed: state.planData.status === "COMPLETE",
-      },
-      {
-        id: 3,
-        content: (
-          <>
-            {t("publishModal.publish.checklistItem.percentageAnswered", {
-              percentage: state.planData.percentageAnswered,
-            })}
-          </>
-        ),
-        completed: state.planData.percentageAnswered >= 50,
-      },
-      {
-        id: 4,
-        content: (
-          <>
-            {t("publishModal.publish.checklistItem.fundingText")} (
+  // Memoize checklist items to prevent unnecessary recalculations
+  const checkListItems = useMemo(() => [
+    {
+      id: 1,
+      content: (
+        <>
+          <strong>
+            {t("publishModal.publish.checklistItem.primaryContact")}{" "}
             <Link
-              href={FUNDINGS_URL}
-              onPress={() => dispatch({ type: "SET_IS_MODAL_OPEN", payload: false })}
+              href={CHANGE_PRIMARY_CONTACT_URL}
+              onPress={() => setIsModalOpen(false)}
             >
-              {t("publishModal.publish.checklistItem.funding")}
+              {planData.primaryContact}
             </Link>
-            )
-          </>
-        ),
-        completed: !!state.planData.funderName, // Check if funderName exists
-      },
-      {
-        id: 5,
-        content: <>{t("publishModal.publish.checklistItem.requiredFields")}</>,
-        completed: false, // Mark as not completed
-      },
-      {
-        id: 6,
-        content: (
-          <>
-            {t("publishModal.publish.checklistItem.orcidText")}{" "}
-            <Link
-              href={MEMBERS_URL}
-              onPress={() => dispatch({ type: "SET_IS_MODAL_OPEN", payload: false })}
-            >
-              {t("publishModal.publish.checklistItem.projectMembers")}
-            </Link>
-          </>
-        ),
-        completed: state.planData.members.some((member) => member.orcid), // Check if any member has an ORCiD
-      },
-    ];
-    dispatch({
-      type: "SET_CHECKLIST_ITEMS",
-      payload: listItems,
-    });
-  }, [state.planData]);
+          </strong>
+        </>
+      ),
+      completed: planData.members.some((member) => member.isPrimaryContact),
+    },
+    {
+      id: 2,
+      content: <>{t("publishModal.publish.checklistItem.complete")}</>,
+      completed: planData.status === "COMPLETE",
+    },
+    {
+      id: 3,
+      content: (
+        <>
+          {t("publishModal.publish.checklistItem.percentageAnswered", {
+            percentage: planData.percentageAnswered,
+          })}
+        </>
+      ),
+      completed: planData.percentageAnswered >= 50,
+    },
+    {
+      id: 4,
+      content: (
+        <>
+          {t("publishModal.publish.checklistItem.fundingText")} (
+          <Link
+            href={FUNDINGS_URL}
+            onPress={() => setIsModalOpen(false)}
+          >
+            {t("publishModal.publish.checklistItem.funding")}
+          </Link>
+          )
+        </>
+      ),
+      completed: !!planData.funderName, // Check if funderName exists
+    },
+    {
+      id: 5,
+      content: <>{t("publishModal.publish.checklistItem.requiredFields")}</>,
+      completed: false, // Mark as not completed
+    },
+    {
+      id: 6,
+      content: (
+        <>
+          {t("publishModal.publish.checklistItem.orcidText")}{" "}
+          <Link
+            href={MEMBERS_URL}
+            onPress={() => setIsModalOpen(false)}
+          >
+            {t("publishModal.publish.checklistItem.projectMembers")}
+          </Link>
+        </>
+      ),
+      completed: planData.members.some((member) => member.orcid), // Check if any member has an ORCiD
+    },
+  ], [planData, CHANGE_PRIMARY_CONTACT_URL, FUNDINGS_URL, MEMBERS_URL, t]);
+
+  // Memoize computed descriptions to prevent recalculation on every render
+  const { pageDescription, pageDescriptionWithVersion } = useMemo(() => {
+    const description = (planData?.sourceTemplate && planData?.affiliationName)
+      ? t('description', { source: planData?.sourceTemplate, affiliationName: planData?.affiliationName })
+      : t('page.pageDescription');
+    const descriptionWithVersion = `${description} - ${Global("version")}: ${planData?.templateVersion}, ${Global("published")}: ${formattedPublishDate}`;
+
+    return {
+      pageDescription: description,
+      pageDescriptionWithVersion: descriptionWithVersion,
+    };
+  }, [planData?.sourceTemplate, planData?.affiliationName, planData?.templateVersion, formattedPublishDate, t, Global]);
 
   if (loading) {
     return <div>{Global("messaging.loading")}...</div>;
   }
-
   return (
     <>
       <PageHeaderWithTitleChange
-        title={state.planData.title}
-        description={t("page.pageDescription")}
+        title={planData.title}
+        description={(planData?.templateVersion && planData?.templatePublished) ? pageDescriptionWithVersion : pageDescription}
         linkText={t("links.editTitle")}
         labelText={t("labels.planTitle")}
         placeholder={t("page.planTitlePlaceholder")}
@@ -572,7 +546,7 @@ const PlanOverviewPage: React.FC = () => {
       />
 
       <ErrorMessages
-        errors={state.errorMessages}
+        errors={errorMessages}
         ref={errorRef}
       />
       <LayoutWithPanel>
@@ -586,7 +560,7 @@ const PlanOverviewPage: React.FC = () => {
                 linkText={t("funding.edit")}
                 linkAriaLabel={t("funding.edit")}
               >
-                <p>{state.planData.funderName}</p>
+                <p>{planData.funderName}</p>
               </OverviewSection>
 
               <OverviewSection
@@ -597,13 +571,13 @@ const PlanOverviewPage: React.FC = () => {
                 linkAriaLabel={t("members.edit")}
               >
                 <p>
-                  {state.planData.members.map((member, index) => (
+                  {planData.members.map((member, index) => (
                     <span key={index}>
                       {t("members.info", {
                         name: member.fullname,
                         role: member.role.map((role) => role).join(", "),
                       })}
-                      {index < state.planData.members.length - 1 ? "; " : ""}
+                      {index < planData.members.length - 1 ? "; " : ""}
                     </span>
                   ))}
                 </p>
@@ -620,7 +594,7 @@ const PlanOverviewPage: React.FC = () => {
               </OverviewSection>
             </div>
 
-            {state.planData.versionedSections.map((versionedSection) => (
+            {planData.versionedSections.map((versionedSection) => (
               <section
                 key={versionedSection.versionedSectionId}
                 className={styles.planSectionsList}
@@ -675,14 +649,14 @@ const PlanOverviewPage: React.FC = () => {
           <div className={`statusPanelContent sidePanel`}>
             <div className={`buttonContainer withBorder  mb-5`}>
               <Link
-                href={getNarrativeUrl(state.planData.dmpId)}
+                href={getNarrativeUrl(planData.dmpId)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="button-secondary"
               >
                 {Global("buttons.preview")}
               </Link>
-              <Button onPress={() => dispatch({ type: "SET_IS_MODAL_OPEN", payload: true })}>
+              <Button onPress={() => setIsModalOpen(true)}>
                 {Global("buttons.publish")}
               </Button>
             </div>
@@ -690,6 +664,16 @@ const PlanOverviewPage: React.FC = () => {
               <div className={`panelRow mb-5`}>
                 <div>
                   <h3>{t("status.feedback.title")}</h3>
+                  <p>
+                    {feedbackLoading
+                      ? `${Global("messaging.loading")}...`
+                      : (() => {
+                        const raw = feedbackData?.planFeedbackStatus ?? "NONE";
+                        const key = `status.feedback.${String(raw).toLowerCase()}`;
+                        return t(key);
+                      })()
+                    }
+                  </p>
                 </div>
                 <Link
                   href={FEEDBACK_URL}
@@ -698,7 +682,7 @@ const PlanOverviewPage: React.FC = () => {
                   {Global("links.request")}
                 </Link>
               </div>
-              {state.isEditingPlanStatus ? (
+              {isEditingPlanStatus ? (
                 <div>
                   <Form
                     onSubmit={handlePlanStatusForm}
@@ -710,19 +694,19 @@ const PlanOverviewPage: React.FC = () => {
                       isRequired
                       name="planStatus"
                       items={planStatusOptions}
-                      onChange={(selected) => dispatch({ type: "SET_PLAN_STATUS", payload: selected as PlanStatus })}
-                      selectedKey={state.planStatus ?? state.planData.status}
+                      onChange={(selected) => setPlanStatus(selected as PlanStatus)}
+                      selectedKey={planStatus ?? planData.status}
                     >
                       {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
                     </FormSelect>
-                    {state.isEditingPlanStatus && <Button type="submit">{Global("buttons.save")}</Button>}
+                    {isEditingPlanStatus && <Button type="submit">{Global("buttons.save")}</Button>}
                   </Form>
                 </div>
               ) : (
                 <div className={`panelRow mb-5`}>
                   <div>
                     <h3>{t("status.title")}</h3>
-                    <p>{toTitleCase(state.planData.status)}</p>
+                    <p>{toTitleCase(planData.status)}</p>
                   </div>
                   <Button
                     className="button-as-link"
@@ -738,11 +722,11 @@ const PlanOverviewPage: React.FC = () => {
               <div className={`panelRow mb-5`}>
                 <div>
                   <h3>{t("status.publish.title")}</h3>
-                  <p>{state.planData.registered ? PUBLISHED : UNPUBLISHED}</p>
+                  <p>{planData.registered ? PUBLISHED : UNPUBLISHED}</p>
                 </div>
                 <Link
                   href="#"
-                  onPress={() => dispatch({ type: "SET_IS_MODAL_OPEN", payload: true })}
+                  onPress={() => setIsModalOpen(true)}
                   aria-label={t("status.publish.label")}
                 >
                   {t("status.publish.label")}
@@ -766,13 +750,11 @@ const PlanOverviewPage: React.FC = () => {
 
       <Modal
         isDismissable
-        isOpen={state.isModalOpen}
-        onOpenChange={(isOpen) => {
-          dispatch({ type: "SET_IS_MODAL_OPEN", payload: isOpen });
-        }}
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
         data-testid="modal"
       >
-        {state.step === 1 && (
+        {step === 1 && (
           <Dialog>
             <div className={`${styles.publishModal} ${styles.dialogWrapper}`}>
               <Heading slot="title">{t("publishModal.publish.title")}</Heading>
@@ -788,7 +770,7 @@ const PlanOverviewPage: React.FC = () => {
                 data-testid="checklist"
               >
                 {/* Render completed items first */}
-                {state.checkListItems
+                {checkListItems
                   .filter((item) => item.completed)
                   .map((item) => (
                     <li
@@ -803,7 +785,7 @@ const PlanOverviewPage: React.FC = () => {
                   ))}
 
                 {/* Render incomplete items next */}
-                {state.checkListItems
+                {checkListItems
                   .filter((item) => !item.completed)
                   .map((item) => (
                     <li
@@ -820,7 +802,7 @@ const PlanOverviewPage: React.FC = () => {
 
               <p>
                 <strong>
-                  {state.checkListItems.filter((item) => !item.completed).length}{" "}
+                  {checkListItems.filter((item) => !item.completed).length}{" "}
                   {t("publishModal.publish.checklistInfo")}
                 </strong>
               </p>
@@ -829,7 +811,7 @@ const PlanOverviewPage: React.FC = () => {
                 <div>
                   <Button
                     type="submit"
-                    onPress={() => dispatch({ type: "SET_STEP", payload: 2 })}
+                    onPress={() => setStep(2)}
                   >
                     {t("publishModal.publish.buttonNext")} &gt;
                   </Button>
@@ -849,7 +831,7 @@ const PlanOverviewPage: React.FC = () => {
         )}
 
         {/* Step 2: Visibility Settings & Publish Plan button*/}
-        {state.step === 2 && (
+        {step === 2 && (
           <Dialog>
             <div className={`${styles.publishModal} ${styles.dialogWrapper}`}>
               <Form
@@ -864,7 +846,7 @@ const PlanOverviewPage: React.FC = () => {
 
                 <RadioGroupComponent
                   name="visibility"
-                  value={state.planVisibility.toLowerCase()}
+                  value={planVisibility.toLowerCase()}
                   radioGroupLabel={t("publishModal.publish.visibilityOptionsTitle")}
                   onChange={handleRadioChange}
                 >

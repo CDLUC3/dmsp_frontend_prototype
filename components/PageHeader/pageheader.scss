@@ -12,19 +12,21 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    gap: 1rem;
 
   }
 
   .pageheader-title {
     margin-top: 0;
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-0);
     font-weight: var(--fw-bold);
   }
 
   .pageheader-intro {
     font-size: var(--fs-base);
     padding: 0;
-    margin-bottom: 0;
+    margin-bottom: var(--space-4);
+    margin-top: var(--space-0);
   }
 
   .heading-buttons-actions {
@@ -32,6 +34,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
+    flex-shrink: 0; //button should not shrink
 
     @include r.device(md) {
       justify-content: flex-start;

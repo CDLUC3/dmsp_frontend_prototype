@@ -23,7 +23,6 @@
     "memberInfo": "{name} ({role})",
     "editMembers": "Edit project members",
     "editProjectMembers": "Edit project members",
-    "researchOutputs": "Research outputs",
     "outputCount": "{count, plural, =0 {0 outputs} one {1 output} other {{count} outputs}}",
     "editOutputs": "Edit research outputs",
     "editResearchOutputs": "Edit research outputs",
@@ -66,7 +65,7 @@
     }
   },
   "ProjectsListPage": {
-    "intro": "Manager or create DMSP project or by DMP",
+    "intro": "Manage your data management plans and projects. To create a new plan within the same research project, open the project below first and then create a new plan within it.",
     "buttons": {
       "createProject": "Create project"
     },
@@ -77,15 +76,13 @@
     }
   },
   "ProjectsCreateProject": {
-    "pageTitle": "Create a new project",
+    "pageTitle": "Create project details",
+    "description": "We'll start with asking for details about your research project so we can help you create the right data management plan for it. You can then add additional plans to the same project.",
     "isThisMockProject": "Is this a mock project?",
     "form": {
-      "projectTitle": "What is the title for the project?",
-      "projectTitleHelpText": "You can change this at any time. If you already applied for funding, we recommend using the formal project title for consistency.",
-      "checkboxGroupLabel": "This project is mock project for testing, practice, or educational purposes",
-      "checkboxGroupHelpText": "This is a mock project intended solely for testing, practice, or educational purposes. It allows you to create a project and plans, but you will not be able to receive feedback or publish them.",
-      "checkboxLabel": "Yes, set this project to a mock or a test project.",
-      "checkboxHelpText": "If you aim on publishing your DMSP eventually, we recommend leaving this unticked, so you get the full features. All real projects have a draft status you can use for testing."
+      "projectTitle": "What is the title of the research project for this DMP?",
+      "projectTitleHelpText": "You can change this at any time. If you already applied for funding, we recommend using the formal project title for consistency and to help find details in funder databases.",
+      "radioGroupLabel": "Is this a mock project for testing purposes or a real project?"
     },
     "messages": {
       "success": "Successfully created project",
@@ -94,6 +91,14 @@
         "title": "Project title is required",
         "createProjectError": "Error creating project"
       }
+    },
+    "labels": {
+      "mockProject": "Mock project",
+      "realProject": "Real project"
+    },
+    "descriptions": {
+      "mockProject": "For testing/educational purposes: cannot request feedback or publish plan, excluded from statistics.",
+      "realProject": "Full functionality. Cannot be changed back to Mock project."
     }
   },
   "ProjectsCreateProjectFunding": {
@@ -123,7 +128,7 @@
       "researchDomain": "Research domain",
       "mockProject": "Mock project",
       "realProject": "Real project",
-      "childDomain": "Select a subdomain for {name}:",
+      "childDomain": "Select a subdomain for {name}",
       "item": "Item"
     },
     "helpText": {
@@ -281,7 +286,7 @@
     }
   },
   "ProjectsProjectCollaborationInvite": {
-    "title": "Who should have access to this plan?",
+    "title": "Who should have access to this project?",
     "breadcrumbs": {
       "manageAccess": "Manage access"
     },
@@ -292,12 +297,13 @@
       "access": {
         "label": "What should this person be able to do?",
         "edit": "Edit the plan",
-        "comment": "Comment only"
+        "comment": "Comment only",
+        "own": "Own the plan"
       }
     },
     "accessLevelOn": "{accessLevel} on",
     "para1": "When you click <strong>Grant access</strong> we'll send an email to this person inviting them to view your plan.",
-    "para2": "If they aren't already a member of we'll invite them to join.",
+    "para2": "If they aren't already a member of the DMP Tool we'll invite them to join.",
     "para3": "We have sent an invite to <strong>{email}</strong>. They will have access to this project.",
     "para4": "To also add them as a Project Member, <projectmember> go to the Project Members page </projectmember>.",
     "para5": "They will have access to {access} DMPs in this project.",
@@ -359,29 +365,57 @@
     }
   },
   "ProjectsProjectMembersSearch": {
-    "title": "Who are the project members?",
-    "searchLabel": "Search by name, organization or ORCID",
-    "searchDescription": "Search by a person's name, organization and/or ORCiD. Entering more information will help narrow the search, for exampleFrederick Cook 0427.",
+    "title": "Add project member",
+    "description": "If you know a person's full 16 character ORCiD, enter it below and use the Lookup button to associate them with this project. If you don't know their ORCiD, just enter their info below.",
+    "searchLabel": "ORCiD ID",
+    "searchDescription": "If known, enter project member's full 16 character ORCiD in the format XXXX-XXXX-XXXX-XXXX  or ORCiD URL, and click Lookup. Otherwise, complete the information below manually.",
     "ariaSearchInput": "Search",
     "ariaSearchItemName": "Member: {name}",
+    "ariaSelectSearchResult": "Select {name} to populate form",
     "ariaAddMemberButton": "Add {name} as project member",
-    "createCollaboratorDescription": "If your collaborator isn't shown you can add their details manually",
     "buttons": {
-      "createMember": "Create member"
+      "addToProject": "Add to project",
+      "clearForm": "Clear form"
     },
     "headings": {
-      "searchResultsHeader": "Showing 1-{length} of {total} results",
-      "createCollaboratorHeader": "Not in the list?"
+      "enterMemberDetails": "Project member's details",
+      "searchResultsHeader": "Found a match"
     },
     "messaging": {
+      "noSearchResultsFound": "No record associated with that ORCiD was found. Please check the ORCiD and try again.",
       "errors": {
         "failedToLoadCollaborators": "Failed to load more collaborators",
-        "failedToAddProjectMember": "Failed to add member. Please try again."
+        "failedToAddProjectMember": "Failed to add member. Please try again.",
+        "surNameRequired": "Last name is required",
+        "givenNameRequired": "First name is required",
+        "emailRequired": "Email address is required",
+        "invalidEmail": "Please enter a valid email address",
+        "projectRolesRequired": "At least one project role must be selected",
+        "affiliationRequired": "Affiliation is required",
+        "searchTermRequired": "Please enter an ORCiD or a URL containing an ORCiD to search",
+        "valueOrcidRequired": "Please enter a valid ORCiD in the format XXXX-XXXX-XXXX-XXXX or a URL containing an ORCiD"
       },
       "success": {
         "addedProjectMember": "Successfully added {name} as project member"
       }
-    }
+    },
+    "labels": {
+      "givenName": "First name",
+      "surName": "Last name",
+      "affiliation": "Affiliation",
+      "otherAffiliationName": "Other Affiliation Name",
+      "email": "Email",
+      "definedRole": "Define member's role(s) in this project",
+      "ariaMemberRoles": "Project member roles options",
+      "selected": "Selected",
+      "selectedFromSearch": "Selected from search",
+      "orcid": "ORCID",
+      "orcidFromSearch": "ORCID from search result"
+    },
+    "links": {
+      "learnMoreAboutCreditTaxonomy": "Learn more about each role"
+    },
+    "memberRolesDescription": "<p>Select the role(s) that should be displayed within citations for this project member with the DMP.</p><p>We use an ANSI/NISO standard called CRediT, a community-owned 14 role taxonomy that can be used to describe the key types of contributions typically made to the production and publication of research output such as research articles. </p><p><link>Learn more about CRediT Taxonomy</link> ↗</p>"
   },
   "ProjectsProjectMemberCreate": {
     "title": "Add a new project member",
