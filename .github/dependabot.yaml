@@ -9,7 +9,9 @@ updates:
     directory: "/"
     # Check the npm registry for updates once a week
     schedule:
-      interval: "weekly"
+    interval: "weekly"
+    # Open a maximum of 50 pull requests at a time
+    open-pull-requests-limit: 50
 
   # Enable version updates for Docker
   - package-ecosystem: "docker"
@@ -19,5 +21,7 @@ updates:
     directory: "/"
     # Check for updates once a week
     schedule:
-      interval: "weekly"
+    interval: "weekly"
+    # Open a maximum of 50 pull requests at a time
+    open-pull-requests-limit: 50
 
