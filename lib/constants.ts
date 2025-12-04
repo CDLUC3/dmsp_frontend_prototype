@@ -16,7 +16,7 @@ export const TEXT_FIELD_QUESTION_TYPE = "text";
 export const TEXT_QUESTION_TYPE = ["text", "textArea"];
 export const TYPEAHEAD_QUESTION_TYPE = "affiliationSearch";
 export const URL_QUESTION_TYPE = "url";
-export const RESEARCH_OUTPUT_QUESTION_TYPE = "researchOutput";
+export const RESEARCH_OUTPUT_QUESTION_TYPE = "researchOutputTable";
 export const DOI_REGEX = /(?:doi:\s*)?(10\.\d{4,9}\/[-._;()\/:A-Z0-9]+)/i;
 
 

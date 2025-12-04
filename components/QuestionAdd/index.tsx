@@ -27,6 +27,8 @@ import {
 import {
   useAddQuestionMutation,
   useQuestionsDisplayOrderQuery,
+  useLicensesQuery,
+  useDefaultResearchOutputTypesQuery,
 } from '@/generated/graphql';
 
 import {
@@ -42,17 +44,13 @@ import {
   RadioGroupComponent,
   RangeComponent,
   QuestionOptionsComponent,
-  TypeAheadSearch
+  TypeAheadSearch,
+  ResearchOutputComponent
 } from '@/components/Form';
 import ErrorMessages from '@/components/ErrorMessages';
 import QuestionPreview from '@/components/QuestionPreview';
 import QuestionView from '@/components/QuestionView';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
-import RepositorySelectionSystem from './ReposSelector';
-import MetaDataStandards from './MetaDataStandards';
-import OutputTypeField from './OutputTypeField';
-import LicenseField, { otherLicenses } from './LicenseField';
-import InitialAccessLevel from './InitialAccessLevel';
 
 //Other
 import { useToast } from '@/context/ToastContext';
@@ -97,38 +95,11 @@ const hasMetaDataConfig = (field: StandardField): field is StandardField & { met
   return field.metaDataConfig !== undefined;
 };
 
-// Default licenses
-const defaultLicenses = [
-  'CC-BY-4.0',
-  'CC-BY-SA-4.0',
-  'CC-BY-NC-4.0',
-  'CC-BY-NC-SA-4.0',
-  'CC-BY-ND-4.0',
-  'CC-BY-NC-ND-4.0',
-  'CCo-1.0'
-];
-
+// Frontend will hard-code these for now
 const defaultAccessLevels = [
-  { id: 'controlledAccess', level: 'Controlled access', description: 'Restricts access to certain areas' },
-  { id: 'unrestrictedAccess', level: 'Unrestricted access', description: 'Allows access to all areas' },
-  { id: 'Other', level: 'Other', description: 'Other type of access' },
-];
-
-const defaultOutputTypes = [
-  { id: 'Audiovisual', type: 'Audiovisual', description: 'A series of visual representations imparting an impression of motion when shown in succession. May or may not include sound.' },
-  { id: 'Collection', type: 'Collection', description: 'An aggregation of resources, which may encompass collections of one resourceType as well as those of mixed types. A collection is described as a group; its parts may also be separately described.' },
-  { id: 'Data paper', type: 'Data paper', description: 'A factual and objective publication with a focused intent to identify and describe specific data, sets of data, or data collections to facilitate discoverability.' },
-  { id: 'Dataset', type: 'Dataset', description: 'Data encoded in a defined structure.' },
-  { id: 'Event', type: 'Event', description: 'A non-persistent, time-based occurrence.' },
-  { id: 'Image', type: 'Image', description: 'A visual representation other than text.' },
-  { id: 'Interactive resource', type: 'Interactive resource', description: 'A resource requiring interaction from the user to be understood, executed, or experienced.' },
-  { id: 'Model representation', type: 'Model representation', description: 'An abstract, conceptual, graphical, mathematical or visualization model that represents empirical objects, phenomena, or physical processes.' },
-  { id: 'Physical object', type: 'Physical object', description: 'A physical object or substance.' },
-  { id: 'Service', type: 'Service', description: 'An organized system of apparatus, appliances, staff, etc., for supplying some function(s) required by end users.' },
-  { id: 'Software', type: 'Software', description: 'A computer program other than a computational notebook, in either source code (text) or compiled form. Use this type for general software components supporting scholarly research. Use the “ComputationalNotebook” value for virtual notebooks.' },
-  { id: 'Sound', type: 'Sound', description: 'A resource primarily intended to be heard.' },
-  { id: 'Text', type: 'Text', description: 'A resource consisting primarily of words for reading that is not covered by any other textual resource type in this list.' },
-  { id: 'Workflow', type: 'Workflow', description: 'A structured series of steps which can be executed to produce a final outcome, allowing users a means to specify and enact their work in a more reproducible manner.' }
+  { id: 'restricted', value: 'Controlled access', description: 'Restricts access to certain areas' },
+  { id: 'open', value: 'Unrestricted access', description: 'Allows access to all areas' },
+  { id: 'Other', value: 'Other', description: 'Other type of access' },
 ];
 
 // Initial Standard Fields data
@@ -203,7 +174,7 @@ const initialStandardFields: StandardField[] = [
     licensesConfig: {
       mode: 'defaults' as 'defaults' | 'addToDefaults',
       selectedDefaults: [] as string[],
-      customTypes: defaultLicenses as string[],
+      customTypes: [] as Array<{ name: string; uri: string }>,
     }
   },
   {
@@ -297,6 +268,12 @@ const QuestionAdd = ({
     },
     skip: !sectionId
   })
+
+  // Query request for all licenses
+  const { data: licensesData } = useLicensesQuery();
+
+  // Query request for default research output types
+  const { data: defaultResearchOutputTypesData } = useDefaultResearchOutputTypesQuery();
 
   // Send user back to the selection of question types
   const redirectToQuestionTypes = () => {
@@ -482,9 +459,20 @@ const QuestionAdd = ({
   const handleLicenseModeChange = (mode: 'defaults' | 'addToDefaults') => {
     const currentField = standardFields.find(f => f.id === 'licenses');
     if (currentField && currentField.licensesConfig) {
+      // When switching to 'addToDefaults' mode, pre-populate with recommended licenses if customTypes is empty
+      const allLicenses = licensesData?.licenses?.items?.filter((license): license is NonNullable<typeof license> => license !== null) || [];
+      const recommendedLicenses = allLicenses
+        .filter(license => license.recommended)
+        .map(license => ({ name: license.name, uri: license.uri }));
+
+      const customTypes = mode === 'addToDefaults' && currentField.licensesConfig.customTypes.length === 0
+        ? recommendedLicenses
+        : currentField.licensesConfig.customTypes;
+
       updateStandardFieldProperty('licenses', 'licensesConfig', {
         ...currentField.licensesConfig,
-        mode
+        mode,
+        customTypes
       });
     }
   };
@@ -511,25 +499,32 @@ const QuestionAdd = ({
     if (newLicenseType.trim()) {
       const currentField = standardFields.find(f => f.id === 'licenses');
       if (currentField && currentField.licensesConfig) {
-        // Find the license object by ID and get its name
-        const selectedLicense = otherLicenses.find(license => license.id === newLicenseType.trim());
-        const licenseNameToAdd = selectedLicense ? selectedLicense.name : newLicenseType.trim();
+        // newLicenseType contains the URI, find the full license object
+        const allLicenses = licensesData?.licenses?.items?.filter((license): license is NonNullable<typeof license> => license !== null) || [];
+        const selectedLicense = allLicenses.find(license => license.uri === newLicenseType.trim());
 
-        const updatedCustomTypes = [...currentField.licensesConfig.customTypes, licenseNameToAdd];
-        updateStandardFieldProperty('licenses', 'licensesConfig', {
-          ...currentField.licensesConfig,
-          customTypes: updatedCustomTypes
-        });
-        setNewLicenseType('');
+        if (selectedLicense) {
+          const updatedCustomTypes = [
+            ...currentField.licensesConfig.customTypes,
+            { name: selectedLicense.name, uri: selectedLicense.uri }
+          ];
+          updateStandardFieldProperty('licenses', 'licensesConfig', {
+            ...currentField.licensesConfig,
+            customTypes: updatedCustomTypes
+          });
+          setNewLicenseType('');
+        }
       }
     }
   };
 
   // Handler for removing custom license types
-  const handleRemoveCustomLicenseType = (typeToRemove: string) => {
+  const handleRemoveCustomLicenseType = (nameToRemove: string) => {
     const currentField = standardFields.find(f => f.id === 'licenses');
     if (currentField && currentField.licensesConfig) {
-      const updatedCustomTypes = currentField.licensesConfig.customTypes.filter((type: string) => type !== typeToRemove);
+      const updatedCustomTypes = currentField.licensesConfig.customTypes.filter(
+        (license) => license.name !== nameToRemove
+      );
       updateStandardFieldProperty('licenses', 'licensesConfig', {
         ...currentField.licensesConfig,
         customTypes: updatedCustomTypes
@@ -579,8 +574,16 @@ const QuestionAdd = ({
     const currentField = standardFields.find(f => f.id === 'outputType');
     if (currentField && currentField.outputTypeConfig) {
       // When switching to 'mine' mode, pre-populate with defaults if customTypes is empty
+      // Transform backend data to match OutputTypeInterface structure
+      const backendOutputTypes = defaultResearchOutputTypesData?.defaultResearchOutputTypes
+        ?.filter((item): item is NonNullable<typeof item> => item !== null)
+        .map(item => ({
+          type: item.name,
+          description: item.description || ''
+        })) || [];
+
       const customTypes = mode === 'mine' && currentField.outputTypeConfig.customTypes.length === 0
-        ? defaultOutputTypes
+        ? backendOutputTypes
         : currentField.outputTypeConfig.customTypes;
 
       updateStandardFieldProperty('outputType', 'outputTypeConfig', {
@@ -650,6 +653,417 @@ const QuestionAdd = ({
     setHasUnsavedChanges(true);
   };
 
+  /**
+   * Build form state for research output table questions.
+   * 
+   * Constructs a table-based question structure conforming to ResearchOutputTableQuestion schema
+   * from @dmptool/types. Each enabled standardField is converted into a table column with
+   * appropriate field types:
+   * 
+   * - title: text field (always required)
+   * - description: textArea with rich text support
+   * - outputType: selectBox with configured options
+   * - dataFlags: boolean fields for sensitive/personal data flags
+   * - repoSelector: repositorySearch with GraphQL query
+   * - metadataStandards: metadataStandardSearch with GraphQL query
+   * - licenses: selectBox with license options
+   * - accessLevels: selectBox with access level options
+   * - additionalFields: custom text fields
+   */
+  const buildResearchOutputFormState = (parsed: AnyParsedQuestion | null) => {
+    const columns: any[] = []; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+    standardFields.forEach(field => {
+      if (!field.enabled) return;
+
+      switch (field.id) {
+        case 'title':
+          columns.push({
+            heading: field.label || 'Title',
+            required: field.required ?? true,
+            enabled: true,
+            content: {
+              type: 'text',
+              attributes: {
+                label: field.label || 'Title',
+                help: field.helpText || '',
+                maxLength: 500,
+                minLength: 1
+              },
+              meta: {
+                schemaVersion: '1.0'
+              }
+            },
+            meta: {
+              schemaVersion: '1.0',
+              labelTranslationKey: 'researchOutput.title'
+            }
+          });
+          break;
+
+        case 'description':
+          columns.push({
+            heading: field.label || 'Description',
+            required: field.required ?? false,
+            enabled: true,
+            content: {
+              type: 'textArea',
+              attributes: {
+                label: field.label || 'Description',
+                help: field.helpText || '',
+                maxLength: field.maxLength ? Number(field.maxLength) : undefined,
+                asRichText: true,
+                rows: 4
+              },
+              meta: {
+                schemaVersion: '1.0'
+              }
+            },
+            meta: {
+              schemaVersion: '1.0',
+              labelTranslationKey: 'researchOutput.description'
+            }
+          });
+          break;
+
+        case 'outputType':
+          // Build selectBox options from outputTypeConfig
+          const outputTypeOptions: any[] = []; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+          if (field.outputTypeConfig?.mode === 'defaults' || !field.outputTypeConfig?.mode) {
+            // Use selected defaults - need to match with backend value field
+            field.outputTypeConfig?.selectedDefaults?.forEach(defaultType => {
+              // Find the corresponding backend output type to get the value
+              const backendType = defaultResearchOutputTypesData?.defaultResearchOutputTypes?.find(
+                (item) => item?.name === defaultType
+              );
+              outputTypeOptions.push({
+                label: defaultType,
+                value: backendType?.value || defaultType.toLowerCase().replace(/\s+/g, '-'),
+                selected: false
+              });
+            });
+          }
+
+          if (field.outputTypeConfig?.mode === 'mine' || !field.outputTypeConfig?.mode) {
+            // Add custom types - use type as both label and value for custom types
+            field.outputTypeConfig?.customTypes?.forEach(customType => {
+              outputTypeOptions.push({
+                label: customType.type || '',
+                value: customType.type?.toLowerCase().replace(/\s+/g, '-') || '',
+                selected: false
+              });
+            });
+          }
+
+          columns.push({
+            heading: field.label || 'Output Type',
+            required: field.required ?? true,
+            enabled: true,
+            content: {
+              type: 'selectBox',
+              attributes: {
+                label: field.label || 'Output Type',
+                help: field.helpText || '',
+                multiple: false
+              },
+              options: outputTypeOptions,
+              meta: {
+                schemaVersion: '1.0'
+              }
+            },
+            meta: {
+              schemaVersion: '1.0',
+              labelTranslationKey: 'researchOutput.outputType'
+            }
+          });
+          break;
+
+        case 'dataFlags':
+          // Add sensitive data checkbox if enabled
+          if (field.flagsConfig?.showSensitiveData) {
+            columns.push({
+              heading: 'Sensitive Data',
+              required: false,
+              enabled: true,
+              content: {
+                type: 'boolean',
+                attributes: {
+                  label: 'Contains Sensitive Data',
+                  help: field.helpText || '',
+                  checked: false
+                },
+                meta: {
+                  schemaVersion: '1.0'
+                }
+              },
+              meta: {
+                schemaVersion: '1.0',
+                labelTranslationKey: 'researchOutput.sensitiveData'
+              }
+            });
+          }
+
+          // Add personal data checkbox if enabled
+          if (field.flagsConfig?.showPersonalData) {
+            columns.push({
+              heading: 'Personal Data',
+              required: false,
+              enabled: true,
+              content: {
+                type: 'boolean',
+                attributes: {
+                  label: 'Contains Personal Data',
+                  help: field.helpText || '',
+                  checked: false
+                },
+                meta: {
+                  schemaVersion: '1.0'
+                }
+              },
+              meta: {
+                schemaVersion: '1.0',
+                labelTranslationKey: 'researchOutput.personalData'
+              }
+            });
+          }
+          break;
+
+        case 'repoSelector':
+          // Build column with selected repositories if any
+          const repoColumn: any = { // eslint-disable-line @typescript-eslint/no-explicit-any
+            heading: field.label || 'Repositories',
+            required: false,
+            enabled: true,
+            content: {
+              type: 'repositorySearch',
+              attributes: {
+                label: field.label || 'Repositories',
+                help: field.helpText || ''
+              },
+              graphQL: {
+                displayFields: [
+                  { propertyName: 'name', label: 'Name' },
+                  { propertyName: 'description', label: 'Description' },
+                  { propertyName: 'website', label: 'Website' },
+                  { propertyName: 'keywords', label: 'Subject Areas' }
+                ],
+                query: 'query Repositories($term: String, $keywords: [String!], $repositoryType: String, $paginationOptions: PaginationOptions){ repositories(term: $term, keywords: $keywords, repositoryType: $repositoryType, paginationOptions: $paginationOptions) { totalCount currentOffset limit hasNextPage hasPreviousPage availableSortFields items { id name uri description website keywords repositoryTypes } } }',
+                responseField: 'repositories.items',
+                variables: [
+                  { minLength: 3, label: 'Search for a repository', name: 'term', type: 'string' },
+                  { minLength: 3, label: 'Subject Areas', name: 'keywords', type: 'string' },
+                  { minLength: 3, label: 'Repository type', name: 'repositoryType', type: 'string' },
+                  { label: 'Pagination Options', name: 'paginationOptions', type: 'paginationOptions', options: { type: 'OFFSET', limit: 10, offset: 0, sortField: 'name', sortOrder: 'ASC' } }
+                ],
+                queryId: 'useRepositoriesQuery',
+                answerField: 'uri'
+              },
+              meta: {
+                schemaVersion: '1.0'
+              }
+            },
+            meta: {
+              schemaVersion: '1.0',
+              labelTranslationKey: 'researchOutput.repositories'
+            }
+          };
+
+          // Add selected repositories to preferences array
+          if (field.repoConfig?.customRepos && field.repoConfig.customRepos.length > 0) {
+            repoColumn.preferences = field.repoConfig.customRepos.map(repo => ({
+              label: repo.name,
+              value: repo.uri || (repo as any).url || ''
+            }));
+          }
+
+          columns.push(repoColumn);
+          break;
+
+        case 'metadataStandards':
+          // Build column with selected metadata standards if any
+          const metadataColumn: any = { // eslint-disable-line @typescript-eslint/no-explicit-any
+            heading: field.label || 'Metadata Standards',
+            required: false,
+            enabled: true,
+            content: {
+              type: 'metadataStandardSearch',
+              attributes: {
+                label: field.label || 'Metadata Standards',
+                help: field.helpText || ''
+              },
+              graphQL: {
+                displayFields: [
+                  { propertyName: 'name', label: 'Name' },
+                  { propertyName: 'description', label: 'Description' },
+                  { propertyName: 'website', label: 'Website' },
+                  { propertyName: 'keywords', label: 'Subject Areas' }
+                ],
+                query: 'query MetadataStandards($term: String, $keywords: [String!], $paginationOptions: PaginationOptions){ metadataStandards(term: $term, keywords: $keywords, paginationOptions: $paginationOptions) { totalCount currentOffset limit hasNextPage hasPreviousPage availableSortFields items { id name uri description keywords } } }',
+                responseField: 'metadataStandards.items',
+                variables: [
+                  { minLength: 3, label: 'Search for a metadata standard', name: 'term', type: 'string' },
+                  { minLength: 3, label: 'Subject Areas', name: 'keywords', type: 'string' },
+                  { label: 'Pagination Options', name: 'paginationOptions', type: 'paginationOptions', options: { type: 'OFFSET', limit: 10, offset: 0, sortField: 'name', sortOrder: 'ASC' } }
+                ],
+                queryId: 'useMetadataStandardsQuery',
+                answerField: 'uri'
+              },
+              meta: {
+                schemaVersion: '1.0'
+              }
+            },
+            meta: {
+              schemaVersion: '1.0',
+              labelTranslationKey: 'researchOutput.metadataStandards'
+            }
+          };
+
+          // Add selected metadata standards to preferences array
+          if (hasMetaDataConfig(field) && field.metaDataConfig?.customStandards && field.metaDataConfig.customStandards.length > 0) {
+            metadataColumn.preferences = field.metaDataConfig.customStandards.map(standard => ({
+              label: standard.name,
+              value: standard.uri || (standard as any).url || ''
+            }));
+          }
+
+          columns.push(metadataColumn);
+          break;
+
+        case 'licenses':
+          // Build column with selected licenses if any
+          const licenseColumn: any = { // eslint-disable-line @typescript-eslint/no-explicit-any
+            heading: field.label || 'Licenses',
+            required: false,
+            enabled: true,
+            content: {
+              type: 'licenseSearch',
+              attributes: {
+                label: field.label || 'Licenses',
+                help: field.helpText || ''
+              },
+              graphQL: {
+                displayFields: [
+                  { propertyName: 'name', label: 'Name' },
+                  { propertyName: 'description', label: 'Description' },
+                  { propertyName: 'recommended', label: 'Recommended' }
+                ],
+                query: 'query Licenses($term: String, $paginationOptions: PaginationOptions){ license(term: $term, paginationOptions: $paginationOptions) { totalCount currentOffset limit hasNextPage hasPreviousPage availableSortFields items { id name uri description } } }',
+                responseField: 'licenses.items',
+                variables: [
+                  { minLength: 3, label: 'Search for a license', name: 'term', type: 'string' },
+                  { label: 'Pagination Options', name: 'paginationOptions', type: 'paginationOptions' }
+                ],
+                answerField: 'uri'
+              },
+              meta: {
+                schemaVersion: '1.0'
+              }
+            },
+            meta: {
+              schemaVersion: '1.0'
+            }
+          };
+
+          // Add selected licenses to preferences array
+          if (field.licensesConfig?.customTypes && field.licensesConfig.customTypes.length > 0) {
+            licenseColumn.preferences = field.licensesConfig.customTypes.map(license => ({
+              label: license.name,
+              value: license.uri || ''
+            }));
+          }
+
+          columns.push(licenseColumn);
+          break;
+
+        case 'accessLevels':
+          // Build access level options
+          const accessLevelOptions: any[] = []; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+          if (field.accessLevelsConfig?.mode === 'defaults' || !field.accessLevelsConfig?.mode) {
+            field.accessLevelsConfig?.selectedDefaults?.forEach(level => {
+              accessLevelOptions.push({
+                label: level,
+                value: level,
+                selected: false
+              });
+            });
+          }
+
+          if (field.accessLevelsConfig?.mode === 'mine') {
+            field.accessLevelsConfig?.customLevels?.forEach(customLevel => {
+              accessLevelOptions.push({
+                label: customLevel.level || '',
+                value: customLevel.level || '',
+                selected: false
+              });
+            });
+          }
+
+          columns.push({
+            heading: field.label || 'Initial Access Levels',
+            required: false,
+            enabled: true,
+            content: {
+              type: 'selectBox',
+              attributes: {
+                label: field.label || 'Initial Access Levels',
+                help: field.helpText || '',
+                multiple: false
+              },
+              options: accessLevelOptions,
+              meta: {
+                schemaVersion: '1.0'
+              }
+            },
+            meta: {
+              schemaVersion: '1.0',
+              labelTranslationKey: 'researchOutput.accessLevels'
+            }
+          });
+          break;
+      }
+    });
+
+    // Add any additional custom fields
+    additionalFields.forEach(customField => {
+      if (customField.enabled) {
+        columns.push({
+          heading: customField.customLabel || customField.label,
+          required: false,
+          enabled: true,
+          content: {
+            type: 'text',
+            attributes: {
+              label: customField.customLabel || customField.label,
+              help: customField.helpText || '',
+              maxLength: customField.maxLength ? Number(customField.maxLength) : undefined
+            },
+            meta: {
+              schemaVersion: '1.0'
+            }
+          },
+          meta: {
+            schemaVersion: '1.0'
+          }
+        });
+      }
+    });
+
+    return {
+      ...parsedQuestionJSON,
+      columns,
+      attributes: {
+        ...(parsed && 'attributes' in parsed ? parsed.attributes : {}),
+        label: '',
+        help: '',
+        canAddRows: true,
+        canRemoveRows: true,
+        initialRows: 1
+      }
+    };
+  };
+
   // Prepare input for the questionTypeHandler. For options questions, we update the 
   // values with rows state. For non-options questions, we use the parsed JSON
   const getFormState = (question: Question, rowsOverride?: QuestionOptions[]) => {
@@ -672,6 +1086,10 @@ const QuestionAdd = ({
         label: typeaheadSearchLabel,
         help: typeaheadHelpText,
       }
+    }
+
+    if (questionType === RESEARCH_OUTPUT_QUESTION_TYPE) {
+      return buildResearchOutputFormState(parsed);
     }
 
     if (!parsed) {
@@ -1014,328 +1432,39 @@ const QuestionAdd = ({
                 )}
 
                 {questionType === RESEARCH_OUTPUT_QUESTION_TYPE && (
-                  <div className={styles.fieldsContainer}>
-                    <h3>{QuestionAdd('researchOutput.headings.enableStandardFields')}</h3>
-
-                    <p className={styles.fieldsDescription}>
-                      {QuestionAdd('researchOutput.description')}
-                    </p>
-                    <div className={styles.fieldsList}>
-                      {standardFields.map((field, index) => {
-                        // These fields are always required and cannot be turned off
-                        const isDisabled = field.id === 'title' || field.id === 'outputType';
-
-                        return (
-                          <div key={field.id} className={styles.fieldRowWrapper}>
-                            <div className={styles.fieldRow}>
-                              <div className={isDisabled ? styles.tooltipWrapper : undefined}>
-
-                                <Checkbox
-                                  isSelected={field.enabled}
-                                  isDisabled={isDisabled}
-                                  className={
-                                    `react-aria-Checkbox ${(field.id === 'title' || field.id === 'outputType')
-                                      ? styles.disabledCheckbox
-                                      : ''
-                                    }`
-                                  }
-
-                                  onChange={(isSelected) => handleStandardFieldChange(field.id, isSelected)}
-                                >
-                                  <div className="checkbox">
-                                    <svg viewBox="0 0 18 18" aria-hidden="true">
-                                      <polyline points="1 9 7 14 15 4" />
-                                    </svg>
-                                  </div>
-                                  <span>{field.label}</span>
-                                </Checkbox>
-                                {isDisabled && <span className={styles.tooltipText}>{QuestionAdd('researchOutput.tooltip.requiredFields')}</span>}
-                              </div>
-                              {field.id !== 'title' && (
-                                <Button
-                                  type="button"
-                                  className={`buttonLink link`}
-                                  onPress={() => handleCustomizeField(field.id)}
-                                >
-                                  {expandedFields.includes(field.id)
-                                    ? Global('buttons.close')
-                                    : nonCustomizableFieldIds.includes(field.id)
-                                      ? Global('links.expand')
-                                      : Global('buttons.customize')}
-                                </Button>
-                              )}
-
-                            </div>
-
-                            {/* Expanded panel OUTSIDE the .fieldRow flex container */}
-                            {expandedFields.includes(field.id) && (
-                              <div className={styles.fieldPanel}>
-                                {/** Description */}
-                                {field.id === 'description' && (
-                                  <FormInput
-                                    name="descriptionHelpText"
-                                    type="text"
-                                    isRequired={false}
-                                    label={QuestionAdd('labels.helpText', { fieldName: QuestionAdd('researchOutput.labels.description') })}
-                                    value={field.helpText || ''}
-                                    onChange={(e) => updateStandardFieldProperty('description', 'helpText', e.currentTarget.value)}
-                                    helpMessage={QuestionAdd('researchOutput.helpText')}
-                                    maxLength={300}
-                                  />
-                                )}
-
-                                {/** Data Flags Configuration */}
-                                {field.id === 'dataFlags' && (
-                                  <div style={{ marginBottom: '1.5rem' }}>
-                                    <fieldset>
-                                      <legend>{QuestionAdd('researchOutput.legends.dataFlag')}</legend>
-                                      <div className={styles.dataFlagsConfig}>
-                                        <RadioGroupComponent
-                                          name="dataFlagsMode"
-                                          value={field.flagsConfig?.mode || 'both'}
-                                          description={QuestionAdd('researchOutput.dataFlags.description')}
-                                          onChange={(mode) => updateStandardFieldProperty('dataFlags', 'flagsConfig', {
-                                            ...field.flagsConfig,
-                                            mode,
-                                            showSensitiveData: mode === 'sensitiveOnly' || mode === 'both',
-                                            showPersonalData: mode === 'personalOnly' || mode === 'both'
-                                          })}
-                                        >
-                                          <div>
-                                            <Radio value="sensitiveOnly">{QuestionAdd('researchOutput.dataFlags.options.sensitiveOnly')}</Radio>
-                                          </div>
-                                          <div>
-                                            <Radio value="personalOnly">{QuestionAdd('researchOutput.dataFlags.options.personalOnly')}</Radio>
-                                          </div>
-                                          <div>
-                                            <Radio value="both">{QuestionAdd('researchOutput.dataFlags.options.both')}</Radio>
-                                          </div>
-                                        </RadioGroupComponent>
-                                      </div>
-                                    </fieldset>
-                                  </div>
-                                )}
-
-                                {/** Output Type Configuration */}
-                                {field.id === 'outputType' && (
-                                  <OutputTypeField
-                                    field={field}
-                                    newOutputType={newOutputType}
-                                    setNewOutputType={setNewOutputType}
-                                    onModeChange={handleOutputTypeModeChange}
-                                    onAddCustomType={handleAddCustomOutputType}
-                                    onRemoveCustomType={handleRemoveCustomOutputType}
-                                  />
-                                )}
-
-                                {/** Repository Selector */}
-                                {field.id === 'repoSelector' && (
-                                  <>
-                                    <RepositorySelectionSystem
-                                      field={field}
-                                      handleTogglePreferredRepositories={handleTogglePreferredRepositories}
-                                      onRepositoriesChange={handleRepositoriesChange}
-                                    />
-
-                                    <FormInput
-                                      name="repositoriesHelpText"
-                                      type="text"
-                                      isRequired={false}
-                                      label={QuestionAdd('labels.helpText', { fieldName: field.label })}
-                                      value={field.helpText || ''}
-                                      onChange={(e) => updateStandardFieldProperty('repoSelector', 'helpText', e.currentTarget.value)}
-                                      helpMessage={QuestionAdd('researchOutput.helpText')}
-                                      maxLength={300}
-                                    />
-                                  </>
-                                )}
-
-                                {/** Metadata Standards */}
-                                {field.id === 'metadataStandards' && hasMetaDataConfig(field) && (
-                                  <>
-                                    <MetaDataStandards
-                                      field={field}
-                                      handleToggleMetaDataStandards={handleToggleMetaDataStandards}
-                                      onMetaDataStandardsChange={handleMetaDataStandardsChange}
-                                    />
-
-                                    <FormInput
-                                      name="metadataStandardsHelpText"
-                                      type="text"
-                                      isRequired={false}
-                                      label={QuestionAdd('labels.helpText', { fieldName: field.label })}
-                                      value={field.helpText || ''}
-                                      onChange={(e) => updateStandardFieldProperty('metadataStandards', 'helpText', e.currentTarget.value)}
-                                      helpMessage={QuestionAdd('researchOutput.helpText')}
-                                      maxLength={300}
-                                    />
-                                  </>
-                                )}
-
-                                {/**License configurations */}
-                                {field.id === 'licenses' && (
-                                  <>
-                                    <LicenseField
-                                      field={field}
-                                      newLicenseType={newLicenseType}
-                                      setNewLicenseType={setNewLicenseType}
-                                      onModeChange={handleLicenseModeChange}
-                                      onAddCustomType={handleAddCustomLicenseType}
-                                      onRemoveCustomType={handleRemoveCustomLicenseType}
-                                    />
-                                    <FormInput
-                                      name="licensesHelpText"
-                                      type="text"
-                                      isRequired={false}
-                                      label={QuestionAdd('labels.helpText', { fieldName: field.label })}
-                                      value={field.helpText || ''}
-                                      onChange={(e) => updateStandardFieldProperty('licenses', 'helpText', e.currentTarget.value)}
-                                      helpMessage={QuestionAdd('researchOutput.helpText')}
-                                      maxLength={300}
-                                    />
-                                  </>
-                                )}
-
-                                {/**Access level configurations */}
-                                {field.id === 'accessLevels' && (
-                                  <>
-                                    <InitialAccessLevel
-                                      field={field}
-                                      newAccessLevel={newAccessLevel}
-                                      setNewAccessLevel={setNewAccessLevel}
-                                      onModeChange={handleAccessLevelModeChange}
-                                      onAddCustomType={handleAddCustomAccessLevel}
-                                      onRemoveCustomType={handleRemoveCustomAccessLevels}
-                                    />
-
-                                    <FormInput
-                                      name="accessLevelsHelpText"
-                                      type="text"
-                                      isRequired={false}
-                                      label={QuestionAdd('labels.helpText', { fieldName: field.label })}
-                                      value={field.helpText || ''}
-                                      onChange={(e) => updateStandardFieldProperty('accessLevels', 'helpText', e.currentTarget.value)}
-                                      helpMessage={QuestionAdd('researchOutput.helpText')}
-                                      maxLength={300}
-                                    />
-                                  </>
-                                )}
-                              </div>
-                            )}
-                            {index < standardFields.length - 1 && <hr className={styles.fieldDivider} />}
-
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    <div className={styles.fieldsContainer}>
-                      <h3>{QuestionAdd('researchOutput.headings.additionalTextFields')}</h3>
-                      <div className={styles.fieldsList}>
-                        {additionalFields.map((field, index) => {
-
-                          return (
-                            <div key={field.id} className={styles.fieldRowWrapper}>
-                              <div className={styles.fieldRow}>
-                                <Checkbox
-                                  isSelected={field.enabled}
-                                  onChange={(isSelected) => handleStandardFieldChange(field.id, isSelected)}
-                                >
-                                  <div className="checkbox">
-                                    <svg viewBox="0 0 18 18" aria-hidden="true">
-                                      <polyline points="1 9 7 14 15 4" />
-                                    </svg>
-                                  </div>
-                                  <span>{field.customLabel !== undefined && field.customLabel !== '' ? field.customLabel : field.label}</span>
-                                </Checkbox>
-                                <div className={styles.fieldActions}>
-                                  <Button
-                                    type="button"
-                                    className={`buttonLink link`}
-                                    onPress={() => handleCustomizeField(field.id)}
-                                  >
-                                    {expandedFields.includes(field.id) ? Global('buttons.close') : Global('buttons.customize')}
-                                  </Button>
-
-                                  <Button
-                                    type="button"
-                                    className={`buttonLink link ${styles.deleteButton}`}
-                                    onPress={() => handleDeleteAdditionalField(field.id)}
-                                    aria-label={`Delete ${field.label}`}
-                                  >
-                                    {Global('buttons.delete')}
-                                  </Button>
-
-                                </div>
-                              </div>
-
-                              {/* Expanded panel for Additional Custom Fields */}
-                              {expandedFields.includes(field.id) && (
-                                <div className={styles.customizePanel}>
-                                  <div className={styles.fieldCustomization}>
-                                    {/* Field Label */}
-                                    <FormInput
-                                      name={`${field.id}_label`}
-                                      type="text"
-                                      isRequired={false}
-                                      label={QuestionAdd('researchOutput.additionalFields.fieldLabel.label')}
-                                      value={field.customLabel !== undefined ? field.customLabel : field.label}
-                                      onChange={(e) => handleUpdateAdditionalField(field.id, 'customLabel', e.currentTarget.value)}
-                                      helpMessage={QuestionAdd('researchOutput.additionalFields.fieldLabel.helpText')}
-                                    />
-
-                                    {/* Help Text */}
-                                    <FormInput
-                                      name={`${field.id}_help`}
-                                      isRequired={false}
-                                      label={QuestionAdd('labels.helpText', { fieldName: field.customLabel || field.label })}
-                                      value={field.helpText}
-                                      onChange={(value) => handleUpdateAdditionalField(field.id, 'helpText', value)}
-                                      helpMessage={QuestionAdd('researchOutput.helpText')}
-                                      maxLength={300}
-                                    />
-
-                                    {/* Max Length for text field */}
-                                    <FormInput
-                                      name={`${field.id}_maxLength`}
-                                      type="number"
-                                      isRequired={false}
-                                      label={QuestionAdd('researchOutput.additionalFields.maxLength.label')}
-                                      value={field.maxLength || ''}
-                                      onChange={(e) => handleUpdateAdditionalField(field.id, 'maxLength', e.currentTarget.value)}
-                                      helpMessage={QuestionAdd('researchOutput.additionalFields.maxLength.helpText')}
-                                    />
-
-                                    {/* Default Value for the custom field */}
-                                    <FormInput
-                                      name={`${field.id}_defaultValue`}
-                                      type="text"
-                                      isRequired={false}
-                                      label={QuestionAdd('researchOutput.additionalFields.defaultValue.label')}
-                                      value={field.defaultValue}
-                                      onChange={(e) => handleUpdateAdditionalField(field.id, 'defaultValue', e.currentTarget.value)}
-                                      helpMessage={QuestionAdd('researchOutput.additionalFields.defaultValue.helpText')}
-                                    />
-                                  </div>
-                                </div>
-                              )}
-                              {index < additionalFields.length - 1 && <hr className={styles.fieldDivider} />}
-                            </div>
-                          );
-                        })}
-                        <div className={styles.additionalFieldsContainer}>
-                          <Button
-                            type="button"
-                            className={styles.addFieldButton}
-                            onPress={addAdditionalField}
-                          >
-                            + {QuestionAdd('researchOutput.additionalFields.addFieldBtn')}
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
+                  <ResearchOutputComponent
+                    standardFields={standardFields}
+                    additionalFields={additionalFields}
+                    expandedFields={expandedFields}
+                    nonCustomizableFieldIds={nonCustomizableFieldIds}
+                    newOutputType={newOutputType}
+                    setNewOutputType={setNewOutputType}
+                    newLicenseType={newLicenseType}
+                    setNewLicenseType={setNewLicenseType}
+                    newAccessLevel={newAccessLevel}
+                    setNewAccessLevel={setNewAccessLevel}
+                    defaultResearchOutputTypesData={defaultResearchOutputTypesData}
+                    licensesData={licensesData}
+                    onStandardFieldChange={handleStandardFieldChange}
+                    onCustomizeField={handleCustomizeField}
+                    onUpdateStandardFieldProperty={updateStandardFieldProperty}
+                    onTogglePreferredRepositories={handleTogglePreferredRepositories}
+                    onRepositoriesChange={handleRepositoriesChange}
+                    onToggleMetaDataStandards={handleToggleMetaDataStandards}
+                    onMetaDataStandardsChange={handleMetaDataStandardsChange}
+                    onOutputTypeModeChange={handleOutputTypeModeChange}
+                    onAddCustomOutputType={handleAddCustomOutputType}
+                    onRemoveCustomOutputType={handleRemoveCustomOutputType}
+                    onLicenseModeChange={handleLicenseModeChange}
+                    onAddCustomLicenseType={handleAddCustomLicenseType}
+                    onRemoveCustomLicenseType={handleRemoveCustomLicenseType}
+                    onAccessLevelModeChange={handleAccessLevelModeChange}
+                    onAddCustomAccessLevel={handleAddCustomAccessLevel}
+                    onRemoveCustomAccessLevels={handleRemoveCustomAccessLevels}
+                    onDeleteAdditionalField={handleDeleteAdditionalField}
+                    onUpdateAdditionalField={handleUpdateAdditionalField}
+                    onAddAdditionalField={addAdditionalField}
+                  />
                 )}
 
                 {/** Research Output question types have "required" at individual fields, and not on the whole question */}

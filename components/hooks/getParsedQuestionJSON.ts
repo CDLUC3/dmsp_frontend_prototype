@@ -36,7 +36,7 @@ const isValidQuestionType = (obj: any): obj is QuestionTypeMap[keyof QuestionTyp
       table: true,
       affiliationSearch: true,
       multiselectBox: true,
-      researchOutput: true
+      researchOutputTable: true
     } as const);
 };
 

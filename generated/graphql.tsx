@@ -5026,6 +5026,18 @@ export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type LanguagesQuery = { __typename?: 'Query', languages?: Array<{ __typename?: 'Language', id: string, isDefault: boolean, name: string } | null> | null };
 
+export type RecommendedLicensesQueryVariables = Exact<{
+  recommended: Scalars['Boolean']['input'];
+}>;
+
+
+export type RecommendedLicensesQuery = { __typename?: 'Query', recommendedLicenses?: Array<{ __typename?: 'License', name: string, id?: number | null, uri: string } | null> | null };
+
+export type LicensesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LicensesQuery = { __typename?: 'Query', licenses?: { __typename?: 'LicenseSearchResults', items?: Array<{ __typename?: 'License', id?: number | null, name: string, uri: string, recommended: boolean } | null> | null } | null };
+
 export type MemberRolesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -5151,6 +5163,11 @@ export type ChildResearchDomainsQueryVariables = Exact<{
 
 
 export type ChildResearchDomainsQuery = { __typename?: 'Query', childResearchDomains?: Array<{ __typename?: 'ResearchDomain', id?: number | null, name: string, description?: string | null } | null> | null };
+
+export type DefaultResearchOutputTypesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type DefaultResearchOutputTypesQuery = { __typename?: 'Query', defaultResearchOutputTypes?: Array<{ __typename?: 'ResearchOutputType', id?: number | null, name: string, value: string, description?: string | null, errors?: { __typename?: 'ResearchOutputTypeErrors', general?: string | null, name?: string | null, value?: string | null } | null } | null> | null };
 
 export type SectionVersionsQueryVariables = Exact<{
   sectionId: Scalars['Int']['input'];
@@ -8325,6 +8342,92 @@ export type LanguagesQueryHookResult = ReturnType<typeof useLanguagesQuery>;
 export type LanguagesLazyQueryHookResult = ReturnType<typeof useLanguagesLazyQuery>;
 export type LanguagesSuspenseQueryHookResult = ReturnType<typeof useLanguagesSuspenseQuery>;
 export type LanguagesQueryResult = Apollo.QueryResult<LanguagesQuery, LanguagesQueryVariables>;
+export const RecommendedLicensesDocument = gql`
+    query RecommendedLicenses($recommended: Boolean!) {
+  recommendedLicenses(recommended: $recommended) {
+    name
+    id
+    uri
+  }
+}
+    `;
+
+/**
+ * __useRecommendedLicensesQuery__
+ *
+ * To run a query within a React component, call `useRecommendedLicensesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRecommendedLicensesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useRecommendedLicensesQuery({
+ *   variables: {
+ *      recommended: // value for 'recommended'
+ *   },
+ * });
+ */
+export function useRecommendedLicensesQuery(baseOptions: Apollo.QueryHookOptions<RecommendedLicensesQuery, RecommendedLicensesQueryVariables> & ({ variables: RecommendedLicensesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<RecommendedLicensesQuery, RecommendedLicensesQueryVariables>(RecommendedLicensesDocument, options);
+      }
+export function useRecommendedLicensesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RecommendedLicensesQuery, RecommendedLicensesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<RecommendedLicensesQuery, RecommendedLicensesQueryVariables>(RecommendedLicensesDocument, options);
+        }
+export function useRecommendedLicensesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<RecommendedLicensesQuery, RecommendedLicensesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<RecommendedLicensesQuery, RecommendedLicensesQueryVariables>(RecommendedLicensesDocument, options);
+        }
+export type RecommendedLicensesQueryHookResult = ReturnType<typeof useRecommendedLicensesQuery>;
+export type RecommendedLicensesLazyQueryHookResult = ReturnType<typeof useRecommendedLicensesLazyQuery>;
+export type RecommendedLicensesSuspenseQueryHookResult = ReturnType<typeof useRecommendedLicensesSuspenseQuery>;
+export type RecommendedLicensesQueryResult = Apollo.QueryResult<RecommendedLicensesQuery, RecommendedLicensesQueryVariables>;
+export const LicensesDocument = gql`
+    query Licenses {
+  licenses {
+    items {
+      id
+      name
+      uri
+      recommended
+    }
+  }
+}
+    `;
+
+/**
+ * __useLicensesQuery__
+ *
+ * To run a query within a React component, call `useLicensesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLicensesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLicensesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLicensesQuery(baseOptions?: Apollo.QueryHookOptions<LicensesQuery, LicensesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<LicensesQuery, LicensesQueryVariables>(LicensesDocument, options);
+      }
+export function useLicensesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<LicensesQuery, LicensesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<LicensesQuery, LicensesQueryVariables>(LicensesDocument, options);
+        }
+export function useLicensesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<LicensesQuery, LicensesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<LicensesQuery, LicensesQueryVariables>(LicensesDocument, options);
+        }
+export type LicensesQueryHookResult = ReturnType<typeof useLicensesQuery>;
+export type LicensesLazyQueryHookResult = ReturnType<typeof useLicensesLazyQuery>;
+export type LicensesSuspenseQueryHookResult = ReturnType<typeof useLicensesSuspenseQuery>;
+export type LicensesQueryResult = Apollo.QueryResult<LicensesQuery, LicensesQueryVariables>;
 export const MemberRolesDocument = gql`
     query MemberRoles {
   memberRoles {
@@ -9398,6 +9501,53 @@ export type ChildResearchDomainsQueryHookResult = ReturnType<typeof useChildRese
 export type ChildResearchDomainsLazyQueryHookResult = ReturnType<typeof useChildResearchDomainsLazyQuery>;
 export type ChildResearchDomainsSuspenseQueryHookResult = ReturnType<typeof useChildResearchDomainsSuspenseQuery>;
 export type ChildResearchDomainsQueryResult = Apollo.QueryResult<ChildResearchDomainsQuery, ChildResearchDomainsQueryVariables>;
+export const DefaultResearchOutputTypesDocument = gql`
+    query DefaultResearchOutputTypes {
+  defaultResearchOutputTypes {
+    id
+    name
+    value
+    errors {
+      general
+      name
+      value
+    }
+    description
+  }
+}
+    `;
+
+/**
+ * __useDefaultResearchOutputTypesQuery__
+ *
+ * To run a query within a React component, call `useDefaultResearchOutputTypesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useDefaultResearchOutputTypesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useDefaultResearchOutputTypesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useDefaultResearchOutputTypesQuery(baseOptions?: Apollo.QueryHookOptions<DefaultResearchOutputTypesQuery, DefaultResearchOutputTypesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<DefaultResearchOutputTypesQuery, DefaultResearchOutputTypesQueryVariables>(DefaultResearchOutputTypesDocument, options);
+      }
+export function useDefaultResearchOutputTypesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<DefaultResearchOutputTypesQuery, DefaultResearchOutputTypesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<DefaultResearchOutputTypesQuery, DefaultResearchOutputTypesQueryVariables>(DefaultResearchOutputTypesDocument, options);
+        }
+export function useDefaultResearchOutputTypesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<DefaultResearchOutputTypesQuery, DefaultResearchOutputTypesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<DefaultResearchOutputTypesQuery, DefaultResearchOutputTypesQueryVariables>(DefaultResearchOutputTypesDocument, options);
+        }
+export type DefaultResearchOutputTypesQueryHookResult = ReturnType<typeof useDefaultResearchOutputTypesQuery>;
+export type DefaultResearchOutputTypesLazyQueryHookResult = ReturnType<typeof useDefaultResearchOutputTypesLazyQuery>;
+export type DefaultResearchOutputTypesSuspenseQueryHookResult = ReturnType<typeof useDefaultResearchOutputTypesSuspenseQuery>;
+export type DefaultResearchOutputTypesQueryResult = Apollo.QueryResult<DefaultResearchOutputTypesQuery, DefaultResearchOutputTypesQueryVariables>;
 export const SectionVersionsDocument = gql`
     query SectionVersions($sectionId: Int!) {
   sectionVersions(sectionId: $sectionId) {

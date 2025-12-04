@@ -68,31 +68,31 @@ const MetaDataStandardsSelector = ({
       id: 1,
       name: "ABCD (Access to Biological Collection Data)",
       description: "<p>The Access to Biological Collections Data (ABCD) Schema is an evolving comprehensive standard for the access to and exchange of data about specimens and observations (a.k.a. primary biodiversity data). The ABCD Schema attempts to be comprehensive and highly structured, supporting data from a wide variety of databases. It is compatible with several existing data standards. Parallel structures exist so that either (or both) atomised data and free-text can be accommodated</p><p>The ABCD Schema was ratified as a standard by the Biodiversity Information Standards Taxonomic Databases Working Group(TDWG) in 2005. It was developed as a community- driven effort, with contributions from CODATA, BioCASE and GBIF among other organizations.</p>",
-      url: "https://dataverse.harvard.edu/dataverse/rtdc",
+      uri: "https://dataverse.harvard.edu/dataverse/rtdc",
     },
     {
       id: 2,
       name: "ABCD Zoology",
       description: "<p>ABCD Zoology is an application profile of ABCD tailored for use in zoological contexts. It was the first official application profile to use the RDF-based version 3.0 of ABCD.</p>",
-      url: "https://abcd.tdwg.org/xml/",
+      uri: "https://abcd.tdwg.org/xml/",
     },
     {
       id: 3,
       name: "AGLS Metadata Profile",
       description: "<p>An application of Dublin Core designed to improve visibility and availability of online resources, originally adapted from the Australian Government Locator Service metadata standard for use in government agencies.</p>",
-      url: "http://www.agls.gov.au",
+      uri: "http://www.agls.gov.au",
     },
     {
       id: 4,
       name: "Apple Core",
       description: "<p>Darwin Core documentation and recommendations for herbaria.</p>",
-      url: "http://code.google.com/p/applecore/wiki/Introduction",
+      uri: "http://code.google.com/p/applecore/wiki/Introduction",
     },
     {
       id: 5,
       name: "CESSDA Data Catalogue DDI Profiles",
       description: "<p>The profiles specify the metadata requirements of the CESSDA Data Catalogue, based on the CESSDA Metadata Model and the DDI specifications.</p>",
-      url: "https://cmv.cessda.eu/documentation/profiles.html",
+      uri: "https://cmv.cessda.eu/documentation/profiles.html",
     }
   ];
 
@@ -390,7 +390,7 @@ const MetaDataStandardsSelector = ({
                             </div>
                             <div className={styles.itemDescription}>
                               {std.description}
-                              <Link href={std.url} className={styles.itemLink}>{std.url}</Link>
+                              <Link href={std.uri} className={styles.itemLink}>{std.uri}</Link>
                             </div>
                           </div>
                         );

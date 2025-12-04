@@ -24,6 +24,7 @@ export type StandardField = {
   helpText?: string;
   maxLength?: string;
   value?: string;
+  customLabel?: string; // For additional custom fields
   licensesConfig?: LicensesConfig;
   accessLevelsConfig?: {
     mode: 'defaults' | 'mine';
@@ -44,7 +45,7 @@ export interface RepositoryInterface {
   id: number;
   name: string;
   description: string;
-  url: string;
+  uri: string;
   contact: string;
   access: string;
   identifier: string;
@@ -68,7 +69,7 @@ export interface MetaDataStandardInterface {
   id: number;
   name: string;
   description: string;
-  url: string;
+  uri: string;
 }
 
 export interface MetaDataStandardFieldInterface {
@@ -85,7 +86,7 @@ export interface MetaDataStandardFieldInterface {
 export type LicensesConfig = {
   mode: 'defaults' | 'addToDefaults';
   selectedDefaults: string[];
-  customTypes: string[];
+  customTypes: Array<{ name: string; uri: string }>;
 };
 
 export type AccessLevelsConfig = {

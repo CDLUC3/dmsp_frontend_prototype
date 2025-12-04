@@ -1,0 +1,156 @@
+{
+  "success": true,
+  "data": {
+    "type": "researchOutputTable",
+    "attributes": {
+      "label": "",
+      "help": "",
+      "labelTranslationKey": "",
+      "canAddRows": true,
+      "canRemoveRows": true,
+      "initialRows": 1
+    },
+    "meta": {
+      "schemaVersion": "1.0",
+      "title": "Research Output Table",
+      "usageDescription": "A table for collecting structured research output data"
+    },
+    "columns": [
+      {
+        "heading": "Title",
+        "required": true,
+        "enabled": true,
+        "content": {
+          "type": "text",
+          "attributes": {
+            "label": "Title",
+            "help": "",
+            "maxLength": 500,
+            "minLength": 1
+          },
+          "meta": {
+            "schemaVersion": "1.0"
+          }
+        },
+        "meta": {
+          "schemaVersion": "1.0",
+          "labelTranslationKey": "researchOutput.title"
+        }
+      },
+      {
+        "heading": "Output Type",
+        "required": true,
+        "enabled": true,
+        "content": {
+          "type": "selectBox",
+          "attributes": {
+            "label": "Output Type",
+            "help": "",
+            "multiple": false
+          },
+          "options": [],
+          "meta": {
+            "schemaVersion": "1.0"
+          }
+        },
+        "meta": {
+          "schemaVersion": "1.0",
+          "labelTranslationKey": "researchOutput.outputType"
+        }
+      },
+      {
+        "heading": "Metadata Standards",
+        "required": false,
+        "enabled": true,
+        "content": {
+          "type": "metadataStandardSearch",
+          "attributes": {
+            "label": "Metadata Standards",
+            "help": ""
+          },
+          "graphQL": {
+            "displayFields": [
+              {
+                "propertyName": "name",
+                "label": "Name"
+              },
+              {
+                "propertyName": "description",
+                "label": "Description"
+              },
+              {
+                "propertyName": "website",
+                "label": "Website"
+              },
+              {
+                "propertyName": "keywords",
+                "label": "Subject Areas"
+              }
+            ],
+            "query": "query MetadataStandards($term: String, $keywords: [String!], $paginationOptions: PaginationOptions){ metadataStandards(term: $term, keywords: $keywords, paginationOptions: $paginationOptions) { totalCount currentOffset limit hasNextPage hasPreviousPage availableSortFields items { id name uri description keywords } } }",
+            "responseField": "metadataStandards.items",
+            "variables": [
+              {
+                "minLength": 3,
+                "label": "Search for a metadata standard",
+                "name": "term",
+                "type": "string"
+              },
+              {
+                "minLength": 3,
+                "label": "Subject Areas",
+                "name": "keywords",
+                "type": "string"
+              },
+              {
+                "label": "Pagination Options",
+                "name": "paginationOptions",
+                "type": "paginationOptions",
+                "options": {
+                  "type": "OFFSET",
+                  "limit": 10,
+                  "offset": 0,
+                  "sortField": "name",
+                  "sortOrder": "ASC"
+                }
+              }
+            ],
+            "queryId": "useMetadataStandardsQuery",
+            "answerField": "uri"
+          },
+          "meta": {
+            "schemaVersion": "1.0"
+          }
+        },
+        "meta": {
+          "schemaVersion": "1.0",
+          "labelTranslationKey": "researchOutput.metadataStandards"
+        },
+        "preferences": [
+          {
+            "label": "ABCD (Access to Biological Collection Data)",
+            "value": "https://dataverse.harvard.edu/dataverse/rtdc"
+          }
+        ]
+      },
+      {
+        "heading": "Coverage",
+        "required": false,
+        "enabled": true,
+        "content": {
+          "type": "text",
+          "attributes": {
+            "label": "Coverage",
+            "help": ""
+          },
+          "meta": {
+            "schemaVersion": "1.0"
+          }
+        },
+        "meta": {
+          "schemaVersion": "1.0"
+        }
+      }
+    ]
+  }
+}
