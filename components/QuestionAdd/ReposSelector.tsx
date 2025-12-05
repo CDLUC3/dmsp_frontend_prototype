@@ -66,7 +66,7 @@ const originalRepositories = [
     id: 1105,
     name: "1.2 Meter CO Survey Dataverse",
     description: "The Radio Telescope Data Center (RTDC) reduces, archives, and makes available on its web site data from SMA and the CfA Millimeter-wave Telescope. The whole-Galaxy CO survey presented in Dame et al. (2001) is a composite of 37 separate surveys.",
-    url: "https://dataverse.harvard.edu/dataverse/rtdc",
+    uri: "https://dataverse.harvard.edu/dataverse/rtdc",
     contact: "Unknown",
     access: "Open",
     identifier: "DOI",
@@ -76,7 +76,7 @@ const originalRepositories = [
     id: 1280,
     name: "1000 Functional Connectomes Project",
     description: "The FCP entailed the aggregation and public release (via www.nitrc.org) of over 1200 resting state fMRI (R-fMRI) datasets collected from 33 sites around the world.",
-    url: "http://fcon_1000.projects.nitrc.org/fcpClassic/FcpTable.html",
+    uri: "http://fcon_1000.projects.nitrc.org/fcpClassic/FcpTable.html",
     contact: "moderator@nitrc.org",
     access: "Open",
     identifier: "none",
@@ -86,7 +86,7 @@ const originalRepositories = [
     id: 1350,
     name: "Protein Data Bank",
     description: "The Protein Data Bank is a database for the three-dimensional structural data of large biological molecules, such as proteins and nucleic acids.",
-    url: "https://www.rcsb.org",
+    uri: "https://www.rcsb.org",
     contact: "info@rcsb.org",
     access: "Open",
     identifier: "PDB ID",
@@ -96,7 +96,7 @@ const originalRepositories = [
     id: 1420,
     name: "GenBank",
     description: "GenBank is the NIH genetic sequence database, an annotated collection of all publicly available DNA sequences.",
-    url: "https://www.ncbi.nlm.nih.gov/genbank/",
+    uri: "https://www.ncbi.nlm.nih.gov/genbank/",
     contact: "info@ncbi.nlm.nih.gov",
     access: "Open",
     identifier: "Accession Number",
@@ -106,7 +106,7 @@ const originalRepositories = [
     id: 1501,
     name: "Crystallography Open Database",
     description: "Open-access collection of crystal structures of organic, inorganic, metal-organic compounds and minerals.",
-    url: "http://www.crystallography.net",
+    uri: "http://www.crystallography.net",
     contact: "cod@crystallography.net",
     access: "Open",
     identifier: "COD ID",
@@ -310,7 +310,7 @@ const RepositorySelectionSystem = ({
                             </span>
                             <span className={styles.itemBadge}>{repo.identifier}</span>
                             <a
-                              href={repo.url}
+                              href={repo.uri}
                               target="_blank"
                               rel="noopener noreferrer"
                               className={styles.itemLink}
@@ -539,8 +539,8 @@ const RepositorySelectionSystem = ({
                                 <dl>
                                   <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.repoTitle')}</dt>
                                   <dd>
-                                    <a href={repo.url} target="_blank" rel="noopener noreferrer">
-                                      {repo.url}
+                                    <a href={repo.uri} target="_blank" rel="noopener noreferrer">
+                                      {repo.uri}
                                     </a>
                                   </dd>
                                   <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.contactTitle')}</dt>
