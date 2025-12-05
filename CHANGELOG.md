@@ -40,6 +40,7 @@
 - Removed `scrollToTop` from `Template Create` page [#950]
 
 ### Chore
+- Updated `jws` to `3.2.3` due to vulnerability
 - Updated `next` version to `15.5.7` due to vulnerability
 - Ran `npm audit fix` to address `glob` vulnerability and `js-yaml` vulnerability
 ====================================================================================================================================
