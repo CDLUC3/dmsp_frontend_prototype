@@ -561,8 +561,6 @@ export const questionTypeHandlers: Record<string, QuestionTypeHandler> = {
     }>;
     attributes?: QuestionTypeMap["table"]["attributes"];
   }) => {
-    console.log('researchOutputTable handler - input columns:', JSON.stringify(input?.columns, null, 2));
-    
     // researchOutputTable uses the table schema structure with additional column properties
     const questionData: QuestionTypeMap["researchOutputTable"] = {
       ...json,
@@ -577,7 +575,7 @@ export const questionTypeHandlers: Record<string, QuestionTypeHandler> = {
         maxRows: input?.attributes?.maxRows,
         minRows: input?.attributes?.minRows,
       },
-      columns: input?.columns?.map((column, idx) => {
+      columns: input?.columns?.map(column => {
         const baseColumn: any = {
           heading: column.heading ?? "Column A",
           required: column.required ?? false,
@@ -591,7 +589,6 @@ export const questionTypeHandlers: Record<string, QuestionTypeHandler> = {
 
         // Add preferences array if provided (for repository, metadata standard, and license columns)
         if (column.preferences && column.preferences.length > 0) {
-          console.log(`Adding preferences to column ${idx} (${column.heading}):`, column.preferences);
           baseColumn.preferences = column.preferences;
         }
 
@@ -610,16 +607,6 @@ export const questionTypeHandlers: Record<string, QuestionTypeHandler> = {
       },
     };
 
-    console.log('researchOutputTable handler - questionData before validation:', JSON.stringify(questionData, null, 2));
-    
-    // Don't use schema validation for researchOutputTable since the schema doesn't support
-    // the extended column properties (preferences, attributes) on individual columns.
-    // The schema uses base TableColumn which doesn't include these extensions.
-    // Return the data as-is without validation to preserve preferences arrays.
-    const result = { success: true, data: questionData };
-    
-    console.log('researchOutputTable handler - result after validation:', JSON.stringify(result, null, 2));
-    
-    return result;
+    return createAndValidateQuestion("researchOutputTable", questionData, QuestionSchemaMap['researchOutputTable']);
   },
 };
