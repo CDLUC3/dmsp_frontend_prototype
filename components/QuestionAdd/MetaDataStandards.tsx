@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslations } from "next-intl";
-
+import { useParams, useRouter } from "next/navigation";
 import {
   Button,
   Checkbox,
@@ -14,11 +14,27 @@ import {
   Modal,
   SearchField,
 } from "react-aria-components";
+
+
+// GraphQL queries and mutations
+import {
+  useMetadataStandardsLazyQuery,
+} from '@/generated/graphql';
+
+import {
+  addMetaDataStandardsAction
+} from "./actions";
+
+// Utilities/Other
+import { routePath } from "@/utils/routes";
+import { extractErrors } from "@/utils/errorHandler";
+import logECS from "@/utils/clientLogger";
+// Components
 import {
   FormInput,
 } from '@/components/Form';
-
 import Pagination from '@/components/Pagination';
+
 import { useToast } from '@/context/ToastContext';
 
 import {
@@ -26,6 +42,16 @@ import {
   MetaDataStandardFieldInterface
 } from '@/app/types';
 import styles from './Selector.module.scss';
+
+const LIMIT = 5;
+
+type AddMetaDataStandardsErrors = {
+  general?: string;
+  name?: string;
+  description?: string;
+  uri?: string;
+  keywords?: string;
+};
 
 const paginationProps = {
   currentPage: 1,
@@ -45,6 +71,11 @@ const MetaDataStandardsSelector = ({
   onMetaDataStandardsChange: (standards: MetaDataStandardInterface[]) => void;
 }) => {
   const toastState = useToast();
+  const params = useParams();
+  const router = useRouter();
+  // Get tempateId from the URL
+  const templateId = String(params.templateId);
+
   const [selectedStandards, setSelectedStandards] = useState<{ [id: string]: MetaDataStandardInterface }>(() => {
     const initial = field.metaDataConfig?.customStandards || [];
     // Convert array to object keyed by id
@@ -55,8 +86,16 @@ const MetaDataStandardsSelector = ({
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCustomFormOpen, setIsCustomFormOpen] = useState(false);
-  const [customForm, setCustomForm] = useState({ name: '', url: '', description: '' });
+  const [customForm, setCustomForm] = useState({ name: '', uri: '', description: '' });
+  const [errors, setErrors] = useState<string[]>([]);
+
+  // Search related states
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [hasNextPage, setHasNextPage] = useState<boolean | null>(false);
+  const [hasPreviousPage, setHasPreviousPage] = useState<boolean | null>(false);
 
   // Translation keys
   const Global = useTranslations("Global");
@@ -96,22 +135,61 @@ const MetaDataStandardsSelector = ({
     }
   ];
 
-  // Filtered repositories state
-  const [metaStandards, setMetaStandards] = useState(originalMetaDataStandards);
+  // Filtered metadata standards state
+  const [metaDataStandards, setMetaDataStandards] = useState<any[]>([]);
+
+  // Metadata standards lazy query
+  const [fetchMetaDataStandardsData, { data: metaDataStandardsData, loading: metaDataStandardsLoading, error: metaDataStandardsError }] = useMetadataStandardsLazyQuery();
+
+
+  // Fetch metadata standards based on search term criteria
+  const fetchMetaDataStandards = async ({
+    page,
+    searchTerm = ''
+  }: {
+    page?: number;
+    searchTerm?: string;
+  }): Promise<void> => {
+    let offsetLimit = 0;
+    if (page) {
+      setCurrentPage(page);
+      offsetLimit = (page - 1) * LIMIT;
+    }
+
+    await fetchMetaDataStandardsData({
+      variables: {
+        paginationOptions: {
+          offset: offsetLimit,
+          limit: LIMIT,
+          type: "OFFSET",
+          sortDir: "DESC",
+        },
+        term: searchTerm,
+      }
+    });
+  };
+
+  // Handle pagination page click
+  const handlePageClick = async (page: number) => {
+    await fetchMetaDataStandards({
+      page,
+      searchTerm
+    });
+  };
 
   const handleSearchInput = (term: string) => {
     setSearchTerm(term);
-    setMetaStandards(originalMetaDataStandards);
   };
 
-  const handleSearch = () => {
-    //TODO: Implement actual search/filter logic here
+  // Handle search for metadata standards
+  const handleSearch = async (term: string) => {
+    setErrors([]); // Clear previous errors
+    setSearchTerm(term);
 
-    const filtered = originalMetaDataStandards.filter(standard =>
-      standard.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      standard.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setMetaStandards(filtered);
+    // Reset to first page on new search
+    setCurrentPage(1);
+
+    await fetchMetaDataStandards({ searchTerm: term });
   }
 
   const toggleSelection = (std: MetaDataStandardInterface) => {
@@ -135,6 +213,7 @@ const MetaDataStandardsSelector = ({
     }
   };
 
+  // Remove single standard from selected list
   const removeStandard = (stdId: number) => {
     const std = selectedStandards[stdId];
     setSelectedStandards(prev => {
@@ -145,6 +224,7 @@ const MetaDataStandardsSelector = ({
     toastState.add(`${std.name} removed`, { type: 'success' });
   };
 
+  // Remove all selected standards
   const removeAllStandards = () => {
     if (window.confirm(QuestionAdd('researchOutput.metaDataStandards.messages.confirmRemovalAll'))) {
       setSelectedStandards({});
@@ -154,32 +234,123 @@ const MetaDataStandardsSelector = ({
     }
   };
 
-  const addCustomMetadataStandard = () => {
-    const { name, url, description } = customForm;
+  const handleAddCustomStandard = useCallback(async () => {
+    setErrors([]);
+    const { name, description, uri } = customForm;
 
-    if (!name.trim() || !url.trim() || !description.trim()) {
+    if (!name.trim() || !uri.trim() || !description.trim()) {
       toastState.add(QuestionAdd('researchOutput.metaDataStandards.messages.fillInAllFields'), { type: 'error' });
+      return;
+    };
+
+    const response = await addMetaDataStandardsAction({
+      name: name.trim(),
+      description: description.trim(),
+      uri: uri.trim()
+    });
+
+    if (response.redirect) {
+      router.push(response.redirect);
       return;
     }
 
-    const customStandard = {
-      id: Date.now(),
-      name: name.trim(),
-      description: description.trim(),
-      url: url.trim(),
-    };
+    if (!response.success) {
+      setErrors(
+        response.errors?.length ? response.errors : [Global("messaging.somethingWentWrong")]
+      )
+      logECS("error", "adding metadata standard", {
+        errors: response.errors,
+        url: { path: routePath("template.q.new", { templateId }) },
+      });
+      return;
+    } else {
+      if (response?.data?.errors) {
+        const errs = extractErrors<AddMetaDataStandardsErrors>(response?.data?.errors, ["general", "name", "description", "uri", "keywords"]);
 
-    setSelectedStandards(prev => ({ ...prev, [customStandard.id]: customStandard }));
-    setCustomForm({ name: '', url: '', description: '' });
-    setIsCustomFormOpen(false);
-    toastState.add(QuestionAdd('researchOutput.metaDataStandards.messages.addedSuccessfully', { name: customStandard.name }), { type: 'success' });
-  };
+        if (errs.length > 0) {
+          setErrors(errs);
+          logECS("error", "adding metadata standard", {
+            errors: errs,
+            url: { path: routePath("template.q.new", { templateId }) },
+          });
+          return; // Don't proceed to success message if there are errors
+        }
+      }
+      // setSelectedRepos(prev => ({...prev, [customRepo.id]: customRepo }));
+      setCustomForm({ name: '', uri: '', description: '' });
+      setIsCustomFormOpen(false);
+      const successMessage = QuestionAdd('researchOutput.metaDataStandards.messages.addedSuccessfully', { name: name.trim() });
+      toastState.add(successMessage, { type: "success" });
+    }
+  }, [customForm, templateId, Global, router]);
+
+  // const addCustomMetadataStandard = () => {
+  //   const { name, uri, description } = customForm;
+
+  //   if (!name.trim() || !uri.trim() || !description.trim()) {
+  //     toastState.add(QuestionAdd('researchOutput.metaDataStandards.messages.fillInAllFields'), { type: 'error' });
+  //     return;
+  //   }
+
+  //   const customStandard = {
+  //     id: Date.now(),
+  //     name: name.trim(),
+  //     description: description.trim(),
+  //     uri: uri.trim(),
+  //   };
+
+  //   setSelectedStandards(prev => ({ ...prev, [customStandard.id]: customStandard }));
+  //   setCustomForm({ name: '', uri: '', description: '' });
+  //   setIsCustomFormOpen(false);
+  //   toastState.add(QuestionAdd('researchOutput.metaDataStandards.messages.addedSuccessfully', { name: customStandard.name }), { type: 'success' });
+  // };
 
 
   useEffect(() => {
     const stdsArray = Object.values(selectedStandards);
     onMetaDataStandardsChange?.(stdsArray);
   }, [selectedStandards]);
+
+  // Process repositoriesData changes
+  useEffect(() => {
+    // If user navigates away while request is in flight, and the network response arrives,
+    // can't perform state update on unmounted component. So we track if component is mounted.
+    let isMounted = true; // Track if component is still mounted
+
+    console.log('Metadata standards data updated:', metaDataStandardsData);
+    const processMetaDataStandardsData = () => {
+      console.log('Fetched repositories data:', metaDataStandardsData);
+
+      if (metaDataStandardsData?.metadataStandards?.items) {
+
+        if (isMounted) {
+          // Filter out null items
+          const validStandards = metaDataStandardsData.metadataStandards.items.filter(item => item !== null);
+          setMetaDataStandards(validStandards);
+          setTotalCount(metaDataStandardsData.metadataStandards.totalCount ?? 0);
+          setTotalPages(Math.ceil((metaDataStandardsData.metadataStandards.totalCount ?? 0) / LIMIT));
+          setHasNextPage(metaDataStandardsData.metadataStandards.hasNextPage ?? false);
+          setHasPreviousPage(metaDataStandardsData.metadataStandards.hasPreviousPage ?? false);
+        }
+      } else {
+        if (isMounted) {
+          setMetaDataStandards([]);
+        }
+      }
+    };
+    processMetaDataStandardsData();
+
+    return () => {
+      isMounted = false; // Mark as unmounted
+    };
+
+  }, [metaDataStandardsData]);
+
+  useEffect(() => {
+    // On initial load, fetch all metadata standards
+    fetchMetaDataStandards({ page: 1 });
+  }, []);
+
 
   const selectedCount = Object.keys(selectedStandards).length;
   const selectedArray = Object.values(selectedStandards);
@@ -299,7 +470,7 @@ const MetaDataStandardsSelector = ({
                               <Button
                                 className="primary medium"
                                 onPress={() => {
-                                  handleSearch();
+                                  handleSearch(searchTerm);
                                 }}
                               >
                                 {Global('buttons.applyFilter')}
@@ -334,8 +505,9 @@ const MetaDataStandardsSelector = ({
                           type="url"
                           isRequired={true}
                           label={Global('labels.url')}
-                          value={customForm.url}
-                          onChange={(e) => setCustomForm({ ...customForm, url: e.target.value })}
+                          value={customForm.uri}
+                          helpMessage={QuestionAdd('researchOutput.metaDataStandards.help.uri')}
+                          onChange={(e) => setCustomForm({ ...customForm, uri: e.target.value })}
                         />
                         <FormInput
                           name="std-description"
@@ -349,7 +521,7 @@ const MetaDataStandardsSelector = ({
 
                         <div className={styles.formActions}>
                           <Button
-                            onClick={addCustomMetadataStandard}
+                            onClick={handleAddCustomStandard}
                             className={`${styles.applyFilterBtn} primary medium`}
                           >
                             {QuestionAdd('researchOutput.metaDataStandards.buttons.addToTemplate')}
@@ -367,12 +539,18 @@ const MetaDataStandardsSelector = ({
                     <div className={styles.searchResults}>
                       <div className={styles.paginationWrapper}>
                         <span className={styles.paginationInfo}>
-                          Displaying standards 1 - 10 of 4372 in total
+                          Displaying repositories {metaDataStandards.length} of {totalCount} in total
                         </span>
-                        <Pagination {...paginationProps} />
+                        <Pagination
+                          currentPage={currentPage}
+                          totalPages={totalPages}
+                          hasPreviousPage={hasPreviousPage}
+                          hasNextPage={hasNextPage}
+                          handlePageClick={handlePageClick}
+                        />
                       </div>
 
-                      {metaStandards?.map((std) => {
+                      {metaDataStandards?.map((std) => {
                         const isSelected = selectedStandards[std.id];
                         return (
                           <div
