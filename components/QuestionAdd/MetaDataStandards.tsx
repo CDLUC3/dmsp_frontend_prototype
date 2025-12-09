@@ -429,6 +429,7 @@ const MetaDataStandardsSelector = ({
                       <Heading slot="title">{QuestionAdd('researchOutput.metaDataStandards.headings.dialogHeading')}{' '}<span className={styles.tag}>{QuestionAdd('researchOutput.metaDataStandards.selectedCount', { count: selectedCount })}</span></Heading>
                     </div>
                     <Button
+                      type="button"
                       onPress={() => {
                         setIsModalOpen(false);
                         close();
@@ -534,7 +535,7 @@ const MetaDataStandardsSelector = ({
                     <div className={styles.searchResults}>
                       <div className={styles.paginationWrapper}>
                         <span className={styles.paginationInfo}>
-                          Displaying repositories {metaDataStandards.length} of {totalCount} in total
+                          Displaying standards {metaDataStandards.length} of {totalCount} in total
                         </span>
                         <Pagination
                           currentPage={currentPage}

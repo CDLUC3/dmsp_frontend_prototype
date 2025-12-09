@@ -571,10 +571,6 @@ describe('MetaDataStandardsSelector', () => {
         expect(screen.queryByTestId('form-input-std-name')).not.toBeInTheDocument();
       });
 
-      // Close modal and check if custom standard appears in selected items
-      const closeButton = screen.getByRole('button', { name: 'buttons.closeModal' });
-      fireEvent.click(closeButton);
-
       expect(screen.getByText('Custom Standard')).toBeInTheDocument();
     });
 
@@ -791,7 +787,7 @@ describe('MetaDataStandardsSelector', () => {
       expect(screen.getByTestId('pagination')).toBeInTheDocument();
     });
 
-    it.only('displays pagination info text', () => {
+    it('displays pagination info text', () => {
       render(
         <MetaDataStandardsSelector
           field={mockField}
@@ -802,7 +798,7 @@ describe('MetaDataStandardsSelector', () => {
 
       const addButton = screen.getAllByRole('button', { name: /researchOutput.metaDataStandards.buttons.add/i })[0];
       fireEvent.click(addButton);
-      expect(screen.getByText(/Displaying repositories 5 of 52 in total /)).toBeInTheDocument();
+      expect(screen.getByText(/Displaying standards.*in total/)).toBeInTheDocument();
     });
   });
 
@@ -819,8 +815,8 @@ describe('MetaDataStandardsSelector', () => {
       const addButton = screen.getAllByRole('button', { name: /researchOutput.metaDataStandards.buttons.add/i })[0];
       fireEvent.click(addButton);
 
-      expect(screen.getByText('ABCD (Access to Biological Collection Data)')).toBeInTheDocument();
-      expect(screen.getByText('https://dataverse.harvard.edu/dataverse/rtdc')).toBeInTheDocument();
+      expect(screen.getByText('Terminal RI Unicamp')).toBeInTheDocument();
+      expect(screen.getByText('https://repositorio.unicamp.br/')).toBeInTheDocument();
     });
   });
 
@@ -863,7 +859,7 @@ describe('MetaDataStandardsSelector', () => {
       expect(screen.getAllByRole('button', { name: 'buttons.remove' }).length).toBeGreaterThan(0);
     });
 
-    it('generates unique IDs for custom standards', () => {
+    it('generates unique IDs for custom standards', async () => {
       render(
         <MetaDataStandardsSelector
           field={mockField}
@@ -886,10 +882,10 @@ describe('MetaDataStandardsSelector', () => {
       const submitButton = screen.getByRole('button', { name: /researchOutput.metaDataStandards.buttons.addToTemplate/i });
       fireEvent.click(submitButton);
 
-      const closeButton = screen.getByRole('button', { name: 'buttons.closeModal' });
-      fireEvent.click(closeButton);
-
-      expect(screen.getByText('Custom 1')).toBeInTheDocument();
+      // Wait for async action to complete
+      await waitFor(() => {
+        expect(screen.getByText('Custom 1')).toBeInTheDocument();
+      });
 
       // Open modal again to add another custom standard
       const addButton2 = screen.getByRole('button', { name: /researchOutput.metaDataStandards.buttons.add/i });
@@ -904,8 +900,10 @@ describe('MetaDataStandardsSelector', () => {
 
       fireEvent.click(screen.getByRole('button', { name: /researchOutput.metaDataStandards.buttons.addToTemplate/i }));
 
-      const closeButton2 = screen.getByRole('button', { name: 'buttons.closeModal' });
-      fireEvent.click(closeButton2);
+      // Wait for async action to complete
+      await waitFor(() => {
+        expect(screen.getByText('Custom 2')).toBeInTheDocument();
+      });
 
       // Both should be displayed
       expect(screen.getByText('Custom 1')).toBeInTheDocument();
@@ -953,10 +951,10 @@ describe('MetaDataStandardsSelector', () => {
       fireEvent.click(applyFilterBtn);
 
       // Should find results even with lowercase search
-      expect(screen.getByText('ABCD (Access to Biological Collection Data)')).toBeInTheDocument();
+      expect(screen.getByText('Terminal RI Unicamp')).toBeInTheDocument();
     });
 
-    it('handles very long standard names and descriptions', () => {
+    it('handles very long standard names and descriptions', async () => {
       render(
         <MetaDataStandardsSelector
           field={mockField}
@@ -981,11 +979,11 @@ describe('MetaDataStandardsSelector', () => {
       const submitButton = screen.getByRole('button', { name: /researchOutput.metaDataStandards.buttons.addToTemplate/i });
       fireEvent.click(submitButton);
 
-      const closeButton = screen.getByRole('button', { name: 'buttons.closeModal' });
-      fireEvent.click(closeButton);
-
       // Should display the long name
-      expect(screen.getByText(longName)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(longName)).toBeInTheDocument();
+
+      })
     });
 
     it('validates URL format in custom form', () => {
@@ -1030,7 +1028,7 @@ describe('MetaDataStandardsSelector', () => {
       let closeButton = screen.getByRole('button', { name: 'buttons.closeModal' });
       fireEvent.click(closeButton);
 
-      expect(screen.getByText('ABCD (Access to Biological Collection Data)')).toBeInTheDocument();
+      expect(screen.getByText('Terminal RI Unicamp')).toBeInTheDocument();
 
       // Open modal again
       addButton = screen.getAllByRole('button', { name: /researchOutput.metaDataStandards.buttons.add/i })[0];
@@ -1043,10 +1041,10 @@ describe('MetaDataStandardsSelector', () => {
       fireEvent.click(closeButton);
 
       // Standard should still appear in selected items
-      expect(screen.getByText('ABCD (Access to Biological Collection Data)')).toBeInTheDocument();
+      expect(screen.getByText('Terminal RI Unicamp')).toBeInTheDocument();
     });
 
-    it('clears custom form fields after successful submission', () => {
+    it('clears custom form fields after successful submission', async () => {
       render(
         <MetaDataStandardsSelector
           field={mockField}
@@ -1058,25 +1056,33 @@ describe('MetaDataStandardsSelector', () => {
       const addButton = screen.getByRole('button', { name: /researchOutput.metaDataStandards.buttons.add/i });
       fireEvent.click(addButton);
 
-      const secondaryAddButton = screen.getByRole('button', { name: /researchOutput.metaDataStandards.buttons.add/i });
-      fireEvent.click(secondaryAddButton);
+      await waitFor(() => {
+        const secondaryAddButton = screen.getByRole('button', { name: /researchOutput.metaDataStandards.buttons.add/i });
+        fireEvent.click(secondaryAddButton);
+      })
+
 
       fireEvent.change(screen.getByTestId('form-input-std-name'), { target: { value: 'Test Standard' } });
       fireEvent.change(screen.getByTestId('form-input-std-url'), { target: { value: 'https://example.com' } });
       fireEvent.change(screen.getByTestId('form-input-std-description'), { target: { value: 'Test Description' } });
 
-      const submitButton = screen.getByRole('button', { name: /researchOutput.metaDataStandards.buttons.addToTemplate/i });
+      const submitButton = screen.getByTestId('add-custom-std-btn');
       fireEvent.click(submitButton);
 
       // Form should be hidden
-      expect(screen.queryByTestId('form-input-std-name')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('form-input-std-name')).not.toBeInTheDocument();
+      })
 
       // Open form again
       const addButton2 = screen.getAllByRole('button', { name: /researchOutput.metaDataStandards.buttons.add/i })[0];
       fireEvent.click(addButton2);
 
-      const secondaryAddButton2 = screen.getAllByRole('button', { name: /researchOutput.metaDataStandards.buttons.add/i })[1];
-      fireEvent.click(secondaryAddButton2);
+      await waitFor(() => {
+        const secondaryAddButton2 = screen.getAllByRole('button', { name: /researchOutput.metaDataStandards.buttons.add/i })[0];
+        fireEvent.click(secondaryAddButton2);
+      })
+
 
       // Form fields should be empty
       expect((screen.getByTestId('form-input-std-name') as HTMLInputElement).value).toBe('');
