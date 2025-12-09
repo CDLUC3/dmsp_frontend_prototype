@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -29,12 +29,13 @@ import {
 import { routePath } from "@/utils/routes";
 import { extractErrors } from "@/utils/errorHandler";
 import logECS from "@/utils/clientLogger";
+
 // Components
 import {
   FormInput,
 } from '@/components/Form';
 import Pagination from '@/components/Pagination';
-
+import ErrorMessages from '../ErrorMessages';
 import { useToast } from '@/context/ToastContext';
 
 import {
@@ -75,6 +76,10 @@ const MetaDataStandardsSelector = ({
   const router = useRouter();
   // Get tempateId from the URL
   const templateId = String(params.templateId);
+
+
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
 
   const [selectedStandards, setSelectedStandards] = useState<{ [id: string]: MetaDataStandardInterface }>(() => {
     const initial = field.metaDataConfig?.customStandards || [];
@@ -276,35 +281,23 @@ const MetaDataStandardsSelector = ({
           return; // Don't proceed to success message if there are errors
         }
       }
-      // setSelectedRepos(prev => ({...prev, [customRepo.id]: customRepo }));
+
+      // Add the newly created standard to selected standards
+      const newStandard: MetaDataStandardInterface = {
+        id: response.data?.id || Date.now(), // Use returned ID or timestamp as fallback
+        name: name.trim(),
+        uri: uri.trim(),
+        description: description.trim(),
+      };
+
+      setSelectedStandards(prev => ({ ...prev, [newStandard.id]: newStandard }));
       setCustomForm({ name: '', uri: '', description: '' });
       setIsCustomFormOpen(false);
+      setIsModalOpen(false); //close modal after adding custom standard
       const successMessage = QuestionAdd('researchOutput.metaDataStandards.messages.addedSuccessfully', { name: name.trim() });
       toastState.add(successMessage, { type: "success" });
     }
   }, [customForm, templateId, Global, router]);
-
-  // const addCustomMetadataStandard = () => {
-  //   const { name, uri, description } = customForm;
-
-  //   if (!name.trim() || !uri.trim() || !description.trim()) {
-  //     toastState.add(QuestionAdd('researchOutput.metaDataStandards.messages.fillInAllFields'), { type: 'error' });
-  //     return;
-  //   }
-
-  //   const customStandard = {
-  //     id: Date.now(),
-  //     name: name.trim(),
-  //     description: description.trim(),
-  //     uri: uri.trim(),
-  //   };
-
-  //   setSelectedStandards(prev => ({ ...prev, [customStandard.id]: customStandard }));
-  //   setCustomForm({ name: '', uri: '', description: '' });
-  //   setIsCustomFormOpen(false);
-  //   toastState.add(QuestionAdd('researchOutput.metaDataStandards.messages.addedSuccessfully', { name: customStandard.name }), { type: 'success' });
-  // };
-
 
   useEffect(() => {
     const stdsArray = Object.values(selectedStandards);
@@ -317,10 +310,7 @@ const MetaDataStandardsSelector = ({
     // can't perform state update on unmounted component. So we track if component is mounted.
     let isMounted = true; // Track if component is still mounted
 
-    console.log('Metadata standards data updated:', metaDataStandardsData);
     const processMetaDataStandardsData = () => {
-      console.log('Fetched repositories data:', metaDataStandardsData);
-
       if (metaDataStandardsData?.metadataStandards?.items) {
 
         if (isMounted) {
@@ -489,6 +479,10 @@ const MetaDataStandardsSelector = ({
 
                     {isCustomFormOpen && (
                       <div className={styles.customRepoForm}>
+                        <ErrorMessages
+                          errors={errors}
+                          ref={errorRef}
+                        />
                         <h4>{QuestionAdd('researchOutput.metaDataStandards.headings.addCustomHeading')}</h4>
                         <FormInput
                           name="std-name"
@@ -522,6 +516,7 @@ const MetaDataStandardsSelector = ({
                         <div className={styles.formActions}>
                           <Button
                             onClick={handleAddCustomStandard}
+                            data-testid="add-custom-std-btn"
                             className={`${styles.applyFilterBtn} primary medium`}
                           >
                             {QuestionAdd('researchOutput.metaDataStandards.buttons.addToTemplate')}

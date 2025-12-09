@@ -177,7 +177,6 @@ const RepositorySelectionSystem = ({
 
   const handleSearchInput = (term: string) => {
     setSearchTerm(term);
-    //setRepositories(originalRepositories);
   };
 
   // Handle search for repositories

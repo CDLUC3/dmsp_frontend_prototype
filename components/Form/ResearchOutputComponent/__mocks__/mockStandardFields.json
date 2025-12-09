@@ -1,0 +1,87 @@
+[
+  {
+    "id": "title",
+    "label": "Title",
+    "enabled": true,
+    "required": true
+  },
+  {
+    "id": "description",
+    "label": "Description",
+    "enabled": false,
+    "placeholder": "",
+    "helpText": "",
+    "maxLength": "",
+    "required": true,
+    "value": ""
+  },
+  {
+    "id": "outputType",
+    "label": "Output Type",
+    "enabled": true,
+    "helpText": "",
+    "required": true,
+    "outputTypeConfig": {
+      "mode": "defaults",
+      "selectedDefaults": [],
+      "customTypes": []
+    }
+  },
+  {
+    "id": "dataFlags",
+    "label": "Data Flags",
+    "enabled": false,
+    "helpText": "",
+    "flagsConfig": {
+      "showSensitiveData": true,
+      "showPersonalData": true,
+      "mode": "both"
+    }
+  },
+  {
+    "id": "repoSelector",
+    "label": "Repositories",
+    "enabled": false,
+    "placeholder": "",
+    "helpText": "",
+    "value": "",
+    "repoConfig": {
+      "hasCustomRepos": false,
+      "customRepos": []
+    }
+  },
+  {
+    "id": "metadataStandards",
+    "label": "Metadata Standards",
+    "enabled": false,
+    "helpText": "",
+    "metaDataConfig": {
+      "hasCustomStandards": false,
+      "customStandards": []
+    }
+  },
+  {
+    "id": "licenses",
+    "label": "Licenses",
+    "enabled": false,
+    "defaultValue": "",
+    "helpText": "",
+    "licensesConfig": {
+      "mode": "defaults",
+      "selectedDefaults": [],
+      "customTypes": []
+    }
+  },
+  {
+    "id": "accessLevels",
+    "label": "Initial Access Levels",
+    "enabled": false,
+    "defaultValue": "",
+    "helpText": "",
+    "accessLevelsConfig": {
+      "mode": "defaults",
+      "selectedDefaults": [],
+      "customLevels": []
+    }
+  }
+]

@@ -394,6 +394,19 @@ export interface ActionResponse {
   redirect?: string;
 }
 
+export interface MetadataStandardActionResponse extends ActionResponse {
+  data?: {
+    id?: number | null;
+    name?: string;
+    uri?: string;
+    description?: string;
+    keywords?: string[];
+    errors?: {
+      [key: string]: string | null;
+    };
+  };
+}
+
 export interface UserInterface {
   givenName: string;
   surName: string;

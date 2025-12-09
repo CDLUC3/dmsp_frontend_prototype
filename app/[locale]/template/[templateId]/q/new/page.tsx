@@ -220,36 +220,6 @@ const QuestionTypeSelectPage: React.FC = () => {
                               handleSelect={handleSelect}
                             />
                           ))}
-                          {/** This is temporary, until we add research output question type to questionTypes */}
-                          <QuestionTypeCard
-                            key="researchOutputTable"
-                            questionType={{
-                              type: "researchOutputTable",
-                              title: "Research Output",
-                              usageDescription: "A table-based question for collecting research output information with configurable fields.",
-                              defaultJSON: {
-                                type: "researchOutputTable",
-                                attributes: {
-                                  label: "",
-                                  help: "",
-                                  labelTranslationKey: "",
-                                  canAddRows: true,
-                                  canRemoveRows: true,
-                                  initialRows: 1,
-                                  maxRows: undefined,
-                                  minRows: undefined
-                                },
-                                meta: {
-                                  schemaVersion: "1.0",
-                                  title: "Research Output Table",
-                                  usageDescription: "A table for collecting structured research output data"
-                                },
-                                columns: []
-                              }
-                            } as any} // eslint-disable-line @typescript-eslint/no-explicit-any
-                            handleSelect={handleSelect}
-                          />
-
                         </>
                       )
                       }

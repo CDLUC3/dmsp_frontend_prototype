@@ -24,7 +24,7 @@ export default function Pagination({
   const getPages = () => {
     const pages: (number | string)[] = [];
     const delta = 2;
-    const maxVisiblePages = 7; // Max pages to show (excluding ellipsis)
+    const maxVisiblePages = 7; // Max pages to show in the pagination row (excluding ellipsis)
 
     // For small total pages, show all
     if (totalPages <= maxVisiblePages) {

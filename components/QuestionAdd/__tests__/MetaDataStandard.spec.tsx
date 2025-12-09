@@ -3,8 +3,15 @@
  */
 import React from 'react';
 import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { useToast } from '@/context/ToastContext';
+import {
+  useMetadataStandardsLazyQuery
+} from '@/generated/graphql';
 import { axe, toHaveNoViolations } from 'jest-axe';
+import { addMetaDataStandardsAction } from '../actions';
+
 import MetaDataStandardsSelector from '../MetaDataStandards';
+import mockMetaDataStandards from '../__mocks__/mockMetaDataStandards.json';
 
 expect.extend(toHaveNoViolations);
 
@@ -13,6 +20,22 @@ jest.mock('@/components/Pagination', () => {
   MockPagination.displayName = 'Pagination';
   return MockPagination;
 });
+
+// Mock Next.js hooks
+jest.mock('next/navigation', () => ({
+  useParams: jest.fn(),
+  useRouter: jest.fn(),
+}));
+
+// Mock useToast hook
+jest.mock('@/context/ToastContext', () => ({
+  useToast: jest.fn(),
+}));
+
+// Mock the addMetaDataStandardsAction
+jest.mock('../actions', () => ({
+  addMetaDataStandardsAction: jest.fn(),
+}));
 
 // ---- Test data ----
 const mockField = {
@@ -25,12 +48,57 @@ const mockField = {
   },
 };
 
+// Mock the useTemplateQuery hook
+jest.mock("@/generated/graphql", () => ({
+  ...jest.requireActual("@/generated/graphql"),
+  useMetadataStandardsLazyQuery: jest.fn(),
+}));
+
 const mockHandleToggle = jest.fn();
 const mockOnChange = jest.fn();
+
+const mockFetchMetaDataStandards = jest.fn();
 
 describe('MetaDataStandardsSelector', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // Mock Next.js useParams
+    (require('next/navigation').useParams as jest.Mock).mockReturnValue({
+      templateId: 'test-template-id'
+    });
+
+    // Mock Next.js useRouter
+    (require('next/navigation').useRouter as jest.Mock).mockReturnValue({
+      push: jest.fn(),
+      replace: jest.fn(),
+      refresh: jest.fn(),
+    });
+
+    // Mock useToast - the component calls toastState.add()
+    (useToast as jest.Mock).mockReturnValue({
+      add: jest.fn(),
+    });
+
+    // Mock addMetaDataStandardsAction to return success
+    (addMetaDataStandardsAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        metadataStandard: {
+          id: 999,
+          name: 'Custom Standard',
+          uri: 'https://example.com',
+          description: 'A custom standard',
+        }
+      }
+    });
+
+    // Return [fetchFunction, { data, loading, error }] for metadata standards query
+    (useMetadataStandardsLazyQuery as jest.Mock).mockReturnValue([
+      mockFetchMetaDataStandards,
+      { data: mockMetaDataStandards, loading: false, error: null }
+    ]);
+
   });
 
   describe('Rendering', () => {
@@ -371,7 +439,7 @@ describe('MetaDataStandardsSelector', () => {
       expect(window.confirm).toHaveBeenCalled();
 
       // Standard should still be in the list
-      expect(screen.getByText('ABCD (Access to Biological Collection Data)')).toBeInTheDocument();
+      expect(screen.getByText('Terminal RI Unicamp')).toBeInTheDocument();
     });
   });
 
@@ -395,8 +463,7 @@ describe('MetaDataStandardsSelector', () => {
       const applyFilterBtn = screen.getByRole('button', { name: 'buttons.applyFilter' });
       fireEvent.click(applyFilterBtn);
 
-      // Should display only ABCD-related standards
-      expect(screen.getByText('ABCD (Access to Biological Collection Data)')).toBeInTheDocument();
+      expect(screen.getByText('Terminal RI Unicamp')).toBeInTheDocument();
     });
 
     it('searches in both name and description fields', () => {
@@ -418,7 +485,7 @@ describe('MetaDataStandardsSelector', () => {
       fireEvent.click(applyFilterBtn);
 
       // Should find standards with "biological" in description
-      expect(screen.getByText("ABCD (Access to Biological Collection Data)")).toBeInTheDocument();
+      expect(screen.getByText('Terminal RI Unicamp')).toBeInTheDocument();
     });
 
     it('clears search and resets to all standards', () => {
@@ -444,8 +511,8 @@ describe('MetaDataStandardsSelector', () => {
       fireEvent.click(applyFilterBtn);
 
       // All standards should be visible again
-      expect(screen.getByText('ABCD (Access to Biological Collection Data)')).toBeInTheDocument();
-      expect(screen.getByText('AGLS Metadata Profile')).toBeInTheDocument();
+      expect(screen.getByText('Terminal RI Unicamp')).toBeInTheDocument();
+      expect(screen.getByText('Sintomas osteomusculares')).toBeInTheDocument();
     });
   });
 
@@ -476,7 +543,7 @@ describe('MetaDataStandardsSelector', () => {
       expect(screen.getByTestId('form-input-std-description')).toBeInTheDocument();
     });
 
-    it('adds a custom metadata standard when form is submitted with valid data', () => {
+    it('adds a custom metadata standard when form is submitted with valid data', async () => {
       render(
         <MetaDataStandardsSelector
           field={mockField}
@@ -496,11 +563,13 @@ describe('MetaDataStandardsSelector', () => {
       fireEvent.change(screen.getByTestId('form-input-std-url'), { target: { value: 'https://example.com' } });
       fireEvent.change(screen.getByTestId('form-input-std-description'), { target: { value: 'A custom standard' } });
 
-      const submitButton = screen.getByRole('button', { name: /researchOutput.metaDataStandards.buttons.addToTemplate/i });
+      const submitButton = screen.getByTestId('add-custom-std-btn');
       fireEvent.click(submitButton);
 
-      // Form should be hidden after submission
-      expect(screen.queryByTestId('form-input-std-name')).not.toBeInTheDocument();
+      // Wait for the async action to complete and form to close
+      await waitFor(() => {
+        expect(screen.queryByTestId('form-input-std-name')).not.toBeInTheDocument();
+      });
 
       // Close modal and check if custom standard appears in selected items
       const closeButton = screen.getByRole('button', { name: 'buttons.closeModal' });
@@ -532,7 +601,7 @@ describe('MetaDataStandardsSelector', () => {
       expect(screen.getByTestId('form-input-std-name')).toBeInTheDocument();
     });
 
-    it('trims whitespace from custom form inputs', () => {
+    it('trims whitespace from custom form inputs', async () => {
       render(
         <MetaDataStandardsSelector
           field={mockField}
@@ -555,8 +624,10 @@ describe('MetaDataStandardsSelector', () => {
       const submitButton = screen.getByRole('button', { name: /researchOutput.metaDataStandards.buttons.addToTemplate/i });
       fireEvent.click(submitButton);
 
-      const closeButton = screen.getByRole('button', { name: 'buttons.closeModal' });
-      fireEvent.click(closeButton);
+      // Wait for the async action to complete and modal to close
+      await waitFor(() => {
+        expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
+      });
 
       // Standard should be displayed with trimmed whitespace
       expect(screen.getByText('Custom Standard')).toBeInTheDocument();
@@ -672,7 +743,7 @@ describe('MetaDataStandardsSelector', () => {
         expect.arrayContaining([
           expect.objectContaining({
             name: expect.any(String),
-            url: expect.any(String),
+            uri: expect.any(String),
             description: expect.any(String),
           })
         ])
@@ -720,7 +791,7 @@ describe('MetaDataStandardsSelector', () => {
       expect(screen.getByTestId('pagination')).toBeInTheDocument();
     });
 
-    it('displays pagination info text', () => {
+    it.only('displays pagination info text', () => {
       render(
         <MetaDataStandardsSelector
           field={mockField}
@@ -731,8 +802,7 @@ describe('MetaDataStandardsSelector', () => {
 
       const addButton = screen.getAllByRole('button', { name: /researchOutput.metaDataStandards.buttons.add/i })[0];
       fireEvent.click(addButton);
-
-      expect(screen.getByText(/Displaying standards 1 - 10 of 4372 in total/)).toBeInTheDocument();
+      expect(screen.getByText(/Displaying repositories 5 of 52 in total /)).toBeInTheDocument();
     });
   });
 

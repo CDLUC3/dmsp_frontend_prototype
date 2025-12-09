@@ -666,9 +666,12 @@ const QuestionAdd = ({
    * - dataFlags: boolean fields for sensitive/personal data flags
    * - repoSelector: repositorySearch with GraphQL query
    * - metadataStandards: metadataStandardSearch with GraphQL query
-   * - licenses: selectBox with license options
+   * - licenses: licenseSearch with GraphQL query (not selectBox)
    * - accessLevels: selectBox with access level options
    * - additionalFields: custom text fields
+   * 
+   * This function prepares the user input structure that will be passed to the
+   * researchOutputTable handler in questionTypeHandlers for final validation.
    */
   const buildResearchOutputFormState = (parsed: AnyParsedQuestion | null) => {
     const columns: any[] = []; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -1134,6 +1137,8 @@ const QuestionAdd = ({
 
     const updatedJSON = buildUpdatedJSON(question);
 
+    console.log('Updated JSON to submit:', updatedJSON);
+
     if (updatedJSON) {
       // Strip all tags from questionText before sending to backend
       const cleanedQuestionText = stripHtmlTags(question?.questionText ?? '');
@@ -1155,6 +1160,7 @@ const QuestionAdd = ({
       try {
         const response = await addQuestionMutation({ variables: { input } });
 
+        console.log('Add Question response:', response);
         if (response?.data) {
           setIsSubmitting(false);
           setHasUnsavedChanges(false);

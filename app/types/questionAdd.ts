@@ -1,3 +1,5 @@
+import { LicensesQuery } from '@/generated/graphql';
+
 export type DataFlagsConfig = {
   showSensitiveData: boolean;
   showPersonalData: boolean;
@@ -95,10 +97,16 @@ export type AccessLevelsConfig = {
   customTypes: string[];
 };
 
+type License = {
+  uri: string;
+  name: string;
+  recommended: boolean;
+}
 
 export interface LicenseFieldProps {
   field: StandardField;
   newLicenseType: string;
+  licensesData?: LicensesQuery;
   setNewLicenseType: (value: string) => void;
   onModeChange: (mode: 'defaults' | 'addToDefaults') => void;
   onAddCustomType: () => void;

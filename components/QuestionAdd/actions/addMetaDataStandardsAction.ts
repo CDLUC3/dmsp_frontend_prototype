@@ -1,7 +1,7 @@
 "use server";
 
 import { executeGraphQLMutation } from "@/utils/server/graphqlServerActionHandler";
-import { ActionResponse } from "@/app/types";
+import { MetadataStandardActionResponse } from "@/app/types";
 import { AddMetadataStandardInputDocument } from "@/generated/graphql";
 
 export async function addMetaDataStandardsAction({
@@ -12,7 +12,7 @@ export async function addMetaDataStandardsAction({
   name: string;
   description: string;
   uri: string;
-}): Promise<ActionResponse> {
+}): Promise<MetadataStandardActionResponse> {
   // Execute the mutation using the shared handler
   return await executeGraphQLMutation({
     document: AddMetadataStandardInputDocument,
