@@ -96,10 +96,12 @@ const hasMetaDataConfig = (field: StandardField): field is StandardField & { met
 };
 
 // Frontend will hard-code these for now
-const defaultAccessLevels = [
-  { id: 'restricted', value: 'Controlled access', description: 'Restricts access to certain areas' },
-  { id: 'open', value: 'Unrestricted access', description: 'Allows access to all areas' },
-  { id: 'Other', value: 'Other', description: 'Other type of access' },
+// These match the schema defaults in ResearchOutputAccessLevelColumnSchema
+// TODO: Consider moving to backend GraphQL query like licenses if access levels become dynamic
+const defaultAccessLevels: AccessLevelInterface[] = [
+  { label: 'Unrestricted Access', value: 'open', description: 'Allows open access to all areas' },
+  { label: 'Controlled Access', value: 'restricted', description: 'Restricts access to certain areas' },
+  { label: 'Other', value: 'closed', description: 'Other type of access' },
 ];
 
 // Initial Standard Fields data
@@ -252,7 +254,7 @@ const QuestionAdd = ({
   // State for managing custom license types
   const [newLicenseType, setNewLicenseType] = useState<string>('');
   // State for managing custom access levels
-  const [newAccessLevel, setNewAccessLevel] = useState<AccessLevelInterface>({ level: '', description: '' });
+  const [newAccessLevel, setNewAccessLevel] = useState<AccessLevelInterface>({ label: '', value: '', description: '' });
 
   // localization keys
   const Global = useTranslations('Global');
@@ -534,13 +536,20 @@ const QuestionAdd = ({
 
   // Handler for adding custom access levels
   const handleAddCustomAccessLevel = () => {
-    if (newAccessLevel.level && newAccessLevel.level.trim()) {
+    if (newAccessLevel.label && newAccessLevel.label.trim()) {
       const currentField = standardFields.find(f => f.id === 'accessLevels');
       if (currentField && currentField.accessLevelsConfig) {
+        // Generate value from label (lowercase, hyphenated)
+        const value = newAccessLevel.value?.trim() || newAccessLevel.label.trim().toLowerCase().replace(/\s+/g, '-');
+
         // Add to custom access levels array
         const updatedCustomTypes = [
           ...currentField.accessLevelsConfig.customLevels,
-          { level: newAccessLevel.level.trim(), description: newAccessLevel.description?.trim() || '' }
+          {
+            label: newAccessLevel.label.trim(),
+            value: value,
+            description: newAccessLevel.description?.trim() || ''
+          }
         ];
 
         updateStandardFieldProperty('accessLevels', 'accessLevelsConfig', {
@@ -549,17 +558,17 @@ const QuestionAdd = ({
         });
 
         // Clear the input fields
-        setNewAccessLevel({ level: '', description: '' });
+        setNewAccessLevel({ label: '', value: '', description: '' });
       }
     }
   };
 
   // Handler for removing custom access levels
-  const handleRemoveCustomAccessLevels = (levelToRemove: string) => {
+  const handleRemoveCustomAccessLevels = (labelToRemove: string) => {
     const currentField = standardFields.find(f => f.id === 'accessLevels');
     if (currentField && currentField.accessLevelsConfig) {
       const updatedCustomLevels = currentField.accessLevelsConfig.customLevels.filter(
-        (customLevel: AccessLevelInterface) => customLevel.level !== levelToRemove
+        (customLevel: AccessLevelInterface) => customLevel.label !== labelToRemove
       );
       updateStandardFieldProperty('accessLevels', 'accessLevelsConfig', {
         ...currentField.accessLevelsConfig,
@@ -790,15 +799,20 @@ const QuestionAdd = ({
               required: false,
               enabled: true,
               content: {
-                type: 'boolean',
+                type: 'checkBoxes',
                 attributes: {
-                  label: 'Contains Sensitive Data',
+                  label: 'Data Flags',
                   help: field.helpText || '',
-                  checked: false
+                  labelTranslationKey: 'researchOutput.dataFlags.heading'
                 },
                 meta: {
                   schemaVersion: '1.0'
-                }
+                },
+                options: [{
+                  label: 'May contain sensitive data?',
+                  value: 'sensitive',
+                  checked: false
+                }]
               },
               meta: {
                 schemaVersion: '1.0',
@@ -814,15 +828,20 @@ const QuestionAdd = ({
               required: false,
               enabled: true,
               content: {
-                type: 'boolean',
+                type: 'checkBoxes',
                 attributes: {
-                  label: 'Contains Personal Data',
+                  label: 'Data Flags',
                   help: field.helpText || '',
-                  checked: false
+                  labelTranslationKey: 'researchOutput.dataFlags.heading'
                 },
                 meta: {
                   schemaVersion: '1.0'
-                }
+                },
+                options: [{
+                  label: 'May contain personally identifiable information?',
+                  value: 'personal',
+                  checked: false
+                }]
               },
               meta: {
                 schemaVersion: '1.0',
@@ -996,8 +1015,8 @@ const QuestionAdd = ({
           if (field.accessLevelsConfig?.mode === 'mine') {
             field.accessLevelsConfig?.customLevels?.forEach(customLevel => {
               accessLevelOptions.push({
-                label: customLevel.level || '',
-                value: customLevel.level || '',
+                label: customLevel.label,
+                value: customLevel.value,
                 selected: false
               });
             });
@@ -1040,7 +1059,8 @@ const QuestionAdd = ({
             attributes: {
               label: customField.customLabel || customField.label,
               help: customField.helpText || '',
-              maxLength: customField.maxLength ? Number(customField.maxLength) : undefined
+              maxLength: customField.maxLength ? Number(customField.maxLength) : undefined,
+              defaultValue: customField.defaultValue || undefined
             },
             meta: {
               schemaVersion: '1.0'
@@ -1115,6 +1135,7 @@ const QuestionAdd = ({
   const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
     const userInput = getFormState(question, rowsOverride);
     const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId }), Global);
+
     if (!parsed) {
       if (error) {
         setErrors(prev => [...prev, error])
@@ -1137,9 +1158,8 @@ const QuestionAdd = ({
 
     const updatedJSON = buildUpdatedJSON(question);
 
-    console.log('Updated JSON to submit:', updatedJSON);
-
-    if (updatedJSON) {
+    const { success, error } = updatedJSON ?? {};
+    if (success && !error) {
       // Strip all tags from questionText before sending to backend
       const cleanedQuestionText = stripHtmlTags(question?.questionText ?? '');
 
@@ -1160,7 +1180,6 @@ const QuestionAdd = ({
       try {
         const response = await addQuestionMutation({ variables: { input } });
 
-        console.log('Add Question response:', response);
         if (response?.data) {
           setIsSubmitting(false);
           setHasUnsavedChanges(false);
@@ -1179,7 +1198,7 @@ const QuestionAdd = ({
     } else {
       setErrors(prevErrors => [
         ...prevErrors,
-        QuestionAdd('messages.errors.questionAddingError'),
+        error ?? QuestionAdd('messages.errors.questionAddingError'),
       ]);
     }
 
@@ -1451,6 +1470,7 @@ const QuestionAdd = ({
                     setNewAccessLevel={setNewAccessLevel}
                     defaultResearchOutputTypesData={defaultResearchOutputTypesData}
                     licensesData={licensesData}
+                    defaultAccessLevels={defaultAccessLevels}
                     onStandardFieldChange={handleStandardFieldChange}
                     onCustomizeField={handleCustomizeField}
                     onUpdateStandardFieldProperty={updateStandardFieldProperty}

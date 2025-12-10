@@ -4,10 +4,18 @@
 import React from 'react';
 import { act, render, screen, fireEvent } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
+import { useParams } from "next/navigation";
+import {
+  RepositoryType,
+  useRepositoriesLazyQuery,
+  useRepositorySubjectAreasQuery
+} from '@/generated/graphql';
 import RepositorySelectionSystem from '../ReposSelector';
 import {
   RepositoryInterface,
 } from '@/app/types';
+import mockRepositories from '../__mocks__/mockRepositories.json';
+import mockSubjectAreas from '../__mocks__/mockSubjectAreas.json';
 
 expect.extend(toHaveNoViolations);
 
@@ -23,6 +31,30 @@ jest.mock('@/context/ToastContext', () => ({
   }),
 }));
 
+jest.mock("@/generated/graphql", () => ({
+  ...jest.requireActual("@/generated/graphql"),
+  useRepositoriesLazyQuery: jest.fn(),
+  useRepositorySubjectAreasQuery: jest.fn(),
+}));
+
+jest.mock("../actions", () => {
+  let idCounter = 1000;
+  return {
+    addRepositoryAction: jest.fn().mockImplementation(async ({ name, description, website }) => {
+      return {
+        success: true,
+        data: {
+          id: String(idCounter++),
+          name,
+          description,
+          website,
+        },
+      };
+    }),
+  };
+});
+
+const mockFetchRepositories = jest.fn();
 // ---- Test data ----
 const createMockField = (hasCustomRepos: boolean = true, customRepos: RepositoryInterface[] = []) => ({
   id: 'repoSelector',
@@ -40,10 +72,25 @@ const createMockField = (hasCustomRepos: boolean = true, customRepos: Repository
 const mockField = createMockField();
 const mockHandleToggle = jest.fn();
 const mockOnChange = jest.fn();
+const mockParams = useParams as jest.Mock;
 
 describe('RepositorySelectionSystem', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockParams.mockReturnValue({
+      templateId: '1',
+    });
+
+    // Return [fetchFunction, { data, loading, error }] for metadata standards query
+    (useRepositoriesLazyQuery as jest.Mock).mockReturnValue([
+      mockFetchRepositories,
+      { data: mockRepositories, loading: false, error: null }
+    ]);
+
+    (useRepositorySubjectAreasQuery as jest.Mock).mockReturnValue([
+      { data: mockSubjectAreas, loading: false, error: null }
+    ]);
+
   });
 
   describe('Rendering', () => {
@@ -248,12 +295,13 @@ describe('RepositorySelectionSystem', () => {
       const addButton = screen.getByRole('button', { name: /researchOutput.repoSelector.buttons.addRepo/i });
       fireEvent.click(addButton);
 
+      screen.debug(undefined, 10000);
       const selectButtons = screen.getAllByRole('button', { name: 'buttons.select' });
       fireEvent.click(selectButtons[0]);
       fireEvent.click(selectButtons[1]);
 
       // Check that selected count tag is displayed
-      expect(screen.getByText(/researchOutput.repoSelector.selectedCount/)).toBeInTheDocument();
+      expect(screen.getByText(/researchOutput.repoSelector.repositoriesSelected/)).toBeInTheDocument();
     });
   });
 
@@ -984,7 +1032,7 @@ describe('RepositorySelectionSystem', () => {
       expect(screen.getAllByRole('button', { name: 'buttons.remove' }).length).toBeGreaterThan(0);
     });
 
-    it('generates unique IDs for custom repositories', () => {
+    it('generates unique IDs for custom repositories', async () => {
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -1005,10 +1053,11 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.change(screen.getByTestId('form-input-repo-description'), { target: { value: 'Description 1' } });
 
       const submitButton = screen.getByRole('button', { name: /researchOutput.repoSelector.buttons.addRepository/i });
-      fireEvent.click(submitButton);
-
-      const closeButton = screen.getByRole('button', { name: 'buttons.closeModal' });
-      fireEvent.click(closeButton);
+      await act(async () => {
+        fireEvent.click(submitButton);
+        // Wait for async action to complete
+        await new Promise(resolve => setTimeout(resolve, 0));
+      });
 
       expect(screen.getByText('Custom 1')).toBeInTheDocument();
 
@@ -1023,10 +1072,11 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.change(screen.getByTestId('form-input-repo-url'), { target: { value: 'https://example2.com' } });
       fireEvent.change(screen.getByTestId('form-input-repo-description'), { target: { value: 'Description 2' } });
 
-      fireEvent.click(screen.getByRole('button', { name: /researchOutput.repoSelector.buttons.addRepository/i }));
-
-      const closeButton2 = screen.getByRole('button', { name: 'buttons.closeModal' });
-      fireEvent.click(closeButton2);
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: /researchOutput.repoSelector.buttons.addRepository/i }));
+        // Wait for async action to complete
+        await new Promise(resolve => setTimeout(resolve, 0));
+      });
 
       // Both should be displayed
       expect(screen.getByText('Custom 1')).toBeInTheDocument();

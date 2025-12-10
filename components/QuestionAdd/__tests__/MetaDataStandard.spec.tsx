@@ -48,7 +48,7 @@ const mockField = {
   },
 };
 
-// Mock the useTemplateQuery hook
+// Mock the query hook
 jest.mock("@/generated/graphql", () => ({
   ...jest.requireActual("@/generated/graphql"),
   useMetadataStandardsLazyQuery: jest.fn(),

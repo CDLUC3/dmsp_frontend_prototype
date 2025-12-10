@@ -32,6 +32,7 @@ interface ResearchOutputComponentProps {
   setNewAccessLevel: React.Dispatch<React.SetStateAction<AccessLevelInterface>>;
   defaultResearchOutputTypesData?: DefaultResearchOutputTypesQuery;
   licensesData?: LicensesQuery;
+  defaultAccessLevels: AccessLevelInterface[];
   onStandardFieldChange: (fieldId: string, enabled: boolean) => void;
   onCustomizeField: (fieldId: string) => void;
   onUpdateStandardFieldProperty: (fieldId: string, propertyName: string, value: unknown) => void;
@@ -71,6 +72,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
   setNewAccessLevel,
   defaultResearchOutputTypesData,
   licensesData,
+  defaultAccessLevels,
   onStandardFieldChange,
   onCustomizeField,
   onUpdateStandardFieldProperty,
@@ -285,6 +287,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                       <>
                         <InitialAccessLevel
                           field={field}
+                          defaultAccessLevels={defaultAccessLevels}
                           newAccessLevel={newAccessLevel}
                           setNewAccessLevel={setNewAccessLevel}
                           onModeChange={onAccessLevelModeChange}

@@ -48,7 +48,8 @@ const mockOutputType: OutputTypeInterface = {
 };
 
 const mockAccessLevel: AccessLevelInterface = {
-  level: '',
+  label: '',
+  value: '',
   description: ''
 };
 
@@ -67,6 +68,11 @@ const defaultProps = {
   setNewAccessLevel: jest.fn(),
   defaultResearchOutputTypesData: undefined,
   licensesData: undefined,
+  defaultAccessLevels: [
+    { label: 'Unrestricted Access', value: 'open', description: 'Allows open access' },
+    { label: 'Controlled Access', value: 'restricted', description: 'Restricts access' },
+    { label: 'Other', value: 'closed', description: 'Other access' },
+  ],
   onStandardFieldChange: jest.fn(),
   onCustomizeField: jest.fn(),
   onUpdateStandardFieldProperty: jest.fn(),

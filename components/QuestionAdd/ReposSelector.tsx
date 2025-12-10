@@ -44,7 +44,7 @@ import {
 import styles from './Selector.module.scss';
 
 // # of repositories displayed per page
-const LIMIT = 1;
+const LIMIT = 5;
 
 
 type AddRepositoryErrors = {
@@ -112,8 +112,8 @@ const RepositorySelectionSystem = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCustomFormOpen, setIsCustomFormOpen] = useState(false);
   const [expandedDetails, setExpandedDetails] = useState<Record<string, boolean>>({});
-  const [subjectArea, setSubjectArea] = useState('');
-  const [repoType, setRepoType] = useState('');
+  const [subjectArea, setSubjectArea] = useState<string | null>(null);
+  const [repoType, setRepoType] = useState<string | null>(null);
   const [customForm, setCustomForm] = useState({ name: '', website: '', description: '' });
   const [errors, setErrors] = useState<string[]>([]);
   // Search related states
@@ -129,8 +129,11 @@ const RepositorySelectionSystem = ({
   // Get Repository Subject Areas - for future dynamic subject area fetching
   const { data: subjectAreasData, loading: subjectAreasLoading, error: subjectAreasError } = useRepositorySubjectAreasQuery();
 
-  // Transform subject areas data for FormSelect
-  const subjectAreas = subjectAreasData?.repositorySubjectAreas?.map(area => toSubjectAreaObject(area)) || [];
+  // Transform subject areas data for FormSelect - add empty option for deselection
+  const subjectAreas = [
+    { id: 'none', name: '-- None --' },
+    ...(subjectAreasData?.repositorySubjectAreas?.map(area => toSubjectAreaObject(area)) || [])
+  ];
 
   // Repositories lazy query
   const [fetchRepositoriesData, { data: repositoriesData, loading: repos, error: repositoriesError }] = useRepositoriesLazyQuery();
@@ -192,12 +195,12 @@ const RepositorySelectionSystem = ({
 
   // Set selected subject area
   const searchOnSubjectArea = (subject: string) => {
-    setSubjectArea(subject);
+    setSubjectArea(subject === 'none' ? null : subject);
   };
 
   // Set selected repository type
   const searchOnRepositoryType = (type: string) => {
-    setRepoType(type);
+    setRepoType(type === 'none' ? null : type);
   };
 
   // Handle add/removal of repository selections in modal view and display confirmation toasts
@@ -292,13 +295,24 @@ const RepositorySelectionSystem = ({
           return; // Don't proceed to success message if there are errors
         }
       }
-      // setSelectedRepos(prev => ({...prev, [customRepo.id]: customRepo }));
+
+      // Add the newly created repository to selected repositories
+      const newRepo: RepositoryInterface = {
+        id: response.data?.id || String(Date.now()), // Use returned ID or timestamp as fallback
+        name: name.trim(),
+        uri: website.trim(),
+        description: description.trim(),
+      };
+
+      setSelectedRepos(prev => ({ ...prev, [newRepo.id]: newRepo }));
+      setRepositories(prev => [...prev, newRepo]);
       setCustomForm({ name: '', website: '', description: '' });
       setIsCustomFormOpen(false);
+      setIsModalOpen(false);
       const successMessage = QuestionAdd('researchOutput.repoSelector.messages.customRepoAdded', { name: name.trim() });
       toastState.add(successMessage, { type: "success" });
     }
-  }, [customForm, templateId, Global, router]);
+  }, [customForm, templateId, Global, router, QuestionAdd, toastState]);
 
 
   useEffect(() => {
@@ -314,10 +328,8 @@ const RepositorySelectionSystem = ({
     let isMounted = true; // Track if component is still mounted
 
     const processRepoData = () => {
-      console.log('Fetched repositories data:', repositoriesData);
-
       if (repositoriesData?.repositories?.items) {
-
+        console.log("***Repos Data:", repositoriesData);
         if (isMounted) {
           // Filter out null items
           const validRepos = repositoriesData.repositories.items.filter(item => item !== null);
@@ -390,10 +402,15 @@ const RepositorySelectionSystem = ({
                         <div className={styles.itemContent}>
                           <div className={styles.itemTitle}>{repo.name}</div>
                           <div className={styles.itemMeta}>
-                            <span className={`${styles.itemBadge} ${repo.access?.toLowerCase() === 'open' ? styles.open : ''}`}>
-                              {repo.access}
-                            </span>
-                            <span className={styles.itemBadge}>{repo.identifier}</span>
+                            {repo.access && (
+                              <span className={`${styles.itemBadge} ${repo.access?.toLowerCase() === 'open' ? styles.open : ''}`}>
+                                {repo.access}
+                              </span>
+                            )}
+
+                            {repo.identifier && (
+                              <span className={styles.itemBadge}>{repo.identifier}</span>
+                            )}
                             <a
                               href={repo.uri}
                               target="_blank"

@@ -1,13 +1,13 @@
 import { useTranslations } from 'next-intl';
 import {
   AccessLevelsFieldProps,
+  AccessLevelInterface,
 } from '@/app/types';
 
 import {
   Button,
   Dialog,
   DialogTrigger,
-  //ListBoxItem,
   OverlayArrow,
   Popover,
 } from "react-aria-components";
@@ -15,15 +15,14 @@ import { DmpIcon } from "@/components/Icons";
 
 import styles from './questionAdd.module.scss';
 
-const defaultAccessLevels = [
-  { id: 'controlledAccess', level: 'Controlled access', description: 'Restricts access to certain areas' },
-  { id: 'unrestrictedAccess', level: 'Unrestricted access', description: 'Allows access to all areas' },
-  { id: 'Other', level: 'Other', description: 'Other type of access' },
-];
+interface InitialAccessLevelFieldProps extends AccessLevelsFieldProps {
+  defaultAccessLevels: AccessLevelInterface[];
+}
 
 const InitialAccessLevelField = ({
   field,
-}: AccessLevelsFieldProps) => {
+  defaultAccessLevels,
+}: InitialAccessLevelFieldProps) => {
   const QuestionAdd = useTranslations('QuestionAdd');
   return (
     <div className={styles.typeConfig}>
@@ -32,14 +31,14 @@ const InitialAccessLevelField = ({
           <fieldset>
             <legend>{QuestionAdd('researchOutput.accessLevels.legends.default')}</legend>
             <ul className={`${styles.typesList} ${styles.bulletList}`} role="list">
-              {defaultAccessLevels.map((accessLevel) => (
-                <li key={accessLevel.id} className={styles.typeItem}>
-                  <span id={`custom-level-${accessLevel.id}`}>{accessLevel.level}</span>
+              {defaultAccessLevels.map((accessLevel, index) => (
+                <li key={accessLevel.value || index} className={styles.typeItem}>
+                  <span id={`access-level-${index}`}>{accessLevel.label}</span>
                   <DialogTrigger>
                     <Button
                       className="popover-btn"
                       aria-label={QuestionAdd('labels.clickForMoreInfo')}
-                      aria-describedby={`access-level-${accessLevel.id}`}
+                      aria-describedby={`access-level-${index}`}
                     >
                       <div className="icon info"><DmpIcon icon="info" /></div>
                     </Button>
@@ -49,7 +48,7 @@ const InitialAccessLevelField = ({
                           <path d="M0 0 L6 6 L12 0" />
                         </svg>
                       </OverlayArrow>
-                      <Dialog aria-label={QuestionAdd('labels.accessLevelDescription', { level: accessLevel.level })}>
+                      <Dialog aria-label={QuestionAdd('labels.accessLevelDescription', { level: accessLevel.label })}>
                         <div className="flex-col">
                           {accessLevel.description}
                         </div>

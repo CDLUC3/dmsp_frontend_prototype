@@ -128,7 +128,8 @@ export interface OutputTypeInterface {
 }
 
 export interface AccessLevelInterface {
-  level?: string;
+  label: string;
+  value: string;
   description?: string;
 }
 

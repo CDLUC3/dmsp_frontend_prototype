@@ -4,6 +4,8 @@ import {
   useAddQuestionMutation,
   useQuestionsDisplayOrderQuery,
   useTemplateQuery, // Added for when we test contents of Question Preview
+  useLicensesQuery,
+  useDefaultResearchOutputTypesQuery,
 } from '@/generated/graphql';
 
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -135,7 +137,9 @@ jest.mock('@/lib/constants', () => ({
 jest.mock("@/generated/graphql", () => ({
   useQuestionsDisplayOrderQuery: jest.fn(),
   useAddQuestionMutation: jest.fn(),
-  useTemplateQuery: jest.fn()
+  useTemplateQuery: jest.fn(),
+  useLicensesQuery: jest.fn(),
+  useDefaultResearchOutputTypesQuery: jest.fn()
 }));
 
 jest.mock('next/navigation', () => ({
@@ -254,6 +258,18 @@ describe("QuestionAdd", () => {
 
     (useTemplateQuery as jest.Mock).mockReturnValue({ // Added for when we test contents of Question preview
       data: mockTemplateData,
+      loading: false,
+      error: undefined,
+    });
+
+    (useLicensesQuery as jest.Mock).mockReturnValue({
+      data: { licenses: [] },
+      loading: false,
+      error: undefined,
+    });
+
+    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
+      data: { defaultResearchOutputTypes: [] },
       loading: false,
       error: undefined,
     });
