@@ -123,7 +123,8 @@ const OutputTypeField = ({
                   }
                 }}
               />
-              <FormInput
+              {/*There is currently no way to save description for the outputType in dmptool-types. We have a ticket to update that*/}
+              {/* <FormInput
                 name="custom_types_description"
                 type="text"
                 isRequired={false}
@@ -138,7 +139,7 @@ const OutputTypeField = ({
                     onAddCustomType();
                   }
                 }}
-              />
+              /> */}
               <Button
                 type="button"
                 onPress={onAddCustomType}
@@ -165,27 +166,30 @@ const OutputTypeField = ({
                     >
                       <div className={styles.infoWrapper}>
                         <span id={`custom-type-${index}`}>{customType.type}</span>
-                        <DialogTrigger>
-                          <Button
-                            className="popover-btn"
-                            aria-label={QuestionAdd('labels.clickForMoreInfo')}
-                            aria-describedby={`custom-type-${index}`}
-                          >
-                            <div className="icon info"><DmpIcon icon="info" /></div>
-                          </Button>
-                          <Popover className="dynamic-popover-width react-aria-Popover">
-                            <OverlayArrow>
-                              <svg width={12} height={12} viewBox="0 0 12 12" aria-hidden="true">
-                                <path d="M0 0 L6 6 L12 0" />
-                              </svg>
-                            </OverlayArrow>
-                            <Dialog aria-label={QuestionAdd('labels.typeDescription', { type: customType.type || '' })}>
-                              <div className="flex-col">
-                                {customType.description}
-                              </div>
-                            </Dialog>
-                          </Popover>
-                        </DialogTrigger>
+                        {customType.description && (
+                          <DialogTrigger>
+                            <Button
+                              className="popover-btn"
+                              aria-label={QuestionAdd('labels.clickForMoreInfo')}
+                              aria-describedby={`custom-type-${index}`}
+                            >
+                              <div className="icon info"><DmpIcon icon="info" /></div>
+                            </Button>
+                            <Popover className="dynamic-popover-width react-aria-Popover">
+                              <OverlayArrow>
+                                <svg width={12} height={12} viewBox="0 0 12 12" aria-hidden="true">
+                                  <path d="M0 0 L6 6 L12 0" />
+                                </svg>
+                              </OverlayArrow>
+                              <Dialog aria-label={QuestionAdd('labels.typeDescription', { type: customType.type || '' })}>
+                                <div className="flex-col">
+                                  {customType.description}
+                                </div>
+                              </Dialog>
+                            </Popover>
+                          </DialogTrigger>
+                        )}
+
                       </div>
                       <Button
                         type="button"

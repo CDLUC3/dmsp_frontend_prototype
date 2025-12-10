@@ -4851,7 +4851,7 @@ export type AddRepositoryMutationVariables = Exact<{
 }>;
 
 
-export type AddRepositoryMutation = { __typename?: 'Mutation', addRepository?: { __typename?: 'Repository', id?: number | null, name: string, keywords?: Array<string> | null, uri: string, website?: string | null, errors?: { __typename?: 'RepositoryErrors', general?: string | null, name?: string | null, description?: string | null, repositoryTypes?: string | null, website?: string | null } | null } | null };
+export type AddRepositoryMutation = { __typename?: 'Mutation', addRepository?: { __typename?: 'Repository', id?: number | null, name: string, keywords?: Array<string> | null, uri: string, website?: string | null, description?: string | null, errors?: { __typename?: 'RepositoryErrors', general?: string | null, name?: string | null, description?: string | null, repositoryTypes?: string | null, website?: string | null } | null } | null };
 
 export type AddSectionMutationVariables = Exact<{
   input: AddSectionInput;
@@ -7123,6 +7123,7 @@ export const AddRepositoryDocument = gql`
     keywords
     uri
     website
+    description
   }
 }
     `;

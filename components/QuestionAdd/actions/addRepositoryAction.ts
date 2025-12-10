@@ -1,7 +1,7 @@
 "use server";
 
 import { executeGraphQLMutation } from "@/utils/server/graphqlServerActionHandler";
-import { ActionResponse } from "@/app/types";
+import { addRepositoryActionResponse } from "@/app/types";
 import { AddRepositoryDocument } from "@/generated/graphql";
 
 export async function addRepositoryAction({
@@ -12,7 +12,7 @@ export async function addRepositoryAction({
   name: string;
   description: string;
   website: string;
-}): Promise<ActionResponse> {
+}): Promise<addRepositoryActionResponse> {
   // Execute the mutation using the shared handler
   return await executeGraphQLMutation({
     document: AddRepositoryDocument,

@@ -407,6 +407,19 @@ export interface MetadataStandardActionResponse extends ActionResponse {
   };
 }
 
+export interface addRepositoryActionResponse extends ActionResponse {
+  data?: {
+    id?: number | null;
+    name?: string;
+    keywords?: string[];
+    uri?: string;
+    website?: string;
+    errors?: {
+      [key: string]: string | null;
+    };
+  }
+};
+
 export interface UserInterface {
   givenName: string;
   surName: string;

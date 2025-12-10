@@ -23,6 +23,7 @@ import Pagination from '@/components/Pagination';
 
 // GraphQL queries and mutations
 import {
+  Repository,
   RepositoryType,
   useRepositoriesLazyQuery,
   useRepositorySubjectAreasQuery
@@ -124,7 +125,7 @@ const RepositorySelectionSystem = ({
   const [hasNextPage, setHasNextPage] = useState<boolean | null>(false);
   const [hasPreviousPage, setHasPreviousPage] = useState<boolean | null>(false);
   // Filtered repositories state - can be either local mock data or GraphQL data
-  const [repositories, setRepositories] = useState<any[]>([]);
+  const [repositories, setRepositories] = useState<Repository[]>([]);
 
   // Get Repository Subject Areas - for future dynamic subject area fetching
   const { data: subjectAreasData, loading: subjectAreasLoading, error: subjectAreasError } = useRepositorySubjectAreasQuery();
@@ -298,14 +299,15 @@ const RepositorySelectionSystem = ({
 
       // Add the newly created repository to selected repositories
       const newRepo: RepositoryInterface = {
-        id: response.data?.id || String(Date.now()), // Use returned ID or timestamp as fallback
+        id: response.data?.id ?? Date.now(),
         name: name.trim(),
         uri: website.trim(),
         description: description.trim(),
+        keywords: [],
+        repositoryType: []
       };
 
       setSelectedRepos(prev => ({ ...prev, [newRepo.id]: newRepo }));
-      setRepositories(prev => [...prev, newRepo]);
       setCustomForm({ name: '', website: '', description: '' });
       setIsCustomFormOpen(false);
       setIsModalOpen(false);
@@ -329,7 +331,6 @@ const RepositorySelectionSystem = ({
 
     const processRepoData = () => {
       if (repositoriesData?.repositories?.items) {
-        console.log("***Repos Data:", repositoriesData);
         if (isMounted) {
           // Filter out null items
           const validRepos = repositoriesData.repositories.items.filter(item => item !== null);
@@ -402,15 +403,9 @@ const RepositorySelectionSystem = ({
                         <div className={styles.itemContent}>
                           <div className={styles.itemTitle}>{repo.name}</div>
                           <div className={styles.itemMeta}>
-                            {repo.access && (
-                              <span className={`${styles.itemBadge} ${repo.access?.toLowerCase() === 'open' ? styles.open : ''}`}>
-                                {repo.access}
-                              </span>
-                            )}
-
-                            {repo.identifier && (
-                              <span className={styles.itemBadge}>{repo.identifier}</span>
-                            )}
+                            {repo.keywords?.map((keyword: string) => (
+                              <span key={keyword} className={styles.tag}>{keyword}</span>
+                            ))}
                             <a
                               href={repo.uri}
                               target="_blank"
@@ -611,61 +606,68 @@ const RepositorySelectionSystem = ({
                         />
                       </div>
 
-                      {repositories.map((repo) => {
-                        const isSelected = selectedRepos[repo.id];
-                        return (
-                          <div
-                            key={repo.id}
-                            className={`${styles.searchResultItem} ${isSelected ? styles.selected : ''}`}
-                          >
-                            <div className={styles.searchResultHeader}>
-                              <div className={styles.searchResultTitle}>{repo.name}</div>
-                              <Button
-                                onClick={() => toggleSelection(repo)}
-                                className={`small ${isSelected ? 'secondary' : 'primary'}`}
-                              >
-                                {isSelected ? Global('buttons.remove') : Global('buttons.select')}
-                              </Button>
-                            </div>
-                            <div className={styles.itemDescription}>{repo.description}</div>
-                            <div className={styles.tags}>
-                              {repo.keywords?.map((keyword: string) => (
-                                <span key={keyword} className={styles.tag}>{keyword}</span>
-                              ))}
-                            </div>
-                            <ExpandButton
-                              collapseLabel={Global('buttons.lessInfo')}
-                              data-testid="expand-button"
-                              expandLabel={Global('buttons.moreInfo')}
-                              className={`${styles.moreInfoToggle} link`}
-                              aria-label={expandedDetails[`modal-${repo.id}`] ? Global('buttons.lessInfo') : Global('buttons.moreInfo')}
-                              expanded={expandedDetails[`modal-${repo.id}`]}
-                              setExpanded={() => toggleDetails(repo.id, 'modal-')}
-                            />
-                            {expandedDetails[`modal-${repo.id}`] && (
-                              <div className={styles.repoDetails}>
-                                <dl>
-                                  <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.repoTitle')}</dt>
-                                  <dd>
-                                    <a href={repo.uri} target="_blank" rel="noopener noreferrer">
-                                      {repo.uri}
-                                    </a>
-                                  </dd>
-                                  <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.repositoryType')}</dt>
-                                  <dd>
-                                    {repo.repositoryTypes?.map((type: string) => (
-                                      <span key={type} className={styles.tag}>{type}</span>
-                                    ))}</dd>
-                                  {/* <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.dataAccessTitle')}</dt>
-                                  <dd>{repo.access}</dd>
-                                  <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.identifierTitle')}</dt>
-                                  <dd>{repo.identifier}</dd> */}
-                                </dl>
+                      {repositories
+                        .filter((repo): repo is Repository & { id: number } => repo.id != null)
+                        .map((repo) => {
+                          const repoInterface: RepositoryInterface = {
+                            id: repo.id,
+                            name: repo.name ?? '',
+                            description: repo.description ?? '',
+                            uri: repo.uri ?? '',
+                            keywords: repo.keywords ?? [],
+                            repositoryType: repo.repositoryTypes ?? []
+                          };
+                          const isSelected = selectedRepos[repoInterface.id];
+                          return (
+                            <div
+                              key={repoInterface.id}
+                              className={`${styles.searchResultItem} ${isSelected ? styles.selected : ''}`}
+                            >
+                              <div className={styles.searchResultHeader}>
+                                <div className={styles.searchResultTitle}>{repo.name}</div>
+                                <Button
+                                  onClick={() => toggleSelection(repoInterface)}
+                                  className={`small ${isSelected ? 'secondary' : 'primary'}`}
+                                >
+                                  {isSelected ? Global('buttons.remove') : Global('buttons.select')}
+                                </Button>
                               </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                              <div className={styles.itemDescription}>{repo.description}</div>
+                              <div className={styles.tags}>
+                                {repo.keywords?.map((keyword: string) => (
+                                  <span key={keyword} className={styles.tag}>{keyword}</span>
+                                ))}
+                              </div>
+                              <ExpandButton
+                                collapseLabel={Global('buttons.lessInfo')}
+                                data-testid="expand-button"
+                                expandLabel={Global('buttons.moreInfo')}
+                                className={`${styles.moreInfoToggle} link`}
+                                aria-label={expandedDetails[`modal-${repoInterface.id}`] ? Global('buttons.lessInfo') : Global('buttons.moreInfo')}
+                                expanded={expandedDetails[`modal-${repoInterface.id}`]}
+                                setExpanded={() => toggleDetails(repoInterface.id, 'modal-')}
+                              />
+                              {expandedDetails[`modal-${repoInterface.id}`] && (
+                                <div className={styles.repoDetails}>
+                                  <dl>
+                                    <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.repoTitle')}</dt>
+                                    <dd>
+                                      <a href={repo.uri} target="_blank" rel="noopener noreferrer">
+                                        {repo.uri}
+                                      </a>
+                                    </dd>
+                                    <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.contactTitle')}</dt>
+                                    <dd>TBD</dd>
+                                    <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.dataAccessTitle')}</dt>
+                                    <dd>TBD</dd>
+                                    <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.identifierTitle')}</dt>
+                                    <dd>TBD</dd>
+                                  </dl>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                     </div>
                   </div>
                 </div>

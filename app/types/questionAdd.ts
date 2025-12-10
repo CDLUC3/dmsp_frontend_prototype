@@ -48,10 +48,8 @@ export interface RepositoryInterface {
   name: string;
   description: string;
   uri: string;
-  contact: string;
-  access: string;
-  identifier: string;
-  tags: string[];
+  keywords: string[];
+  repositoryType: string[];
 }
 
 export interface RepositoryFieldInterface {
