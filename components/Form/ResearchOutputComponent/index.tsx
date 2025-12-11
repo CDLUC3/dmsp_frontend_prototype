@@ -96,7 +96,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
           {QuestionAdd('researchOutput.description')}
         </p>
         <div className={styles.fieldsList}>
-          {standardFields.map((field, index) => {
+          {standardFields.map((field) => {
             // These fields are always required and cannot be turned off
             const isDisabled = field.id === 'title' || field.id === 'outputType';
             const tooltipId = `tooltip-${field.id}`;

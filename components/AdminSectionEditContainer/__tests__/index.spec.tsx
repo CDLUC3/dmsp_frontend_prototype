@@ -621,7 +621,7 @@ describe("AdminSectionEditContainer", () => {
   describe("Question Not Found Validation", () => {
     it("should handle validation when question is not found in local state", async () => {
       // Create a component instance
-      const { rerender } = render(<AdminSectionEditContainer {...defaultProps} />);
+      render(<AdminSectionEditContainer {...defaultProps} />);
 
       // Verify initial render
       expect(screen.getByText("Data Collection and Management")).toBeInTheDocument();
