@@ -97,7 +97,7 @@ const hasMetaDataConfig = (field: StandardField): field is StandardField & { met
 
 // Frontend will hard-code these for now
 // These match the schema defaults in ResearchOutputAccessLevelColumnSchema
-// TODO: Consider moving to backend GraphQL query like licenses if access levels become dynamic
+// TODO: Consider moving to backend
 const defaultAccessLevels: AccessLevelInterface[] = [
   { label: 'Unrestricted Access', value: 'open', description: 'Allows open access to all areas' },
   { label: 'Controlled Access', value: 'restricted', description: 'Restricts access to certain areas' },

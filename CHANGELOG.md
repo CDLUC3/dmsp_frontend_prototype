@@ -1,6 +1,7 @@
 
 ### Updated
 - Hooked up the `Research Output table` for template builder [#869]
+- Updated `Pagination` component so that navigation doesn't shift too much [#869]
 ==========================================================================================
 ## All changes above the line happened after the merge to the main branch on Dec 4, 2025
 ==========================================================================================
