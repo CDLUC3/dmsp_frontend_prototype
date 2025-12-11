@@ -51,11 +51,12 @@
   border-radius: var(--border-radius-sm);
 }
 
-.fieldDivider {
-  height: 1px;
-  border: none;
-  background: var(--border-color);
-  margin: 0;
+.fieldRowWrapper {
+  // Add visual separator between fields using CSS border instead of <hr>
+  // This avoids creating unnecessary navigation stops for screen readers
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+  }
 }
 
 .addFieldButton {
@@ -76,7 +77,11 @@
 }
 
 .fieldPanel {
-  padding: 15px;
+  padding: 0;
+
+    @include r.device(sm) {
+    gap: 0.7rem;
+    padding: 15px;}
 }
 
 .tooltipWrapper {

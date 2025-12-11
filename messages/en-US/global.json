@@ -736,6 +736,7 @@
       "continue": "Continue",
       "edit": "Edit",
       "delete": "Delete",
+      "deleteLabel": "Delete {item}",
       "preview": "Preview",
       "publish": "Publish",
       "publishChanges": "Publish changes",

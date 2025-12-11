@@ -403,6 +403,21 @@
       }
     },
     "researchOutput": {
+      "announcements": {
+        "fieldAdded": "Additional text field added.",
+        "fieldDeleted": "Additional text field deleted.",
+        "metadataStandardAdded": "Metadata standard added",
+        "metadataStandardRemoved": "Metadata standard removed",
+        "licenseModeChanged": "License mode changed to {mode}.",
+        "licenseAdded": "License {name} added",
+        "licenseRemoved": "License {name} removed.",
+        "outputTypeModeChanged": "Output type mode changed to {mode}.",
+        "outputTypeAdded": "Output type {type} added.",
+        "outputTypeRemoved": "Output type {type} removed.",
+        "errorOccurred": "An error occurred. Please check the form.",
+        "repositoryAdded": "Repository added.",
+        "repositoryRemoved": "Repository removed."
+      },
       "helpText": "Max length is 300 characters.",
       "headings": {
         "enableStandardFields": "Enable standard fields",

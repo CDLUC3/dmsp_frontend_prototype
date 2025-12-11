@@ -238,6 +238,9 @@ const QuestionAdd = ({
   // Which fields are expanded for customization
   const [expandedFields, setExpandedFields] = useState<string[]>(['title', 'outputType']);
 
+  // Add state for live region announcements
+  const [announcement, setAnnouncement] = useState('');
+
   // Which fields cannot be customized
   const nonCustomizableFieldIds = ['accessLevels'];
 
@@ -322,13 +325,21 @@ const QuestionAdd = ({
     const currentField = standardFields.find(f => f.id === 'repoSelector');
     if (currentField && currentField.repoConfig) {
       const wasEnabled = currentField.enabled;
+      const previousCount = currentField.repoConfig.customRepos?.length || 0;
       updateStandardFieldProperty('repoSelector', 'repoConfig', {
         ...currentField.repoConfig,
         customRepos: repos
       });
       // Only enable if a repo is added and the box is currently unchecked
-      if (!wasEnabled && repos.length > (currentField.repoConfig.customRepos?.length || 0)) {
+      if (!wasEnabled && repos.length > previousCount) {
         updateStandardFieldProperty('repoSelector', 'enabled', true);
+      }
+
+      // Announce the change
+      if (repos.length > previousCount) {
+        announce(QuestionAdd('researchOutput.announcements.repositoryAdded') || 'Repository added');
+      } else if (repos.length < previousCount) {
+        announce(QuestionAdd('researchOutput.announcements.repositoryRemoved') || 'Repository removed');
       }
     }
 
@@ -341,13 +352,21 @@ const QuestionAdd = ({
     const currentField = standardFields.find(f => f.id === 'metadataStandards');
     if (currentField && currentField.metaDataConfig) {
       const wasEnabled = currentField.enabled;
+      const previousCount = currentField.metaDataConfig.customStandards?.length || 0;
       updateStandardFieldProperty('metadataStandards', 'metaDataConfig', {
         ...currentField.metaDataConfig,
         customStandards: standards // Store metadata standard data
       });
       // Only enable if a standard is added and the box is currently unchecked
-      if (!wasEnabled && standards.length > (currentField.metaDataConfig.customStandards?.length || 0)) {
+      if (!wasEnabled && standards.length > previousCount) {
         updateStandardFieldProperty('metadataStandards', 'enabled', true);
+      }
+
+      // Announce the change
+      if (standards.length > previousCount) {
+        announce(QuestionAdd('researchOutput.announcements.metadataStandardAdded') || 'Metadata standard added');
+      } else if (standards.length < previousCount) {
+        announce(QuestionAdd('researchOutput.announcements.metadataStandardRemoved') || 'Metadata standard removed');
       }
     }
     setHasUnsavedChanges(true);
@@ -422,15 +441,30 @@ const QuestionAdd = ({
       setExpandedFields(prev => [...prev, fieldId]); //expanded
     }
     // Do NOT auto-collapse when unchecked
+
+    // Announce the change
+    const field = standardFields.find(f => f.id === fieldId);
+    if (field) {
+      const status = enabled ? 'enabled' : 'disabled';
+      announce(`${field.label} ${status}`);
+    }
   };
 
   // Handler for customize button clicks
   const handleCustomizeField = (fieldId: string) => {
+    const wasExpanded = expandedFields.includes(fieldId);
     setExpandedFields(prev =>
       prev.includes(fieldId)
         ? prev.filter(id => id !== fieldId) // collapse
         : [...prev, fieldId]                // expand
     );
+
+    // Announce the change
+    const field = standardFields.find(f => f.id === fieldId) || additionalFields.find(f => f.id === fieldId);
+    if (field) {
+      const status = wasExpanded ? 'collapsed' : 'expanded';
+      announce(`${field.label} ${status}`);
+    }
   };
 
   // Handler for toggling metadata standards
@@ -474,6 +508,10 @@ const QuestionAdd = ({
         mode,
         customTypes
       });
+
+      // Announce the change
+      const modeText = mode === 'defaults' ? 'default licenses' : 'custom licenses';
+      announce(QuestionAdd('researchOutput.announcements.licenseModeChanged', { mode: modeText }) || `License mode changed to ${modeText}`);
     }
   };
 
@@ -496,6 +534,7 @@ const QuestionAdd = ({
             customTypes: updatedCustomTypes
           });
           setNewLicenseType('');
+          announce(QuestionAdd('researchOutput.announcements.licenseAdded', { name: selectedLicense.name }) || `License ${selectedLicense.name} added`);
         }
       }
     }
@@ -512,6 +551,7 @@ const QuestionAdd = ({
         ...currentField.licensesConfig,
         customTypes: updatedCustomTypes
       });
+      announce(QuestionAdd('researchOutput.announcements.licenseRemoved', { name: nameToRemove }) || `License ${nameToRemove} removed`);
     }
   };
 
@@ -537,6 +577,10 @@ const QuestionAdd = ({
         mode,
         customTypes
       });
+
+      // Announce the change
+      const modeText = mode === 'defaults' ? 'default output types' : 'custom output types';
+      announce(QuestionAdd('researchOutput.announcements.outputTypeModeChanged', { mode: modeText }) || `Output type mode changed to ${modeText}`);
     }
   };
 
@@ -557,7 +601,9 @@ const QuestionAdd = ({
         });
 
         // Clear the input fields
+        const typeName = newOutputType.type.trim();
         setNewOutputType({ type: '', description: '' });
+        announce(QuestionAdd('researchOutput.announcements.outputTypeAdded', { type: typeName }) || `Output type ${typeName} added`);
       }
     }
   };
@@ -573,6 +619,7 @@ const QuestionAdd = ({
         ...currentField.outputTypeConfig,
         customTypes: updatedCustomTypes
       });
+      announce(QuestionAdd('researchOutput.announcements.outputTypeRemoved', { type: typeToRemove }) || `Output type ${typeToRemove} removed`);
     }
   };
 
@@ -1135,10 +1182,12 @@ const QuestionAdd = ({
         }
       }
     } else {
+      const errorMessage = error ?? QuestionAdd('messages.errors.questionAddingError');
       setErrors(prevErrors => [
         ...prevErrors,
-        error ?? QuestionAdd('messages.errors.questionAddingError'),
+        errorMessage,
       ]);
+      announce(QuestionAdd('researchOutput.announcements.errorOccurred') || 'An error occurred. Please check the form.');
     }
 
   };
@@ -1158,6 +1207,7 @@ const QuestionAdd = ({
     setAdditionalFields(prev => [...prev, newField]);
     setExpandedFields(prev => [...prev, newId]); // Auto-expand for editing
     setHasUnsavedChanges(true);
+    announce(QuestionAdd('researchOutput.announcements.fieldAdded') || 'Field added');
   };
 
   // Handler for deleting additional fields
@@ -1165,6 +1215,7 @@ const QuestionAdd = ({
     setAdditionalFields(prev => prev.filter(field => field.id !== fieldId));
     setExpandedFields(prev => prev.filter(id => id !== fieldId));
     setHasUnsavedChanges(true);
+    announce(QuestionAdd('researchOutput.announcements.fieldDeleted') || 'Field deleted');
   };
 
   // Handler for updating additional field properties
@@ -1176,6 +1227,14 @@ const QuestionAdd = ({
     );
     setHasUnsavedChanges(true);
   };
+
+  // Helper function to make announcements
+  const announce = (message: string) => {
+    setAnnouncement(message);
+    // Clear after announcement is made
+    setTimeout(() => setAnnouncement(''), 100);
+  };
+
   // If questionType is missing, return user to the Question Types selection page
   // If sectionId is missing, return user back to the Edit Template page
   // This is to ensure that the user has selected a question type before proceeding
@@ -1272,6 +1331,15 @@ const QuestionAdd = ({
 
       <div className="template-editor-container">
         <div className="main-content">
+          {/* Live region for announcements - visually hidden but read by screen readers */}
+          <div
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            className="hidden-accessibly"
+          >
+            {announcement}
+          </div>
           <ErrorMessages errors={errors} ref={errorRef} />
           <Tabs>
             <TabList aria-label={QuestionAdd('labels.questionEditing')}>

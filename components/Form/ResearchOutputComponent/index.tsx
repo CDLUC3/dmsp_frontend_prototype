@@ -99,6 +99,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
           {standardFields.map((field, index) => {
             // These fields are always required and cannot be turned off
             const isDisabled = field.id === 'title' || field.id === 'outputType';
+            const tooltipId = `tooltip-${field.id}`;
 
             return (
               <div key={field.id} className={styles.fieldRowWrapper}>
@@ -108,6 +109,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                     <Checkbox
                       isSelected={field.enabled}
                       isDisabled={isDisabled}
+                      aria-describedby={isDisabled ? tooltipId : undefined}
                       className={
                         `react-aria-Checkbox ${(field.id === 'title' || field.id === 'outputType')
                           ? styles.disabledCheckbox
@@ -124,12 +126,14 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                       </div>
                       <span>{field.label}</span>
                     </Checkbox>
-                    {isDisabled && <span className={styles.tooltipText}>{QuestionAdd('researchOutput.tooltip.requiredFields')}</span>}
+                    {isDisabled && <span id={tooltipId} className={styles.tooltipText}>{QuestionAdd('researchOutput.tooltip.requiredFields')}</span>}
                   </div>
                   {field.id !== 'title' && (
                     <Button
                       type="button"
                       className={`buttonLink link`}
+                      aria-expanded={expandedFields.includes(field.id)}
+                      aria-controls={`panel-${field.id}`}
                       onPress={() => onCustomizeField(field.id)}
                     >
                       {expandedFields.includes(field.id)
@@ -144,7 +148,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
 
                 {/* Expanded panel OUTSIDE the .fieldRow flex container */}
                 {expandedFields.includes(field.id) && (
-                  <div className={styles.fieldPanel}>
+                  <div id={`panel-${field.id}`} className={styles.fieldPanel}>
                     {/** Description */}
                     {field.id === 'description' && (
                       <FormInput
@@ -168,7 +172,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                             <RadioGroupComponent
                               name="dataFlagsMode"
                               value={field.flagsConfig?.mode || 'both'}
-                              description={QuestionAdd('researchOutput.dataFlags.description')}
+                              radioGroupLabel={QuestionAdd('researchOutput.dataFlags.description')}
                               onChange={(mode) => onUpdateStandardFieldProperty('dataFlags', 'flagsConfig', {
                                 ...field.flagsConfig,
                                 mode,
@@ -295,7 +299,6 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                     )}
                   </div>
                 )}
-                {index < standardFields.length - 1 && <hr className={styles.fieldDivider} />}
 
               </div>
             );
@@ -325,6 +328,8 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                       <Button
                         type="button"
                         className={`buttonLink link`}
+                        aria-expanded={expandedFields.includes(field.id)}
+                        aria-controls={`panel-${field.id}`}
                         onPress={() => onCustomizeField(field.id)}
                       >
                         {expandedFields.includes(field.id) ? Global('buttons.close') : Global('buttons.customize')}
@@ -334,7 +339,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                         type="button"
                         className={`buttonLink link ${styles.deleteButton}`}
                         onPress={() => onDeleteAdditionalField(field.id)}
-                        aria-label={`Delete ${field.label}`}
+                        aria-label={Global('buttons.deleteLabel', { item: field.customLabel || field.label })}
                       >
                         {Global('buttons.delete')}
                       </Button>
@@ -344,12 +349,13 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
 
                   {/* Expanded panel for Additional Custom Fields */}
                   {expandedFields.includes(field.id) && (
-                    <div className={styles.customizePanel}>
+                    <div id={`panel-${field.id}`} className={styles.customizePanel}>
                       <div className={styles.fieldCustomization}>
                         {/* Field Label */}
                         <FormInput
                           name={`${field.id}_label`}
                           type="text"
+                          id={`${field.id}_label`}
                           isRequired={false}
                           label={QuestionAdd('researchOutput.additionalFields.fieldLabel.label')}
                           value={field.customLabel !== undefined ? field.customLabel : field.label}

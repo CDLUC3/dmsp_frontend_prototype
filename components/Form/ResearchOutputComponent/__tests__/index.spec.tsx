@@ -312,7 +312,7 @@ describe('ResearchOutputComponent', () => {
     it('should show delete button for additional fields', () => {
       render(<ResearchOutputComponent {...defaultProps} />);
 
-      const deleteButton = screen.getByLabelText('Delete Coverage');
+      const deleteButton = screen.getByLabelText('buttons.deleteLabel');
       expect(deleteButton).toBeInTheDocument();
     });
 
@@ -320,7 +320,7 @@ describe('ResearchOutputComponent', () => {
       const mockOnDelete = jest.fn();
       render(<ResearchOutputComponent {...defaultProps} onDeleteAdditionalField={mockOnDelete} />);
 
-      const deleteButton = screen.getByLabelText('Delete Coverage');
+      const deleteButton = screen.getByLabelText('buttons.deleteLabel');
       fireEvent.click(deleteButton);
 
       expect(mockOnDelete).toHaveBeenCalledWith(expect.any(String));
@@ -435,15 +435,6 @@ describe('ResearchOutputComponent', () => {
       fireEvent.click(coverageCheckbox);
 
       expect(mockOnChange).toHaveBeenCalledWith('coverage', expect.any(Boolean));
-    });
-  });
-
-  describe('Field Dividers', () => {
-    it('should render dividers between standard fields', () => {
-      const { container } = render(<ResearchOutputComponent {...defaultProps} />);
-
-      const dividers = container.querySelectorAll('.fieldDivider');
-      expect(dividers.length).toBeGreaterThan(0);
     });
   });
 
