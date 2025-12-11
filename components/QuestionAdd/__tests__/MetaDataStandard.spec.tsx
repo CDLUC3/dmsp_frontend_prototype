@@ -9,6 +9,7 @@ import {
 } from '@/generated/graphql';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { addMetaDataStandardsAction } from '../actions';
+import { useParams, useRouter } from 'next/navigation';
 
 import MetaDataStandardsSelector from '../MetaDataStandards';
 import mockMetaDataStandards from '../__mocks__/mockMetaDataStandards.json';
@@ -64,12 +65,12 @@ describe('MetaDataStandardsSelector', () => {
     jest.clearAllMocks();
 
     // Mock Next.js useParams
-    (require('next/navigation').useParams as jest.Mock).mockReturnValue({
+    (useParams as jest.Mock).mockReturnValue({
       templateId: 'test-template-id'
     });
 
     // Mock Next.js useRouter
-    (require('next/navigation').useRouter as jest.Mock).mockReturnValue({
+    (useRouter as jest.Mock).mockReturnValue({
       push: jest.fn(),
       replace: jest.fn(),
       refresh: jest.fn(),

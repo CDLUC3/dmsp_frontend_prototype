@@ -5,7 +5,6 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 import OutputTypeField from '../OutputTypeField';
 import {
   OutputTypeFieldConfigProps,
-  OutputTypeInterface,
 } from '@/app/types';
 import { DefaultResearchOutputTypesQuery } from '@/generated/graphql';
 import mockDefaultResearchOutputTypesData from '../__mocks__/mockDefaultResearchOutputTypes.json';

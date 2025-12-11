@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 'use client'
 
 import { Button, Checkbox, Radio } from "react-aria-components";
@@ -28,11 +29,9 @@ interface ResearchOutputComponentProps {
   setNewOutputType: React.Dispatch<React.SetStateAction<OutputTypeInterface>>;
   newLicenseType: string;
   setNewLicenseType: React.Dispatch<React.SetStateAction<string>>;
-  newAccessLevel: AccessLevelInterface;
-  setNewAccessLevel: React.Dispatch<React.SetStateAction<AccessLevelInterface>>;
   defaultResearchOutputTypesData?: DefaultResearchOutputTypesQuery;
-  licensesData?: LicensesQuery;
   defaultAccessLevels: AccessLevelInterface[];
+  licensesData?: LicensesQuery;
   onStandardFieldChange: (fieldId: string, enabled: boolean) => void;
   onCustomizeField: (fieldId: string) => void;
   onUpdateStandardFieldProperty: (fieldId: string, propertyName: string, value: unknown) => void;
@@ -46,9 +45,6 @@ interface ResearchOutputComponentProps {
   onLicenseModeChange: (mode: 'defaults' | 'addToDefaults') => void;
   onAddCustomLicenseType: () => void;
   onRemoveCustomLicenseType: (type: string) => void;
-  onAccessLevelModeChange: (mode: 'defaults' | 'mine') => void;
-  onAddCustomAccessLevel: () => void;
-  onRemoveCustomAccessLevels: (level: string) => void;
   onDeleteAdditionalField: (fieldId: string) => void;
   onUpdateAdditionalField: (fieldId: string, propertyName: string, value: unknown) => void;
   onAddAdditionalField: () => void;
@@ -68,8 +64,6 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
   setNewOutputType,
   newLicenseType,
   setNewLicenseType,
-  newAccessLevel,
-  setNewAccessLevel,
   defaultResearchOutputTypesData,
   licensesData,
   defaultAccessLevels,
@@ -86,9 +80,6 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
   onLicenseModeChange,
   onAddCustomLicenseType,
   onRemoveCustomLicenseType,
-  onAccessLevelModeChange,
-  onAddCustomAccessLevel,
-  onRemoveCustomAccessLevels,
   onDeleteAdditionalField,
   onUpdateAdditionalField,
   onAddAdditionalField
@@ -288,11 +279,6 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                         <InitialAccessLevel
                           field={field}
                           defaultAccessLevels={defaultAccessLevels}
-                          newAccessLevel={newAccessLevel}
-                          setNewAccessLevel={setNewAccessLevel}
-                          onModeChange={onAccessLevelModeChange}
-                          onAddCustomType={onAddCustomAccessLevel}
-                          onRemoveCustomType={onRemoveCustomAccessLevels}
                         />
 
                         <FormInput
@@ -319,7 +305,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
         <div className={styles.fieldsContainer}>
           <h3>{QuestionAdd('researchOutput.headings.additionalTextFields')}</h3>
           <div className={styles.fieldsList}>
-            {additionalFields.map((field, index) => {
+            {additionalFields.map((field) => {
 
               return (
                 <div key={field.id} className={styles.fieldRowWrapper}>

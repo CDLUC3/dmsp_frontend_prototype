@@ -952,7 +952,6 @@ describe('RepositorySelectionSystem', () => {
         expect(screen.getByText('Zenodo')).toBeInTheDocument();
       });
 
-      const modal = screen.getByTestId('modal');
       expect(screen.getByText(/Displaying repositories\s+5\s+of\s+53\s+in total/i)).toBeInTheDocument();
     });
   });

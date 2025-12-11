@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -32,6 +32,9 @@ import {
 import {
   addRepositoryAction
 } from "./actions";
+
+// Components
+import ErrorMessages from '../ErrorMessages';
 
 // Utilities/Other
 import { routePath } from "@/utils/routes";
@@ -73,12 +76,6 @@ function toSubjectAreaObject(str: string): { id: string; name: string } {
   return { id, name };
 }
 
-const repositoryTypes = Object.entries(RepositoryType).map(([key, value]) => ({
-  id: value,
-  name: key.replace(/([A-Z])/g, ' $1').trim() // Convert camelCase to spaced text
-}))
-
-
 /* Research Output question's Repository Selection System */
 const RepositorySelectionSystem = ({
   field,
@@ -96,6 +93,11 @@ const RepositorySelectionSystem = ({
   const toastState = useToast();
   // Get tempateId from the URL
   const templateId = String(params.templateId);
+
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
+
+
   // Translation keys
   const Global = useTranslations("Global");
   const QuestionAdd = useTranslations("QuestionAdd");
@@ -127,8 +129,16 @@ const RepositorySelectionSystem = ({
   // Filtered repositories state - can be either local mock data or GraphQL data
   const [repositories, setRepositories] = useState<Repository[]>([]);
 
+  // Repository types for dropdown
+  const repositoryTypes = useMemo(() =>
+    Object.entries(RepositoryType).map(([key, value]) => ({
+      id: value,
+      name: key.replace(/([A-Z])/g, ' $1').trim() // Convert camelCase to spaced text
+    }))
+    , []);
+
   // Get Repository Subject Areas - for future dynamic subject area fetching
-  const { data: subjectAreasData, loading: subjectAreasLoading, error: subjectAreasError } = useRepositorySubjectAreasQuery();
+  const { data: subjectAreasData } = useRepositorySubjectAreasQuery();
 
   // Transform subject areas data for FormSelect - add empty option for deselection
   const subjectAreas = [
@@ -137,7 +147,7 @@ const RepositorySelectionSystem = ({
   ];
 
   // Repositories lazy query
-  const [fetchRepositoriesData, { data: repositoriesData, loading: repos, error: repositoriesError }] = useRepositoriesLazyQuery();
+  const [fetchRepositoriesData, { data: repositoriesData }] = useRepositoriesLazyQuery();
 
   // Fetch repositories based on search term criteria
   const fetchRepositories = async ({
@@ -451,6 +461,10 @@ const RepositorySelectionSystem = ({
         <Dialog>
           {({ close }) => (
             <>
+              <ErrorMessages
+                errors={errors}
+                ref={errorRef}
+              />
               <div>
                 <div className={styles.modal}>
                   <div className={styles.modalHeader}>

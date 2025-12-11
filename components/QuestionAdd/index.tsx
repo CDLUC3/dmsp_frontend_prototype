@@ -176,7 +176,7 @@ const initialStandardFields: StandardField[] = [
     licensesConfig: {
       mode: 'defaults' as 'defaults' | 'addToDefaults',
       selectedDefaults: [] as string[],
-      customTypes: [] as Array<{ name: string; uri: string }>,
+      customTypes: [] as { name: string; uri: string }[]
     }
   },
   {
@@ -253,8 +253,6 @@ const QuestionAdd = ({
   const [newOutputType, setNewOutputType] = useState<OutputTypeInterface>({ type: '', description: '' });
   // State for managing custom license types
   const [newLicenseType, setNewLicenseType] = useState<string>('');
-  // State for managing custom access levels
-  const [newAccessLevel, setNewAccessLevel] = useState<AccessLevelInterface>({ label: '', value: '', description: '' });
 
   // localization keys
   const Global = useTranslations('Global');
@@ -479,23 +477,6 @@ const QuestionAdd = ({
     }
   };
 
-  // Handler for access level mode changes (defaults, add to defaults)  
-  const handleAccessLevelModeChange = (mode: 'defaults' | 'mine') => {
-    const currentField = standardFields.find(f => f.id === 'accessLevels');
-    if (currentField && currentField.accessLevelsConfig) {
-      // When switching to 'mine' mode, pre-populate with defaults if customTypes is empty
-      const customLevels = mode === 'mine' && currentField.accessLevelsConfig.customLevels.length === 0
-        ? defaultAccessLevels
-        : currentField.accessLevelsConfig.customLevels;
-
-      updateStandardFieldProperty('accessLevels', 'accessLevelsConfig', {
-        ...currentField.accessLevelsConfig,
-        mode,
-        customLevels
-      });
-    }
-  };
-
   // Handler for adding custom license types
   const handleAddCustomLicenseType = () => {
     if (newLicenseType.trim()) {
@@ -533,50 +514,6 @@ const QuestionAdd = ({
       });
     }
   };
-
-  // Handler for adding custom access levels
-  const handleAddCustomAccessLevel = () => {
-    if (newAccessLevel.label && newAccessLevel.label.trim()) {
-      const currentField = standardFields.find(f => f.id === 'accessLevels');
-      if (currentField && currentField.accessLevelsConfig) {
-        // Generate value from label (lowercase, hyphenated)
-        const value = newAccessLevel.value?.trim() || newAccessLevel.label.trim().toLowerCase().replace(/\s+/g, '-');
-
-        // Add to custom access levels array
-        const updatedCustomTypes = [
-          ...currentField.accessLevelsConfig.customLevels,
-          {
-            label: newAccessLevel.label.trim(),
-            value: value,
-            description: newAccessLevel.description?.trim() || ''
-          }
-        ];
-
-        updateStandardFieldProperty('accessLevels', 'accessLevelsConfig', {
-          ...currentField.accessLevelsConfig,
-          customLevels: updatedCustomTypes
-        });
-
-        // Clear the input fields
-        setNewAccessLevel({ label: '', value: '', description: '' });
-      }
-    }
-  };
-
-  // Handler for removing custom access levels
-  const handleRemoveCustomAccessLevels = (labelToRemove: string) => {
-    const currentField = standardFields.find(f => f.id === 'accessLevels');
-    if (currentField && currentField.accessLevelsConfig) {
-      const updatedCustomLevels = currentField.accessLevelsConfig.customLevels.filter(
-        (customLevel: AccessLevelInterface) => customLevel.label !== labelToRemove
-      );
-      updateStandardFieldProperty('accessLevels', 'accessLevelsConfig', {
-        ...currentField.accessLevelsConfig,
-        customLevels: updatedCustomLevels
-      });
-    }
-  };
-
 
   // Handler for output type mode changes (defaults, mine, add to defaults)
   const handleOutputTypeModeChange = (mode: 'defaults' | 'mine') => {
@@ -895,6 +832,7 @@ const QuestionAdd = ({
           if (field.repoConfig?.customRepos && field.repoConfig.customRepos.length > 0) {
             repoColumn.preferences = field.repoConfig.customRepos.map(repo => ({
               label: repo.name,
+              /*eslint-disable @typescript-eslint/no-explicit-any*/
               value: repo.uri || (repo as any).url || ''
             }));
           }
@@ -904,7 +842,7 @@ const QuestionAdd = ({
 
         case 'metadataStandards':
           // Build column with selected metadata standards if any
-          const metadataColumn: any = { // eslint-disable-line @typescript-eslint/no-explicit-any
+          const metadataColumn: any = {
             heading: field.label || 'Metadata Standards',
             required: false,
             enabled: true,
@@ -954,7 +892,7 @@ const QuestionAdd = ({
 
         case 'licenses':
           // Build column with selected licenses if any
-          const licenseColumn: any = { // eslint-disable-line @typescript-eslint/no-explicit-any
+          const licenseColumn: any = {
             heading: field.label || 'Licenses',
             required: false,
             enabled: true,
@@ -1000,7 +938,7 @@ const QuestionAdd = ({
 
         case 'accessLevels':
           // Build access level options
-          const accessLevelOptions: any[] = []; // eslint-disable-line @typescript-eslint/no-explicit-any
+          const accessLevelOptions: any[] = [];
 
           if (field.accessLevelsConfig?.mode === 'defaults' || !field.accessLevelsConfig?.mode) {
             field.accessLevelsConfig?.selectedDefaults?.forEach(level => {
@@ -1134,6 +1072,7 @@ const QuestionAdd = ({
   // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
   const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
     const userInput = getFormState(question, rowsOverride);
+
     const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId }), Global);
 
     if (!parsed) {
@@ -1466,8 +1405,6 @@ const QuestionAdd = ({
                     setNewOutputType={setNewOutputType}
                     newLicenseType={newLicenseType}
                     setNewLicenseType={setNewLicenseType}
-                    newAccessLevel={newAccessLevel}
-                    setNewAccessLevel={setNewAccessLevel}
                     defaultResearchOutputTypesData={defaultResearchOutputTypesData}
                     licensesData={licensesData}
                     defaultAccessLevels={defaultAccessLevels}
@@ -1484,9 +1421,6 @@ const QuestionAdd = ({
                     onLicenseModeChange={handleLicenseModeChange}
                     onAddCustomLicenseType={handleAddCustomLicenseType}
                     onRemoveCustomLicenseType={handleRemoveCustomLicenseType}
-                    onAccessLevelModeChange={handleAccessLevelModeChange}
-                    onAddCustomAccessLevel={handleAddCustomAccessLevel}
-                    onRemoveCustomAccessLevels={handleRemoveCustomAccessLevels}
                     onDeleteAdditionalField={handleDeleteAdditionalField}
                     onUpdateAdditionalField={handleUpdateAdditionalField}
                     onAddAdditionalField={addAdditionalField}

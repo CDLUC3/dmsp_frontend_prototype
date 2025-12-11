@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { QuestionFormatInterface } from "@/app/types";
 import {
+  AnyQuestionType,
   CURRENT_SCHEMA_VERSION,
   QuestionTypeMap,
   QuestionSchemaMap,
@@ -10,6 +11,9 @@ import {
 } from "@dmptool/types";
 
 type QuestionType = z.infer<typeof QuestionFormatsEnum>
+
+// List of question types to filter out from the available types
+const filteredOutQuestionTypes = ['licenseSearch', 'metadataStandardSearch', 'numberWithContext', 'repositorySearch', 'table'];
 
 // Fetch the usage information and then Parse the Zod schema with no input to generate the
 // default JSON schemas
@@ -35,7 +39,7 @@ function orderQuestionTypes(qTypes: QuestionFormatInterface[]): QuestionFormatIn
   const sortOrder: string[] = [
     "textArea", "text", "radioButtons", "checkBoxes", "selectBox", "multiselectBox",
     "number", "numberRange", "currency", "email", "url", "boolean", "date", "dateRange",
-    "table", "affiliationSearch"
+    "affiliationSearch", "researchOutputTable"
   ];
 
   // Sort the question format array using the definition.
@@ -50,7 +54,12 @@ function orderQuestionTypes(qTypes: QuestionFormatInterface[]): QuestionFormatIn
 // Fetch all available Question Types
 export function getQuestionTypes(): QuestionFormatInterface[] {
   const info = QuestionFormatsEnum.options.map(key => getQuestionFormatInfo(key));
-  const qTypes = info.filter((item): item is QuestionFormatInterface => item !== null);
+
+  const qTypes = info.filter((item): item is QuestionFormatInterface => {
+    const json: AnyQuestionType = item?.defaultJSON as AnyQuestionType;
+    const questionTypeId = json?.type;
+    return item !== null && !filteredOutQuestionTypes.includes(questionTypeId);
+  });
   return orderQuestionTypes(qTypes);
 }
 
@@ -541,15 +550,15 @@ export const questionTypeHandlers: Record<string, QuestionTypeHandler> = {
    * in the standardFields configuration.
    */
   researchOutputTable: (json, input: {
-    columns?: Array<{
+    columns?: {
       heading?: string;
       required?: boolean;
       enabled?: boolean;
       content?: QuestionTypeMap["table"]['columns'][number]['content'];
-      preferences?: Array<{
+      preferences?: {
         label?: string;
         value?: string;
-      }>;
+      }[];
       attributes?: {
         help?: string;
         labelTranslationKey?: string;
@@ -558,9 +567,10 @@ export const questionTypeHandlers: Record<string, QuestionTypeHandler> = {
         schemaVersion?: string;
         labelTranslationKey?: string;
       };
-    }>;
+    }[];
     attributes?: QuestionTypeMap["table"]["attributes"];
   }) => {
+
     // researchOutputTable uses the table schema structure with additional column properties
     const questionData: QuestionTypeMap["researchOutputTable"] = {
       ...json,

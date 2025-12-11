@@ -1,7 +1,6 @@
 import { useTranslations } from 'next-intl';
 import {
   AccessLevelsFieldProps,
-  AccessLevelInterface,
 } from '@/app/types';
 
 import {
@@ -15,14 +14,10 @@ import { DmpIcon } from "@/components/Icons";
 
 import styles from './questionAdd.module.scss';
 
-interface InitialAccessLevelFieldProps extends AccessLevelsFieldProps {
-  defaultAccessLevels: AccessLevelInterface[];
-}
-
 const InitialAccessLevelField = ({
   field,
   defaultAccessLevels,
-}: InitialAccessLevelFieldProps) => {
+}: AccessLevelsFieldProps) => {
   const QuestionAdd = useTranslations('QuestionAdd');
   return (
     <div className={styles.typeConfig}>

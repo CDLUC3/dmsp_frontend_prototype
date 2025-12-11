@@ -54,14 +54,6 @@ type AddMetaDataStandardsErrors = {
   keywords?: string;
 };
 
-const paginationProps = {
-  currentPage: 1,
-  totalPages: 10,
-  hasPreviousPage: false,
-  hasNextPage: true,
-  handlePageClick: () => { },
-};
-
 const MetaDataStandardsSelector = ({
   field,
   handleToggleMetaDataStandards,
@@ -106,45 +98,12 @@ const MetaDataStandardsSelector = ({
   const Global = useTranslations("Global");
   const QuestionAdd = useTranslations("QuestionAdd");
 
-  // Original sample data - keep this as the source of truth
-  const originalMetaDataStandards = [
-    {
-      id: 1,
-      name: "ABCD (Access to Biological Collection Data)",
-      description: "<p>The Access to Biological Collections Data (ABCD) Schema is an evolving comprehensive standard for the access to and exchange of data about specimens and observations (a.k.a. primary biodiversity data). The ABCD Schema attempts to be comprehensive and highly structured, supporting data from a wide variety of databases. It is compatible with several existing data standards. Parallel structures exist so that either (or both) atomised data and free-text can be accommodated</p><p>The ABCD Schema was ratified as a standard by the Biodiversity Information Standards Taxonomic Databases Working Group(TDWG) in 2005. It was developed as a community- driven effort, with contributions from CODATA, BioCASE and GBIF among other organizations.</p>",
-      uri: "https://dataverse.harvard.edu/dataverse/rtdc",
-    },
-    {
-      id: 2,
-      name: "ABCD Zoology",
-      description: "<p>ABCD Zoology is an application profile of ABCD tailored for use in zoological contexts. It was the first official application profile to use the RDF-based version 3.0 of ABCD.</p>",
-      uri: "https://abcd.tdwg.org/xml/",
-    },
-    {
-      id: 3,
-      name: "AGLS Metadata Profile",
-      description: "<p>An application of Dublin Core designed to improve visibility and availability of online resources, originally adapted from the Australian Government Locator Service metadata standard for use in government agencies.</p>",
-      uri: "http://www.agls.gov.au",
-    },
-    {
-      id: 4,
-      name: "Apple Core",
-      description: "<p>Darwin Core documentation and recommendations for herbaria.</p>",
-      uri: "http://code.google.com/p/applecore/wiki/Introduction",
-    },
-    {
-      id: 5,
-      name: "CESSDA Data Catalogue DDI Profiles",
-      description: "<p>The profiles specify the metadata requirements of the CESSDA Data Catalogue, based on the CESSDA Metadata Model and the DDI specifications.</p>",
-      uri: "https://cmv.cessda.eu/documentation/profiles.html",
-    }
-  ];
-
   // Filtered metadata standards state
+  /*eslint-disable @typescript-eslint/no-explicit-any */
   const [metaDataStandards, setMetaDataStandards] = useState<any[]>([]);
 
   // Metadata standards lazy query
-  const [fetchMetaDataStandardsData, { data: metaDataStandardsData, loading: metaDataStandardsLoading, error: metaDataStandardsError }] = useMetadataStandardsLazyQuery();
+  const [fetchMetaDataStandardsData, { data: metaDataStandardsData }] = useMetadataStandardsLazyQuery();
 
 
   // Fetch metadata standards based on search term criteria

@@ -86,7 +86,7 @@ export interface MetaDataStandardFieldInterface {
 export type LicensesConfig = {
   mode: 'defaults' | 'addToDefaults';
   selectedDefaults: string[];
-  customTypes: Array<{ name: string; uri: string }>;
+  customTypes: { name: string; uri: string }[];
 };
 
 export type AccessLevelsConfig = {
@@ -94,12 +94,6 @@ export type AccessLevelsConfig = {
   selectedDefaults: string[];
   customTypes: string[];
 };
-
-type License = {
-  uri: string;
-  name: string;
-  recommended: boolean;
-}
 
 export interface LicenseFieldProps {
   field: StandardField;
@@ -113,11 +107,7 @@ export interface LicenseFieldProps {
 
 export interface AccessLevelsFieldProps {
   field: StandardField;
-  newAccessLevel: AccessLevelInterface
-  setNewAccessLevel: (value: AccessLevelInterface) => void;
-  onModeChange: (mode: 'defaults' | 'mine') => void;
-  onAddCustomType: () => void;
-  onRemoveCustomType: (type: string) => void;
+  defaultAccessLevels: AccessLevelInterface[];
 }
 
 export interface OutputTypeInterface {

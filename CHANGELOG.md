@@ -1,3 +1,9 @@
+
+### Updated
+- Hooked up the `Research Output table` for template builder [#869]
+==========================================================================================
+## All changes above the line happened after the merge to the main branch on Dec 4, 2025
+==========================================================================================
 ### Added
 - Added missing `slug` property to all `tags` in the graphQL queries 
 - Added guidance text from the backend to the Question Answer page [#580]

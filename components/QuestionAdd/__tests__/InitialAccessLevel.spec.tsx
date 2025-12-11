@@ -1,6 +1,5 @@
 import React from 'react';
-import { act, render, screen, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { act, render, screen } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import InitialAccessLevelField from '../InitialAccessLevel';
 import { AccessLevelsFieldProps } from '@/app/types';
@@ -26,11 +25,6 @@ describe('InitialAccessLevelField', () => {
       },
     },
     defaultAccessLevels: mockDefaultAccessLevels,
-    newAccessLevel: { label: '', value: '', description: '' },
-    setNewAccessLevel: jest.fn(),
-    onModeChange: jest.fn(),
-    onAddCustomType: jest.fn(),
-    onRemoveCustomType: jest.fn(),
   };
 
   beforeEach(() => {
