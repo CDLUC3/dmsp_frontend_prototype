@@ -33,6 +33,10 @@ import {
 
 import {
   AccessLevelInterface,
+  StandardField,
+  MetaDataConfig,
+  RepositoryInterface,
+  MetaDataStandardInterface,
   OutputTypeInterface
 } from '@/app/types';
 
@@ -70,14 +74,7 @@ import {
   isOptionsType,
   getOverrides,
 } from './hooks/useAddQuestion';
-
-import {
-  StandardField,
-  MetaDataConfig,
-  RepositoryInterface,
-  MetaDataStandardInterface
-} from '@/app/types';
-
+import { initialStandardFields } from '@/app/[locale]/template/[templateId]/q/standardFields';
 import styles from './questionAdd.module.scss';
 
 const defaultQuestion = {
@@ -94,95 +91,6 @@ type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
 const hasMetaDataConfig = (field: StandardField): field is StandardField & { metaDataConfig: MetaDataConfig } => {
   return field.metaDataConfig !== undefined;
 };
-
-// Initial Standard Fields data
-const initialStandardFields: StandardField[] = [
-  {
-    id: 'title',
-    label: 'Title',
-    enabled: true,
-    required: true
-  },
-  {
-    id: 'description',
-    label: 'Description',
-    enabled: false,
-    placeholder: '',
-    helpText: '',
-    maxLength: '',
-    required: true,
-    value: ''
-  },
-  {
-    id: 'outputType',
-    label: 'Output Type',
-    enabled: true,
-    helpText: '',
-    required: true,
-    outputTypeConfig: {
-      mode: 'defaults' as 'defaults' | 'mine',
-      selectedDefaults: [] as string[],
-      customTypes: [] as OutputTypeInterface[],
-    }
-  },
-  {
-    id: 'dataFlags',
-    label: 'Data Flags',
-    enabled: false,
-    helpText: '',
-    flagsConfig: {
-      showSensitiveData: true,
-      showPersonalData: true,
-      mode: 'both' as 'sensitiveOnly' | 'personalOnly' | 'both'
-    }
-  },
-  {
-    id: 'repoSelector',
-    label: 'Repositories',
-    enabled: false,
-    placeholder: '',
-    helpText: '',
-    value: '',
-    repoConfig: {
-      hasCustomRepos: false,
-      customRepos: [] as RepositoryInterface[],
-    }
-  },
-  {
-    id: 'metadataStandards',
-    label: 'Metadata Standards',
-    enabled: false,
-    helpText: '',
-    metaDataConfig: {
-      hasCustomStandards: false,
-      customStandards: [] as MetaDataStandardInterface[],
-    }
-  },
-  {
-    id: 'licenses',
-    label: 'Licenses',
-    enabled: false,
-    defaultValue: '',
-    helpText: '',
-    licensesConfig: {
-      mode: 'defaults' as 'defaults' | 'addToDefaults',
-      selectedDefaults: [] as string[],
-      customTypes: [] as { name: string; uri: string }[]
-    }
-  },
-  {
-    id: 'accessLevels',
-    label: 'Initial Access Levels',
-    enabled: false,
-    defaultValue: '',
-    helpText: '',
-    accessLevelsConfig: {
-      mode: 'defaults' as 'defaults' | 'mine',
-      selectedDefaults: [] as string[],
-      customLevels: [] as AccessLevelInterface[],
-    }
-  },
-];
 
 const QuestionAdd = ({
   questionType,
@@ -312,10 +220,8 @@ const QuestionAdd = ({
 
   // Handle updates to RepositorySelectionSystem component
   const handleRepositoriesChange = (repos: RepositoryInterface[]) => {
-    console.log("***Repositories change on QuestionAdd", repos);
     // Store the selected repositories in the field config
     const currentField = standardFields.find(f => f.id === 'repoSelector');
-    console.log("***CurrentField.repoConfig", currentField?.repoConfig);
 
     if (currentField && currentField.repoConfig) {
       const wasEnabled = currentField.enabled;
@@ -877,12 +783,16 @@ const QuestionAdd = ({
               }
             }
           };
-          if (field.licensesConfig?.customTypes && field.licensesConfig.customTypes.length > 0) {
+
+          if (field.licensesConfig?.mode === 'addToDefaults' && field.licensesConfig?.customTypes && field.licensesConfig.customTypes.length > 0) {
             licenseColumn.preferences = field.licensesConfig.customTypes.map(license => ({
               label: license.name,
               value: license.uri || ''
             }));
+          } else {
+            licenseColumn.preferences = [];
           }
+
           columns.push(licenseColumn);
           break;
         }
@@ -1001,10 +911,8 @@ const QuestionAdd = ({
   const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
     const userInput = getFormState(question, rowsOverride);
 
-    console.log("***USER INPUT for Research Output", userInput);
     const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId }), Global);
 
-    console.log("***PARSED JSON for Research Output", parsed);
     if (!parsed) {
       if (error) {
         setErrors(prev => [...prev, error])

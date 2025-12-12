@@ -1,7 +1,10 @@
 
 ### Updated
-- Hooked up the `Research Output table` for template builder [#869]
+- Hooked up the `Research Output table` for template builder for adding and editing question [#869]
 - Updated `Pagination` component so that navigation doesn't shift too much [#869]
+
+### Chore
+- Updated version of `next` to `15.5.8` due to vulnerability
 ==========================================================================================
 ## All changes above the line happened after the merge to the main branch on Dec 4, 2025
 ==========================================================================================
@@ -47,6 +50,7 @@
 - Removed `scrollToTop` from `Template Create` page [#950]
 
 ### Chore
+- Updated `jws` to `3.2.3` due to vulnerability
 - Updated `next` version to `15.5.7` due to vulnerability
 - Ran `npm audit fix` to address `glob` vulnerability and `js-yaml` vulnerability
 ====================================================================================================================================
