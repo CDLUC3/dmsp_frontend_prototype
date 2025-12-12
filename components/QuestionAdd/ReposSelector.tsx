@@ -332,6 +332,7 @@ const RepositorySelectionSystem = ({
 
   useEffect(() => {
     const reposArray = Object.values(selectedRepos);
+    console.log("***Repositories change:", reposArray);
     onRepositoriesChange?.(reposArray);
   }, [selectedRepos]);
 

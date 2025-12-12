@@ -312,11 +312,15 @@ const QuestionAdd = ({
 
   // Handle updates to RepositorySelectionSystem component
   const handleRepositoriesChange = (repos: RepositoryInterface[]) => {
+    console.log("***Repositories change on QuestionAdd", repos);
     // Store the selected repositories in the field config
     const currentField = standardFields.find(f => f.id === 'repoSelector');
+    console.log("***CurrentField.repoConfig", currentField?.repoConfig);
+
     if (currentField && currentField.repoConfig) {
       const wasEnabled = currentField.enabled;
       const previousCount = currentField.repoConfig.customRepos?.length || 0;
+
       updateStandardFieldProperty('repoSelector', 'repoConfig', {
         ...currentField.repoConfig,
         customRepos: repos
@@ -638,27 +642,27 @@ const QuestionAdd = ({
   };
 
   /**
-   * Build form state for research output table questions.
-   * 
-   * Constructs a table-based question structure conforming to ResearchOutputTableQuestion schema
-   * from @dmptool/types. Each enabled standardField is converted into a table column with
-   * appropriate field types:
-   * 
-   * - title: text field (always required)
-   * - description: textArea with rich text support
-   * - outputType: selectBox with configured options
-   * - dataFlags: boolean fields for sensitive/personal data flags
-   * - repoSelector: repositorySearch with GraphQL query
-   * - metadataStandards: metadataStandardSearch with GraphQL query
-   * - licenses: licenseSearch with GraphQL query (not selectBox)
-   * - accessLevels: selectBox with access level options
-   * - additionalFields: custom text fields
-   * 
-   * This function prepares the user input structure that will be passed to the
-   * researchOutputTable handler in questionTypeHandlers for final validation.
-   */
+     * Build form state for research output table questions.
+     * 
+     * Constructs a table-based question structure conforming to ResearchOutputTableQuestion schema
+     * from @dmptool/types. Each enabled standardField is converted into a table column with
+     * appropriate field types:
+     * 
+     * - title: text field (always required)
+     * - description: textArea with rich text support
+     * - outputType: selectBox with configured options
+     * - dataFlags: boolean fields for sensitive/personal data flags
+     * - repoSelector: repositorySearch with GraphQL query
+     * - metadataStandards: metadataStandardSearch with GraphQL query
+     * - licenses: licenseSearch with GraphQL query (not selectBox)
+     * - accessLevels: selectBox with access level options
+     * - additionalFields: custom text fields
+     * 
+     * This function prepares the user input structure that will be passed to the
+     * researchOutputTable handler in questionTypeHandlers for final validation.
+     */
   const buildResearchOutputFormState = (parsed: AnyParsedQuestion | null) => {
-    const columns: any[] = []; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const columns: any[] = [];
 
     standardFields.forEach(field => {
       if (!field.enabled) return;
@@ -667,8 +671,6 @@ const QuestionAdd = ({
         case 'title':
           columns.push({
             heading: field.label || 'Title',
-            required: field.required ?? true,
-            enabled: true,
             content: {
               type: 'text',
               attributes: {
@@ -676,14 +678,7 @@ const QuestionAdd = ({
                 help: field.helpText || '',
                 maxLength: 500,
                 minLength: 1
-              },
-              meta: {
-                schemaVersion: '1.0'
               }
-            },
-            meta: {
-              schemaVersion: '1.0',
-              labelTranslationKey: 'researchOutput.title'
             }
           });
           break;
@@ -691,8 +686,6 @@ const QuestionAdd = ({
         case 'description':
           columns.push({
             heading: field.label || 'Description',
-            required: field.required ?? false,
-            enabled: true,
             content: {
               type: 'textArea',
               attributes: {
@@ -701,52 +694,34 @@ const QuestionAdd = ({
                 maxLength: field.maxLength ? Number(field.maxLength) : undefined,
                 asRichText: true,
                 rows: 4
-              },
-              meta: {
-                schemaVersion: '1.0'
               }
-            },
-            meta: {
-              schemaVersion: '1.0',
-              labelTranslationKey: 'researchOutput.description'
             }
           });
           break;
 
-        case 'outputType':
-          // Build selectBox options from outputTypeConfig
-          const outputTypeOptions: any[] = []; // eslint-disable-line @typescript-eslint/no-explicit-any
-
+        case 'outputType': {
+          const outputTypeOptions: any[] = [];
           if (field.outputTypeConfig?.mode === 'defaults' || !field.outputTypeConfig?.mode) {
-            // Use selected defaults - need to match with backend value field
             field.outputTypeConfig?.selectedDefaults?.forEach(defaultType => {
-              // Find the corresponding backend output type to get the value
               const backendType = defaultResearchOutputTypesData?.defaultResearchOutputTypes?.find(
                 (item) => item?.name === defaultType
               );
               outputTypeOptions.push({
                 label: defaultType,
-                value: backendType?.value || defaultType.toLowerCase().replace(/\s+/g, '-'),
-                selected: false
+                value: backendType?.value || defaultType.toLowerCase().replace(/\s+/g, '-')
               });
             });
           }
-
           if (field.outputTypeConfig?.mode === 'mine' || !field.outputTypeConfig?.mode) {
-            // Add custom types - use type as both label and value for custom types
             field.outputTypeConfig?.customTypes?.forEach(customType => {
               outputTypeOptions.push({
                 label: customType.type || '',
-                value: customType.type?.toLowerCase().replace(/\s+/g, '-') || '',
-                selected: false
+                value: customType.type?.toLowerCase().replace(/\s+/g, '-') || ''
               });
             });
           }
-
           columns.push({
             heading: field.label || 'Output Type',
-            required: field.required ?? true,
-            enabled: true,
             content: {
               type: 'selectBox',
               attributes: {
@@ -754,54 +729,34 @@ const QuestionAdd = ({
                 help: field.helpText || '',
                 multiple: false
               },
-              options: outputTypeOptions,
-              meta: {
-                schemaVersion: '1.0'
-              }
-            },
-            meta: {
-              schemaVersion: '1.0',
-              labelTranslationKey: 'researchOutput.outputType'
+              options: outputTypeOptions
             }
           });
           break;
+        }
 
         case 'dataFlags':
-          // Add sensitive data checkbox if enabled
           if (field.flagsConfig?.showSensitiveData) {
             columns.push({
               heading: 'Sensitive Data',
-              required: false,
-              enabled: true,
               content: {
                 type: 'checkBoxes',
                 attributes: {
                   label: 'Data Flags',
                   help: field.helpText || '',
                   labelTranslationKey: 'researchOutput.dataFlags.heading'
-                },
-                meta: {
-                  schemaVersion: '1.0'
                 },
                 options: [{
                   label: 'May contain sensitive data?',
                   value: 'sensitive',
                   checked: false
                 }]
-              },
-              meta: {
-                schemaVersion: '1.0',
-                labelTranslationKey: 'researchOutput.sensitiveData'
               }
             });
           }
-
-          // Add personal data checkbox if enabled
           if (field.flagsConfig?.showPersonalData) {
             columns.push({
               heading: 'Personal Data',
-              required: false,
-              enabled: true,
               content: {
                 type: 'checkBoxes',
                 attributes: {
@@ -809,29 +764,19 @@ const QuestionAdd = ({
                   help: field.helpText || '',
                   labelTranslationKey: 'researchOutput.dataFlags.heading'
                 },
-                meta: {
-                  schemaVersion: '1.0'
-                },
                 options: [{
                   label: 'May contain personally identifiable information?',
                   value: 'personal',
                   checked: false
                 }]
-              },
-              meta: {
-                schemaVersion: '1.0',
-                labelTranslationKey: 'researchOutput.personalData'
               }
             });
           }
           break;
 
-        case 'repoSelector':
-          // Build column with selected repositories if any
-          const repoColumn: any = { // eslint-disable-line @typescript-eslint/no-explicit-any
+        case 'repoSelector': {
+          const repoColumn: any = {
             heading: field.label || 'Repositories',
-            required: false,
-            enabled: true,
             content: {
               type: 'repositorySearch',
               attributes: {
@@ -855,36 +800,23 @@ const QuestionAdd = ({
                 ],
                 queryId: 'useRepositoriesQuery',
                 answerField: 'uri'
-              },
-              meta: {
-                schemaVersion: '1.0'
               }
-            },
-            meta: {
-              schemaVersion: '1.0',
-              labelTranslationKey: 'researchOutput.repositories'
             }
           };
-
-          // Add selected repositories to preferences array
           if (field.repoConfig?.customRepos && field.repoConfig.customRepos.length > 0) {
             repoColumn.preferences = field.repoConfig.customRepos.map(repo => ({
               id: repo.uri,
               label: repo.name,
-              /*eslint-disable @typescript-eslint/no-explicit-any*/
-              value: repo.uri || (repo as any).url || ''
+              value: repo.uri || ''
             }));
           }
-
           columns.push(repoColumn);
           break;
+        }
 
-        case 'metadataStandards':
-          // Build column with selected metadata standards if any
+        case 'metadataStandards': {
           const metadataColumn: any = {
             heading: field.label || 'Metadata Standards',
-            required: false,
-            enabled: true,
             content: {
               type: 'metadataStandardSearch',
               attributes: {
@@ -907,34 +839,22 @@ const QuestionAdd = ({
                 ],
                 queryId: 'useMetadataStandardsQuery',
                 answerField: 'uri'
-              },
-              meta: {
-                schemaVersion: '1.0'
               }
-            },
-            meta: {
-              schemaVersion: '1.0',
-              labelTranslationKey: 'researchOutput.metadataStandards'
             }
           };
-
-          // Add selected metadata standards to preferences array
           if (hasMetaDataConfig(field) && field.metaDataConfig?.customStandards && field.metaDataConfig.customStandards.length > 0) {
             metadataColumn.preferences = field.metaDataConfig.customStandards.map(standard => ({
               label: standard.name,
               value: standard.uri || (standard as any).url || ''
             }));
           }
-
           columns.push(metadataColumn);
           break;
+        }
 
-        case 'licenses':
-          // Build column with selected licenses if any
+        case 'licenses': {
           const licenseColumn: any = {
             heading: field.label || 'Licenses',
-            required: false,
-            enabled: true,
             content: {
               type: 'licenseSearch',
               attributes: {
@@ -954,55 +874,39 @@ const QuestionAdd = ({
                   { label: 'Pagination Options', name: 'paginationOptions', type: 'paginationOptions' }
                 ],
                 answerField: 'uri'
-              },
-              meta: {
-                schemaVersion: '1.0'
               }
-            },
-            meta: {
-              schemaVersion: '1.0'
             }
           };
-
-          // Add selected licenses to preferences array
           if (field.licensesConfig?.customTypes && field.licensesConfig.customTypes.length > 0) {
             licenseColumn.preferences = field.licensesConfig.customTypes.map(license => ({
               label: license.name,
               value: license.uri || ''
             }));
           }
-
           columns.push(licenseColumn);
           break;
+        }
 
-        case 'accessLevels':
-          // Build access level options
+        case 'accessLevels': {
           const accessLevelOptions: any[] = [];
-
           if (field.accessLevelsConfig?.mode === 'defaults' || !field.accessLevelsConfig?.mode) {
             field.accessLevelsConfig?.selectedDefaults?.forEach(level => {
               accessLevelOptions.push({
                 label: level,
-                value: level,
-                selected: false
+                value: level
               });
             });
           }
-
           if (field.accessLevelsConfig?.mode === 'mine') {
             field.accessLevelsConfig?.customLevels?.forEach(customLevel => {
               accessLevelOptions.push({
                 label: customLevel.label,
-                value: customLevel.value,
-                selected: false
+                value: customLevel.value
               });
             });
           }
-
           columns.push({
             heading: field.label || 'Initial Access Levels',
-            required: false,
-            enabled: true,
             content: {
               type: 'selectBox',
               attributes: {
@@ -1010,27 +914,18 @@ const QuestionAdd = ({
                 help: field.helpText || '',
                 multiple: false
               },
-              options: accessLevelOptions,
-              meta: {
-                schemaVersion: '1.0'
-              }
-            },
-            meta: {
-              schemaVersion: '1.0',
-              labelTranslationKey: 'researchOutput.accessLevels'
+              options: accessLevelOptions
             }
           });
           break;
+        }
       }
     });
 
-    // Add any additional custom fields
     additionalFields.forEach(customField => {
       if (customField.enabled) {
         columns.push({
           heading: customField.customLabel || customField.label,
-          required: false,
-          enabled: true,
           content: {
             type: 'text',
             attributes: {
@@ -1038,13 +933,7 @@ const QuestionAdd = ({
               help: customField.helpText || '',
               maxLength: customField.maxLength ? Number(customField.maxLength) : undefined,
               defaultValue: customField.defaultValue || undefined
-            },
-            meta: {
-              schemaVersion: '1.0'
             }
-          },
-          meta: {
-            schemaVersion: '1.0'
           }
         });
       }
@@ -1112,18 +1001,23 @@ const QuestionAdd = ({
   const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
     const userInput = getFormState(question, rowsOverride);
 
+    console.log("***USER INPUT for Research Output", userInput);
     const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId }), Global);
 
+    console.log("***PARSED JSON for Research Output", parsed);
     if (!parsed) {
       if (error) {
         setErrors(prev => [...prev, error])
       }
       return;
     }
-    return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+    const temp = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
       parsed,
       userInput
     );
+
+    console.log("***Returned from questionTypeHandlers", temp);
+    return temp;
   };
 
   // Function to add and save the new question

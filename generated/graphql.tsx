@@ -4829,7 +4829,7 @@ export type RemoveQuestionMutationVariables = Exact<{
 }>;
 
 
-export type RemoveQuestionMutation = { __typename?: 'Mutation', removeQuestion?: { __typename?: 'Question', id?: number | null } | null };
+export type RemoveQuestionMutation = { __typename?: 'Mutation', removeQuestion?: { __typename?: 'Question', id?: number | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, guidanceText?: string | null, json?: string | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null } | null } | null };
 
 export type UpdateQuestionDisplayOrderMutationVariables = Exact<{
   questionId: Scalars['Int']['input'];
@@ -6996,6 +6996,14 @@ export const RemoveQuestionDocument = gql`
     mutation RemoveQuestion($questionId: Int!) {
   removeQuestion(questionId: $questionId) {
     id
+    errors {
+      general
+      guidanceText
+      json
+      questionText
+      requirementText
+      sampleText
+    }
   }
 }
     `;

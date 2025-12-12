@@ -5,6 +5,7 @@ import { CalendarDate } from "@internationalized/date";
 
 // Re-export types from questionAdd module
 export * from './questionAdd';
+export * from './questionEdit';
 export * from './guidance';
 
 export interface EmailInterface {
@@ -419,6 +420,25 @@ export interface addRepositoryActionResponse extends ActionResponse {
     };
   }
 };
+
+export interface updateQuestionActionResponse extends ActionResponse {
+  data?: {
+    id?: number | null;
+    guidanceText: string;
+    isDirty: boolean;
+    required: boolean;
+    json: string;
+    requirementText: string;
+    sampleText: string;
+    useSampleTextAsDefault: string;
+    sectionId: string;
+    templateId: string;
+    questionText: string;
+    errors?: {
+      [key: string]: string | null;
+    };
+  }
+}
 
 export interface UserInterface {
   givenName: string;

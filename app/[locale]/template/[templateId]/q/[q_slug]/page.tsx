@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -26,26 +25,32 @@ import {
   TextField
 } from "react-aria-components";
 
-import {
-  AccessLevelInterface,
-} from '@/app/types';
-
 // GraphQL queries and mutations
 import {
-  QuestionErrors,
   useQuestionQuery,
-  useUpdateQuestionMutation,
-  useRemoveQuestionMutation,
   useLicensesQuery,
   useDefaultResearchOutputTypesQuery,
 } from '@/generated/graphql';
 
 import {
+  removeQuestionAction,
+  updateQuestionAction
+} from './actions/index';
+
+import {
+  AnyParsedQuestion,
+  AccessLevelInterface,
   OutputTypeInterface,
   StandardField,
   MetaDataConfig,
+  Question,
+  QuestionOption,
+  QuestionOptions,
+  QuestionFormatInterface,
   RepositoryInterface,
-  MetaDataStandardInterface
+  MetaDataStandardInterface,
+  RemoveQuestionErrors,
+  UpdateQuestionErrors,
 } from '@/app/types';
 
 // Components
@@ -60,27 +65,23 @@ import {
   TypeAheadSearch,
   ResearchOutputComponent
 } from '@/components/Form';
-
 import FormTextArea from '@/components/Form/FormTextArea';
 import ErrorMessages from '@/components/ErrorMessages';
 import QuestionView from '@/components/QuestionView';
+import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 
-//Other
+//Utils and Other
 import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
+import { extractErrors } from "@/utils/errorHandler";
 import {
   getQuestionFormatInfo,
   getQuestionTypes,
   questionTypeHandlers
 } from '@/utils/questionTypeHandlers';
-import { checkErrors } from '@/utils/errorHandler'; import { QuestionTypeMap } from "@dmptool/types";
-import {
-  Question,
-  QuestionOptions,
-  QuestionFormatInterface
-} from '@/app/types';
+
 import {
   RANGE_QUESTION_TYPE,
   TYPEAHEAD_QUESTION_TYPE,
@@ -93,24 +94,13 @@ import {
   isOptionsType,
   getOverrides,
 } from './hooks/useEditQuestion';
-import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
-
 import styles from './questionEdit.module.scss';
-
-// Define the type for the options in json.options
-interface Option {
-  label: string;
-  value: string;
-  selected?: boolean;
-  checked?: boolean;
-}
-
-type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
 
 // Type guard function to check if a field has metaDataConfig
 const hasMetaDataConfig = (field: StandardField): field is StandardField & { metaDataConfig: MetaDataConfig } => {
   return field.metaDataConfig !== undefined;
 };
+
 
 const standardKeys = new Set([
   'researchOutput.title',
@@ -234,6 +224,8 @@ const QuestionEdit = () => {
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
+
+  const hasHydrated = useRef(false);
   // Track whether there are unsaved changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   // Form state
@@ -271,13 +263,6 @@ const QuestionEdit = () => {
   const [newOutputType, setNewOutputType] = useState<OutputTypeInterface>({ type: '', description: '' });
   // State for managing custom license types
   const [newLicenseType, setNewLicenseType] = useState<string>('');
-
-  // State for research output form
-  const [researchOutputFormState, setResearchOutputFormState] = useState<any>(null);
-
-  // Initialize update question mutation
-  const [updateQuestionMutation] = useUpdateQuestionMutation();
-  const [removeQuestionMutation] = useRemoveQuestionMutation();
 
   // localization keys
   const Global = useTranslations('Global');
@@ -408,257 +393,259 @@ const QuestionEdit = () => {
   };
 
   // Handle updates to RepositorySelectionSystem component
-    const handleRepositoriesChange = (repos: RepositoryInterface[]) => {
-      console.log("*** handleRepositoriesChange", repos);
-      // Store the selected repositories in the field config
-      const currentField = standardFields.find(f => f.id === 'repoSelector');
-      if (currentField && currentField.repoConfig) {
-        const wasEnabled = currentField.enabled;
-        const previousCount = currentField.repoConfig.customRepos?.length || 0;
-        updateStandardFieldProperty('repoSelector', 'repoConfig', {
-          ...currentField.repoConfig,
-          customRepos: repos
-        });
-        // Only enable if a repo is added and the box is currently unchecked
-        if (!wasEnabled && repos.length > previousCount) {
-          updateStandardFieldProperty('repoSelector', 'enabled', true);
-        }
-  
-        // Announce the change
-        if (repos.length > previousCount) {
-          announce(QuestionAdd('researchOutput.announcements.repositoryAdded') || 'Repository added');
-        } else if (repos.length < previousCount) {
-          announce(QuestionAdd('researchOutput.announcements.repositoryRemoved') || 'Repository removed');
-        }
+  const handleRepositoriesChange = (repos: RepositoryInterface[]) => {
+    console.log("***Handle Repositories Change", repos);
+    // Store the selected repositories in the field config
+    const currentField = standardFields.find(f => f.id === 'repoSelector');
+    if (currentField && currentField.repoConfig) {
+      const wasEnabled = currentField.enabled;
+      const previousCount = currentField.repoConfig.customRepos?.length || 0;
+      updateStandardFieldProperty('repoSelector', 'repoConfig', {
+        ...currentField.repoConfig,
+        customRepos: repos
+      });
+      // Only enable if a repo is added and the box is currently unchecked
+      if (!wasEnabled && repos.length > previousCount) {
+        updateStandardFieldProperty('repoSelector', 'enabled', true);
       }
-  
-      setHasUnsavedChanges(true);
-    };
-  
-    // Handle updates to MetaDataStandards component
-    const handleMetaDataStandardsChange = (standards: MetaDataStandardInterface[]) => {
-      // Store the selected metadata standards in the field config
-      const currentField = standardFields.find(f => f.id === 'metadataStandards');
-      if (currentField && currentField.metaDataConfig) {
-        const wasEnabled = currentField.enabled;
-        const previousCount = currentField.metaDataConfig.customStandards?.length || 0;
-        updateStandardFieldProperty('metadataStandards', 'metaDataConfig', {
-          ...currentField.metaDataConfig,
-          customStandards: standards // Store metadata standard data
-        });
-        // Only enable if a standard is added and the box is currently unchecked
-        if (!wasEnabled && standards.length > previousCount) {
-          updateStandardFieldProperty('metadataStandards', 'enabled', true);
-        }
-  
-        // Announce the change
-        if (standards.length > previousCount) {
-          announce(QuestionAdd('researchOutput.announcements.metadataStandardAdded') || 'Metadata standard added');
-        } else if (standards.length < previousCount) {
-          announce(QuestionAdd('researchOutput.announcements.metadataStandardRemoved') || 'Metadata standard removed');
-        }
+
+      // Announce the change
+      if (repos.length > previousCount) {
+        announce(QuestionAdd('researchOutput.announcements.repositoryAdded') || 'Repository added');
+      } else if (repos.length < previousCount) {
+        announce(QuestionAdd('researchOutput.announcements.repositoryRemoved') || 'Repository removed');
       }
-      setHasUnsavedChanges(true);
-    };
+    }
+
+    setHasUnsavedChanges(true);
+  };
+
+  // Handle updates to MetaDataStandards component
+  const handleMetaDataStandardsChange = (standards: MetaDataStandardInterface[]) => {
+    // Store the selected metadata standards in the field config
+    const currentField = standardFields.find(f => f.id === 'metadataStandards');
+    if (currentField && currentField.metaDataConfig) {
+      const wasEnabled = currentField.enabled;
+      const previousCount = currentField.metaDataConfig.customStandards?.length || 0;
+      updateStandardFieldProperty('metadataStandards', 'metaDataConfig', {
+        ...currentField.metaDataConfig,
+        customStandards: standards // Store metadata standard data
+      });
+      // Only enable if a standard is added and the box is currently unchecked
+      if (!wasEnabled && standards.length > previousCount) {
+        updateStandardFieldProperty('metadataStandards', 'enabled', true);
+      }
+
+      // Announce the change
+      if (standards.length > previousCount) {
+        announce(QuestionAdd('researchOutput.announcements.metadataStandardAdded') || 'Metadata standard added');
+      } else if (standards.length < previousCount) {
+        announce(QuestionAdd('researchOutput.announcements.metadataStandardRemoved') || 'Metadata standard removed');
+      }
+    }
+    setHasUnsavedChanges(true);
+  };
 
   // Shared function to update any property in standardFields
-    const updateStandardFieldProperty = (fieldId: string, propertyName: string, value: unknown) => {
-      setStandardFields(prev =>
-        prev.map(field =>
-          field.id === fieldId ? { ...field, [propertyName]: value } : field
-        )
-      );
-      setHasUnsavedChanges(true);
-    };
-  
-    // Handler for standard field checkbox changes (for enabled property)
-    const handleStandardFieldChange = (fieldId: string, enabled: boolean) => {
-      updateStandardFieldProperty(fieldId, 'enabled', enabled);
-      if (enabled === true) {
-        setExpandedFields(prev => [...prev, fieldId]); //expanded
-      }
-      // Do NOT auto-collapse when unchecked
-  
+  const updateStandardFieldProperty = (fieldId: string, propertyName: string, value: unknown) => {
+    setStandardFields(prev =>
+      prev.map(field =>
+        field.id === fieldId ? { ...field, [propertyName]: value } : field
+      )
+    );
+    setHasUnsavedChanges(true);
+  };
+
+  // Handler for standard field checkbox changes (for enabled property)
+  const handleStandardFieldChange = (fieldId: string, enabled: boolean) => {
+
+    updateStandardFieldProperty(fieldId, 'enabled', enabled);
+    if (enabled === true) {
+      setExpandedFields(prev => [...prev, fieldId]); //expanded
+    }
+    // Do NOT auto-collapse when unchecked
+
+    // Announce the change
+    const field = standardFields.find(f => f.id === fieldId);
+    if (field) {
+      const status = enabled ? 'enabled' : 'disabled';
+      announce(`${field.label} ${status}`);
+    }
+  };
+
+  // Handler for customize button clicks
+  const handleCustomizeField = (fieldId: string) => {
+    const wasExpanded = expandedFields.includes(fieldId);
+    setExpandedFields(prev =>
+      prev.includes(fieldId)
+        ? prev.filter(id => id !== fieldId) // collapse
+        : [...prev, fieldId]                // expand
+    );
+
+    // Announce the change
+    const field = standardFields.find(f => f.id === fieldId) || additionalFields.find(f => f.id === fieldId);
+    if (field) {
+      const status = wasExpanded ? 'collapsed' : 'expanded';
+      announce(`${field.label} ${status}`);
+    }
+  };
+
+  // Handler for toggling metadata standards
+  const handleToggleMetaDataStandards = (hasCustomStandards: boolean) => {
+    const currentField = standardFields.find(f => f.id === 'metadataStandards');
+    if (currentField && currentField.metaDataConfig) {
+      updateStandardFieldProperty('metadataStandards', 'metaDataConfig', {
+        ...currentField.metaDataConfig,
+        hasCustomStandards
+      });
+    }
+  };
+
+  // Handler for toggling preferred repositories
+  const handleTogglePreferredRepositories = (hasCustomRepos: boolean) => {
+    const currentField = standardFields.find(f => f.id === 'repoSelector');
+    if (currentField && currentField.repoConfig) {
+      updateStandardFieldProperty('repoSelector', 'repoConfig', {
+        ...currentField.repoConfig,
+        hasCustomRepos
+      });
+    }
+  };
+
+  // Handler for license mode changes (defaults, add to defaults)
+  const handleLicenseModeChange = (mode: 'defaults' | 'addToDefaults') => {
+    console.log("***Handle License Mode Change", mode);
+    const currentField = standardFields.find(f => f.id === 'licenses');
+    if (currentField && currentField.licensesConfig) {
+      // When switching to 'addToDefaults' mode, pre-populate with recommended licenses if customTypes is empty
+      const allLicenses = licensesData?.licenses?.items?.filter((license): license is NonNullable<typeof license> => license !== null) || [];
+      const recommendedLicenses = allLicenses
+        .filter(license => license.recommended)
+        .map(license => ({ name: license.name, uri: license.uri }));
+
+      const customTypes = mode === 'addToDefaults' && currentField.licensesConfig.customTypes.length === 0
+        ? recommendedLicenses
+        : currentField.licensesConfig.customTypes;
+
+      updateStandardFieldProperty('licenses', 'licensesConfig', {
+        ...currentField.licensesConfig,
+        mode,
+        customTypes
+      });
+
       // Announce the change
-      const field = standardFields.find(f => f.id === fieldId);
-      if (field) {
-        const status = enabled ? 'enabled' : 'disabled';
-        announce(`${field.label} ${status}`);
-      }
-    };
-  
-    // Handler for customize button clicks
-    const handleCustomizeField = (fieldId: string) => {
-      const wasExpanded = expandedFields.includes(fieldId);
-      setExpandedFields(prev =>
-        prev.includes(fieldId)
-          ? prev.filter(id => id !== fieldId) // collapse
-          : [...prev, fieldId]                // expand
-      );
-  
-      // Announce the change
-      const field = standardFields.find(f => f.id === fieldId) || additionalFields.find(f => f.id === fieldId);
-      if (field) {
-        const status = wasExpanded ? 'collapsed' : 'expanded';
-        announce(`${field.label} ${status}`);
-      }
-    };
-  
-    // Handler for toggling metadata standards
-    const handleToggleMetaDataStandards = (hasCustomStandards: boolean) => {
-      const currentField = standardFields.find(f => f.id === 'metadataStandards');
-      if (currentField && currentField.metaDataConfig) {
-        updateStandardFieldProperty('metadataStandards', 'metaDataConfig', {
-          ...currentField.metaDataConfig,
-          hasCustomStandards
-        });
-      }
-    };
-  
-    // Handler for toggling preferred repositories
-    const handleTogglePreferredRepositories = (hasCustomRepos: boolean) => {
-      const currentField = standardFields.find(f => f.id === 'repoSelector');
-      if (currentField && currentField.repoConfig) {
-        updateStandardFieldProperty('repoSelector', 'repoConfig', {
-          ...currentField.repoConfig,
-          hasCustomRepos
-        });
-      }
-    };
-  
-    // Handler for license mode changes (defaults, add to defaults)
-    const handleLicenseModeChange = (mode: 'defaults' | 'addToDefaults') => {
+      const modeText = mode === 'defaults' ? 'default licenses' : 'custom licenses';
+      announce(QuestionAdd('researchOutput.announcements.licenseModeChanged', { mode: modeText }) || `License mode changed to ${modeText}`);
+    }
+  };
+
+  // Handler for adding custom license types
+  const handleAddCustomLicenseType = () => {
+    if (newLicenseType.trim()) {
       const currentField = standardFields.find(f => f.id === 'licenses');
       if (currentField && currentField.licensesConfig) {
-        // When switching to 'addToDefaults' mode, pre-populate with recommended licenses if customTypes is empty
+        // newLicenseType contains the URI, find the full license object
         const allLicenses = licensesData?.licenses?.items?.filter((license): license is NonNullable<typeof license> => license !== null) || [];
-        const recommendedLicenses = allLicenses
-          .filter(license => license.recommended)
-          .map(license => ({ name: license.name, uri: license.uri }));
-  
-        const customTypes = mode === 'addToDefaults' && currentField.licensesConfig.customTypes.length === 0
-          ? recommendedLicenses
-          : currentField.licensesConfig.customTypes;
-  
-        updateStandardFieldProperty('licenses', 'licensesConfig', {
-          ...currentField.licensesConfig,
-          mode,
-          customTypes
-        });
-  
-        // Announce the change
-        const modeText = mode === 'defaults' ? 'default licenses' : 'custom licenses';
-        announce(QuestionAdd('researchOutput.announcements.licenseModeChanged', { mode: modeText }) || `License mode changed to ${modeText}`);
-      }
-    };
-  
-    // Handler for adding custom license types
-    const handleAddCustomLicenseType = () => {
-      if (newLicenseType.trim()) {
-        const currentField = standardFields.find(f => f.id === 'licenses');
-        if (currentField && currentField.licensesConfig) {
-          // newLicenseType contains the URI, find the full license object
-          const allLicenses = licensesData?.licenses?.items?.filter((license): license is NonNullable<typeof license> => license !== null) || [];
-          const selectedLicense = allLicenses.find(license => license.uri === newLicenseType.trim());
-  
-          if (selectedLicense) {
-            const updatedCustomTypes = [
-              ...currentField.licensesConfig.customTypes,
-              { name: selectedLicense.name, uri: selectedLicense.uri }
-            ];
-            updateStandardFieldProperty('licenses', 'licensesConfig', {
-              ...currentField.licensesConfig,
-              customTypes: updatedCustomTypes
-            });
-            setNewLicenseType('');
-            announce(QuestionAdd('researchOutput.announcements.licenseAdded', { name: selectedLicense.name }) || `License ${selectedLicense.name} added`);
-          }
-        }
-      }
-    };
-  
-    // Handler for removing custom license types
-    const handleRemoveCustomLicenseType = (nameToRemove: string) => {
-      const currentField = standardFields.find(f => f.id === 'licenses');
-      if (currentField && currentField.licensesConfig) {
-        const updatedCustomTypes = currentField.licensesConfig.customTypes.filter(
-          (license) => license.name !== nameToRemove
-        );
-        updateStandardFieldProperty('licenses', 'licensesConfig', {
-          ...currentField.licensesConfig,
-          customTypes: updatedCustomTypes
-        });
-        announce(QuestionAdd('researchOutput.announcements.licenseRemoved', { name: nameToRemove }) || `License ${nameToRemove} removed`);
-      }
-    };
-  
-    // Handler for output type mode changes (defaults, mine, add to defaults)
-    const handleOutputTypeModeChange = (mode: 'defaults' | 'mine') => {
-      const currentField = standardFields.find(f => f.id === 'outputType');
-      if (currentField && currentField.outputTypeConfig) {
-        // When switching to 'mine' mode, pre-populate with defaults if customTypes is empty
-        // Transform backend data to match OutputTypeInterface structure
-        const backendOutputTypes = defaultResearchOutputTypesData?.defaultResearchOutputTypes
-          ?.filter((item): item is NonNullable<typeof item> => item !== null)
-          .map(item => ({
-            type: item.name,
-            description: item.description || ''
-          })) || [];
-  
-        const customTypes = mode === 'mine' && currentField.outputTypeConfig.customTypes.length === 0
-          ? backendOutputTypes
-          : currentField.outputTypeConfig.customTypes;
-  
-        updateStandardFieldProperty('outputType', 'outputTypeConfig', {
-          ...currentField.outputTypeConfig,
-          mode,
-          customTypes
-        });
-  
-        // Announce the change
-        const modeText = mode === 'defaults' ? 'default output types' : 'custom output types';
-        announce(QuestionAdd('researchOutput.announcements.outputTypeModeChanged', { mode: modeText }) || `Output type mode changed to ${modeText}`);
-      }
-    };
-  
-    // Handler for adding custom output types
-    const handleAddCustomOutputType = () => {
-      if (newOutputType.type && newOutputType.type.trim()) {
-        const currentField = standardFields.find(f => f.id === 'outputType');
-        if (currentField && currentField.outputTypeConfig) {
-          // Add to customTypes array
+        const selectedLicense = allLicenses.find(license => license.uri === newLicenseType.trim());
+
+        if (selectedLicense) {
           const updatedCustomTypes = [
-            ...currentField.outputTypeConfig.customTypes,
-            { type: newOutputType.type.trim(), description: newOutputType.description?.trim() || '' }
+            ...currentField.licensesConfig.customTypes,
+            { name: selectedLicense.name, uri: selectedLicense.uri }
           ];
-  
-          updateStandardFieldProperty('outputType', 'outputTypeConfig', {
-            ...currentField.outputTypeConfig,
+          updateStandardFieldProperty('licenses', 'licensesConfig', {
+            ...currentField.licensesConfig,
             customTypes: updatedCustomTypes
           });
-  
-          // Clear the input fields
-          const typeName = newOutputType.type.trim();
-          setNewOutputType({ type: '', description: '' });
-          announce(QuestionAdd('researchOutput.announcements.outputTypeAdded', { type: typeName }) || `Output type ${typeName} added`);
+          setNewLicenseType('');
+          announce(QuestionAdd('researchOutput.announcements.licenseAdded', { name: selectedLicense.name }) || `License ${selectedLicense.name} added`);
         }
       }
-    };
-  
-    // Handler for removing custom output types
-    const handleRemoveCustomOutputType = (typeToRemove: string) => {
+    }
+  };
+
+  // Handler for removing custom license types
+  const handleRemoveCustomLicenseType = (nameToRemove: string) => {
+    const currentField = standardFields.find(f => f.id === 'licenses');
+    if (currentField && currentField.licensesConfig) {
+      const updatedCustomTypes = currentField.licensesConfig.customTypes.filter(
+        (license) => license.name !== nameToRemove
+      );
+      updateStandardFieldProperty('licenses', 'licensesConfig', {
+        ...currentField.licensesConfig,
+        customTypes: updatedCustomTypes
+      });
+      announce(QuestionAdd('researchOutput.announcements.licenseRemoved', { name: nameToRemove }) || `License ${nameToRemove} removed`);
+    }
+  };
+
+  // Handler for output type mode changes (defaults, mine, add to defaults)
+  const handleOutputTypeModeChange = (mode: 'defaults' | 'mine') => {
+    const currentField = standardFields.find(f => f.id === 'outputType');
+    if (currentField && currentField.outputTypeConfig) {
+      // When switching to 'mine' mode, pre-populate with defaults if customTypes is empty
+      // Transform backend data to match OutputTypeInterface structure
+      const backendOutputTypes = defaultResearchOutputTypesData?.defaultResearchOutputTypes
+        ?.filter((item): item is NonNullable<typeof item> => item !== null)
+        .map(item => ({
+          type: item.name,
+          description: item.description || ''
+        })) || [];
+
+      const customTypes = mode === 'mine' && currentField.outputTypeConfig.customTypes.length === 0
+        ? backendOutputTypes
+        : currentField.outputTypeConfig.customTypes;
+
+      updateStandardFieldProperty('outputType', 'outputTypeConfig', {
+        ...currentField.outputTypeConfig,
+        mode,
+        customTypes
+      });
+
+      // Announce the change
+      const modeText = mode === 'defaults' ? 'default output types' : 'custom output types';
+      announce(QuestionAdd('researchOutput.announcements.outputTypeModeChanged', { mode: modeText }) || `Output type mode changed to ${modeText}`);
+    }
+  };
+
+  // Handler for adding custom output types
+  const handleAddCustomOutputType = () => {
+    if (newOutputType.type && newOutputType.type.trim()) {
       const currentField = standardFields.find(f => f.id === 'outputType');
       if (currentField && currentField.outputTypeConfig) {
-        const updatedCustomTypes = currentField.outputTypeConfig.customTypes.filter(
-          (customType: OutputTypeInterface) => customType.type !== typeToRemove
-        );
+        // Add to customTypes array
+        const updatedCustomTypes = [
+          ...currentField.outputTypeConfig.customTypes,
+          { type: newOutputType.type.trim(), description: newOutputType.description?.trim() || '' }
+        ];
+
         updateStandardFieldProperty('outputType', 'outputTypeConfig', {
           ...currentField.outputTypeConfig,
           customTypes: updatedCustomTypes
         });
-        announce(QuestionAdd('researchOutput.announcements.outputTypeRemoved', { type: typeToRemove }) || `Output type ${typeToRemove} removed`);
+
+        // Clear the input fields
+        const typeName = newOutputType.type.trim();
+        setNewOutputType({ type: '', description: '' });
+        announce(QuestionAdd('researchOutput.announcements.outputTypeAdded', { type: typeName }) || `Output type ${typeName} added`);
       }
-    };
+    }
+  };
+
+  // Handler for removing custom output types
+  const handleRemoveCustomOutputType = (typeToRemove: string) => {
+    const currentField = standardFields.find(f => f.id === 'outputType');
+    if (currentField && currentField.outputTypeConfig) {
+      const updatedCustomTypes = currentField.outputTypeConfig.customTypes.filter(
+        (customType: OutputTypeInterface) => customType.type !== typeToRemove
+      );
+      updateStandardFieldProperty('outputType', 'outputTypeConfig', {
+        ...currentField.outputTypeConfig,
+        customTypes: updatedCustomTypes
+      });
+      announce(QuestionAdd('researchOutput.announcements.outputTypeRemoved', { type: typeToRemove }) || `Output type ${typeToRemove} removed`);
+    }
+  };
 
   /**
    * Build form state for research output table questions.
@@ -681,7 +668,7 @@ const QuestionEdit = () => {
    * researchOutputTable handler in questionTypeHandlers for final validation.
    */
   const buildResearchOutputFormState = (parsed: AnyParsedQuestion | null) => {
-    const columns: any[] = []; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const columns: any[] = [];
 
     standardFields.forEach(field => {
       if (!field.enabled) return;
@@ -690,8 +677,6 @@ const QuestionEdit = () => {
         case 'title':
           columns.push({
             heading: field.label || 'Title',
-            required: field.required ?? true,
-            enabled: true,
             content: {
               type: 'text',
               attributes: {
@@ -699,14 +684,7 @@ const QuestionEdit = () => {
                 help: field.helpText || '',
                 maxLength: 500,
                 minLength: 1
-              },
-              meta: {
-                schemaVersion: '1.0'
               }
-            },
-            meta: {
-              schemaVersion: '1.0',
-              labelTranslationKey: 'researchOutput.title'
             }
           });
           break;
@@ -714,8 +692,6 @@ const QuestionEdit = () => {
         case 'description':
           columns.push({
             heading: field.label || 'Description',
-            required: field.required ?? false,
-            enabled: true,
             content: {
               type: 'textArea',
               attributes: {
@@ -724,52 +700,34 @@ const QuestionEdit = () => {
                 maxLength: field.maxLength ? Number(field.maxLength) : undefined,
                 asRichText: true,
                 rows: 4
-              },
-              meta: {
-                schemaVersion: '1.0'
               }
-            },
-            meta: {
-              schemaVersion: '1.0',
-              labelTranslationKey: 'researchOutput.description'
             }
           });
           break;
 
-        case 'outputType':
-          // Build selectBox options from outputTypeConfig
-          const outputTypeOptions: any[] = []; // eslint-disable-line @typescript-eslint/no-explicit-any
-
+        case 'outputType': {
+          const outputTypeOptions: any[] = [];
           if (field.outputTypeConfig?.mode === 'defaults' || !field.outputTypeConfig?.mode) {
-            // Use selected defaults - need to match with backend value field
             field.outputTypeConfig?.selectedDefaults?.forEach(defaultType => {
-              // Find the corresponding backend output type to get the value
               const backendType = defaultResearchOutputTypesData?.defaultResearchOutputTypes?.find(
                 (item) => item?.name === defaultType
               );
               outputTypeOptions.push({
                 label: defaultType,
-                value: backendType?.value || defaultType.toLowerCase().replace(/\s+/g, '-'),
-                selected: false
+                value: backendType?.value || defaultType.toLowerCase().replace(/\s+/g, '-')
               });
             });
           }
-
           if (field.outputTypeConfig?.mode === 'mine' || !field.outputTypeConfig?.mode) {
-            // Add custom types - use type as both label and value for custom types
             field.outputTypeConfig?.customTypes?.forEach(customType => {
               outputTypeOptions.push({
                 label: customType.type || '',
-                value: customType.type?.toLowerCase().replace(/\s+/g, '-') || '',
-                selected: false
+                value: customType.type?.toLowerCase().replace(/\s+/g, '-') || ''
               });
             });
           }
-
           columns.push({
             heading: field.label || 'Output Type',
-            required: field.required ?? true,
-            enabled: true,
             content: {
               type: 'selectBox',
               attributes: {
@@ -777,54 +735,34 @@ const QuestionEdit = () => {
                 help: field.helpText || '',
                 multiple: false
               },
-              options: outputTypeOptions,
-              meta: {
-                schemaVersion: '1.0'
-              }
-            },
-            meta: {
-              schemaVersion: '1.0',
-              labelTranslationKey: 'researchOutput.outputType'
+              options: outputTypeOptions
             }
           });
           break;
+        }
 
         case 'dataFlags':
-          // Add sensitive data checkbox if enabled
           if (field.flagsConfig?.showSensitiveData) {
             columns.push({
               heading: 'Sensitive Data',
-              required: false,
-              enabled: true,
               content: {
                 type: 'checkBoxes',
                 attributes: {
                   label: 'Data Flags',
                   help: field.helpText || '',
                   labelTranslationKey: 'researchOutput.dataFlags.heading'
-                },
-                meta: {
-                  schemaVersion: '1.0'
                 },
                 options: [{
                   label: 'May contain sensitive data?',
                   value: 'sensitive',
                   checked: false
                 }]
-              },
-              meta: {
-                schemaVersion: '1.0',
-                labelTranslationKey: 'researchOutput.sensitiveData'
               }
             });
           }
-
-          // Add personal data checkbox if enabled
           if (field.flagsConfig?.showPersonalData) {
             columns.push({
               heading: 'Personal Data',
-              required: false,
-              enabled: true,
               content: {
                 type: 'checkBoxes',
                 attributes: {
@@ -832,29 +770,19 @@ const QuestionEdit = () => {
                   help: field.helpText || '',
                   labelTranslationKey: 'researchOutput.dataFlags.heading'
                 },
-                meta: {
-                  schemaVersion: '1.0'
-                },
                 options: [{
                   label: 'May contain personally identifiable information?',
                   value: 'personal',
                   checked: false
                 }]
-              },
-              meta: {
-                schemaVersion: '1.0',
-                labelTranslationKey: 'researchOutput.personalData'
               }
             });
           }
           break;
 
-        case 'repoSelector':
-          // Build column with selected repositories if any
-          const repoColumn: any = { // eslint-disable-line @typescript-eslint/no-explicit-any
+        case 'repoSelector': {
+          const repoColumn: any = {
             heading: field.label || 'Repositories',
-            required: false,
-            enabled: true,
             content: {
               type: 'repositorySearch',
               attributes: {
@@ -878,18 +806,10 @@ const QuestionEdit = () => {
                 ],
                 queryId: 'useRepositoriesQuery',
                 answerField: 'uri'
-              },
-              meta: {
-                schemaVersion: '1.0'
               }
-            },
-            meta: {
-              schemaVersion: '1.0',
-              labelTranslationKey: 'researchOutput.repositories'
             }
           };
-
-          // Add selected repositories to preferences array
+          console.log("***FIELD REPO CONFIG", field.repoConfig);
           if (field.repoConfig?.customRepos && field.repoConfig.customRepos.length > 0) {
             repoColumn.preferences = field.repoConfig.customRepos.map(repo => ({
               id: repo.uri,
@@ -897,16 +817,13 @@ const QuestionEdit = () => {
               value: repo.uri || ''
             }));
           }
-
           columns.push(repoColumn);
           break;
+        }
 
-        case 'metadataStandards':
-          // Build column with selected metadata standards if any
+        case 'metadataStandards': {
           const metadataColumn: any = {
             heading: field.label || 'Metadata Standards',
-            required: false,
-            enabled: true,
             content: {
               type: 'metadataStandardSearch',
               attributes: {
@@ -929,34 +846,22 @@ const QuestionEdit = () => {
                 ],
                 queryId: 'useMetadataStandardsQuery',
                 answerField: 'uri'
-              },
-              meta: {
-                schemaVersion: '1.0'
               }
-            },
-            meta: {
-              schemaVersion: '1.0',
-              labelTranslationKey: 'researchOutput.metadataStandards'
             }
           };
-
-          // Add selected metadata standards to preferences array
           if (hasMetaDataConfig(field) && field.metaDataConfig?.customStandards && field.metaDataConfig.customStandards.length > 0) {
             metadataColumn.preferences = field.metaDataConfig.customStandards.map(standard => ({
               label: standard.name,
               value: standard.uri || (standard as any).url || ''
             }));
           }
-
           columns.push(metadataColumn);
           break;
+        }
 
-        case 'licenses':
-          // Build column with selected licenses if any
+        case 'licenses': {
           const licenseColumn: any = {
             heading: field.label || 'Licenses',
-            required: false,
-            enabled: true,
             content: {
               type: 'licenseSearch',
               attributes: {
@@ -976,55 +881,43 @@ const QuestionEdit = () => {
                   { label: 'Pagination Options', name: 'paginationOptions', type: 'paginationOptions' }
                 ],
                 answerField: 'uri'
-              },
-              meta: {
-                schemaVersion: '1.0'
               }
-            },
-            meta: {
-              schemaVersion: '1.0'
             }
           };
-
-          // Add selected licenses to preferences array
-          if (field.licensesConfig?.customTypes && field.licensesConfig.customTypes.length > 0) {
+          if (field.licensesConfig?.mode === 'addToDefaults' && field.licensesConfig?.customTypes && field.licensesConfig.customTypes.length > 0) {
             licenseColumn.preferences = field.licensesConfig.customTypes.map(license => ({
               label: license.name,
               value: license.uri || ''
             }));
+          } else {
+            licenseColumn.preferences = [];
           }
 
+          console.log("***License Column", licenseColumn);
           columns.push(licenseColumn);
           break;
+        }
 
-        case 'accessLevels':
-          // Build access level options
+        case 'accessLevels': {
           const accessLevelOptions: any[] = [];
-
           if (field.accessLevelsConfig?.mode === 'defaults' || !field.accessLevelsConfig?.mode) {
             field.accessLevelsConfig?.selectedDefaults?.forEach(level => {
               accessLevelOptions.push({
                 label: level,
-                value: level,
-                selected: false
+                value: level
               });
             });
           }
-
           if (field.accessLevelsConfig?.mode === 'mine') {
             field.accessLevelsConfig?.customLevels?.forEach(customLevel => {
               accessLevelOptions.push({
                 label: customLevel.label,
-                value: customLevel.value,
-                selected: false
+                value: customLevel.value
               });
             });
           }
-
           columns.push({
             heading: field.label || 'Initial Access Levels',
-            required: false,
-            enabled: true,
             content: {
               type: 'selectBox',
               attributes: {
@@ -1032,27 +925,18 @@ const QuestionEdit = () => {
                 help: field.helpText || '',
                 multiple: false
               },
-              options: accessLevelOptions,
-              meta: {
-                schemaVersion: '1.0'
-              }
-            },
-            meta: {
-              schemaVersion: '1.0',
-              labelTranslationKey: 'researchOutput.accessLevels'
+              options: accessLevelOptions
             }
           });
           break;
+        }
       }
     });
 
-    // Add any additional custom fields
     additionalFields.forEach(customField => {
       if (customField.enabled) {
         columns.push({
           heading: customField.customLabel || customField.label,
-          required: false,
-          enabled: true,
           content: {
             type: 'text',
             attributes: {
@@ -1060,13 +944,7 @@ const QuestionEdit = () => {
               help: customField.helpText || '',
               maxLength: customField.maxLength ? Number(customField.maxLength) : undefined,
               defaultValue: customField.defaultValue || undefined
-            },
-            meta: {
-              schemaVersion: '1.0'
             }
-          },
-          meta: {
-            schemaVersion: '1.0'
           }
         });
       }
@@ -1102,11 +980,9 @@ const QuestionEdit = () => {
 
     const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }), Global);
 
-      if (questionType === RESEARCH_OUTPUT_QUESTION_TYPE) {
-        const temp = buildResearchOutputFormState(parsed);
-        console.log("***BUILD RESEARCH OUTPUT FORM STATE:", temp);
-        return temp;
-      }
+    if (questionType === RESEARCH_OUTPUT_QUESTION_TYPE) {
+      return buildResearchOutputFormState(parsed);
+    }
 
     if (!parsed) {
       if (error) {
@@ -1126,10 +1002,10 @@ const QuestionEdit = () => {
   // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
   const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
     const userInput = getFormState(question, rowsOverride);
-    console.log("***USER INPUT:", userInput);
+    console.log("***USER INPUT for Research Output", userInput);
     const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }), Global);
+    console.log("***PARSED JSON for Research Output", parsed);
 
-    console.log("***PARSED QUESTION JSON:", parsed);
     if (!parsed) {
       if (error) {
         setErrors(prev => [...prev, error])
@@ -1140,7 +1016,8 @@ const QuestionEdit = () => {
       parsed,
       userInput
     );
-    console.log("***QUESTION TYPE HANDER RESPONSE:", temp);
+
+    console.log("***Returned from questionTypeHandlers", temp);
     return temp;
   };
 
@@ -1154,76 +1031,90 @@ const QuestionEdit = () => {
     // Set formSubmitted to true to indicate the form has been submitted
     setFormSubmitted(true);
 
+    console.log("***Handle Update standard fields", standardFields);
+
     if (question) {
       const updatedJSON = buildUpdatedJSON(question);
+      const { success, error } = updatedJSON ?? {};
 
-      // Strip all tags from questionText before sending to backend
-      const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
+      if (success && !error) {
+        // Strip all tags from questionText before sending to backend
+        const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
 
-      try {
         // Add mutation for question
-        const response = await updateQuestionMutation({
-          variables: {
-            input: {
-              questionId: Number(questionId),
-              displayOrder: question.displayOrder,
-              json: JSON.stringify(updatedJSON ? updatedJSON.data : ''),
-              questionText: cleanedQuestionText,
-              requirementText: question.requirementText,
-              guidanceText: question.guidanceText,
-              sampleText: question.sampleText,
-              useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
-              required: question.required
-            }
-          },
+        const response = await updateQuestionAction({
+          questionId: Number(questionId),
+          displayOrder: Number(question.displayOrder),
+          json: JSON.stringify(updatedJSON ? updatedJSON.data : ''),
+          questionText: cleanedQuestionText,
+          requirementText: String(question.requirementText),
+          guidanceText: String(question.guidanceText),
+          sampleText: String(question.sampleText),
+          useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
+          required: Boolean(question.required)
         });
 
-        const responseErrors = response?.data?.updateQuestion?.errors;
-
-        if (responseErrors && typeof responseErrors === 'object') {
-          const [hasErrors, errs] = checkErrors(
-            responseErrors as QuestionErrors,
-            ['general', 'questionText']
-          );
-          if (hasErrors) {
-            setErrors([String(errs.general)]);
-            setIsSubmitting(false);
-            return;
-          }
+        if (response.redirect) {
+          router.push(response.redirect);
         }
-        // Show success message and redirect to Edit Template page
-        toastState.add(t('messages.success.questionUpdated'), { type: 'success' });
-        router.push(TEMPLATE_URL);
-        setHasUnsavedChanges(false);
-        setIsSubmitting(false);
-      } catch (error) {
-        if (!(error instanceof ApolloError)) {
-          setErrors(prevErrors => [...prevErrors, t('messages.errors.questionUpdateError')]);
+
+        if (!response.success) {
+          const errors = response.errors;
+
+          // Announcement for screen readers
+          announce(QuestionAdd('researchOutput.announcements.errorOccurred') || 'An error occurred. Please check the form.');
+
+          //Check if errors is an array or an object
+          if (Array.isArray(errors)) {
+            //Handle errors as an array
+            setErrors(errors);
+          }
+        } else {
+          if (response?.data?.errors) {
+            const errs = extractErrors<UpdateQuestionErrors>(response?.data?.errors, ["general", "questionText"]);
+            if (errs.length > 0) {
+              setErrors(errs);
+            }
+          }
+          setIsSubmitting(false);
+          setHasUnsavedChanges(false);
+          toastState.add(QuestionAdd('messages.success.questionUpdated'), { type: 'success' });
+
+          // Redirect user to the Edit Question view with their new question id after successfully adding the new question
+          router.push(TEMPLATE_URL);
         }
       }
     }
-  }
+  };
 
   // Handle form submission to delete the question
   const handleDelete = async () => {
-    try {
-      const response = await removeQuestionMutation({
-        variables: {
-          questionId: Number(questionId),
-        }
-      });
+    const response = await removeQuestionAction({
+      questionId: Number(questionId),
+    });
 
-      if (response?.data) {
-        // Show success message and redirect to Edit Template page
-        toastState.add(t('messages.success.questionRemoved'), { type: 'success' });
-        router.push(TEMPLATE_URL);
+    if (response.redirect) {
+      router.push(response.redirect);
+    }
+
+    if (!response.success) {
+      const errors = response.errors;
+
+      //Check if errors is an array or an object
+      if (Array.isArray(errors)) {
+        //Handle errors as an array
+        setErrors(errors);
       }
-    } catch (error) {
-      if (error instanceof ApolloError) {
-        //
-      } else {
-        // Handle other types of errors
-        setErrors(prevErrors => [...prevErrors, t('messages.errors.questionRemoveError')]);
+    } else {
+      if (response?.data?.errors) {
+        const errs = extractErrors<RemoveQuestionErrors>(response?.data?.errors, ["general", "guidanceText", "questionText", "requirementText", "sampleText"]);
+        if (errs.length > 0) {
+          setErrors(errs);
+        } else {
+          // Show success message and redirect to Edit Template page
+          toastState.add(t('messages.success.questionRemoved'), { type: 'success' });
+          router.push(TEMPLATE_URL);
+        }
       }
     }
   };
@@ -1314,7 +1205,7 @@ const QuestionEdit = () => {
         // Set options info with proper type checking
         if (isOptionsQuestion && 'options' in parsed && parsed.options && Array.isArray(parsed.options)) {
           const optionRows: QuestionOptions[] = parsed.options
-            .map((option: Option, index: number) => ({
+            .map((option: QuestionOption, index: number) => ({
               id: index,
               text: option?.label || '',
               isSelected: option?.selected || option?.checked || false,
@@ -1356,7 +1247,7 @@ const QuestionEdit = () => {
   }, [parsedQuestionJSON])
 
   useEffect(() => {
-    if (parsedQuestionJSON?.type === RESEARCH_OUTPUT_QUESTION_TYPE && Array.isArray(parsedQuestionJSON.columns)) {
+    if (!hasHydrated.current && parsedQuestionJSON?.type === RESEARCH_OUTPUT_QUESTION_TYPE && Array.isArray(parsedQuestionJSON.columns)) {
       try {
         // Helper to find a column by labelTranslationKey or heading
         const findColumn = (keys: string[]) =>
@@ -1417,7 +1308,7 @@ const QuestionEdit = () => {
                 updated.helpText = col.content.attributes?.help || '';
                 updated.licensesConfig = {
                   ...updated.licensesConfig,
-                  mode: 'addToDefaults',
+                  mode: col?.preferences.length > 0 ? 'addToDefaults' : 'defaults',
                   customTypes: col.preferences.map((lic) => ({
                     name: lic.label,
                     uri: lic.value
@@ -1429,7 +1320,7 @@ const QuestionEdit = () => {
             }
             case 'outputType': {
               const col = findColumn(['researchOutput.outputType', 'Output Type']);
-              if (col && col.content && 'options' in col.content &&Array.isArray(col?.content?.options) && col?.content?.options.length > 0) {
+              if (col && col.content && 'options' in col.content && Array.isArray(col?.content?.options) && col?.content?.options.length > 0) {
                 updated.enabled = !!col.enabled;
                 updated.outputTypeConfig = {
                   ...updated.outputTypeConfig,
@@ -1524,6 +1415,7 @@ const QuestionEdit = () => {
         // eslint-disable-next-line no-console
         console.error('Error hydrating research output fields from JSON', error);
       }
+      hasHydrated.current = true;
     }
   }, [parsedQuestionJSON]);
 
@@ -1534,7 +1426,6 @@ const QuestionEdit = () => {
       getQuestionTypes();
     }
   }, [questionTypeIdQueryParam]);
-
 
 
   // If a user passes in a questionType query param we will find the matching questionTypes 
@@ -1594,6 +1485,9 @@ const QuestionEdit = () => {
     };
   }, [hasUnsavedChanges]);
 
+  useEffect(() => {
+    console.log("***Standard Fields", standardFields);
+  }, [standardFields])
   if (loading) {
     return <div>Loading...</div>;
   }
