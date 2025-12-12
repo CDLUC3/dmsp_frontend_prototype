@@ -836,7 +836,8 @@
       "dateRange": "Date range",
       "filteredSearch": "Filtered search",
       "table": "Table",
-      "affiliationSearch": "Affiliation search"
+      "affiliationSearch": "Affiliation search",
+      "researchOutputTable": "Research output table"
     }
   },
   "OrganizationTemplates": {

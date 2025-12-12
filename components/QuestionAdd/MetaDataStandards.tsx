@@ -77,7 +77,7 @@ const MetaDataStandardsSelector = ({
     const initial = field.metaDataConfig?.customStandards || [];
     // Convert array to object keyed by id
     return initial.reduce((acc: { [id: string]: MetaDataStandardInterface }, repo) => {
-      acc[repo.id] = repo;
+      acc[repo.uri] = repo;
       return acc;
     }, {});
   });
@@ -157,14 +157,14 @@ const MetaDataStandardsSelector = ({
   }
 
   const toggleSelection = (std: MetaDataStandardInterface) => {
-    const isRemoving = selectedStandards[std.id];
+    const isRemoving = selectedStandards[std.uri];
 
     setSelectedStandards(prev => {
       const newSelected = { ...prev };
-      if (newSelected[std.id]) {
-        delete newSelected[std.id];
+      if (newSelected[std.uri]) {
+        delete newSelected[std.uri];
       } else {
-        newSelected[std.id] = std;
+        newSelected[std.uri] = std;
       }
       return newSelected;
     });
@@ -178,7 +178,7 @@ const MetaDataStandardsSelector = ({
   };
 
   // Remove single standard from selected list
-  const removeStandard = (stdId: number) => {
+  const removeStandard = (stdId: string) => {
     const std = selectedStandards[stdId];
     setSelectedStandards(prev => {
       const newSelected = { ...prev };
@@ -249,7 +249,7 @@ const MetaDataStandardsSelector = ({
         description: description.trim(),
       };
 
-      setSelectedStandards(prev => ({ ...prev, [newStandard.id]: newStandard }));
+      setSelectedStandards(prev => ({ ...prev, [newStandard.uri]: newStandard }));
       setCustomForm({ name: '', uri: '', description: '' });
       setIsCustomFormOpen(false);
       setIsModalOpen(false); //close modal after adding custom standard
@@ -341,13 +341,13 @@ const MetaDataStandardsSelector = ({
               {selectedCount !== 0 && (
                 <div>
                   {selectedArray.map(std => (
-                    <div key={std.id} className={styles.item}>
+                    <div key={std.id || std.name} className={styles.item}>
                       <div className={styles.itemHeader}>
                         <div className={styles.itemContent}>
                           <div className={styles.itemTitle}>{std.name}</div>
                         </div>
                         <Button
-                          onClick={() => removeStandard(std.id)}
+                          onClick={() => removeStandard(std.uri)}
                           className="secondary small"
                         >
                           {Global('buttons.remove')}

@@ -95,15 +95,6 @@ const hasMetaDataConfig = (field: StandardField): field is StandardField & { met
   return field.metaDataConfig !== undefined;
 };
 
-// Frontend will hard-code these for now
-// These match the schema defaults in ResearchOutputAccessLevelColumnSchema
-// TODO: Consider moving to backend
-const defaultAccessLevels: AccessLevelInterface[] = [
-  { label: 'Unrestricted Access', value: 'open', description: 'Allows open access to all areas' },
-  { label: 'Controlled Access', value: 'restricted', description: 'Restricts access to certain areas' },
-  { label: 'Other', value: 'closed', description: 'Other type of access' },
-];
-
 // Initial Standard Fields data
 const initialStandardFields: StandardField[] = [
   {
@@ -878,6 +869,7 @@ const QuestionAdd = ({
           // Add selected repositories to preferences array
           if (field.repoConfig?.customRepos && field.repoConfig.customRepos.length > 0) {
             repoColumn.preferences = field.repoConfig.customRepos.map(repo => ({
+              id: repo.uri,
               label: repo.name,
               /*eslint-disable @typescript-eslint/no-explicit-any*/
               value: repo.uri || (repo as any).url || ''
@@ -1475,7 +1467,6 @@ const QuestionAdd = ({
                     setNewLicenseType={setNewLicenseType}
                     defaultResearchOutputTypesData={defaultResearchOutputTypesData}
                     licensesData={licensesData}
-                    defaultAccessLevels={defaultAccessLevels}
                     onStandardFieldChange={handleStandardFieldChange}
                     onCustomizeField={handleCustomizeField}
                     onUpdateStandardFieldProperty={updateStandardFieldProperty}

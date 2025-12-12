@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
 import {
+  AccessLevelInterface,
   AccessLevelsFieldProps,
 } from '@/app/types';
 
@@ -14,9 +15,17 @@ import { DmpIcon } from "@/components/Icons";
 
 import styles from './questionAdd.module.scss';
 
+// Frontend will hard-code these for now
+// These match the schema defaults in ResearchOutputAccessLevelColumnSchema
+// TODO: Consider moving to backend
+const defaultAccessLevels: AccessLevelInterface[] = [
+  { label: 'Unrestricted Access', value: 'open', description: 'Allows open access to all areas' },
+  { label: 'Controlled Access', value: 'restricted', description: 'Restricts access to certain areas' },
+  { label: 'Other', value: 'closed', description: 'Other type of access' },
+];
+
 const InitialAccessLevelField = ({
   field,
-  defaultAccessLevels,
 }: AccessLevelsFieldProps) => {
   const QuestionAdd = useTranslations('QuestionAdd');
   return (

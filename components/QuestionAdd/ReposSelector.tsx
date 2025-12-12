@@ -105,9 +105,12 @@ const RepositorySelectionSystem = ({
   // Selected repositories state - include any customRepos from field config as initial state
   const [selectedRepos, setSelectedRepos] = useState<{ [id: string]: RepositoryInterface }>(() => {
     const initial = field.repoConfig?.customRepos || [];
-    // Convert array to object keyed by id
-    return initial.reduce((acc: { [id: string]: RepositoryInterface }, repo) => {
-      acc[repo.id] = repo;
+
+    console.log("***Initial custom repos:", initial);
+    // Ensure each repo has a string id
+    return initial.reduce((acc: { [id: string]: RepositoryInterface }, repo, idx) => {
+      let id = repo.uri;
+      acc[id] = { ...repo, id }; // Ensure id is set
       return acc;
     }, {});
   });
@@ -216,14 +219,14 @@ const RepositorySelectionSystem = ({
 
   // Handle add/removal of repository selections in modal view and display confirmation toasts
   const toggleSelection = (repo: RepositoryInterface) => {
-    const isRemoving = selectedRepos[repo.id];
+    const isRemoving = selectedRepos[repo.uri];
 
     setSelectedRepos(prev => {
       const newSelected = { ...prev };
-      if (newSelected[repo.id]) {
-        delete newSelected[repo.id];
+      if (newSelected[repo.uri]) {
+        delete newSelected[repo.uri];
       } else {
-        newSelected[repo.id] = repo;
+        newSelected[repo.uri] = repo;
       }
       return newSelected;
     });
@@ -237,7 +240,7 @@ const RepositorySelectionSystem = ({
   };
 
   // Remove a single repository from the non-modal view
-  const removeRepo = (repoId: number) => {
+  const removeRepo = (repoId: string) => {
     const repo = selectedRepos[repoId];
     setSelectedRepos(prev => {
       const newSelected = { ...prev };
@@ -309,7 +312,7 @@ const RepositorySelectionSystem = ({
 
       // Add the newly created repository to selected repositories
       const newRepo: RepositoryInterface = {
-        id: response.data?.id ?? Date.now(),
+        id: response.data?.uri || '',
         name: name.trim(),
         uri: website.trim(),
         description: description.trim(),
@@ -317,7 +320,7 @@ const RepositorySelectionSystem = ({
         repositoryType: []
       };
 
-      setSelectedRepos(prev => ({ ...prev, [newRepo.id]: newRepo }));
+      setSelectedRepos(prev => ({ ...prev, [newRepo.uri]: newRepo }));
       setCustomForm({ name: '', website: '', description: '' });
       setIsCustomFormOpen(false);
       setIsModalOpen(false);
@@ -408,14 +411,10 @@ const RepositorySelectionSystem = ({
               {selectedCount !== 0 && (
                 <div>
                   {selectedArray.map(repo => (
-                    <div key={repo.id} className={styles.item}>
+                    <div key={repo.id} className={styles.item} id={String(repo.id)}>
                       <div className={styles.itemHeader}>
                         <div className={styles.itemContent}>
-                          <div className={styles.itemTitle}>{repo.name}</div>
-                          <div className={styles.itemMeta}>
-                            {repo.keywords?.map((keyword: string) => (
-                              <span key={keyword} className={styles.tag}>{keyword}</span>
-                            ))}
+                          <div className={styles.itemTitle}>{repo.name}
                             <a
                               href={repo.uri}
                               target="_blank"
@@ -427,7 +426,7 @@ const RepositorySelectionSystem = ({
                           </div>
                         </div>
                         <Button
-                          onClick={() => removeRepo(repo.id)}
+                          onClick={() => removeRepo(repo.uri)}
                           className={`${styles.removeBtn} secondary small`}
                         >
                           {Global('buttons.remove')}
@@ -624,14 +623,14 @@ const RepositorySelectionSystem = ({
                         .filter((repo): repo is Repository & { id: number } => repo.id != null)
                         .map((repo) => {
                           const repoInterface: RepositoryInterface = {
-                            id: repo.id,
+                            id: repo.uri,
                             name: repo.name ?? '',
                             description: repo.description ?? '',
                             uri: repo.uri ?? '',
                             keywords: repo.keywords ?? [],
                             repositoryType: repo.repositoryTypes ?? []
                           };
-                          const isSelected = selectedRepos[repoInterface.id];
+                          const isSelected = selectedRepos[repoInterface.uri];
                           return (
                             <div
                               key={repoInterface.id}
@@ -659,7 +658,7 @@ const RepositorySelectionSystem = ({
                                 className={`${styles.moreInfoToggle} link`}
                                 aria-label={expandedDetails[`modal-${repoInterface.id}`] ? Global('buttons.lessInfo') : Global('buttons.moreInfo')}
                                 expanded={expandedDetails[`modal-${repoInterface.id}`]}
-                                setExpanded={() => toggleDetails(repoInterface.id, 'modal-')}
+                                setExpanded={() => toggleDetails(repoInterface.uri, 'modal-')}
                               />
                               {expandedDetails[`modal-${repoInterface.id}`] && (
                                 <div className={styles.repoDetails}>

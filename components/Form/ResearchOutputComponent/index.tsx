@@ -30,7 +30,6 @@ interface ResearchOutputComponentProps {
   newLicenseType: string;
   setNewLicenseType: React.Dispatch<React.SetStateAction<string>>;
   defaultResearchOutputTypesData?: DefaultResearchOutputTypesQuery;
-  defaultAccessLevels: AccessLevelInterface[];
   licensesData?: LicensesQuery;
   onStandardFieldChange: (fieldId: string, enabled: boolean) => void;
   onCustomizeField: (fieldId: string) => void;
@@ -66,7 +65,6 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
   setNewLicenseType,
   defaultResearchOutputTypesData,
   licensesData,
-  defaultAccessLevels,
   onStandardFieldChange,
   onCustomizeField,
   onUpdateStandardFieldProperty,
@@ -282,7 +280,6 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                       <>
                         <InitialAccessLevel
                           field={field}
-                          defaultAccessLevels={defaultAccessLevels}
                         />
 
                         <FormInput

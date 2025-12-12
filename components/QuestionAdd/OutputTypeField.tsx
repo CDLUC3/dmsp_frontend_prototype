@@ -124,7 +124,7 @@ const OutputTypeField = ({
                 }}
               />
               {/*There is currently no way to save description for the outputType in dmptool-types. We have a ticket to update that*/}
-              {/* <FormInput
+              <FormInput
                 name="custom_types_description"
                 type="text"
                 isRequired={false}
@@ -139,7 +139,7 @@ const OutputTypeField = ({
                     onAddCustomType();
                   }
                 }}
-              /> */}
+              />
               <Button
                 type="button"
                 onPress={onAddCustomType}

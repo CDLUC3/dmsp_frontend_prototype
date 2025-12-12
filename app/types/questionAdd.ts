@@ -44,12 +44,12 @@ export type StandardField = {
 };
 
 export interface RepositoryInterface {
-  id: number;
+  id?: string;
   name: string;
-  description: string;
+  description?: string;
   uri: string;
-  keywords: string[];
-  repositoryType: string[];
+  keywords?: string[];
+  repositoryType?: string[];
 }
 
 export interface RepositoryFieldInterface {
@@ -66,9 +66,9 @@ export interface RepositoryFieldInterface {
 }
 
 export interface MetaDataStandardInterface {
-  id: number;
+  id?: number;
   name: string;
-  description: string;
+  description?: string;
   uri: string;
 }
 
@@ -107,7 +107,6 @@ export interface LicenseFieldProps {
 
 export interface AccessLevelsFieldProps {
   field: StandardField;
-  defaultAccessLevels: AccessLevelInterface[];
 }
 
 export interface OutputTypeInterface {
