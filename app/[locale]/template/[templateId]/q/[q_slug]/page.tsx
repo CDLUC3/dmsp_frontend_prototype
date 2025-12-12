@@ -39,8 +39,6 @@ import {
 
 import {
   AnyParsedQuestion,
-  StandardField,
-  MetaDataConfig,
   Question,
   QuestionOption,
   QuestionOptions,

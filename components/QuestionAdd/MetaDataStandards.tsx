@@ -506,7 +506,7 @@ const MetaDataStandardsSelector = ({
                       </div>
 
                       {metaDataStandards?.map((std) => {
-                        const isSelected = selectedStandards[std.id];
+                        const isSelected = selectedStandards[std.uri];
                         return (
                           <div
                             key={std.id}
