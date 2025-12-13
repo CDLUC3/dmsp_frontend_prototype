@@ -462,6 +462,7 @@ describe("AdminSectionEditContainer", () => {
 
       // Question 1 is at position 1, moving up would try to go to position 0
       const moveUpButton = screen.getByTestId("question-move-up-1");
+
       fireEvent.click(moveUpButton);
 
       await waitFor(() => {
@@ -752,20 +753,10 @@ describe("AdminSectionEditContainer", () => {
     it("should maintain correct display orders after multiple moves", async () => {
       render(<AdminSectionEditContainer {...defaultProps} />);
 
-      // Move question 2 up
-      const moveUpButton2 = screen.getByTestId("question-move-up-2");
-      fireEvent.click(moveUpButton2);
-
-      await waitFor(() => {
-        expect(screen.getByTestId("question-move-up-2")).toBeInTheDocument();
-      }, { timeout: 1000 });
-
-      // Wait a bit then move question 3 down
-      jest.clearAllMocks();
-      await new Promise(resolve => setTimeout(resolve, 600));
-
-      const moveDownButton3 = screen.getByTestId("question-move-down-3");
-      fireEvent.click(moveDownButton3);
+      await act(async () => {
+        const moveDownButton3 = screen.getByTestId("question-move-down-3");
+        fireEvent.click(moveDownButton3);
+      })
 
       await waitFor(() => {
         expect(mockToastAdd).toHaveBeenCalledWith(

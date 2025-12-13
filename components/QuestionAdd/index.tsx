@@ -32,11 +32,9 @@ import {
 } from '@/generated/graphql';
 
 import {
-  MetaDataConfig,
   Question,
   QuestionOptions,
   AnyParsedQuestion,
-  StandardField,
 } from '@/app/types';
 
 
@@ -81,11 +79,6 @@ const defaultQuestion = {
   sampleText: '',
   useSampleTextAsDefault: false,
   required: false,
-};
-
-// Type guard function to check if a field has metaDataConfig
-const hasMetaDataConfig = (field: StandardField): field is StandardField & { metaDataConfig: MetaDataConfig } => {
-  return field.metaDataConfig !== undefined;
 };
 
 const QuestionAdd = ({
@@ -165,13 +158,10 @@ const QuestionAdd = ({
   // Research Output Table Hooks
   const {
     buildResearchOutputFormState,
-    standardKeys,
     expandedFields,
-    setExpandedFields,
     nonCustomizableFieldIds,
     standardFields,
     additionalFields,
-    setAdditionalFields,
     newOutputType,
     setNewOutputType,
     newLicenseType,
@@ -191,7 +181,6 @@ const QuestionAdd = ({
     addAdditionalField,
     handleDeleteAdditionalField,
     handleUpdateAdditionalField,
-    setStandardFields,
     updateStandardFieldProperty
   } = useResearchOutputTable({ setHasUnsavedChanges, announce });
 

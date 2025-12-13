@@ -358,19 +358,6 @@ const QuestionEdit = () => {
         // Strip all tags from questionText before sending to backend
         const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
 
-        const temp = {
-          questionId: Number(questionId),
-          displayOrder: Number(question.displayOrder),
-          json: JSON.stringify(updatedJSON ? updatedJSON.data : ''),
-          questionText: cleanedQuestionText,
-          requirementText: String(question.requirementText),
-          guidanceText: String(question.guidanceText),
-          sampleText: String(question.sampleText),
-          useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
-          required: Boolean(question.required)
-        }
-
-        console.log("***Temp Question Update Payload***", temp);
         // Add mutation for question
         const response = await updateQuestionAction({
           questionId: Number(questionId),
@@ -554,11 +541,11 @@ const QuestionEdit = () => {
 
         // Hydrate standard fields
         setStandardFields((prevFields) => prevFields.map((field) => {
-          let updated = { ...field };
+          const updated = { ...field };
           switch (field.id) {
             case 'repoSelector': {
               const col = findColumn(['researchOutput.repositories', 'Repositories']);
-              if (col && 'preferences' in col && Array.isArray((col as any).preferences)) {
+              if (col && 'preferences' in col) {
                 updated.enabled = !!col.enabled;
                 updated.helpText = col.content.attributes?.help || '';
                 updated.repoConfig = {
@@ -582,7 +569,7 @@ const QuestionEdit = () => {
             }
             case 'metadataStandards': {
               const col = findColumn(['researchOutput.metadataStandards', 'Metadata Standards']);
-              if (col && 'preferences' in col && Array.isArray((col as any).preferences)) {
+              if (col && 'preferences' in col) {
                 updated.enabled = !!col.enabled;
                 updated.helpText = col.content.attributes?.help || '';
                 updated.metaDataConfig = {
@@ -598,7 +585,7 @@ const QuestionEdit = () => {
             }
             case 'licenses': {
               const col = findColumn(['researchOutput.licenses', 'Licenses']);
-              if (col && 'preferences' in col && Array.isArray((col as any).preferences)) {
+              if (col && 'preferences' in col) {
                 updated.enabled = !!col.enabled;
                 updated.helpText = col.content.attributes?.help || '';
                 updated.licensesConfig = {
@@ -615,7 +602,7 @@ const QuestionEdit = () => {
             }
             case 'outputType': {
               const col = findColumn(['researchOutput.outputType', 'Output Type']);
-              if (col && col.content && 'options' in col.content && Array.isArray(col?.content?.options) && col?.content?.options.length > 0) {
+              if (col && col.content && 'options' in col.content && col?.content?.options.length > 0) {
                 updated.enabled = !!col.enabled;
                 updated.outputTypeConfig = {
                   ...updated.outputTypeConfig,
@@ -665,9 +652,12 @@ const QuestionEdit = () => {
             !(col?.heading && standardKeys.has(col.heading))
         );
 
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         function hasDefaultValue(attr: any): attr is { defaultValue: string } {
           return attr && typeof attr.defaultValue !== 'undefined';
         }
+
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         function hasMaxLength(attr: any): attr is { maxLength: string } {
           return attr && typeof attr.maxLength !== 'undefined';
         }
@@ -707,7 +697,6 @@ const QuestionEdit = () => {
             })
         ]);
       } catch (error) {
-        // eslint-disable-next-line no-console
         console.error('Error hydrating research output fields from JSON', error);
       }
       hasHydrated.current = true;

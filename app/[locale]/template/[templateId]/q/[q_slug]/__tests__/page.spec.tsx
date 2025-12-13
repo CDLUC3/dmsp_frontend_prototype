@@ -3,8 +3,6 @@ import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import { routePath } from '@/utils/routes';
 import {
   useQuestionQuery,
-  useUpdateQuestionMutation,
-  useRemoveQuestionMutation,
   useLicensesQuery,
   useDefaultResearchOutputTypesQuery,
 } from '@/generated/graphql';
@@ -35,7 +33,6 @@ import mockLicensesData from '../__mocks__/mockLicensesData.json';
 import mockDefaultOutputTypesData from '../__mocks__/mockDefaultOutputTypes.json';
 import * as getParsedJSONModule from '@/components/hooks/getParsedQuestionJSON';
 import { AffiliationSearchQuestionType } from "@dmptool/types";
-import { clear } from "console";
 
 beforeEach(() => {
   // Cannot get the escaping to work in the mock JSON file, so doing it programmatically here
@@ -93,8 +90,6 @@ jest.mock('@/components/hooks/getParsedQuestionJSON', () => {
 // Mock the useTemplateQuery hook
 jest.mock("@/generated/graphql", () => ({
   useQuestionQuery: jest.fn(),
-  useUpdateQuestionMutation: jest.fn(),
-  useRemoveQuestionMutation: jest.fn(),
   useLicensesQuery: jest.fn(),
   useDefaultResearchOutputTypesQuery: jest.fn(),
 }));
@@ -416,7 +411,6 @@ describe("QuestionEditPage", () => {
       expect(screen.getByText('breadcrumbs.home')).toBeInTheDocument();
     })
 
-    screen.debug(undefined, Infinity);
     // Get the radio buttons by their role and value
     const yesRadio = screen.getByRole('radio', { name: 'form.yesLabel' });
     const noRadio = screen.getByRole('radio', { name: 'form.noLabel' });
@@ -887,7 +881,6 @@ describe("QuestionEditPage", () => {
       fireEvent.click(saveButton);
     });
 
-    screen.debug(undefined, Infinity);
     expect(screen.getByText('There was an error')).toBeInTheDocument();
   });
 
@@ -1033,11 +1026,6 @@ describe("QuestionEditPage", () => {
       error: { message: 'There was an error when calling useQuestionQuery' },
     });
 
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     // Render with text question type
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
@@ -1091,11 +1079,6 @@ describe("QuestionEditPage", () => {
         toString() { return ''; },
       } as unknown as ReturnType<typeof useSearchParams>;
     });
-
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
 
     const { container } = render(
       <QuestionEdit />
@@ -1186,7 +1169,7 @@ describe("QuestionEditPage", () => {
         },
       },
     },
-  ])("QuestionEditPage - $questionType", ({ questionType, mockData, expectedJson }) => {
+  ])("QuestionEditPage - $questionType", ({ questionType, mockData }) => {
 
     it(`should call updateQuestionAction with correct JSON for ${questionType}`, async () => {
       (useQuestionQuery as jest.Mock).mockReturnValue({
@@ -1534,11 +1517,6 @@ describe('Options questions', () => {
       error: undefined,
     });
 
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     // Render with radio button question type
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
@@ -1664,13 +1642,6 @@ describe('Options questions', () => {
       loading: false,
       error: undefined,
     });
-
-    const mockUpdateQuestion = jest.fn().mockResolvedValue({ data: { key: 'value' } });
-
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
-      mockUpdateQuestion,
-      { loading: false, error: undefined },
-    ]);
 
     // Render with radio button question type
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
@@ -1848,11 +1819,6 @@ describe("Research Output Question Type - Edit", () => {
       error: undefined,
     });
 
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
       render(<QuestionEdit />);
     });
@@ -1879,11 +1845,6 @@ describe("Research Output Question Type - Edit", () => {
       error: undefined,
     });
 
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
       render(<QuestionEdit />);
     });
@@ -1903,11 +1864,6 @@ describe("Research Output Question Type - Edit", () => {
       loading: false,
       error: undefined,
     });
-
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
 
     await act(async () => {
       render(<QuestionEdit />);
@@ -1930,11 +1886,6 @@ describe("Research Output Question Type - Edit", () => {
       error: undefined,
     });
 
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => { render(<QuestionEdit />); });
 
     const descriptionCheckbox = screen.getByLabelText('Description');
@@ -1951,11 +1902,6 @@ describe("Research Output Question Type - Edit", () => {
       loading: false,
       error: undefined,
     });
-
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
 
     await act(async () => { render(<QuestionEdit />); });
 
@@ -1974,12 +1920,6 @@ describe("Research Output Question Type - Edit", () => {
       loading: false,
       error: undefined,
     });
-
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => { render(<QuestionEdit />); });
 
     const repoSelectorCheckbox = screen.getByLabelText('Repositories');
@@ -1997,11 +1937,6 @@ describe("Research Output Question Type - Edit", () => {
       loading: false,
       error: undefined,
     });
-
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
 
     (useLicensesQuery as jest.Mock).mockReturnValue({ data: { licenses: { items: [] } }, loading: false, error: undefined });
     (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({ data: { defaultResearchOutputTypes: [] }, loading: false, error: undefined });
@@ -2031,17 +1966,11 @@ describe("Research Output Question Type - Edit", () => {
       error: undefined,
     });
 
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     (useLicensesQuery as jest.Mock).mockReturnValue({ data: { licenses: { items: [] } }, loading: false, error: undefined });
     (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({ data: { defaultResearchOutputTypes: [] }, loading: false, error: undefined });
 
     await act(async () => { render(<QuestionEdit />); });
 
-    screen.debug(undefined, Infinity);
     const metadataStandardsCheckbox = screen.getByLabelText('Metadata Standards');
     expect(metadataStandardsCheckbox).toBeChecked();
 
@@ -2063,11 +1992,6 @@ describe("Research Output Question Type - Edit", () => {
       error: undefined,
     });
 
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => { render(<QuestionEdit />); });
 
     const licensesCheckbox = screen.getByLabelText('Licenses');
@@ -2088,11 +2012,6 @@ describe("Research Output Question Type - Edit", () => {
       loading: false,
       error: undefined,
     });
-
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
 
     await act(async () => { render(<QuestionEdit />); });
 

@@ -107,8 +107,8 @@ const RepositorySelectionSystem = ({
     const initial = field.repoConfig?.customRepos || [];
 
     // Ensure each repo has a string id
-    return initial.reduce((acc: { [id: string]: RepositoryInterface }, repo, idx) => {
-      let id = repo.uri;
+    return initial.reduce((acc: { [id: string]: RepositoryInterface }, repo) => {
+      const id = repo.uri;
       acc[id] = { ...repo, id }; // Ensure id is set
       return acc;
     }, {});

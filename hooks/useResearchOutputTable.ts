@@ -1,9 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-
 import { useTranslations } from 'next-intl';
-
 import { initialStandardFields } from '@/app/[locale]/template/[templateId]/q/standardFields';
 import {
   AnyParsedQuestion,
@@ -20,6 +18,15 @@ import {
   useDefaultResearchOutputTypesQuery,
 } from '@/generated/graphql';
 
+type AdditionalFieldsType = {
+  id: string;
+  label: string;
+  enabled: boolean;
+  defaultValue: string;
+  customLabel: string;
+  helpText: string;
+  maxLength: string;
+}
 const standardKeys = new Set([
   'researchOutput.title',
   'researchOutput.description',
@@ -50,9 +57,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
   // Standard fields for research output questions
   const [standardFields, setStandardFields] = useState(initialStandardFields);
   // Additional fields for research output questions
-  const [additionalFields, setAdditionalFields] = useState([
-    { id: 'coverage', label: 'Coverage', enabled: true, defaultValue: '', customLabel: '', helpText: '', maxLength: '' },
-  ]);
+  const [additionalFields, setAdditionalFields] = useState<AdditionalFieldsType[]>([]);
   // State for managing custom output types
   const [newOutputType, setNewOutputType] = useState<OutputTypeInterface>({ type: '', description: '' });
   // State for managing custom license types
@@ -66,8 +71,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
   const { data: defaultResearchOutputTypesData } = useDefaultResearchOutputTypesQuery();
 
   // localization keys
-  const Global = useTranslations('Global');
-  const t = useTranslations('QuestionEdit');
+
   const QuestionAdd = useTranslations('QuestionAdd');
 
   // Type guard function to check if a field has metaDataConfig
@@ -97,6 +101,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
    * researchOutputTable handler in questionTypeHandlers for final validation.
    */
   const buildResearchOutputFormState = (parsed: AnyParsedQuestion | null) => {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     const columns: any[] = [];
 
     standardFields.forEach(field => {

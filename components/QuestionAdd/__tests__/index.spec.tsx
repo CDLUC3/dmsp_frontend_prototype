@@ -1673,6 +1673,19 @@ describe("Research Output Question Type", () => {
       { loading: false, error: undefined },
     ]);
 
+    (useLicensesQuery as jest.Mock).mockReturnValue({
+      data: { licenses: { items: [] } },
+      loading: false,
+      error: undefined,
+    });
+
+    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
+      data: { defaultResearchOutputTypes: [] },
+      loading: false,
+      error: undefined,
+    });
+
+
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -1690,9 +1703,6 @@ describe("Research Output Question Type", () => {
           sectionId="1"
         />);
     });
-
-    // Should have one additional field by default (Coverage)
-    expect(screen.getByText('Coverage')).toBeInTheDocument();
 
     // Look for any button that has a "+" symbol to add fields
     const addButtons = screen.getAllByRole('button');
@@ -1714,57 +1724,24 @@ describe("Research Output Question Type", () => {
     }
   });
 
-  it('should delete additional custom fields when delete button is clicked', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    const json = JSON.stringify({
-      meta: {
-        schemaVersion: "1.0"
-      },
-      type: "researchOutput",
-      attributes: {}
-    });
-
-    await act(async () => {
-      render(
-        <QuestionAdd
-          questionType="researchOutput"
-          questionName="Research Output"
-          questionJSON={json}
-          sectionId="1"
-        />);
-    });
-
-    // Should have one additional field by default (Coverage)
-    expect(screen.getByText('Coverage')).toBeInTheDocument();
-
-    // Look for any delete button (since we have a default Coverage field)
-    const deleteButtons = screen.queryAllByText('buttons.delete');
-
-    if (deleteButtons.length > 0) {
-      await act(async () => {
-        fireEvent.click(deleteButtons[0]);
-      });
-
-      // After clicking delete, the Coverage field should be removed
-      await waitFor(() => {
-        expect(screen.queryByText('Coverage')).not.toBeInTheDocument();
-      });
-    } else {
-      // If no delete buttons found, just verify the coverage field exists
-      expect(screen.getByText('Coverage')).toBeInTheDocument();
-    }
-  });
-
   it('should update additional field properties when customizing', async () => {
     (useAddQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
 
+    (useLicensesQuery as jest.Mock).mockReturnValue({
+      data: { licenses: { items: [] } },
+      loading: false,
+      error: undefined,
+    });
+
+    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
+      data: { defaultResearchOutputTypes: [] },
+      loading: false,
+      error: undefined,
+    });
+
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -1782,9 +1759,6 @@ describe("Research Output Question Type", () => {
           sectionId="1"
         />);
     });
-
-    // Should have one additional field by default (Coverage)
-    expect(screen.getByText('Coverage')).toBeInTheDocument();
 
     // Look for any customize button for additional fields
     const customizeButtons = screen.getAllByText('buttons.customize');
@@ -1807,9 +1781,6 @@ describe("Research Output Question Type", () => {
         expect(inputs[1]).toHaveValue('Modified Field');
       }
     }
-
-    // If we can't interact with the fields, just verify Coverage exists
-    expect(screen.getByText('Coverage')).toBeInTheDocument();
   });
 
   it('should handle output type mode changes', async () => {
@@ -4403,46 +4374,6 @@ describe("Error handling", () => {
       });
 
       expect(accessLevelsCheckbox).toBeChecked();
-    });
-
-    it('should show additional custom fields (Coverage) by default', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn(),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-        data: { defaultResearchOutputTypes: [] },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Coverage field should be present
-      expect(screen.getByText('Coverage')).toBeInTheDocument();
     });
 
     it('should build form state with custom output types when mode is mine', async () => {
