@@ -11,7 +11,6 @@ import LicenseField from '@/components/QuestionAdd/LicenseField';
 import InitialAccessLevel from '@/components/QuestionAdd/InitialAccessLevel';
 import {
   StandardField,
-  AccessLevelInterface,
   OutputTypeInterface,
   RepositoryInterface,
   MetaDataStandardInterface,

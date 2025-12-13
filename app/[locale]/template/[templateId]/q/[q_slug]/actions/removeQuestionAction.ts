@@ -13,9 +13,7 @@ export async function removeQuestionAction({
   return await executeGraphQLMutation({
     document: RemoveQuestionDocument,
     variables: {
-      input: {
-        questionId,
-      }
+      questionId,
     },
     dataPath: "removeQuestion"
   });

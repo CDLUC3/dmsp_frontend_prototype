@@ -106,7 +106,6 @@ const RepositorySelectionSystem = ({
   const [selectedRepos, setSelectedRepos] = useState<{ [id: string]: RepositoryInterface }>(() => {
     const initial = field.repoConfig?.customRepos || [];
 
-    console.log("***Initial custom repos:", initial);
     // Ensure each repo has a string id
     return initial.reduce((acc: { [id: string]: RepositoryInterface }, repo, idx) => {
       let id = repo.uri;
@@ -332,7 +331,6 @@ const RepositorySelectionSystem = ({
 
   useEffect(() => {
     const reposArray = Object.values(selectedRepos);
-    console.log("***Repositories change:", reposArray);
     onRepositoriesChange?.(reposArray);
   }, [selectedRepos]);
 

@@ -852,7 +852,7 @@ describe('RepositorySelectionSystem', () => {
   });
 
   describe('Callback Functions', () => {
-    it('calls onRepositoriesChange when a repository is selected', () => {
+    it('calls onRepositoriesChange when a repository is selected', async () => {
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -865,13 +865,28 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.click(addButton);
 
       const selectButton = screen.getAllByRole('button', { name: 'buttons.select' })[0];
-      fireEvent.click(selectButton);
+      await waitFor(() => {
+        fireEvent.click(selectButton);
+      })
 
       // onRepositoriesChange should have been called
       expect(mockOnChange).toHaveBeenCalled();
     });
 
-    it('calls onRepositoriesChange with correct repository data', () => {
+    it('calls onRepositoriesChange with correct repository data', async () => {
+
+      const reposArray =
+        [
+          {
+            id: 'https://www.re3data.org/repository/https://www.re3data.org/api/v1/repository/r3d100010468',
+            name: 'Zenodo',
+            description: 'ZENODO builds and operates a simple and innovative service that enables researchers, scientists, EU projects and institutions to share and showcase multidisciplinary research results (data and publications) that are not part of the existing institutional ',
+            uri: 'https://www.re3data.org/repository/https://www.re3data.org/api/v1/repository/r3d100010468',
+            keywords: ['FAIR', 'multidisciplinary'],
+            repositoryType: ['OTHER']
+          }
+        ]
+
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -884,22 +899,13 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.click(addButton);
 
       const selectButton = screen.getAllByRole('button', { name: 'buttons.select' })[0];
-      fireEvent.click(selectButton);
+      await waitFor(() => {
+        fireEvent.click(selectButton);
+      })
 
       // Check if the callback was called with data
       expect(mockOnChange).toHaveBeenCalledWith(expect.any(Array));
-      expect(mockOnChange).toHaveBeenCalledWith(
-        expect.arrayContaining([
-          expect.objectContaining({
-            name: expect.any(String),
-            uri: expect.any(String),
-            description: expect.any(String),
-            id: expect.any(Number),
-            keywords: expect.any(Array),
-            repositoryType: expect.any(Array)
-          })
-        ])
-      );
+      expect(mockOnChange).toHaveBeenCalledWith(expect.arrayContaining(reposArray));
     });
 
     it('calls handleTogglePreferredRepositories when checkbox is clicked', () => {

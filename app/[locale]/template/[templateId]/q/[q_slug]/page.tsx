@@ -194,7 +194,6 @@ const QuestionEdit = () => {
   // Query request for default research output types
   const { data: defaultResearchOutputTypesData } = useDefaultResearchOutputTypesQuery();
 
-
   // Update rows state and question.json when options change
   const updateRows = (newRows: QuestionOptions[]) => {
     setRows(newRows);
@@ -359,6 +358,19 @@ const QuestionEdit = () => {
         // Strip all tags from questionText before sending to backend
         const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
 
+        const temp = {
+          questionId: Number(questionId),
+          displayOrder: Number(question.displayOrder),
+          json: JSON.stringify(updatedJSON ? updatedJSON.data : ''),
+          questionText: cleanedQuestionText,
+          requirementText: String(question.requirementText),
+          guidanceText: String(question.guidanceText),
+          sampleText: String(question.sampleText),
+          useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
+          required: Boolean(question.required)
+        }
+
+        console.log("***Temp Question Update Payload***", temp);
         // Add mutation for question
         const response = await updateQuestionAction({
           questionId: Number(questionId),
@@ -378,7 +390,6 @@ const QuestionEdit = () => {
 
         if (!response.success) {
           const errors = response.errors;
-
           // Announcement for screen readers
           announce(QuestionAdd('researchOutput.announcements.errorOccurred') || 'An error occurred. Please check the form.');
 
