@@ -690,6 +690,8 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
 
   return {
     buildResearchOutputFormState,
+    licensesData,
+    defaultResearchOutputTypesData,
     standardKeys,
     expandedFields,
     nonCustomizableFieldIds,

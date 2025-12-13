@@ -7,6 +7,7 @@
   - Updated `Pagination` component so that navigation doesn't shift too much [#869]
 
 ### Chore
+- Updated `next` to version 15.5.9 due to vulnerability
 - Updated version of `next` to `15.5.8` due to vulnerability
 ==========================================================================================
 ## All changes above the line happened after the merge to the main branch on Dec 4, 2025

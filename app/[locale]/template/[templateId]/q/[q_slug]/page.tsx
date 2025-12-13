@@ -28,8 +28,6 @@ import {
 // GraphQL queries and mutations
 import {
   useQuestionQuery,
-  useLicensesQuery,
-  useDefaultResearchOutputTypesQuery,
 } from '@/generated/graphql';
 
 import {
@@ -144,6 +142,8 @@ const QuestionEdit = () => {
   // Research Output Table Hooks
   const {
     buildResearchOutputFormState,
+    licensesData,
+    defaultResearchOutputTypesData,
     standardKeys,
     expandedFields,
     setExpandedFields,
@@ -187,12 +187,6 @@ const QuestionEdit = () => {
       }
     },
   );
-
-  // Query request for all licenses
-  const { data: licensesData } = useLicensesQuery();
-
-  // Query request for default research output types
-  const { data: defaultResearchOutputTypesData } = useDefaultResearchOutputTypesQuery();
 
   // Update rows state and question.json when options change
   const updateRows = (newRows: QuestionOptions[]) => {

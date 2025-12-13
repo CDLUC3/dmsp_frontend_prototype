@@ -91,7 +91,7 @@ const RepositorySelectionSystem = ({
   const router = useRouter();
   // Toast context for notifications
   const toastState = useToast();
-  // Get tempateId from the URL
+  // Get templateId from the URL
   const templateId = String(params.templateId);
 
   //For scrolling to error in page
