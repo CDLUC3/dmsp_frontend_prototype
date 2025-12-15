@@ -1,6 +1,7 @@
 
 
 ### Chore
+- Updated version of `next` to `15.5.9` due to hight vulnerability
 - Updated version of `next` to `15.5.8` due to vulnerability
 ==========================================================================================
 ## All changes above the line happened after the merge to the main branch on Dec 4, 2025
