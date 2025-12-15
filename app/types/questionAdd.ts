@@ -48,6 +48,7 @@ export interface RepositoryInterface {
   name: string;
   description?: string;
   uri: string;
+  website?: string;
   keywords?: string[];
   repositoryType?: string[];
 }

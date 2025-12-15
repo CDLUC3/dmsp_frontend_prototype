@@ -415,7 +415,7 @@ const RepositorySelectionSystem = ({
                         <div className={styles.itemContent}>
                           <div className={styles.itemTitle}>{repo.name}
                             <a
-                              href={repo.uri}
+                              href={repo.website}
                               target="_blank"
                               rel="noopener noreferrer"
                               className={styles.itemLink}
@@ -626,6 +626,7 @@ const RepositorySelectionSystem = ({
                             name: repo.name ?? '',
                             description: repo.description ?? '',
                             uri: repo.uri ?? '',
+                            website: repo.website ?? '',
                             keywords: repo.keywords ?? [],
                             repositoryType: repo.repositoryTypes ?? []
                           };

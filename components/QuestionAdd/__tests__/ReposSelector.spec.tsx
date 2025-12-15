@@ -882,6 +882,7 @@ describe('RepositorySelectionSystem', () => {
             name: 'Zenodo',
             description: 'ZENODO builds and operates a simple and innovative service that enables researchers, scientists, EU projects and institutions to share and showcase multidisciplinary research results (data and publications) that are not part of the existing institutional ',
             uri: 'https://www.re3data.org/repository/https://www.re3data.org/api/v1/repository/r3d100010468',
+            website: 'https://zenodo.org/',
             keywords: ['FAIR', 'multidisciplinary'],
             repositoryType: ['OTHER']
           }

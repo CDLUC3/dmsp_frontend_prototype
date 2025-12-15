@@ -5,6 +5,9 @@
   - Added a `ResearchOutputComponent` to consolidate the code for that question type [#869]
   - Added a new `useResearchOutputTable` hook to share functionality between `QuestionAdd` and `QuestionEdit` [#869]
   - Updated `Pagination` component so that navigation doesn't shift too much [#869]
+  
+### Fixed
+- Fixed related works pagination.
 
 ### Chore
 - Updated `next` to version 15.5.9 due to vulnerability
