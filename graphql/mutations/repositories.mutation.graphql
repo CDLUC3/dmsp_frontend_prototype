@@ -1,0 +1,17 @@
+mutation AddRepository($input: AddRepositoryInput) {
+  addRepository(input: $input) {
+    id
+    errors {
+      general
+      name
+      description
+      repositoryTypes
+      website
+    }
+    name
+    keywords
+    uri
+    website
+    description
+  }
+}

@@ -1,0 +1,26 @@
+query MetadataStandards($term: String, $researchDomainId: Int, $paginationOptions: PaginationOptions) {
+  metadataStandards(term: $term, researchDomainId: $researchDomainId, paginationOptions: $paginationOptions) {
+    hasNextPage
+    currentOffset
+    hasPreviousPage
+    limit
+    nextCursor
+    totalCount
+    availableSortFields
+    items {
+      id
+      errors {
+        general
+        description
+        name
+        uri
+        keywords
+        researchDomainIds
+      }
+      name
+      uri
+      description
+      keywords
+    }
+  }
+}

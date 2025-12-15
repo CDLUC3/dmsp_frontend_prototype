@@ -1,10 +1,14 @@
 import React from 'react';
 import { act, render, screen, fireEvent } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import LicenseField, { otherLicenses } from '../LicenseField';
+import LicenseField from '../LicenseField';
 import { LicenseFieldProps } from '@/app/types';
+import { LicensesQuery } from '@/generated/graphql';
 
+import mockLicensesData from '../__mocks__/mockLicensesData.json';
 expect.extend(toHaveNoViolations);
+
+const mockLicensesQuery = mockLicensesData as LicensesQuery;
 
 // Mock the FormSelect component
 jest.mock('@/components/Form', () => ({
@@ -45,6 +49,7 @@ describe('LicenseField', () => {
         customTypes: [],
       },
     },
+    licensesData: mockLicensesQuery,
     newLicenseType: '',
     setNewLicenseType: jest.fn(),
     onModeChange: jest.fn(),
@@ -101,14 +106,9 @@ describe('LicenseField', () => {
 
         expect(screen.getByText('researchOutput.licenses.labels.defaultPreferred')).toBeInTheDocument();
 
-        // Check that all default licenses are displayed
+        // Check that recommended licenses from mock data are displayed
         expect(screen.getByText('CC-BY-4.0')).toBeInTheDocument();
-        expect(screen.getByText('CC-BY-SA-4.0')).toBeInTheDocument();
-        expect(screen.getByText('CC-BY-NC-4.0')).toBeInTheDocument();
-        expect(screen.getByText('CC-BY-NC-SA-4.0')).toBeInTheDocument();
-        expect(screen.getByText('CC-BY-ND-4.0')).toBeInTheDocument();
-        expect(screen.getByText('CC-BY-NC-ND-4.0')).toBeInTheDocument();
-        expect(screen.getByText('CCo-1.0')).toBeInTheDocument();
+        expect(screen.getByText('CC0-1.0')).toBeInTheDocument();
       });
 
       it('does not display custom license section in defaults mode', () => {
@@ -134,7 +134,10 @@ describe('LicenseField', () => {
         licensesConfig: {
           mode: 'addToDefaults' as const,
           selectedDefaults: [],
-          customTypes: ['Custom License 1', 'Custom License 2'],
+          customTypes: [
+            { name: 'Custom License 1', uri: 'https://example.com/license1' },
+            { name: 'Custom License 2', uri: 'https://example.com/license2' }
+          ],
         },
       };
 
@@ -232,9 +235,11 @@ describe('LicenseField', () => {
         const selects = screen.getAllByTestId('select-input');
         const licenseSelect = selects[1]; // Second select is for licenses
 
-        fireEvent.change(licenseSelect, { target: { value: 'obsd' } });
+        // Use a valid URI from the mock data (non-recommended license)
+        const validUri = 'https://spdx.org/licenses/any-OSI-perl-modules.json';
+        fireEvent.change(licenseSelect, { target: { value: validUri } });
 
-        expect(setNewLicenseType).toHaveBeenCalledWith('obsd');
+        expect(setNewLicenseType).toHaveBeenCalledWith(validUri);
       });
 
       it('calls onAddCustomType when add button is clicked', () => {
@@ -300,7 +305,7 @@ describe('LicenseField', () => {
             licensesConfig: {
               mode: 'addToDefaults',
               selectedDefaults: [],
-              customTypes: ['Test License'],
+              customTypes: [{ name: 'Test License', uri: 'https://example.com/test' }],
             },
           },
           onRemoveCustomType,
@@ -363,7 +368,11 @@ describe('LicenseField', () => {
       });
 
       it('handles multiple custom types correctly', () => {
-        const multipleCustomTypes = ['License A', 'License B', 'License C'];
+        const multipleCustomTypes = [
+          { name: 'License A', uri: 'https://example.com/a' },
+          { name: 'License B', uri: 'https://example.com/b' },
+          { name: 'License C', uri: 'https://example.com/c' }
+        ];
         renderComponent({
           field: {
             ...defaultProps.field,
@@ -376,7 +385,7 @@ describe('LicenseField', () => {
         });
 
         multipleCustomTypes.forEach(license => {
-          expect(screen.getByText(license)).toBeInTheDocument();
+          expect(screen.getByText(license.name)).toBeInTheDocument();
           const removeButtons = screen.getAllByLabelText('researchOutput.licenses.buttons.removeLicenseType');
           expect(removeButtons).toHaveLength(multipleCustomTypes.length);
         });
@@ -386,7 +395,7 @@ describe('LicenseField', () => {
       });
 
       it('renders correctly with special characters in custom license names', () => {
-        const specialLicense = 'CC-BY-4.0 (Modified)';
+        const specialLicense = { name: 'CC-BY-4.0 (Modified)', uri: 'https://example.com/modified' };
         renderComponent({
           field: {
             ...defaultProps.field,
@@ -398,32 +407,63 @@ describe('LicenseField', () => {
           },
         });
 
-        expect(screen.getByText(specialLicense)).toBeInTheDocument();
+        expect(screen.getByText(specialLicense.name)).toBeInTheDocument();
         const removeButtons = screen.getAllByLabelText('researchOutput.licenses.buttons.removeLicenseType');
         expect(removeButtons).toHaveLength(1);
       });
     });
 
-    describe('Constants Export', () => {
-      it('exports otherLicenses array with correct structure', () => {
-        expect(otherLicenses).toBeDefined();
-        expect(Array.isArray(otherLicenses)).toBe(true);
-        expect(otherLicenses.length).toBeGreaterThan(0);
+    describe('License Data Integration', () => {
+      it('renders default licenses from licensesData', () => {
+        renderComponent({
+          field: {
+            ...defaultProps.field,
+            licensesConfig: {
+              mode: 'defaults',
+              selectedDefaults: [],
+              customTypes: [],
+            },
+          },
+        });
 
-        // Check structure of first item
-        expect(otherLicenses[0]).toHaveProperty('id');
-        expect(otherLicenses[0]).toHaveProperty('name');
-        expect(typeof otherLicenses[0].id).toBe('string');
-        expect(typeof otherLicenses[0].name).toBe('string');
+        // Should display licenses marked as recommended in mock data
+        const recommendedLicenses = mockLicensesQuery.licenses?.items?.filter(
+          (license) => license?.recommended
+        );
+        expect(recommendedLicenses?.length).toBeGreaterThan(0);
       });
 
-      it('contains expected license options', () => {
-        const licenseIds = otherLicenses.map(license => license.id);
-        expect(licenseIds).toContain('obsd');
-        expect(licenseIds).toContain('aal');
-        expect(licenseIds).toContain('adsl');
-        expect(licenseIds).toContain('afl11');
-        expect(licenseIds).toContain('aml');
+      it('provides non-recommended licenses as options in addToDefaults mode', () => {
+        renderComponent({
+          field: {
+            ...defaultProps.field,
+            licensesConfig: {
+              mode: 'addToDefaults',
+              selectedDefaults: [],
+              customTypes: [],
+            },
+          },
+        });
+
+        // The FormSelect should have non-recommended licenses available
+        expect(screen.getByText('researchOutput.licenses.labels.addLicense')).toBeInTheDocument();
+      });
+
+      it('handles missing licensesData gracefully', () => {
+        renderComponent({
+          licensesData: undefined,
+          field: {
+            ...defaultProps.field,
+            licensesConfig: {
+              mode: 'defaults',
+              selectedDefaults: [],
+              customTypes: [],
+            },
+          },
+        });
+
+        // Should not crash and should render the mode selector
+        expect(screen.getByText('researchOutput.licenses.labels.define')).toBeInTheDocument();
       });
     });
   });

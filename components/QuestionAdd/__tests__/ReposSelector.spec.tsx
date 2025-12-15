@@ -2,12 +2,20 @@
  * @jest-environment jsdom
  */
 import React from 'react';
-import { act, render, screen, fireEvent } from '@testing-library/react';
+import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
+import { useParams } from "next/navigation";
+import {
+  useRepositoriesLazyQuery,
+  useRepositorySubjectAreasQuery
+} from '@/generated/graphql';
 import RepositorySelectionSystem from '../ReposSelector';
 import {
   RepositoryInterface,
 } from '@/app/types';
+import { addRepositoryAction } from '../actions';
+import mockRepositories from '../__mocks__/mockRepositories.json';
+import mockSubjectAreas from '../__mocks__/mockSubjectAreas.json';
 
 expect.extend(toHaveNoViolations);
 
@@ -23,6 +31,18 @@ jest.mock('@/context/ToastContext', () => ({
   }),
 }));
 
+jest.mock("@/generated/graphql", () => ({
+  ...jest.requireActual("@/generated/graphql"),
+  useRepositoriesLazyQuery: jest.fn(),
+  useRepositorySubjectAreasQuery: jest.fn(),
+}));
+
+// Mock the addRepositoryAction
+jest.mock('../actions', () => ({
+  addRepositoryAction: jest.fn(),
+}));
+
+const mockFetchRepositories = jest.fn();
 // ---- Test data ----
 const createMockField = (hasCustomRepos: boolean = true, customRepos: RepositoryInterface[] = []) => ({
   id: 'repoSelector',
@@ -40,10 +60,44 @@ const createMockField = (hasCustomRepos: boolean = true, customRepos: Repository
 const mockField = createMockField();
 const mockHandleToggle = jest.fn();
 const mockOnChange = jest.fn();
+const mockParams = useParams as jest.Mock;
 
 describe('RepositorySelectionSystem', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockParams.mockReturnValue({
+      templateId: '1',
+    });
+
+    // Return [fetchFunction, { data, loading, error }] for metadata standards query
+    (useRepositoriesLazyQuery as jest.Mock).mockReturnValue([
+      mockFetchRepositories,
+      { data: mockRepositories, loading: false, error: null }
+    ]);
+
+    (useRepositorySubjectAreasQuery as jest.Mock).mockReturnValue([
+      { data: mockSubjectAreas, loading: false, error: null }
+    ]);
+
+    // Mock addRepositoryAction to return success with incrementing IDs
+    let repoIdCounter = 100;
+    (addRepositoryAction as jest.Mock).mockImplementation(async (data) => ({
+      success: true,
+      data: {
+        id: repoIdCounter++,
+        name: data.name,
+        uri: 'https://dmptool.org/repositories/' + repoIdCounter,
+        website: data.website,
+        description: data.description,
+        keywords: [],
+        errors: {
+          general: null,
+          description: null,
+          repositoryTypes: null,
+          website: null
+        }
+      }
+    }));
   });
 
   describe('Rendering', () => {
@@ -253,7 +307,7 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.click(selectButtons[1]);
 
       // Check that selected count tag is displayed
-      expect(screen.getByText(/researchOutput.repoSelector.selectedCount/)).toBeInTheDocument();
+      expect(screen.getByText(/researchOutput.repoSelector.repositoriesSelected/)).toBeInTheDocument();
     });
   });
 
@@ -279,14 +333,14 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.click(closeButton);
 
       // Repository should be displayed in selected items
-      expect(screen.getByText('1.2 Meter CO Survey Dataverse')).toBeInTheDocument();
+      expect(screen.getByText('Zenodo')).toBeInTheDocument();
 
       // Remove the repository from the selected items list
       const removeButtons = screen.getAllByRole('button', { name: 'buttons.remove' });
       fireEvent.click(removeButtons[0]);
 
       // The repository should no longer be displayed
-      expect(screen.queryByText('1.2 Meter CO Survey Dataverse')).not.toBeInTheDocument();
+      expect(screen.queryByText('Zenodo')).not.toBeInTheDocument();
     });
 
     it('removes all repositories when "Remove all" button is clicked with confirmation', () => {
@@ -321,7 +375,7 @@ describe('RepositorySelectionSystem', () => {
       expect(screen.queryByText('1.2 Meter CO Survey Dataverse')).not.toBeInTheDocument();
     });
 
-    it('does not remove all repositories when user cancels confirmation', () => {
+    it('does not remove all repositories when user cancels confirmation', async () => {
       window.confirm = jest.fn(() => false);
 
       render(
@@ -348,12 +402,12 @@ describe('RepositorySelectionSystem', () => {
       expect(window.confirm).toHaveBeenCalled();
 
       // Repository should still be in the list
-      expect(screen.getByText('1.2 Meter CO Survey Dataverse')).toBeInTheDocument();
+      expect(screen.getByText('Zenodo')).toBeInTheDocument();
     });
   });
 
   describe('Search Functionality', () => {
-    it('filters repositories based on search term', () => {
+    it('filters repositories based on search term', async () => {
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -367,13 +421,13 @@ describe('RepositorySelectionSystem', () => {
 
       // Search for a specific term
       const searchInput = screen.getByLabelText(/labels.searchTerm/i) as HTMLInputElement;
-      fireEvent.change(searchInput, { target: { value: 'Protein' } });
+      fireEvent.change(searchInput, { target: { value: 'Zenodo' } });
 
       const applyFilterBtn = screen.getByRole('button', { name: 'buttons.applyFilter' });
       fireEvent.click(applyFilterBtn);
 
       // Should display only Protein Data Bank
-      expect(screen.getByText('Protein Data Bank')).toBeInTheDocument();
+      expect(screen.getByText('Zenodo')).toBeInTheDocument();
     });
 
     it('searches in name, description, and tags fields', () => {
@@ -389,16 +443,16 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.click(addButton);
 
       const searchInput = screen.getByLabelText(/labels.searchTerm/i) as HTMLInputElement;
-      fireEvent.change(searchInput, { target: { value: 'biology' } });
+      fireEvent.change(searchInput, { target: { value: 'fair' } });
 
       const applyFilterBtn = screen.getByRole('button', { name: 'buttons.applyFilter' });
       fireEvent.click(applyFilterBtn);
 
       // Should find repositories with "biology" in tags or description
-      expect(screen.getByText('Protein Data Bank')).toBeInTheDocument();
+      expect(screen.getByText('Zenodo')).toBeInTheDocument();
     });
 
-    it('clears search and resets to all repositories', () => {
+    it('clears search and resets to all repositories', async () => {
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -421,8 +475,8 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.click(applyFilterBtn);
 
       // All repositories should be visible again
-      expect(screen.getByText('1.2 Meter CO Survey Dataverse')).toBeInTheDocument();
-      expect(screen.getByText('GenBank')).toBeInTheDocument();
+      expect(screen.getByText('Zenodo')).toBeInTheDocument();
+      expect(screen.getByText('University of Opole Knowledge Base')).toBeInTheDocument();
     });
   });
 
@@ -484,7 +538,7 @@ describe('RepositorySelectionSystem', () => {
       expect(screen.getByTestId('form-input-repo-description')).toBeInTheDocument();
     });
 
-    it('adds a custom repository when form is submitted with valid data', () => {
+    it('adds a custom repository when form is submitted with valid data', async () => {
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -505,14 +559,13 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.change(screen.getByTestId('form-input-repo-description'), { target: { value: 'A custom repository' } });
 
       const submitButton = screen.getByRole('button', { name: /researchOutput.repoSelector.buttons.addRepository/i });
-      fireEvent.click(submitButton);
+
+      await act(async () => {
+        fireEvent.click(submitButton);
+      });
 
       // Form should be hidden after submission
       expect(screen.queryByTestId('form-input-repo-name')).not.toBeInTheDocument();
-
-      // Close modal and check if custom repo appears in selected items
-      const closeButton = screen.getByRole('button', { name: 'buttons.closeModal' });
-      fireEvent.click(closeButton);
 
       expect(screen.getByText('Custom Repo')).toBeInTheDocument();
     });
@@ -540,7 +593,7 @@ describe('RepositorySelectionSystem', () => {
       expect(screen.getByTestId('form-input-repo-name')).toBeInTheDocument();
     });
 
-    it('trims whitespace from custom form inputs', () => {
+    it('trims whitespace from custom form inputs', async () => {
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -561,10 +614,9 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.change(screen.getByTestId('form-input-repo-description'), { target: { value: '   A custom repo   ' } });
 
       const submitButton = screen.getByRole('button', { name: /researchOutput.repoSelector.buttons.addRepository/i });
-      fireEvent.click(submitButton);
-
-      const closeButton = screen.getByRole('button', { name: 'buttons.closeModal' });
-      fireEvent.click(closeButton);
+      await act(async () => {
+        fireEvent.click(submitButton);
+      });
 
       // Repository should be displayed with trimmed whitespace
       expect(screen.getByText('Custom Repo')).toBeInTheDocument();
@@ -744,7 +796,7 @@ describe('RepositorySelectionSystem', () => {
       expect(screen.getByText(/2.*researchOutput.repoSelector.repositoriesSelected/)).toBeInTheDocument();
     });
 
-    it('displays repository metadata in selected items', () => {
+    it('displays repository metadata in selected items', async () => {
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -759,12 +811,20 @@ describe('RepositorySelectionSystem', () => {
       const selectButton = screen.getAllByRole('button', { name: 'buttons.select' })[0];
       fireEvent.click(selectButton);
 
-      const closeButton = screen.getByRole('button', { name: 'buttons.closeModal' });
-      fireEvent.click(closeButton);
+      // Verify repository data is displayed
+      // Use getAllByText to get all instances, then find the one in a tag
+      const fairElements = screen.getAllByText((content, element) => {
+        return element !== null &&
+          element.classList.contains('tag') &&
+          content === 'FAIR';
+      });
+      expect(fairElements.length).toBeGreaterThan(0);
 
-      // Should display repository info with access badge and identifier
-      expect(screen.getByText(/Open/)).toBeInTheDocument();
-      expect(screen.getByText(/DOI/)).toBeInTheDocument();
+      const multidisciplinaryElements = screen.getAllByText((content, element) => {
+        return element !== null &&
+          element.classList.contains('tag') && content === 'multidisciplinary';
+      });
+      expect(multidisciplinaryElements.length).toBeGreaterThan(0);
     });
 
     it('displays view repository link in selected items', () => {
@@ -792,7 +852,7 @@ describe('RepositorySelectionSystem', () => {
   });
 
   describe('Callback Functions', () => {
-    it('calls onRepositoriesChange when a repository is selected', () => {
+    it('calls onRepositoriesChange when a repository is selected', async () => {
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -805,13 +865,29 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.click(addButton);
 
       const selectButton = screen.getAllByRole('button', { name: 'buttons.select' })[0];
-      fireEvent.click(selectButton);
+      await waitFor(() => {
+        fireEvent.click(selectButton);
+      })
 
       // onRepositoriesChange should have been called
       expect(mockOnChange).toHaveBeenCalled();
     });
 
-    it('calls onRepositoriesChange with correct repository data', () => {
+    it('calls onRepositoriesChange with correct repository data', async () => {
+
+      const reposArray =
+        [
+          {
+            id: 'https://www.re3data.org/repository/https://www.re3data.org/api/v1/repository/r3d100010468',
+            name: 'Zenodo',
+            description: 'ZENODO builds and operates a simple and innovative service that enables researchers, scientists, EU projects and institutions to share and showcase multidisciplinary research results (data and publications) that are not part of the existing institutional ',
+            uri: 'https://www.re3data.org/repository/https://www.re3data.org/api/v1/repository/r3d100010468',
+            website: 'https://zenodo.org/',
+            keywords: ['FAIR', 'multidisciplinary'],
+            repositoryType: ['OTHER']
+          }
+        ]
+
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -824,23 +900,13 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.click(addButton);
 
       const selectButton = screen.getAllByRole('button', { name: 'buttons.select' })[0];
-      fireEvent.click(selectButton);
+      await waitFor(() => {
+        fireEvent.click(selectButton);
+      })
 
       // Check if the callback was called with data
       expect(mockOnChange).toHaveBeenCalledWith(expect.any(Array));
-      expect(mockOnChange).toHaveBeenCalledWith(
-        expect.arrayContaining([
-          expect.objectContaining({
-            name: expect.any(String),
-            url: expect.any(String),
-            description: expect.any(String),
-            access: expect.any(String),
-            identifier: expect.any(String),
-            contact: expect.any(String),
-            tags: expect.any(Array),
-          })
-        ])
-      );
+      expect(mockOnChange).toHaveBeenCalledWith(expect.arrayContaining(reposArray));
     });
 
     it('calls handleTogglePreferredRepositories when checkbox is clicked', () => {
@@ -876,7 +942,7 @@ describe('RepositorySelectionSystem', () => {
       expect(screen.getByTestId('pagination')).toBeInTheDocument();
     });
 
-    it('displays pagination info text', () => {
+    it('displays pagination info text', async () => {
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -888,12 +954,17 @@ describe('RepositorySelectionSystem', () => {
       const addButton = screen.getByRole('button', { name: /researchOutput.repoSelector.buttons.addRepo/i });
       fireEvent.click(addButton);
 
-      expect(screen.getByText(/Displaying repositories 1 - 10 of 4372 in total/)).toBeInTheDocument();
+      // Wait for repositories to render
+      await waitFor(() => {
+        expect(screen.getByText('Zenodo')).toBeInTheDocument();
+      });
+
+      expect(screen.getByText(/Displaying repositories\s+5\s+of\s+53\s+in total/i)).toBeInTheDocument();
     });
   });
 
   describe('Repository List Display', () => {
-    it('displays repository name and tags in results', () => {
+    it('displays repository name and tags in results', async () => {
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -902,14 +973,37 @@ describe('RepositorySelectionSystem', () => {
         />
       );
 
+      // Wait for initial fetch to complete
+      await waitFor(() => {
+        expect(mockFetchRepositories).toHaveBeenCalled();
+      });
+
       const addButton = screen.getByRole('button', { name: /researchOutput.repoSelector.buttons.addRepo/i });
       fireEvent.click(addButton);
 
-      expect(screen.getByText('1.2 Meter CO Survey Dataverse')).toBeInTheDocument();
-      expect(screen.getByText('radio telescope')).toBeInTheDocument();
+      // Wait for modal to open and repositories to render
+      await waitFor(() => {
+        expect(screen.getByTestId('modal')).toBeInTheDocument();
+        expect(screen.getByText('Zenodo')).toBeInTheDocument();
+      });
+
+      // Verify repository data is displayed
+      // Use getAllByText to get all instances, then find the one in a tag
+      const fairElements = screen.getAllByText((content, element) => {
+        return element !== null &&
+          element.classList.contains('tag') &&
+          content === 'FAIR';
+      });
+      expect(fairElements.length).toBeGreaterThan(0);
+
+      const multidisciplinaryElements = screen.getAllByText((content, element) => {
+        return element !== null &&
+          element.classList.contains('tag') && content === 'multidisciplinary';
+      });
+      expect(multidisciplinaryElements.length).toBeGreaterThan(0);
     });
 
-    it('displays repository description in results', () => {
+    it('displays repository description in results', async () => {
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -918,10 +1012,22 @@ describe('RepositorySelectionSystem', () => {
         />
       );
 
+      // Wait for initial fetch to complete
+      await waitFor(() => {
+        expect(mockFetchRepositories).toHaveBeenCalled();
+      });
+
       const addButton = screen.getByRole('button', { name: /researchOutput.repoSelector.buttons.addRepo/i });
       fireEvent.click(addButton);
 
-      expect(screen.getByText(/Radio Telescope Data Center/)).toBeInTheDocument();
+      // Wait for modal to open and repositories to render
+      await waitFor(() => {
+        expect(screen.getByTestId('modal')).toBeInTheDocument();
+        expect(screen.getByText('Zenodo')).toBeInTheDocument();
+      });
+
+      // Verify a repository description is displayed
+      expect(screen.getByText(/ZENODO builds and operates a simple and innovative service/)).toBeInTheDocument();
     });
   });
 
@@ -984,7 +1090,7 @@ describe('RepositorySelectionSystem', () => {
       expect(screen.getAllByRole('button', { name: 'buttons.remove' }).length).toBeGreaterThan(0);
     });
 
-    it('generates unique IDs for custom repositories', () => {
+    it('generates unique IDs for custom repositories', async () => {
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -1005,12 +1111,14 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.change(screen.getByTestId('form-input-repo-description'), { target: { value: 'Description 1' } });
 
       const submitButton = screen.getByRole('button', { name: /researchOutput.repoSelector.buttons.addRepository/i });
-      fireEvent.click(submitButton);
 
-      const closeButton = screen.getByRole('button', { name: 'buttons.closeModal' });
-      fireEvent.click(closeButton);
+      await act(async () => {
+        fireEvent.click(submitButton);
+      });
 
-      expect(screen.getByText('Custom 1')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Custom 1')).toBeInTheDocument();
+      });
 
       // Open modal again to add another custom repository
       const addButton2 = screen.getByRole('button', { name: /researchOutput.repoSelector.buttons.addRepo/i });
@@ -1023,14 +1131,16 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.change(screen.getByTestId('form-input-repo-url'), { target: { value: 'https://example2.com' } });
       fireEvent.change(screen.getByTestId('form-input-repo-description'), { target: { value: 'Description 2' } });
 
-      fireEvent.click(screen.getByRole('button', { name: /researchOutput.repoSelector.buttons.addRepository/i }));
+      const submitButton2 = screen.getByRole('button', { name: /researchOutput.repoSelector.buttons.addRepository/i });
 
-      const closeButton2 = screen.getByRole('button', { name: 'buttons.closeModal' });
-      fireEvent.click(closeButton2);
+      await act(async () => {
+        fireEvent.click(submitButton2);
+      });
 
-      // Both should be displayed
-      expect(screen.getByText('Custom 1')).toBeInTheDocument();
-      expect(screen.getByText('Custom 2')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Custom 1')).toBeInTheDocument();
+        expect(screen.getByText('Custom 2')).toBeInTheDocument();
+      });
     });
 
     it('handles empty search results gracefully', () => {
@@ -1055,7 +1165,7 @@ describe('RepositorySelectionSystem', () => {
       expect(screen.getByText(/Displaying repositories/)).toBeInTheDocument();
     });
 
-    it('case-insensitive search works correctly', () => {
+    it('case-insensitive search works correctly', async () => {
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -1068,16 +1178,16 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.click(addButton);
 
       const searchInput = screen.getByLabelText(/labels.searchTerm/i) as HTMLInputElement;
-      fireEvent.change(searchInput, { target: { value: 'protein' } });
+      fireEvent.change(searchInput, { target: { value: 'zenodo' } });
 
       const applyFilterBtn = screen.getByRole('button', { name: 'buttons.applyFilter' });
       fireEvent.click(applyFilterBtn);
 
       // Should find results even with lowercase search
-      expect(screen.getByText('Protein Data Bank')).toBeInTheDocument();
+      expect(screen.getByText('Zenodo')).toBeInTheDocument();
     });
 
-    it('handles very long repository names and descriptions', () => {
+    it('handles very long repository names and descriptions', async () => {
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -1100,10 +1210,10 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.change(screen.getByTestId('form-input-repo-description'), { target: { value: longDescription } });
 
       const submitButton = screen.getByRole('button', { name: /researchOutput.repoSelector.buttons.addRepository/i });
-      fireEvent.click(submitButton);
 
-      const closeButton = screen.getByRole('button', { name: 'buttons.closeModal' });
-      fireEvent.click(closeButton);
+      await act(async () => {
+        fireEvent.click(submitButton);
+      });
 
       // Should display the long name
       expect(screen.getByText(longName)).toBeInTheDocument();
@@ -1151,7 +1261,7 @@ describe('RepositorySelectionSystem', () => {
       let closeButton = screen.getByRole('button', { name: 'buttons.closeModal' });
       fireEvent.click(closeButton);
 
-      expect(screen.getByText('1.2 Meter CO Survey Dataverse')).toBeInTheDocument();
+      expect(screen.getByText('Zenodo')).toBeInTheDocument();
 
       // Open modal again
       addButton = screen.getByRole('button', { name: /researchOutput.repoSelector.buttons.addRepo/i });
@@ -1164,10 +1274,10 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.click(closeButton);
 
       // Repository should still appear in selected items
-      expect(screen.getByText('1.2 Meter CO Survey Dataverse')).toBeInTheDocument();
+      expect(screen.getByText('Zenodo')).toBeInTheDocument();
     });
 
-    it('clears custom form fields after successful submission', () => {
+    it('clears custom form fields after successful submission', async () => {
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -1187,10 +1297,12 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.change(screen.getByTestId('form-input-repo-description'), { target: { value: 'Test Description' } });
 
       const submitButton = screen.getByRole('button', { name: /researchOutput.repoSelector.buttons.addRepository/i });
-      fireEvent.click(submitButton);
+      await act(async () => {
+        fireEvent.click(submitButton);
+      });
 
-      // Form should be hidden
-      expect(screen.queryByTestId('form-input-repo-name')).not.toBeInTheDocument();
+      const addButton2 = screen.getByRole('button', { name: /researchOutput.repoSelector.buttons.addRepo/i });
+      fireEvent.click(addButton2);
 
       // Open form again
       const addCustomButton2 = screen.getByRole('button', { name: /researchOutput.repoSelector.buttons.addCustomRepo/i });

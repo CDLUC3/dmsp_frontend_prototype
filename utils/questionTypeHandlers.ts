@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { QuestionFormatInterface } from "@/app/types";
 import {
+  AnyQuestionType,
   CURRENT_SCHEMA_VERSION,
   QuestionTypeMap,
   QuestionSchemaMap,
@@ -10,6 +11,9 @@ import {
 } from "@dmptool/types";
 
 type QuestionType = z.infer<typeof QuestionFormatsEnum>
+
+// List of question types to filter out from the available types
+const filteredOutQuestionTypes = ['licenseSearch', 'metadataStandardSearch', 'numberWithContext', 'repositorySearch', 'table'];
 
 // Fetch the usage information and then Parse the Zod schema with no input to generate the
 // default JSON schemas
@@ -35,7 +39,7 @@ function orderQuestionTypes(qTypes: QuestionFormatInterface[]): QuestionFormatIn
   const sortOrder: string[] = [
     "textArea", "text", "radioButtons", "checkBoxes", "selectBox", "multiselectBox",
     "number", "numberRange", "currency", "email", "url", "boolean", "date", "dateRange",
-    "table", "affiliationSearch"
+    "affiliationSearch", "researchOutputTable"
   ];
 
   // Sort the question format array using the definition.
@@ -50,7 +54,12 @@ function orderQuestionTypes(qTypes: QuestionFormatInterface[]): QuestionFormatIn
 // Fetch all available Question Types
 export function getQuestionTypes(): QuestionFormatInterface[] {
   const info = QuestionFormatsEnum.options.map(key => getQuestionFormatInfo(key));
-  const qTypes = info.filter((item): item is QuestionFormatInterface => item !== null);
+
+  const qTypes = info.filter((item): item is QuestionFormatInterface => {
+    const json: AnyQuestionType = item?.defaultJSON as AnyQuestionType;
+    const questionTypeId = json?.type;
+    return item !== null && !filteredOutQuestionTypes.includes(questionTypeId);
+  });
   return orderQuestionTypes(qTypes);
 }
 
@@ -81,7 +90,9 @@ const createAndValidateQuestion = (
   try {
     // Validates jsonData and checks if it conforms to the specified schema
     if (schema) {
-      const validatedData = schema.parse(jsonData);
+      // Use passthrough to allow additional properties not defined in the schema
+      const passthroughSchema = schema instanceof z.ZodObject ? schema.passthrough() : schema;
+      const validatedData = passthroughSchema.parse(jsonData);
       return { success: true, data: validatedData };
     }
 
@@ -117,10 +128,7 @@ interface QuestionOptionInterface {
  * like `TextQuestionType` to enforce strong typing and enriches the JSON with default values
  * and metadata, ensuring compatibility with the current schema version.
  */
-export const questionTypeHandlers: Record<
-  z.infer<typeof QuestionFormatsEnum>,
-  QuestionTypeHandler
-> = {
+export const questionTypeHandlers: Record<string, QuestionTypeHandler> = {
   text: (json, input: QuestionTypeMap["text"]) => {
     const questionData: QuestionTypeMap["text"] = {
       ...json,
@@ -520,5 +528,95 @@ export const questionTypeHandlers: Record<
     };
 
     return createAndValidateQuestion("table", questionData, QuestionSchemaMap['table']);
+  },
+  /**
+   * Research Output Table handler - creates a table-based question with columns
+   * derived from the standardFields configuration in the QuestionAdd component.
+   * 
+   * This handler uses the researchOutputTable schema from @dmptool/types which is
+   * specifically designed for collecting structured research output data with
+   * configurable fields like:
+   * - Title (text)
+   * - Description (textArea)
+   * - Output Type (selectBox)
+   * - Data Flags (boolean checkboxes)
+   * - Repositories (repositorySearch)
+   * - Metadata Standards (metadataStandardSearch)
+   * - Licenses (selectBox)
+   * - Access Levels (selectBox)
+   * - Additional custom fields (text)
+   * 
+   * The columns array is dynamically built based on which fields are enabled
+   * in the standardFields configuration.
+   */
+  researchOutputTable: (json, input: {
+    columns?: {
+      heading?: string;
+      required?: boolean;
+      enabled?: boolean;
+      content?: QuestionTypeMap["table"]['columns'][number]['content'];
+      preferences?: {
+        label?: string;
+        value?: string;
+      }[];
+      attributes?: {
+        help?: string;
+        labelTranslationKey?: string;
+      };
+      meta?: {
+        schemaVersion?: string;
+        labelTranslationKey?: string;
+      };
+    }[];
+    attributes?: QuestionTypeMap["table"]["attributes"];
+  }) => {
+
+    // researchOutputTable uses the table schema structure with additional column properties
+    const questionData: QuestionTypeMap["researchOutputTable"] = {
+      ...json,
+      type: "researchOutputTable",
+      attributes: {
+        label: input?.attributes?.label ?? "",
+        help: input?.attributes?.help ?? "",
+        labelTranslationKey: input?.attributes?.labelTranslationKey ?? "",
+        canAddRows: input?.attributes?.canAddRows ?? true,
+        canRemoveRows: input?.attributes?.canRemoveRows ?? true,
+        initialRows: input?.attributes?.initialRows ?? 1,
+        maxRows: input?.attributes?.maxRows,
+        minRows: input?.attributes?.minRows,
+      },
+      columns: input?.columns?.map(column => {
+        const baseColumn: any = {
+          heading: column.heading ?? "Column A",
+          required: column.required ?? false,
+          enabled: column.enabled ?? true,
+          content: column.content ?? { type: "textArea" },
+          meta: {
+            schemaVersion: column.meta?.schemaVersion ?? CURRENT_SCHEMA_VERSION,
+            labelTranslationKey: column.meta?.labelTranslationKey,
+          },
+        };
+
+        // Add preferences array if provided (for repository, metadata standard, and license columns)
+        if (column.preferences && column.preferences.length > 0) {
+          baseColumn.preferences = column.preferences;
+        }
+
+        // Add column-level attributes if provided (help text, labelTranslationKey)
+        if (column.attributes) {
+          baseColumn.attributes = column.attributes;
+        }
+
+        return baseColumn;
+      }) ?? [],
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        title: json.meta?.title ?? "Research Output Table",
+        usageDescription: json.meta?.usageDescription ?? "A table for collecting structured research output data"
+      },
+    };
+
+    return createAndValidateQuestion("researchOutputTable", questionData, QuestionSchemaMap['researchOutputTable']);
   },
 };

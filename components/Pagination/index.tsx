@@ -23,27 +23,58 @@ export default function Pagination({
 
   const getPages = () => {
     const pages: (number | string)[] = [];
-    const delta = 2; // pages around the current page
+    const delta = 2;
+    const maxVisiblePages = 7; // Max pages to show in the pagination row (excluding ellipsis)
+
+    // For small total pages, show all
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+      return pages;
+    }
 
     // Always show first page
     pages.push(1);
 
-    // Show leading ellipsis if needed
-    if (currentPage - delta > 2) {
-      pages.push('ellipsis-start');
+    // Calculate the range of pages to show around current page
+    let startPage = Math.max(2, currentPage - delta);
+    let endPage = Math.min(totalPages - 1, currentPage + delta);
+
+    // Adjust range to always show same number of pages
+    const pagesInMiddle = endPage - startPage + 1;
+    const targetMiddlePages = 5; // Target number of pages in middle section
+
+    if (pagesInMiddle < targetMiddlePages) {
+      if (startPage === 2) {
+        // Near the beginning, extend to the right
+        endPage = Math.min(totalPages - 1, startPage + targetMiddlePages - 1);
+      } else if (endPage === totalPages - 1) {
+        // Near the end, extend to the left
+        startPage = Math.max(2, endPage - targetMiddlePages + 1);
+      }
     }
 
-    // Pages around current page
-    for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
+    // Add leading ellipsis or placeholder
+    if (startPage > 2) {
+      pages.push('ellipsis-start');
+    } else {
+      pages.push('placeholder-start');
+    }
+
+    // Add middle pages
+    for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
 
-    // Show trailing ellipsis if needed
-    if (currentPage + delta < totalPages - 1) {
+    // Add trailing ellipsis or placeholder
+    if (endPage < totalPages - 1) {
       pages.push('ellipsis-end');
+    } else {
+      pages.push('placeholder-end');
     }
 
-    // Always show last page if not already shown
+    // Always show last page
     if (totalPages > 1) {
       pages.push(totalPages);
     }
@@ -64,12 +95,27 @@ export default function Pagination({
       </Button>
 
       <ol>
-        {pagesToRender.map((page, index) => (
-          page === 'ellipsis-start' || page === 'ellipsis-end' ? (
-            <li key={page + index} aria-hidden="true" className={styles.ellipsis}>
-              &hellip;
-            </li>
-          ) : (
+        {pagesToRender.map((page, index) => {
+          // Handle ellipsis
+          if (page === 'ellipsis-start' || page === 'ellipsis-end') {
+            return (
+              <li key={page + index} aria-hidden="true" className={styles.ellipsis}>
+                &hellip;
+              </li>
+            );
+          }
+
+          // Handle invisible placeholders
+          if (page === 'placeholder-start' || page === 'placeholder-end') {
+            return (
+              <li key={page + index} aria-hidden="true" className={styles.placeholder}>
+                {/* Invisible spacer */}
+              </li>
+            );
+          }
+
+          // Handle regular page numbers
+          return (
             <li aria-setsize={totalPages} aria-posinset={Number(page)} key={page}>
               <Link
                 className={(page === currentPage) ? styles.current : ""}
@@ -83,8 +129,8 @@ export default function Pagination({
                 {page}
               </Link>
             </li>
-          )
-        ))}
+          );
+        })}
       </ol>
 
       <Button

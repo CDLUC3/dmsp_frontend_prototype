@@ -1,0 +1,18 @@
+query RecommendedLicenses($recommended: Boolean!) {
+  recommendedLicenses(recommended: $recommended) {
+    name
+    id
+    uri
+  }
+}
+
+query Licenses {
+  licenses {
+    items {
+      id
+      name
+      uri
+      recommended
+    }
+  }
+}

@@ -1,0 +1,28 @@
+query Repositories($input: RepositorySearchInput!) {
+  repositories(input: $input) {
+    hasPreviousPage
+    hasNextPage
+    currentOffset
+    availableSortFields
+    totalCount
+    nextCursor
+    limit
+    items {
+      keywords
+      id
+      errors {
+        general
+        uri
+      }
+      name
+      description
+      uri
+      website
+      repositoryTypes
+    }
+  }
+}
+
+query RepositorySubjectAreas {
+  repositorySubjectAreas
+}
