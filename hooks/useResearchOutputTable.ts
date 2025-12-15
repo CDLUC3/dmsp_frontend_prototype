@@ -110,6 +110,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
       switch (field.id) {
         case 'title':
           columns.push({
+            ...field, // preserves enabled, required, helpText, etc
             heading: field.label || 'Title',
             content: {
               type: 'text',
@@ -125,6 +126,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
 
         case 'description':
           columns.push({
+            ...field, // preserves enabled, required, helpText, etc
             heading: field.label || 'Description',
             content: {
               type: 'textArea',
@@ -161,6 +163,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
             });
           }
           columns.push({
+            ...field, // preserves enabled, required, helpText, etc
             heading: field.label || 'Output Type',
             content: {
               type: 'selectBox',
@@ -178,6 +181,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
         case 'dataFlags':
           if (field.flagsConfig?.showSensitiveData) {
             columns.push({
+              ...field, // preserves enabled, required, helpText, etc
               heading: 'Sensitive Data',
               content: {
                 type: 'checkBoxes',
@@ -196,6 +200,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
           }
           if (field.flagsConfig?.showPersonalData) {
             columns.push({
+              ...field, // preserves enabled, required, helpText, etc
               heading: 'Personal Data',
               content: {
                 type: 'checkBoxes',
@@ -216,6 +221,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
 
         case 'repoSelector': {
           const repoColumn: any = {
+            ...field, // preserves enabled, required, helpText, etc
             heading: field.label || 'Repositories',
             content: {
               type: 'repositorySearch',
@@ -256,6 +262,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
 
         case 'metadataStandards': {
           const metadataColumn: any = {
+            ...field, // preserves enabled, required, helpText, etc
             heading: field.label || 'Metadata Standards',
             content: {
               type: 'metadataStandardSearch',
@@ -294,6 +301,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
 
         case 'licenses': {
           const licenseColumn: any = {
+            ...field, // preserves enabled, required, helpText, etc
             heading: field.label || 'Licenses',
             content: {
               type: 'licenseSearch',
@@ -349,6 +357,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
             });
           }
           columns.push({
+            ...field, // preserves enabled, required, helpText, etc
             heading: field.label || 'Initial Access Levels',
             content: {
               type: 'selectBox',

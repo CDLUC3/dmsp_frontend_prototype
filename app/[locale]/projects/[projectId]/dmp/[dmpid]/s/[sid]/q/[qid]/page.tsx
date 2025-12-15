@@ -53,7 +53,7 @@ import { useToast } from '@/context/ToastContext';
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
-import { QuestionTypeMap } from '@dmptool/types';
+import { AnswerType, QuestionTypeMap } from '@dmptool/types';
 
 import {
   Question,
@@ -70,23 +70,25 @@ import {
 import { useComments } from './hooks/useComments';
 
 interface FormDataInterface {
-  otherField: boolean;
   affiliationData: { affiliationName: string; affiliationId: string };
-  otherAffiliationName: string;
-  selectedRadioValue: string;
-  numberValue: number | null;
-  urlValue: string | null;
-  emailValue: string | null;
-  textValue: string | number | null;
-  inputCurrencyValue: number | null;
-  selectedCheckboxValues: string[];
-  yesNoValue: string;
-  textAreaContent: string;
-  selectedMultiSelectValues: Set<string>;
-  selectedSelectValue: string | undefined;
   dateValue: string | DateValue | CalendarDate | null;
   dateRange: { startDate: string | DateValue | CalendarDate | null; endDate: string | DateValue | CalendarDate | null };
+  emailValue: string | null;
+  inputCurrencyValue: number | null;
   numberRange: { startNumber: number | null; endNumber: number | null };
+
+  otherField: boolean;
+  otherAffiliationName: string;
+  selectedCheckboxValues: string[];
+  selectedRadioValue: string;
+  selectedMultiSelectValues: Set<string>;
+  selectedSelectValue: string | undefined;
+  numberValue: number | null;
+  researchOutputTable: string;
+  urlValue: string | null;
+  textValue: string | number | null;
+  textAreaContent: string;
+  yesNoValue: string;
 }
 
 type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
@@ -164,23 +166,24 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Question field states
   const [formData, setFormData] = useState<FormDataInterface>({
-    otherField: false,
     affiliationData: { affiliationName: '', affiliationId: '' },
-    otherAffiliationName: '',
-    selectedRadioValue: '',
-    numberValue: null,
-    urlValue: null,
-    emailValue: null,
-    textValue: null,
-    inputCurrencyValue: null,
-    selectedCheckboxValues: [],
-    yesNoValue: 'no',
-    textAreaContent: '',
-    selectedMultiSelectValues: new Set<string>(),
-    selectedSelectValue: undefined,
     dateValue: null,
     dateRange: { startDate: '', endDate: '' },
+    emailValue: null,
+    inputCurrencyValue: null,
+    otherField: false,
+    otherAffiliationName: '',
+    numberValue: null,
     numberRange: { startNumber: 0, endNumber: 0 },
+    researchOutputTable: '',
+    selectedRadioValue: '',
+    selectedMultiSelectValues: new Set<string>(),
+    selectedSelectValue: undefined,
+    textValue: null,
+    textAreaContent: '',
+    selectedCheckboxValues: [],
+    urlValue: null,
+    yesNoValue: 'no',
   });
 
   // Form state
@@ -549,41 +552,18 @@ const PlanOverviewQuestionPage: React.FC = () => {
   /*eslint-disable @typescript-eslint/no-explicit-any*/
   const prefillAnswer = (answer: any, type: string) => {
     switch (type) {
-      case 'text':
-        setFormData(prev => ({
-          ...prev,
-          textValue: answer
-        }));
-        break;
-      case 'textArea':
-        setFormData(prev => ({
-          ...prev,
-          textAreaContent: answer
-        }));
-        break;
-      case 'radioButtons':
-        setFormData(prev => ({
-          ...prev,
-          selectedRadioValue: answer
-        }));
-        break;
-      case 'checkBoxes':
-        setFormData(prev => ({
-          ...prev,
-          selectedCheckboxValues: answer
-        }));
-        break;
-      case 'selectBox':
-        setFormData(prev => ({
-          ...prev,
-          selectedSelectValue: answer
-        }));
-        break;
-      case 'multiselectBox':
-        setFormData(prev => ({
-          ...prev,
-          selectedMultiSelectValues: new Set(answer)
-        }));
+      case 'affiliationSearch':
+        if (answer) {
+          setFormData(prev => ({
+            ...prev,
+            affiliationData: {
+              affiliationId: answer.affiliationId,
+              affiliationName: answer.affiliationName
+            },
+            otherField: answer.isOther,
+            otherAffiliationName: ''
+          }));
+        }
         break;
       case 'boolean':
         setFormData(prev => ({
@@ -591,22 +571,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
           yesNoValue: answer
         }));
         break;
-      case 'email':
+      case 'checkBoxes':
         setFormData(prev => ({
           ...prev,
-          emailValue: answer
-        }));
-        break;
-      case 'url':
-        setFormData(prev => ({
-          ...prev,
-          urlValue: answer
-        }));
-        break;
-      case 'number':
-        setFormData(prev => ({
-          ...prev,
-          numberValue: answer
+          selectedCheckboxValues: answer
         }));
         break;
       case 'currency':
@@ -632,6 +600,24 @@ const PlanOverviewQuestionPage: React.FC = () => {
           }));
         }
         break;
+      case 'email':
+        setFormData(prev => ({
+          ...prev,
+          emailValue: answer
+        }));
+        break;
+      case 'multiselectBox':
+        setFormData(prev => ({
+          ...prev,
+          selectedMultiSelectValues: new Set(answer)
+        }));
+        break;
+      case 'number':
+        setFormData(prev => ({
+          ...prev,
+          numberValue: answer
+        }));
+        break;
       case 'numberRange':
         if (answer?.start || answer?.end) {
           setFormData(prev => ({
@@ -643,18 +629,41 @@ const PlanOverviewQuestionPage: React.FC = () => {
           }));
         }
         break;
-      case 'affiliationSearch':
-        if (answer) {
-          setFormData(prev => ({
-            ...prev,
-            affiliationData: {
-              affiliationId: answer.affiliationId,
-              affiliationName: answer.affiliationName
-            },
-            otherField: answer.isOther,
-            otherAffiliationName: ''
-          }));
-        }
+      case 'radioButtons':
+        setFormData(prev => ({
+          ...prev,
+          selectedRadioValue: answer
+        }));
+        break;
+      case 'researchOutputTable':
+        setFormData(prev => ({
+          ...prev,
+          researchOutputTable: answer
+        }));
+        break;
+      case 'selectBox':
+        setFormData(prev => ({
+          ...prev,
+          selectedSelectValue: answer
+        }));
+        break;
+      case 'text':
+        setFormData(prev => ({
+          ...prev,
+          textValue: answer
+        }));
+        break;
+      case 'textArea':
+        setFormData(prev => ({
+          ...prev,
+          textAreaContent: answer
+        }));
+        break;
+      case 'url':
+        setFormData(prev => ({
+          ...prev,
+          urlValue: answer
+        }));
         break;
       default:
         break;
