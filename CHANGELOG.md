@@ -1,4 +1,6 @@
 
+### Fixed
+- Fixed related works pagination.
 
 ### Chore
 - Updated version of `next` to `15.5.8` due to vulnerability
