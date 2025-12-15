@@ -53,7 +53,7 @@ import { useToast } from '@/context/ToastContext';
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
-import { AnswerType, QuestionTypeMap } from '@dmptool/types';
+import { QuestionTypeMap } from '@dmptool/types';
 
 import {
   Question,
