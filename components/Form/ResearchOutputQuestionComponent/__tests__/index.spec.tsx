@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { useParams } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import ResearchOutputComponent from '@/components/Form/ResearchOutputComponent';
+import ResearchOutputComponent from '@/components/Form/ResearchOutputQuestionComponent';
 import {
   StandardField,
   AccessLevelInterface,

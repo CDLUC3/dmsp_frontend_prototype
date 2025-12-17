@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import {
   Breadcrumb,
@@ -16,8 +16,10 @@ import {
   Tooltip,
   TooltipTrigger
 } from "react-aria-components";
+import { ResearchOutputDemo, MOCK_RESEARCH_OUTPUT_QUESTION } from './ResearchOutputDemo';
 import { CalendarDate, DateValue } from "@internationalized/date";
-
+import DOMPurify from 'dompurify';
+import { ResearchOutputTable } from '@/app/types';
 import styles from './PlanOverviewQuestionPage.module.scss';
 import { useTranslations } from "next-intl";
 import {
@@ -50,14 +52,18 @@ import SafeHtml from '@/components/SafeHtml';
 import { useToast } from '@/context/ToastContext';
 
 // Utils
+import { initialStandardFields } from '@/app/[locale]/template/[templateId]/q/standardFields';
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import { QuestionTypeMap } from '@dmptool/types';
+import { useResearchOutputTable } from '@/app/hooks/useResearchOutputTable';
 
 import {
   Question,
-  MergedComment
+  MergedComment,
+  RepositoryInterface,
+  MetaDataStandardInterface,
 } from '@/app/types';
 
 // server action mutations
@@ -69,6 +75,8 @@ import {
 //hooks
 import { useComments } from './hooks/useComments';
 
+
+
 interface FormDataInterface {
   affiliationData: { affiliationName: string; affiliationId: string };
   dateValue: string | DateValue | CalendarDate | null;
@@ -76,7 +84,6 @@ interface FormDataInterface {
   emailValue: string | null;
   inputCurrencyValue: number | null;
   numberRange: { startNumber: number | null; endNumber: number | null };
-
   otherField: boolean;
   otherAffiliationName: string;
   selectedCheckboxValues: string[];
@@ -84,11 +91,11 @@ interface FormDataInterface {
   selectedMultiSelectValues: Set<string>;
   selectedSelectValue: string | undefined;
   numberValue: number | null;
-  researchOutputTable: string;
   urlValue: string | null;
   textValue: string | number | null;
   textAreaContent: string;
   yesNoValue: string;
+  researchOutputTable: ResearchOutputTable[];
 }
 
 type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
@@ -133,6 +140,7 @@ interface PlanData {
 const PlanOverviewQuestionPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const dmpId = params.dmpid as string;
   const projectId = params.projectId as string;
   const versionedSectionId = params.sid as string;
@@ -141,6 +149,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const toastState = useToast(); // Access the toast state from context
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
+
+  // Check for demo mode query parameter
+  const isDemoMode = searchParams.get('demo') === 'researchOutput';
 
   // Ref for scrolling to bottom of comments
   const commentsEndRef = useRef<HTMLDivElement | null>(null);
@@ -175,7 +186,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     otherAffiliationName: '',
     numberValue: null,
     numberRange: { startNumber: 0, endNumber: 0 },
-    researchOutputTable: '',
     selectedRadioValue: '',
     selectedMultiSelectValues: new Set<string>(),
     selectedSelectValue: undefined,
@@ -184,6 +194,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     selectedCheckboxValues: [],
     urlValue: null,
     yesNoValue: 'no',
+    researchOutputTable: [],
   });
 
   // Form state
@@ -195,12 +206,61 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout>();
 
+  // Add state for live region announcements
+  const [announcement, setAnnouncement] = useState('');
+
+
   // Localization
   const Global = useTranslations('Global');
   const PlanOverview = useTranslations('PlanOverview');
   const t = useTranslations('PlanOverviewQuestionPage');
 
+  // Helper function to make announcements
+  const announce = (message: string) => {
+    setAnnouncement(message);
+    // Clear after announcement is made
+    setTimeout(() => setAnnouncement(''), 100);
+  };
 
+  // Shared function to update any property in standardFields
+  const updateStandardFieldProperty = (fieldId: string, propertyName: string, value: unknown) => {
+    // setStandardFields(prev =>
+    //   prev.map(field =>
+    //     field.id === fieldId ? { ...field, [propertyName]: value } : field
+    //   )
+    // );
+    // setHasUnsavedChanges(true);
+  };
+
+  const handleMetaDataStandardsChange = (standards: MetaDataStandardInterface[]) => {
+    console.log("Metadata standards changed");
+  }
+  // Handle updates to RepositorySelectionSystem component
+  const handleRepositoriesChange = (repos: RepositoryInterface[]) => {
+    // // Store the selected repositories in the field config
+    // const currentField = standardFields.find(f => f.id === 'repoSelector');
+    // if (currentField && currentField.repoConfig) {
+    //   const wasEnabled = currentField.enabled;
+    //   const previousCount = currentField.repoConfig.customRepos?.length || 0;
+    //   updateStandardFieldProperty('repoSelector', 'repoConfig', {
+    //     ...currentField.repoConfig,
+    //     customRepos: repos
+    //   });
+    //   // Only enable if a repo is added and the box is currently unchecked
+    //   if (!wasEnabled && repos.length > previousCount) {
+    //     updateStandardFieldProperty('repoSelector', 'enabled', true);
+    //   }
+
+    //   // Announce the change
+    //   if (repos.length > previousCount) {
+    //     announce(QuestionAdd('researchOutput.announcements.repositoryAdded') || 'Repository added');
+    //   } else if (repos.length < previousCount) {
+    //     announce(QuestionAdd('researchOutput.announcements.repositoryRemoved') || 'Repository removed');
+    //   }
+    // }
+
+    // setHasUnsavedChanges(true);
+  };
   /*GraphQL queries */
 
   // Run selected question query
@@ -636,10 +696,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
         }));
         break;
       case 'researchOutputTable':
-        setFormData(prev => ({
-          ...prev,
-          researchOutputTable: answer
-        }));
+        if (answer && Array.isArray(answer)) {
+          setFormData(prev => ({
+            ...prev,
+            researchOutputTable: answer
+          }));
+        }
         break;
       case 'selectBox':
         setFormData(prev => ({
@@ -745,6 +807,13 @@ const PlanOverviewQuestionPage: React.FC = () => {
           answer: formData.dateValue?.toString()
         };
 
+      case 'researchOutputTable':
+        console.log("***Getting research output table answer", formData.researchOutputTable);
+        return {
+          type: 'researchOutputTable',
+          answer: formData.researchOutputTable
+        };
+
       case 'dateRange':
         return {
           type: 'dateRange',
@@ -801,6 +870,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
 
     const jsonPayload = getAnswerJson();
+
     // Check is answer already exists. If so, we want to call an update mutation rather than add
     const isUpdate = Boolean(answerData?.answerByVersionedQuestionId);
 
@@ -888,6 +958,14 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   };
 
+  const setResearchOutputTableRows = (rows: ResearchOutputTable[]) => {
+    setFormData(prev => ({
+      ...prev,
+      researchOutputTable: rows,
+    }));
+    setHasUnsavedChanges(true);
+  };
+
   // Helper function to format the last saved messaging
   const getLastSavedText = () => {
 
@@ -915,6 +993,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     if (selectedQuestion) {
       const q = selectedQuestion.publishedQuestion;
 
+      console.log("Question", q);
       const cleanedQuestion = {
         ...q,
         required: q?.required ?? undefined // convert null to undefined
@@ -1160,6 +1239,16 @@ const PlanOverviewQuestionPage: React.FC = () => {
       handleAffiliationChange,
       handleOtherAffiliationChange,
     },
+    researchOutputTableAnswerProps:
+      parsed?.type === 'researchOutputTable'
+        ? {
+          columns: parsed.columns,
+          rows: formData.researchOutputTable,
+          setRows: setResearchOutputTableRows,
+          onRepositoriesChange: handleRepositoriesChange,
+          onMetaDataStandardsChange: handleMetaDataStandardsChange,
+        }
+        : undefined,
   });
 
   if (versionedQuestionLoading || planQueryLoading || answerLoading) {
@@ -1168,6 +1257,111 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   if (versionedQuestionError || planQueryError || answerError) {
     return <div>{Global('messaging.somethingWentWrong')}</div>
+  }
+
+  // If in demo mode, render the research output component
+  if (isDemoMode) {
+    return (
+      <>
+        <PageHeader
+          title={plan?.title ?? 'Demo Plan'}
+          description=""
+          showBackButton={true}
+          breadcrumbs={
+            <Breadcrumbs aria-label={PlanOverview('navigation.navigation')}>
+              <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+              <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+              <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+              <Breadcrumb><Link href={routePath('projects.dmp.show', { projectId, dmpId })}>{Global('breadcrumbs.planOverview')}</Link></Breadcrumb>
+              <Breadcrumb><Link href={routePath('projects.dmp.versionedSection', { projectId, dmpId, versionedSectionId })}>{Global('breadcrumbs.sectionOverview')}</Link></Breadcrumb>
+              <Breadcrumb>{Global('breadcrumbs.questionDetails')} (Demo)</Breadcrumb>
+            </Breadcrumbs>
+          }
+          actions={null}
+          className="page-project-list"
+        />
+
+        <LayoutWithPanel>
+          <ContentContainer>
+            <div className="container">
+              {/**Requirements by funder */}
+              <section aria-label={"Requirements"}>
+                {/**TODO: need to get this data from backend */}
+                <h3 className={"h4"}>Requirements by University of California</h3>
+                <p>
+                  The university requires data and metadata to be cleared by the ethics
+                  committee before being submitted to funder.
+                </p>
+              </section>
+
+              <p className={styles.guidanceLinkWrapper}>
+                <DmpIcon icon="down_arrow" />
+                <Link href="#guidance" className={`${styles.guidanceLink} react-aria-Link`}>{PlanOverview('page.jumpToGuidance')}</Link>
+              </p>
+              <ResearchOutputDemo onBack={handleBackToSection} />
+
+              <section aria-label={"Guidance"} id="guidance">
+                <h3 className={"h4"}>Guidance by Funder</h3>
+                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(MOCK_RESEARCH_OUTPUT_QUESTION.guidanceText) }} />
+              </section>
+              <div className={styles.modalAction}>
+                <div>
+                  <Button
+                    type="submit"
+                    data-secondary
+                    className="primary"
+                    aria-label={PlanOverview('labels.saveAnswer')}
+                    aria-disabled={isSubmitting}
+                  >
+                    {isSubmitting ? Global('buttons.saving') : Global('buttons.save')}
+                  </Button>
+                </div>
+                <div>
+                  <Button
+                    className="secondary"
+                    aria-label={PlanOverview('labels.returnToSection')}
+                    onPress={() => handleBackToSection()}
+                  >
+                    {PlanOverview('buttons.backToSection')}
+                  </Button>
+                </div>
+
+              </div>
+            </div>
+          </ContentContainer>
+
+          <SidebarPanel isOpen={isSideBarPanelOpen}>
+            <div className={styles.headerWithLogo}>
+              <h2 className="h4">{Global('bestPractice')}</h2>
+              <Image
+                className={styles.Logo}
+                src="/images/DMP-logo.svg"
+                width="140"
+                height="16"
+                alt="DMP Tool"
+              />
+            </div>
+
+            <ExpandableContentSection
+              id="research-outputs-guidance"
+              heading="Research Outputs Best Practices"
+              expandLabel={Global('links.expand')}
+              summaryCharLimit={200}
+            >
+              <p>
+                When describing research outputs, consider all forms of scholarly products that will result from your project.
+              </p>
+              <p>
+                Include both traditional outputs (publications, datasets) and non-traditional outputs (software, protocols, educational materials).
+              </p>
+              <p>
+                For each output, specify the format, anticipated size, and any relevant standards or metadata schemas you will use.
+              </p>
+            </ExpandableContentSection>
+          </SidebarPanel>
+        </LayoutWithPanel>
+      </>
+    );
   }
 
   return (

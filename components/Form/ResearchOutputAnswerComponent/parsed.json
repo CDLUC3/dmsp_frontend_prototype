@@ -1,0 +1,437 @@
+{
+  "meta": {
+    "title": "Research Output Table",
+    "schemaVersion": "1.0",
+    "usageDescription": "A table for collecting structured research output data"
+  },
+  "type": "researchOutputTable",
+  "columns": [
+    {
+      "help": "Enter the title of this research output",
+      "content": {
+        "meta": {
+          "schemaVersion": "1.0"
+        },
+        "type": "text",
+        "attributes": {
+          "help": "",
+          "label": "Title",
+          "maxLength": 500,
+          "minLength": 1
+        }
+      },
+      "enabled": true,
+      "heading": "Title",
+      "required": true
+    },
+    {
+      "help": "Enter a brief description of this research output",
+      "content": {
+        "meta": {
+          "schemaVersion": "1.0"
+        },
+        "type": "textArea",
+        "attributes": {
+          "cols": 20,
+          "help": "My description help text",
+          "rows": 4,
+          "label": "Description",
+          "maxLength": 10000,
+          "asRichText": true
+        }
+      },
+      "enabled": true,
+      "heading": "Description",
+      "required": true
+    },
+    {
+      "help": "Select the type of this research output",
+      "content": {
+        "meta": {
+          "schemaVersion": "1.0"
+        },
+        "type": "selectBox",
+        "options": [
+          {
+            "label": "Audiovisual",
+            "value": "audiovisual",
+            "selected": false
+          },
+          {
+            "label": "Collection",
+            "value": "collection",
+            "selected": false
+          },
+          {
+            "label": "Data paper",
+            "value": "data-paper",
+            "selected": false
+          },
+          {
+            "label": "Dataset",
+            "value": "dataset",
+            "selected": false
+          },
+          {
+            "label": "Event",
+            "value": "event",
+            "selected": false
+          },
+          {
+            "label": "Image",
+            "value": "image",
+            "selected": false
+          },
+          {
+            "label": "Interactive resource",
+            "value": "interactive-resource",
+            "selected": false
+          },
+          {
+            "label": "Model",
+            "value": "model",
+            "selected": false
+          },
+          {
+            "label": "Other",
+            "value": "other",
+            "selected": false
+          },
+          {
+            "label": "Physical object",
+            "value": "physical-object",
+            "selected": false
+          },
+          {
+            "label": "Service",
+            "value": "service",
+            "selected": false
+          },
+          {
+            "label": "Software",
+            "value": "software",
+            "selected": false
+          },
+          {
+            "label": "Sound",
+            "value": "sound",
+            "selected": false
+          },
+          {
+            "label": "Text",
+            "value": "text",
+            "selected": false
+          },
+          {
+            "label": "Workflow",
+            "value": "workflow",
+            "selected": false
+          },
+          {
+            "label": "My output type",
+            "value": "my-output-type",
+            "selected": false
+          }
+        ],
+        "attributes": {
+          "help": "",
+          "label": "Output Type",
+          "multiple": false
+        }
+      },
+      "enabled": true,
+      "heading": "Output Type",
+      "required": true
+    },
+    {
+      "help": "Mark all of the statements that are true about the dataset",
+      "content": {
+        "meta": {
+          "schemaVersion": "1.0"
+        },
+        "type": "checkBoxes",
+        "options": [
+          {
+            "label": "May contain sensitive data?",
+            "value": "sensitive",
+            "checked": false
+          }
+        ],
+        "attributes": {
+          "help": "",
+          "label": "Data Flags",
+          "labelTranslationKey": "researchOutput.dataFlags.heading"
+        }
+      },
+      "enabled": true,
+      "heading": "Sensitive Data",
+      "required": false
+    },
+    {
+      "help": "Mark all of the statements that are true about the dataset",
+      "content": {
+        "meta": {
+          "schemaVersion": "1.0"
+        },
+        "type": "checkBoxes",
+        "options": [
+          {
+            "label": "May contain personally identifiable information?",
+            "value": "personal",
+            "checked": false
+          }
+        ],
+        "attributes": {
+          "help": "",
+          "label": "Data Flags",
+          "labelTranslationKey": "researchOutput.dataFlags.heading"
+        }
+      },
+      "enabled": true,
+      "heading": "Personal Data",
+      "required": false
+    },
+    {
+      "help": "Select repository(ies) you would prefer users to deposit in",
+      "content": {
+        "meta": {
+          "schemaVersion": "1.0"
+        },
+        "type": "repositorySearch",
+        "graphQL": {
+          "query": "query Repositories($term: String, $keywords: [String!], $repositoryType: String, $paginationOptions: PaginationOptions){ repositories(term: $term, keywords: $keywords, repositoryType: $repositoryType, paginationOptions: $paginationOptions) { totalCount currentOffset limit hasNextPage hasPreviousPage availableSortFields items { id name uri description website keywords repositoryTypes } } }",
+          "queryId": "useRepositoriesQuery",
+          "variables": [
+            {
+              "name": "term",
+              "type": "string",
+              "label": "Search for a repository",
+              "minLength": 3
+            },
+            {
+              "name": "keywords",
+              "type": "string",
+              "label": "Subject Areas",
+              "minLength": 3
+            },
+            {
+              "name": "repositoryType",
+              "type": "string",
+              "label": "Repository type",
+              "minLength": 3
+            },
+            {
+              "name": "paginationOptions",
+              "type": "paginationOptions",
+              "label": "Pagination Options"
+            }
+          ],
+          "answerField": "uri",
+          "displayFields": [
+            {
+              "label": "Name",
+              "propertyName": "name"
+            },
+            {
+              "label": "Description",
+              "propertyName": "description"
+            },
+            {
+              "label": "Website",
+              "propertyName": "website"
+            },
+            {
+              "label": "Subject Areas",
+              "propertyName": "keywords"
+            }
+          ],
+          "responseField": "repositories.items"
+        },
+        "attributes": {
+          "help": "My repositories help text",
+          "label": "Repositories"
+        }
+      },
+      "enabled": true,
+      "heading": "Repositories",
+      "required": false,
+      "preferences": [
+        {
+          "label": "Zenodo",
+          "value": "https://www.re3data.org/repository/https://www.re3data.org/api/v1/repository/r3d100010468"
+        }
+      ]
+    },
+    {
+      "help": "Select metadata standard(s) you would prefer users to use",
+      "content": {
+        "meta": {
+          "schemaVersion": "1.0"
+        },
+        "type": "metadataStandardSearch",
+        "graphQL": {
+          "query": "query MetadataStandards($term: String, $keywords: [String!], $paginationOptions: PaginationOptions){ metadataStandards(term: $term, keywords: $keywords, paginationOptions: $paginationOptions) { totalCount currentOffset limit hasNextPage hasPreviousPage availableSortFields items { id name uri description keywords } } }",
+          "queryId": "useMetadataStandardsQuery",
+          "variables": [
+            {
+              "name": "term",
+              "type": "string",
+              "label": "Search for a metadata standard",
+              "minLength": 3
+            },
+            {
+              "name": "keywords",
+              "type": "string",
+              "label": "Subject Areas",
+              "minLength": 3
+            },
+            {
+              "name": "paginationOptions",
+              "type": "paginationOptions",
+              "label": "Pagination Options"
+            }
+          ],
+          "answerField": "uri",
+          "displayFields": [
+            {
+              "label": "Name",
+              "propertyName": "name"
+            },
+            {
+              "label": "Description",
+              "propertyName": "description"
+            },
+            {
+              "label": "Website",
+              "propertyName": "website"
+            },
+            {
+              "label": "Subject Areas",
+              "propertyName": "keywords"
+            }
+          ],
+          "responseField": "metadataStandards.items"
+        },
+        "attributes": {
+          "help": "My metadata standards help text",
+          "label": "Metadata Standards"
+        }
+      },
+      "enabled": true,
+      "heading": "Metadata Standards",
+      "required": false,
+      "preferences": [
+        {
+          "label": "Terminal RI Unicamp",
+          "value": "https://repositorio.unicamp.br/"
+        }
+      ]
+    },
+    {
+      "help": "Select the license you will apply to the research output",
+      "content": {
+        "meta": {
+          "schemaVersion": "1.0"
+        },
+        "type": "licenseSearch",
+        "graphQL": {
+          "query": "query Licenses($term: String, $paginationOptions: PaginationOptions){ license(term: $term, paginationOptions: $paginationOptions) { totalCount currentOffset limit hasNextPage hasPreviousPage availableSortFields items { id name uri description } } }",
+          "queryId": "useLicensesQuery",
+          "variables": [
+            {
+              "name": "term",
+              "type": "string",
+              "label": "Search for a license",
+              "minLength": 3
+            },
+            {
+              "name": "paginationOptions",
+              "type": "paginationOptions",
+              "label": "Pagination Options"
+            }
+          ],
+          "answerField": "uri",
+          "displayFields": [
+            {
+              "label": "Name",
+              "propertyName": "name"
+            },
+            {
+              "label": "Description",
+              "propertyName": "description"
+            },
+            {
+              "label": "Recommended",
+              "propertyName": "recommended"
+            }
+          ],
+          "responseField": "licenses.items"
+        },
+        "attributes": {
+          "help": "My licenses help text",
+          "label": "Licenses"
+        }
+      },
+      "enabled": true,
+      "heading": "Licenses",
+      "required": false,
+      "preferences": [
+        {
+          "label": "CC-BY-4.0",
+          "value": "https://spdx.org/licenses/CC-BY-4.0.json"
+        },
+        {
+          "label": "CC0-1.0",
+          "value": "https://spdx.org/licenses/CC0-1.0.json"
+        },
+        {
+          "label": "Aspell-RU",
+          "value": "https://spdx.org/licenses/Aspell-RU.json"
+        }
+      ]
+    },
+    {
+      "help": "Select the type of this research output",
+      "content": {
+        "meta": {
+          "schemaVersion": "1.0"
+        },
+        "type": "selectBox",
+        "options": [],
+        "attributes": {
+          "help": "My initial access levels help text",
+          "label": "Initial Access Levels",
+          "multiple": false
+        }
+      },
+      "enabled": true,
+      "heading": "Initial Access Levels",
+      "required": true
+    },
+    {
+      "help": "Enter the title of this research output",
+      "content": {
+        "meta": {
+          "schemaVersion": "1.0"
+        },
+        "type": "text",
+        "attributes": {
+          "help": "My Custom field help text",
+          "label": "My Custom field label",
+          "maxLength": 147
+        }
+      },
+      "enabled": true,
+      "heading": "My Custom field label",
+      "required": true
+    }
+  ],
+  "attributes": {
+    "help": "",
+    "label": "",
+    "canAddRows": true,
+    "initialRows": 1,
+    "canRemoveRows": true,
+    "labelTranslationKey": ""
+  }
+}

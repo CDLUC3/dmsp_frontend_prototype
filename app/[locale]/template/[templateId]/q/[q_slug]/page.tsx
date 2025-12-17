@@ -63,7 +63,7 @@ import QuestionView from '@/components/QuestionView';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 
 //Utils and Other
-import { useResearchOutputTable } from '@/hooks/useResearchOutputTable';
+import { useResearchOutputTable } from '@/app/hooks/useResearchOutputTable';
 import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
@@ -462,10 +462,12 @@ const QuestionEdit = () => {
         }
 
         const questionType = parsed.type;
-        const questionTypeFriendlyName = Global(`questionTypes.${questionType}`);
+        const translationKey = `questionTypes.${questionType}`;
+        const questionTypeFriendlyName = Global(translationKey);
 
         setQuestionType(questionType);
         setQuestionTypeName(questionTypeFriendlyName);
+        console.log("Parsed Question JSON:", parsed);
         setParsedQuestionJSON(parsed);
 
         const isOptionsQuestion = isOptionsType(questionType);

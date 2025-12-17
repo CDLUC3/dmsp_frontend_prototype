@@ -176,6 +176,30 @@
 /* End For link to jump down to Guidance section*/
 
 
+/* 'Required by funder' info icon tooltip*/
+.popOverButton {
+  display: inline-flex;
+  align-items: center;
+  background: none !important;
+  padding: 0 0 0 0.25rem;
+  border: none;
+  vertical-align: middle;
+  cursor: pointer;
+
+  &:hover,
+  &:hover:not(:disabled) {
+    background: none;
+  }
+}
+
+.infoIcon svg {
+  width: 25px;
+  height: 25px;
+  fill: var(--blue-500);
+  padding-bottom: 5px;
+  vertical-align: middle;
+}
+
 .requiredWrapper {
   display: inline-flex;
   white-space: nowrap;
@@ -239,3 +263,61 @@
   font-size: var(--fs-small);
 }
 /* End Comments Drawer Styles */
+
+.licenseSelect {
+  width: 100%;
+}
+
+.titleRow{
+  display: flex;
+  gap: 0; // No gap on mobile
+  flex-wrap: wrap;
+
+  @include r.device(sm) {
+    gap: var(--space-3);
+  }
+}
+
+.fileSizeRow{
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.title {
+  flex: 1 1 100%; // Full width on mobile
+  min-width: 0; // Allow flex item to shrink
+  max-width: 400px;
+
+  @include r.device(sm) {
+    flex: 1 1 300px;
+  }
+}
+
+.abbreviation {
+  flex: 1 1 100%; // Full width on mobile
+  max-width: 188px;
+  
+  @include r.device(sm) {
+    flex: 0 1 220px;
+  }
+}
+
+.input-tooltip-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tooltip-trigger-btn {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+  font-size: 12px;
+}

@@ -71,7 +71,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
   const { data: defaultResearchOutputTypesData } = useDefaultResearchOutputTypesQuery();
 
   // localization keys
-
+  const Global = useTranslations('Global');
   const QuestionAdd = useTranslations('QuestionAdd');
 
   // Type guard function to check if a field has metaDataConfig
@@ -217,16 +217,15 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
               }
             });
           }
-          break;
 
         case 'repoSelector': {
           const repoColumn: any = {
             ...field, // preserves enabled, required, helpText, etc
-            heading: field.label || 'Repositories',
+            heading: field.label || 'Intended Repositories',
             content: {
               type: 'repositorySearch',
               attributes: {
-                label: field.label || 'Repositories',
+                label: field.label || 'Intended Repositories',
                 help: field.helpText || ''
               },
               graphQL: {
@@ -461,6 +460,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
 
   // Shared function to update any property in standardFields
   const updateStandardFieldProperty = (fieldId: string, propertyName: string, value: unknown) => {
+    console.log("***Updating field", fieldId, "property", propertyName, "to", value);
     setStandardFields(prev =>
       prev.map(field =>
         field.id === fieldId ? { ...field, [propertyName]: value } : field
@@ -687,10 +687,12 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
 
   // Handler for updating additional field properties
   const handleUpdateAdditionalField = (fieldId: string, propertyName: string, value: unknown) => {
+    console.log("**Field Update**", fieldId, propertyName, value);
     setAdditionalFields(prev =>
-      prev.map(field =>
-        field.id === fieldId ? { ...field, [propertyName]: value } : field
-      )
+      prev.map(field => {
+        console.log("PREV FIELD:", field);
+        return field.id === fieldId ? { ...field, [propertyName]: value } : field;
+      })
     );
     setHasUnsavedChanges(true);
   };

@@ -20,6 +20,7 @@ import { DefaultResearchOutputTypesQuery, LicensesQuery } from '@/generated/grap
 import styles from './researchOutput.module.scss';
 
 interface ResearchOutputComponentProps {
+  parsed: any;
   standardFields: StandardField[];
   additionalFields: StandardField[];
   expandedFields: string[];
@@ -54,6 +55,7 @@ const hasMetaDataConfig = (field: StandardField): field is StandardField & { met
 };
 
 const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
+  parsed,
   standardFields,
   additionalFields,
   expandedFields,
@@ -335,7 +337,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                         type="button"
                         className={`buttonLink link ${styles.deleteButton}`}
                         onPress={() => onDeleteAdditionalField(field.id)}
-                        aria-label={Global('buttons.deleteLabel', { item: field.customLabel || field.label })}
+                        aria-label={Global('buttons.delete', { item: field.customLabel || field.label })}
                       >
                         {Global('buttons.delete')}
                       </Button>

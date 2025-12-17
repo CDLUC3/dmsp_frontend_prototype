@@ -420,7 +420,6 @@ export interface addRepositoryActionResponse extends ActionResponse {
     };
   }
 };
-
 export interface updateQuestionActionResponse extends ActionResponse {
   data?: {
     id?: number | null;
