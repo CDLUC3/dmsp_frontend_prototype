@@ -4,6 +4,7 @@
 import React, { useEffect } from 'react';
 import {
   Checkbox,
+  ListBoxItem
 } from "react-aria-components";
 import {
   DefaultTextAnswer,
@@ -19,6 +20,7 @@ import {
 } from '@dmptool/types';
 import {
   CheckboxGroupComponent,
+  DateComponent,
   FormInput,
   FormSelect,
   FormTextArea,
@@ -33,6 +35,7 @@ import {
   MetaDataStandardFieldInterface,
   ResearchOutputTable
 } from '@/app/types';
+import { getCalendarDateValue } from '@/utils/dateUtils';
 import styles from './researchOuptutAnswer.module.scss';
 
 export const DEFAULT_ACCESS_LEVELS = [
@@ -199,10 +202,15 @@ const ResearchOutputAnswerComponent = ({
   useEffect(() => {
     if (!rows || rows.length === 0) {
       const initialRow: ResearchOutputTableAnswerRow = {
-        columns: columns.map(col => {
-          const schemaVersion = col.content?.meta?.schemaVersion || "1.0";
-          return getDefaultAnswerForType(col.content.type, schemaVersion);
-        })
+        columns: [
+          ...columns.map(col => {
+            const schemaVersion = col.content?.meta?.schemaVersion || "1.0";
+            return getDefaultAnswerForType(col.content.type, schemaVersion);
+          }),
+          // Add static fields:
+          { type: "date", answer: "", meta: { schemaVersion: "1.0" } }, // for release date
+          { type: "numberWithContext", answer: { value: 0, context: 'kb' }, meta: { schemaVersion: "1.0" } } // for byte size
+        ]
       };
       setRows([initialRow]);
     }
@@ -211,6 +219,18 @@ const ResearchOutputAnswerComponent = ({
 
   // Get current row data
   const currentRow = rows && rows[0];
+  const releaseDateColIndex = columns.length;
+  const byteSizeColIndex = columns.length + 1;
+
+  // Parse byte size answer
+  const byteSizeAnswer = currentRow?.columns[byteSizeColIndex]?.answer || { value: 0, context: 'kb' };
+
+  const isNumberWithContext = (ans: any): ans is { value: number; context: string } =>
+    ans && typeof ans === 'object' && 'value' in ans && 'context' in ans;
+
+  const byteSizeValue = isNumberWithContext(byteSizeAnswer) ? byteSizeAnswer.value ?? '' : '';
+  const byteSizeUnit = isNumberWithContext(byteSizeAnswer) ? byteSizeAnswer.context : 'kb';
+
 
   return (
     <div>
@@ -419,6 +439,64 @@ const ResearchOutputAnswerComponent = ({
             );
         }
       })}
+
+      {/* Always include Anticipated Release Date - not configurable */}
+      <div key="anticipated-release-date">
+        <DateComponent
+          name="startDate"
+          value={getCalendarDateValue(
+            currentRow?.columns[releaseDateColIndex]?.answer || ''
+          )}
+          onChange={(newDate) => {
+            handleCellChange(releaseDateColIndex, newDate);
+          }}
+          label="Anticipated Release Date"
+        />
+      </div>
+
+
+      {/* Always include Byte Size - not configurable */}
+      <div key="byte-size" className={styles.fileSizeRow}>
+        <FormInput
+          label="Anticipated file size"
+          name="research_output_file_size"
+          type="number"
+          isRequired={false}
+          value={byteSizeValue}
+          onChange={(e) => {
+            handleCellChange(byteSizeColIndex, {
+              value: e.target.value === '' ? undefined : Number(e.target.value),
+              context: byteSizeUnit
+            });
+          }}
+          maxLength={10}
+        />
+
+        <FormSelect
+          name="research_output_file_size_unit"
+          ariaLabel="File size unit"
+          isRequired={false}
+          label="Unit"
+          items={[
+            { id: 'bytes', name: 'bytes' },
+            { id: 'kb', name: 'KB' },
+            { id: 'mb', name: 'MB' },
+            { id: 'gb', name: 'GB' },
+            { id: 'tb', name: 'TB' },
+            { id: 'pb', name: 'PB' }
+          ]}
+          selectClasses={styles.fileSizeSelect}
+          selectedKey={byteSizeUnit}
+          onChange={(val) => {
+            handleCellChange(byteSizeColIndex, {
+              value: byteSizeValue,
+              context: val
+            });
+          }}
+        >
+          {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
+        </FormSelect>
+      </div>
     </div>
   );
 };

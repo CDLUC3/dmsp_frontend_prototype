@@ -30,6 +30,18 @@ export type StandardField = {
   maxLength?: string;
   content?: any;
   value?: string;
+  byteSizeConfig?: {
+    selectedUnit: 'bytes' | 'kb' | 'mb' | 'gb' | 'tb' | 'pb';
+    availableUnits: {
+      label: string;
+      value: 'bytes' | 'kb' | 'mb' | 'gb' | 'tb' | 'pb';
+      selected: boolean;
+    }[];
+  };
+  byteSizeFieldConfig?: {
+    enabled: boolean;
+    maxByteSize: number;
+  };
   customLabel?: string; // For additional custom fields
   licensesConfig?: LicensesConfig;
   accessLevelsConfig?: {

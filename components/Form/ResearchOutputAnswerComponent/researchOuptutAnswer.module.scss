@@ -1,3 +1,9 @@
 .checkboxGroupContainer {
   margin-bottom: var(--space-6);
 }
+
+.fileSizeRow{
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}

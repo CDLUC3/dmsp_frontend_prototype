@@ -381,7 +381,7 @@ export const ResearchOutputDemo: React.FC<ResearchOutputDemoProps> = ({ onBack }
             />
 
             <FormSelect
-              name="research_output_file_size"
+              name="research_output_file_size_unit"
               ariaLabel="File size"
               isRequired={false}
               label=" Unit"

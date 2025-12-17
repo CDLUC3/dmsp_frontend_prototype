@@ -80,8 +80,10 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
           <Label>
             {label}{showRequired && <span className="is-required" aria-hidden="true"> ({t('required')})</span>}
           </Label>
-          <Text slot="description" className="help">
-            {description}</Text>
+          {description && (
+            <Text slot="description" className="help">
+              {description}</Text>
+          )}
           <Button className='react-aria-Button selectButton' ref={ref} data-testid="select-button">
             <SelectValue />
             <span
