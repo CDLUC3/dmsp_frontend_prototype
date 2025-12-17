@@ -353,10 +353,12 @@ const QuestionAdd = ({
       }
       return;
     }
-    return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+    const temp = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
       parsed,
       userInput
     );
+    console.log("What's returned by questionTypeHander  :", temp);
+    return temp;
   };
 
   // Function to add and save the new question
@@ -368,6 +370,8 @@ const QuestionAdd = ({
     const displayOrder = getDisplayOrder();
 
     const updatedJSON = buildUpdatedJSON(question);
+
+    console.log("***Updated JSON to be submitted:", updatedJSON);
 
     const { success, error } = updatedJSON ?? {};
     if (success && !error) {

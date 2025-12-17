@@ -40,11 +40,25 @@ export const initialStandardFields: StandardField[] = [
     id: 'dataFlags',
     label: 'Data Flags',
     enabled: false,
-    helpText: '',
-    flagsConfig: {
-      showSensitiveData: true,
-      showPersonalData: true,
-      mode: 'both' as 'sensitiveOnly' | 'personalOnly' | 'both'
+    required: false,
+    heading: 'Data Flags',
+    helpText: 'Mark all of the statements that are true about the dataset',
+    content: {
+      type: 'checkBoxes',
+      meta: { schemaVersion: '1.0' },
+      attributes: {},
+      options: [
+        {
+          label: 'May contain sensitive data?',
+          value: 'sensitive',
+          checked: false
+        },
+        {
+          label: 'May contain personally identifiable information?',
+          value: 'personal',
+          checked: false
+        }
+      ]
     }
   },
   {

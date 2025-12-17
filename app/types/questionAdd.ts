@@ -23,10 +23,12 @@ export type StandardField = {
   label: string;
   enabled: boolean;
   required?: boolean;
+  heading?: string;
   defaultValue?: string;
   placeholder?: string;
   helpText?: string;
   maxLength?: string;
+  content?: any;
   value?: string;
   customLabel?: string; // For additional custom fields
   licensesConfig?: LicensesConfig;

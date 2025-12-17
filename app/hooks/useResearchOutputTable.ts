@@ -36,8 +36,7 @@ const standardKeys = new Set([
   'researchOutput.metadataStandards',
   'researchOutput.licenses',
   'researchOutput.accessLevels',
-  'Sensitive Data',
-  'Personal Data',
+  'Data Flags',
   'Title',
   'Description',
   'Output Type',
@@ -179,44 +178,28 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
         }
 
         case 'dataFlags':
-          if (field.flagsConfig?.showSensitiveData) {
-            columns.push({
-              ...field, // preserves enabled, required, helpText, etc
-              heading: 'Sensitive Data',
-              content: {
-                type: 'checkBoxes',
-                attributes: {
-                  label: 'Data Flags',
-                  help: field.helpText || '',
-                  labelTranslationKey: 'researchOutput.dataFlags.heading'
-                },
-                options: [{
+          columns.push({
+            ...field,
+            heading: field.heading || field.label || 'Data Flags',
+            content: field.content || {
+              type: 'checkBoxes',
+              meta: { schemaVersion: '1.0' },
+              attributes: {},
+              options: [
+                {
                   label: 'May contain sensitive data?',
                   value: 'sensitive',
                   checked: false
-                }]
-              }
-            });
-          }
-          if (field.flagsConfig?.showPersonalData) {
-            columns.push({
-              ...field, // preserves enabled, required, helpText, etc
-              heading: 'Personal Data',
-              content: {
-                type: 'checkBoxes',
-                attributes: {
-                  label: 'Data Flags',
-                  help: field.helpText || '',
-                  labelTranslationKey: 'researchOutput.dataFlags.heading'
                 },
-                options: [{
+                {
                   label: 'May contain personally identifiable information?',
                   value: 'personal',
                   checked: false
-                }]
-              }
-            });
-          }
+                }
+              ]
+            }
+          });
+          break;
 
         case 'repoSelector': {
           const repoColumn: any = {

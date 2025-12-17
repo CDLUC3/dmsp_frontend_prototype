@@ -610,15 +610,15 @@ const QuestionEdit = () => {
               break;
             }
             case 'dataFlags': {
-              const sensCol = findColumn(['researchOutput.sensitiveData', 'Sensitive Data']);
-              const persCol = findColumn(['researchOutput.personalData', 'Personal Data']);
-              updated.enabled = !!(sensCol || persCol);
-              updated.flagsConfig = {
-                ...updated.flagsConfig,
-                showSensitiveData: !!sensCol,
-                showPersonalData: !!persCol,
-                mode: updated.flagsConfig?.mode || 'both'
-              };
+              const dataFlagsCol = findColumn(['researchOutput.dataFlags', 'Data Flags']);
+              if (dataFlagsCol) {
+                updated.enabled = !!dataFlagsCol.enabled;
+                updated.helpText = dataFlagsCol.content?.attributes?.help || '';
+                // Store the entire content structure
+                if (dataFlagsCol.content) {
+                  updated.content = dataFlagsCol.content;
+                }
+              }
               break;
             }
             case 'title':
@@ -643,11 +643,15 @@ const QuestionEdit = () => {
 
         // Hydrate additional fields (custom columns)
         const customCols = parsedQuestionJSON.columns.filter(
-          (col) =>
-            !(col?.meta?.labelTranslationKey && standardKeys.has(col.meta.labelTranslationKey)) &&
-            !(col?.heading && standardKeys.has(col.heading))
-        );
+          (col) => {
+            const isStandard = (col?.meta?.labelTranslationKey && standardKeys.has(col.meta.labelTranslationKey)) ||
+              (col?.heading && standardKeys.has(col.heading));
 
+            console.log('Column heading:', col?.heading, 'Is standard:', isStandard);
+
+            return !isStandard;
+          }
+        );
         /* eslint-disable @typescript-eslint/no-explicit-any */
         function hasDefaultValue(attr: any): attr is { defaultValue: string } {
           return attr && typeof attr.defaultValue !== 'undefined';

@@ -162,30 +162,33 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                     )}
 
                     {/** Data Flags Configuration */}
-                    {field.id === 'dataFlags' && (
+                    {field.id === 'dataFlags' && field.content && (
                       <div style={{ marginBottom: '1.5rem' }}>
                         <fieldset>
                           <legend>{QuestionAdd('researchOutput.legends.dataFlag')}</legend>
                           <div className={styles.dataFlagsConfig}>
-                            <RadioGroupComponent
-                              name="dataFlagsMode"
-                              value={field.flagsConfig?.mode || 'both'}
-                              radioGroupLabel={QuestionAdd('researchOutput.dataFlags.description')}
-                              onChange={(mode) => onUpdateStandardFieldProperty('dataFlags', 'flagsConfig', {
-                                ...field.flagsConfig,
-                                mode
-                              })}
-                            >
-                              <div>
-                                <Radio value="sensitiveOnly">{QuestionAdd('researchOutput.dataFlags.options.sensitiveOnly')}</Radio>
+                            {field.content.options.map((option, index) => (
+                              <div key={option.value} style={{ marginBottom: '0.5rem' }}>
+                                <Checkbox
+                                  isSelected={option.checked}
+                                  onChange={(isSelected) => {
+                                    const updatedOptions = [...field.content.options];
+                                    updatedOptions[index] = { ...option, checked: isSelected };
+                                    onUpdateStandardFieldProperty('dataFlags', 'content', {
+                                      ...field.content,
+                                      options: updatedOptions
+                                    });
+                                  }}
+                                >
+                                  <div className="checkbox">
+                                    <svg viewBox="0 0 18 18" aria-hidden="true">
+                                      <polyline points="1 9 7 14 15 4" />
+                                    </svg>
+                                  </div>
+                                  <span>{option.label}</span>
+                                </Checkbox>
                               </div>
-                              <div>
-                                <Radio value="personalOnly">{QuestionAdd('researchOutput.dataFlags.options.personalOnly')}</Radio>
-                              </div>
-                              <div>
-                                <Radio value="both">{QuestionAdd('researchOutput.dataFlags.options.both')}</Radio>
-                              </div>
-                            </RadioGroupComponent>
+                            ))}
                           </div>
                         </fieldset>
                       </div>
@@ -310,7 +313,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                   <div className={styles.fieldRow}>
                     <Checkbox
                       isSelected={field.enabled}
-                      onChange={(isSelected) => onStandardFieldChange(field.id, isSelected)}
+                      onChange={(isSelected) => onUpdateAdditionalField(field.id, 'enabled', isSelected)}
                     >
                       <div className="checkbox">
                         <svg viewBox="0 0 18 18" aria-hidden="true">
