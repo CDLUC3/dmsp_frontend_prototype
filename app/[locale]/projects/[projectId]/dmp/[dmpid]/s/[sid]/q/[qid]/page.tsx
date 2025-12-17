@@ -808,7 +808,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
         };
 
       case 'researchOutputTable':
-        console.log("***Getting research output table answer", formData.researchOutputTable);
         return {
           type: 'researchOutputTable',
           answer: formData.researchOutputTable
@@ -992,8 +991,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
   useEffect(() => {
     if (selectedQuestion) {
       const q = selectedQuestion.publishedQuestion;
-
-      console.log("Question", q);
       const cleanedQuestion = {
         ...q,
         required: q?.required ?? undefined // convert null to undefined

@@ -467,7 +467,6 @@ const QuestionEdit = () => {
 
         setQuestionType(questionType);
         setQuestionTypeName(questionTypeFriendlyName);
-        console.log("Parsed Question JSON:", parsed);
         setParsedQuestionJSON(parsed);
 
         const isOptionsQuestion = isOptionsType(questionType);
@@ -646,8 +645,6 @@ const QuestionEdit = () => {
           (col) => {
             const isStandard = (col?.meta?.labelTranslationKey && standardKeys.has(col.meta.labelTranslationKey)) ||
               (col?.heading && standardKeys.has(col.heading));
-
-            console.log('Column heading:', col?.heading, 'Is standard:', isStandard);
 
             return !isStandard;
           }

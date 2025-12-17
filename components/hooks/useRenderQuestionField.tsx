@@ -427,7 +427,6 @@ export function useRenderQuestionField({
 
     case RESEARCH_OUTPUT_QUESTION_TYPE:
       if (parsed.type === 'researchOutputTable' && researchOutputTableAnswerProps) {
-        console.log("***Parsed Research Output Table:", parsed);
         return (
           <ResearchOutputAnswerComponent
             columns={parsed.columns}

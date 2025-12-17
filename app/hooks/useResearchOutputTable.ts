@@ -443,7 +443,6 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
 
   // Shared function to update any property in standardFields
   const updateStandardFieldProperty = (fieldId: string, propertyName: string, value: unknown) => {
-    console.log("***Updating field", fieldId, "property", propertyName, "to", value);
     setStandardFields(prev =>
       prev.map(field =>
         field.id === fieldId ? { ...field, [propertyName]: value } : field

@@ -84,7 +84,6 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
   const Global = useTranslations('Global');
   const QuestionAdd = useTranslations('QuestionAdd');
 
-  console.log("***STandard fields", standardFields);
   return (
     <>
       <div className={styles.fieldsContainer}>

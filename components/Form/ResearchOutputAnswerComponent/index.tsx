@@ -283,16 +283,16 @@ const ResearchOutputAnswerComponent = ({
               </div>
             );
           case 'checkBoxes': {
-            // Safely get options from col.content
             const options =
               'options' in col.content && Array.isArray(col.content.options)
                 ? col.content.options
                 : [];
 
-            // The value should be an array of selected values (e.g., ['sensitive', 'personal'])
+            // The value should be an array of string values (e.g., ['sensitive', 'personal'])
             const selectedValues = Array.isArray(value)
               ? value.map((v: any) => (typeof v === 'string' ? v : v.value))
               : [];
+
 
             return (
               <div key={col.heading} className={styles.checkboxGroupContainer}>
@@ -300,9 +300,8 @@ const ResearchOutputAnswerComponent = ({
                   name={name}
                   value={selectedValues}
                   onChange={(values: string[]) => {
-                    // Map selected values back to option objects for answer
-                    const selectedOptions = options.filter(opt => values.includes(opt.value));
-                    handleCellChange(colIndex, selectedOptions);
+                    // ✅ Just pass the string array directly - don't convert to objects
+                    handleCellChange(colIndex, values);
                   }}
                   checkboxGroupLabel={col.heading}
                   checkboxGroupDescription={col.help}
@@ -320,7 +319,8 @@ const ResearchOutputAnswerComponent = ({
                 </CheckboxGroupComponent>
               </div>
             );
-          };
+          }
+
           case 'repositorySearch':
             const repoField: StandardField = {
               id: `repoSelector_${colIndex}`,
