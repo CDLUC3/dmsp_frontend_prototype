@@ -77,13 +77,9 @@ function toSubjectAreaObject(str: string): { id: string; name: string } {
 
 /* Research Output question's Repository Selection System */
 const RepoSelectorForAnswer = ({
-  field,
-  preferences,
   value,
   onRepositoriesChange
 }: {
-  field: RepositoryFieldInterface;
-  preferences?: Array<{ label: string; value: string }>;
   value?: RepositoryInterface[];
   onRepositoriesChange?: (repos: RepositoryInterface[]) => void;
 }) => {

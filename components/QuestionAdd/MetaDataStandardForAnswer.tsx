@@ -49,19 +49,12 @@ const LIMIT = 5;
 type AddMetaDataStandardsErrors = {
   general?: string;
   name?: string;
-  description?: string;
-  uri?: string;
-  keywords?: string;
 };
 
 const MetaDataStandardForAnswer = ({
-  field,
-  preferences,
   value = [],
   onMetaDataStandardsChange
 }: {
-  field: MetaDataStandardFieldInterface;
-  preferences?: Array<{ label: string; value: string }>;
   value?: MetaDataStandardInterface[];
   onMetaDataStandardsChange: (standards: MetaDataStandardInterface[]) => void;
 }) => {
@@ -230,7 +223,7 @@ const MetaDataStandardForAnswer = ({
       return;
     } else {
       if (response?.data?.errors) {
-        const errs = extractErrors<AddMetaDataStandardsErrors>(response?.data?.errors, ["general", "name", "description", "uri", "keywords"]);
+        const errs = extractErrors<AddMetaDataStandardsErrors>(response?.data?.errors, ["general", "name"]);
 
         if (errs.length > 0) {
           setErrors(errs);
@@ -246,8 +239,6 @@ const MetaDataStandardForAnswer = ({
       const newStandard: MetaDataStandardInterface = {
         id: response.data?.id || Date.now(), // Use returned ID or timestamp as fallback
         name: name.trim(),
-        uri: uri.trim(),
-        description: description.trim(),
       };
 
       onMetaDataStandardsChange?.([...(Object.values(selectedStandards) as MetaDataStandardInterface[]), newStandard]);
@@ -329,7 +320,7 @@ const MetaDataStandardForAnswer = ({
                         <div className={styles.itemTitle}>{std.name}</div>
                       </div>
                       <Button
-                        onClick={() => removeStandard(std.uri)}
+                        onClick={() => removeStandard(std.id ? String(std.id) : '')}
                         className="secondary small"
                       >
                         {Global('buttons.remove')}
@@ -488,7 +479,7 @@ const MetaDataStandardForAnswer = ({
                       </div>
 
                       {metaDataStandards?.map((std) => {
-                        const isSelected = selectedStandards[std.uri];
+                        const isSelected = selectedStandards[std.id];
                         return (
                           <div
                             key={std.id}
@@ -502,10 +493,6 @@ const MetaDataStandardForAnswer = ({
                               >
                                 {isSelected ? Global('buttons.remove') : Global('buttons.select')}
                               </Button>
-                            </div>
-                            <div className={styles.itemDescription}>
-                              {std.description}
-                              <Link href={std.uri} className={styles.itemLink}>{std.uri}</Link>
                             </div>
                           </div>
                         );

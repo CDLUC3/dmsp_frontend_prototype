@@ -685,13 +685,19 @@ const PlanOverviewQuestionPage: React.FC = () => {
             researchOutputTable: answer
           }));
         } else {
-          // Initialize with empty row if no answer exists
+          // Initialize with empty row if no answer exists AND no rows exist yet
           if (parsed?.type === 'researchOutputTable') {
-            const emptyRow = createEmptyResearchOutputRow(parsed.columns);
-            setFormData(prev => ({
-              ...prev,
-              researchOutputTable: [emptyRow]
-            }));
+            setFormData(prev => {
+              // Don't reinitialize if rows already exist
+              if (prev.researchOutputTable.length > 0) {
+                return prev;
+              }
+              const emptyRow = createEmptyResearchOutputRow(parsed.columns);
+              return {
+                ...prev,
+                researchOutputTable: [emptyRow]
+              };
+            });
           }
         }
         break;

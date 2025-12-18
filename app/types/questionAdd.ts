@@ -85,8 +85,6 @@ export interface RepositoryFieldInterface {
 export interface MetaDataStandardInterface {
   id?: number;
   name: string;
-  description?: string;
-  uri: string;
 }
 
 export interface MetaDataStandardFieldInterface {

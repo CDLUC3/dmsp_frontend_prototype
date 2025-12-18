@@ -97,6 +97,8 @@ const ResearchOutputAnswerComponent = ({
 }: ResearchOutputAnswerComponentProps) => {
 
   const repoSelectorFirstUpdate = useRef<{ [key: number]: boolean }>({});
+  const textAreaFirstUpdate = useRef<{ [key: number]: boolean }>({}); // To track first updates for text area since setContent is called during initialization and calling handleCelLChange prematurely
+
   const handleCellChange = (colIndex: number, value: any) => {
     const rowIndex = 0;
     const updatedRows = [...rows];
@@ -150,24 +152,6 @@ const ResearchOutputAnswerComponent = ({
     setRows(updatedRows);
   };
 
-  // // Initialize rows if empty
-  // useEffect(() => {
-  //   if (!rows || rows.length === 0) {
-  //     const initialRow: ResearchOutputTableAnswerRow = {
-  //       columns: [
-  //         ...columns.map(col => {
-  //           const schemaVersion = col.content?.meta?.schemaVersion || "1.0";
-  //           return getDefaultAnswerForType(col.content.type, schemaVersion);
-  //         }),
-  //         // Add static fields:
-  //         { type: "date", answer: "", meta: { schemaVersion: "1.0" } }, // for release date
-  //         { type: "numberWithContext", answer: { value: 0, context: 'kb' }, meta: { schemaVersion: "1.0" } } // for byte size
-  //       ]
-  //     };
-  //     setRows([initialRow]);
-  //   }
-  // }, []);
-
 
   // Get current row data
   const currentRow = rows && rows[0];
@@ -218,7 +202,14 @@ const ResearchOutputAnswerComponent = ({
                   label={col.heading}
                   helpMessage={col?.content?.attributes?.help || col?.help}
                   value={value as string}
-                  onChange={(newContent) => handleCellChange(colIndex, newContent)}
+                  onChange={(newContent) => {
+                    // Skip the first onChange call during TinyMCE initialization
+                    if (!textAreaFirstUpdate.current[colIndex]) {
+                      textAreaFirstUpdate.current[colIndex] = true;
+                      return;
+                    }
+                    handleCellChange(colIndex, newContent);
+                  }}
                 />
               </div>
             );
@@ -294,22 +285,6 @@ const ResearchOutputAnswerComponent = ({
           }
 
           case 'repositorySearch':
-            const repoField: StandardField = {
-              id: `repoSelector_${colIndex}`,
-              label: col.heading || 'Repositories',
-              enabled: false,
-              placeholder: '',
-              helpText: col?.content?.attributes?.help || col?.help || '',
-              value: '',
-              repoConfig: {
-                hasCustomRepos: 'preferences' in col && Array.isArray(col.preferences) && col.preferences.length > 0,
-                customRepos: [] as RepositoryInterface[],
-              }
-            };
-
-            // Type guard to check if preferences exist
-            const colPreferences = 'preferences' in col ? col.preferences : undefined;
-
             // Get existing repository data and transform it to the format RepoSelectorForAnswer expects
             const existingRepos = Array.isArray(value) ? value.map((repo: any) => ({
               id: repo.repositoryId,
@@ -329,8 +304,6 @@ const ResearchOutputAnswerComponent = ({
               <div key={col.heading}>
                 <h3 className="h2">{col.heading}</h3>
                 <RepoSelectorForAnswer
-                  field={repoField}
-                  preferences={colPreferences}
                   value={existingRepos}
                   onRepositoriesChange={(repos) => {
                     console.log('***onRepositoriesChange called with:', repos);
@@ -341,25 +314,13 @@ const ResearchOutputAnswerComponent = ({
               </div>
             )
           case 'metadataStandardSearch':
-            const metaDataStandardField: MetaDataStandardFieldInterface = {
-              id: `metadataStandardSelector_${colIndex}`,
-              label: col.heading || 'Metadata Standards',
-              enabled: false,
-              helpText: col?.content?.attributes?.help || col?.help || '',
-              value: '',
-              metaDataConfig: {
-                hasCustomStandards: false,
-                customStandards: [] as MetaDataStandardInterface[],
-              }
-            };
+
 
             // Get existing metadata standards data and transform to the format MetaDataStandardsForAnswer expects
             const existingMetaDataStandards = Array.isArray(value)
               ? value.map((std: any) => ({
                 id: std.metadataStandardId,
                 name: std.metadataStandardName,
-                uri: std.metadataStandardUri || '', // Add uri, fallback to empty string
-                description: std.metadataStandardDescription || '', // Add description if needed
               }))
               : [];
             // Type guard to check if preferences exist
@@ -369,8 +330,6 @@ const ResearchOutputAnswerComponent = ({
               <div key={col.heading}>
                 <h3 className="h2">{col.heading}</h3>
                 <MetaDataStandardsForAnswer
-                  field={metaDataStandardField}
-                  preferences={colStandardsPreferences}
                   value={existingMetaDataStandards}
                   onMetaDataStandardsChange={(stds) => {
                     handleCellChange(colIndex, stds); // <-- This saves to rows state
