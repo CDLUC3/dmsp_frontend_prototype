@@ -91,7 +91,6 @@ interface FormDataInterface {
   textValue: string | number | null;
   textAreaContent: string;
   yesNoValue: string;
-  researchOutputTable: ResearchOutputTable[];
 }
 
 type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
@@ -190,8 +189,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
     selectedCheckboxValues: [],
     urlValue: null,
     yesNoValue: 'no',
-    researchOutputTable: [],
   });
+
+  // Separate state for researchOutputTable
+  const [researchOutputRows, setResearchOutputRows] = useState<ResearchOutputTable[]>([]);
 
   // Form state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -680,23 +681,14 @@ const PlanOverviewQuestionPage: React.FC = () => {
         break;
       case 'researchOutputTable':
         if (answer && Array.isArray(answer)) {
-          setFormData(prev => ({
-            ...prev,
-            researchOutputTable: answer
-          }));
+          setResearchOutputRows(answer);
         } else {
           // Initialize with empty row if no answer exists AND no rows exist yet
           if (parsed?.type === 'researchOutputTable') {
-            setFormData(prev => {
-              // Don't reinitialize if rows already exist
-              if (prev.researchOutputTable.length > 0) {
-                return prev;
-              }
+            setResearchOutputRows(prev => {
+              if (prev.length > 0) return prev;
               const emptyRow = createEmptyResearchOutputRow(parsed.columns);
-              return {
-                ...prev,
-                researchOutputTable: [emptyRow]
-              };
+              return [emptyRow];
             });
           }
         }
@@ -808,7 +800,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       case 'researchOutputTable':
         return {
           type: 'researchOutputTable',
-          answer: formData.researchOutputTable
+          answer: researchOutputRows
         };
 
       case 'dateRange':
@@ -956,10 +948,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   };
 
   const setResearchOutputTableRows = (rows: ResearchOutputTable[]) => {
-    setFormData(prev => ({
-      ...prev,
-      researchOutputTable: rows,
-    }));
+    setResearchOutputRows(Array.isArray(rows) ? rows : []);
     setHasUnsavedChanges(true);
   };
 
@@ -1240,8 +1229,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
       parsed?.type === 'researchOutputTable'
         ? {
           columns: parsed.columns,
-          rows: formData.researchOutputTable,
-          setRows: setResearchOutputTableRows,
+          rows: researchOutputRows,
+          setRows: setResearchOutputTableRows
         }
         : undefined,
   });

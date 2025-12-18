@@ -292,23 +292,13 @@ const ResearchOutputAnswerComponent = ({
               name: repo.repositoryName
             })) : [];
 
-            const handleRepositoriesChange = (colIndex: number, repos: any) => {
-              if (!repoSelectorFirstUpdate.current[colIndex]) {
-                repoSelectorFirstUpdate.current[colIndex] = true;
-                return; // Skip the first call (initial mount)
-              }
-
-              handleCellChange(colIndex, repos);
-            };
             return (
               <div key={col.heading}>
                 <h3 className="h2">{col.heading}</h3>
                 <RepoSelectorForAnswer
                   value={existingRepos}
                   onRepositoriesChange={(repos) => {
-                    console.log('***onRepositoriesChange called with:', repos);
-
-                    handleRepositoriesChange(colIndex, repos);
+                    handleCellChange(colIndex, repos);
                   }}
                 />
               </div>
@@ -323,8 +313,6 @@ const ResearchOutputAnswerComponent = ({
                 name: std.metadataStandardName,
               }))
               : [];
-            // Type guard to check if preferences exist
-            const colStandardsPreferences = 'preferences' in col ? col.preferences : undefined;
 
             return (
               <div key={col.heading}>
