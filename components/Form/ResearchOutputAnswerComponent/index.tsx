@@ -28,12 +28,11 @@ import {
 import RepoSelectorForAnswer from '@/components/QuestionAdd/RepoSelectorForAnswer';
 import MetaDataStandardsForAnswer from '@/components/QuestionAdd/MetaDataStandardForAnswer';
 import {
-  StandardField,
-  RepositoryInterface,
-  MetaDataStandardInterface,
-  MetaDataStandardFieldInterface,
   ResearchOutputTable
 } from '@/app/types';
+
+// Utils
+import { getDefaultAnswerForType } from '@/utils/researchOutputTable';
 import { getCalendarDateValue } from '@/utils/dateUtils';
 import styles from './researchOuptutAnswer.module.scss';
 
@@ -54,35 +53,6 @@ export const DEFAULT_ACCESS_LEVELS = [
     selected: false
   },
 ];
-
-const getDefaultAnswerForType = (
-  type: string,
-  schemaVersion: string = "1.0"
-): AnyTableColumnAnswerType => {
-  switch (type) {
-    case "text":
-      return { ...DefaultTextAnswer, meta: { schemaVersion } };
-    case "textArea":
-      return { ...DefaultTextAreaAnswer, meta: { schemaVersion } };
-    case "selectBox":
-      return { ...DefaultSelectBoxAnswer, meta: { schemaVersion } };
-    case "checkBoxes":
-      return { ...DefaultCheckboxesAnswer, meta: { schemaVersion } };
-    case "repositorySearch":
-      return { ...DefaultRepositorySearchAnswer, meta: { schemaVersion } };
-    case "metadataStandardSearch":
-      return { ...DefaultMetadataStandardSearchAnswer, meta: { schemaVersion } };
-    case "licenseSearch":
-      return { ...DefaultLicenseSearchAnswer, meta: { schemaVersion } };
-    // ... all other types
-    default:
-      throw new Error(`Unknown column type: ${type}`);
-  }
-};
-
-type ResearchOutputTableAnswerRow = {
-  columns: AnyTableColumnAnswerType[];
-};
 
 type ResearchOutputAnswerComponentProps = {
   columns: typeof DefaultResearchOutputTableQuestion['columns'];
@@ -131,9 +101,9 @@ const ResearchOutputAnswerComponent = ({
             const schemaVersion = col.content?.meta?.schemaVersion || "1.0";
             return getDefaultAnswerForType(col.content.type, schemaVersion);
           }),
-          // Add static fields:
-          { type: "date", answer: "", meta: { schemaVersion: "1.0" } }, // for release date
-          { type: "numberWithContext", answer: { value: 0, context: 'kb' }, meta: { schemaVersion: "1.0" } } // for byte size
+          // Add static fields that were not included in initialization:
+          getDefaultAnswerForType("date", "1.0"),
+          getDefaultAnswerForType("numberWithContext", "1.0")
         ]
       };
     }

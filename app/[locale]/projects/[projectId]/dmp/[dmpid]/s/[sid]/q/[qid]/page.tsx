@@ -52,6 +52,7 @@ import SafeHtml from '@/components/SafeHtml';
 import { useToast } from '@/context/ToastContext';
 
 // Utils
+import { getDefaultAnswerForType } from '@/utils/researchOutputTable';
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
@@ -336,28 +337,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
         { type: "numberWithContext", answer: { value: 0, context: 'kb' }, meta: { schemaVersion: "1.0" } }
       ]
     };
-  };
-
-  // Add getDefaultAnswerForType function (same as in child component)
-  const getDefaultAnswerForType = (type: string, schemaVersion: string = "1.0"): any => {
-    switch (type) {
-      case "text":
-        return { type: "text", answer: "", meta: { schemaVersion } };
-      case "textArea":
-        return { type: "textArea", answer: "", meta: { schemaVersion } };
-      case "selectBox":
-        return { type: "selectBox", answer: "", meta: { schemaVersion } };
-      case "checkBoxes":
-        return { type: "checkBoxes", answer: [], meta: { schemaVersion } };
-      case "repositorySearch":
-        return { type: "repositorySearch", answer: [], meta: { schemaVersion } };
-      case "metadataStandardSearch":
-        return { type: "metadataStandardSearch", answer: [], meta: { schemaVersion } };
-      case "licenseSearch":
-        return { type: "licenseSearch", answer: [], meta: { schemaVersion } };
-      default:
-        return { type, answer: "", meta: { schemaVersion } };
-    }
   };
 
   /*Handling Drawer Panels*/
