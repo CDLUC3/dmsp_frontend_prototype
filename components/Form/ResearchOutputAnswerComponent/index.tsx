@@ -122,57 +122,51 @@ const ResearchOutputAnswerComponent = ({
   const handleCellChange = (colIndex: number, value: any) => {
     const rowIndex = 0;
     const updatedRows = [...rows];
-    const colType = columns[colIndex]?.content?.type;
-    const schemaVersion = columns[colIndex]?.content?.meta?.schemaVersion || "1.0";
+    const colType = colIndex < columns.length ? columns[colIndex]?.content?.type : null;
+    const schemaVersion = colIndex < columns.length
+      ? columns[colIndex]?.content?.meta?.schemaVersion || "1.0"
+      : "1.0";
 
     let newValue = value;
 
     if (colType === "repositorySearch" && Array.isArray(value)) {
       newValue = value.map(repo => ({
         type: "repositorySearch",
-        answer: repo.uri || repo.id, // use the correct field for the URL
+        answer: repo.uri || repo.id,
         name: repo.name,
         meta: { schemaVersion }
       }));
     }
 
-    // Transform for metadataStandardSearch
     if (colType === "metadataStandardSearch" && Array.isArray(value)) {
       newValue = value.map(std => ({
         metadataStandardId: String(std.id || std.value || std.metadataStandardId),
         metadataStandardName: std.name || std.label || std.metadataStandardName
       }));
     }
-    // Ensure the row exists
+
+    // Ensure the row exists with ALL columns including static fields
     if (!updatedRows[rowIndex]) {
       updatedRows[rowIndex] = {
-        columns: columns.map(col => {
-          const schemaVersion = col.content?.meta?.schemaVersion || "1.0";
-          switch (col.content.type) {
-            case "text":
-              return { type: "text", answer: "", meta: { schemaVersion } };
-            case "textArea":
-              return { type: "textArea", answer: "", meta: { schemaVersion } };
-            case "selectBox":
-              return { type: "selectBox", answer: "", meta: { schemaVersion } };
-            case "checkBoxes":
-              return { type: "checkBoxes", answer: [], meta: { schemaVersion } };
-            case "repositorySearch":
-              return { type: "repositorySearch", answer: [], meta: { schemaVersion } };
-            case "metadataStandardSearch":
-              return { type: "metadataStandardSearch", answer: [], meta: { schemaVersion } };
-            case "licenseSearch":
-              return { type: "licenseSearch", answer: DefaultLicenseSearchAnswer.answer, meta: { schemaVersion } };
-            case "date":
-              return { type: "date", answer: "", meta: { schemaVersion } };
-            case "radioButtons":
-              return { type: "radioButtons", answer: "", meta: { schemaVersion } };
-            // ...add all other types from AnyTableColumnAnswerType
-            default:
-              throw new Error(`Unknown column type: ${col.content.type}`);
-          }
-        })
+        columns: [
+          ...columns.map(col => {
+            const schemaVersion = col.content?.meta?.schemaVersion || "1.0";
+            return getDefaultAnswerForType(col.content.type, schemaVersion);
+          }),
+          // Add static fields:
+          { type: "date", answer: "", meta: { schemaVersion: "1.0" } }, // for release date
+          { type: "numberWithContext", answer: { value: 0, context: 'kb' }, meta: { schemaVersion: "1.0" } } // for byte size
+        ]
       };
+    }
+
+    // Ensure the specific column exists (in case row was initialized without static fields)
+    if (!updatedRows[rowIndex].columns[colIndex]) {
+      if (colIndex === releaseDateColIndex) {
+        updatedRows[rowIndex].columns[colIndex] = { type: "date", answer: "", meta: { schemaVersion: "1.0" } };
+      } else if (colIndex === byteSizeColIndex) {
+        updatedRows[rowIndex].columns[colIndex] = { type: "numberWithContext", answer: { value: 0, context: 'kb' }, meta: { schemaVersion: "1.0" } };
+      }
     }
 
     // Update the specific column's answer
@@ -444,11 +438,15 @@ const ResearchOutputAnswerComponent = ({
       <div key="anticipated-release-date">
         <DateComponent
           name="startDate"
-          value={getCalendarDateValue(
-            currentRow?.columns[releaseDateColIndex]?.answer || ''
+          value={getCalendarDateValue( //ensure that only a string is passed to getCalendarDateValue
+            typeof currentRow?.columns[releaseDateColIndex]?.answer === 'string'
+              ? currentRow?.columns[releaseDateColIndex]?.answer
+              : ''
           )}
           onChange={(newDate) => {
-            handleCellChange(releaseDateColIndex, newDate);
+            // Convert CalendarDate to ISO string
+            const dateString = newDate ? newDate.toString() : '';
+            handleCellChange(releaseDateColIndex, dateString);
           }}
           label="Anticipated Release Date"
         />
@@ -463,6 +461,7 @@ const ResearchOutputAnswerComponent = ({
           type="number"
           isRequired={false}
           value={byteSizeValue}
+          min={0}
           onChange={(e) => {
             handleCellChange(byteSizeColIndex, {
               value: e.target.value === '' ? undefined : Number(e.target.value),
