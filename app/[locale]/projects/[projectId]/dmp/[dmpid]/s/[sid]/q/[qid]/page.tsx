@@ -52,18 +52,14 @@ import SafeHtml from '@/components/SafeHtml';
 import { useToast } from '@/context/ToastContext';
 
 // Utils
-import { initialStandardFields } from '@/app/[locale]/template/[templateId]/q/standardFields';
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import { QuestionTypeMap } from '@dmptool/types';
-import { useResearchOutputTable } from '@/app/hooks/useResearchOutputTable';
 
 import {
   Question,
   MergedComment,
-  RepositoryInterface,
-  MetaDataStandardInterface,
 } from '@/app/types';
 
 // server action mutations
@@ -206,61 +202,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout>();
 
-  // Add state for live region announcements
-  const [announcement, setAnnouncement] = useState('');
-
-
   // Localization
   const Global = useTranslations('Global');
   const PlanOverview = useTranslations('PlanOverview');
   const t = useTranslations('PlanOverviewQuestionPage');
 
-  // Helper function to make announcements
-  const announce = (message: string) => {
-    setAnnouncement(message);
-    // Clear after announcement is made
-    setTimeout(() => setAnnouncement(''), 100);
-  };
-
-  // Shared function to update any property in standardFields
-  const updateStandardFieldProperty = (fieldId: string, propertyName: string, value: unknown) => {
-    // setStandardFields(prev =>
-    //   prev.map(field =>
-    //     field.id === fieldId ? { ...field, [propertyName]: value } : field
-    //   )
-    // );
-    // setHasUnsavedChanges(true);
-  };
-
-  const handleMetaDataStandardsChange = (standards: MetaDataStandardInterface[]) => {
-    console.log("Metadata standards changed");
-  }
-  // Handle updates to RepositorySelectionSystem component
-  const handleRepositoriesChange = (repos: RepositoryInterface[]) => {
-    // // Store the selected repositories in the field config
-    // const currentField = standardFields.find(f => f.id === 'repoSelector');
-    // if (currentField && currentField.repoConfig) {
-    //   const wasEnabled = currentField.enabled;
-    //   const previousCount = currentField.repoConfig.customRepos?.length || 0;
-    //   updateStandardFieldProperty('repoSelector', 'repoConfig', {
-    //     ...currentField.repoConfig,
-    //     customRepos: repos
-    //   });
-    //   // Only enable if a repo is added and the box is currently unchecked
-    //   if (!wasEnabled && repos.length > previousCount) {
-    //     updateStandardFieldProperty('repoSelector', 'enabled', true);
-    //   }
-
-    //   // Announce the change
-    //   if (repos.length > previousCount) {
-    //     announce(QuestionAdd('researchOutput.announcements.repositoryAdded') || 'Repository added');
-    //   } else if (repos.length < previousCount) {
-    //     announce(QuestionAdd('researchOutput.announcements.repositoryRemoved') || 'Repository removed');
-    //   }
-    // }
-
-    // setHasUnsavedChanges(true);
-  };
   /*GraphQL queries */
 
   // Run selected question query
@@ -375,6 +321,43 @@ const PlanOverviewQuestionPage: React.FC = () => {
     const successMessage = t('messages.success.questionSaved');
     toastState.add(successMessage, { type: 'success', timeout: 3000 });
   }
+
+  // Helper function to create an empty research output row
+  const createEmptyResearchOutputRow = (columns: any[]): ResearchOutputTable => {
+    return {
+      columns: [
+        ...columns.map(col => {
+          const schemaVersion = col.content?.meta?.schemaVersion || "1.0";
+          return getDefaultAnswerForType(col.content.type, schemaVersion);
+        }),
+        // Add static fields:
+        { type: "date", answer: "", meta: { schemaVersion: "1.0" } },
+        { type: "numberWithContext", answer: { value: 0, context: 'kb' }, meta: { schemaVersion: "1.0" } }
+      ]
+    };
+  };
+
+  // Add getDefaultAnswerForType function (same as in child component)
+  const getDefaultAnswerForType = (type: string, schemaVersion: string = "1.0"): any => {
+    switch (type) {
+      case "text":
+        return { type: "text", answer: "", meta: { schemaVersion } };
+      case "textArea":
+        return { type: "textArea", answer: "", meta: { schemaVersion } };
+      case "selectBox":
+        return { type: "selectBox", answer: "", meta: { schemaVersion } };
+      case "checkBoxes":
+        return { type: "checkBoxes", answer: [], meta: { schemaVersion } };
+      case "repositorySearch":
+        return { type: "repositorySearch", answer: [], meta: { schemaVersion } };
+      case "metadataStandardSearch":
+        return { type: "metadataStandardSearch", answer: [], meta: { schemaVersion } };
+      case "licenseSearch":
+        return { type: "licenseSearch", answer: [], meta: { schemaVersion } };
+      default:
+        return { type, answer: "", meta: { schemaVersion } };
+    }
+  };
 
   /*Handling Drawer Panels*/
   // Toggle the sample text drawer open and closed
@@ -701,6 +684,15 @@ const PlanOverviewQuestionPage: React.FC = () => {
             ...prev,
             researchOutputTable: answer
           }));
+        } else {
+          // Initialize with empty row if no answer exists
+          if (parsed?.type === 'researchOutputTable') {
+            const emptyRow = createEmptyResearchOutputRow(parsed.columns);
+            setFormData(prev => ({
+              ...prev,
+              researchOutputTable: [emptyRow]
+            }));
+          }
         }
         break;
       case 'selectBox':
@@ -1075,6 +1067,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     const json = answerData?.answerByVersionedQuestionId?.json;
     if (json && questionType) {
       const parsed = JSON.parse(json);
+      // Deep clone to see the actual value at this moment
       if (parsed?.answer !== undefined) {
         prefillAnswer(parsed.answer, questionType);
       }
@@ -1161,6 +1154,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     setErrors((prevErrors) => [...prevErrors, ...commentErrors]);
   }, [commentErrors])
 
+
   // Render the question using the useRenderQuestionField helper
   const questionField = useRenderQuestionField({
     questionType,
@@ -1242,8 +1236,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
           columns: parsed.columns,
           rows: formData.researchOutputTable,
           setRows: setResearchOutputTableRows,
-          onRepositoriesChange: handleRepositoriesChange,
-          onMetaDataStandardsChange: handleMetaDataStandardsChange,
         }
         : undefined,
   });

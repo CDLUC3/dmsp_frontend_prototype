@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 'use client'
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Checkbox,
   ListBoxItem
@@ -27,7 +27,6 @@ import {
 } from '@/components/Form';
 import RepoSelectorForAnswer from '@/components/QuestionAdd/RepoSelectorForAnswer';
 import MetaDataStandardsForAnswer from '@/components/QuestionAdd/MetaDataStandardForAnswer';
-import TinyMCEEditor from "@/components/TinyMCEEditor";
 import {
   StandardField,
   RepositoryInterface,
@@ -89,52 +88,25 @@ type ResearchOutputAnswerComponentProps = {
   columns: typeof DefaultResearchOutputTableQuestion['columns'];
   rows: ResearchOutputTable[];
   setRows: (rows: ResearchOutputTable[]) => void;
-  onRepositoriesChange: (repos: RepositoryInterface[]) => void;
-  onMetaDataStandardsChange: (standards: MetaDataStandardInterface[]) => void;
 };
-
-// Helper to get initial answer based on field type
-const getInitialAnswerForType = (type: string): any => {
-  switch (type) {
-    case 'text':
-    case 'textArea':
-      return '';
-    case 'selectBox':
-      return '';
-    case 'checkBoxes':
-      return [];
-    case 'repositorySearch':
-      return [];
-    default:
-      return null;
-  }
-};
-
 
 const ResearchOutputAnswerComponent = ({
   columns,
   rows,
   setRows,
-  onRepositoriesChange,
-  onMetaDataStandardsChange
 }: ResearchOutputAnswerComponentProps) => {
 
+  const repoSelectorFirstUpdate = useRef<{ [key: number]: boolean }>({});
   const handleCellChange = (colIndex: number, value: any) => {
     const rowIndex = 0;
     const updatedRows = [...rows];
     const colType = colIndex < columns.length ? columns[colIndex]?.content?.type : null;
-    const schemaVersion = colIndex < columns.length
-      ? columns[colIndex]?.content?.meta?.schemaVersion || "1.0"
-      : "1.0";
-
     let newValue = value;
 
     if (colType === "repositorySearch" && Array.isArray(value)) {
       newValue = value.map(repo => ({
-        type: "repositorySearch",
-        answer: repo.uri || repo.id,
-        name: repo.name,
-        meta: { schemaVersion }
+        repositoryId: repo.uri || repo.id,
+        repositoryName: repo.name
       }));
     }
 
@@ -144,6 +116,10 @@ const ResearchOutputAnswerComponent = ({
         metadataStandardName: std.name || std.label || std.metadataStandardName
       }));
     }
+
+    // Get the indices for static fields
+    const releaseDateColIndex = columns.length;
+    const byteSizeColIndex = columns.length + 1;
 
     // Ensure the row exists with ALL columns including static fields
     if (!updatedRows[rowIndex]) {
@@ -174,41 +150,23 @@ const ResearchOutputAnswerComponent = ({
     setRows(updatedRows);
   };
 
-  // Add this function inside your component
-  const handleCheckboxChange = (colIndex: number, checked: boolean, value: any, col: any) => {
-    let newValue = Array.isArray(value) ? [...value] : [];
-    const optionObj = col.content.options[0]?.value; // This is now an object, not a string
-
-    if (checked) {
-      // Only add if not already present (deep equality)
-      if (!newValue.some((v: any) => JSON.stringify(v) === JSON.stringify(optionObj))) {
-        newValue.push(optionObj);
-      }
-    } else {
-      // Remove by deep equality
-      newValue = newValue.filter((v: any) => JSON.stringify(v) !== JSON.stringify(optionObj));
-    }
-    handleCellChange(colIndex, newValue);
-  };
-
-
-  // Initialize rows if empty
-  useEffect(() => {
-    if (!rows || rows.length === 0) {
-      const initialRow: ResearchOutputTableAnswerRow = {
-        columns: [
-          ...columns.map(col => {
-            const schemaVersion = col.content?.meta?.schemaVersion || "1.0";
-            return getDefaultAnswerForType(col.content.type, schemaVersion);
-          }),
-          // Add static fields:
-          { type: "date", answer: "", meta: { schemaVersion: "1.0" } }, // for release date
-          { type: "numberWithContext", answer: { value: 0, context: 'kb' }, meta: { schemaVersion: "1.0" } } // for byte size
-        ]
-      };
-      setRows([initialRow]);
-    }
-  }, []);
+  // // Initialize rows if empty
+  // useEffect(() => {
+  //   if (!rows || rows.length === 0) {
+  //     const initialRow: ResearchOutputTableAnswerRow = {
+  //       columns: [
+  //         ...columns.map(col => {
+  //           const schemaVersion = col.content?.meta?.schemaVersion || "1.0";
+  //           return getDefaultAnswerForType(col.content.type, schemaVersion);
+  //         }),
+  //         // Add static fields:
+  //         { type: "date", answer: "", meta: { schemaVersion: "1.0" } }, // for release date
+  //         { type: "numberWithContext", answer: { value: 0, context: 'kb' }, meta: { schemaVersion: "1.0" } } // for byte size
+  //       ]
+  //     };
+  //     setRows([initialRow]);
+  //   }
+  // }, []);
 
 
   // Get current row data
@@ -352,15 +310,32 @@ const ResearchOutputAnswerComponent = ({
             // Type guard to check if preferences exist
             const colPreferences = 'preferences' in col ? col.preferences : undefined;
 
+            // Get existing repository data and transform it to the format RepoSelectorForAnswer expects
+            const existingRepos = Array.isArray(value) ? value.map((repo: any) => ({
+              id: repo.repositoryId,
+              uri: repo.repositoryId,
+              name: repo.repositoryName
+            })) : [];
+
+            const handleRepositoriesChange = (colIndex: number, repos: any) => {
+              if (!repoSelectorFirstUpdate.current[colIndex]) {
+                repoSelectorFirstUpdate.current[colIndex] = true;
+                return; // Skip the first call (initial mount)
+              }
+
+              handleCellChange(colIndex, repos);
+            };
             return (
               <div key={col.heading}>
                 <h3 className="h2">{col.heading}</h3>
                 <RepoSelectorForAnswer
                   field={repoField}
                   preferences={colPreferences}
+                  value={existingRepos}
                   onRepositoriesChange={(repos) => {
-                    handleCellChange(colIndex, repos); // <-- This saves to rows state
-                    onRepositoriesChange(repos);
+                    console.log('***onRepositoriesChange called with:', repos);
+
+                    handleRepositoriesChange(colIndex, repos);
                   }}
                 />
               </div>
@@ -378,6 +353,15 @@ const ResearchOutputAnswerComponent = ({
               }
             };
 
+            // Get existing metadata standards data and transform to the format MetaDataStandardsForAnswer expects
+            const existingMetaDataStandards = Array.isArray(value)
+              ? value.map((std: any) => ({
+                id: std.metadataStandardId,
+                name: std.metadataStandardName,
+                uri: std.metadataStandardUri || '', // Add uri, fallback to empty string
+                description: std.metadataStandardDescription || '', // Add description if needed
+              }))
+              : [];
             // Type guard to check if preferences exist
             const colStandardsPreferences = 'preferences' in col ? col.preferences : undefined;
 
@@ -387,9 +371,9 @@ const ResearchOutputAnswerComponent = ({
                 <MetaDataStandardsForAnswer
                   field={metaDataStandardField}
                   preferences={colStandardsPreferences}
+                  value={existingMetaDataStandards}
                   onMetaDataStandardsChange={(stds) => {
                     handleCellChange(colIndex, stds); // <-- This saves to rows state
-                    onMetaDataStandardsChange(stds);
                   }}
                 />
               </div>

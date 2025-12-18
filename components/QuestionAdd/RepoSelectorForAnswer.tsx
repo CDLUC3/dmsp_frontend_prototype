@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
 import {
   Button,
-  Checkbox,
   Dialog,
   Heading,
   Input,
@@ -80,10 +79,12 @@ function toSubjectAreaObject(str: string): { id: string; name: string } {
 const RepoSelectorForAnswer = ({
   field,
   preferences,
+  value,
   onRepositoriesChange
 }: {
   field: RepositoryFieldInterface;
   preferences?: Array<{ label: string; value: string }>;
+  value?: RepositoryInterface[];
   onRepositoriesChange?: (repos: RepositoryInterface[]) => void;
 }) => {
 
@@ -102,29 +103,14 @@ const RepoSelectorForAnswer = ({
   const Global = useTranslations("Global");
   const QuestionAdd = useTranslations("QuestionAdd");
 
-  // Selected repositories state - include any customRepos from field config as initial state
-  const [selectedRepos, setSelectedRepos] = useState<{ [id: string]: RepositoryInterface }>(() => {
-    const initial = field.repoConfig?.customRepos || [];
-    // Merge preferences into initial state
-    const preferenceRepos = (preferences || []).map(pref => ({
-      id: pref.value,
-      name: pref.label,
-      uri: pref.value,
-      website: pref.value,
-      description: '',
-      keywords: [],
-      repositoryType: []
-    }));
 
-    const allRepos = [...initial, ...preferenceRepos];
-
-    // Ensure each repo has a string id
-    return allRepos.reduce((acc: { [id: string]: RepositoryInterface }, repo) => {
-      const id = repo.uri;
-      acc[id] = { ...repo, id }; // Ensure id is set
+  // Instead of useState for selectedRepos, use value prop:
+  const selectedRepos = useMemo(() => {
+    return (value || []).reduce((acc, repo) => {
+      acc[repo.uri] = repo;
       return acc;
-    }, {});
-  });
+    }, {} as { [id: string]: RepositoryInterface });
+  }, [value]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCustomFormOpen, setIsCustomFormOpen] = useState(false);
@@ -230,41 +216,26 @@ const RepoSelectorForAnswer = ({
 
   // Handle add/removal of repository selections in modal view and display confirmation toasts
   const toggleSelection = (repo: RepositoryInterface) => {
-    const isRemoving = selectedRepos[repo.uri];
-
-    setSelectedRepos(prev => {
-      const newSelected = { ...prev };
-      if (newSelected[repo.uri]) {
-        delete newSelected[repo.uri];
-      } else {
-        newSelected[repo.uri] = repo;
-      }
-      return newSelected;
-    });
-
-    // Call toasts AFTER state update completes
-    if (isRemoving) {
-      toastState.add(QuestionAdd('researchOutput.repoSelector.messages.removedRepo', { name: repo.name }), { type: 'success' });
+    const isSelected = !!selectedRepos[repo.uri];
+    let newSelected: RepositoryInterface[];
+    if (isSelected) {
+      newSelected = Object.values(selectedRepos).filter(r => r.uri !== repo.uri);
     } else {
-      toastState.add(QuestionAdd('researchOutput.repoSelector.messages.addedRepo', { name: repo.name }), { type: 'success' });
+      newSelected = [...Object.values(selectedRepos), repo];
     }
+    onRepositoriesChange?.(newSelected);
   };
 
-  // Remove a single repository from the non-modal view
   const removeRepo = (repoId: string) => {
     const repo = selectedRepos[repoId];
-    setSelectedRepos(prev => {
-      const newSelected = { ...prev };
-      delete newSelected[repoId];
-      return newSelected;
-    });
+    const newSelected = Object.values(selectedRepos).filter(r => r.uri !== repoId);
+    onRepositoriesChange?.(newSelected);
     toastState.add(QuestionAdd('researchOutput.repoSelector.messages.removedRepo', { name: repo.name }), { type: 'success' });
   };
-  // Removal of all selected repositories from the non-modal view
+
   const removeAllRepos = () => {
     if (window.confirm(QuestionAdd('researchOutput.repoSelector.messages.confirmRemoveAll'))) {
-      setSelectedRepos({});
-      // Uncheck the "Create custom repositories" box as well
+      onRepositoriesChange?.([]);
       toastState.add(QuestionAdd('researchOutput.repoSelector.messages.allRemoved'), { type: 'success' });
     }
   };
@@ -330,7 +301,7 @@ const RepoSelectorForAnswer = ({
         repositoryType: []
       };
 
-      setSelectedRepos(prev => ({ ...prev, [newRepo.uri]: newRepo }));
+      onRepositoriesChange?.([...Object.values(selectedRepos), newRepo]);
       setCustomForm({ name: '', website: '', description: '' });
       setIsCustomFormOpen(false);
       setIsModalOpen(false);
@@ -338,12 +309,6 @@ const RepoSelectorForAnswer = ({
       toastState.add(successMessage, { type: "success" });
     }
   }, [customForm, templateId, Global, router, QuestionAdd, toastState]);
-
-
-  useEffect(() => {
-    const reposArray = Object.values(selectedRepos);
-    onRepositoriesChange?.(reposArray);
-  }, [selectedRepos]);
 
 
   // Process repositoriesData changes
@@ -490,7 +455,7 @@ const RepoSelectorForAnswer = ({
                             name="status"
                             items={subjectAreas}
                             onChange={(value) => searchOnSubjectArea(value)}
-                            selectedKey={subjectArea}
+                            selectedKey={subjectArea ?? undefined}
                           >
                             {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
                           </FormSelect>
@@ -506,7 +471,7 @@ const RepoSelectorForAnswer = ({
                             name="status"
                             items={repositoryTypes}
                             onChange={(value) => searchOnRepositoryType(value)}
-                            selectedKey={repoType}
+                            selectedKey={repoType ?? undefined}
                           >
                             {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
                           </FormSelect>

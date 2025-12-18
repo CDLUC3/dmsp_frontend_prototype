@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -57,12 +57,26 @@ type AddMetaDataStandardsErrors = {
 const MetaDataStandardForAnswer = ({
   field,
   preferences,
+  value = [],
   onMetaDataStandardsChange
 }: {
   field: MetaDataStandardFieldInterface;
   preferences?: Array<{ label: string; value: string }>;
+  value?: MetaDataStandardInterface[];
   onMetaDataStandardsChange: (standards: MetaDataStandardInterface[]) => void;
 }) => {
+
+  // Derive selected standards from value prop
+  const selectedStandards = useMemo(() => {
+    return (value || []).reduce((acc, std) => {
+      if (std.id !== undefined) {
+        acc[std.id] = std;
+      }
+      return acc;
+    }, {} as { [id: string]: MetaDataStandardInterface });
+  }, [value]);
+
+
   const toastState = useToast();
   const params = useParams();
   const router = useRouter();
@@ -72,28 +86,6 @@ const MetaDataStandardForAnswer = ({
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
-
-  const [selectedStandards, setSelectedStandards] = useState<{ [id: string]: MetaDataStandardInterface }>(() => {
-    const initial = field.metaDataConfig?.customStandards || [];
-    // Merge preferences into initial state
-    const preferenceStandards = (preferences || []).map(pref => ({
-      id: Number(pref.value),
-      name: pref.label,
-      uri: pref.value,
-      website: pref.value,
-      description: '',
-      keywords: [],
-      repositoryType: []
-    }));
-
-    const allStandards = [...initial, ...preferenceStandards];
-    // Convert array to object keyed by id
-    return allStandards.reduce((acc: { [id: string]: MetaDataStandardInterface }, std) => {
-      acc[std.uri] = std;
-      return acc;
-    }, {});
-  });
-
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCustomFormOpen, setIsCustomFormOpen] = useState(false);
@@ -170,21 +162,21 @@ const MetaDataStandardForAnswer = ({
     await fetchMetaDataStandards({ searchTerm: term });
   }
 
-  const toggleSelection = (std: MetaDataStandardInterface) => {
-    const isRemoving = selectedStandards[std.uri];
 
-    setSelectedStandards(prev => {
-      const newSelected = { ...prev };
-      if (newSelected[std.uri]) {
-        delete newSelected[std.uri];
-      } else {
-        newSelected[std.uri] = std;
-      }
-      return newSelected;
-    });
+  const toggleSelection = (std: MetaDataStandardInterface) => {
+    if (std.id === undefined) return; // Guard: skip if no id
+
+    const isSelected = !!selectedStandards[std.id];
+    let newSelected: MetaDataStandardInterface[];
+    if (isSelected) {
+      newSelected = (Object.values(selectedStandards) as MetaDataStandardInterface[]).filter(s => s.id !== std.id);
+    } else {
+      newSelected = [...(Object.values(selectedStandards) as MetaDataStandardInterface[]), std];
+    }
+    onMetaDataStandardsChange?.(newSelected);
 
     // Call toasts AFTER state update completes
-    if (isRemoving) {
+    if (isSelected) {
       toastState.add(`${std.name} removed`, { type: 'success' });
     } else {
       toastState.add(`${std.name} added`, { type: 'success' });
@@ -194,22 +186,19 @@ const MetaDataStandardForAnswer = ({
   // Remove single standard from selected list
   const removeStandard = (stdId: string) => {
     const std = selectedStandards[stdId];
-    setSelectedStandards(prev => {
-      const newSelected = { ...prev };
-      delete newSelected[stdId];
-      return newSelected;
-    });
+    const newSelected = (Object.values(selectedStandards) as MetaDataStandardInterface[])
+      .filter(s => s.id !== undefined && String(s.id) !== stdId);
+    onMetaDataStandardsChange?.(newSelected);
     toastState.add(`${std.name} removed`, { type: 'success' });
   };
 
   // Remove all selected standards
   const removeAllStandards = () => {
     if (window.confirm(QuestionAdd('researchOutput.metaDataStandards.messages.confirmRemovalAll'))) {
-      setSelectedStandards({});
+      onMetaDataStandardsChange?.([]);
       toastState.add(QuestionAdd('researchOutput.metaDataStandards.messages.allRemoved'), { type: 'success' });
     }
   };
-
   const handleAddCustomStandard = useCallback(async () => {
     setErrors([]);
     const { name, description, uri } = customForm;
@@ -261,7 +250,7 @@ const MetaDataStandardForAnswer = ({
         description: description.trim(),
       };
 
-      setSelectedStandards(prev => ({ ...prev, [newStandard.uri]: newStandard }));
+      onMetaDataStandardsChange?.([...(Object.values(selectedStandards) as MetaDataStandardInterface[]), newStandard]);
       setCustomForm({ name: '', uri: '', description: '' });
       setIsCustomFormOpen(false);
       setIsModalOpen(false); //close modal after adding custom standard
@@ -269,11 +258,6 @@ const MetaDataStandardForAnswer = ({
       toastState.add(successMessage, { type: "success" });
     }
   }, [customForm, templateId, Global, router]);
-
-  useEffect(() => {
-    const stdsArray = Object.values(selectedStandards);
-    onMetaDataStandardsChange?.(stdsArray);
-  }, [selectedStandards]);
 
   // Process repositoriesData changes
   useEffect(() => {

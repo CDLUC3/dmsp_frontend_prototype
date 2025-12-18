@@ -169,8 +169,6 @@ export interface RenderQuestionFieldProps {
     columns: typeof DefaultResearchOutputTableQuestion['columns'];
     rows: ResearchOutputTable[];
     setRows: (rows: ResearchOutputTable[]) => void;
-    onRepositoriesChange: (repos: RepositoryInterface[]) => void;
-    onMetaDataStandardsChange: (standards: MetaDataStandardInterface[]) => void;
   };
 }
 
@@ -427,13 +425,12 @@ export function useRenderQuestionField({
 
     case RESEARCH_OUTPUT_QUESTION_TYPE:
       if (parsed.type === 'researchOutputTable' && researchOutputTableAnswerProps) {
+
         return (
           <ResearchOutputAnswerComponent
             columns={parsed.columns}
             rows={researchOutputTableAnswerProps?.rows}
             setRows={researchOutputTableAnswerProps?.setRows}
-            onRepositoriesChange={researchOutputTableAnswerProps?.onRepositoriesChange}
-            onMetaDataStandardsChange={researchOutputTableAnswerProps?.onMetaDataStandardsChange}
           />
         );
       }
