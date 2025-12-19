@@ -1,3 +1,5 @@
+import { LicensesQuery } from '@/generated/graphql';
+
 export type DataFlagsConfig = {
   showSensitiveData: boolean;
   showPersonalData: boolean;
@@ -24,6 +26,7 @@ export type StandardField = {
   helpText?: string;
   maxLength?: string;
   value?: string;
+  customLabel?: string; // For additional custom fields
   licensesConfig?: LicensesConfig;
   accessLevelsConfig?: {
     mode: 'defaults' | 'mine';
@@ -41,14 +44,13 @@ export type StandardField = {
 };
 
 export interface RepositoryInterface {
-  id: number;
+  id?: string;
   name: string;
-  description: string;
-  url: string;
-  contact: string;
-  access: string;
-  identifier: string;
-  tags: string[];
+  description?: string;
+  uri: string;
+  website?: string;
+  keywords?: string[];
+  repositoryType?: string[];
 }
 
 export interface RepositoryFieldInterface {
@@ -65,10 +67,10 @@ export interface RepositoryFieldInterface {
 }
 
 export interface MetaDataStandardInterface {
-  id: number;
+  id?: number;
   name: string;
-  description: string;
-  url: string;
+  description?: string;
+  uri: string;
 }
 
 export interface MetaDataStandardFieldInterface {
@@ -85,7 +87,7 @@ export interface MetaDataStandardFieldInterface {
 export type LicensesConfig = {
   mode: 'defaults' | 'addToDefaults';
   selectedDefaults: string[];
-  customTypes: string[];
+  customTypes: { name: string; uri: string }[];
 };
 
 export type AccessLevelsConfig = {
@@ -94,10 +96,10 @@ export type AccessLevelsConfig = {
   customTypes: string[];
 };
 
-
 export interface LicenseFieldProps {
   field: StandardField;
   newLicenseType: string;
+  licensesData?: LicensesQuery;
   setNewLicenseType: (value: string) => void;
   onModeChange: (mode: 'defaults' | 'addToDefaults') => void;
   onAddCustomType: () => void;
@@ -106,11 +108,6 @@ export interface LicenseFieldProps {
 
 export interface AccessLevelsFieldProps {
   field: StandardField;
-  newAccessLevel: AccessLevelInterface
-  setNewAccessLevel: (value: AccessLevelInterface) => void;
-  onModeChange: (mode: 'defaults' | 'mine') => void;
-  onAddCustomType: () => void;
-  onRemoveCustomType: (type: string) => void;
 }
 
 export interface OutputTypeInterface {
@@ -119,7 +116,8 @@ export interface OutputTypeInterface {
 }
 
 export interface AccessLevelInterface {
-  level?: string;
+  label: string;
+  value: string;
   description?: string;
 }
 

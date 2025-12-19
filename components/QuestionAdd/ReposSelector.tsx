@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from "next-intl";
-
+import { useParams, useRouter } from "next/navigation";
 import {
   Button,
   Checkbox,
@@ -19,100 +19,62 @@ import {
   FormSelect,
 } from '@/components/Form';
 import ExpandButton from "@/components/ExpandButton";
-
 import Pagination from '@/components/Pagination';
-import { useToast } from '@/context/ToastContext';
 
+// GraphQL queries and mutations
+import {
+  Repository,
+  RepositoryType,
+  useRepositoriesLazyQuery,
+  useRepositorySubjectAreasQuery
+} from '@/generated/graphql';
+
+import {
+  addRepositoryAction
+} from "./actions";
+
+// Components
+import ErrorMessages from '../ErrorMessages';
+
+// Utilities/Other
+import { routePath } from "@/utils/routes";
+import { extractErrors } from "@/utils/errorHandler";
+import { useToast } from "@/context/ToastContext";
+import logECS from "@/utils/clientLogger";
 import {
   RepositoryInterface,
   RepositoryFieldInterface
 } from '@/app/types';
 import styles from './Selector.module.scss';
 
-
-const paginationProps = {
-  currentPage: 1,
-  totalPages: 10,
-  hasPreviousPage: false,
-  hasNextPage: true,
-  handlePageClick: () => { },
-};
-
-const subjectAreas = [
-  { id: 'agriculture', name: 'Agriculture' },
-  { id: 'biology', name: 'Biology' },
-  { id: 'chemistry', name: 'Chemistry' },
-  { id: 'computer-science', name: 'Computer Science' },
-  { id: 'geosciences', name: 'Geosciences' },
-  { id: 'humanities', name: 'Humanities' },
-  { id: 'materials-science', name: 'Materials Science' },
-  { id: 'mathematics', name: 'Mathematics' },
-  { id: 'physics', name: 'Physics' },
-  { id: 'social-sciences', name: 'Social Sciences' },
-  { id: 'medicine', name: 'Medicine' },
-  { id: 'thermal-engineering', name: 'Thermal Engineering' },
-]
-
-const repositoryTypes = [
-  { id: 'multidisciplinary', name: 'Generalist (multidisciplinary)' },
-  { id: 'disciplinary', name: 'Discipline specific' },
-  { id: 'institutional', name: 'Institutional' },
-]
+// # of repositories displayed per page
+const LIMIT = 5;
 
 
-// Original sample data - keep this as the source of truth
-const originalRepositories = [
-  {
-    id: 1105,
-    name: "1.2 Meter CO Survey Dataverse",
-    description: "The Radio Telescope Data Center (RTDC) reduces, archives, and makes available on its web site data from SMA and the CfA Millimeter-wave Telescope. The whole-Galaxy CO survey presented in Dame et al. (2001) is a composite of 37 separate surveys.",
-    url: "https://dataverse.harvard.edu/dataverse/rtdc",
-    contact: "Unknown",
-    access: "Open",
-    identifier: "DOI",
-    tags: ["physical sciences", "radio telescope"]
-  },
-  {
-    id: 1280,
-    name: "1000 Functional Connectomes Project",
-    description: "The FCP entailed the aggregation and public release (via www.nitrc.org) of over 1200 resting state fMRI (R-fMRI) datasets collected from 33 sites around the world.",
-    url: "http://fcon_1000.projects.nitrc.org/fcpClassic/FcpTable.html",
-    contact: "moderator@nitrc.org",
-    access: "Open",
-    identifier: "none",
-    tags: ["neuroscience", "fMRI"]
-  },
-  {
-    id: 1350,
-    name: "Protein Data Bank",
-    description: "The Protein Data Bank is a database for the three-dimensional structural data of large biological molecules, such as proteins and nucleic acids.",
-    url: "https://www.rcsb.org",
-    contact: "info@rcsb.org",
-    access: "Open",
-    identifier: "PDB ID",
-    tags: ["biology", "proteins", "structural biology"]
-  },
-  {
-    id: 1420,
-    name: "GenBank",
-    description: "GenBank is the NIH genetic sequence database, an annotated collection of all publicly available DNA sequences.",
-    url: "https://www.ncbi.nlm.nih.gov/genbank/",
-    contact: "info@ncbi.nlm.nih.gov",
-    access: "Open",
-    identifier: "Accession Number",
-    tags: ["genetics", "DNA", "biology"]
-  },
-  {
-    id: 1501,
-    name: "Crystallography Open Database",
-    description: "Open-access collection of crystal structures of organic, inorganic, metal-organic compounds and minerals.",
-    url: "http://www.crystallography.net",
-    contact: "cod@crystallography.net",
-    access: "Open",
-    identifier: "COD ID",
-    tags: ["chemistry", "crystallography", "materials"]
-  }
-];
+type AddRepositoryErrors = {
+  general?: string;
+  name?: string;
+  description?: string;
+  repositoryTypes?: string;
+  website?: string;
+}
+function toSubjectAreaObject(str: string): { id: string; name: string } {
+  // Convert to ID-friendly slug
+  const id = str
+    .toLowerCase()
+    .replace(/[()]/g, '')          // remove parentheses
+    .replace(/[^a-z0-9\s-]/g, '')  // remove special chars except spaces/hyphens
+    .trim()
+    .replace(/\s+/g, '-');         // replace spaces with hyphens
+
+  // Convert to nice display form
+  const name = str
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/\w\S*/g, w => w[0].toUpperCase() + w.substring(1));
+
+  return { id, name };
+}
 
 /* Research Output question's Repository Selection System */
 const RepositorySelectionSystem = ({
@@ -125,8 +87,16 @@ const RepositorySelectionSystem = ({
   onRepositoriesChange?: (repos: RepositoryInterface[]) => void;
 }) => {
 
+  const params = useParams();
+  const router = useRouter();
   // Toast context for notifications
   const toastState = useToast();
+  // Get templateId from the URL
+  const templateId = String(params.templateId);
+
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
+
 
   // Translation keys
   const Global = useTranslations("Global");
@@ -135,9 +105,11 @@ const RepositorySelectionSystem = ({
   // Selected repositories state - include any customRepos from field config as initial state
   const [selectedRepos, setSelectedRepos] = useState<{ [id: string]: RepositoryInterface }>(() => {
     const initial = field.repoConfig?.customRepos || [];
-    // Convert array to object keyed by id
+
+    // Ensure each repo has a string id
     return initial.reduce((acc: { [id: string]: RepositoryInterface }, repo) => {
-      acc[repo.id] = repo;
+      const id = repo.uri;
+      acc[id] = { ...repo, id }; // Ensure id is set
       return acc;
     }, {});
   });
@@ -145,50 +117,115 @@ const RepositorySelectionSystem = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCustomFormOpen, setIsCustomFormOpen] = useState(false);
   const [expandedDetails, setExpandedDetails] = useState<Record<string, boolean>>({});
-  const [subjectArea, setSubjectArea] = useState('');
-  const [repoType, setRepoType] = useState('');
-  const [customForm, setCustomForm] = useState({ name: '', url: '', description: '' });
+  const [subjectArea, setSubjectArea] = useState<string | null>(null);
+  const [repoType, setRepoType] = useState<string | null>(null);
+  const [customForm, setCustomForm] = useState({ name: '', website: '', description: '' });
+  const [errors, setErrors] = useState<string[]>([]);
+  // Search related states
   const [searchTerm, setSearchTerm] = useState('');
-  // Filtered repositories state
-  const [repositories, setRepositories] = useState(originalRepositories);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [hasNextPage, setHasNextPage] = useState<boolean | null>(false);
+  const [hasPreviousPage, setHasPreviousPage] = useState<boolean | null>(false);
+  // Filtered repositories state - can be either local mock data or GraphQL data
+  const [repositories, setRepositories] = useState<Repository[]>([]);
+
+  // Repository types for dropdown
+  const repositoryTypes = useMemo(() =>
+    Object.entries(RepositoryType).map(([key, value]) => ({
+      id: value,
+      name: key.replace(/([A-Z])/g, ' $1').trim() // Convert camelCase to spaced text
+    }))
+    , []);
+
+  // Get Repository Subject Areas - for future dynamic subject area fetching
+  const { data: subjectAreasData } = useRepositorySubjectAreasQuery();
+
+  // Transform subject areas data for FormSelect - add empty option for deselection
+  const subjectAreas = [
+    { id: 'none', name: '-- None --' },
+    ...(subjectAreasData?.repositorySubjectAreas?.map(area => toSubjectAreaObject(area)) || [])
+  ];
+
+  // Repositories lazy query
+  const [fetchRepositoriesData, { data: repositoriesData }] = useRepositoriesLazyQuery();
+
+  // Fetch repositories based on search term criteria
+  const fetchRepositories = async ({
+    page,
+    searchTerm = ''
+  }: {
+    page?: number;
+    searchTerm?: string;
+  }): Promise<void> => {
+    let offsetLimit = 0;
+    if (page) {
+      setCurrentPage(page);
+      offsetLimit = (page - 1) * LIMIT;
+    }
+
+    await fetchRepositoriesData({
+      variables: {
+        input: {
+          paginationOptions: {
+            offset: offsetLimit,
+            limit: LIMIT,
+            type: "OFFSET",
+            sortDir: "DESC",
+          },
+          term: searchTerm,
+          repositoryType: repoType as RepositoryType || null,
+          keyword: subjectArea || null,
+        }
+      }
+    });
+  };
+
+
+  // Handle pagination page click
+  const handlePageClick = async (page: number) => {
+    await fetchRepositories({
+      page,
+      searchTerm
+    });
+  };
 
   const handleSearchInput = (term: string) => {
     setSearchTerm(term);
-    setRepositories(originalRepositories);
   };
 
   // Handle search for repositories
-  const handleSearch = () => {
-    //TODO: Implement actual search request to backend with pagination
-    // with subjectArea, repoType, and searchTerm as parameters
-    const filtered = originalRepositories.filter(repo =>
-      repo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      repo.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      repo.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-    setRepositories(filtered);
+  const handleSearch = async (term: string) => {
+    setErrors([]); // Clear previous errors
+    setSearchTerm(term);
+
+    // Reset to first page on new search
+    setCurrentPage(1);
+
+    await fetchRepositories({ searchTerm: term });
   }
 
   // Set selected subject area
   const searchOnSubjectArea = (subject: string) => {
-    setSubjectArea(subject);
+    setSubjectArea(subject === 'none' ? null : subject);
   };
 
   // Set selected repository type
   const searchOnRepositoryType = (type: string) => {
-    setRepoType(type);
+    setRepoType(type === 'none' ? null : type);
   };
 
   // Handle add/removal of repository selections in modal view and display confirmation toasts
   const toggleSelection = (repo: RepositoryInterface) => {
-    const isRemoving = selectedRepos[repo.id];
+    const isRemoving = selectedRepos[repo.uri];
 
     setSelectedRepos(prev => {
       const newSelected = { ...prev };
-      if (newSelected[repo.id]) {
-        delete newSelected[repo.id];
+      if (newSelected[repo.uri]) {
+        delete newSelected[repo.uri];
       } else {
-        newSelected[repo.id] = repo;
+        newSelected[repo.uri] = repo;
       }
       return newSelected;
     });
@@ -202,7 +239,7 @@ const RepositorySelectionSystem = ({
   };
 
   // Remove a single repository from the non-modal view
-  const removeRepo = (repoId: number) => {
+  const removeRepo = (repoId: string) => {
     const repo = selectedRepos[repoId];
     setSelectedRepos(prev => {
       const newSelected = { ...prev };
@@ -229,37 +266,110 @@ const RepositorySelectionSystem = ({
     }));
   };
 
-  // Add the custom repository to the selected list
-  const addCustomRepo = () => {
-    const { name, url, description } = customForm;
+  const handleAddCustomRepo = useCallback(async () => {
+    setErrors([]);
+    const { name, description, website } = customForm;
 
-    if (!name.trim() || !url.trim() || !description.trim()) {
+    if (!name.trim() || !website.trim() || !description.trim()) {
       toastState.add(QuestionAdd('researchOutput.repoSelector.errors.customRepoError'), { type: 'error' });
+      return;
+    };
+
+    const response = await addRepositoryAction({
+      name: name.trim(),
+      description: description.trim(),
+      website: website.trim()
+    });
+
+    if (response.redirect) {
+      router.push(response.redirect);
       return;
     }
 
-    const customRepo = {
-      id: Date.now(),
-      name: name.trim(),
-      description: description.trim(),
-      url: url.trim(),
-      contact: 'Custom repository',
-      access: 'Unknown',
-      identifier: 'N/A',
-      tags: ['custom']
-    };
+    if (!response.success) {
+      setErrors(
+        response.errors?.length ? response.errors : [Global("messaging.somethingWentWrong")]
+      )
+      logECS("error", "adding repository", {
+        errors: response.errors,
+        url: { path: routePath("template.q.new", { templateId }) },
+      });
+      return;
+    } else {
+      if (response?.data?.errors) {
+        const errs = extractErrors<AddRepositoryErrors>(response?.data?.errors, ["general", "name", "description", "repositoryTypes", "website"]);
 
-    setSelectedRepos(prev => ({ ...prev, [customRepo.id]: customRepo }));
-    setCustomForm({ name: '', url: '', description: '' });
-    setIsCustomFormOpen(false);
-    toastState.add(QuestionAdd('researchOutput.repoSelector.messages.customRepoAdded', { name: customRepo.name }), { type: 'success' });
-  };
+        if (errs.length > 0) {
+          setErrors(errs);
+          logECS("error", "adding repository", {
+            errors: errs,
+            url: { path: routePath("template.q.new", { templateId }) },
+          });
+          return; // Don't proceed to success message if there are errors
+        }
+      }
+
+      // Add the newly created repository to selected repositories
+      const newRepo: RepositoryInterface = {
+        id: response.data?.uri || '',
+        name: name.trim(),
+        uri: website.trim(),
+        description: description.trim(),
+        keywords: [],
+        repositoryType: []
+      };
+
+      setSelectedRepos(prev => ({ ...prev, [newRepo.uri]: newRepo }));
+      setCustomForm({ name: '', website: '', description: '' });
+      setIsCustomFormOpen(false);
+      setIsModalOpen(false);
+      const successMessage = QuestionAdd('researchOutput.repoSelector.messages.customRepoAdded', { name: name.trim() });
+      toastState.add(successMessage, { type: "success" });
+    }
+  }, [customForm, templateId, Global, router, QuestionAdd, toastState]);
+
 
   useEffect(() => {
     const reposArray = Object.values(selectedRepos);
     onRepositoriesChange?.(reposArray);
   }, [selectedRepos]);
 
+
+  // Process repositoriesData changes
+  useEffect(() => {
+    // If user navigates away while request is in flight, and the network response arrives,
+    // can't perform state update on unmounted component. So we track if component is mounted.
+    let isMounted = true; // Track if component is still mounted
+
+    const processRepoData = () => {
+      if (repositoriesData?.repositories?.items) {
+        if (isMounted) {
+          // Filter out null items
+          const validRepos = repositoriesData.repositories.items.filter(item => item !== null);
+          setRepositories(validRepos);
+          setTotalCount(repositoriesData.repositories.totalCount ?? 0);
+          setTotalPages(Math.ceil((repositoriesData.repositories.totalCount ?? 0) / LIMIT));
+          setHasNextPage(repositoriesData.repositories.hasNextPage ?? false);
+          setHasPreviousPage(repositoriesData.repositories.hasPreviousPage ?? false);
+        }
+      } else {
+        if (isMounted) {
+          setRepositories([]);
+        }
+      }
+    };
+    processRepoData();
+
+    return () => {
+      isMounted = false; // Mark as unmounted
+    };
+
+  }, [repositoriesData]);
+
+  useEffect(() => {
+    // On initial load, fetch all repositories
+    fetchRepositories({ page: 1 });
+  }, []);
 
   const selectedCount = Object.keys(selectedRepos).length;
   const selectedArray = Object.values(selectedRepos);
@@ -300,17 +410,12 @@ const RepositorySelectionSystem = ({
               {selectedCount !== 0 && (
                 <div>
                   {selectedArray.map(repo => (
-                    <div key={repo.id} className={styles.item}>
+                    <div key={repo.id} className={styles.item} id={String(repo.id)}>
                       <div className={styles.itemHeader}>
                         <div className={styles.itemContent}>
-                          <div className={styles.itemTitle}>{repo.name}</div>
-                          <div className={styles.itemMeta}>
-                            <span className={`${styles.itemBadge} ${repo.access?.toLowerCase() === 'open' ? styles.open : ''}`}>
-                              {repo.access}
-                            </span>
-                            <span className={styles.itemBadge}>{repo.identifier}</span>
+                          <div className={styles.itemTitle}>{repo.name}
                             <a
-                              href={repo.url}
+                              href={repo.website}
                               target="_blank"
                               rel="noopener noreferrer"
                               className={styles.itemLink}
@@ -320,7 +425,7 @@ const RepositorySelectionSystem = ({
                           </div>
                         </div>
                         <Button
-                          onClick={() => removeRepo(repo.id)}
+                          onClick={() => removeRepo(repo.uri)}
                           className={`${styles.removeBtn} secondary small`}
                         >
                           {Global('buttons.remove')}
@@ -354,6 +459,10 @@ const RepositorySelectionSystem = ({
         <Dialog>
           {({ close }) => (
             <>
+              <ErrorMessages
+                errors={errors}
+                ref={errorRef}
+              />
               <div>
                 <div className={styles.modal}>
                   <div className={styles.modalHeader}>
@@ -426,7 +535,7 @@ const RepositorySelectionSystem = ({
                               <Button
                                 className="primary medium"
                                 onPress={() => {
-                                  handleSearch();
+                                  handleSearch(searchTerm);
                                 }}
                               >
                                 {Global('buttons.applyFilter')}
@@ -461,9 +570,9 @@ const RepositorySelectionSystem = ({
                           data-testid="form-input-repo-url"
                           type="url"
                           isRequired={true}
-                          label={Global('labels.url')}
-                          value={customForm.url}
-                          onChange={(e) => setCustomForm({ ...customForm, url: e.target.value })}
+                          label={QuestionAdd('researchOutput.labels.websiteURL')}
+                          value={customForm.website}
+                          onChange={(e) => setCustomForm({ ...customForm, website: e.target.value })}
                         />
                         <FormInput
                           name="repo-description"
@@ -477,7 +586,7 @@ const RepositorySelectionSystem = ({
 
                         <div className={styles.formActions}>
                           <Button
-                            onClick={addCustomRepo}
+                            onClick={handleAddCustomRepo}
                             className={`${styles.applyFilterBtn} primary medium`}
                           >
                             {QuestionAdd('researchOutput.repoSelector.buttons.addRepository')}
@@ -485,7 +594,7 @@ const RepositorySelectionSystem = ({
                           <Button
                             onClick={() => {
                               setIsCustomFormOpen(false);
-                              setCustomForm({ name: '', url: '', description: '' });//Reset fields
+                              setCustomForm({ name: '', website: '', description: '' });//Reset fields
                             }}
                             className="secondary medium"
                           >
@@ -498,63 +607,80 @@ const RepositorySelectionSystem = ({
                     <div className={styles.searchResults}>
                       <div className={styles.paginationWrapper}>
                         <span className={styles.paginationInfo}>
-                          Displaying repositories 1 - 10 of 4372 in total
+                          Displaying repositories {repositories.length} of {totalCount} in total
                         </span>
-                        <Pagination {...paginationProps} />
+                        <Pagination
+                          currentPage={currentPage}
+                          totalPages={totalPages}
+                          hasPreviousPage={hasPreviousPage}
+                          hasNextPage={hasNextPage}
+                          handlePageClick={handlePageClick}
+                        />
                       </div>
 
-                      {repositories.map((repo) => {
-                        const isSelected = selectedRepos[repo.id];
-                        return (
-                          <div
-                            key={repo.id}
-                            className={`${styles.searchResultItem} ${isSelected ? styles.selected : ''}`}
-                          >
-                            <div className={styles.searchResultHeader}>
-                              <div className={styles.searchResultTitle}>{repo.name}</div>
-                              <Button
-                                onClick={() => toggleSelection(repo)}
-                                className={`small ${isSelected ? 'secondary' : 'primary'}`}
-                              >
-                                {isSelected ? Global('buttons.remove') : Global('buttons.select')}
-                              </Button>
-                            </div>
-                            <div className={styles.itemDescription}>{repo.description}</div>
-                            <div className={styles.tags}>
-                              {repo.tags.map(tag => (
-                                <span key={tag} className={styles.tag}>{tag}</span>
-                              ))}
-                            </div>
-                            <ExpandButton
-                              collapseLabel={Global('buttons.lessInfo')}
-                              data-testid="expand-button"
-                              expandLabel={Global('buttons.moreInfo')}
-                              className={`${styles.moreInfoToggle} link`}
-                              aria-label={expandedDetails[`modal-${repo.id}`] ? Global('buttons.lessInfo') : Global('buttons.moreInfo')}
-                              expanded={expandedDetails[`modal-${repo.id}`]}
-                              setExpanded={() => toggleDetails(repo.id, 'modal-')}
-                            />
-                            {expandedDetails[`modal-${repo.id}`] && (
-                              <div className={styles.repoDetails}>
-                                <dl>
-                                  <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.repoTitle')}</dt>
-                                  <dd>
-                                    <a href={repo.url} target="_blank" rel="noopener noreferrer">
-                                      {repo.url}
-                                    </a>
-                                  </dd>
-                                  <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.contactTitle')}</dt>
-                                  <dd>{repo.contact}</dd>
-                                  <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.dataAccessTitle')}</dt>
-                                  <dd>{repo.access}</dd>
-                                  <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.identifierTitle')}</dt>
-                                  <dd>{repo.identifier}</dd>
-                                </dl>
+                      {repositories
+                        .filter((repo): repo is Repository & { id: number } => repo.id != null)
+                        .map((repo) => {
+                          const repoInterface: RepositoryInterface = {
+                            id: repo.uri,
+                            name: repo.name ?? '',
+                            description: repo.description ?? '',
+                            uri: repo.uri ?? '',
+                            website: repo.website ?? '',
+                            keywords: repo.keywords ?? [],
+                            repositoryType: repo.repositoryTypes ?? []
+                          };
+                          const isSelected = selectedRepos[repoInterface.uri];
+                          return (
+                            <div
+                              key={repoInterface.id}
+                              className={`${styles.searchResultItem} ${isSelected ? styles.selected : ''}`}
+                            >
+                              <div className={styles.searchResultHeader}>
+                                <div className={styles.searchResultTitle}>{repo.name}</div>
+                                <Button
+                                  onClick={() => toggleSelection(repoInterface)}
+                                  className={`small ${isSelected ? 'secondary' : 'primary'}`}
+                                >
+                                  {isSelected ? Global('buttons.remove') : Global('buttons.select')}
+                                </Button>
                               </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                              <div className={styles.itemDescription}>{repo.description}</div>
+                              <div className={styles.tags}>
+                                {repo.keywords?.map((keyword: string) => (
+                                  <span key={keyword} className={styles.tag}>{keyword}</span>
+                                ))}
+                              </div>
+                              <ExpandButton
+                                collapseLabel={Global('buttons.lessInfo')}
+                                data-testid="expand-button"
+                                expandLabel={Global('buttons.moreInfo')}
+                                className={`${styles.moreInfoToggle} link`}
+                                aria-label={expandedDetails[`modal-${repoInterface.id}`] ? Global('buttons.lessInfo') : Global('buttons.moreInfo')}
+                                expanded={expandedDetails[`modal-${repoInterface.id}`]}
+                                setExpanded={() => toggleDetails(repoInterface.uri, 'modal-')}
+                              />
+                              {expandedDetails[`modal-${repoInterface.id}`] && (
+                                <div className={styles.repoDetails}>
+                                  <dl>
+                                    <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.repoTitle')}</dt>
+                                    <dd>
+                                      <a href={repo.uri} target="_blank" rel="noopener noreferrer">
+                                        {repo.uri}
+                                      </a>
+                                    </dd>
+                                    <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.contactTitle')}</dt>
+                                    <dd>TBD</dd>
+                                    <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.dataAccessTitle')}</dt>
+                                    <dd>TBD</dd>
+                                    <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.identifierTitle')}</dt>
+                                    <dd>TBD</dd>
+                                  </dl>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                     </div>
                   </div>
                 </div>

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "coverage",
+    "label": "Coverage",
+    "enabled": true,
+    "defaultValue": "",
+    "customLabel": "",
+    "helpText": "",
+    "maxLength": ""
+  }
+]

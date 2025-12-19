@@ -39,6 +39,14 @@ mutation UpdateQuestion($input: UpdateQuestionInput!) {
 mutation RemoveQuestion($questionId: Int!) {
   removeQuestion(questionId: $questionId) {
     id
+    errors {
+      general
+      guidanceText
+      json
+      questionText
+      requirementText
+      sampleText
+    }
   }
 }
 

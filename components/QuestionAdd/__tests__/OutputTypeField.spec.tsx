@@ -3,12 +3,20 @@ import { act, render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import OutputTypeField from '../OutputTypeField';
-import { OutputTypeFieldConfigProps } from '@/app/types';
+import {
+  OutputTypeFieldConfigProps,
+} from '@/app/types';
+import { DefaultResearchOutputTypesQuery } from '@/generated/graphql';
+import mockDefaultResearchOutputTypesData from '../__mocks__/mockDefaultResearchOutputTypes.json';
 
 expect.extend(toHaveNoViolations);
 
+interface OutputTypeFieldProps extends OutputTypeFieldConfigProps {
+  defaultResearchOutputTypesData?: DefaultResearchOutputTypesQuery;
+}
+
 describe('OutputTypeField', () => {
-  const defaultProps: OutputTypeFieldConfigProps = {
+  const defaultProps: OutputTypeFieldProps = {
     field: {
       id: 'outputTypes',
       label: 'Output Types',
@@ -19,6 +27,7 @@ describe('OutputTypeField', () => {
         selectedDefaults: [],
       },
     },
+    defaultResearchOutputTypesData: mockDefaultResearchOutputTypesData as DefaultResearchOutputTypesQuery,
     newOutputType: { type: '', description: '' },
     setNewOutputType: jest.fn(),
     onModeChange: jest.fn(),
@@ -81,7 +90,8 @@ describe('OutputTypeField', () => {
         expect(screen.getByText('Event')).toBeInTheDocument();
         expect(screen.getByText('Image')).toBeInTheDocument();
         expect(screen.getByText('Interactive resource')).toBeInTheDocument();
-        expect(screen.getByText('Model representation')).toBeInTheDocument();
+        expect(screen.getByText('Model')).toBeInTheDocument();
+        expect(screen.getByText('Other')).toBeInTheDocument();
         expect(screen.getByText('Physical object')).toBeInTheDocument();
         expect(screen.getByText('Service')).toBeInTheDocument();
         expect(screen.getByText('Software')).toBeInTheDocument();
@@ -476,7 +486,7 @@ describe('OutputTypeField', () => {
 
         const expectedTypes = [
           'Audiovisual', 'Collection', 'Data paper', 'Dataset', 'Event', 'Image',
-          'Interactive resource', 'Model representation', 'Physical object', 'Service',
+          'Interactive resource', 'Model', 'Other', 'Physical object', 'Service',
           'Software', 'Sound', 'Text', 'Workflow'
         ];
 

@@ -395,14 +395,31 @@
       "errors": {
         "questionTextRequired": "Question text field is required.",
         "questionAddingError": "Error when adding question.",
+        "questionUpdatingError": "Error when updating question.",
         "questionValidationError": "Invalid value",
         "invalidQuestionType": "Invalid question type found"
       },
       "success": {
-        "questionAdded": "Question was successfully added."
+        "questionAdded": "Question was successfully added.",
+        "questionUpdated": "Question was successfully updated."
       }
     },
     "researchOutput": {
+      "announcements": {
+        "fieldAdded": "Additional text field added.",
+        "fieldDeleted": "Additional text field deleted.",
+        "metadataStandardAdded": "Metadata standard added",
+        "metadataStandardRemoved": "Metadata standard removed",
+        "licenseModeChanged": "License mode changed to {mode}.",
+        "licenseAdded": "License {name} added",
+        "licenseRemoved": "License {name} removed.",
+        "outputTypeModeChanged": "Output type mode changed to {mode}.",
+        "outputTypeAdded": "Output type {type} added.",
+        "outputTypeRemoved": "Output type {type} removed.",
+        "errorOccurred": "An error occurred. Please check the form.",
+        "repositoryAdded": "Repository added.",
+        "repositoryRemoved": "Repository removed."
+      },
       "helpText": "Max length is 300 characters.",
       "headings": {
         "enableStandardFields": "Enable standard fields",
@@ -414,7 +431,9 @@
       },
       "labels": {
         "description": "Description",
-        "descriptionLowerCase": "description"
+        "descriptionLowerCase": "description",
+        "taxonomyURL": "Taxonomy URL",
+        "websiteURL": "Website URL"
       },
       "legends": {
         "dataFlag": "Which data flags to display"
@@ -463,6 +482,7 @@
         },
         "descriptions": {
           "repoTitle": "Repository URL",
+          "repositoryType": "Repository types",
           "contactTitle": "Contact email",
           "urlTitle": "Repository description",
           "dataAccessTitle": "Data access",
@@ -476,6 +496,9 @@
         },
         "descriptionLabel": "Description",
         "helpText": "This can be used to provide custom guidance and/or instructions for researchers.",
+        "help": {
+          "uri": "The taxonomy URL of the metadata standard"
+        },
         "messages": {
           "confirmRemovalAll": "Are you sure you want to remove all selected metadatastandards?",
           "allRemoved": "All metadata standards removed",

@@ -1,7 +1,16 @@
 
+### Updated
+- Hooked up the `Research Output table` for template builder for `QuestionAdd` and `QuestionEdit` components. Updated `QuestionEdit` to use server actions[#869]
+  - Updated associated research output field components, like `InitialAccessLevel`, `LicenseField`, `MetaDataStandards`, `OutputTypeField` and `ReposSelector` [#869]
+  - Added a `ResearchOutputComponent` to consolidate the code for that question type [#869]
+  - Added a new `useResearchOutputTable` hook to share functionality between `QuestionAdd` and `QuestionEdit` [#869]
+  - Updated `Pagination` component so that navigation doesn't shift too much [#869]
+  
+### Fixed
+- Fixed related works pagination.
 
 ### Chore
-- Updated version of `next` to `15.5.9` due to high vulnerability
+- Updated `next` to version 15.5.9 due to vulnerability
 - Updated version of `next` to `15.5.8` due to vulnerability
 ==========================================================================================
 ## All changes above the line happened after the merge to the main branch on Dec 4, 2025

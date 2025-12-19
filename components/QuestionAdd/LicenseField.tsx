@@ -4,6 +4,7 @@ import { FormSelect } from '@/components/Form';
 import {
   LicenseFieldProps
 } from '@/app/types';
+import { LicensesQuery } from '@/generated/graphql';
 
 import styles from './questionAdd.module.scss';
 
@@ -12,35 +13,28 @@ const licenseTypeOptions = [
   { id: 'addToDefaults', name: 'Use custom list' }
 ];
 
-// Default licenses
-const defaultLicenses = [
-  'CC-BY-4.0',
-  'CC-BY-SA-4.0',
-  'CC-BY-NC-4.0',
-  'CC-BY-NC-SA-4.0',
-  'CC-BY-ND-4.0',
-  'CC-BY-NC-ND-4.0',
-  'CCo-1.0'
-];
-
-// Other licenses
-export const otherLicenses = [
-  { id: 'obsd', name: 'OBSD' },
-  { id: 'aal', name: 'AAL' },
-  { id: 'adsl', name: 'ADSL' },
-  { id: 'afl11', name: 'AFL-1.1' },
-  { id: 'aml', name: 'AML' }
-];
+interface LicenseFieldPropsWithData extends LicenseFieldProps {
+  licensesData?: LicensesQuery;
+}
 
 const LicenseField = ({
   field,
+  licensesData,
   newLicenseType,
   setNewLicenseType,
   onModeChange,
   onAddCustomType,
   onRemoveCustomType,
-}: LicenseFieldProps) => {
+}: LicenseFieldPropsWithData) => {
   const QuestionAdd = useTranslations('QuestionAdd');
+
+  // Filter licenses into recommended and other categories
+  const allLicenses = licensesData?.licenses?.items?.filter((license): license is NonNullable<typeof license> => license !== null) || [];
+  const defaultLicenses = allLicenses.filter(license => license.recommended).map(license => license.name);
+  const otherLicenses = allLicenses.filter(license => !license.recommended).map(license => ({
+    id: license.uri,
+    name: license.name
+  }));
 
   return (
     <div className={styles.typeConfig}>
@@ -108,14 +102,14 @@ const LicenseField = ({
               </div>
               {field.licensesConfig?.customTypes?.length > 0 && (
                 <ul className={styles.customTypesList}>
-                  {field.licensesConfig.customTypes.map((customType: string, index: number) => (
+                  {field.licensesConfig.customTypes.map((license, index: number) => (
                     <li key={index} className={styles.customTypeItem}>
-                      <span>{customType}</span>
+                      <span>{license.name}</span>
                       <Button
                         type="button"
                         className={styles.removeButton}
-                        onPress={() => onRemoveCustomType(customType)}
-                        aria-label={QuestionAdd('researchOutput.licenses.buttons.removeLicenseType', { type: customType })}
+                        onPress={() => onRemoveCustomType(license.name)}
+                        aria-label={QuestionAdd('researchOutput.licenses.buttons.removeLicenseType', { type: license.name })}
                       >
                         x
                       </Button>

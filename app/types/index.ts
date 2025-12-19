@@ -5,6 +5,7 @@ import { CalendarDate } from "@internationalized/date";
 
 // Re-export types from questionAdd module
 export * from './questionAdd';
+export * from './questionEdit';
 export * from './guidance';
 
 export interface EmailInterface {
@@ -392,6 +393,51 @@ export interface ActionResponse {
     };
   };
   redirect?: string;
+}
+
+export interface MetadataStandardActionResponse extends ActionResponse {
+  data?: {
+    id?: number | null;
+    name?: string;
+    uri?: string;
+    description?: string;
+    keywords?: string[];
+    errors?: {
+      [key: string]: string | null;
+    };
+  };
+}
+
+export interface addRepositoryActionResponse extends ActionResponse {
+  data?: {
+    id?: number | null;
+    name?: string;
+    keywords?: string[];
+    uri?: string;
+    website?: string;
+    errors?: {
+      [key: string]: string | null;
+    };
+  }
+};
+
+export interface updateQuestionActionResponse extends ActionResponse {
+  data?: {
+    id?: number | null;
+    guidanceText: string;
+    isDirty: boolean;
+    required: boolean;
+    json: string;
+    requirementText: string;
+    sampleText: string;
+    useSampleTextAsDefault: string;
+    sectionId: string;
+    templateId: string;
+    questionText: string;
+    errors?: {
+      [key: string]: string | null;
+    };
+  }
 }
 
 export interface UserInterface {

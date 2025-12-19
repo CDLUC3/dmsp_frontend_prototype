@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -28,11 +27,23 @@ import {
 
 // GraphQL queries and mutations
 import {
-  QuestionErrors,
   useQuestionQuery,
-  useUpdateQuestionMutation,
-  useRemoveQuestionMutation,
 } from '@/generated/graphql';
+
+import {
+  removeQuestionAction,
+  updateQuestionAction
+} from './actions/index';
+
+import {
+  AnyParsedQuestion,
+  Question,
+  QuestionOption,
+  QuestionOptions,
+  QuestionFormatInterface,
+  RemoveQuestionErrors,
+  UpdateQuestionErrors,
+} from '@/app/types';
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -43,54 +54,40 @@ import {
   FormInput,
   RadioGroupComponent,
   RangeComponent,
-  TypeAheadSearch
+  TypeAheadSearch,
+  ResearchOutputComponent
 } from '@/components/Form';
-
 import FormTextArea from '@/components/Form/FormTextArea';
 import ErrorMessages from '@/components/ErrorMessages';
 import QuestionView from '@/components/QuestionView';
+import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 
-//Other
+//Utils and Other
+import { useResearchOutputTable } from '@/hooks/useResearchOutputTable';
 import { useToast } from '@/context/ToastContext';
-
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
+import { extractErrors } from "@/utils/errorHandler";
 import {
   getQuestionFormatInfo,
   getQuestionTypes,
   questionTypeHandlers
 } from '@/utils/questionTypeHandlers';
-import { checkErrors } from '@/utils/errorHandler'; import { QuestionTypeMap } from "@dmptool/types";
-import {
-  Question,
-  QuestionOptions,
-  QuestionFormatInterface
-} from '@/app/types';
+
 import {
   RANGE_QUESTION_TYPE,
   TYPEAHEAD_QUESTION_TYPE,
   DATE_RANGE_QUESTION_TYPE,
   NUMBER_RANGE_QUESTION_TYPE,
-  TEXT_AREA_QUESTION_TYPE
+  TEXT_AREA_QUESTION_TYPE,
+  RESEARCH_OUTPUT_QUESTION_TYPE
 } from '@/lib/constants';
 import {
   isOptionsType,
   getOverrides,
 } from './hooks/useEditQuestion';
-import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
-
 import styles from './questionEdit.module.scss';
-
-// Define the type for the options in json.options
-interface Option {
-  label: string;
-  value: string;
-  selected?: boolean;
-  checked?: boolean;
-}
-
-type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
 
 const QuestionEdit = () => {
   const params = useParams();
@@ -103,6 +100,8 @@ const QuestionEdit = () => {
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
+
+  const hasHydrated = useRef(false);
   // Track whether there are unsaved changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   // Form state
@@ -122,16 +121,59 @@ const QuestionEdit = () => {
   const [parsedQuestionJSON, setParsedQuestionJSON] = useState<AnyParsedQuestion>();
   const [isConfirmOpen, setConfirmOpen] = useState(false);
 
-  // Initialize update question mutation
-  const [updateQuestionMutation] = useUpdateQuestionMutation();
-  const [removeQuestionMutation] = useRemoveQuestionMutation();
+  // Add state for live region announcements
+  const [announcement, setAnnouncement] = useState('');
 
   // localization keys
   const Global = useTranslations('Global');
   const t = useTranslations('QuestionEdit');
+  const QuestionAdd = useTranslations('QuestionAdd');
 
   // Set URLs
   const TEMPLATE_URL = routePath('template.show', { templateId });
+
+  // Helper function to make announcements
+  const announce = (message: string) => {
+    setAnnouncement(message);
+    // Clear after announcement is made
+    setTimeout(() => setAnnouncement(''), 100);
+  };
+
+  // Research Output Table Hooks
+  const {
+    buildResearchOutputFormState,
+    licensesData,
+    defaultResearchOutputTypesData,
+    standardKeys,
+    expandedFields,
+    setExpandedFields,
+    nonCustomizableFieldIds,
+    standardFields,
+    additionalFields,
+    setAdditionalFields,
+    newOutputType,
+    setNewOutputType,
+    newLicenseType,
+    setNewLicenseType,
+    handleRepositoriesChange,
+    handleMetaDataStandardsChange,
+    handleStandardFieldChange,
+    handleCustomizeField,
+    handleToggleMetaDataStandards,
+    handleTogglePreferredRepositories,
+    handleLicenseModeChange,
+    handleAddCustomLicenseType,
+    handleRemoveCustomLicenseType,
+    handleOutputTypeModeChange,
+    handleAddCustomOutputType,
+    handleRemoveCustomOutputType,
+    addAdditionalField,
+    handleDeleteAdditionalField,
+    handleUpdateAdditionalField,
+    setStandardFields,
+    updateStandardFieldProperty
+  } = useResearchOutputTable({ setHasUnsavedChanges, announce });
+
 
   // Run selected question query
   const {
@@ -145,7 +187,6 @@ const QuestionEdit = () => {
       }
     },
   );
-
 
   // Update rows state and question.json when options change
   const updateRows = (newRows: QuestionOptions[]) => {
@@ -241,7 +282,6 @@ const QuestionEdit = () => {
     }
   };
 
-
   // Prepare input for the questionTypeHandler. For options questions, we update the 
   // values with rows state. For non-options questions, we use the parsed JSON
   const getFormState = (question: Question, rowsOverride?: QuestionOptions[]) => {
@@ -257,6 +297,11 @@ const QuestionEdit = () => {
     }
 
     const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }), Global);
+
+    if (questionType === RESEARCH_OUTPUT_QUESTION_TYPE) {
+      return buildResearchOutputFormState(parsed);
+    }
+
     if (!parsed) {
       if (error) {
         setErrors(prev => [...prev, error])
@@ -301,74 +346,85 @@ const QuestionEdit = () => {
 
     if (question) {
       const updatedJSON = buildUpdatedJSON(question);
+      const { success, error } = updatedJSON ?? {};
 
-      // Strip all tags from questionText before sending to backend
-      const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
+      if (success && !error) {
+        // Strip all tags from questionText before sending to backend
+        const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
 
-      try {
         // Add mutation for question
-        const response = await updateQuestionMutation({
-          variables: {
-            input: {
-              questionId: Number(questionId),
-              displayOrder: question.displayOrder,
-              json: JSON.stringify(updatedJSON ? updatedJSON.data : ''),
-              questionText: cleanedQuestionText,
-              requirementText: question.requirementText,
-              guidanceText: question.guidanceText,
-              sampleText: question.sampleText,
-              useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
-              required: question.required
-            }
-          },
+        const response = await updateQuestionAction({
+          questionId: Number(questionId),
+          displayOrder: Number(question.displayOrder),
+          json: JSON.stringify(updatedJSON ? updatedJSON.data : ''),
+          questionText: cleanedQuestionText,
+          requirementText: String(question.requirementText),
+          guidanceText: String(question.guidanceText),
+          sampleText: String(question.sampleText),
+          useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
+          required: Boolean(question.required)
         });
 
-        const responseErrors = response?.data?.updateQuestion?.errors;
-
-        if (responseErrors && typeof responseErrors === 'object') {
-          const [hasErrors, errs] = checkErrors(
-            responseErrors as QuestionErrors,
-            ['general', 'questionText']
-          );
-          if (hasErrors) {
-            setErrors([String(errs.general)]);
-            setIsSubmitting(false);
-            return;
-          }
+        if (response.redirect) {
+          router.push(response.redirect);
         }
-        // Show success message and redirect to Edit Template page
-        toastState.add(t('messages.success.questionUpdated'), { type: 'success' });
-        router.push(TEMPLATE_URL);
-        setHasUnsavedChanges(false);
-        setIsSubmitting(false);
-      } catch (error) {
-        if (!(error instanceof ApolloError)) {
-          setErrors(prevErrors => [...prevErrors, t('messages.errors.questionUpdateError')]);
+
+        if (!response.success) {
+          const errors = response.errors;
+          // Announcement for screen readers
+          announce(QuestionAdd('researchOutput.announcements.errorOccurred') || 'An error occurred. Please check the form.');
+
+          //Check if errors is an array or an object
+          if (Array.isArray(errors)) {
+            //Handle errors as an array
+            setErrors(errors);
+          }
+        } else {
+          if (response?.data?.errors) {
+            const errs = extractErrors<UpdateQuestionErrors>(response?.data?.errors, ["general", "questionText"]);
+            if (errs.length > 0) {
+              setErrors(errs);
+            }
+          }
+          setIsSubmitting(false);
+          setHasUnsavedChanges(false);
+          toastState.add(QuestionAdd('messages.success.questionUpdated'), { type: 'success' });
+
+          // Redirect user to the Edit Question view with their new question id after successfully adding the new question
+          router.push(TEMPLATE_URL);
         }
       }
     }
-  }
+  };
 
   // Handle form submission to delete the question
   const handleDelete = async () => {
-    try {
-      const response = await removeQuestionMutation({
-        variables: {
-          questionId: Number(questionId),
-        }
-      });
+    const response = await removeQuestionAction({
+      questionId: Number(questionId),
+    });
 
-      if (response?.data) {
-        // Show success message and redirect to Edit Template page
-        toastState.add(t('messages.success.questionRemoved'), { type: 'success' });
-        router.push(TEMPLATE_URL);
+    if (response.redirect) {
+      router.push(response.redirect);
+    }
+
+    if (!response.success) {
+      const errors = response.errors;
+
+      //Check if errors is an array or an object
+      if (Array.isArray(errors)) {
+        //Handle errors as an array
+        setErrors(errors);
       }
-    } catch (error) {
-      if (error instanceof ApolloError) {
-        //
-      } else {
-        // Handle other types of errors
-        setErrors(prevErrors => [...prevErrors, t('messages.errors.questionRemoveError')]);
+    } else {
+      if (response?.data?.errors) {
+        const errs = extractErrors<RemoveQuestionErrors>(response?.data?.errors, ["general", "guidanceText", "questionText", "requirementText", "sampleText"]);
+        if (errs.length > 0) {
+          setErrors(errs);
+        } else {
+          // Show success message and redirect to Edit Template page
+          toastState.add(t('messages.success.questionRemoved'), { type: 'success' });
+          router.push(TEMPLATE_URL);
+        }
       }
     }
   };
@@ -384,6 +440,7 @@ const QuestionEdit = () => {
     setErrors(allErrors);
   }, [selectedQuestionQueryError]);
 
+  // Set question details in state when data is loaded
   useEffect(() => {
     if (selectedQuestion?.question) {
       const q = {
@@ -423,7 +480,7 @@ const QuestionEdit = () => {
         // Set options info with proper type checking
         if (isOptionsQuestion && 'options' in parsed && parsed.options && Array.isArray(parsed.options)) {
           const optionRows: QuestionOptions[] = parsed.options
-            .map((option: Option, index: number) => ({
+            .map((option: QuestionOption, index: number) => ({
               id: index,
               text: option?.label || '',
               isSelected: option?.selected || option?.checked || false,
@@ -464,6 +521,182 @@ const QuestionEdit = () => {
     }
   }, [parsedQuestionJSON])
 
+  // Set initial research output table field states from parsedQuestionJSON
+  useEffect(() => {
+    if (!hasHydrated.current && parsedQuestionJSON?.type === RESEARCH_OUTPUT_QUESTION_TYPE && Array.isArray(parsedQuestionJSON.columns)) {
+      try {
+        // Helper to find a column by labelTranslationKey or heading
+        const findColumn = (keys: string[]) =>
+          parsedQuestionJSON.columns.find(
+            (col) =>
+              (col?.meta?.labelTranslationKey && keys.includes(col.meta.labelTranslationKey)) ||
+              (col?.heading && keys.includes(col.heading))
+          );
+
+        // Hydrate standard fields
+        setStandardFields((prevFields) => prevFields.map((field) => {
+          const updated = { ...field };
+          switch (field.id) {
+            case 'repoSelector': {
+              const col = findColumn(['researchOutput.repositories', 'Repositories']);
+              if (col && 'preferences' in col) {
+                updated.enabled = !!col.enabled;
+                updated.helpText = col.content.attributes?.help || '';
+                updated.repoConfig = {
+                  ...updated.repoConfig,
+                  customRepos: col.preferences.map((repo) => ({
+                    name: repo.label,
+                    uri: repo.value
+                  })),
+                  hasCustomRepos: col?.preferences.length > 0,
+                };
+              }
+              break;
+            }
+            case 'accessLevels': {
+              const col = findColumn(['researchOutput.accessLevels', 'Initial Access Levels']);
+              if (col && col.enabled === true) {
+                updated.enabled = col.enabled;
+                updated.helpText = col.content.attributes?.help || '';
+              }
+              break;
+            }
+            case 'metadataStandards': {
+              const col = findColumn(['researchOutput.metadataStandards', 'Metadata Standards']);
+              if (col && 'preferences' in col) {
+                updated.enabled = !!col.enabled;
+                updated.helpText = col.content.attributes?.help || '';
+                updated.metaDataConfig = {
+                  ...updated.metaDataConfig,
+                  customStandards: col.preferences.map((std) => ({
+                    name: std.label,
+                    uri: std.value
+                  })),
+                  hasCustomStandards: col?.preferences.length > 0,
+                };
+              }
+              break;
+            }
+            case 'licenses': {
+              const col = findColumn(['researchOutput.licenses', 'Licenses']);
+              if (col && 'preferences' in col) {
+                updated.enabled = !!col.enabled;
+                updated.helpText = col.content.attributes?.help || '';
+                updated.licensesConfig = {
+                  ...updated.licensesConfig,
+                  mode: col?.preferences.length > 0 ? 'addToDefaults' : 'defaults',
+                  customTypes: col.preferences.map((lic) => ({
+                    name: lic.label,
+                    uri: lic.value
+                  })),
+                  selectedDefaults: updated.licensesConfig?.selectedDefaults || [],
+                };
+              }
+              break;
+            }
+            case 'outputType': {
+              const col = findColumn(['researchOutput.outputType', 'Output Type']);
+              if (col && col.content && 'options' in col.content && col?.content?.options.length > 0) {
+                updated.enabled = !!col.enabled;
+                updated.outputTypeConfig = {
+                  ...updated.outputTypeConfig,
+                  mode: 'mine',
+                  customTypes: col.content.options.map(opt => ({ type: opt.label, description: '' })),
+                  selectedDefaults: [],
+                };
+              }
+              break;
+            }
+            case 'dataFlags': {
+              const sensCol = findColumn(['researchOutput.sensitiveData', 'Sensitive Data']);
+              const persCol = findColumn(['researchOutput.personalData', 'Personal Data']);
+              updated.enabled = !!(sensCol || persCol);
+              updated.flagsConfig = {
+                ...updated.flagsConfig,
+                showSensitiveData: !!sensCol,
+                showPersonalData: !!persCol,
+                mode: updated.flagsConfig?.mode || 'both'
+              };
+              break;
+            }
+            case 'title':
+            case 'description': {
+              const col = findColumn([
+                field.id === 'title' ? 'researchOutput.title' : 'researchOutput.description',
+                field.id === 'title' ? 'Title' : 'Description',
+              ]);
+              if (col) {
+                updated.enabled = !!col.enabled;
+                updated.label = col.heading || updated.label;
+                updated.helpText = col.content?.attributes?.help || updated.helpText;
+                updated.required = !!col.required;
+              }
+              break;
+            }
+            default:
+              break;
+          }
+          return updated;
+        }));
+
+        // Hydrate additional fields (custom columns)
+        const customCols = parsedQuestionJSON.columns.filter(
+          (col) =>
+            !(col?.meta?.labelTranslationKey && standardKeys.has(col.meta.labelTranslationKey)) &&
+            !(col?.heading && standardKeys.has(col.heading))
+        );
+
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        function hasDefaultValue(attr: any): attr is { defaultValue: string } {
+          return attr && typeof attr.defaultValue !== 'undefined';
+        }
+
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        function hasMaxLength(attr: any): attr is { maxLength: string } {
+          return attr && typeof attr.maxLength !== 'undefined';
+        }
+
+        setAdditionalFields(
+          customCols.map((col, idx) => ({
+            id: col.heading?.toLowerCase().replace(/\s+/g, '_') || `custom_field_${idx}`,
+            label: col.heading || `Custom Field ${idx + 1}`,
+            enabled: !!col.enabled,
+            defaultValue: hasDefaultValue(col.content?.attributes) ? col.content.attributes.defaultValue : '',
+            customLabel: col.heading || '',
+            helpText: col.content?.attributes?.help || '',
+            maxLength: hasMaxLength(col.content?.attributes) ? col.content.attributes.maxLength : '',
+          }))
+        );
+
+        // Hydrate expanded fields (expand all enabled fields by default)
+        setExpandedFields([
+          ...parsedQuestionJSON.columns
+            .filter((col) => col.enabled)
+            .map((col) => {
+              // Try to match to field id by labelTranslationKey or heading
+              const key = col?.meta?.labelTranslationKey || col?.heading;
+              switch (key) {
+                case 'researchOutput.title': return 'title';
+                case 'researchOutput.description': return 'description';
+                case 'researchOutput.outputType': return 'outputType';
+                case 'researchOutput.dataFlags': return 'dataFlags';
+                case 'researchOutput.repositories': return 'repoSelector';
+                case 'researchOutput.metadataStandards': return 'metadataStandards';
+                case 'researchOutput.licenses': return 'licenses';
+                case 'researchOutput.accessLevels': return 'accessLevels';
+                default:
+                  // For custom fields, use the generated id
+                  return col.heading?.toLowerCase().replace(/\s+/g, '_');
+              }
+            })
+        ]);
+      } catch (error) {
+        console.error('Error hydrating research output fields from JSON', error);
+      }
+      hasHydrated.current = true;
+    }
+  }, [parsedQuestionJSON]);
+
   // If a user changes their question type, then we need to fetch the question types to set the new json schema
   useEffect(() => {
     // Only fetch question types if we have a questionType query param present
@@ -471,7 +704,6 @@ const QuestionEdit = () => {
       getQuestionTypes();
     }
   }, [questionTypeIdQueryParam]);
-
 
 
   // If a user passes in a questionType query param we will find the matching questionTypes 
@@ -503,6 +735,7 @@ const QuestionEdit = () => {
     }
   }, [questionType, questionTypeIdQueryParam]);
 
+  // Set parsed question JSON whenever question state changes
   useEffect(() => {
     if (question) {
       const { parsed, error } = getParsedQuestionJSON(question, routePath('template.show', { templateId }), Global);
@@ -532,7 +765,7 @@ const QuestionEdit = () => {
   }, [hasUnsavedChanges]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>{Global('messaging.loading')}...</div>;
   }
 
   return (
@@ -553,6 +786,15 @@ const QuestionEdit = () => {
         className=""
       />
 
+      {/* Live region for announcements - visually hidden but read by screen readers */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="hidden-accessibly"
+      >
+        {announcement}
+      </div>
       <ErrorMessages errors={errors} ref={errorRef} />
 
       <div className="template-editor-container">
@@ -653,13 +895,14 @@ const QuestionEdit = () => {
                   }}
                 />
 
+
                 <FormTextArea
                   name="question_guidance"
                   isRequired={false}
                   richText={true}
                   textAreaClasses={styles.questionFormField}
                   label={t('labels.guidanceText')}
-                  value={question?.guidanceText ? question.guidanceText : ''}
+                  value={question?.guidanceText ? question?.guidanceText : ''}
                   onChange={(newValue) => {
                     setQuestion(prev => ({
                       ...prev,
@@ -708,6 +951,37 @@ const QuestionEdit = () => {
                     {t('descriptions.sampleTextAsDefault')}
 
                   </Checkbox>
+                )}
+
+                {questionType === RESEARCH_OUTPUT_QUESTION_TYPE && (
+                  <ResearchOutputComponent
+                    standardFields={standardFields}
+                    additionalFields={additionalFields}
+                    expandedFields={expandedFields}
+                    nonCustomizableFieldIds={nonCustomizableFieldIds}
+                    newOutputType={newOutputType}
+                    setNewOutputType={setNewOutputType}
+                    newLicenseType={newLicenseType}
+                    setNewLicenseType={setNewLicenseType}
+                    defaultResearchOutputTypesData={defaultResearchOutputTypesData}
+                    licensesData={licensesData}
+                    onStandardFieldChange={handleStandardFieldChange}
+                    onCustomizeField={handleCustomizeField}
+                    onUpdateStandardFieldProperty={updateStandardFieldProperty}
+                    onTogglePreferredRepositories={handleTogglePreferredRepositories}
+                    onRepositoriesChange={handleRepositoriesChange}
+                    onToggleMetaDataStandards={handleToggleMetaDataStandards}
+                    onMetaDataStandardsChange={handleMetaDataStandardsChange}
+                    onOutputTypeModeChange={handleOutputTypeModeChange}
+                    onAddCustomOutputType={handleAddCustomOutputType}
+                    onRemoveCustomOutputType={handleRemoveCustomOutputType}
+                    onLicenseModeChange={handleLicenseModeChange}
+                    onAddCustomLicenseType={handleAddCustomLicenseType}
+                    onRemoveCustomLicenseType={handleRemoveCustomLicenseType}
+                    onDeleteAdditionalField={handleDeleteAdditionalField}
+                    onUpdateAdditionalField={handleUpdateAdditionalField}
+                    onAddAdditionalField={addAdditionalField}
+                  />
                 )}
 
                 <RadioGroupComponent

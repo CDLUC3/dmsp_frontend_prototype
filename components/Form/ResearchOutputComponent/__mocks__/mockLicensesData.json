@@ -1,0 +1,147 @@
+{
+  "licenses": {
+    "__typename": "LicenseSearchResults",
+    "items": [
+      {
+        "__typename": "License",
+        "id": 35,
+        "name": "any-OSI-perl-modules",
+        "uri": "https://spdx.org/licenses/any-OSI-perl-modules.json",
+        "recommended": false
+      },
+      {
+        "__typename": "License",
+        "id": 17,
+        "name": "Artistic-dist",
+        "uri": "https://spdx.org/licenses/Artistic-dist.json",
+        "recommended": false
+      },
+      {
+        "__typename": "License",
+        "id": 16,
+        "name": "Aspell-RU",
+        "uri": "https://spdx.org/licenses/Aspell-RU.json",
+        "recommended": false
+      },
+      {
+        "__typename": "License",
+        "id": 37,
+        "name": "Boehm-GC-without-fee",
+        "uri": "https://spdx.org/licenses/Boehm-GC-without-fee.json",
+        "recommended": false
+      },
+      {
+        "__typename": "License",
+        "id": 34,
+        "name": "BSD-2-Clause-pkgconf-disclaimer",
+        "uri": "https://spdx.org/licenses/BSD-2-Clause-pkgconf-disclaimer.json",
+        "recommended": false
+      },
+      {
+        "__typename": "License",
+        "id": 6,
+        "name": "BSD-3-Clause-Tso",
+        "uri": "https://spdx.org/licenses/BSD-3-Clause-Tso.json",
+        "recommended": false
+      },
+      {
+        "__typename": "License",
+        "id": 55,
+        "name": "CC-BY-4.0",
+        "uri": "https://spdx.org/licenses/CC-BY-4.0.json",
+        "recommended": true
+      },
+      {
+        "__typename": "License",
+        "id": 33,
+        "name": "CC-PDM-1.0",
+        "uri": "https://spdx.org/licenses/CC-PDM-1.0.json",
+        "recommended": false
+      },
+      {
+        "__typename": "License",
+        "id": 32,
+        "name": "CC-SA-1.0",
+        "uri": "https://spdx.org/licenses/CC-SA-1.0.json",
+        "recommended": false
+      },
+      {
+        "__typename": "License",
+        "id": 54,
+        "name": "CC0-1.0",
+        "uri": "https://spdx.org/licenses/CC0-1.0.json",
+        "recommended": true
+      },
+      {
+        "__typename": "License",
+        "id": 31,
+        "name": "CryptoSwift",
+        "uri": "https://spdx.org/licenses/CryptoSwift.json",
+        "recommended": false
+      },
+      {
+        "__typename": "License",
+        "id": 30,
+        "name": "DocBook-DTD",
+        "uri": "https://spdx.org/licenses/DocBook-DTD.json",
+        "recommended": false
+      },
+      {
+        "__typename": "License",
+        "id": 42,
+        "name": "DocBook-Schema",
+        "uri": "https://spdx.org/licenses/DocBook-Schema.json",
+        "recommended": false
+      },
+      {
+        "__typename": "License",
+        "id": 43,
+        "name": "DocBook-Stylesheet",
+        "uri": "https://spdx.org/licenses/DocBook-Stylesheet.json",
+        "recommended": false
+      },
+      {
+        "__typename": "License",
+        "id": 44,
+        "name": "DocBook-XML",
+        "uri": "https://spdx.org/licenses/DocBook-XML.json",
+        "recommended": false
+      },
+      {
+        "__typename": "License",
+        "id": 5,
+        "name": "ESA-PL-weak-copyleft-2.4",
+        "uri": "https://spdx.org/licenses/ESA-PL-weak-copyleft-2.4.json",
+        "recommended": false
+      },
+      {
+        "__typename": "License",
+        "id": 15,
+        "name": "FSFULLRSD",
+        "uri": "https://spdx.org/licenses/FSFULLRSD.json",
+        "recommended": false
+      },
+      {
+        "__typename": "License",
+        "id": 29,
+        "name": "FSL-1.1-ALv2",
+        "uri": "https://spdx.org/licenses/FSL-1.1-ALv2.json",
+        "recommended": false
+      },
+      {
+        "__typename": "License",
+        "id": 28,
+        "name": "FSL-1.1-MIT",
+        "uri": "https://spdx.org/licenses/FSL-1.1-MIT.json",
+        "recommended": false
+      },
+      {
+        "__typename": "License",
+        "id": 27,
+        "name": "Game-Programming-Gems",
+        "uri": "https://spdx.org/licenses/Game-Programming-Gems.json",
+        "recommended": false
+      }
+    ]
+  }
+}

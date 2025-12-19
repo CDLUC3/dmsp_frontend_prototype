@@ -22,27 +22,27 @@
       "reset": "Reset",
       "sortBy": {
         "ConfidenceHigh": "Confiança: Alta para Baixo",
-        "ConfidenceLow": "Confiança: do Menor para o Maior",
+        "ConfidenceLow": "Confiança: Baixo para Alto",
         "ReviewedNew": "Revisões: nova para antiga",
-        "ReviewedOld": "Revisão: Antigo para Novo",
+        "ReviewedOld": "Revisão: antigo para novo",
         "PublishedNew": "Publicação: nova para antiga",
         "PublishedOld": "Publicação: antiga para nova",
-        "DateFoundNew": "Data de encontração: novo para antigo",
-        "DateFoundOld": "Data de encontração: antiga para nova"
+        "DateFoundNew": "Data de encontração: nova para antiga",
+        "DateFoundOld": "Data de encontração: antigo para novo"
       }
     },
     "messages": {
       "PENDING": {
         "noResults": "Nenhum trabalho pendente encontrado.\nVocê não tem nenhum trabalho pendente para revisar.",
-        "noFilteredResults": "Nenhuma obra pendente encontrada. U\nNenhuma obra pendente corresponde aos filtros atuais."
+        "noFilteredResults": "Nenhum trabalho pendente corresponde aos filtros atuais."
       },
       "ACCEPTED": {
         "noResults": "Nenhuma obra relacionada encontrada.\nVocê ainda não marcou nenhuma obra como relacionada. Confira a aba Pendente para começar.",
-        "noFilteredResults": "Nenhuma obra pendente encontrada. U\nNenhuma obra pendente corresponde aos filtros atuais."
+        "noFilteredResults": "Nenhuma obra relacionada corresponde aos filtros atuais."
       },
       "REJECTED": {
-        "noResults":  "Nenhuma obra descartada encontrada.\nVocê não descartou nenhuma obra.",
-        "noFilteredResults":  "Nenhum trabalho descartado foi encontrado.\nNenhum trabalho descartado corresponde aos seus filtros atuais."
+        "noResults": "Nenhuma obra descartada encontrada.\nVocê não descartou nenhuma obra.",
+        "noFilteredResults": "Nenhum trabalho rejeitado corresponde aos filtros atuais."
       }
     }
   },
@@ -53,7 +53,7 @@
     "buttons": {
       "expand": "Expanda",
       "collapse": "Recolher",
-      "accept": "",
+      "accept": "Concordo",
       "reject": "Recusar"
     },
     "fieldNames": {
@@ -65,7 +65,7 @@
       "doi": "BAIXO",
       "title": "Título",
       "abstract": "Resumo",
-      "awardIds": "IDs dos Prêmios",
+      "awardIds": "IDs de Prêmios",
       "authors": "Autores",
       "institutions": "Instituições",
       "funders": "Finalizações"
@@ -73,55 +73,55 @@
     "instructions": {
       "review": "Revise a informação sobre este trabalho potencialmente relacionado abaixo, e aceite-a como relacionada ou rejeite-a como não relacionada.",
       "actions": {
-        "PENDING": "Se você rejeitar este trabalho relacionado, você pode recuperá-lo mais tarde na guia Rejeitada.",
-        "ACCEPTED": "Se você rejeitar este trabalho relacionado, você pode recuperá-lo mais tarde na guia Rejeitada.",
-        "REJECTED": "Você pode recuperar este trabalho relacionado aceitando-o, você verá então na aba Aceitada."
+        "PENDING": "Se você rejeitar este trabalho relacionado, você poderá recuperá-lo mais tarde na guia Rejeitada.",
+        "ACCEPTED": "Se você rejeitar este trabalho relacionado, você poderá recuperá-lo mais tarde na guia Rejeitada.",
+        "REJECTED": "Você pode recuperar este trabalho relacionado aceitando-o, você verá em seguida na aba Aceitada."
       }
     }
   },
   "RelatedWorksDataTypes": {
     "confidence": {
-      "ALL": "TODOS",
-      "HIGH": "alta",
+      "ALL": "Todas",
+      "HIGH": "Alta",
       "MEDIUM": "Média",
-      "LOW": ""
+      "LOW": "baixo"
     },
     "workType": {
       "ARTICLE": "artigo",
       "AUDIO_VISUAL": "Visual de Áudio",
       "BOOK": "Reservar",
       "BOOK_CHAPTER": "Capítulo do Livro",
-      "COLLECTION": "Collection",
+      "COLLECTION": "Coleta",
+      "DATASET": "Conjunto de dados",
       "DATA_PAPER": "Papel de dados",
-      "DATASET": "Dataset",
-      "DISSERTATION": "Desmontagem",
+      "DISSERTATION": "Tese",
       "EDITORIAL": "Editorial",
       "ERRATUM": "Erratum",
       "EVENT": "Evento",
       "GRANT": "Conceder",
       "IMAGE": "Imagem:",
-      "INTERACTIVE_RESOURCE": "Recurso interativo",
+      "INTERACTIVE_RESOURCE": "Recurso Interativo",
       "LETTER": "Letra",
       "LIBGUIDES": "Libguides",
       "MODEL": "Modelo",
-      "OTHER": "Outros",
-      "PARATEXT": "PT2",
-      "PEER_REVIEW": "Revisão por Pares",
+      "OTHER": "De outros",
+      "PARATEXT": "PTx",
+      "PEER_REVIEW": "Guerras Médicas",
       "PHYSICAL_OBJECT": "Objeto físico",
       "PREPRINT": "Pré-impressão",
-      "PRE_REGISTRATION": "Entrada de Referência",
-      "PROTOCOL": "",
-      "REFERENCE_ENTRY": "",
-      "REPORT": "Denunciar",
-      "RETRACTION": "Retracção",
+      "PRE_REGISTRATION": "Registro anterior",
+      "PROTOCOL": "Protocol",
+      "REFERENCE_ENTRY": "Lançamento de Referência",
+      "REPORT": "Relatório",
+      "RETRACTION": "Retração",
       "REVIEW": "Avaliar",
-      "SERVICE": "Serviço",
+      "SERVICE": "Service",
       "SOFTWARE": "Software",
-      "SOUND": "Som",
-      "STANDARD": "padrão",
-      "SUPPLEMENTARY_MATERIALS": "Materiais complementares",
-      "TEXT": "texto",
-      "TRADITIONAL_KNOWLEDGE": "",
+      "SOUND": "Sons",
+      "STANDARD": "Padrão",
+      "SUPPLEMENTARY_MATERIALS": "(Materiais complementares)",
+      "TEXT": "SMS",
+      "TRADITIONAL_KNOWLEDGE": "Conhecimento Tradicional",
       "WORKFLOW": "Workflow"
     }
   }

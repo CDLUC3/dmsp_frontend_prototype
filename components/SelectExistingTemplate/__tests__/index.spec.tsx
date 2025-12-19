@@ -327,13 +327,13 @@ describe('TemplateSelectTemplatePage', () => {
       expect(nav.querySelector('ol')).toBeInTheDocument();
     });
 
-    const pageLinks = screen.getAllByRole('link', { name: /Page \d+/ });
-    expect(pageLinks).toHaveLength(7);
-    // Check for "Previous" and "Next" buttons
-    const previousButtons = screen.getAllByRole('button', { name: "labels.previousPage" });
-    const nextButtons = screen.getAllByRole('button', { name: "labels.nextPage" });
-    expect(previousButtons).toHaveLength(2);
-    expect(nextButtons).toHaveLength(2);
+    // My Org Templates pagination: totalCount=11, limit=5 => 3 pages
+    const orgTemplatePageLinks = within(paginationNavs[0]).getAllByRole('link', { name: /Page \d+/ });
+    expect(orgTemplatePageLinks).toHaveLength(3);
+
+    // Public Templates pagination: totalCount=32, limit=5 => 7 pages
+    const publicTemplatePageLinks = within(paginationNavs[1]).getAllByRole('link', { name: /Page \d+/ });
+    expect(publicTemplatePageLinks).toHaveLength(7);
   });
 
   it('should handle click of pagination links for org section', async () => {
