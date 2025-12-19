@@ -58,17 +58,15 @@ const MetaDataStandardForAnswer = ({
   value?: MetaDataStandardInterface[];
   onMetaDataStandardsChange: (standards: MetaDataStandardInterface[]) => void;
 }) => {
-
   // Derive selected standards from value prop
   const selectedStandards = useMemo(() => {
     return (value || []).reduce((acc, std) => {
-      if (std.id !== undefined) {
-        acc[std.id] = std;
+      if (std.uri !== undefined) {
+        acc[std.uri] = std;
       }
       return acc;
-    }, {} as { [id: string]: MetaDataStandardInterface });
+    }, {} as { [uri: string]: MetaDataStandardInterface });
   }, [value]);
-
 
   const toastState = useToast();
   const params = useParams();
@@ -157,12 +155,12 @@ const MetaDataStandardForAnswer = ({
 
 
   const toggleSelection = (std: MetaDataStandardInterface) => {
-    if (std.id === undefined) return; // Guard: skip if no id
+    if (std.uri === undefined) return; // Guard: skip if no id
 
-    const isSelected = !!selectedStandards[std.id];
+    const isSelected = !!selectedStandards[std.uri];
     let newSelected: MetaDataStandardInterface[];
     if (isSelected) {
-      newSelected = (Object.values(selectedStandards) as MetaDataStandardInterface[]).filter(s => s.id !== std.id);
+      newSelected = (Object.values(selectedStandards) as MetaDataStandardInterface[]).filter(s => s.uri !== std.uri);
     } else {
       newSelected = [...(Object.values(selectedStandards) as MetaDataStandardInterface[]), std];
     }
@@ -239,6 +237,8 @@ const MetaDataStandardForAnswer = ({
       const newStandard: MetaDataStandardInterface = {
         id: response.data?.id || Date.now(), // Use returned ID or timestamp as fallback
         name: name.trim(),
+        uri: uri.trim(),
+        description: description.trim(),
       };
 
       onMetaDataStandardsChange?.([...(Object.values(selectedStandards) as MetaDataStandardInterface[]), newStandard]);
@@ -479,7 +479,7 @@ const MetaDataStandardForAnswer = ({
                       </div>
 
                       {metaDataStandards?.map((std) => {
-                        const isSelected = selectedStandards[std.id];
+                        const isSelected = selectedStandards[std.uri];
                         return (
                           <div
                             key={std.id}

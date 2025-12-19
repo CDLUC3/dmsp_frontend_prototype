@@ -669,10 +669,8 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
 
   // Handler for updating additional field properties
   const handleUpdateAdditionalField = (fieldId: string, propertyName: string, value: unknown) => {
-    console.log("**Field Update**", fieldId, propertyName, value);
     setAdditionalFields(prev =>
       prev.map(field => {
-        console.log("PREV FIELD:", field);
         return field.id === fieldId ? { ...field, [propertyName]: value } : field;
       })
     );

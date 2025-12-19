@@ -494,7 +494,7 @@ const RepositorySelectionSystem = ({
                             name="status"
                             items={subjectAreas}
                             onChange={(value) => searchOnSubjectArea(value)}
-                            selectedKey={subjectArea}
+                            selectedKey={subjectArea ?? undefined}
                           >
                             {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
                           </FormSelect>
@@ -510,7 +510,7 @@ const RepositorySelectionSystem = ({
                             name="status"
                             items={repositoryTypes}
                             onChange={(value) => searchOnRepositoryType(value)}
-                            selectedKey={repoType}
+                            selectedKey={repoType ?? undefined}
                           >
                             {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
                           </FormSelect>

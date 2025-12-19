@@ -7,15 +7,7 @@ import {
   ListBoxItem
 } from "react-aria-components";
 import {
-  DefaultTextAnswer,
-  DefaultTextAreaAnswer,
-  DefaultSelectBoxAnswer,
-  DefaultCheckboxesAnswer,
-  DefaultLicenseSearchAnswer,
-  DefaultRepositorySearchAnswer,
-  DefaultMetadataStandardSearchAnswer,
   DefaultResearchOutputTableQuestion,
-  AnyTableColumnAnswerType,
   LicenseSearchAnswerType
 } from '@dmptool/types';
 import {
@@ -60,82 +52,159 @@ type ResearchOutputAnswerComponentProps = {
   setRows: (rows: ResearchOutputTable[]) => void;
 };
 
+
 const ResearchOutputAnswerComponent = ({
   columns,
   rows,
   setRows,
 }: ResearchOutputAnswerComponentProps) => {
 
-  const repoSelectorFirstUpdate = useRef<{ [key: number]: boolean }>({});
+
   const textAreaFirstUpdate = useRef<{ [key: number]: boolean }>({}); // To track first updates for text area since setContent is called during initialization and calling handleCelLChange prematurely
+
+  function parseByteSizeAnswer(answer: string) {
+    if (typeof answer !== 'string') return { value: '', context: 'kb' };
+    const match = answer.match(/^(\d+)\s*(\w+)$/);
+    if (match) {
+      return { value: match[1], context: match[2] };
+    }
+    return { value: '', context: 'kb' };
+  }
+
+  function formatByteSizeAnswer(value: string | number, context: string) {
+    if (value === '' || value === undefined) return '';
+    return `${value} ${context}`;
+  }
 
   const handleCellChange = (colIndex: number, value: any) => {
     const rowIndex = 0;
-    const updatedRows = [...rows];
-    const colType = colIndex < columns.length ? columns[colIndex]?.content?.type : null;
-    let newValue = value;
+    let updatedRows: ResearchOutputTable[];
 
-    if (colType === "repositorySearch" && Array.isArray(value)) {
-      newValue = value.map(repo => ({
-        repositoryId: repo.uri || repo.id,
-        repositoryName: repo.name
-      }));
-    }
-
-    if (colType === "metadataStandardSearch" && Array.isArray(value)) {
-      newValue = value.map(std => ({
-        metadataStandardId: String(std.id || std.value || std.metadataStandardId),
-        metadataStandardName: std.name || std.label || std.metadataStandardName
-      }));
-    }
-
-    // Get the indices for static fields
-    const releaseDateColIndex = columns.length;
-    const byteSizeColIndex = columns.length + 1;
-
-    // Ensure the row exists with ALL columns including static fields
-    if (!updatedRows[rowIndex]) {
-      updatedRows[rowIndex] = {
-        columns: [
-          ...columns.map(col => {
-            const schemaVersion = col.content?.meta?.schemaVersion || "1.0";
-            return getDefaultAnswerForType(col.content.type, schemaVersion);
-          }),
-          // Add static fields that were not included in initialization:
+    // If no rows exist, initialize with default answers
+    if (!rows[rowIndex]) {
+      updatedRows = [{
+        columns: columns.map((col, idx) => {
+          const schemaVersion = col.content?.meta?.schemaVersion || "1.0";
+          // If this is the field being changed, use the new value
+          if (idx === colIndex) {
+            let newValue = value;
+            if (col.content.type === "repositorySearch" && Array.isArray(value)) {
+              newValue = value.map(repo => ({
+                repositoryId: repo.uri || repo.id,
+                repositoryName: repo.name
+              }));
+            }
+            if (col.content.type === "metadataStandardSearch" && Array.isArray(value)) {
+              newValue = value.map(std => ({
+                metadataStandardId: String(std.id || std.value || std.metadataStandardId),
+                metadataStandardName: std.name || std.label || std.metadataStandardName
+              }));
+            }
+            return {
+              ...getDefaultAnswerForType(col.content.type, schemaVersion),
+              answer: newValue
+            } as const;
+          }
+          // Otherwise, use preferences if available (for repo/meta fields)
+          if (col.content.type === "repositorySearch") {
+            const colRepoPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
+            if (colRepoPreferences) {
+              return {
+                ...getDefaultAnswerForType("repositorySearch", schemaVersion),
+                answer: colRepoPreferences.map((pref: any) => ({
+                  repositoryId: pref.value,
+                  repositoryName: pref.label
+                }))
+              } as const;
+            }
+          }
+          if (col.content.type === "metadataStandardSearch") {
+            const colStdPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
+            if (colStdPreferences) {
+              return {
+                ...getDefaultAnswerForType("metadataStandardSearch", schemaVersion),
+                answer: colStdPreferences.map((pref: any) => ({
+                  metadataStandardId: String(pref.value),
+                  metadataStandardName: pref.label
+                }))
+              } as const;
+            }
+          }
+          // Otherwise, use the default
+          return getDefaultAnswerForType(col.content.type, schemaVersion);
+        }).concat([
           getDefaultAnswerForType("date", "1.0"),
           getDefaultAnswerForType("numberWithContext", "1.0")
-        ]
-      };
-    }
-
-    // Ensure the specific column exists (in case row was initialized without static fields)
-    if (!updatedRows[rowIndex].columns[colIndex]) {
-      if (colIndex === releaseDateColIndex) {
-        updatedRows[rowIndex].columns[colIndex] = { type: "date", answer: "", meta: { schemaVersion: "1.0" } };
-      } else if (colIndex === byteSizeColIndex) {
-        updatedRows[rowIndex].columns[colIndex] = { type: "numberWithContext", answer: { value: 0, context: 'kb' }, meta: { schemaVersion: "1.0" } };
+        ])
+      }];
+    } else {
+      // Deep clone the row to avoid mutating state
+      updatedRows = rows.map(row => ({
+        columns: row.columns.map(col => ({ ...col }))
+      }));
+      // Ensure all columns exist
+      const totalColumns = columns.length + 2;
+      if (updatedRows[rowIndex].columns.length < totalColumns) {
+        for (let i = updatedRows[rowIndex].columns.length; i < totalColumns; i++) {
+          if (i === columns.length) {
+            updatedRows[rowIndex].columns[i] = getDefaultAnswerForType("date", "1.0");
+          } else if (i === columns.length + 1) {
+            updatedRows[rowIndex].columns[i] = getDefaultAnswerForType("numberWithContext", "1.0");
+          }
+        }
       }
     }
 
-    // Update the specific column's answer
-    updatedRows[rowIndex].columns[colIndex].answer = newValue;
+    // Only update the specific column's answer
+    if (updatedRows[rowIndex].columns[colIndex]) {
+      const colType = colIndex < columns.length ? columns[colIndex]?.content?.type : null;
+      let newValue = value;
+
+      if (colType === "repositorySearch" && Array.isArray(value)) {
+        newValue = value.map(repo => ({
+          repositoryId: repo.uri || repo.id,
+          repositoryName: repo.name
+        }));
+      }
+
+      if (colType === "metadataStandardSearch" && Array.isArray(value)) {
+        newValue = value.map(std => ({
+          metadataStandardId: String(std.id || std.value || std.metadataStandardId),
+          metadataStandardName: std.name || std.label || std.metadataStandardName
+        }));
+      }
+
+
+      // Convert byte size object to string for backend
+      if (
+        colIndex === columns.length + 1 && // byteSizeColIndex
+        value &&
+        typeof value === "object" &&
+        "value" in value &&
+        "context" in value
+      ) {
+        // Only include value if it's not empty/undefined
+        newValue = value.value !== undefined && value.value !== ''
+          ? `${value.value} ${value.context}`
+          : '';
+      }
+
+      updatedRows[rowIndex].columns[colIndex].answer = newValue;
+    }
+
     setRows(updatedRows);
   };
-
 
   // Get current row data
   const currentRow = rows && rows[0];
   const releaseDateColIndex = columns.length;
   const byteSizeColIndex = columns.length + 1;
 
-  // Parse byte size answer
-  const byteSizeAnswer = currentRow?.columns[byteSizeColIndex]?.answer || { value: 0, context: 'kb' };
-
-  const isNumberWithContext = (ans: any): ans is { value: number; context: string } =>
-    ans && typeof ans === 'object' && 'value' in ans && 'context' in ans;
-
-  const byteSizeValue = isNumberWithContext(byteSizeAnswer) ? byteSizeAnswer.value ?? '' : '';
-  const byteSizeUnit = isNumberWithContext(byteSizeAnswer) ? byteSizeAnswer.context : 'kb';
+  // Parse byte size answer so it will be in correct format for rendering
+  const byteSizeAnswer = currentRow?.columns[byteSizeColIndex]?.answer || '';
+  const { value: byteSizeValue, context: byteSizeUnit } = parseByteSizeAnswer(
+    typeof byteSizeAnswer === 'string' ? byteSizeAnswer : ''
+  );
 
 
   return (
@@ -255,12 +324,22 @@ const ResearchOutputAnswerComponent = ({
           }
 
           case 'repositorySearch':
+            // Type guard to check if preferences exist
+            const colRepoPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
             // Get existing repository data and transform it to the format RepoSelectorForAnswer expects
-            const existingRepos = Array.isArray(value) ? value.map((repo: any) => ({
-              id: repo.repositoryId,
-              uri: repo.repositoryId,
-              name: repo.repositoryName
-            })) : [];
+            const existingRepos = Array.isArray(value) && value.length > 0
+              ? value.map((repo: any) => ({
+                id: repo.repositoryId,
+                uri: repo.repositoryId,
+                name: repo.repositoryName
+              }))
+              : (colRepoPreferences
+                ? colRepoPreferences.map((pref: any) => ({
+                  id: pref.value,
+                  uri: pref.value,
+                  name: pref.label
+                }))
+                : []);
 
             return (
               <div key={col.heading}>
@@ -272,17 +351,25 @@ const ResearchOutputAnswerComponent = ({
                   }}
                 />
               </div>
-            )
+            );
           case 'metadataStandardSearch':
-
+            // 
+            const colStdPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
 
             // Get existing metadata standards data and transform to the format MetaDataStandardsForAnswer expects
             const existingMetaDataStandards = Array.isArray(value)
               ? value.map((std: any) => ({
                 id: std.metadataStandardId,
                 name: std.metadataStandardName,
+                uri: std.metadataStandardId
               }))
-              : [];
+              : (colStdPreferences
+                ? colStdPreferences.map((pref: any) => ({
+                  id: pref.value,
+                  name: pref.label,
+                  uri: pref.value
+                }))
+                : []);
 
             return (
               <div key={col.heading}>

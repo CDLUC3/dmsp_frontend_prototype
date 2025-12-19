@@ -839,7 +839,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
     const jsonPayload = getAnswerJson();
 
-    // Check is answer already exists. If so, we want to call an update mutation rather than add
+    // Check if answer already exists. If so, we want to call an update mutation rather than add
     const isUpdate = Boolean(answerData?.answerByVersionedQuestionId);
 
     if (selectedQuestion) {
@@ -928,7 +928,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   const setResearchOutputTableRows = (rows: ResearchOutputTable[]) => {
     setResearchOutputRows(Array.isArray(rows) ? rows : []);
-    setHasUnsavedChanges(true);
   };
 
   // Helper function to format the last saved messaging
