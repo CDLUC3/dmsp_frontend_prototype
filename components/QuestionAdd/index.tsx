@@ -371,8 +371,6 @@ const QuestionAdd = ({
 
     const updatedJSON = buildUpdatedJSON(question);
 
-    console.log("***Updated JSON to be submitted:", updatedJSON);
-
     const { success, error } = updatedJSON ?? {};
     if (success && !error) {
       // Strip all tags from questionText before sending to backend

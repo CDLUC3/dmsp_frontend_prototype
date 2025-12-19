@@ -162,7 +162,13 @@ const MetaDataStandardForAnswer = ({
     if (isSelected) {
       newSelected = (Object.values(selectedStandards) as MetaDataStandardInterface[]).filter(s => s.uri !== std.uri);
     } else {
-      newSelected = [...(Object.values(selectedStandards) as MetaDataStandardInterface[]), std];
+      const formattedStd = {
+        id: std.uri,
+        name: std.name,
+        uri: std.uri,
+        description: std.description,
+      };
+      newSelected = [...(Object.values(selectedStandards) as MetaDataStandardInterface[]), formattedStd];
     }
     onMetaDataStandardsChange?.(newSelected);
 
@@ -235,7 +241,7 @@ const MetaDataStandardForAnswer = ({
 
       // Add the newly created standard to selected standards
       const newStandard: MetaDataStandardInterface = {
-        id: response.data?.id || Date.now(), // Use returned ID or timestamp as fallback
+        id: uri.trim(), // Using URI as ID for custom standards
         name: name.trim(),
         uri: uri.trim(),
         description: description.trim(),
