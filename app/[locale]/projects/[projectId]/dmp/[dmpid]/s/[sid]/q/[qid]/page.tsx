@@ -926,10 +926,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   };
 
-  const setResearchOutputTableRows = (rows: ResearchOutputTable[]) => {
-    setResearchOutputRows(Array.isArray(rows) ? rows : []);
-  };
-
   // Helper function to format the last saved messaging
   const getLastSavedText = () => {
 
@@ -1208,7 +1204,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         ? {
           columns: parsed.columns,
           rows: researchOutputRows,
-          setRows: setResearchOutputTableRows
+          setRows: setResearchOutputRows
         }
         : undefined,
   });

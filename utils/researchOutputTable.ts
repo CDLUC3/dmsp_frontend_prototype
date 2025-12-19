@@ -37,3 +37,21 @@ export const getDefaultAnswerForType = (
   }
 };
 
+
+export const DEFAULT_ACCESS_LEVELS = [
+  {
+    label: 'Unrestricted Access',
+    value: 'open',
+    selected: false
+  },
+  {
+    label: 'Controlled Access',
+    value: 'restricted',
+    selected: false
+  },
+  {
+    label: 'Other',
+    value: 'closed',
+    selected: false
+  },
+];
