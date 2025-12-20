@@ -276,7 +276,8 @@
     "buttons": {
       "changeType": "Change type",
       "previewQuestion": "Preview question",
-      "deleteQuestion": "Delete question"
+      "deleteQuestion": "Delete question",
+      "addOutput": "Add Output"
     },
     "descriptions": {
       "sampleText": "Provide an example or template of expected answer (optional but recommended)",

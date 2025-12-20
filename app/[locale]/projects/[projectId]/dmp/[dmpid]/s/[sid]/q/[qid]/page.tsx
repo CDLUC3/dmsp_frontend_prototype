@@ -571,6 +571,17 @@ const PlanOverviewQuestionPage: React.FC = () => {
     router.push(routePath('projects.dmp.versionedSection', { projectId, dmpId, versionedSectionId }))
   }
 
+  // Pass this save function to research output table so it can trigger a save
+  const saveResearchOutputs = async () => {
+    setHasUnsavedChanges(true);
+    const { success } = await addAnswer(false);
+    if (success) {
+      setLastSavedAt(new Date());
+      setHasUnsavedChanges(false);
+      showSuccessToast();
+    }
+  };
+
   // Prefill the current question with existing answer
   /*eslint-disable @typescript-eslint/no-explicit-any*/
   const prefillAnswer = (answer: any, type: string) => {
@@ -1204,7 +1215,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
         ? {
           columns: parsed.columns,
           rows: researchOutputRows,
-          setRows: setResearchOutputRows
+          setRows: setResearchOutputRows,
+          onSave: saveResearchOutputs
         }
         : undefined,
   });
@@ -1371,7 +1383,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
             </p>
             <Form onSubmit={handleSubmit}>
               <Card data-testid='question-card'>
-                <span>Question</span>
+                <span>{PlanOverview('headings.question')}</span>
                 <h2 id="question-title" className="h3">
                   {stripHtmlTags(question?.questionText)}
                 </h2>

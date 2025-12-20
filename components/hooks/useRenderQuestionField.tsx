@@ -1,3 +1,4 @@
+import React, { Dispatch, SetStateAction } from 'react';
 import { CalendarDate, DateValue } from "@internationalized/date";
 import { useTranslations } from "next-intl";
 
@@ -21,10 +22,6 @@ import {
 } from '@/lib/constants';
 
 import {
-  DefaultResearchOutputTypesQuery,
-  LicensesQuery
-} from '@/generated/graphql';
-import {
   RadioButtonsQuestionComponent,
   CheckboxesQuestionComponent,
   SelectboxQuestionComponent,
@@ -47,12 +44,7 @@ import logECS from '@/utils/clientLogger';
 
 import {
   Question,
-  AdditionalFieldsType,
-  OutputTypeInterface,
-  StandardField,
-  RepositoryInterface,
   ResearchOutputTable,
-  MetaDataStandardInterface,
 } from '@/app/types';
 
 import TinyMCEEditor from '@/components/TinyMCEEditor';
@@ -64,15 +56,6 @@ import { QuestionTypeMap } from '@dmptool/types';
 export type QuestionType = keyof QuestionTypeMap;
 
 export type ParsedQuestion = QuestionTypeMap[QuestionType];
-
-
-type ResearchOutputTableAnswerRow = {
-  columns: Array<{
-    type: string;
-    answer: any;
-    meta: any;
-  }>;
-};
 
 
 export interface RenderQuestionFieldProps {
@@ -168,7 +151,8 @@ export interface RenderQuestionFieldProps {
   researchOutputTableAnswerProps?: {
     columns: typeof DefaultResearchOutputTableQuestion['columns'];
     rows: ResearchOutputTable[];
-    setRows: (rows: ResearchOutputTable[]) => void;
+    setRows: Dispatch<SetStateAction<ResearchOutputTable[]>>
+    onSave?: () => Promise<void>;
   };
 }
 
@@ -431,6 +415,7 @@ export function useRenderQuestionField({
             columns={parsed.columns}
             rows={researchOutputTableAnswerProps?.rows}
             setRows={researchOutputTableAnswerProps?.setRows}
+            onSave={researchOutputTableAnswerProps?.onSave}
           />
         );
       }

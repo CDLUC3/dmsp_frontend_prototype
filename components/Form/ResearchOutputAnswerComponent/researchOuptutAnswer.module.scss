@@ -7,3 +7,134 @@
   gap: var(--space-3);
   flex-wrap: wrap;
 }
+
+// Research Output Answer Component Styles
+
+// List View Styles
+.listView {
+  margin: 2rem 0;
+}
+
+.listHeader {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  
+  h3 {
+    margin: 0;
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem 2rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 2px dashed #dee2e6;
+  
+  p {
+    margin-bottom: 1.5rem;
+    color: #6c757d;
+    font-size: 1.1rem;
+  }
+}
+
+.outputList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.outputItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  margin-bottom: 0.75rem;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: #adb5bd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+}
+
+.outputTitle {
+  flex: 1;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #212529;
+  margin-right: 1rem;
+}
+
+.outputActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+// Single Edit View Styles
+.singleEditView {
+  margin: 2rem 0;
+}
+
+.editHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #dee2e6;
+  
+  h3 {
+    margin: 0;
+  }
+}
+
+.editActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+// Existing styles (keep these from your original file)
+.checkboxGroupContainer {
+  margin-bottom: 1.5rem;
+}
+
+.fileSizeSelect {
+  min-width: 120px;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .listHeader,
+  .editHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .outputItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .outputActions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .editActions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+.btnContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

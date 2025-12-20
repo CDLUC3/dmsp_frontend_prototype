@@ -14,7 +14,8 @@
     "headings": {
       "comments": "Comments",
       "leaveAComment": "Leave a comment",
-      "requirementsBy": "Requirements by {funder}"
+      "requirementsBy": "Requirements by {funder}",
+      "question": "Question"
     },
     "labels": {
       "saveAnswer": "Save answer",

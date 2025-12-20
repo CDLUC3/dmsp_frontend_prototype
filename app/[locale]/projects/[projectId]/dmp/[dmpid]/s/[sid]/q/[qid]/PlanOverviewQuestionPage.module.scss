@@ -321,3 +321,9 @@
   cursor: help;
   font-size: 12px;
 }
+
+.btnContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
