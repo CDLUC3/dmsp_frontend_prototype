@@ -319,6 +319,10 @@
       "bestPractice": "Best practice by DMP Tool",
       "deleteQuestion": "Delete question",
       "confirmDelete": "Confirm delete"
+    },
+    "definitions": {
+      "type": "Type",
+      "repository": "Repository"
     }
   },
   "QuestionOptionsComponent": {

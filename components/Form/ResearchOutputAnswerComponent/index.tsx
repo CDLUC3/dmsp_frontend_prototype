@@ -1,9 +1,12 @@
 /* eslint-disable react/prop-types */
 'use client'
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from "react-aria-components";
-import { DefaultResearchOutputTableQuestion, } from '@dmptool/types';
+import {
+  CURRENT_SCHEMA_VERSION,
+  DefaultResearchOutputTableQuestion
+} from '@dmptool/types';
 import { useTranslations } from "next-intl";
 
 import {
@@ -11,7 +14,7 @@ import {
 } from '@/app/types';
 import SingleResearchOutputComponent from './SingleResearchOutputComponent';
 import { getDefaultAnswerForType } from '@/utils/researchOutputTable';
-import styles from './researchOuptutAnswer.module.scss';
+import styles from './researchOutputAnswer.module.scss';
 
 type ResearchOutputAnswerComponentProps = {
   columns: typeof DefaultResearchOutputTableQuestion['columns'];
@@ -25,9 +28,12 @@ const ResearchOutputAnswerComponent = ({
   columns,
   rows,
   setRows,
-  columnHeadings = [],// Will use column headings to find title, type and first repository type
+  columnHeadings = [],// Will use column headings to find title, type and repository type to display in list view
   onSave,
 }: ResearchOutputAnswerComponentProps) => {
+
+  // To track that the page was rendered once
+  const hasInitialized = useRef(false);
 
   // State to track which row is being edited (null means showing list view)
   const [editingRowIndex, setEditingRowIndex] = useState<number | null>(null);
@@ -68,13 +74,12 @@ const ResearchOutputAnswerComponent = ({
     return 'Untitled Research Output';
   };
 
-  // Helper to get Output Type (single selectBox value)
+  // Helper to get Output Type from columnHeadings
   const getRowOutputType = (row: ResearchOutputTable): string => {
     const outputTypeIndex = columnHeadings.findIndex(
       heading => heading.toLowerCase() === 'output type'
     );
     if (
-      outputTypeIndex !== -1 &&
       row.columns[outputTypeIndex] &&
       typeof row.columns[outputTypeIndex].answer === 'string'
     ) {
@@ -83,17 +88,16 @@ const ResearchOutputAnswerComponent = ({
     return '';
   };
 
-  // Helper to get Repositories (array of repositoryName)
+  // Helper to get selected repositories from columnHeadings
   const getRowRepositories = (row: ResearchOutputTable): string[] => {
     const repoIndex = columnHeadings.findIndex(
       heading => heading.toLowerCase() === 'repositories'
     );
     if (
-      repoIndex !== -1 &&
       row.columns[repoIndex] &&
       Array.isArray(row.columns[repoIndex].answer)
     ) {
-      // Each item: { repositoryId, repositoryName }
+      // Each repo: { repositoryId, repositoryName }
       return row.columns[repoIndex].answer.map(
         (repo: any) => repo.repositoryName
       );
@@ -101,12 +105,12 @@ const ResearchOutputAnswerComponent = ({
     return [];
   };
 
-  // Create an empty research output row
+  // Create an empty research output row to add a new output
   const createEmptyRow = (): ResearchOutputTable => {
     return {
       columns: [
         ...columns.map(col => {
-          const schemaVersion = col.content?.meta?.schemaVersion || "1.0";
+          const schemaVersion = col.content?.meta?.schemaVersion || CURRENT_SCHEMA_VERSION;
           const baseAnswer = getDefaultAnswerForType(col.content.type, schemaVersion);
 
           // Handle repositorySearch with preferences
@@ -176,7 +180,7 @@ const ResearchOutputAnswerComponent = ({
     }
   };
 
-  // Handle done editing (go back to list view and trigger parent save)
+  // Handle done editing
   const handleDoneEditing = async () => {
     setEditingRowIndex(null);
     setIsAddingNew(false);
@@ -213,6 +217,15 @@ const ResearchOutputAnswerComponent = ({
     setIsAddingNew(false);
   };
 
+  // Automatically show form when there are no rows (i.e., first time adding an answer)
+  useEffect(() => {
+    if (rows.length === 0 && editingRowIndex === null && !hasInitialized.current) {
+      hasInitialized.current = true;
+      handleAddNew();
+    }
+  }, [rows.length]);
+
+
   // If editing a specific row, show the single form
   if (editingRowIndex !== null) {
     // Create a subset of rows with just the one being edited
@@ -224,12 +237,15 @@ const ResearchOutputAnswerComponent = ({
           <h3 className="h3">
             {isAddingNew ? 'Add Research Output' : 'Edit Research Output'}
           </h3>
-          <Button
-            className="secondary small"
-            onPress={handleCancel}
-          >
-            {Global('buttons.cancel')}
-          </Button>
+          {/* Only show cancel button when editing existing */}
+          {!isAddingNew && (
+            <Button
+              className="secondary small"
+              onPress={handleCancel}
+            >
+              {Global('buttons.cancel')}
+            </Button>
+          )}
         </div>
 
         <SingleResearchOutputComponent
@@ -251,7 +267,6 @@ const ResearchOutputAnswerComponent = ({
           }}
           showButtons={true}
           onSave={handleDoneEditing}
-          onCancel={handleCancel}
           onDelete={() => handleDelete(editingRowIndex!)}
           isNewEntry={isAddingNew}
         />
@@ -277,7 +292,16 @@ const ResearchOutputAnswerComponent = ({
             <div className={styles.outputTitle}>
 
               <h4 className={styles.outputTitleText}>{getRowTitle(row)}</h4>
-              <div><span className={styles.outputType}>Type: {getRowOutputType(row)}</span><span>Repository: {getRowRepositories(row)[0]}</span></div>
+              <dl className={styles.dList}>
+                <dt>{t('definitions.type')}:</dt>
+                <dd className={styles.outputType}>{getRowOutputType(row)}</dd>
+                {getRowRepositories(row).length > 0 && (
+                  <>
+                    <dt>{t('definitions.repository')}:</dt>
+                    <dd>{getRowRepositories(row)[0]}</dd>
+                  </>
+                )}
+              </dl>
             </div>
             <div>
 

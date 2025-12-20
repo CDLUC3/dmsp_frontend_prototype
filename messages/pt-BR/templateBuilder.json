@@ -318,6 +318,10 @@
       "bestPractice": "Melhores práticas da Ferramenta DMP",
       "deleteQuestion": "Apagar Pergunta",
       "confirmDelete": "Confirmar exclusão?"
+    },
+    "definitions": {
+      "type": "Tipo",
+      "repository": "Repositório"
     }
   },
   "QuestionOptionsComponent": {

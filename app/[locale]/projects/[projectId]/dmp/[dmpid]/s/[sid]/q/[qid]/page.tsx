@@ -54,13 +54,12 @@ import { DmpIcon } from "@/components/Icons";
 import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
 import ExpandableContentSection from '@/components/ExpandableContentSection';
 import SafeHtml from '@/components/SafeHtml';
+import Loading from '@/components/Loading';
 
 // Constants
 import {
   CHECKBOXES_QUESTION_TYPE,
-  OPTIONS_QUESTION_TYPES,
   RADIOBUTTONS_QUESTION_TYPE,
-  RANGE_QUESTION_TYPE,
   TYPEAHEAD_QUESTION_TYPE,
   TEXT_AREA_QUESTION_TYPE,
   RESEARCH_OUTPUT_QUESTION_TYPE,
@@ -691,7 +690,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           setResearchOutputRows(answer);
         } else {
           // Initialize with empty row if no answer exists AND no rows exist yet
-          if (parsed?.type === 'researchOutputTable') {
+          if (parsed?.type === RESEARCH_OUTPUT_QUESTION_TYPE) {
             setResearchOutputRows(prev => {
               if (prev.length > 0) return prev;
               const emptyRow = createEmptyResearchOutputRow(parsed.columns);
@@ -806,7 +805,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
       case RESEARCH_OUTPUT_QUESTION_TYPE:
         // Extract column headings from parsed columns
-        const columnHeadings = parsed?.type === 'researchOutputTable'
+        const columnHeadings = parsed?.type === RESEARCH_OUTPUT_QUESTION_TYPE
           ? [
             ...parsed.columns.map(col => col.heading),
             'Anticipated Release Date',
@@ -1241,7 +1240,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       handleOtherAffiliationChange,
     },
     researchOutputTableAnswerProps:
-      parsed?.type === 'researchOutputTable'
+      parsed?.type === RESEARCH_OUTPUT_QUESTION_TYPE
         ? {
           columns: parsed.columns,
           rows: researchOutputRows,
@@ -1253,11 +1252,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
   });
 
   if (versionedQuestionLoading || planQueryLoading || answerLoading) {
-    return <div>{Global('messaging.loading')}...</div>;
+    return <Loading />;
   }
 
   if (versionedQuestionError || planQueryError || answerError) {
-    return <div>{Global('messaging.somethingWentWrong')}</div>
+    return <div className="error">{Global('messaging.somethingWentWrong')}</div>
   }
 
   return (

@@ -805,7 +805,8 @@
       "errors": {
         "invalidQuestionType": "Tipo de questão inválido encontrado.",
         "questionUnexpectedFormat": "Formato inesperado para question.json.",
-        "questionJSONFParseFailed": "JSON.parse falhou."
+        "questionJSONFParseFailed": "JSON.parse falhou.",
+        "requiredField": "{field} é obrigatório"
       },
       "numDisplaying": "Mostrando {num} de {total}",
       "unsavedChangesWarning": "Você tem alterações não salvas. Tem certeza que deseja sair desta página?"

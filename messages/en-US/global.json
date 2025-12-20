@@ -805,7 +805,8 @@
       "errors": {
         "invalidQuestionType": "Invalid question type found.",
         "questionUnexpectedFormat": "Unexpected format for question.json.",
-        "questionJSONFParseFailed": "JSON.parse failed."
+        "questionJSONFParseFailed": "JSON.parse failed.",
+        "requiredField": "{field} is required"
       },
       "numDisplaying": "Showing {num} of {total}",
       "unsavedChangesWarning": "You have unsaved changes. Are you sure you want to leave this page?"

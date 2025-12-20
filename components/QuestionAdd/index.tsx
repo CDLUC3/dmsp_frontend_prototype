@@ -320,9 +320,7 @@ const QuestionAdd = ({
     }
 
     if (questionType === RESEARCH_OUTPUT_QUESTION_TYPE) {
-      const temp = buildResearchOutputFormState(parsed);
-      console.log("Built Research Output Form State:", temp);
-      return temp;
+      return buildResearchOutputFormState(parsed);
     }
 
     if (!parsed) {
@@ -353,12 +351,10 @@ const QuestionAdd = ({
       }
       return;
     }
-    const temp = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+    return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
       parsed,
       userInput
     );
-    console.log("What's returned by questionTypeHander  :", temp);
-    return temp;
   };
 
   // Function to add and save the new question
