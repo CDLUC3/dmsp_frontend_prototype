@@ -82,6 +82,7 @@ const SingleResearchOutputComponent = ({
       }
 
       const updatedRows = [...prevRows];
+      console.log("***Updated Rows before change:", updatedRows);
       const updatedRow = { ...updatedRows[0] };
       updatedRow.columns = [...updatedRow.columns];
       updatedRow.columns[colIndex] = { ...updatedRow.columns[colIndex] };
@@ -118,8 +119,11 @@ const SingleResearchOutputComponent = ({
 
       updatedRow.columns[colIndex].answer = newValue;
       updatedRows[0] = updatedRow;
+      console.log("***Updated Rows after change:", updatedRows);
       return updatedRows;
     });
+    console.log("***Handle Cell Change:", colIndex, value);
+    console.log("***ROWS AFTER CHANGE:", rows);
   };
 
 
@@ -295,7 +299,7 @@ const SingleResearchOutputComponent = ({
 
           case 'repositorySearch':
             const colRepoPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
-            const existingRepos = Array.isArray(value) && value.length > 0
+            const existingRepos = Array.isArray(value)
               ? value.map((repo: any) => ({
                 id: repo.repositoryId,
                 uri: repo.repositoryId,

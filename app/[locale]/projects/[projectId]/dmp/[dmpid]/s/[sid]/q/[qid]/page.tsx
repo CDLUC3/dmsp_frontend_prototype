@@ -1165,7 +1165,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
   }, [commentErrors])
 
 
-  console.log("***Parseed question:", parsed);
   // Render the question using the useRenderQuestionField helper
   const questionField = useRenderQuestionField({
     questionType,
