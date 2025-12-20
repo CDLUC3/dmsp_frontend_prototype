@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useTranslations } from "next-intl";
+import { CalendarDate, DateValue } from "@internationalized/date";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -16,19 +18,8 @@ import {
   Tooltip,
   TooltipTrigger
 } from "react-aria-components";
-import { ResearchOutputDemo, MOCK_RESEARCH_OUTPUT_QUESTION } from './ResearchOutputDemo';
-import { CalendarDate, DateValue } from "@internationalized/date";
-import DOMPurify from 'dompurify';
-import { ResearchOutputTable } from '@/app/types';
-import styles from './PlanOverviewQuestionPage.module.scss';
-import { useTranslations } from "next-intl";
-import {
-  ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel,
-  DrawerPanel
-} from "@/components/Container";
 
+// GraphQL 
 import {
   useMeQuery,
   usePlanQuery,
@@ -37,7 +28,24 @@ import {
   useGuidanceGroupsQuery
 } from '@/generated/graphql';
 
+import {
+  Question,
+  MergedComment,
+  ResearchOutputTable
+} from '@/app/types';
+
+import {
+  addAnswerAction,
+  updateAnswerAction,
+} from './actions'; // server action mutations
+
 // Components
+import {
+  ContentContainer,
+  LayoutWithPanel,
+  SidebarPanel,
+  DrawerPanel
+} from "@/components/Container";
 import PageHeader from "@/components/PageHeader";
 import { Card, } from "@/components/Card/card";
 import ErrorMessages from '@/components/ErrorMessages';
@@ -45,8 +53,30 @@ import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON'
 import { DmpIcon } from "@/components/Icons";
 import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
 import ExpandableContentSection from '@/components/ExpandableContentSection';
-import CommentsDrawer from './CommentsDrawer';
 import SafeHtml from '@/components/SafeHtml';
+
+// Constants
+import {
+  CHECKBOXES_QUESTION_TYPE,
+  OPTIONS_QUESTION_TYPES,
+  RADIOBUTTONS_QUESTION_TYPE,
+  RANGE_QUESTION_TYPE,
+  TYPEAHEAD_QUESTION_TYPE,
+  TEXT_AREA_QUESTION_TYPE,
+  RESEARCH_OUTPUT_QUESTION_TYPE,
+  TEXT_FIELD_QUESTION_TYPE,
+  SELECTBOX_QUESTION_TYPE,
+  MULTISELECTBOX_QUESTION_TYPE,
+  BOOLEAN_QUESTION_TYPE,
+  EMAIL_QUESTION_TYPE,
+  URL_QUESTION_TYPE,
+  NUMBER_QUESTION_TYPE,
+  CURRENCY_QUESTION_TYPE,
+  DATE_QUESTION_TYPE,
+  DATE_RANGE_QUESTION_TYPE,
+  NUMBER_RANGE_QUESTION_TYPE
+} from '@/lib/constants';
+import { QuestionTypeMap } from '@dmptool/types';
 
 // Context
 import { useToast } from '@/context/ToastContext';
@@ -56,22 +86,12 @@ import { getDefaultAnswerForType } from '@/utils/researchOutputTable';
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
-import { QuestionTypeMap } from '@dmptool/types';
 
-import {
-  Question,
-  MergedComment,
-} from '@/app/types';
-
-// server action mutations
-import {
-  addAnswerAction,
-  updateAnswerAction,
-} from './actions';
 
 //hooks
 import { useComments } from './hooks/useComments';
-
+import CommentsDrawer from './CommentsDrawer';
+import styles from './PlanOverviewQuestionPage.module.scss';
 
 
 interface FormDataInterface {
@@ -136,7 +156,6 @@ interface PlanData {
 const PlanOverviewQuestionPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const dmpId = params.dmpid as string;
   const projectId = params.projectId as string;
   const versionedSectionId = params.sid as string;
@@ -145,9 +164,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const toastState = useToast(); // Access the toast state from context
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
-
-  // Check for demo mode query parameter
-  const isDemoMode = searchParams.get('demo') === 'researchOutput';
 
   // Ref for scrolling to bottom of comments
   const commentsEndRef = useRef<HTMLDivElement | null>(null);
@@ -194,6 +210,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Separate state for researchOutputTable
   const [researchOutputRows, setResearchOutputRows] = useState<ResearchOutputTable[]>([]);
+  const [columnHeadings, setColumnHeadings] = useState<string[]>([]);
 
   // Form state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -586,7 +603,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   /*eslint-disable @typescript-eslint/no-explicit-any*/
   const prefillAnswer = (answer: any, type: string) => {
     switch (type) {
-      case 'affiliationSearch':
+      case TYPEAHEAD_QUESTION_TYPE:
         if (answer) {
           setFormData(prev => ({
             ...prev,
@@ -599,31 +616,31 @@ const PlanOverviewQuestionPage: React.FC = () => {
           }));
         }
         break;
-      case 'boolean':
+      case BOOLEAN_QUESTION_TYPE:
         setFormData(prev => ({
           ...prev,
           yesNoValue: answer
         }));
         break;
-      case 'checkBoxes':
+      case CHECKBOXES_QUESTION_TYPE:
         setFormData(prev => ({
           ...prev,
           selectedCheckboxValues: answer
         }));
         break;
-      case 'currency':
+      case CURRENCY_QUESTION_TYPE:
         setFormData(prev => ({
           ...prev,
           inputCurrencyValue: answer
         }));
         break;
-      case 'date':
+      case DATE_QUESTION_TYPE:
         setFormData(prev => ({
           ...prev,
           dateValue: answer
         }));
         break;
-      case 'dateRange':
+      case DATE_RANGE_QUESTION_TYPE:
         if (answer?.start || answer?.end) {
           setFormData(prev => ({
             ...prev,
@@ -634,25 +651,25 @@ const PlanOverviewQuestionPage: React.FC = () => {
           }));
         }
         break;
-      case 'email':
+      case EMAIL_QUESTION_TYPE:
         setFormData(prev => ({
           ...prev,
           emailValue: answer
         }));
         break;
-      case 'multiselectBox':
+      case MULTISELECTBOX_QUESTION_TYPE:
         setFormData(prev => ({
           ...prev,
           selectedMultiSelectValues: new Set(answer)
         }));
         break;
-      case 'number':
+      case NUMBER_QUESTION_TYPE:
         setFormData(prev => ({
           ...prev,
           numberValue: answer
         }));
         break;
-      case 'numberRange':
+      case NUMBER_RANGE_QUESTION_TYPE:
         if (answer?.start || answer?.end) {
           setFormData(prev => ({
             ...prev,
@@ -663,13 +680,13 @@ const PlanOverviewQuestionPage: React.FC = () => {
           }));
         }
         break;
-      case 'radioButtons':
+      case RADIOBUTTONS_QUESTION_TYPE:
         setFormData(prev => ({
           ...prev,
           selectedRadioValue: answer
         }));
         break;
-      case 'researchOutputTable':
+      case RESEARCH_OUTPUT_QUESTION_TYPE:
         if (answer && Array.isArray(answer)) {
           setResearchOutputRows(answer);
         } else {
@@ -683,25 +700,25 @@ const PlanOverviewQuestionPage: React.FC = () => {
           }
         }
         break;
-      case 'selectBox':
+      case SELECTBOX_QUESTION_TYPE:
         setFormData(prev => ({
           ...prev,
           selectedSelectValue: answer
         }));
         break;
-      case 'text':
+      case TEXT_FIELD_QUESTION_TYPE:
         setFormData(prev => ({
           ...prev,
           textValue: answer
         }));
         break;
-      case 'textArea':
+      case TEXT_AREA_QUESTION_TYPE:
         setFormData(prev => ({
           ...prev,
           textAreaContent: answer
         }));
         break;
-      case 'url':
+      case URL_QUESTION_TYPE:
         setFormData(prev => ({
           ...prev,
           urlValue: answer
@@ -715,105 +732,115 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Get the answer for the question
   const getAnswerJson = (): Record<string, any> => {
     switch (questionType) {
-      case 'textArea':
+      case TEXT_AREA_QUESTION_TYPE:
         return {
-          type: 'textArea',
+          type: TEXT_AREA_QUESTION_TYPE,
           answer: formData.textAreaContent
         };
 
-      case 'text':
+      case TEXT_FIELD_QUESTION_TYPE:
         return {
-          type: 'text',
+          type: TEXT_FIELD_QUESTION_TYPE,
           answer: formData.textValue
         };
 
-      case 'radioButtons':
+      case RADIOBUTTONS_QUESTION_TYPE:
         return {
-          type: 'radioButtons',
+          type: RADIOBUTTONS_QUESTION_TYPE,
           answer: formData.selectedRadioValue
         };
 
-      case 'checkBoxes':
+      case CHECKBOXES_QUESTION_TYPE:
         return {
-          type: 'checkBoxes',
+          type: CHECKBOXES_QUESTION_TYPE,
           answer: formData.selectedCheckboxValues
         };
 
-      case 'selectBox':
+      case SELECTBOX_QUESTION_TYPE:
         return {
-          type: 'selectBox',
+          type: SELECTBOX_QUESTION_TYPE,
           answer: formData.selectedSelectValue
         };
 
-      case 'multiselectBox':
+      case MULTISELECTBOX_QUESTION_TYPE:
         return {
-          type: 'multiselectBox',
+          type: MULTISELECTBOX_QUESTION_TYPE,
           answer: Array.from(formData.selectedMultiSelectValues)
         };
 
-      case 'boolean':
+      case BOOLEAN_QUESTION_TYPE:
         return {
-          type: 'boolean',
+          type: BOOLEAN_QUESTION_TYPE,
           answer: formData.yesNoValue
         };
 
-      case 'email':
+      case EMAIL_QUESTION_TYPE:
         return {
-          type: 'email',
+          type: EMAIL_QUESTION_TYPE,
           answer: formData.emailValue
         };
 
-      case 'url':
+      case URL_QUESTION_TYPE:
         return {
-          type: 'url',
+          type: URL_QUESTION_TYPE,
           answer: formData.urlValue
         };
 
-      case 'number':
+      case NUMBER_QUESTION_TYPE:
         return {
-          type: 'number',
+          type: NUMBER_QUESTION_TYPE,
           answer: formData.numberValue
         };
 
-      case 'currency':
+      case CURRENCY_QUESTION_TYPE:
         return {
-          type: 'currency',
+          type: CURRENCY_QUESTION_TYPE,
           answer: formData.inputCurrencyValue
         };
 
-      case 'date':
+      case DATE_QUESTION_TYPE:
         return {
-          type: 'date',
+          type: DATE_QUESTION_TYPE,
           answer: formData.dateValue?.toString()
         };
 
-      case 'researchOutputTable':
+      case RESEARCH_OUTPUT_QUESTION_TYPE:
+        // Extract column headings from parsed columns
+        const columnHeadings = parsed?.type === 'researchOutputTable'
+          ? [
+            ...parsed.columns.map(col => col.heading),
+            'Anticipated Release Date',
+            'Anticipated file size'
+          ]
+          : [];
+
         return {
-          type: 'researchOutputTable',
+          type: RESEARCH_OUTPUT_QUESTION_TYPE,
+          columnHeadings,
           answer: researchOutputRows
         };
 
-      case 'dateRange':
+      case DATE_RANGE_QUESTION_TYPE:
         return {
-          type: 'dateRange',
+          type: DATE_RANGE_QUESTION_TYPE,
           answer: {
             start: formData.dateRange.startDate?.toString() ?? null,
             end: formData.dateRange.endDate?.toString() ?? null
           }
         };
 
-      case 'numberRange':
+      case NUMBER_RANGE_QUESTION_TYPE:
         return {
-          type: 'numberRange',
+          type: NUMBER_RANGE_QUESTION_TYPE,
           answer: {
             start: formData.numberRange.startNumber,
             end: formData.numberRange.endNumber
           }
         };
 
-      case 'affiliationSearch':
+      case TYPEAHEAD_QUESTION_TYPE:
         return {
-          type: 'affiliationSearch',
+          type: TYPEAHEAD_QUESTION_TYPE,
           answer: {
             affiliationId: formData.affiliationData.affiliationId,
             affiliationName: formData.otherField ? formData.otherAffiliationName : formData.affiliationData.affiliationName,
@@ -1051,6 +1078,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
       if (parsed?.answer !== undefined) {
         prefillAnswer(parsed.answer, questionType);
       }
+      if (parsed?.columnHeadings) {
+        setColumnHeadings(parsed.columnHeadings);
+      }
     }
 
     // Combine both answerComments and feedbackComments into one, and save in state after ordering
@@ -1135,6 +1165,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   }, [commentErrors])
 
 
+  console.log("***Parseed question:", parsed);
   // Render the question using the useRenderQuestionField helper
   const questionField = useRenderQuestionField({
     questionType,
@@ -1216,7 +1247,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
           columns: parsed.columns,
           rows: researchOutputRows,
           setRows: setResearchOutputRows,
-          onSave: saveResearchOutputs
+          onSave: saveResearchOutputs,
+          columnHeadings: columnHeadings
         }
         : undefined,
   });
@@ -1227,111 +1259,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   if (versionedQuestionError || planQueryError || answerError) {
     return <div>{Global('messaging.somethingWentWrong')}</div>
-  }
-
-  // If in demo mode, render the research output component
-  if (isDemoMode) {
-    return (
-      <>
-        <PageHeader
-          title={plan?.title ?? 'Demo Plan'}
-          description=""
-          showBackButton={true}
-          breadcrumbs={
-            <Breadcrumbs aria-label={PlanOverview('navigation.navigation')}>
-              <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
-              <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-              <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
-              <Breadcrumb><Link href={routePath('projects.dmp.show', { projectId, dmpId })}>{Global('breadcrumbs.planOverview')}</Link></Breadcrumb>
-              <Breadcrumb><Link href={routePath('projects.dmp.versionedSection', { projectId, dmpId, versionedSectionId })}>{Global('breadcrumbs.sectionOverview')}</Link></Breadcrumb>
-              <Breadcrumb>{Global('breadcrumbs.questionDetails')} (Demo)</Breadcrumb>
-            </Breadcrumbs>
-          }
-          actions={null}
-          className="page-project-list"
-        />
-
-        <LayoutWithPanel>
-          <ContentContainer>
-            <div className="container">
-              {/**Requirements by funder */}
-              <section aria-label={"Requirements"}>
-                {/**TODO: need to get this data from backend */}
-                <h3 className={"h4"}>Requirements by University of California</h3>
-                <p>
-                  The university requires data and metadata to be cleared by the ethics
-                  committee before being submitted to funder.
-                </p>
-              </section>
-
-              <p className={styles.guidanceLinkWrapper}>
-                <DmpIcon icon="down_arrow" />
-                <Link href="#guidance" className={`${styles.guidanceLink} react-aria-Link`}>{PlanOverview('page.jumpToGuidance')}</Link>
-              </p>
-              <ResearchOutputDemo onBack={handleBackToSection} />
-
-              <section aria-label={"Guidance"} id="guidance">
-                <h3 className={"h4"}>Guidance by Funder</h3>
-                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(MOCK_RESEARCH_OUTPUT_QUESTION.guidanceText) }} />
-              </section>
-              <div className={styles.modalAction}>
-                <div>
-                  <Button
-                    type="submit"
-                    data-secondary
-                    className="primary"
-                    aria-label={PlanOverview('labels.saveAnswer')}
-                    aria-disabled={isSubmitting}
-                  >
-                    {isSubmitting ? Global('buttons.saving') : Global('buttons.save')}
-                  </Button>
-                </div>
-                <div>
-                  <Button
-                    className="secondary"
-                    aria-label={PlanOverview('labels.returnToSection')}
-                    onPress={() => handleBackToSection()}
-                  >
-                    {PlanOverview('buttons.backToSection')}
-                  </Button>
-                </div>
-
-              </div>
-            </div>
-          </ContentContainer>
-
-          <SidebarPanel isOpen={isSideBarPanelOpen}>
-            <div className={styles.headerWithLogo}>
-              <h2 className="h4">{Global('bestPractice')}</h2>
-              <Image
-                className={styles.Logo}
-                src="/images/DMP-logo.svg"
-                width="140"
-                height="16"
-                alt="DMP Tool"
-              />
-            </div>
-
-            <ExpandableContentSection
-              id="research-outputs-guidance"
-              heading="Research Outputs Best Practices"
-              expandLabel={Global('links.expand')}
-              summaryCharLimit={200}
-            >
-              <p>
-                When describing research outputs, consider all forms of scholarly products that will result from your project.
-              </p>
-              <p>
-                Include both traditional outputs (publications, datasets) and non-traditional outputs (software, protocols, educational materials).
-              </p>
-              <p>
-                For each output, specify the format, anticipated size, and any relevant standards or metadata schemas you will use.
-              </p>
-            </ExpandableContentSection>
-          </SidebarPanel>
-        </LayoutWithPanel>
-      </>
-    );
   }
 
   return (
@@ -1410,7 +1337,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 <div>
                   <div className={styles.buttonsRow}>
                     {/**Only include sample text button for textArea question types and if sampleText is not empty */}
-                    {(questionType === 'textArea' && question?.sampleText) && (
+                    {(questionType === TEXT_AREA_QUESTION_TYPE && question?.sampleText) && (
                       <Button
                         ref={openSampleTextButtonRef}
                         className="tertiary small"
@@ -1584,7 +1511,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
         {/** Sample text drawer. Only include for question types = Text Area */}
         {
-          questionType === 'textArea' && (
+          questionType === TEXT_AREA_QUESTION_TYPE && (
             <DrawerPanel
               isOpen={isSampleTextDrawerOpen}
               onClose={closeCurrentDrawer}

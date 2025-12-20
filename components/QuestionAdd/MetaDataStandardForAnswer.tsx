@@ -492,7 +492,10 @@ const MetaDataStandardForAnswer = ({
                             className={`${styles.searchResultItem} ${isSelected ? styles.selected : ''}`}
                           >
                             <div className={styles.searchResultHeader}>
-                              <div className={styles.searchResultTitle}>{std.name}</div>
+                              <div>
+                                <p className={styles.searchResultTitle}>{std.name}</p>
+                                <p>{std.description}</p>
+                              </div>
                               <Button
                                 onClick={() => toggleSelection(std)}
                                 className={`small ${isSelected ? 'secondary' : 'primary'}`}

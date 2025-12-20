@@ -68,6 +68,39 @@ const ResearchOutputAnswerComponent = ({
     return 'Untitled Research Output';
   };
 
+  // Helper to get Output Type (single selectBox value)
+  const getRowOutputType = (row: ResearchOutputTable): string => {
+    const outputTypeIndex = columnHeadings.findIndex(
+      heading => heading.toLowerCase() === 'output type'
+    );
+    if (
+      outputTypeIndex !== -1 &&
+      row.columns[outputTypeIndex] &&
+      typeof row.columns[outputTypeIndex].answer === 'string'
+    ) {
+      return row.columns[outputTypeIndex].answer;
+    }
+    return '';
+  };
+
+  // Helper to get Repositories (array of repositoryName)
+  const getRowRepositories = (row: ResearchOutputTable): string[] => {
+    const repoIndex = columnHeadings.findIndex(
+      heading => heading.toLowerCase() === 'repositories'
+    );
+    if (
+      repoIndex !== -1 &&
+      row.columns[repoIndex] &&
+      Array.isArray(row.columns[repoIndex].answer)
+    ) {
+      // Each item: { repositoryId, repositoryName }
+      return row.columns[repoIndex].answer.map(
+        (repo: any) => repo.repositoryName
+      );
+    }
+    return [];
+  };
+
   // Create an empty research output row
   const createEmptyRow = (): ResearchOutputTable => {
     return {
@@ -242,7 +275,12 @@ const ResearchOutputAnswerComponent = ({
         {rows.map((row, index) => (
           <li key={index} className={styles.outputItem}>
             <div className={styles.outputTitle}>
-              {getRowTitle(row)}
+
+              <h4 className={styles.outputTitleText}>{getRowTitle(row)}</h4>
+              <div><span className={styles.outputType}>Type: {getRowOutputType(row)}</span><span>Repository: {getRowRepositories(row)[0]}</span></div>
+            </div>
+            <div>
+
             </div>
             <div className={styles.outputActions}>
               <Button

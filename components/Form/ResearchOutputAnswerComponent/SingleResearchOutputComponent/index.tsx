@@ -2,6 +2,7 @@
 'use client'
 
 import React, { useEffect, useRef } from 'react';
+import { useTranslations } from "next-intl";
 import {
   Checkbox,
   ListBoxItem,
@@ -11,6 +12,13 @@ import {
   DefaultResearchOutputTableQuestion,
   LicenseSearchAnswerType
 } from '@dmptool/types';
+
+//GraphQL
+import {
+  ResearchOutputTable
+} from '@/app/types';
+
+//Components
 import {
   CheckboxGroupComponent,
   DateComponent,
@@ -20,9 +28,7 @@ import {
 } from '@/components/Form';
 import RepoSelectorForAnswer from '@/components/QuestionAdd/RepoSelectorForAnswer';
 import MetaDataStandardsForAnswer from '@/components/QuestionAdd/MetaDataStandardForAnswer';
-import {
-  ResearchOutputTable
-} from '@/app/types';
+
 
 // Utils
 import { DEFAULT_ACCESS_LEVELS, getDefaultAnswerForType } from '@/utils/researchOutputTable';
@@ -56,6 +62,9 @@ const SingleResearchOutputComponent = ({
   const textAreaFirstUpdate = useRef<{ [key: number]: boolean }>({});
   const initializedRef = useRef(false);
 
+
+  // Localization
+  const Global = useTranslations('Global');
 
   function parseByteSizeAnswer(answer: string) {
     if (typeof answer !== 'string') return { value: '', context: 'kb' };
@@ -444,9 +453,9 @@ const SingleResearchOutputComponent = ({
         <div className={styles.btnContainer}>
           <Button
             className="secondary"
-            onPress={onCancel}
+            onPress={onDelete}
           >
-            Delete
+            {Global('buttons.delete')}
           </Button>
           <Button
             className="primary"
