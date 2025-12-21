@@ -2,6 +2,7 @@ import {
   DefaultTextAnswer,
   DefaultTextAreaAnswer,
   DefaultSelectBoxAnswer,
+  DefaultRadioButtonsAnswer,
   DefaultCheckboxesAnswer,
   DefaultLicenseSearchAnswer,
   DefaultRepositorySearchAnswer,
@@ -22,6 +23,8 @@ export const getDefaultAnswerForType = (
       return { ...DefaultSelectBoxAnswer, meta: { schemaVersion } };
     case "checkBoxes":
       return { ...DefaultCheckboxesAnswer, meta: { schemaVersion } };
+    case "radioButtons":
+      return { ...DefaultRadioButtonsAnswer, meta: { schemaVersion } };
     case "date":
       return { ...DefaultTextAnswer, meta: { schemaVersion } };
     case "numberWithContext":

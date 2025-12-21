@@ -522,15 +522,14 @@ const QuestionEdit = () => {
     }
   }, [parsedQuestionJSON])
 
-  // Set initial research output table field states from parsedQuestionJSON
+  // Research Output Question - Set initial research output table field states from parsedQuestionJSON
   useEffect(() => {
     if (!hasHydrated.current && parsedQuestionJSON?.type === RESEARCH_OUTPUT_QUESTION_TYPE && Array.isArray(parsedQuestionJSON.columns)) {
       try {
-        // Helper to find a column by labelTranslationKey or heading
+        // Helper to find a column by heading
         const findColumn = (keys: string[]) =>
           parsedQuestionJSON.columns.find(
             (col) =>
-              (col?.meta?.labelTranslationKey && keys.includes(col.meta.labelTranslationKey)) ||
               (col?.heading && keys.includes(col.heading))
           );
 
@@ -643,9 +642,7 @@ const QuestionEdit = () => {
         // Hydrate additional fields (custom columns)
         const customCols = parsedQuestionJSON.columns.filter(
           (col) => {
-            const isStandard = (col?.meta?.labelTranslationKey && standardKeys.has(col.meta.labelTranslationKey)) ||
-              (col?.heading && standardKeys.has(col.heading));
-
+            const isStandard = (col?.heading && standardKeys.has(col.heading));
             return !isStandard;
           }
         );
@@ -676,8 +673,8 @@ const QuestionEdit = () => {
           ...parsedQuestionJSON.columns
             .filter((col) => col.enabled)
             .map((col) => {
-              // Try to match to field id by labelTranslationKey or heading
-              const key = col?.meta?.labelTranslationKey || col?.heading;
+              // Try to match to field id by heading
+              const key = col?.heading;
               switch (key) {
                 case 'researchOutput.title': return 'title';
                 case 'researchOutput.description': return 'description';

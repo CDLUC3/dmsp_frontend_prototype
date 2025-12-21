@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { DefaultResearchOutputTableQuestion } from '@dmptool/types';
 import { initialStandardFields } from '@/app/[locale]/template/[templateId]/q/standardFields';
 import {
   AnyParsedQuestion,
@@ -78,6 +79,56 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
     return field.metaDataConfig !== undefined;
   };
 
+  // Create a mapping from field IDs to default columns
+  const DEFAULT_COLUMNS_MAP = {
+    title: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Title'),
+    description: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Description'),
+    outputType: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Type'),
+    dataFlags: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Data Flags'),
+    accessLevels: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Access Level'),
+    releaseDate: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Anticipated Release Date'),
+    byteSize: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Byte Size'),
+    repositories: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Repository(ies)'),
+    metadataStandards: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Metadata Standard(s)'),
+    licenses: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'License'),
+  };
+
+  /**
+   * Helper function to build a column from default backend schema with field overrides
+   */
+  const buildColumnFromDefault = (
+    fieldId: keyof typeof DEFAULT_COLUMNS_MAP,
+    field: StandardField,
+    contentOverrides: any = {}
+  ) => {
+    const defaultColumn = DEFAULT_COLUMNS_MAP[fieldId];
+
+    if (!defaultColumn) {
+      throw new Error(`No default column found for ${fieldId}`);
+    }
+
+    const result = {
+      heading: field.label || defaultColumn.heading,
+      required: field.required ?? defaultColumn.required,
+      enabled: field.enabled ?? defaultColumn.enabled ?? false,
+      help: defaultColumn.help,
+      content: {
+        type: defaultColumn.content.type,
+        meta: defaultColumn.content.meta,
+        attributes: {
+          ...defaultColumn.content.attributes,
+          ...(field.helpText && { help: field.helpText }),
+          ...(field.label && { label: field.label }),
+          ...contentOverrides.attributes,
+        },
+        ...(('options' in defaultColumn.content) && { options: defaultColumn.content.options }),
+        ...(('graphQL' in defaultColumn.content) && { graphQL: defaultColumn.content.graphQL }),
+        ...contentOverrides
+      }
+    };
+
+    return result;
+  };
 
   /**
    * Build form state for research output table questions.
@@ -108,36 +159,20 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
 
       switch (field.id) {
         case 'title':
-          columns.push({
-            ...field, // preserves enabled, required, helpText, etc
-            heading: field.label || 'Title',
-            content: {
-              type: 'text',
-              attributes: {
-                label: field.label || 'Title',
-                help: field.helpText || '',
-                maxLength: 500,
-                minLength: 1
-              }
+          columns.push(buildColumnFromDefault('title', field, {
+            attributes: {
+              maxLength: field.maxLength ? Number(field.maxLength) : 500,
             }
-          });
+          }));
           break;
 
         case 'description':
-          columns.push({
-            ...field, // preserves enabled, required, helpText, etc
-            heading: field.label || 'Description',
-            content: {
-              type: 'textArea',
-              attributes: {
-                label: field.label || 'Description',
-                help: field.helpText || '',
-                maxLength: field.maxLength ? Number(field.maxLength) : undefined,
-                asRichText: true,
-                rows: 4
-              }
+          columns.push(buildColumnFromDefault('description', field, {
+            attributes: {
+              // Don't override maxLength here, let it come from field or default
+              ...(field.maxLength && { maxLength: Number(field.maxLength) })
             }
-          });
+          }));
           break;
 
         case 'outputType': {
@@ -149,91 +184,65 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
               );
               outputTypeOptions.push({
                 label: defaultType,
-                value: backendType?.value || defaultType.toLowerCase().replace(/\s+/g, '-')
+                value: backendType?.value || defaultType.toLowerCase().replace(/\s+/g, '-'),
+                selected: false
               });
             });
           }
-          if (field.outputTypeConfig?.mode === 'mine' || !field.outputTypeConfig?.mode) {
+          if (field.outputTypeConfig?.mode === 'mine') {
             field.outputTypeConfig?.customTypes?.forEach(customType => {
               outputTypeOptions.push({
                 label: customType.type || '',
-                value: customType.type?.toLowerCase().replace(/\s+/g, '-') || ''
+                value: customType.type?.toLowerCase().replace(/\s+/g, '-') || '',
+                selected: false
               });
             });
           }
+
+          columns.push(buildColumnFromDefault('outputType', field, {
+            options: outputTypeOptions
+          }));
+          break;
+        }
+        case 'dataFlags': {
+          const defaultColumn = DEFAULT_COLUMNS_MAP.dataFlags;
+          if (!defaultColumn) break;
+
           columns.push({
-            ...field, // preserves enabled, required, helpText, etc
-            heading: field.label || 'Output Type',
-            content: {
-              type: 'selectBox',
-              attributes: {
-                label: field.label || 'Output Type',
-                help: field.helpText || '',
-                multiple: false
-              },
-              options: outputTypeOptions
+            heading: field.label || defaultColumn.heading || 'Data Flags',
+            required: field.required ?? defaultColumn.required ?? false,
+            enabled: field.enabled ?? false,
+            help: defaultColumn.help,
+            content: field.content || {
+              type: defaultColumn.content.type,
+              meta: defaultColumn.content.meta,
+              attributes: defaultColumn.content.attributes,
+              ...('options' in defaultColumn.content && { options: defaultColumn.content.options })
             }
           });
           break;
         }
 
-        case 'dataFlags':
-          columns.push({
-            ...field,
-            heading: field.heading || field.label || 'Data Flags',
-            content: field.content || {
-              type: 'checkBoxes',
-              meta: { schemaVersion: '1.0' },
-              attributes: {},
-              options: [
-                {
-                  label: 'May contain sensitive data?',
-                  value: 'sensitive',
-                  checked: false
-                },
-                {
-                  label: 'May contain personally identifiable information?',
-                  value: 'personal',
-                  checked: false
-                }
-              ]
-            }
-          });
-          break;
 
         case 'repoSelector': {
+          const defaultColumn = DEFAULT_COLUMNS_MAP.repositories;
           const repoColumn: any = {
-            ...field, // preserves enabled, required, helpText, etc
-            heading: field.label || 'Intended Repositories',
+            heading: field.label || defaultColumn?.heading || 'Repositories',
+            required: field.required ?? defaultColumn?.required ?? false,
+            enabled: field.enabled ?? false,
+            help: defaultColumn?.help,
             content: {
-              type: 'repositorySearch',
+              ...defaultColumn?.content,
               attributes: {
-                label: field.label || 'Intended Repositories',
-                help: field.helpText || ''
-              },
-              graphQL: {
-                displayFields: [
-                  { propertyName: 'name', label: 'Name' },
-                  { propertyName: 'description', label: 'Description' },
-                  { propertyName: 'website', label: 'Website' },
-                  { propertyName: 'keywords', label: 'Subject Areas' }
-                ],
-                query: 'query Repositories($term: String, $keywords: [String!], $repositoryType: String, $paginationOptions: PaginationOptions){ repositories(term: $term, keywords: $keywords, repositoryType: $repositoryType, paginationOptions: $paginationOptions) { totalCount currentOffset limit hasNextPage hasPreviousPage availableSortFields items { id name uri description website keywords repositoryTypes } } }',
-                responseField: 'repositories.items',
-                variables: [
-                  { minLength: 3, label: 'Search for a repository', name: 'term', type: 'string' },
-                  { minLength: 3, label: 'Subject Areas', name: 'keywords', type: 'string' },
-                  { minLength: 3, label: 'Repository type', name: 'repositoryType', type: 'string' },
-                  { label: 'Pagination Options', name: 'paginationOptions', type: 'paginationOptions', options: { type: 'OFFSET', limit: 10, offset: 0, sortField: 'name', sortOrder: 'ASC' } }
-                ],
-                queryId: 'useRepositoriesQuery',
-                answerField: 'uri'
+                ...defaultColumn?.content?.attributes,
+                label: field.label || defaultColumn?.heading || 'Repositories',
+                help: field.helpText || defaultColumn?.content?.attributes?.help || ''
               }
             }
           };
+
           if (field.repoConfig?.customRepos && field.repoConfig.customRepos.length > 0) {
             repoColumn.preferences = field.repoConfig.customRepos.map(repo => ({
-              id: repo.uri,
               label: repo.name,
               value: repo.uri || ''
             }));
@@ -242,35 +251,23 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
           break;
         }
 
+
         case 'metadataStandards': {
+          const defaultColumn = DEFAULT_COLUMNS_MAP.metadataStandards;
           const metadataColumn: any = {
-            ...field, // preserves enabled, required, helpText, etc
-            heading: field.label || 'Metadata Standards',
+            heading: field.label || defaultColumn?.heading || 'Metadata Standards',
+            required: field.required ?? defaultColumn?.required ?? false,
+            enabled: field.enabled ?? false,
             content: {
-              type: 'metadataStandardSearch',
+              ...defaultColumn?.content,
               attributes: {
-                label: field.label || 'Metadata Standards',
-                help: field.helpText || ''
-              },
-              graphQL: {
-                displayFields: [
-                  { propertyName: 'name', label: 'Name' },
-                  { propertyName: 'description', label: 'Description' },
-                  { propertyName: 'website', label: 'Website' },
-                  { propertyName: 'keywords', label: 'Subject Areas' }
-                ],
-                query: 'query MetadataStandards($term: String, $keywords: [String!], $paginationOptions: PaginationOptions){ metadataStandards(term: $term, keywords: $keywords, paginationOptions: $paginationOptions) { totalCount currentOffset limit hasNextPage hasPreviousPage availableSortFields items { id name uri description keywords } } }',
-                responseField: 'metadataStandards.items',
-                variables: [
-                  { minLength: 3, label: 'Search for a metadata standard', name: 'term', type: 'string' },
-                  { minLength: 3, label: 'Subject Areas', name: 'keywords', type: 'string' },
-                  { label: 'Pagination Options', name: 'paginationOptions', type: 'paginationOptions', options: { type: 'OFFSET', limit: 10, offset: 0, sortField: 'name', sortOrder: 'ASC' } }
-                ],
-                queryId: 'useMetadataStandardsQuery',
-                answerField: 'uri'
+                ...defaultColumn?.content?.attributes,
+                label: field.label || defaultColumn?.heading || 'Metadata Standards',
+                help: field.helpText || defaultColumn?.content?.attributes?.help || ''
               }
             }
           };
+
           if (hasMetaDataConfig(field) && field.metaDataConfig?.customStandards && field.metaDataConfig.customStandards.length > 0) {
             metadataColumn.preferences = field.metaDataConfig.customStandards.map(standard => ({
               label: standard.name,
@@ -282,31 +279,21 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
         }
 
         case 'licenses': {
+          const defaultColumn = DEFAULT_COLUMNS_MAP.licenses;
           const licenseColumn: any = {
-            ...field, // preserves enabled, required, helpText, etc
-            heading: field.label || 'Licenses',
+            heading: field.label || defaultColumn?.heading || 'Licenses',
+            required: field.required ?? defaultColumn?.required ?? false,
+            enabled: field.enabled ?? false,
             content: {
-              type: 'licenseSearch',
+              ...defaultColumn?.content,
               attributes: {
-                label: field.label || 'Licenses',
-                help: field.helpText || ''
-              },
-              graphQL: {
-                displayFields: [
-                  { propertyName: 'name', label: 'Name' },
-                  { propertyName: 'description', label: 'Description' },
-                  { propertyName: 'recommended', label: 'Recommended' }
-                ],
-                query: 'query Licenses($term: String, $paginationOptions: PaginationOptions){ license(term: $term, paginationOptions: $paginationOptions) { totalCount currentOffset limit hasNextPage hasPreviousPage availableSortFields items { id name uri description } } }',
-                responseField: 'licenses.items',
-                variables: [
-                  { minLength: 3, label: 'Search for a license', name: 'term', type: 'string' },
-                  { label: 'Pagination Options', name: 'paginationOptions', type: 'paginationOptions' }
-                ],
-                answerField: 'uri'
+                ...defaultColumn?.content?.attributes,
+                label: field.label || defaultColumn?.heading || 'Licenses',
+                help: field.helpText || defaultColumn?.content?.attributes?.help || ''
               }
             }
           };
+
           if (field.licensesConfig?.mode === 'addToDefaults' && field.licensesConfig?.customTypes && field.licensesConfig.customTypes.length > 0) {
             licenseColumn.preferences = field.licensesConfig.customTypes.map(license => ({
               label: license.name,
@@ -326,7 +313,8 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
             field.accessLevelsConfig?.selectedDefaults?.forEach(level => {
               accessLevelOptions.push({
                 label: level,
-                value: level
+                value: level,
+                selected: false
               });
             });
           }
@@ -334,23 +322,15 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
             field.accessLevelsConfig?.customLevels?.forEach(customLevel => {
               accessLevelOptions.push({
                 label: customLevel.label,
-                value: customLevel.value
+                value: customLevel.value,
+                selected: false
               });
             });
           }
-          columns.push({
-            ...field, // preserves enabled, required, helpText, etc
-            heading: field.label || 'Initial Access Levels',
-            content: {
-              type: 'selectBox',
-              attributes: {
-                label: field.label || 'Initial Access Levels',
-                help: field.helpText || '',
-                multiple: false
-              },
-              options: accessLevelOptions
-            }
-          });
+
+          columns.push(buildColumnFromDefault('accessLevels', field, {
+            options: accessLevelOptions
+          }));
           break;
         }
       }
@@ -374,15 +354,17 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
     });
 
     return {
-      ...parsed,
+      type: 'researchOutputTable',
       columns,
+      meta: DefaultResearchOutputTableQuestion.meta,
       attributes: {
+        canAddRows: DefaultResearchOutputTableQuestion.attributes?.canAddRows ?? true,
+        canRemoveRows: DefaultResearchOutputTableQuestion.attributes?.canRemoveRows ?? true,
+        initialRows: DefaultResearchOutputTableQuestion.attributes?.initialRows ?? 1,
+        label: DefaultResearchOutputTableQuestion.attributes?.label ?? '',
+        help: DefaultResearchOutputTableQuestion.attributes?.help ?? '',
+        // Override with parsed attributes if they exist
         ...(parsed && 'attributes' in parsed ? parsed.attributes : {}),
-        label: '',
-        help: '',
-        canAddRows: true,
-        canRemoveRows: true,
-        initialRows: 1
       }
     };
   };
