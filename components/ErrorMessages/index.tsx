@@ -3,16 +3,18 @@ import { scrollToTop } from '@/utils/general';
 
 type ErrorMessagesProps = {
   errors: string[] | Record<string, string | null | undefined>;
+  noScroll?: boolean;
 };
 
 // Shared Error Message rendering component for both arrays and objects
 const ErrorMessages = forwardRef<HTMLDivElement, ErrorMessagesProps>(
-  ({ errors }, ref) => {
+  ({ errors, noScroll }, ref) => {
     useEffect(() => {
-      if (errors && Object.keys(errors).length > 0 && ref && "current" in ref && ref.current) {
+
+      if (!noScroll && errors && Object.keys(errors).length > 0 && ref && "current" in ref && ref.current) {
         scrollToTop(ref);
       }
-    }, [errors, ref]);
+    }, [errors, ref, noScroll]);
 
 
     // Filter out empty or invalid errors

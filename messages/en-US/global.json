@@ -747,6 +747,7 @@
       "addAnother": "Add another",
       "goToProject": "Go to project",
       "back": "Back",
+      "backToList": "Back to list",
       "add": "Add",
       "customize": "Customize",
       "applyFilter": "Apply filter(s)",
@@ -767,7 +768,14 @@
       "name": "Name",
       "url": "URL",
       "description": "Description",
-      "searchTerm": "Search term"
+      "searchTerm": "Search term",
+      "title": "Title",
+      "dataFlags": "Data Flags",
+      "outputType": "Output Type",
+      "repositories": "Repositories",
+      "metadataStandards": "Metadata Standards",
+      "licenses": "Licenses",
+      "initialAccessLevels": "Initial Access Levels"
     },
     "helpText": {
       "searchHelpText": "Search by research organization, field station or lab, template description, etc.",

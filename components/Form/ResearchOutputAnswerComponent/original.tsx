@@ -17,8 +17,8 @@ import {
   FormSelect,
   FormTextArea,
 } from '@/components/Form';
-import RepoSelectorForAnswer from '@/components/QuestionAdd/RepoSelectorForAnswer';
-import MetaDataStandardsForAnswer from '@/components/QuestionAdd/MetaDataStandardForAnswer';
+import RepoSelectorForAnswer from '@/components/RepoSelectorForAnswer';
+import MetaDataStandardsForAnswer from '@/components/MetaDataStandardForAnswer';
 import {
   ResearchOutputTable
 } from '@/app/types';

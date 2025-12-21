@@ -25,6 +25,10 @@ export const RO_REPO_SELECTOR_ID = "repoSelector";
 export const RO_METADATA_STANDARD_SELECTOR_ID = "metadataStandards";
 export const RO_LICENSES_ID = "licenses";
 export const RO_ACCESS_LEVELS_ID = "accessLevels";
+export const REPOSITORY_SEARCH_ID = "repositorySearch";
+export const METADATA_STANDARD_SEARCH_ID = "metadataStandardSearch";
+export const LICENSE_SEARCH_ID = "licenseSearch";
+export const ACCESS_LEVELS_SEARCH_ID = "accessLevelsSearch";
 export const DOI_REGEX = /(?:doi:\s*)?(10\.\d{4,9}\/[-._;()\/:A-Z0-9]+)/i;
 
 

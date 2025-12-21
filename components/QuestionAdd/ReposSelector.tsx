@@ -31,7 +31,7 @@ import {
 
 import {
   addRepositoryAction
-} from "./actions";
+} from "@/app/actions";
 
 // Components
 import ErrorMessages from '../ErrorMessages';

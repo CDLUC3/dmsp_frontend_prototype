@@ -282,12 +282,11 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
           break;
 
         case RO_DESCRIPTION_ID:
-          columns.push(buildColumnFromDefault('description', field, {
-            attributes: {
-              // Don't override maxLength here, let it come from field or default
-              ...(field.maxLength && { maxLength: Number(field.maxLength) })
-            }
-          }));
+          const overrides = field.maxLength
+            ? { attributes: { maxLength: Number(field.maxLength) } }
+            : {}; // Don't pass attributes at all if nothing to override
+
+          columns.push(buildColumnFromDefault('description', field, overrides));
           break;
 
         case RO_OUTPUT_TYPE_ID: {

@@ -177,6 +177,17 @@ const ResearchOutputAnswerComponent = ({
     // Trigger parent page save if onSave callback exists
     if (onSave) {
       await onSave();
+      // scroll to top of this form + 20px offset
+      const formWrapper = document.querySelector('.ro-form-wrapper');
+      if (formWrapper) {
+        const elementPosition = formWrapper.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - 100;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
     }
   };
 
@@ -219,12 +230,25 @@ const ResearchOutputAnswerComponent = ({
 
   // Automatically show form when there are no rows (i.e., first time adding an answer)
   useEffect(() => {
-    if (rows.length === 0 && editingRowIndex === null && !hasInitialized.current) {
-      hasInitialized.current = true;
-      handleAddNew();
-    }
-  }, [rows.length]);
+    // Skip if already initialized
+    if (hasInitialized.current) return;
 
+    // If rows already exist (data loaded), just mark as initialized
+    if (rows.length > 0) {
+      hasInitialized.current = true;
+      return;
+    }
+
+    // Wait briefly for async data to load before deciding to show form
+    const timer = setTimeout(() => {
+      if (!hasInitialized.current && rows.length === 0 && editingRowIndex === null) {
+        hasInitialized.current = true;
+        handleAddNew();
+      }
+    }, 50); // Small delay to let data load
+
+    return () => clearTimeout(timer);
+  }, [rows.length, editingRowIndex]);
 
   // If editing a specific row, show the single form
   if (editingRowIndex !== null) {
@@ -243,7 +267,7 @@ const ResearchOutputAnswerComponent = ({
               className="secondary small"
               onPress={handleCancel}
             >
-              {Global('buttons.cancel')}
+              &lt; {Global('buttons.backToList')}
             </Button>
           )}
         </div>
@@ -276,7 +300,7 @@ const ResearchOutputAnswerComponent = ({
 
   // Show list view
   return (
-    <div className={styles.listView}>
+    <div className={`${styles.listView} ro-form-wrapper`}>
       <div className={styles.listHeader}>
         <Button
           className="primary small"

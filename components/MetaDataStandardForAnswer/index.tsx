@@ -5,12 +5,10 @@ import { useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
 import {
   Button,
-  Checkbox,
   Dialog,
   Heading,
   Input,
   Label,
-  Link,
   Modal,
   SearchField,
 } from "react-aria-components";
@@ -23,7 +21,7 @@ import {
 
 import {
   addMetaDataStandardsAction
-} from "./actions";
+} from "@/app/actions";
 
 // Utilities/Other
 import { routePath } from "@/utils/routes";
@@ -40,9 +38,8 @@ import { useToast } from '@/context/ToastContext';
 
 import {
   MetaDataStandardInterface,
-  MetaDataStandardFieldInterface
 } from '@/app/types';
-import styles from './Selector.module.scss';
+import styles from './metadataStandardForAnswer.module.scss';
 
 const LIMIT = 5;
 

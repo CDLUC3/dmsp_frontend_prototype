@@ -30,7 +30,7 @@ import {
 
 import {
   addRepositoryAction
-} from "@/components/QuestionAdd/actions/addRepositoryAction";
+} from "@/app/actions/addRepositoryAction";
 
 // Components
 import ErrorMessages from '../ErrorMessages';
@@ -44,7 +44,7 @@ import {
   RepositoryInterface,
   RepositoryFieldInterface
 } from '@/app/types';
-import styles from './Selector.module.scss';
+import styles from './repoSelectorForAnswer.module.scss';
 
 // # of repositories displayed per page
 const LIMIT = 5;

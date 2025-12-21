@@ -23,7 +23,7 @@ import {
 
 import {
   addMetaDataStandardsAction
-} from "./actions";
+} from "@/app/actions";
 
 // Utilities/Other
 import { routePath } from "@/utils/routes";

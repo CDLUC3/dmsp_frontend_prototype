@@ -30,11 +30,20 @@ import {
   FormSelect,
   FormTextArea,
 } from '@/components/Form';
-import RepoSelectorForAnswer from '@/components/QuestionAdd/RepoSelectorForAnswer';
-import MetaDataStandardsForAnswer from '@/components/QuestionAdd/MetaDataStandardForAnswer';
+import RepoSelectorForAnswer from '@/components/RepoSelectorForAnswer';
+import MetaDataStandardsForAnswer from '@/components/MetaDataStandardForAnswer';
 import ErrorMessages from "@/components/ErrorMessages";
 
 // Utils and other
+import {
+  CHECKBOXES_QUESTION_TYPE,
+  SELECTBOX_QUESTION_TYPE,
+  TEXT_FIELD_QUESTION_TYPE,
+  TEXT_AREA_QUESTION_TYPE,
+  REPOSITORY_SEARCH_ID,
+  METADATA_STANDARD_SEARCH_ID,
+  LICENSE_SEARCH_ID,
+} from '@/lib/constants';
 import { DEFAULT_ACCESS_LEVELS, getDefaultAnswerForType } from '@/utils/researchOutputTable';
 import { getCalendarDateValue } from '@/utils/dateUtils';
 import styles from '../researchOutputAnswer.module.scss';
@@ -89,23 +98,23 @@ const SingleResearchOutputComponent = ({
 
     if (col.required) {
       // Check if the field is empty based on its type
-      if (col.content.type === 'text' || col.content.type === 'textArea') {
+      if (col.content.type === TEXT_FIELD_QUESTION_TYPE || col.content.type === TEXT_AREA_QUESTION_TYPE) {
         if (!value || (typeof value === 'string' && !value.trim())) {
           error = Global('messaging.errors.requiredField', { field: col.heading });
         }
-      } else if (col.content.type === 'selectBox') {
+      } else if (col.content.type === SELECTBOX_QUESTION_TYPE) {
         if (!value || value === '') {
           error = Global('messaging.errors.requiredField', { field: col.heading });
         }
-      } else if (col.content.type === 'checkBoxes') {
+      } else if (col.content.type === CHECKBOXES_QUESTION_TYPE) {
         if (!Array.isArray(value) || value.length === 0) {
           error = Global('messaging.errors.requiredField', { field: col.heading });
         }
-      } else if (col.content.type === 'repositorySearch' || col.content.type === 'metadataStandardSearch') {
+      } else if (col.content.type === REPOSITORY_SEARCH_ID || col.content.type === METADATA_STANDARD_SEARCH_ID) {
         if (!Array.isArray(value) || value.length === 0) {
           error = Global('messaging.errors.requiredField', { field: col.heading });
         }
-      } else if (col.content.type === 'licenseSearch') {
+      } else if (col.content.type === LICENSE_SEARCH_ID) {
         if (!Array.isArray(value) || value.length === 0) {
           error = Global('messaging.errors.requiredField', { field: col.heading });
         }
@@ -246,10 +255,10 @@ const SingleResearchOutputComponent = ({
       const initializedColumns = columns.map((col) => {
         const schemaVersion = col.content?.meta?.schemaVersion || "1.0";
 
-        if (col.content.type === "repositorySearch") {
+        if (col.content.type === REPOSITORY_SEARCH_ID) {
           const colRepoPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
           if (colRepoPreferences && colRepoPreferences.length > 0) {
-            const defaultAnswer = getDefaultAnswerForType("repositorySearch", schemaVersion);
+            const defaultAnswer = getDefaultAnswerForType(REPOSITORY_SEARCH_ID, schemaVersion);
             return {
               ...defaultAnswer,
               answer: colRepoPreferences.map((pref: any) => ({
@@ -260,10 +269,10 @@ const SingleResearchOutputComponent = ({
           }
         }
 
-        if (col.content.type === "metadataStandardSearch") {
+        if (col.content.type === METADATA_STANDARD_SEARCH_ID) {
           const colStdPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
           if (colStdPreferences && colStdPreferences.length > 0) {
-            const defaultAnswer = getDefaultAnswerForType("metadataStandardSearch", schemaVersion);
+            const defaultAnswer = getDefaultAnswerForType(METADATA_STANDARD_SEARCH_ID, schemaVersion);
             return {
               ...defaultAnswer,
               answer: colStdPreferences.map((pref: any) => ({
@@ -299,9 +308,10 @@ const SingleResearchOutputComponent = ({
   );
 
 
+  console.log("***Columns:", columns);
   return (
     <div className="research-output-form">
-      <ErrorMessages errors={errors} ref={errorRef} />
+      <ErrorMessages errors={errors} noScroll={true} ref={errorRef} />
       {columns.map((col, colIndex) => {
         const value = currentRow ? currentRow.columns[colIndex].answer : '';
         const name = col.heading.replace(/\s+/g, '_').toLowerCase();
@@ -352,7 +362,7 @@ const SingleResearchOutputComponent = ({
                 />
               </div>
             );
-          case 'selectBox':
+          case SELECTBOX_QUESTION_TYPE:
             const isAccessLevelsField = col.heading === 'Initial Access Levels';
             const isOutputTypeField = col.heading === 'Output Type';
             const hasNoOptions = !col.content.options || col.content.options.length === 0;
@@ -395,8 +405,8 @@ const SingleResearchOutputComponent = ({
                 />
               </div>
             );
-          case 'checkBoxes': {
-            const isDataFlags = col.heading === 'Data Flags';
+          case CHECKBOXES_QUESTION_TYPE: {
+            const isDataFlags = col.heading === Global('labels.dataFlags');
             const allOptions =
               'options' in col.content && Array.isArray(col.content.options)
                 ? col.content.options
