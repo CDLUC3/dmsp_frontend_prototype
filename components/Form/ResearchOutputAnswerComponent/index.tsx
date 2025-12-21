@@ -12,6 +12,12 @@ import { useTranslations } from "next-intl";
 import {
   ResearchOutputTable
 } from '@/app/types';
+
+import {
+  REPOSITORY_SEARCH_ID,
+  METADATA_STANDARD_SEARCH_ID,
+} from '@/lib/constants';
+
 import SingleResearchOutputComponent from './SingleResearchOutputComponent';
 import { getDefaultAnswerForType } from '@/utils/researchOutputTable';
 import styles from './researchOutputAnswer.module.scss';
@@ -114,7 +120,7 @@ const ResearchOutputAnswerComponent = ({
           const baseAnswer = getDefaultAnswerForType(col.content.type, schemaVersion);
 
           // Handle repositorySearch with preferences
-          if (col.content.type === "repositorySearch") {
+          if (col.content.type === REPOSITORY_SEARCH_ID) {
             const colRepoPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
             if (colRepoPreferences && colRepoPreferences.length > 0) {
               return {
@@ -129,7 +135,7 @@ const ResearchOutputAnswerComponent = ({
           }
 
           // Handle metadataStandardSearch with preferences
-          if (col.content.type === "metadataStandardSearch") {
+          if (col.content.type === METADATA_STANDARD_SEARCH_ID) {
             const colStdPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
             if (colStdPreferences && colStdPreferences.length > 0) {
               return {
@@ -167,7 +173,8 @@ const ResearchOutputAnswerComponent = ({
 
   // Handle delete
   const handleDelete = async (index: number) => {
-    if (confirm('Are you sure you want to delete this research output?')) {
+    const msg = t('messages.areYouSureYouWantToDelete');
+    if (confirm(msg)) {
       setRows(prev => prev.filter((_, i) => i !== index));
       // If we were editing this row, go back to list view
       if (editingRowIndex === index) {
@@ -259,7 +266,7 @@ const ResearchOutputAnswerComponent = ({
       <div className={styles.singleEditView}>
         <div className={styles.btnContainer}>
           <h3 className="h3">
-            {isAddingNew ? 'Add Research Output' : 'Edit Research Output'}
+            {isAddingNew ? t('headings.addResearchOutput') : t('headings.editResearchOutput')}
           </h3>
           {/* Only show cancel button when editing existing */}
           {!isAddingNew && (
@@ -311,35 +318,46 @@ const ResearchOutputAnswerComponent = ({
       </div>
 
       <ul className={styles.outputList}>
-        {rows.map((row, index) => (
-          <li key={index} className={styles.outputItem}>
-            <div className={styles.outputTitle}>
+        {rows.map((row, index) => {
+          // Set the title, output type and repository for display based on our mapping to columnHeadings
+          const title = getRowTitle(row);
+          const outputType = getRowOutputType(row);
+          const repositories = getRowRepositories(row);
 
-              <h4 className={styles.outputTitleText}>{getRowTitle(row)}</h4>
-              <dl className={styles.dList}>
-                <dt>{t('definitions.type')}:</dt>
-                <dd className={styles.outputType}>{getRowOutputType(row)}</dd>
-                {getRowRepositories(row).length > 0 && (
-                  <>
-                    <dt>{t('definitions.repository')}:</dt>
-                    <dd>{getRowRepositories(row)[0]}</dd>
-                  </>
+          return (
+            <li key={index} className={styles.outputItem}>
+              <div className={styles.outputTitle}>
+                <h4 className={styles.outputTitleText}>{title}</h4>
+
+                {(outputType || repositories.length > 0) && (
+                  <dl className={styles.dList}>
+                    {outputType && (
+                      <>
+                        <dt>{t('definitions.type')}:</dt>
+                        <dd className={styles.outputType}>{outputType}</dd>
+                      </>
+                    )}
+                    {repositories.length > 0 && (
+                      <>
+                        <dt>{t('definitions.repository')}:</dt>
+                        <dd>{repositories[0]}</dd>
+                      </>
+                    )}
+                  </dl>
                 )}
-              </dl>
-            </div>
-            <div>
+              </div>
 
-            </div>
-            <div className={styles.outputActions}>
-              <Button
-                className="secondary small"
-                onPress={() => handleEdit(index)}
-              >
-                {Global('buttons.edit')}
-              </Button>
-            </div>
-          </li>
-        ))}
+              <div className={styles.outputActions}>
+                <Button
+                  className="secondary small"
+                  onPress={() => handleEdit(index)}
+                >
+                  {Global('buttons.edit')}
+                </Button>
+              </div>
+            </li>
+          );
+        })}
       </ul>
 
     </div>

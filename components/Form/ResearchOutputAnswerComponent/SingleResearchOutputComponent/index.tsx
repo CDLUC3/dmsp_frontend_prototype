@@ -91,6 +91,25 @@ const SingleResearchOutputComponent = ({
   // Query request for default research output types
   const { data: defaultResearchOutputTypesData } = useDefaultResearchOutputTypesQuery();
 
+
+  // Helper function to get translated label
+  const getTranslatedLabel = (col: typeof columns[0]): string => {
+    const translationKey = col.content.attributes?.labelTranslationKey;
+    if (translationKey) {
+      // Try to get translation
+      try {
+        return Global(translationKey);
+      } catch {
+        // Fall back to heading if translation not found
+        return col.heading;
+      }
+    }
+
+    // No translation key, use heading
+    return col.heading;
+  };
+
+
   // Validate a single field
   const validateField = (colIndex: number, value: any): string => {
     const col = columns[colIndex];
@@ -217,14 +236,14 @@ const SingleResearchOutputComponent = ({
 
       let newValue = value;
 
-      if (colType === "repositorySearch" && Array.isArray(value)) {
+      if (colType === REPOSITORY_SEARCH_ID && Array.isArray(value)) {
         newValue = value.map(repo => ({
           repositoryId: repo.uri || repo.id,
           repositoryName: repo.name
         }));
       }
 
-      if (colType === "metadataStandardSearch" && Array.isArray(value)) {
+      if (colType === METADATA_STANDARD_SEARCH_ID && Array.isArray(value)) {
         newValue = value.map(std => ({
           metadataStandardId: String(std.id || std.value || std.metadataStandardId),
           metadataStandardName: std.name || std.label || std.metadataStandardName
@@ -307,8 +326,6 @@ const SingleResearchOutputComponent = ({
     typeof byteSizeAnswer === 'string' ? byteSizeAnswer : ''
   );
 
-
-  console.log("***Columns:", columns);
   return (
     <div className="research-output-form">
       <ErrorMessages errors={errors} noScroll={true} ref={errorRef} />
@@ -316,16 +333,15 @@ const SingleResearchOutputComponent = ({
         const value = currentRow ? currentRow.columns[colIndex].answer : '';
         const name = col.heading.replace(/\s+/g, '_').toLowerCase();
         const fieldError = errors[`col-${colIndex}`];
-
+        const translatedLabel = getTranslatedLabel(col);
         switch (col.content.type) {
-
-          case 'text':
+          case TEXT_FIELD_QUESTION_TYPE:
             return (
               <div key={col.heading}>
                 <FormInput
                   type="text"
                   value={typeof value === "string" || typeof value === "number" ? value : ""}
-                  label={col.heading}
+                  label={translatedLabel}
                   name={name}
                   isRequired={col.required}
                   isInvalid={!!fieldError}
@@ -340,7 +356,7 @@ const SingleResearchOutputComponent = ({
               </div>
             );
 
-          case 'textArea':
+          case TEXT_AREA_QUESTION_TYPE:
             return (
               <div key={col.heading}>
                 <FormTextArea
@@ -349,7 +365,7 @@ const SingleResearchOutputComponent = ({
                   isInvalid={!!fieldError}
                   errorMessage={fieldError ?? ""}
                   richText={true}
-                  label={col.heading}
+                  label={translatedLabel}
                   helpMessage={col?.content?.attributes?.help || col?.help}
                   value={value as string}
                   onChange={(newContent) => {
@@ -392,8 +408,8 @@ const SingleResearchOutputComponent = ({
             return (
               <div key={col.heading}>
                 <FormSelect
-                  label={col.heading}
-                  ariaLabel={col.heading}
+                  label={translatedLabel}
+                  ariaLabel={translatedLabel}
                   isRequired={col.required}
                   name={name}
                   items={selectItems}
@@ -406,11 +422,33 @@ const SingleResearchOutputComponent = ({
               </div>
             );
           case CHECKBOXES_QUESTION_TYPE: {
-            const isDataFlags = col.heading === Global('labels.dataFlags');
-            const allOptions =
-              'options' in col.content && Array.isArray(col.content.options)
-                ? col.content.options
-                : [];
+            const isDataFlags = col.heading === "Data Flags";
+            let colHelp = col.help;
+
+            let allOptions: { value: string; label: string; checked?: boolean }[] = [];
+
+            if (isDataFlags) {
+              colHelp = Global('helpText.dataFlags'); //Translate for dataFlags
+
+              allOptions =
+                'options' in col.content && Array.isArray(col.content.options)
+                  ? col.content.options.map(opt => ({
+                    ...opt,
+                    // Translate option labels
+                    label: opt.value === 'sensitive'
+                      ? Global('labels.mayContainSensitiveData')
+                      : opt.value === 'personal'
+                        ? Global('labels.mayContainPersonalData')
+                        : opt.label
+                  }))
+                  : [];
+            } else {
+              allOptions =
+                'options' in col.content && Array.isArray(col.content.options)
+                  ? col.content.options
+                  : [];
+            }
+
 
             // Filter to only show checked options if this is Data Flags
             const options = isDataFlags
@@ -433,8 +471,8 @@ const SingleResearchOutputComponent = ({
                   onChange={(values: string[]) => {
                     handleCellChange(colIndex, values);
                   }}
-                  checkboxGroupLabel={col.heading}
-                  checkboxGroupDescription={col.help}
+                  checkboxGroupLabel={translatedLabel}
+                  checkboxGroupDescription={colHelp}
                 >
                   {options.map(opt => (
                     <Checkbox key={opt.value} value={opt.value}>
@@ -451,7 +489,7 @@ const SingleResearchOutputComponent = ({
             );
           }
 
-          case 'repositorySearch':
+          case REPOSITORY_SEARCH_ID:
             const colRepoPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
             const existingRepos = Array.isArray(value)
               ? value.map((repo: any) => ({
@@ -459,7 +497,7 @@ const SingleResearchOutputComponent = ({
                 uri: repo.repositoryId,
                 name: repo.repositoryName
               }))
-              : (colRepoPreferences
+              : ((colRepoPreferences && colRepoPreferences.length > 0)
                 ? colRepoPreferences.map((pref: any) => ({
                   id: pref.value,
                   uri: pref.value,
@@ -469,7 +507,7 @@ const SingleResearchOutputComponent = ({
 
             return (
               <div key={col.heading}>
-                <h3 className="h2">{col.heading}</h3>
+                <h3 className="h2">{translatedLabel}</h3>
                 <RepoSelectorForAnswer
                   value={existingRepos}
                   onRepositoriesChange={(repos) => {
@@ -478,26 +516,29 @@ const SingleResearchOutputComponent = ({
                 />
               </div>
             );
-          case 'metadataStandardSearch':
+          case METADATA_STANDARD_SEARCH_ID:
             const colStdPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
-
             const existingMetaDataStandards = Array.isArray(value)
-              ? value.map((std: any) => ({
-                id: std.metadataStandardId,
-                name: std.metadataStandardName,
-                uri: std.metadataStandardId
-              }))
-              : (colStdPreferences
-                ? colStdPreferences.map((pref: any) => ({
-                  id: pref.value,
-                  name: pref.label,
-                  uri: pref.value
+              ? value
+                .filter((std: any) => std.metadataStandardId && std.metadataStandardName)//Filter out values with no data
+                .map((std: any) => ({
+                  id: std.metadataStandardId,
+                  name: std.metadataStandardName,
+                  uri: std.metadataStandardId
                 }))
+              : ((colStdPreferences && colStdPreferences.length > 0)
+                ? colStdPreferences
+                  .filter((pref: any) => pref.value && pref.label) //filter out items with no data
+                  .map((pref: any) => ({
+                    id: pref.value,
+                    name: pref.label,
+                    uri: pref.value
+                  }))
                 : []);
 
             return (
               <div key={col.heading}>
-                <h3 className="h2">{col.heading}</h3>
+                <h3 className="h2">{translatedLabel}</h3>
                 <MetaDataStandardsForAnswer
                   value={existingMetaDataStandards}
                   onMetaDataStandardsChange={(stds) => {
@@ -507,7 +548,7 @@ const SingleResearchOutputComponent = ({
               </div>
             )
 
-          case 'licenseSearch':
+          case LICENSE_SEARCH_ID:
 
             const licenseAnswer = value as LicenseSearchAnswerType['answer'];
 
@@ -538,8 +579,8 @@ const SingleResearchOutputComponent = ({
             return (
               <div key={col.heading}>
                 <FormSelect
-                  label={col.heading}
-                  ariaLabel={col.heading}
+                  label={translatedLabel}
+                  ariaLabel={translatedLabel}
                   isRequired={col.required}
                   isInvalid={!!fieldError}
                   errorMessage={fieldError}
@@ -573,7 +614,7 @@ const SingleResearchOutputComponent = ({
             const dateString = newDate ? newDate.toString() : '';
             handleCellChange(releaseDateColIndex, dateString);
           }}
-          label="Anticipated Release Date"
+          label={Global('labels.anticipatedReleaseDate')}
         />
       </div>
 
@@ -581,7 +622,7 @@ const SingleResearchOutputComponent = ({
       {/* Always include Byte Size - not configurable */}
       <div key="byte-size" className={styles.fileSizeRow}>
         <FormInput
-          label="Anticipated file size"
+          label={Global('labels.anticipatedFileSize')}
           name="research_output_file_size"
           type="number"
           isRequired={false}
@@ -598,9 +639,9 @@ const SingleResearchOutputComponent = ({
 
         <FormSelect
           name="research_output_file_size_unit"
-          ariaLabel="File size unit"
+          ariaLabel={Global('labels.fileSizeUnit')}
           isRequired={false}
-          label="Unit"
+          label={Global('labels.unit')}
           items={[
             { id: 'bytes', name: 'bytes' },
             { id: 'kb', name: 'KB' },
@@ -635,7 +676,7 @@ const SingleResearchOutputComponent = ({
             className="primary"
             onPress={handleOnSave}
           >
-            {isNewEntry ? 'Save' : 'Update'}
+            {isNewEntry ? Global('buttons.save') : Global('buttons.update')}
           </Button>
         </div>
       )}

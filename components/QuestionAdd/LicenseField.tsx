@@ -8,11 +8,6 @@ import { LicensesQuery } from '@/generated/graphql';
 
 import styles from './questionAdd.module.scss';
 
-const licenseTypeOptions = [
-  { id: 'defaults', name: 'Use defaults' },
-  { id: 'addToDefaults', name: 'Use custom list' }
-];
-
 interface LicenseFieldPropsWithData extends LicenseFieldProps {
   licensesData?: LicensesQuery;
 }
@@ -26,7 +21,16 @@ const LicenseField = ({
   onAddCustomType,
   onRemoveCustomType,
 }: LicenseFieldPropsWithData) => {
+
+  // Translation hooks
   const QuestionAdd = useTranslations('QuestionAdd');
+  const Global = useTranslations('Global');
+
+  const licenseTypeOptions = [
+    { id: 'defaults', name: QuestionAdd('researchOutput.labels.useDefaults') },
+    { id: 'addToDefaults', name: QuestionAdd('researchOutput.labels.useCustomList') }
+  ];
+
 
   // Filter licenses into recommended and other categories
   const allLicenses = licensesData?.licenses?.items?.filter((license): license is NonNullable<typeof license> => license !== null) || [];
@@ -45,15 +49,14 @@ const LicenseField = ({
           isRequired={false}
           name="licenses"
           items={licenseTypeOptions}
+          placeholder={Global('labels.selectAnItem')}
           onChange={(value) =>
             onModeChange(
               value as 'defaults' | 'addToDefaults'
             )
           }
           selectedKey={field.licensesConfig?.mode || 'defaults'}
-        >
-          {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
-        </FormSelect>
+        />
       </div>
 
       {/* --- USE DEFAULTS MODE --- */}
@@ -86,6 +89,7 @@ const LicenseField = ({
                   isRequired={false}
                   name="add-license"
                   items={otherLicenses}
+                  placeholder={Global('labels.selectAnItem')}
                   selectClasses={styles.licenseSelector}
                   onChange={(value) => setNewLicenseType(value)}
                   selectedKey={newLicenseType || 'defaults'}

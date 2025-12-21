@@ -627,7 +627,6 @@ const QuestionEdit = () => {
               ]);
               if (col) {
                 updated.enabled = !!col.enabled;
-                updated.label = col.heading || updated.label;
                 updated.helpText = col.content?.attributes?.help || updated.helpText;
                 updated.required = !!col.required;
               }

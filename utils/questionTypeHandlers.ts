@@ -602,6 +602,7 @@ export const questionTypeHandlers: Record<string, QuestionTypeHandler> = {
       type: "researchOutputTable",
       attributes: {
         label: input?.attributes?.label ?? "",
+        languageTranslationKey: input?.attributes?.languageTranslationKey ?? "",
         help: input?.attributes?.help ?? "",
         labelTranslationKey: input?.attributes?.labelTranslationKey ?? "",
         canAddRows: input?.attributes?.canAddRows ?? true,

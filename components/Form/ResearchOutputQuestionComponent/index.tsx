@@ -166,7 +166,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                         <fieldset>
                           <legend>{QuestionAdd('researchOutput.legends.dataFlag')}</legend>
                           <div className={styles.dataFlagsConfig}>
-                            {field.content.options.map((option, index) => (
+                            {field.content.options.map((option: { label: string, value: string, checked: boolean }, index: number) => (
                               <div key={option.value} style={{ marginBottom: '0.5rem' }}>
                                 <Checkbox
                                   isSelected={option.checked}

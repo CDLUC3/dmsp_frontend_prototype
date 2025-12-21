@@ -81,12 +81,14 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
     {
       id: RO_TITLE_ID,
       label: QuestionAdd('researchOutput.labels.title'),
+      languageTranslationKey: 'labels.title',
       enabled: true,
       required: true
     },
     {
       id: RO_DESCRIPTION_ID,
       label: QuestionAdd('researchOutput.labels.description'),
+      languageTranslationKey: 'labels.description',
       enabled: false,
       placeholder: '',
       helpText: '',
@@ -97,6 +99,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
     {
       id: RO_OUTPUT_TYPE_ID,
       label: QuestionAdd('researchOutput.labels.outputType'),
+      languageTranslationKey: 'labels.outputType',
       enabled: true,
       helpText: '',
       required: true,
@@ -109,22 +112,23 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
     {
       id: RO_DATA_FLAGS_ID,
       label: QuestionAdd('researchOutput.labels.dataFlags'),
+      languageTranslationKey: 'labels.dataFlags',
       enabled: false,
       required: false,
       heading: 'Data Flags',
-      helpText: 'Mark all of the statements that are true about the dataset',
+      helpText: QuestionAdd('helpText.dataFlags'),
       content: {
         type: 'checkBoxes',
         meta: { schemaVersion: '1.0' },
         attributes: {},
         options: [
           {
-            label: 'May contain sensitive data?',
+            label: QuestionAdd('labels.mayContainSensitiveData'),
             value: 'sensitive',
             checked: false
           },
           {
-            label: 'May contain personally identifiable information?',
+            label: QuestionAdd('labels.mayContainPersonalData'),
             value: 'personal',
             checked: false
           }
@@ -134,6 +138,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
     {
       id: RO_REPO_SELECTOR_ID,
       label: QuestionAdd('researchOutput.labels.repositories'),
+      languageTranslationKey: 'labels.repositories',
       enabled: false,
       placeholder: '',
       helpText: '',
@@ -146,6 +151,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
     {
       id: RO_METADATA_STANDARD_SELECTOR_ID,
       label: QuestionAdd('researchOutput.labels.metadataStandards'),
+      languageTranslationKey: 'labels.metadataStandards',
       enabled: false,
       helpText: '',
       metaDataConfig: {
@@ -156,6 +162,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
     {
       id: RO_LICENSES_ID,
       label: QuestionAdd('researchOutput.labels.licenses'),
+      languageTranslationKey: 'labels.licenses',
       enabled: false,
       defaultValue: '',
       helpText: '',
@@ -168,6 +175,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
     {
       id: RO_ACCESS_LEVELS_ID,
       label: QuestionAdd('researchOutput.labels.initialAccessLevels'),
+      languageTranslationKey: 'labels.initialAccessLevels',
       enabled: false,
       defaultValue: '',
       helpText: '',
@@ -229,11 +237,14 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
       help: defaultColumn.help,
       content: {
         type: defaultColumn.content.type,
-        meta: defaultColumn.content.meta,
+        meta: {
+          ...defaultColumn.content.meta,
+        },
         attributes: {
           ...defaultColumn.content.attributes,
           ...(field.helpText && { help: field.helpText }),
           ...(field.label && { label: field.label }),
+          ...(field.languageTranslationKey && { labelTranslationKey: field.languageTranslationKey }),
           ...contentOverrides.attributes,
         },
         ...(('options' in defaultColumn.content) && { options: defaultColumn.content.options }),
@@ -276,6 +287,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
         case RO_TITLE_ID:
           columns.push(buildColumnFromDefault('title', field, {
             attributes: {
+              ...(field.languageTranslationKey && { labelTranslationKey: field.languageTranslationKey }),
               maxLength: field.maxLength ? Number(field.maxLength) : 500,
             }
           }));
@@ -322,16 +334,24 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
           const defaultColumn = DEFAULT_COLUMNS_MAP.dataFlags;
           if (!defaultColumn) break;
 
+          const baseContent = field.content || {
+            type: defaultColumn.content.type,
+            meta: defaultColumn.content.meta,
+            attributes: defaultColumn.content.attributes,
+            ...('options' in defaultColumn.content && { options: defaultColumn.content.options })
+          };
+
           columns.push({
             heading: field.label || defaultColumn.heading || QuestionAdd('researchOutput.labels.dataFlags'),
             required: field.required ?? defaultColumn.required ?? false,
             enabled: field.enabled ?? false,
             help: defaultColumn.help,
-            content: field.content || {
-              type: defaultColumn.content.type,
-              meta: defaultColumn.content.meta,
-              attributes: defaultColumn.content.attributes,
-              ...('options' in defaultColumn.content && { options: defaultColumn.content.options })
+            content: {
+              ...baseContent,
+              attributes: {
+                ...baseContent.attributes,
+                ...(field.languageTranslationKey && { labelTranslationKey: field.languageTranslationKey }),
+              }
             }
           });
           break;
@@ -349,8 +369,9 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
               ...defaultColumn?.content,
               attributes: {
                 ...defaultColumn?.content?.attributes,
+                ...(field.languageTranslationKey && { labelTranslationKey: field.languageTranslationKey }),
                 label: field.label || defaultColumn?.heading || QuestionAdd('researchOutput.labels.repositories'),
-                help: field.helpText || defaultColumn?.content?.attributes?.help || ''
+                help: field.helpText || defaultColumn?.content?.attributes?.help || '',
               }
             }
           };
@@ -376,6 +397,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
               ...defaultColumn?.content,
               attributes: {
                 ...defaultColumn?.content?.attributes,
+                ...(field.languageTranslationKey && { labelTranslationKey: field.languageTranslationKey }),
                 label: field.label || defaultColumn?.heading || QuestionAdd('researchOutput.labels.metadataStandards'),
                 help: field.helpText || defaultColumn?.content?.attributes?.help || ''
               }
@@ -402,6 +424,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
               ...defaultColumn?.content,
               attributes: {
                 ...defaultColumn?.content?.attributes,
+                ...(field.languageTranslationKey && { labelTranslationKey: field.languageTranslationKey }),
                 label: field.label || defaultColumn?.heading || QuestionAdd('researchOutput.labels.licenses'),
                 help: field.helpText || defaultColumn?.content?.attributes?.help || ''
               }

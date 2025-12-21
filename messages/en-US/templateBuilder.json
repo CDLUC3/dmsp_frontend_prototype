@@ -304,6 +304,7 @@
       "sampleText": "Sample text"
     },
     "messages": {
+      "areYouSureYouWantToDelete": "Are you sure you want to delete this research output?",
       "errors": {
         "questionTextRequired": "Question text field is required.",
         "questionUpdateError": "Error when updating question",
@@ -318,7 +319,9 @@
     "headings": {
       "bestPractice": "Best practice by DMP Tool",
       "deleteQuestion": "Delete question",
-      "confirmDelete": "Confirm delete"
+      "confirmDelete": "Confirm delete",
+      "addResearchOutput": "Add Research Output",
+      "editResearchOutput": "Edit Research Output"
     },
     "definitions": {
       "type": "Type",
@@ -376,7 +379,9 @@
       "addCustomAccessLevel": "Add custom access level",
       "customTypeList": "Custom output types list",
       "customAccessLevelList": "Custom access levels list",
-      "helpText": "Help text for {fieldName}"
+      "helpText": "Help text for {fieldName}",
+      "mayContainSensitiveData": "May contain sensitive data?",
+      "mayContainPersonalData": "May contain personally identifiable information?"
     },
     "buttons": {
       "addRow": "Add Row",
@@ -391,7 +396,8 @@
       "questionText": "Keep the question text concise and clear. Use the requirements or guidance to provide additional explanation.",
       "requirementText": "Use this for specific instructions on what researchers are required to include in their answer, such as what properties of their data they should be listing.",
       "guidanceText": "Let researchers know how to best provide answers to the requirements, such as policies to consider from your organization or what factors to consider.",
-      "sampleText": "Plan creators will be able to copy the sample text into the field as a starting point, to speed up content entry."
+      "sampleText": "Plan creators will be able to copy the sample text into the field as a starting point, to speed up content entry.",
+      "dataFlags": "Mark all of the statements that are true about the dataset"
     },
     "headings": {
       "bestPractice": "Best practice by DMP Tool"
@@ -445,7 +451,9 @@
         "repositories": "Repositories",
         "metadataStandards": "Metadata Standards",
         "licenses": "Licenses",
-        "initialAccessLevels": "Initial Access Levels"
+        "initialAccessLevels": "Initial Access Levels",
+        "useCustomList": "Use custom list",
+        "useDefaults": "Use defaults"
       },
       "legends": {
         "dataFlag": "Which data flags to display"
