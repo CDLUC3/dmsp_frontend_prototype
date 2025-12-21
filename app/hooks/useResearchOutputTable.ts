@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { DefaultResearchOutputTableQuestion } from '@dmptool/types';
-import { initialStandardFields } from '@/app/[locale]/template/[templateId]/q/standardFields';
 import {
+  AccessLevelInterface,
   AnyParsedQuestion,
   OutputTypeInterface,
   StandardField,
@@ -18,6 +18,19 @@ import {
   useLicensesQuery,
   useDefaultResearchOutputTypesQuery,
 } from '@/generated/graphql';
+
+// Constants
+import {
+  RO_TITLE_ID,
+  RO_OUTPUT_TYPE_ID,
+  RO_DATA_FLAGS_ID,
+  RO_REPO_SELECTOR_ID,
+  RO_METADATA_STANDARD_SELECTOR_ID,
+  RESEARCH_OUTPUT_QUESTION_TYPE,
+  RO_DESCRIPTION_ID,
+  RO_LICENSES_ID,
+  RO_ACCESS_LEVELS_ID,
+} from '@/lib/constants';
 
 type AdditionalFieldsType = {
   id: string;
@@ -49,20 +62,6 @@ const standardKeys = new Set([
 
 // Custom hook for research output table
 export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { setHasUnsavedChanges: React.Dispatch<React.SetStateAction<boolean>>, announce: (message: string) => void }) => {
-  // States for Research Output table question type
-  // Which fields are expanded for customization
-  const [expandedFields, setExpandedFields] = useState<string[]>(['title', 'outputType']);
-  // Which fields cannot be customized
-  const nonCustomizableFieldIds = ['accessLevels'];
-  // Standard fields for research output questions
-  const [standardFields, setStandardFields] = useState(initialStandardFields);
-  // Additional fields for research output questions
-  const [additionalFields, setAdditionalFields] = useState<AdditionalFieldsType[]>([]);
-  // State for managing custom output types
-  const [newOutputType, setNewOutputType] = useState<OutputTypeInterface>({ type: '', description: '' });
-  // State for managing custom license types
-  const [newLicenseType, setNewLicenseType] = useState<string>('');
-
 
   // Query request for all licenses
   const { data: licensesData } = useLicensesQuery();
@@ -71,13 +70,114 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
   const { data: defaultResearchOutputTypesData } = useDefaultResearchOutputTypesQuery();
 
   // localization keys
-  const Global = useTranslations('Global');
   const QuestionAdd = useTranslations('QuestionAdd');
 
   // Type guard function to check if a field has metaDataConfig
   const hasMetaDataConfig = (field: StandardField): field is StandardField & { metaDataConfig: MetaDataConfig } => {
     return field.metaDataConfig !== undefined;
   };
+
+  const initialStandardFields: StandardField[] = [
+    {
+      id: RO_TITLE_ID,
+      label: QuestionAdd('researchOutput.labels.title'),
+      enabled: true,
+      required: true
+    },
+    {
+      id: RO_DESCRIPTION_ID,
+      label: QuestionAdd('researchOutput.labels.description'),
+      enabled: false,
+      placeholder: '',
+      helpText: '',
+      maxLength: '',
+      required: true,
+      value: ''
+    },
+    {
+      id: RO_OUTPUT_TYPE_ID,
+      label: QuestionAdd('researchOutput.labels.outputType'),
+      enabled: true,
+      helpText: '',
+      required: true,
+      outputTypeConfig: {
+        mode: 'defaults' as 'defaults' | 'mine',
+        selectedDefaults: [] as string[],
+        customTypes: [] as OutputTypeInterface[],
+      }
+    },
+    {
+      id: RO_DATA_FLAGS_ID,
+      label: QuestionAdd('researchOutput.labels.dataFlags'),
+      enabled: false,
+      required: false,
+      heading: 'Data Flags',
+      helpText: 'Mark all of the statements that are true about the dataset',
+      content: {
+        type: 'checkBoxes',
+        meta: { schemaVersion: '1.0' },
+        attributes: {},
+        options: [
+          {
+            label: 'May contain sensitive data?',
+            value: 'sensitive',
+            checked: false
+          },
+          {
+            label: 'May contain personally identifiable information?',
+            value: 'personal',
+            checked: false
+          }
+        ]
+      }
+    },
+    {
+      id: RO_REPO_SELECTOR_ID,
+      label: QuestionAdd('researchOutput.labels.repositories'),
+      enabled: false,
+      placeholder: '',
+      helpText: '',
+      value: '',
+      repoConfig: {
+        hasCustomRepos: false,
+        customRepos: [] as RepositoryInterface[],
+      }
+    },
+    {
+      id: RO_METADATA_STANDARD_SELECTOR_ID,
+      label: QuestionAdd('researchOutput.labels.metadataStandards'),
+      enabled: false,
+      helpText: '',
+      metaDataConfig: {
+        hasCustomStandards: false,
+        customStandards: [] as MetaDataStandardInterface[],
+      }
+    },
+    {
+      id: RO_LICENSES_ID,
+      label: QuestionAdd('researchOutput.labels.licenses'),
+      enabled: false,
+      defaultValue: '',
+      helpText: '',
+      licensesConfig: {
+        mode: 'defaults' as 'defaults' | 'addToDefaults',
+        selectedDefaults: [] as string[],
+        customTypes: [] as { name: string; uri: string }[]
+      }
+    },
+    {
+      id: RO_ACCESS_LEVELS_ID,
+      label: QuestionAdd('researchOutput.labels.initialAccessLevels'),
+      enabled: false,
+      defaultValue: '',
+      helpText: '',
+      accessLevelsConfig: {
+        mode: 'defaults' as 'defaults' | 'mine',
+        selectedDefaults: [] as string[],
+        customLevels: [] as AccessLevelInterface[],
+      }
+    },
+  ];
 
   // Create a mapping from field IDs to default columns
   const DEFAULT_COLUMNS_MAP = {
@@ -92,6 +192,21 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
     metadataStandards: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Metadata Standard(s)'),
     licenses: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'License'),
   };
+
+  // States for Research Output table question type
+  // Which fields are expanded for customization
+  const [expandedFields, setExpandedFields] = useState<string[]>(['title', 'outputType']);
+  // Which fields cannot be customized
+  const nonCustomizableFieldIds = ['accessLevels'];
+  // Standard fields for research output questions
+  const [standardFields, setStandardFields] = useState(initialStandardFields);
+  // Additional fields for research output questions
+  const [additionalFields, setAdditionalFields] = useState<AdditionalFieldsType[]>([]);
+  // State for managing custom output types
+  const [newOutputType, setNewOutputType] = useState<OutputTypeInterface>({ type: '', description: '' });
+  // State for managing custom license types
+  const [newLicenseType, setNewLicenseType] = useState<string>('');
+
 
   /**
    * Helper function to build a column from default backend schema with field overrides
@@ -158,7 +273,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
       if (!field.enabled) return;
 
       switch (field.id) {
-        case 'title':
+        case RO_TITLE_ID:
           columns.push(buildColumnFromDefault('title', field, {
             attributes: {
               maxLength: field.maxLength ? Number(field.maxLength) : 500,
@@ -166,7 +281,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
           }));
           break;
 
-        case 'description':
+        case RO_DESCRIPTION_ID:
           columns.push(buildColumnFromDefault('description', field, {
             attributes: {
               // Don't override maxLength here, let it come from field or default
@@ -175,7 +290,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
           }));
           break;
 
-        case 'outputType': {
+        case RO_OUTPUT_TYPE_ID: {
           const outputTypeOptions: any[] = [];
           if (field.outputTypeConfig?.mode === 'defaults' || !field.outputTypeConfig?.mode) {
             field.outputTypeConfig?.selectedDefaults?.forEach(defaultType => {
@@ -204,12 +319,12 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
           }));
           break;
         }
-        case 'dataFlags': {
+        case RO_DATA_FLAGS_ID: {
           const defaultColumn = DEFAULT_COLUMNS_MAP.dataFlags;
           if (!defaultColumn) break;
 
           columns.push({
-            heading: field.label || defaultColumn.heading || 'Data Flags',
+            heading: field.label || defaultColumn.heading || QuestionAdd('researchOutput.labels.dataFlags'),
             required: field.required ?? defaultColumn.required ?? false,
             enabled: field.enabled ?? false,
             help: defaultColumn.help,
@@ -224,10 +339,10 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
         }
 
 
-        case 'repoSelector': {
+        case RO_REPO_SELECTOR_ID: {
           const defaultColumn = DEFAULT_COLUMNS_MAP.repositories;
           const repoColumn: any = {
-            heading: field.label || defaultColumn?.heading || 'Repositories',
+            heading: field.label || defaultColumn?.heading || QuestionAdd('researchOutput.labels.repositories'),
             required: field.required ?? defaultColumn?.required ?? false,
             enabled: field.enabled ?? false,
             help: defaultColumn?.help,
@@ -235,7 +350,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
               ...defaultColumn?.content,
               attributes: {
                 ...defaultColumn?.content?.attributes,
-                label: field.label || defaultColumn?.heading || 'Repositories',
+                label: field.label || defaultColumn?.heading || QuestionAdd('researchOutput.labels.repositories'),
                 help: field.helpText || defaultColumn?.content?.attributes?.help || ''
               }
             }
@@ -252,17 +367,17 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
         }
 
 
-        case 'metadataStandards': {
+        case RO_METADATA_STANDARD_SELECTOR_ID: {
           const defaultColumn = DEFAULT_COLUMNS_MAP.metadataStandards;
           const metadataColumn: any = {
-            heading: field.label || defaultColumn?.heading || 'Metadata Standards',
+            heading: field.label || defaultColumn?.heading || QuestionAdd('researchOutput.labels.metadataStandards'),
             required: field.required ?? defaultColumn?.required ?? false,
             enabled: field.enabled ?? false,
             content: {
               ...defaultColumn?.content,
               attributes: {
                 ...defaultColumn?.content?.attributes,
-                label: field.label || defaultColumn?.heading || 'Metadata Standards',
+                label: field.label || defaultColumn?.heading || QuestionAdd('researchOutput.labels.metadataStandards'),
                 help: field.helpText || defaultColumn?.content?.attributes?.help || ''
               }
             }
@@ -278,17 +393,17 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
           break;
         }
 
-        case 'licenses': {
+        case RO_LICENSES_ID: {
           const defaultColumn = DEFAULT_COLUMNS_MAP.licenses;
           const licenseColumn: any = {
-            heading: field.label || defaultColumn?.heading || 'Licenses',
+            heading: field.label || defaultColumn?.heading || QuestionAdd('researchOutput.labels.licenses'),
             required: field.required ?? defaultColumn?.required ?? false,
             enabled: field.enabled ?? false,
             content: {
               ...defaultColumn?.content,
               attributes: {
                 ...defaultColumn?.content?.attributes,
-                label: field.label || defaultColumn?.heading || 'Licenses',
+                label: field.label || defaultColumn?.heading || QuestionAdd('researchOutput.labels.licenses'),
                 help: field.helpText || defaultColumn?.content?.attributes?.help || ''
               }
             }
@@ -307,7 +422,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
           break;
         }
 
-        case 'accessLevels': {
+        case RO_ACCESS_LEVELS_ID: {
           const accessLevelOptions: any[] = [];
           if (field.accessLevelsConfig?.mode === 'defaults' || !field.accessLevelsConfig?.mode) {
             field.accessLevelsConfig?.selectedDefaults?.forEach(level => {
@@ -354,7 +469,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce }: { set
     });
 
     return {
-      type: 'researchOutputTable',
+      type: RESEARCH_OUTPUT_QUESTION_TYPE,
       columns,
       meta: DefaultResearchOutputTableQuestion.meta,
       attributes: {

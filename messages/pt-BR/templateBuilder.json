@@ -435,7 +435,14 @@
         "description": "Descrição:",
         "descriptionLowerCase": "Descrição",
         "taxonomyURL": "URL de taxonomia",
-        "websiteURL": "Website URL"
+        "websiteURL": "URL do site",
+        "title": "Título",
+        "dataFlags": "Sinalizadores de dados",
+        "outputType": "Tipo de saída",
+        "repositories": "Repositórios",
+        "metadataStandards": "Padrões de metadados",
+        "licenses": "Licenças",
+        "initialAccessLevels": "Níveis de acesso iniciais"
       },
       "legends": {
         "dataFlag": "Quais bandeiras de dados a exibir"

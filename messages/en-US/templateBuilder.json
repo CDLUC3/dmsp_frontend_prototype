@@ -438,7 +438,14 @@
         "description": "Description",
         "descriptionLowerCase": "description",
         "taxonomyURL": "Taxonomy URL",
-        "websiteURL": "Website URL"
+        "websiteURL": "Website URL",
+        "title": "Title",
+        "dataFlags": "Data Flags",
+        "outputType": "Output Type",
+        "repositories": "Repositories",
+        "metadataStandards": "Metadata Standards",
+        "licenses": "Licenses",
+        "initialAccessLevels": "Initial Access Levels"
       },
       "legends": {
         "dataFlag": "Which data flags to display"

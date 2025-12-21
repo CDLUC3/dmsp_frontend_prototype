@@ -17,6 +17,14 @@ export const TEXT_QUESTION_TYPE = ["text", "textArea"];
 export const TYPEAHEAD_QUESTION_TYPE = "affiliationSearch";
 export const URL_QUESTION_TYPE = "url";
 export const RESEARCH_OUTPUT_QUESTION_TYPE = "researchOutputTable";
+export const RO_TITLE_ID = "title";
+export const RO_DESCRIPTION_ID = "description";
+export const RO_OUTPUT_TYPE_ID = "outputType";
+export const RO_DATA_FLAGS_ID = "dataFlags";
+export const RO_REPO_SELECTOR_ID = "repoSelector";
+export const RO_METADATA_STANDARD_SELECTOR_ID = "metadataStandards";
+export const RO_LICENSES_ID = "licenses";
+export const RO_ACCESS_LEVELS_ID = "accessLevels";
 export const DOI_REGEX = /(?:doi:\s*)?(10\.\d{4,9}\/[-._;()\/:A-Z0-9]+)/i;
 
 
