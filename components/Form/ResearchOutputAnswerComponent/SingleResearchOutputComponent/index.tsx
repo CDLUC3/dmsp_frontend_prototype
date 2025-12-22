@@ -36,6 +36,7 @@ import ErrorMessages from "@/components/ErrorMessages";
 
 // Utils and other
 import {
+  RADIOBUTTONS_QUESTION_TYPE,
   CHECKBOXES_QUESTION_TYPE,
   SELECTBOX_QUESTION_TYPE,
   TEXT_FIELD_QUESTION_TYPE,
@@ -44,7 +45,7 @@ import {
   METADATA_STANDARD_SEARCH_ID,
   LICENSE_SEARCH_ID,
 } from '@/lib/constants';
-import { DEFAULT_ACCESS_LEVELS, getDefaultAnswerForType } from '@/utils/researchOutputTable';
+import { defaultAccessLevels, getDefaultAnswerForType } from '@/utils/researchOutputTable';
 import { getCalendarDateValue } from '@/utils/dateUtils';
 import styles from '../researchOutputAnswer.module.scss';
 
@@ -65,6 +66,7 @@ const SingleResearchOutputComponent = ({
   rows,
   setRows,
   onSave,
+  onCancel,
   onDelete,
   showButtons = false,
   isNewEntry = false,
@@ -379,18 +381,11 @@ const SingleResearchOutputComponent = ({
               </div>
             );
           case SELECTBOX_QUESTION_TYPE:
-            const isAccessLevelsField = col.heading === 'Initial Access Levels';
             const isOutputTypeField = col.heading === 'Output Type';
             const hasNoOptions = !col.content.options || col.content.options.length === 0;
 
             let selectItems: { id: string; name: string }[] = [];
-            if (isAccessLevelsField && hasNoOptions) {
-              const options = DEFAULT_ACCESS_LEVELS;
-              selectItems = options.map(option => ({
-                id: option.value,
-                name: option.label
-              }));
-            } else if (isOutputTypeField && hasNoOptions && defaultResearchOutputTypesData?.defaultResearchOutputTypes) {
+            if (isOutputTypeField && hasNoOptions && defaultResearchOutputTypesData?.defaultResearchOutputTypes) {
               selectItems = defaultResearchOutputTypesData.defaultResearchOutputTypes
                 .filter((type): type is NonNullable<typeof type> => type !== null)
                 .map((type) => ({
@@ -421,6 +416,37 @@ const SingleResearchOutputComponent = ({
                 />
               </div>
             );
+
+          case RADIOBUTTONS_QUESTION_TYPE:
+            const isAccessLevelsField = col.heading === 'Initial Access Levels';
+            const hasNoRadioOptions = !col.content.options || col.content.options.length === 0;
+
+            let selectRadioItems: { id: string; name: string }[] = [];
+            if (isAccessLevelsField && hasNoRadioOptions) {
+              const options = defaultAccessLevels;
+              selectRadioItems = options.map(option => ({
+                id: option.value,
+                name: option.label
+              }));
+            }
+
+            return (
+              <div key={col.heading}>
+                <FormSelect
+                  label={translatedLabel}
+                  ariaLabel={translatedLabel}
+                  isRequired={col.required}
+                  name={name}
+                  items={selectRadioItems}
+                  selectedKey={String(value)}
+                  isInvalid={!!fieldError}
+                  errorMessage={fieldError}
+                  helpMessage={col.content.attributes?.help || col?.help}
+                  onChange={val => handleCellChange(colIndex, val)}
+                />
+              </div>
+            );
+
           case CHECKBOXES_QUESTION_TYPE: {
             const isDataFlags = col.heading === "Data Flags";
             let colHelp = col.help;
@@ -463,34 +489,38 @@ const SingleResearchOutputComponent = ({
 
 
             return (
-              <div key={col.heading} className={styles.checkboxGroupContainer}>
-                <CheckboxGroupComponent
-                  name={name}
-                  value={selectedValues}
-                  isRequired={col.required}
-                  onChange={(values: string[]) => {
-                    handleCellChange(colIndex, values);
-                  }}
-                  checkboxGroupLabel={translatedLabel}
-                  checkboxGroupDescription={colHelp}
-                >
-                  {options.map(opt => (
-                    <Checkbox key={opt.value} value={opt.value}>
-                      <div className="checkbox">
-                        <svg viewBox="0 0 18 18" aria-hidden="true">
-                          <polyline points="1 9 7 14 15 4" />
-                        </svg>
-                      </div>
-                      {opt.label}
-                    </Checkbox>
-                  ))}
-                </CheckboxGroupComponent>
-              </div>
+              options.length > 0 && (
+                <div key={col.heading} className={styles.checkboxGroupContainer}>
+                  <CheckboxGroupComponent
+                    name={name}
+                    value={selectedValues}
+                    isRequired={col.required}
+                    onChange={(values: string[]) => {
+                      handleCellChange(colIndex, values);
+                    }}
+                    checkboxGroupLabel={translatedLabel}
+                    checkboxGroupDescription={colHelp}
+                  >
+                    {options.map(opt => (
+                      <Checkbox key={opt.value} value={opt.value}>
+                        <div className="checkbox">
+                          <svg viewBox="0 0 18 18" aria-hidden="true">
+                            <polyline points="1 9 7 14 15 4" />
+                          </svg>
+                        </div>
+                        {opt.label}
+                      </Checkbox>
+                    ))}
+                  </CheckboxGroupComponent>
+                </div>
+              )
             );
           }
 
           case REPOSITORY_SEARCH_ID:
             const colRepoPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
+            const repoHelpText = col?.content?.attributes?.help || col?.help;
+
             const existingRepos = Array.isArray(value)
               ? value.map((repo: any) => ({
                 id: repo.repositoryId,
@@ -507,7 +537,11 @@ const SingleResearchOutputComponent = ({
 
             return (
               <div key={col.heading}>
-                <h3 className="h2">{translatedLabel}</h3>
+                <h3 className={`${styles.customHeading} h2`}>{translatedLabel}</h3>
+                {repoHelpText && (
+                  <p className={styles.helpText}>{repoHelpText}</p>
+                )}
+
                 <RepoSelectorForAnswer
                   value={existingRepos}
                   onRepositoriesChange={(repos) => {
@@ -518,6 +552,8 @@ const SingleResearchOutputComponent = ({
             );
           case METADATA_STANDARD_SEARCH_ID:
             const colStdPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
+            const stdHelpText = col?.content?.attributes?.help || col?.help;
+
             const existingMetaDataStandards = Array.isArray(value)
               ? value
                 .filter((std: any) => std.metadataStandardId && std.metadataStandardName)//Filter out values with no data
@@ -538,7 +574,10 @@ const SingleResearchOutputComponent = ({
 
             return (
               <div key={col.heading}>
-                <h3 className="h2">{translatedLabel}</h3>
+                <h3 className={`${styles.customHeading} h2`}>{translatedLabel}</h3>
+                {stdHelpText && (
+                  <p className={styles.helpText}>{stdHelpText}</p>
+                )}
                 <MetaDataStandardsForAnswer
                   value={existingMetaDataStandards}
                   onMetaDataStandardsChange={(stds) => {
@@ -666,18 +705,30 @@ const SingleResearchOutputComponent = ({
       {/* Show Save/Update and Cancel buttons if showButtons is true */}
       {showButtons && (
         <div className={styles.btnContainer}>
-          <Button
-            className="secondary"
-            onPress={onDelete}
-          >
-            {Global('buttons.delete')}
-          </Button>
+          {(isNewEntry && onCancel) ? (
+            <>
+              <Button
+                className="secondary"
+                onPress={onCancel}
+              >
+                {Global('buttons.cancel')}
+              </Button>
+            </>
+          ) : (
+            <Button
+              className="secondary"
+              onPress={onDelete}
+            >
+              {Global('buttons.delete')}
+            </Button>
+          )}
           <Button
             className="primary"
             onPress={handleOnSave}
           >
             {isNewEntry ? Global('buttons.save') : Global('buttons.update')}
           </Button>
+
         </div>
       )}
     </div>
@@ -685,4 +736,4 @@ const SingleResearchOutputComponent = ({
 };
 
 
-export default SingleResearchOutputComponent;
+export default React.memo(SingleResearchOutputComponent);

@@ -194,7 +194,9 @@
   "PlanOverviewQuestionPage": {
     "messages": {
       "success": {
-        "questionSaved": "Question detail successfully saved"
+        "questionSaved": "Question detail successfully saved",
+        "questionDeleted": "Question detail successfully deleted",
+        "saved": "Changes successfully saved"
       },
       "unsavedChanges": "Unsaved changes",
       "savedJustNow": "Saved just now",

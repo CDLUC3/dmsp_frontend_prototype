@@ -335,9 +335,19 @@ const PlanOverviewQuestionPage: React.FC = () => {
   });
 
   // Show Success Message
-  const showSuccessToast = () => {
-    const successMessage = t('messages.success.questionSaved');
-    toastState.add(successMessage, { type: 'success', timeout: 3000 });
+  const showSuccessToast = (type?: string) => {
+    if (type === 'save') {
+      const successMessage = t('messages.success.questionSaved');
+      toastState.add(successMessage, { type: 'success', timeout: 3000 });
+
+    } else if (type === 'delete') {
+      const successMessage = t('messages.success.questionDeleted');
+      toastState.add(successMessage, { type: 'success', timeout: 3000 });
+    } else {
+      const successMessage = t('messages.success.saved');
+      toastState.add(successMessage, { type: 'success', timeout: 3000 });
+    }
+
   }
 
   // Helper function to create an empty research output row
@@ -588,13 +598,13 @@ const PlanOverviewQuestionPage: React.FC = () => {
   }
 
   // Pass this save function to research output table so it can trigger a save
-  const saveResearchOutputs = async () => {
+  const saveResearchOutputs = async (type?: string) => {
     setHasUnsavedChanges(true);
     const { success } = await addAnswer(false);
     if (success) {
       setLastSavedAt(new Date());
       setHasUnsavedChanges(false);
-      showSuccessToast();
+      showSuccessToast(type);
     }
   };
 
@@ -957,7 +967,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       } else {
         setHasUnsavedChanges(false);
         // Show user a success message and redirect back to the Section page
-        showSuccessToast();
+        showSuccessToast('save');
         router.push(routePath('projects.dmp.versionedSection', { projectId, dmpId, versionedSectionId }))
       }
     }

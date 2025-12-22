@@ -10,6 +10,10 @@ import {
   AnyTableColumnAnswerType,
 } from '@dmptool/types';
 
+import {
+  AccessLevelInterface,
+} from '@/app/types';
+
 export const getDefaultAnswerForType = (
   type: string,
   schemaVersion: string = "1.0"
@@ -41,20 +45,13 @@ export const getDefaultAnswerForType = (
 };
 
 
-export const DEFAULT_ACCESS_LEVELS = [
-  {
-    label: 'Unrestricted Access',
-    value: 'open',
-    selected: false
-  },
-  {
-    label: 'Controlled Access',
-    value: 'restricted',
-    selected: false
-  },
-  {
-    label: 'Other',
-    value: 'closed',
-    selected: false
-  },
+
+
+// Frontend will hard-code these for now
+// These match the schema defaults in ResearchOutputAccessLevelColumnSchema
+// TODO: Consider moving to backend
+export const defaultAccessLevels: AccessLevelInterface[] = [
+  { label: 'Unrestricted Access', value: 'open', description: 'Allows open access to all areas' },
+  { label: 'Controlled Access', value: 'restricted', description: 'Restricts access to certain areas' },
+  { label: 'Other', value: 'closed', description: 'Other type of access' },
 ];

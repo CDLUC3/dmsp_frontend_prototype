@@ -103,10 +103,13 @@ const RepoSelectorForAnswer = ({
   // Instead of useState for selectedRepos, use value prop:
   const selectedRepos = useMemo(() => {
     return (value || []).reduce((acc, repo) => {
-      acc[repo.uri] = repo;
+      if (repo.uri !== '') {
+        acc[repo.uri] = repo;
+      }
       return acc;
     }, {} as { [id: string]: RepositoryInterface });
   }, [value]);
+
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCustomFormOpen, setIsCustomFormOpen] = useState(false);

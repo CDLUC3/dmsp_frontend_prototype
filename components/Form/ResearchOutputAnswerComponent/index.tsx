@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from "react-aria-components";
 import {
   CURRENT_SCHEMA_VERSION,
@@ -27,7 +27,7 @@ type ResearchOutputAnswerComponentProps = {
   rows: ResearchOutputTable[];
   setRows: React.Dispatch<React.SetStateAction<ResearchOutputTable[]>>;
   columnHeadings?: string[];
-  onSave?: () => Promise<void>; // Callback to trigger parent save
+  onSave?: (type?: string) => Promise<void>; // Callback to trigger parent save
 };
 
 const ResearchOutputAnswerComponent = ({
@@ -82,10 +82,13 @@ const ResearchOutputAnswerComponent = ({
 
   // Helper to get Output Type from columnHeadings
   const getRowOutputType = (row: ResearchOutputTable): string => {
-    const outputTypeIndex = columnHeadings.findIndex(
-      heading => heading.toLowerCase() === 'output type'
+
+    const outputTypeIndex = columns.findIndex(
+      col => col.heading.toLowerCase() === 'output type'
     );
+
     if (
+      outputTypeIndex !== -1 &&
       row.columns[outputTypeIndex] &&
       typeof row.columns[outputTypeIndex].answer === 'string'
     ) {
@@ -94,22 +97,25 @@ const ResearchOutputAnswerComponent = ({
     return '';
   };
 
-  // Helper to get selected repositories from columnHeadings
+
   const getRowRepositories = (row: ResearchOutputTable): string[] => {
-    const repoIndex = columnHeadings.findIndex(
-      heading => heading.toLowerCase() === 'repositories'
+    const repoIndex = columns.findIndex(
+      col => col.heading.toLowerCase() === 'repositories'
     );
+
     if (
+      repoIndex !== -1 &&
       row.columns[repoIndex] &&
       Array.isArray(row.columns[repoIndex].answer)
     ) {
-      // Each repo: { repositoryId, repositoryName }
       return row.columns[repoIndex].answer.map(
         (repo: any) => repo.repositoryName
       );
     }
+
     return [];
   };
+
 
   // Create an empty research output row to add a new output
   const createEmptyRow = (): ResearchOutputTable => {
@@ -157,22 +163,22 @@ const ResearchOutputAnswerComponent = ({
     };
   };
 
-  // Handle adding a new research output
-  const handleAddNew = () => {
+  // Handle adding a new research output - memoize with useCallback
+  const handleAddNew = useCallback(() => {
     const emptyRow = createEmptyRow();
     setRows(prev => [...prev, emptyRow]);
     setEditingRowIndex(rows.length); // Edit the newly created row
     setIsAddingNew(true); // Mark as adding new
-  };
+  }, [rows.length, columns]);
 
-  // Handle edit button click
-  const handleEdit = (index: number) => {
+  // Handle edit button click - memoize with useCallback
+  const handleEdit = useCallback((index: number) => {
     setEditingRowIndex(index);
     setIsAddingNew(false); // Mark as editing existing
-  };
+  }, []);
 
   // Handle delete
-  const handleDelete = async (index: number) => {
+  const handleDelete = useCallback(async (index: number) => {
     const msg = t('messages.areYouSureYouWantToDelete');
     if (confirm(msg)) {
       setRows(prev => prev.filter((_, i) => i !== index));
@@ -183,7 +189,7 @@ const ResearchOutputAnswerComponent = ({
     }
     // Trigger parent page save if onSave callback exists
     if (onSave) {
-      await onSave();
+      await onSave('delete');
       // scroll to top of this form + 20px offset
       const formWrapper = document.querySelector('.ro-form-wrapper');
       if (formWrapper) {
@@ -196,10 +202,10 @@ const ResearchOutputAnswerComponent = ({
         });
       }
     }
-  };
+  }, [editingRowIndex, onSave, t]);
 
   // Handle done editing
-  const handleDoneEditing = async () => {
+  const handleDoneEditing = useCallback(async () => {
     setEditingRowIndex(null);
     setIsAddingNew(false);
 
@@ -207,10 +213,10 @@ const ResearchOutputAnswerComponent = ({
     if (onSave) {
       await onSave();
     }
-  };
+  }, [onSave]);
 
   // Handle cancel (go back to list view, and if it was a new empty row, remove it)
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     if (editingRowIndex !== null) {
       const editedRow = rows[editingRowIndex];
       // Check if this is an empty row (all answers are empty/default)
@@ -233,7 +239,24 @@ const ResearchOutputAnswerComponent = ({
     }
     setEditingRowIndex(null);
     setIsAddingNew(false);
-  };
+  }, [editingRowIndex, rows, isAddingNew]);
+
+  // Helper to set rows for just the editing row
+  const handleSetRows = useCallback((updateFn: React.SetStateAction<ResearchOutputTable[]>) => {
+    if (editingRowIndex === null) return;
+
+    setRows(prevRows => {
+      const newRows = [...prevRows];
+      const updatedEditingRows = typeof updateFn === 'function'
+        ? updateFn([newRows[editingRowIndex]])
+        : updateFn;
+
+      if (updatedEditingRows.length > 0) {
+        newRows[editingRowIndex] = updatedEditingRows[0];
+      }
+      return newRows;
+    });
+  }, [editingRowIndex]);
 
   // Automatically show form when there are no rows (i.e., first time adding an answer)
   useEffect(() => {
@@ -257,6 +280,14 @@ const ResearchOutputAnswerComponent = ({
     return () => clearTimeout(timer);
   }, [rows.length, editingRowIndex]);
 
+  // Handle when all items are deleted
+  useEffect(() => {
+    // If we've initialized before, rows is now empty, and we're not editing
+    if (hasInitialized.current && rows.length === 0 && editingRowIndex === null) {
+      handleAddNew();
+    }
+  }, [rows.length, editingRowIndex]);
+
   // If editing a specific row, show the single form
   if (editingRowIndex !== null) {
     // Create a subset of rows with just the one being edited
@@ -268,7 +299,7 @@ const ResearchOutputAnswerComponent = ({
           <h3 className="h3">
             {isAddingNew ? t('headings.addResearchOutput') : t('headings.editResearchOutput')}
           </h3>
-          {/* Only show cancel button when editing existing */}
+          {/* Only show back to list button when there are other items in list view */}
           {!isAddingNew && (
             <Button
               className="secondary small"
@@ -282,22 +313,10 @@ const ResearchOutputAnswerComponent = ({
         <SingleResearchOutputComponent
           columns={columns}
           rows={editingRows}
-          setRows={(updateFn) => {
-            setRows(prevRows => {
-              const newRows = [...prevRows];
-              // Apply the update function to just the editing row
-              const updatedEditingRows = typeof updateFn === 'function'
-                ? updateFn([newRows[editingRowIndex]])
-                : updateFn;
-
-              if (updatedEditingRows.length > 0) {
-                newRows[editingRowIndex] = updatedEditingRows[0];
-              }
-              return newRows;
-            });
-          }}
+          setRows={handleSetRows}
           showButtons={true}
           onSave={handleDoneEditing}
+          onCancel={handleCancel}
           onDelete={() => handleDelete(editingRowIndex!)}
           isNewEntry={isAddingNew}
         />

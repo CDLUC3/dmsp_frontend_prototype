@@ -81,6 +81,14 @@
   align-items: center;
 }
 
+.customHeading {
+  margin-bottom: 0;
+}
+
+.helpText {
+  margin-top: 0;
+  font-size: var(--font-size-sm);
+}
 // Repo list card definitions
 .dList {
   display: flex;
