@@ -60,21 +60,9 @@ const ResearchOutputAnswerComponent = ({
     if (titleIndex !== -1 && row.columns[titleIndex]) {
       const titleAnswer = row.columns[titleIndex].answer;
       if (typeof titleAnswer === 'string' && titleAnswer.trim()) {
-        return titleAnswer;
+        const stripped = titleAnswer.replace(/<[^>]*>/g, '');
+        return stripped.length > 50 ? stripped.substring(0, 50) + '...' : stripped;
       }
-    }
-
-    // Fallback: try to find first text field with content
-    const firstTextColumn = row.columns.find(col =>
-      (col.type === 'text' || col.type === 'textArea') &&
-      typeof col.answer === 'string' &&
-      col.answer.trim()
-    );
-
-    if (firstTextColumn?.answer && typeof firstTextColumn.answer === 'string') {
-      // If it's HTML, strip tags for display
-      const stripped = firstTextColumn.answer.replace(/<[^>]*>/g, '');
-      return stripped.substring(0, 50) + (stripped.length > 50 ? '...' : '');
     }
 
     return 'Untitled Research Output';
@@ -220,7 +208,7 @@ const ResearchOutputAnswerComponent = ({
     if (editingRowIndex !== null) {
       const editedRow = rows[editingRowIndex];
       // Check if this is an empty row (all answers are empty/default)
-      const isEmpty = editedRow.columns.every(col => {
+      const isEmpty = editedRow?.columns.every(col => {
         const answer = col.answer;
         if (typeof answer === 'string') return !answer.trim();
         if (typeof answer === 'number') return answer === 0;

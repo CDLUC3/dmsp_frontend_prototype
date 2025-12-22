@@ -232,7 +232,7 @@ const SingleResearchOutputComponent = ({
   // Handle cancel with unsaved changes warning
   const handleCancelClick = () => {
     if (hasUnsavedChanges) {
-      const confirmMessage = Global('messaging.unsavedChanges') || 'You have unsaved changes. Are you sure you want to leave?';
+      const confirmMessage = Global('messaging.unsavedChangesWarning') || 'You have unsaved changes. Are you sure you want to leave?';
       const confirmLeave = confirm(confirmMessage);
       if (!confirmLeave) return;
     }
