@@ -24,9 +24,9 @@ import {
 } from '@/app/types';
 
 // Utils
-import { DEFAULT_ACCESS_LEVELS, getDefaultAnswerForType } from '@/utils/researchOutputTable';
+import { defaultAccessLevels, getDefaultAnswerForType } from '@/utils/researchOutputTable';
 import { getCalendarDateValue } from '@/utils/dateUtils';
-import styles from './researchOuptutAnswer.module.scss';
+import styles from './researchOutputAnswer.module.scss';
 
 type ResearchOutputAnswerComponentProps = {
   columns: typeof DefaultResearchOutputTableQuestion['columns'];
@@ -232,7 +232,7 @@ const ResearchOutputAnswerComponent = ({
             // Use default access levels if needed, otherwise use provided options
             let options = col.content.options || [];
             if (isAccessLevelsField && hasNoOptions) {
-              options = DEFAULT_ACCESS_LEVELS;
+              options = defaultAccessLevels;
             }
 
             // Transform the options to match FormSelect's expected format

@@ -50,7 +50,8 @@ const mockOutputType: OutputTypeInterface = {
 const mockAccessLevel: AccessLevelInterface = {
   label: '',
   value: '',
-  description: ''
+  description: '',
+  selected: false,
 };
 
 const mockParams = useParams as jest.Mock;

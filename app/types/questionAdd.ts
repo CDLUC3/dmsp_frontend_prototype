@@ -173,6 +173,7 @@ export interface AccessLevelInterface {
   label: string;
   value: string;
   description?: string;
+  selected: boolean;
 }
 
 export interface OutputTypeFieldConfigProps {

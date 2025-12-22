@@ -51,7 +51,7 @@ export const getDefaultAnswerForType = (
 // These match the schema defaults in ResearchOutputAccessLevelColumnSchema
 // TODO: Consider moving to backend
 export const defaultAccessLevels: AccessLevelInterface[] = [
-  { label: 'Unrestricted Access', value: 'open', description: 'Allows open access to all areas' },
-  { label: 'Controlled Access', value: 'restricted', description: 'Restricts access to certain areas' },
-  { label: 'Other', value: 'closed', description: 'Other type of access' },
+  { label: 'Unrestricted Access', value: 'open', description: 'Allows open access to all areas', selected: false },
+  { label: 'Controlled Access', value: 'restricted', description: 'Restricts access to certain areas', selected: false },
+  { label: 'Other', value: 'closed', description: 'Other type of access', selected: false },
 ];

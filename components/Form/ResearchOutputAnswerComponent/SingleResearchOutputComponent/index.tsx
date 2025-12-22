@@ -76,17 +76,21 @@ const SingleResearchOutputComponent = ({
 
   const textAreaFirstUpdate = useRef<{ [key: number]: boolean }>({});
   const initializedRef = useRef(false);
+  // Track initial state for comparison
+  const initialRowsRef = useRef<string | null>(null);
+
   // For form errors
   const errorRef = useRef<HTMLDivElement | null>(null);
 
   // Add state for field-level errors
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
+  // Track unsaved changes
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Localization
   const Global = useTranslations('Global');
 
-
+  // GraphQL Queries
   // Query request for recommended licenses
   const { data: recommendedLicensesData } = useRecommendedLicensesQuery({
     variables: { recommended: true },
@@ -206,6 +210,10 @@ const SingleResearchOutputComponent = ({
     if (isFormValid()) {
       if (onSave) {
         onSave();
+        // Clear unsaved changes flag and update baseline
+        setHasUnsavedChanges(false);
+        initialRowsRef.current = JSON.stringify(rows);
+
         // scroll to top of this form + 20px offset
         const formWrapper = document.querySelector('.research-output-form');
         if (formWrapper) {
@@ -221,6 +229,34 @@ const SingleResearchOutputComponent = ({
     }
   }
 
+  // Handle cancel with unsaved changes warning
+  const handleCancelClick = () => {
+    if (hasUnsavedChanges) {
+      const confirmMessage = Global('messaging.unsavedChanges') || 'You have unsaved changes. Are you sure you want to leave?';
+      const confirmLeave = confirm(confirmMessage);
+      if (!confirmLeave) return;
+    }
+
+    if (onCancel) {
+      setHasUnsavedChanges(false); // Clear flag
+      onCancel();
+      // scroll to top of this form + 20px offset
+      const formWrapper = document.querySelector('.research-output-form');
+      if (formWrapper) {
+        const elementPosition = formWrapper.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - 100;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    }
+
+  };
+
+
+  // Handle cell change
   const handleCellChange = (colIndex: number, value: any) => {
     // Clear error for this field
     clearFieldError(colIndex);
@@ -320,6 +356,54 @@ const SingleResearchOutputComponent = ({
       initializedRef.current = true;
     }
   }, []);
+
+  // Capture initial state when component mounts or rows first populate
+  useEffect(() => {
+    if (rows.length > 0 && !initialRowsRef.current) {
+      initialRowsRef.current = JSON.stringify(rows);
+    }
+  }, [rows.length]);
+
+  // Detect changes to rows
+  useEffect(() => {
+    if (!initialRowsRef.current || rows.length === 0) return;
+
+    const currentState = JSON.stringify(rows);
+    const hasChanges = currentState !== initialRowsRef.current;
+    setHasUnsavedChanges(hasChanges);
+  }, [rows]);
+
+  // Warn before leaving page with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = ''; // Required for browser to show confirm dialog
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
+
+  // Warn before leaving page with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = ''; // Required for browser to show confirm dialog
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
 
   const currentRow = rows && rows[0];
   const releaseDateColIndex = columns.length;
@@ -710,7 +794,7 @@ const SingleResearchOutputComponent = ({
           {(!isNewEntry || hasOtherRows) && onCancel && (
             <Button
               className="secondary small"
-              onPress={onCancel}
+              onPress={handleCancelClick}
             >
               &lt; {Global('buttons.backToList')}
             </Button>
