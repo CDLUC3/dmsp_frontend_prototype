@@ -58,6 +58,7 @@ type ResearchOutputAnswerComponentProps = {
   onDelete?: () => void;
   showButtons?: boolean;
   isNewEntry?: boolean; // Determines if this is a new entry or editing existing
+  hasOtherRows?: boolean; // Indicates if there are other rows in the list so we know whether to show back to list button
 };
 
 
@@ -70,6 +71,7 @@ const SingleResearchOutputComponent = ({
   onDelete,
   showButtons = false,
   isNewEntry = false,
+  hasOtherRows = false
 }: ResearchOutputAnswerComponentProps) => {
 
   const textAreaFirstUpdate = useRef<{ [key: number]: boolean }>({});
@@ -705,21 +707,12 @@ const SingleResearchOutputComponent = ({
       {/* Show Save/Update and Cancel buttons if showButtons is true */}
       {showButtons && (
         <div className={styles.btnContainer}>
-          {(isNewEntry && onCancel) ? (
-            <>
-              <Button
-                className="secondary"
-                onPress={onCancel}
-              >
-                {Global('buttons.cancel')}
-              </Button>
-            </>
-          ) : (
+          {(!isNewEntry || hasOtherRows) && onCancel && (
             <Button
-              className="secondary"
-              onPress={onDelete}
+              className="secondary small"
+              onPress={onCancel}
             >
-              {Global('buttons.delete')}
+              &lt; {Global('buttons.backToList')}
             </Button>
           )}
           <Button

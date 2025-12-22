@@ -186,20 +186,20 @@ const ResearchOutputAnswerComponent = ({
       if (editingRowIndex === index) {
         setEditingRowIndex(null);
       }
-    }
-    // Trigger parent page save if onSave callback exists
-    if (onSave) {
-      await onSave('delete');
-      // scroll to top of this form + 20px offset
-      const formWrapper = document.querySelector('.ro-form-wrapper');
-      if (formWrapper) {
-        const elementPosition = formWrapper.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - 100;
+      // Trigger parent page save if onSave callback exists
+      if (onSave) {
+        await onSave('delete');
+        // scroll to top of this form + 20px offset
+        const formWrapper = document.querySelector('.ro-form-wrapper');
+        if (formWrapper) {
+          const elementPosition = formWrapper.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - 100;
 
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
       }
     }
   }, [editingRowIndex, onSave, t]);
@@ -292,6 +292,11 @@ const ResearchOutputAnswerComponent = ({
   if (editingRowIndex !== null) {
     // Create a subset of rows with just the one being edited
     const editingRows = [rows[editingRowIndex]];
+    // When adding new: check if there were rows before adding this one
+    // When editing: check if there are other rows besides this one
+    const hasOtherRows = isAddingNew
+      ? editingRowIndex > 0  // If adding at index > 0, there were existing rows
+      : rows.length > 1;      // If editing, check if there are other rows
 
     return (
       <div className={styles.singleEditView}>
@@ -299,15 +304,6 @@ const ResearchOutputAnswerComponent = ({
           <h3 className="h3">
             {isAddingNew ? t('headings.addResearchOutput') : t('headings.editResearchOutput')}
           </h3>
-          {/* Only show back to list button when there are other items in list view */}
-          {!isAddingNew && (
-            <Button
-              className="secondary small"
-              onPress={handleCancel}
-            >
-              &lt; {Global('buttons.backToList')}
-            </Button>
-          )}
         </div>
 
         <SingleResearchOutputComponent
@@ -319,6 +315,7 @@ const ResearchOutputAnswerComponent = ({
           onCancel={handleCancel}
           onDelete={() => handleDelete(editingRowIndex!)}
           isNewEntry={isAddingNew}
+          hasOtherRows={hasOtherRows}
         />
       </div>
     );
@@ -372,6 +369,12 @@ const ResearchOutputAnswerComponent = ({
                   onPress={() => handleEdit(index)}
                 >
                   {Global('buttons.edit')}
+                </Button>
+                <Button
+                  className="danger small"
+                  onPress={() => handleDelete(index)}
+                >
+                  {Global('buttons.delete')}
                 </Button>
               </div>
             </li>
