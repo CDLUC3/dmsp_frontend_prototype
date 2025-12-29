@@ -26,7 +26,6 @@ type ResearchOutputAnswerComponentProps = {
   columns: typeof DefaultResearchOutputTableQuestion['columns'];
   rows: ResearchOutputTable[];
   setRows: React.Dispatch<React.SetStateAction<ResearchOutputTable[]>>;
-  columnHeadings?: string[];
   onSave?: (type?: string) => Promise<void>; // Callback to trigger parent save
 };
 
@@ -34,7 +33,6 @@ const ResearchOutputAnswerComponent = ({
   columns,
   rows,
   setRows,
-  columnHeadings = [],// Will use column headings to find title, type and repository type to display in list view
   onSave,
 }: ResearchOutputAnswerComponentProps) => {
 
@@ -52,12 +50,15 @@ const ResearchOutputAnswerComponent = ({
 
   // Helper function to get title from a row based on columnHeadings
   const getRowTitle = (row: ResearchOutputTable): string => {
-    // Find the index of "Title" in columnHeadings
-    const titleIndex = columnHeadings.findIndex(heading =>
-      heading.toLowerCase() === 'title'
+    // Use columns (the schema) 
+    const titleIndex = columns.findIndex(col =>
+      col.heading.toLowerCase() === 'title'
     );
 
-    if (titleIndex !== -1 && row.columns[titleIndex]) {
+    if (titleIndex !== -1 &&
+      row.columns[titleIndex] &&
+      typeof row.columns[titleIndex].answer === 'string'
+    ) {
       const titleAnswer = row.columns[titleIndex].answer;
       if (typeof titleAnswer === 'string' && titleAnswer.trim()) {
         const stripped = titleAnswer.replace(/<[^>]*>/g, '');
@@ -67,7 +68,6 @@ const ResearchOutputAnswerComponent = ({
 
     return 'Untitled Research Output';
   };
-
   // Helper to get Output Type from columnHeadings
   const getRowOutputType = (row: ResearchOutputTable): string => {
 

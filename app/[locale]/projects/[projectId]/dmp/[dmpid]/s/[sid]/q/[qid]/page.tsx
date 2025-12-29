@@ -209,7 +209,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Separate state for researchOutputTable
   const [researchOutputRows, setResearchOutputRows] = useState<ResearchOutputTable[]>([]);
-  const [columnHeadings, setColumnHeadings] = useState<string[]>([]);
 
   // Form state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -1087,9 +1086,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       if (parsed?.answer !== undefined) {
         prefillAnswer(parsed.answer, questionType);
       }
-      if (parsed?.columnHeadings) {
-        setColumnHeadings(parsed.columnHeadings);
-      }
     }
 
     // Combine both answerComments and feedbackComments into one, and save in state after ordering
@@ -1256,7 +1252,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
           rows: researchOutputRows,
           setRows: setResearchOutputRows,
           onSave: saveResearchOutputs,
-          columnHeadings: columnHeadings
         }
         : undefined,
   });

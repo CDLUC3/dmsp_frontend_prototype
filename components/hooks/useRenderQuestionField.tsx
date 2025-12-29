@@ -153,7 +153,6 @@ export interface RenderQuestionFieldProps {
     rows: ResearchOutputTable[];
     setRows: Dispatch<SetStateAction<ResearchOutputTable[]>>
     onSave?: (type?: string) => Promise<void>;
-    columnHeadings?: string[]
   };
 }
 
@@ -417,7 +416,6 @@ export function useRenderQuestionField({
             rows={researchOutputTableAnswerProps?.rows}
             setRows={researchOutputTableAnswerProps?.setRows}
             onSave={researchOutputTableAnswerProps?.onSave}
-            columnHeadings={researchOutputTableAnswerProps?.columnHeadings}
           />
         );
       }
