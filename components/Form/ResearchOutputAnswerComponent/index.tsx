@@ -20,6 +20,7 @@ import {
 
 import SingleResearchOutputComponent from './SingleResearchOutputComponent';
 import { getDefaultAnswerForType } from '@/utils/researchOutputTable';
+import { createEmptyResearchOutputRow, getRowDisplayInfo } from '@/utils/researchOutputTransformations';
 import styles from './researchOutputAnswer.module.scss';
 
 type ResearchOutputAnswerComponentProps = {
@@ -48,108 +49,65 @@ const ResearchOutputAnswerComponent = ({
   const Global = useTranslations('Global');
   const t = useTranslations('QuestionEdit');
 
-  // Helper function to get title from a row based on columnHeadings
-  const getRowTitle = (row: ResearchOutputTable): string => {
-    // Use columns (the schema) 
-    const titleIndex = columns.findIndex(col =>
-      col.heading.toLowerCase() === 'title'
-    );
+  // // Helper function to get title from a row based on columnHeadings
+  // const getRowTitle = (row: ResearchOutputTable): string => {
+  //   // Use columns (the schema) 
+  //   const titleIndex = columns.findIndex(col =>
+  //     col.heading.toLowerCase() === 'title'
+  //   );
 
-    if (titleIndex !== -1 &&
-      row.columns[titleIndex] &&
-      typeof row.columns[titleIndex].answer === 'string'
-    ) {
-      const titleAnswer = row.columns[titleIndex].answer;
-      if (typeof titleAnswer === 'string' && titleAnswer.trim()) {
-        const stripped = titleAnswer.replace(/<[^>]*>/g, '');
-        return stripped.length > 50 ? stripped.substring(0, 50) + '...' : stripped;
-      }
-    }
+  //   if (titleIndex !== -1 &&
+  //     row.columns[titleIndex] &&
+  //     typeof row.columns[titleIndex].answer === 'string'
+  //   ) {
+  //     const titleAnswer = row.columns[titleIndex].answer;
+  //     if (typeof titleAnswer === 'string' && titleAnswer.trim()) {
+  //       const stripped = titleAnswer.replace(/<[^>]*>/g, '');
+  //       return stripped.length > 50 ? stripped.substring(0, 50) + '...' : stripped;
+  //     }
+  //   }
 
-    return 'Untitled Research Output';
-  };
-  // Helper to get Output Type from columnHeadings
-  const getRowOutputType = (row: ResearchOutputTable): string => {
+  //   return 'Untitled Research Output';
+  // };
+  // // Helper to get Output Type from columnHeadings
+  // const getRowOutputType = (row: ResearchOutputTable): string => {
 
-    const outputTypeIndex = columns.findIndex(
-      col => col.heading.toLowerCase() === 'output type'
-    );
+  //   const outputTypeIndex = columns.findIndex(
+  //     col => col.heading.toLowerCase() === 'output type'
+  //   );
 
-    if (
-      outputTypeIndex !== -1 &&
-      row.columns[outputTypeIndex] &&
-      typeof row.columns[outputTypeIndex].answer === 'string'
-    ) {
-      return row.columns[outputTypeIndex].answer;
-    }
-    return '';
-  };
+  //   if (
+  //     outputTypeIndex !== -1 &&
+  //     row.columns[outputTypeIndex] &&
+  //     typeof row.columns[outputTypeIndex].answer === 'string'
+  //   ) {
+  //     return row.columns[outputTypeIndex].answer;
+  //   }
+  //   return '';
+  // };
 
 
-  const getRowRepositories = (row: ResearchOutputTable): string[] => {
-    const repoIndex = columns.findIndex(
-      col => col.heading.toLowerCase() === 'repositories'
-    );
+  // const getRowRepositories = (row: ResearchOutputTable): string[] => {
+  //   const repoIndex = columns.findIndex(
+  //     col => col.heading.toLowerCase() === 'repositories'
+  //   );
 
-    if (
-      repoIndex !== -1 &&
-      row.columns[repoIndex] &&
-      Array.isArray(row.columns[repoIndex].answer)
-    ) {
-      return row.columns[repoIndex].answer.map(
-        (repo: any) => repo.repositoryName
-      );
-    }
+  //   if (
+  //     repoIndex !== -1 &&
+  //     row.columns[repoIndex] &&
+  //     Array.isArray(row.columns[repoIndex].answer)
+  //   ) {
+  //     return row.columns[repoIndex].answer.map(
+  //       (repo: any) => repo.repositoryName
+  //     );
+  //   }
 
-    return [];
-  };
+  //   return [];
+  // };
 
 
   // Create an empty research output row to add a new output
-  const createEmptyRow = (): ResearchOutputTable => {
-    return {
-      columns: [
-        ...columns.map(col => {
-          const schemaVersion = col.content?.meta?.schemaVersion || CURRENT_SCHEMA_VERSION;
-          const baseAnswer = getDefaultAnswerForType(col.content.type, schemaVersion);
-
-          // Handle repositorySearch with preferences
-          if (col.content.type === REPOSITORY_SEARCH_ID) {
-            const colRepoPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
-            if (colRepoPreferences && colRepoPreferences.length > 0) {
-              return {
-                type: "repositorySearch" as const,
-                meta: baseAnswer.meta,
-                answer: colRepoPreferences.map((pref: any) => ({
-                  repositoryId: pref.value,
-                  repositoryName: pref.label
-                }))
-              };
-            }
-          }
-
-          // Handle metadataStandardSearch with preferences
-          if (col.content.type === METADATA_STANDARD_SEARCH_ID) {
-            const colStdPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
-            if (colStdPreferences && colStdPreferences.length > 0) {
-              return {
-                type: "metadataStandardSearch" as const,
-                meta: baseAnswer.meta,
-                answer: colStdPreferences.map((pref: any) => ({
-                  metadataStandardId: String(pref.value),
-                  metadataStandardName: pref.label
-                }))
-              };
-            }
-          }
-
-          return baseAnswer;
-        }),
-        getDefaultAnswerForType("date", "1.0"),
-        getDefaultAnswerForType("numberWithContext", "1.0")
-      ]
-    };
-  };
+  const createEmptyRow = () => createEmptyResearchOutputRow(columns);
 
   // Handle adding a new research output - memoize with useCallback
   const handleAddNew = useCallback(() => {
@@ -323,10 +281,7 @@ const ResearchOutputAnswerComponent = ({
 
       <ul className={styles.outputList}>
         {rows.map((row, index) => {
-          // Set the title, output type and repository for display based on our mapping to columnHeadings
-          const title = getRowTitle(row);
-          const outputType = getRowOutputType(row);
-          const repositories = getRowRepositories(row);
+          const { title, outputType, repositories } = getRowDisplayInfo(row, columns);
 
           return (
             <li key={index} className={styles.outputItem}>

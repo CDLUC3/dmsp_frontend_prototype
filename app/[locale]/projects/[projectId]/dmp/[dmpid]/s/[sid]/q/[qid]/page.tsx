@@ -81,10 +81,10 @@ import { QuestionTypeMap } from '@dmptool/types';
 import { useToast } from '@/context/ToastContext';
 
 // Utils
-import { getDefaultAnswerForType } from '@/utils/researchOutputTable';
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
+import { createEmptyResearchOutputRow } from '@/utils/researchOutputTransformations';
 
 
 //hooks
@@ -349,21 +349,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   }
 
-  // Helper function to create an empty research output row
-  const createEmptyResearchOutputRow = (columns: any[]): ResearchOutputTable => {
-    return {
-      columns: [
-        ...columns.map(col => {
-          const schemaVersion = col.content?.meta?.schemaVersion || "1.0";
-          return getDefaultAnswerForType(col.content.type, schemaVersion);
-        }),
-        // Add static fields:
-        { type: "date", answer: "", meta: { schemaVersion: "1.0" } },
-        { type: "numberWithContext", answer: { value: 0, context: 'kb' }, meta: { schemaVersion: "1.0" } }
-      ]
-    };
-  };
-
   /*Handling Drawer Panels*/
   // Toggle the sample text drawer open and closed
   const toggleSampleTextDrawer = () => {
@@ -598,12 +583,20 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Pass this save function to research output table so it can trigger a save
   const saveResearchOutputs = async (type?: string) => {
+    // Show saving indicator
+    setIsAutoSaving(true);
     setHasUnsavedChanges(true);
-    const { success } = await addAnswer(false);
-    if (success) {
-      setLastSavedAt(new Date());
-      setHasUnsavedChanges(false);
-      showSuccessToast(type);
+
+    try {
+      const { success } = await addAnswer(false);
+      if (success) {
+        setLastSavedAt(new Date());
+        setHasUnsavedChanges(false);
+        showSuccessToast(type);
+      }
+    } finally {
+      // Always clear saving indicator
+      setIsAutoSaving(false);
     }
   };
 
@@ -974,7 +967,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Helper function to format the last saved messaging
   const getLastSavedText = () => {
-
     if (isAutoSaving) {
       return `${Global('buttons.saving')}...`;
     }
@@ -1115,9 +1107,14 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }, 3000);
 
     return () => clearTimeout(autoSaveTimeoutRef.current);
-  }, [formData, versionedQuestionId, versionedSectionId, question, hasUnsavedChanges]);
+  }, [formData, researchOutputRows, versionedQuestionId, versionedSectionId, question, hasUnsavedChanges]);
 
-
+  // Detect changes to research output rows
+  useEffect(() => {
+    if (researchOutputRows.length > 0 && questionType === RESEARCH_OUTPUT_QUESTION_TYPE) {
+      setHasUnsavedChanges(true);
+    }
+  }, [researchOutputRows, questionType]);
 
   // Auto-save on window blur and before unload
   useEffect(() => {

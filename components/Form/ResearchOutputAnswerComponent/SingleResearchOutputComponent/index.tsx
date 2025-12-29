@@ -47,6 +47,7 @@ import {
 } from '@/lib/constants';
 import { defaultAccessLevels, getDefaultAnswerForType } from '@/utils/researchOutputTable';
 import { getCalendarDateValue } from '@/utils/dateUtils';
+import { createEmptyResearchOutputRow } from '@/utils/researchOutputTransformations';
 import styles from '../researchOutputAnswer.module.scss';
 
 type ResearchOutputAnswerComponentProps = {
@@ -311,51 +312,12 @@ const SingleResearchOutputComponent = ({
 
   useEffect(() => {
     if (!initializedRef.current && rows.length === 0) {
-      const initializedColumns = columns.map((col) => {
-        const schemaVersion = col.content?.meta?.schemaVersion || "1.0";
-
-        if (col.content.type === REPOSITORY_SEARCH_ID) {
-          const colRepoPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
-          if (colRepoPreferences && colRepoPreferences.length > 0) {
-            const defaultAnswer = getDefaultAnswerForType(REPOSITORY_SEARCH_ID, schemaVersion);
-            return {
-              ...defaultAnswer,
-              answer: colRepoPreferences.map((pref: any) => ({
-                repositoryId: pref.value,
-                repositoryName: pref.label
-              }))
-            } as typeof defaultAnswer;
-          }
-        }
-
-        if (col.content.type === METADATA_STANDARD_SEARCH_ID) {
-          const colStdPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
-          if (colStdPreferences && colStdPreferences.length > 0) {
-            const defaultAnswer = getDefaultAnswerForType(METADATA_STANDARD_SEARCH_ID, schemaVersion);
-            return {
-              ...defaultAnswer,
-              answer: colStdPreferences.map((pref: any) => ({
-                metadataStandardId: String(pref.value),
-                metadataStandardName: pref.label
-              }))
-            } as typeof defaultAnswer;
-          }
-        }
-
-        return getDefaultAnswerForType(col.content.type, schemaVersion);
-      });
-
-      setRows([{
-        columns: [
-          ...initializedColumns,
-          getDefaultAnswerForType("date", "1.0"),
-          getDefaultAnswerForType("numberWithContext", "1.0")
-        ]
-      }]);
-
+      const emptyRow = createEmptyResearchOutputRow(columns);
+      setRows([emptyRow]);
       initializedRef.current = true;
     }
-  }, []);
+  }, [columns]);
+
 
   // Capture initial state when component mounts or rows first populate
   useEffect(() => {
@@ -372,38 +334,6 @@ const SingleResearchOutputComponent = ({
     const hasChanges = currentState !== initialRowsRef.current;
     setHasUnsavedChanges(hasChanges);
   }, [rows]);
-
-  // Warn before leaving page with unsaved changes
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
-        e.preventDefault();
-        e.returnValue = ''; // Required for browser to show confirm dialog
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [hasUnsavedChanges]);
-
-  // Warn before leaving page with unsaved changes
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
-        e.preventDefault();
-        e.returnValue = ''; // Required for browser to show confirm dialog
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [hasUnsavedChanges]);
 
   const currentRow = rows && rows[0];
   const releaseDateColIndex = columns.length;

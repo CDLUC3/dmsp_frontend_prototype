@@ -234,7 +234,7 @@ describe('OutputTypeField', () => {
         await userEvent.click(selectButton);
 
         // Find and click the "Use mine" option in the listbox
-        const mineOption = screen.getByRole('option', { name: 'Use custom list' });
+        const mineOption = screen.getByRole('option', { name: 'researchOutput.labels.useCustomList' });
         await userEvent.click(mineOption);
 
         expect(onModeChange).toHaveBeenCalledWith('mine');
@@ -397,7 +397,7 @@ describe('OutputTypeField', () => {
         });
 
         const selectButton = screen.getByTestId('select-button');
-        expect(selectButton).toHaveTextContent('Use defaults');
+        expect(selectButton).toHaveTextContent('researchOutput.labels.useDefaultsOpen drop down');
       });
 
       it('handles field without outputTypeConfig mode', () => {
@@ -413,7 +413,7 @@ describe('OutputTypeField', () => {
         });
 
         const selectButton = screen.getByTestId('select-button');
-        expect(selectButton).toHaveTextContent('Use custom listOpen drop down');
+        expect(selectButton).toHaveTextContent('researchOutput.labels.useCustomListOpen drop down');
       });
     });
 
