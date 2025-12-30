@@ -49,63 +49,6 @@ const ResearchOutputAnswerComponent = ({
   const Global = useTranslations('Global');
   const t = useTranslations('QuestionEdit');
 
-  // // Helper function to get title from a row based on columnHeadings
-  // const getRowTitle = (row: ResearchOutputTable): string => {
-  //   // Use columns (the schema) 
-  //   const titleIndex = columns.findIndex(col =>
-  //     col.heading.toLowerCase() === 'title'
-  //   );
-
-  //   if (titleIndex !== -1 &&
-  //     row.columns[titleIndex] &&
-  //     typeof row.columns[titleIndex].answer === 'string'
-  //   ) {
-  //     const titleAnswer = row.columns[titleIndex].answer;
-  //     if (typeof titleAnswer === 'string' && titleAnswer.trim()) {
-  //       const stripped = titleAnswer.replace(/<[^>]*>/g, '');
-  //       return stripped.length > 50 ? stripped.substring(0, 50) + '...' : stripped;
-  //     }
-  //   }
-
-  //   return 'Untitled Research Output';
-  // };
-  // // Helper to get Output Type from columnHeadings
-  // const getRowOutputType = (row: ResearchOutputTable): string => {
-
-  //   const outputTypeIndex = columns.findIndex(
-  //     col => col.heading.toLowerCase() === 'output type'
-  //   );
-
-  //   if (
-  //     outputTypeIndex !== -1 &&
-  //     row.columns[outputTypeIndex] &&
-  //     typeof row.columns[outputTypeIndex].answer === 'string'
-  //   ) {
-  //     return row.columns[outputTypeIndex].answer;
-  //   }
-  //   return '';
-  // };
-
-
-  // const getRowRepositories = (row: ResearchOutputTable): string[] => {
-  //   const repoIndex = columns.findIndex(
-  //     col => col.heading.toLowerCase() === 'repositories'
-  //   );
-
-  //   if (
-  //     repoIndex !== -1 &&
-  //     row.columns[repoIndex] &&
-  //     Array.isArray(row.columns[repoIndex].answer)
-  //   ) {
-  //     return row.columns[repoIndex].answer.map(
-  //       (repo: any) => repo.repositoryName
-  //     );
-  //   }
-
-  //   return [];
-  // };
-
-
   // Create an empty research output row to add a new output
   const createEmptyRow = () => createEmptyResearchOutputRow(columns);
 

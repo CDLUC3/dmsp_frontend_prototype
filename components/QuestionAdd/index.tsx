@@ -178,8 +178,6 @@ const QuestionAdd = ({
     updateStandardFieldProperty
   } = useResearchOutputTable({ setHasUnsavedChanges, announce });
 
-
-
   // Send user back to the selection of question types
   const redirectToQuestionTypes = () => {
     router.push(step1Url)
@@ -320,7 +318,7 @@ const QuestionAdd = ({
     }
 
     if (questionType === RESEARCH_OUTPUT_QUESTION_TYPE) {
-      return buildResearchOutputFormState(parsed);
+      return buildResearchOutputFormState();
     }
 
     if (!parsed) {

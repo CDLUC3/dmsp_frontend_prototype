@@ -340,19 +340,18 @@ const MetaDataStandardsSelector = ({
 
               {selectedCount !== 0 && (
                 <div>
-                  {selectedArray.map(std => (
-                    <div key={std.id || std.name} className={styles.item}>
-                      <div className={styles.itemHeader}>
-                        <div className={styles.itemContent}>
-                          <div className={styles.itemTitle}>{std.name}</div>
-                        </div>
-                        <Button
-                          onClick={() => removeStandard(std.uri)}
-                          className="secondary small"
-                        >
-                          {Global('buttons.remove')}
-                        </Button>
+                  {selectedArray.map((std, index) => (
+                    <div key={std.id || std.uri || std.name || index} className={styles.item}>                      <div className={styles.itemHeader}>
+                      <div className={styles.itemContent}>
+                        <div className={styles.itemTitle}>{std.name}</div>
                       </div>
+                      <Button
+                        onClick={() => removeStandard(std.uri)}
+                        className="secondary small"
+                      >
+                        {Global('buttons.remove')}
+                      </Button>
+                    </div>
                     </div>
                   ))}
                 </div>
@@ -505,11 +504,11 @@ const MetaDataStandardsSelector = ({
                         />
                       </div>
 
-                      {metaDataStandards?.map((std) => {
+                      {metaDataStandards?.map((std, index) => {
                         const isSelected = selectedStandards[std.uri];
                         return (
                           <div
-                            key={std.id}
+                            key={std.id || std.uri || std.name || index}
                             className={`${styles.searchResultItem} ${isSelected ? styles.selected : ''}`}
                           >
                             <div className={styles.searchResultHeader}>

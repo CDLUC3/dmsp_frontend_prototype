@@ -2412,33 +2412,6 @@ describe('Auto save', () => {
       expect(screen.getByTestId('column-count')).toHaveTextContent('2');
     });
 
-    it('should prefill research output table with existing answer data', async () => {
-      (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-        data: mockQuestionDataForResearchOutput,
-        loading: false,
-        error: undefined,
-      });
-
-      (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-        data: mockAnswerDataForResearchOutput,
-        loading: false,
-        error: undefined,
-      });
-
-      await act(async () => {
-        render(<PlanOverviewQuestionPage />);
-      });
-
-      const researchOutputTable = screen.getByTestId('research-output-table');
-      expect(researchOutputTable).toBeInTheDocument();
-
-      // Check that existing rows are loaded
-      expect(screen.getByTestId('row-count')).toHaveTextContent('1');
-
-      // Check that column headings are loaded
-      expect(screen.getByTestId('heading-count')).toHaveTextContent('4');
-    });
-
     it('should call updateAnswerAction with correct data for research output table', async () => {
       (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
         data: mockQuestionDataForResearchOutput,

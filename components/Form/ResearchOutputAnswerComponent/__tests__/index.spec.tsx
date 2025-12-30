@@ -374,7 +374,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={[]}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -397,7 +396,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -441,7 +439,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -467,7 +464,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -489,7 +485,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -512,7 +507,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -530,7 +524,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -545,7 +538,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -563,7 +555,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -584,7 +575,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -604,7 +594,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -624,7 +613,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -643,7 +631,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -664,7 +651,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -682,7 +668,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -710,7 +695,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -730,7 +714,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -750,7 +733,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
           onSave={mockOnSave}
         />
       );
@@ -773,7 +755,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
           onSave={mockOnSave}
         />
       );
@@ -797,7 +778,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -820,7 +800,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={mockRows}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -848,7 +827,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={[mockRow]}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -864,7 +842,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={[mockRow]}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -881,7 +858,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={[mockRow]}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -897,7 +873,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={mockColumns}
           rows={[mockRow]}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -918,7 +893,6 @@ describe('ResearchOutputAnswerComponent', () => {
               columns={mockColumns}
               rows={rows}
               setRows={setRows}
-              columnHeadings={mockColumnHeadings}
             />
           </NextIntlClientProvider>
         );
@@ -973,7 +947,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={columnsWithPreferences as any}
           rows={[]}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -1004,7 +977,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={columnsWithPreferences as any}
           rows={[]}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 
@@ -1035,7 +1007,6 @@ describe('ResearchOutputAnswerComponent', () => {
           columns={columnsWithPreferences as any}
           rows={[]}
           setRows={mockSetRows}
-          columnHeadings={mockColumnHeadings}
         />
       );
 

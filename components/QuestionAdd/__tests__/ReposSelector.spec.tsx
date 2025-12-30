@@ -13,7 +13,7 @@ import RepositorySelectionSystem from '../ReposSelector';
 import {
   RepositoryInterface,
 } from '@/app/types';
-import { addRepositoryAction } from '../actions';
+import { addRepositoryAction } from '@/app/actions';
 import mockRepositories from '../__mocks__/mockRepositories.json';
 import mockSubjectAreas from '../__mocks__/mockSubjectAreas.json';
 
@@ -38,7 +38,7 @@ jest.mock("@/generated/graphql", () => ({
 }));
 
 // Mock the addRepositoryAction
-jest.mock('../actions', () => ({
+jest.mock('@/app/actions', () => ({
   addRepositoryAction: jest.fn(),
 }));
 

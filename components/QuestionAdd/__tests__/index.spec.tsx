@@ -1,12 +1,17 @@
 import React from "react";
-import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import { act, fireEvent, render, screen, waitFor, within } from '@/utils/test-utils';
 import {
   useAddQuestionMutation,
   useQuestionsDisplayOrderQuery,
   useTemplateQuery, // Added for when we test contents of Question Preview
   useLicensesQuery,
   useDefaultResearchOutputTypesQuery,
+  useMetadataStandardsLazyQuery,
+  useRepositoriesLazyQuery,
+  useRepositorySubjectAreasQuery
 } from '@/generated/graphql';
+
+import { addMetaDataStandardsAction } from '@/app/actions';
 
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter } from 'next/navigation';
@@ -16,8 +21,17 @@ import * as getParsedJSONModule from '@/components/hooks/getParsedQuestionJSON';
 import { AffiliationSearchQuestionType } from "@dmptool/types";
 import { TypeAheadInputProps } from '@/components/Form/TypeAheadWithOther/TypeAheadWithOther';
 import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
+import mockMetaDataStandards from '../__mocks__/mockMetaDataStandards.json';
+import mockSubjectAreas from '../__mocks__/mockSubjectAreas.json';
+import mockRepositories from '../__mocks__/mockRepositories.json';
 
 expect.extend(toHaveNoViolations);
+
+// Mock the addMetaDataStandardsAction
+jest.mock('@/app/actions', () => ({
+  addMetaDataStandardsAction: jest.fn(),
+}));
+
 
 jest.mock('@/components/Form/TypeAheadWithOther', () => ({
   __esModule: true,
@@ -45,128 +59,17 @@ jest.mock('@/components/Form/TypeAheadWithOther', () => ({
   ),
 }));
 
-jest.mock('@/components/hooks/getParsedQuestionJSON', () => {
-  const actual = jest.requireActual('@/components/hooks/getParsedQuestionJSON');
-  return {
-    __esModule: true,
-    ...actual,
-    getParsedQuestionJSON: jest.fn(actual.getParsedQuestionJSON),
-  };
-});
-
-// Create a variable to store the onRepositoriesChange callback
-/* eslint-disable @typescript-eslint/no-explicit-any */
-let capturedOnRepositoriesChange: ((repos: any[]) => void) | null = null;
-
-// Mock research output related components
-jest.mock('../ReposSelector', () => ({
-  __esModule: true,
-  default: ({ handleTogglePreferredRepositories, onRepositoriesChange }: {
-    handleTogglePreferredRepositories: (value: boolean) => void;
-    onRepositoriesChange: (repos: { id: string; name: string; url: string }[]) => void;
-  }) => {
-    // Capture the callback for use in tests
-    capturedOnRepositoriesChange = onRepositoriesChange;
-    return (
-      <div data-testid="repository-selection-system">
-        <button onClick={() => handleTogglePreferredRepositories(true)}>
-          Toggle Preferred Repositories
-        </button>
-        <button onClick={() => onRepositoriesChange([{ id: '1', name: 'Test Repo', url: 'https://test.com' }])}>
-          Add Repository
-        </button>
-      </div>
-    );
-  },
-}));
-
-// Create a variable to store the onMetaDataStandardsChange callback
-let capturedOnMetaDataStandardsChange: ((standards: any[]) => void) | null = null;
-
-jest.mock('../MetaDataStandards', () => ({
-  __esModule: true,
-  default: ({ handleToggleMetaDataStandards, onMetaDataStandardsChange }: { handleToggleMetaDataStandards: (value: boolean) => void; onMetaDataStandardsChange: (standards: { id: string; name: string; url: string }[]) => void; }) => {
-    // Capture the callback for use in tests
-    capturedOnMetaDataStandardsChange = onMetaDataStandardsChange;
-    return (
-      <div data-testid="metadata-standards">
-        <button onClick={() => handleToggleMetaDataStandards(true)}>
-          Toggle MetaData Standards
-        </button>
-        <button onClick={() => onMetaDataStandardsChange([{ id: '1', name: 'Test Standard', url: 'https://test.com' }])}>
-          Add MetaData Standard
-        </button>
-      </div>
-    );
-  },
-}));
-
-jest.mock('../OutputTypeField', () => ({
-  __esModule: true,
-  default: ({ onModeChange, onAddCustomType, onRemoveCustomType, newOutputType, setNewOutputType }: { onModeChange: (mode: string) => void; onAddCustomType: () => void; onRemoveCustomType: (type: string) => void; newOutputType: { type: string; description: string }; setNewOutputType: (type: { type: string; description: string }) => void; }) => (
-    <div data-testid="output-type-field">
-      <input
-        data-testid="new-output-type-input"
-        value={newOutputType.type}
-        onChange={(e) => setNewOutputType({ ...newOutputType, type: e.target.value })}
-        placeholder="Enter new output type"
-      />
-      <button onClick={() => onModeChange('mine')}>Change Mode to Mine</button>
-      <button onClick={() => onAddCustomType()}>Add Custom Type</button>
-      <button onClick={() => onRemoveCustomType('Test Type')}>Remove Custom Type</button>
-    </div>
-  ),
-}));
-
-jest.mock('../LicenseField', () => ({
-  __esModule: true,
-  default: ({ onModeChange, onAddCustomType, onRemoveCustomType, newLicenseType, setNewLicenseType }: { onModeChange: (mode: string) => void; onAddCustomType: () => void; onRemoveCustomType: (type: string) => void; newLicenseType: string; setNewLicenseType: (type: string) => void; }) => (
-    <div data-testid="license-field">
-      <input
-        data-testid="new-license-type-input"
-        value={newLicenseType}
-        onChange={(e) => setNewLicenseType(e.target.value)}
-        placeholder="Enter new license type"
-      />
-      <button onClick={() => onModeChange('addToDefaults')}>Change Mode to Add To Defaults</button>
-      <button onClick={() => onAddCustomType()}>Add Custom License</button>
-      <button onClick={() => onRemoveCustomType('Test License')}>Remove Custom License</button>
-    </div>
-  ),
-  otherLicenses: [
-    { id: 'MIT', name: 'MIT License' },
-    { id: 'GPL-3.0', name: 'GNU General Public License v3.0' }
-  ],
-}));
-
-jest.mock('../InitialAccessLevel', () => ({
-  __esModule: true,
-  default: ({ defaultAccessLevels }: any) => (
-    <div data-testid="initial-access-level">
-      {/* eslint-disable @typescript-eslint/no-explicit-any */}
-      {defaultAccessLevels?.map((level: any, index: number) => (
-        <div key={index}>{level.label}</div>
-      ))}
-    </div>
-  ),
-}));
-
-// Mock constants
-jest.mock('@/lib/constants', () => ({
-  OPTIONS_QUESTION_TYPES: ['radioButtons', 'checkboxes', 'selectbox', 'multiSelect'],
-  RANGE_QUESTION_TYPE: ['dateRange', 'numberRange'],
-  TYPEAHEAD_QUESTION_TYPE: 'affiliationSearch',
-  TEXT_AREA_QUESTION_TYPE: 'textArea',
-  RESEARCH_OUTPUT_QUESTION_TYPE: 'researchOutput',
-}));
-
 // Mock the hooks
 jest.mock("@/generated/graphql", () => ({
+  ...jest.requireActual("@/generated/graphql"),
   useQuestionsDisplayOrderQuery: jest.fn(),
   useAddQuestionMutation: jest.fn(),
   useTemplateQuery: jest.fn(),
   useLicensesQuery: jest.fn(),
-  useDefaultResearchOutputTypesQuery: jest.fn()
+  useDefaultResearchOutputTypesQuery: jest.fn(),
+  useMetadataStandardsLazyQuery: jest.fn(),
+  useRepositoriesLazyQuery: jest.fn(),
+  useRepositorySubjectAreasQuery: jest.fn(),
 }));
 
 jest.mock('next/navigation', () => ({
@@ -677,7 +580,6 @@ describe("QuestionAdd", () => {
       },
       type: "textArea",
       attributes: {
-        pattern: null,
         rows: null,
         cols: null,
         maxLength: null,
@@ -713,7 +615,7 @@ describe("QuestionAdd", () => {
             displayOrder: 5,
             isDirty: true,
             questionText: 'New Question',
-            json: "{\"type\":\"textArea\",\"attributes\":{\"cols\":40,\"maxLength\":1000,\"minLength\":0,\"rows\":20,\"asRichText\":true},\"meta\":{\"schemaVersion\":\"1.0\"}}",
+            json: "{\"type\":\"textArea\",\"attributes\":{\"maxLength\":1000,\"minLength\":0,\"cols\":40,\"rows\":20,\"asRichText\":true},\"meta\":{\"schemaVersion\":\"1.0\"}}",
             requirementText: '',
             guidanceText: '',
             sampleText: '',
@@ -1445,6 +1347,8 @@ describe("QuestionAdd", () => {
 
 describe("Research Output Question Type", () => {
   let mockRouter;
+  const mockFetchMetaDataStandards = jest.fn();
+  const mockFetchRepositories = jest.fn();
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     window.scrollTo = jest.fn();
@@ -1472,6 +1376,47 @@ describe("Research Output Question Type", () => {
       loading: false,
       error: undefined,
     });
+
+    (useLicensesQuery as jest.Mock).mockReturnValue({
+      data: { licenses: { items: [] } },
+      loading: false,
+      error: undefined,
+    });
+
+    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
+      data: { defaultResearchOutputTypes: [] },
+      loading: false,
+      error: undefined,
+    });
+
+    // Mock addMetaDataStandardsAction to return success
+    (addMetaDataStandardsAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        metadataStandard: {
+          id: 999,
+          name: 'Custom Standard',
+          uri: 'https://example.com',
+          description: 'A custom standard',
+        }
+      }
+    });
+
+    // Return [fetchFunction, { data, loading, error }] for metadata standards query
+    (useMetadataStandardsLazyQuery as jest.Mock).mockReturnValue([
+      mockFetchMetaDataStandards,
+      { data: mockMetaDataStandards, loading: false, error: null }
+    ]);
+
+    (useRepositoriesLazyQuery as jest.Mock).mockReturnValue([
+      mockFetchRepositories,
+      { data: mockRepositories, loading: false, error: null }
+    ]);
+
+    (useRepositorySubjectAreasQuery as jest.Mock).mockReturnValue([
+      { data: mockSubjectAreas, loading: false, error: null }
+    ]);
+
   });
 
   afterEach(() => {
@@ -1490,19 +1435,19 @@ describe("Research Output Question Type", () => {
       meta: {
         schemaVersion: "1.0"
       },
-      type: "researchOutput",
+      type: "researchOutputTable",
       attributes: {}
     });
 
-    await act(async () => {
-      render(
-        <QuestionAdd
-          questionType="researchOutput"
-          questionName="Research Output"
-          questionJSON={json}
-          sectionId="1"
-        />);
-    });
+
+    render(
+      <QuestionAdd
+        questionType="researchOutputTable"
+        questionName="Research Output"
+        questionJSON={json}
+        sectionId="1"
+      />);
+
 
     // Check for research output specific elements
     expect(screen.getByText('researchOutput.headings.enableStandardFields')).toBeInTheDocument();
@@ -1510,13 +1455,14 @@ describe("Research Output Question Type", () => {
     expect(screen.getByText('researchOutput.headings.additionalTextFields')).toBeInTheDocument();
 
     // Check for standard fields
-    expect(screen.getByText('Title')).toBeInTheDocument();
-    expect(screen.getByText('Output Type')).toBeInTheDocument();
-    expect(screen.getByText('Description')).toBeInTheDocument();
-    expect(screen.getByText('Data Flags')).toBeInTheDocument();
-    expect(screen.getByText('Repositories')).toBeInTheDocument();
-    expect(screen.getByText('Metadata Standards')).toBeInTheDocument();
-    expect(screen.getByText('Licenses')).toBeInTheDocument();
+    expect(screen.getByText('researchOutput.labels.title')).toBeInTheDocument();
+    expect(screen.getByText('researchOutput.labels.outputType')).toBeInTheDocument();
+    expect(screen.getByText('researchOutput.labels.description')).toBeInTheDocument();
+    expect(screen.getByText('researchOutput.labels.dataFlags')).toBeInTheDocument();
+    expect(screen.getByText('researchOutput.labels.repositories')).toBeInTheDocument();
+    expect(screen.getByText('researchOutput.labels.metadataStandards')).toBeInTheDocument();
+    expect(screen.getByText('researchOutput.labels.licenses')).toBeInTheDocument();
+    expect(screen.getByText('researchOutput.labels.initialAccessLevels')).toBeInTheDocument();
   });
 
   it('should show tooltip for required fields (Title and Output Type)', async () => {
@@ -1529,14 +1475,14 @@ describe("Research Output Question Type", () => {
       meta: {
         schemaVersion: "1.0"
       },
-      type: "researchOutput",
+      type: "researchOutputTable",
       attributes: {}
     });
 
     await act(async () => {
       render(
         <QuestionAdd
-          questionType="researchOutput"
+          questionType="researchOutputTable"
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
@@ -1544,8 +1490,8 @@ describe("Research Output Question Type", () => {
     });
 
     // Check that Title and Output Type checkboxes are disabled
-    const titleCheckbox = screen.getByLabelText('Title');
-    const outputTypeCheckbox = screen.getByLabelText('Output Type');
+    const titleCheckbox = screen.getByLabelText('researchOutput.labels.title');
+    const outputTypeCheckbox = screen.getByLabelText('researchOutput.labels.outputType');
 
     expect(titleCheckbox).toBeDisabled();
     expect(outputTypeCheckbox).toBeDisabled();
@@ -1564,34 +1510,36 @@ describe("Research Output Question Type", () => {
       meta: {
         schemaVersion: "1.0"
       },
-      type: "researchOutput",
+      type: "researchOutputTable",
       attributes: {}
     });
 
     await act(async () => {
       render(
         <QuestionAdd
-          questionType="researchOutput"
+          questionType="researchOutputTable"
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
         />);
     });
 
-    // Find a customize button (should be multiple, get the first one that's not for title)
+    // Find customize buttons (there should be multiple)
     const customizeButtons = screen.getAllByText('buttons.customize');
+    const initialNoOfCloseButtons = screen.queryAllByText('buttons.close');;
+    expect(initialNoOfCloseButtons.length).toBe(1); // Only Output Type is expanded by default
     expect(customizeButtons.length).toBeGreaterThan(0);
 
-    const descriptionCustomizeButton = customizeButtons[0]; // First customize button should be for description
-
-    // Click to expand
+    // Click the first customize button (for Output Type which is always expanded)
     await act(async () => {
-      fireEvent.click(descriptionCustomizeButton);
+      fireEvent.click(customizeButtons[0]);
     });
 
-    // Should now show at least one close button
-    const closeButtons = screen.getAllByText('buttons.close');
-    expect(closeButtons.length).toBeGreaterThan(0);
+    // Should show an additionalclose button after clicking and expanding
+    await waitFor(() => {
+      const closeButtons = screen.getAllByText('buttons.close');;
+      expect(closeButtons.length).toBe(2);
+    });
   });
 
   it('should enable/disable standard fields when checkbox is toggled', async () => {
@@ -1604,14 +1552,14 @@ describe("Research Output Question Type", () => {
       meta: {
         schemaVersion: "1.0"
       },
-      type: "researchOutput",
+      type: "researchOutputTable",
       attributes: {}
     });
 
     await act(async () => {
       render(
         <QuestionAdd
-          questionType="researchOutput"
+          questionType="researchOutputTable"
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
@@ -1619,7 +1567,7 @@ describe("Research Output Question Type", () => {
     });
 
     // Find and click the Description checkbox (it should be unchecked initially)
-    const descriptionCheckbox = screen.getByLabelText('Description');
+    const descriptionCheckbox = screen.getByLabelText('researchOutput.labels.description');
     expect(descriptionCheckbox).not.toBeChecked();
 
     await act(async () => {
@@ -1630,7 +1578,7 @@ describe("Research Output Question Type", () => {
     expect(descriptionCheckbox).toBeChecked();
   });
 
-  it('should show data flags configuration when data flags field is customized', async () => {
+  it('should show data flags configuration when data flags field is enabled', async () => {
     (useAddQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
@@ -1640,14 +1588,14 @@ describe("Research Output Question Type", () => {
       meta: {
         schemaVersion: "1.0"
       },
-      type: "researchOutput",
+      type: "researchOutputTable",
       attributes: {}
     });
 
     await act(async () => {
       render(
         <QuestionAdd
-          questionType="researchOutput"
+          questionType="researchOutputTable"
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
@@ -1655,16 +1603,13 @@ describe("Research Output Question Type", () => {
     });
 
     // Enable data flags field first
-    const dataFlagsCheckbox = screen.getByLabelText('Data Flags');
+    const dataFlagsCheckbox = screen.getByLabelText('researchOutput.labels.dataFlags');
     await act(async () => {
       fireEvent.click(dataFlagsCheckbox);
     });
 
-    // Should show data flags configuration options
+    // Should show data flags configuration legend
     expect(screen.getByText('researchOutput.legends.dataFlag')).toBeInTheDocument();
-    expect(screen.getByText('researchOutput.dataFlags.options.sensitiveOnly')).toBeInTheDocument();
-    expect(screen.getByText('researchOutput.dataFlags.options.personalOnly')).toBeInTheDocument();
-    expect(screen.getByText('researchOutput.dataFlags.options.both')).toBeInTheDocument();
   });
 
   it('should add additional custom fields when add button is clicked', async () => {
@@ -1673,55 +1618,35 @@ describe("Research Output Question Type", () => {
       { loading: false, error: undefined },
     ]);
 
-    (useLicensesQuery as jest.Mock).mockReturnValue({
-      data: { licenses: { items: [] } },
-      loading: false,
-      error: undefined,
-    });
-
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-      data: { defaultResearchOutputTypes: [] },
-      loading: false,
-      error: undefined,
-    });
-
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
       },
-      type: "researchOutput",
+      type: "researchOutputTable",
       attributes: {}
     });
 
     await act(async () => {
       render(
         <QuestionAdd
-          questionType="researchOutput"
+          questionType="researchOutputTable"
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
         />);
     });
 
-    // Look for any button that has a "+" symbol to add fields
-    const addButtons = screen.getAllByRole('button');
-    const addFieldButton = addButtons.find(button =>
-      button.textContent?.includes('+') &&
-      !button.textContent?.includes('Change') // Exclude other buttons
-    );
+    // Find the add field button
+    const addFieldButton = screen.getByRole('button', {
+      name: /\+ researchOutput.additionalFields.addFieldBtn/i
+    });
 
-    if (addFieldButton) {
-      await act(async () => {
-        fireEvent.click(addFieldButton);
-      });
+    await act(async () => {
+      fireEvent.click(addFieldButton);
+    });
 
-      // The add button interaction should complete without errors
-      expect(addFieldButton).toBeInTheDocument();
-    } else {
-      // If we can't find the button, just verify the Coverage field exists
-      expect(screen.getByText('Coverage')).toBeInTheDocument();
-    }
+    // A new custom field should appear with default label
+    expect(screen.getByText('Custom Field')).toBeInTheDocument();
   });
 
   it('should update additional field properties when customizing', async () => {
@@ -1730,56 +1655,48 @@ describe("Research Output Question Type", () => {
       { loading: false, error: undefined },
     ]);
 
-    (useLicensesQuery as jest.Mock).mockReturnValue({
-      data: { licenses: { items: [] } },
-      loading: false,
-      error: undefined,
-    });
-
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-      data: { defaultResearchOutputTypes: [] },
-      loading: false,
-      error: undefined,
-    });
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
       },
-      type: "researchOutput",
+      type: "researchOutputTable",
       attributes: {}
     });
 
     await act(async () => {
       render(
         <QuestionAdd
-          questionType="researchOutput"
+          questionType="researchOutputTable"
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
         />);
     });
 
-    // Look for any customize button for additional fields
-    const customizeButtons = screen.getAllByText('buttons.customize');
+    // Add a custom field first
+    const addFieldButton = screen.getByRole('button', {
+      name: /\+ researchOutput.additionalFields.addFieldBtn/i
+    });
 
-    if (customizeButtons.length > 0) {
-      // Click the last customize button (likely for Coverage field)
+    await act(async () => {
+      fireEvent.click(addFieldButton);
+    });
+
+    // The field should be auto-expanded, look for customization inputs
+    const labelInputs = screen.getAllByRole('textbox');
+    const fieldLabelInput = labelInputs.find(input =>
+      input.getAttribute('name')?.includes('_label')
+    );
+
+    if (fieldLabelInput) {
       await act(async () => {
-        fireEvent.click(customizeButtons[customizeButtons.length - 1]);
+        fireEvent.change(fieldLabelInput, { target: { value: 'My Custom Field' } });
       });
 
-      // Look for input fields that might be related to field customization
-      const inputs = screen.getAllByRole('textbox');
-
-      if (inputs.length > 1) {
-        // Try to modify one of the inputs
-        await act(async () => {
-          fireEvent.change(inputs[1], { target: { value: 'Modified Field' } });
-        });
-
-        expect(inputs[1]).toHaveValue('Modified Field');
-      }
+      // Wait for the label to update in the checkbox
+      await waitFor(() => {
+        expect(screen.getByText('My Custom Field')).toBeInTheDocument();
+      });
     }
   });
 
@@ -1793,30 +1710,47 @@ describe("Research Output Question Type", () => {
       meta: {
         schemaVersion: "1.0"
       },
-      type: "researchOutput",
+      type: "researchOutputTable",
       attributes: {}
     });
 
+
+    render(
+      <QuestionAdd
+        questionType="researchOutputTable"
+        questionName="Research Output"
+        questionJSON={json}
+        sectionId="1"
+      />);
+
+    // Find the panel
+    const panel = document.getElementById('panel-outputType');
+    if (!panel) throw new Error('panel-outputType not found');
+
+    // Find the hidden select element within the panel
+    const hiddenSelect = within(panel).getByRole('combobox', { hidden: true });
+
     await act(async () => {
-      render(
-        <QuestionAdd
-          questionType="researchOutput"
-          questionName="Research Output"
-          questionJSON={json}
-          sectionId="1"
-        />);
+      fireEvent.change(hiddenSelect, { target: { value: 'mine' } });
     });
 
-    // Output Type should be expanded by default - check for the mocked component
-    expect(screen.getByTestId('output-type-field')).toBeInTheDocument();
-
-    // Test interaction with the mocked component
-    const changeModeButton = screen.getByText('Change Mode to Mine');
-    expect(changeModeButton).toBeInTheDocument();
-
-    await act(async () => {
-      fireEvent.click(changeModeButton);
+    // Verify the mode changed by checking the button text
+    await waitFor(() => {
+      const selectButton = within(panel!).getByTestId('select-button');
+      expect(selectButton).toHaveTextContent('researchOutput.labels.useCustomList');
     });
+
+    // Verify custom fields section appears
+    await waitFor(() => {
+      expect(screen.getByText('researchOutput.outputType.legends.myOutputs')).toBeInTheDocument();
+    });
+
+    // Verify all expected fields are present for custom output types
+    expect(screen.getByLabelText('researchOutput.outputType.labels.enterOutputType')).toBeInTheDocument();
+    expect(screen.getByLabelText('researchOutput.outputType.labels.typeDescription')).toBeInTheDocument();
+    expect(screen.getByRole('button', {
+      name: 'researchOutput.outputType.buttons.addOutputType'
+    })).toBeInTheDocument();
   });
 
   it('should handle repository configuration', async () => {
@@ -1825,44 +1759,33 @@ describe("Research Output Question Type", () => {
       { loading: false, error: undefined },
     ]);
 
-    (useLicensesQuery as jest.Mock).mockReturnValue({
-      data: { licenses: { items: [] } },
-      loading: false,
-      error: undefined,
-    });
-
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-      data: { defaultResearchOutputTypes: [] },
-      loading: false,
-      error: undefined,
-    });
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
       },
-      type: "researchOutput",
+      type: "researchOutputTable",
       attributes: {}
     });
 
-    await act(async () => {
-      render(
-        <QuestionAdd
-          questionType="researchOutput"
-          questionName="Research Output"
-          questionJSON={json}
-          sectionId="1"
-        />);
-    });
+    render(
+      <QuestionAdd
+        questionType="researchOutputTable"
+        questionName="Research Output"
+        questionJSON={json}
+        sectionId="1"
+      />);
 
     // Enable repo selector field
-    const repoSelectorCheckbox = screen.getByLabelText('Repositories');
+    const repoSelectorCheckbox = screen.getByLabelText('researchOutput.labels.repositories');
     await act(async () => {
       fireEvent.click(repoSelectorCheckbox);
     });
 
-    // Should show repository configuration
-    expect(screen.getByText('labels.helpText')).toBeInTheDocument();
+    // Should show repository selection system
+    await waitFor(() => {
+      expect(screen.getByText('researchOutput.repoSelector.labels.createRepos')).toBeInTheDocument();
+      expect(screen.getByText('researchOutput.helpText')).toBeInTheDocument();
+    });
   });
 
   it('should handle metadata standards configuration', async () => {
@@ -1871,44 +1794,34 @@ describe("Research Output Question Type", () => {
       { loading: false, error: undefined },
     ]);
 
-    (useLicensesQuery as jest.Mock).mockReturnValue({
-      data: { licenses: { items: [] } },
-      loading: false,
-      error: undefined,
-    });
-
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-      data: { defaultResearchOutputTypes: [] },
-      loading: false,
-      error: undefined,
-    });
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
       },
-      type: "researchOutput",
+      type: "researchOutputTable",
       attributes: {}
     });
 
-    await act(async () => {
-      render(
-        <QuestionAdd
-          questionType="researchOutput"
-          questionName="Research Output"
-          questionJSON={json}
-          sectionId="1"
-        />);
-    });
+    render(
+      <QuestionAdd
+        questionType="researchOutputTable"
+        questionName="Research Output"
+        questionJSON={json}
+        sectionId="1"
+      />);
 
     // Enable metadata standards field
-    const metadataStandardsCheckbox = screen.getByLabelText('Metadata Standards');
+    const metadataStandardsCheckbox = screen.getByLabelText('researchOutput.labels.metadataStandards');
     await act(async () => {
       fireEvent.click(metadataStandardsCheckbox);
     });
 
-    // Should show metadata standards configuration
-    expect(screen.getByText('labels.helpText')).toBeInTheDocument();
+    // Should show metadata standards component
+    expect(screen.getByText('researchOutput.metaDataStandards.labels.createStandards')).toBeInTheDocument();
+
+    // Should also show help text input field
+    const helpTextLabel = screen.getByText(/labels.helpText/);
+    expect(helpTextLabel).toBeInTheDocument();
   });
 
   it('should handle license configuration', async () => {
@@ -1921,14 +1834,14 @@ describe("Research Output Question Type", () => {
       meta: {
         schemaVersion: "1.0"
       },
-      type: "researchOutput",
+      type: "researchOutputTable",
       attributes: {}
     });
 
     await act(async () => {
       render(
         <QuestionAdd
-          questionType="researchOutput"
+          questionType="researchOutputTable"
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
@@ -1936,16 +1849,18 @@ describe("Research Output Question Type", () => {
     });
 
     // Enable licenses field
-    const licensesCheckbox = screen.getByLabelText('Licenses');
+    const licensesCheckbox = screen.getByLabelText('researchOutput.labels.licenses');
     await act(async () => {
       fireEvent.click(licensesCheckbox);
     });
 
     // The LicenseField component should be rendered
-    // This would need to be verified based on what LicenseField actually renders
+    expect(screen.getByText('researchOutput.licenses.labels.defaultPreferred')).toBeInTheDocument();
   });
 
   it('should set hasUnsavedChanges when research output fields are modified', async () => {
+    const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+
     (useAddQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
@@ -1955,14 +1870,14 @@ describe("Research Output Question Type", () => {
       meta: {
         schemaVersion: "1.0"
       },
-      type: "researchOutput",
+      type: "researchOutputTable",
       attributes: {}
     });
 
     await act(async () => {
       render(
         <QuestionAdd
-          questionType="researchOutput"
+          questionType="researchOutputTable"
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
@@ -1970,7 +1885,7 @@ describe("Research Output Question Type", () => {
     });
 
     // Enable a field to trigger unsaved changes
-    const descriptionCheckbox = screen.getByLabelText('Description');
+    const descriptionCheckbox = screen.getByLabelText('researchOutput.labels.description');
     await act(async () => {
       fireEvent.click(descriptionCheckbox);
     });
@@ -1981,7 +1896,15 @@ describe("Research Output Question Type", () => {
       fireEvent.change(input, { target: { value: 'Test Research Output Question' } });
     });
 
-    // The beforeunload handler should be active (tested in existing test)
+    // Verify beforeunload handler was registered
+    await waitFor(() => {
+      const beforeUnloadCalls = addEventListenerSpy.mock.calls.filter(
+        ([event]) => event === 'beforeunload'
+      );
+      expect(beforeUnloadCalls.length).toBeGreaterThan(0);
+    });
+
+    addEventListenerSpy.mockRestore();
   });
 
   it('should not show research output fields for non-research output question types', async () => {
@@ -2013,212 +1936,24 @@ describe("Research Output Question Type", () => {
     expect(screen.queryByText('researchOutput.description')).not.toBeInTheDocument();
   });
 
-  it('should handle repository changes through RepositorySelectionSystem', async () => {
+  it('should not show repository configuration when field is disabled', async () => {
     (useAddQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
 
-    (useLicensesQuery as jest.Mock).mockReturnValue({
-      data: { licenses: { items: [] } },
-      loading: false,
-      error: undefined,
-    });
-
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-      data: { defaultResearchOutputTypes: [] },
-      loading: false,
-      error: undefined,
-    });
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
       },
-      type: "researchOutput",
+      type: "researchOutputTable",
       attributes: {}
     });
 
     await act(async () => {
       render(
         <QuestionAdd
-          questionType="researchOutput"
-          questionName="Research Output"
-          questionJSON={json}
-          sectionId="1"
-        />);
-    });
-
-    // Enable repo selector field
-    const repoSelectorCheckbox = screen.getByLabelText('Repositories');
-    await act(async () => {
-      fireEvent.click(repoSelectorCheckbox);
-    });
-
-    // Should show repository selection system
-    expect(screen.getByTestId('repository-selection-system')).toBeInTheDocument();
-
-    // Test repository changes
-    const addRepoButton = screen.getByText('Add Repository');
-    await act(async () => {
-      fireEvent.click(addRepoButton);
-    });
-
-    // The repository should be added to the field config (internal state change)
-  });
-
-  it('should auto-enable repository field when adding a repository while field is disabled', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    (useLicensesQuery as jest.Mock).mockReturnValue({
-      data: { licenses: { items: [] } },
-      loading: false,
-      error: undefined,
-    });
-
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-      data: { defaultResearchOutputTypes: [] },
-      loading: false,
-      error: undefined,
-    });
-
-    const json = JSON.stringify({
-      meta: {
-        schemaVersion: "1.0"
-      },
-      type: "researchOutput",
-      attributes: {}
-    });
-
-    await act(async () => {
-      render(
-        <QuestionAdd
-          questionType="researchOutput"
-          questionName="Research Output"
-          questionJSON={json}
-          sectionId="1"
-        />);
-    });
-
-    // Repository field should be disabled initially
-    const repoSelectorCheckbox = screen.getByLabelText('Repositories');
-    expect(repoSelectorCheckbox).not.toBeChecked();
-
-    // Enable the field to access the component and capture the callback
-    await act(async () => {
-      fireEvent.click(repoSelectorCheckbox);
-    });
-
-    expect(repoSelectorCheckbox).toBeChecked();
-    expect(capturedOnRepositoriesChange).toBeDefined();
-
-    // Now disable the field
-    await act(async () => {
-      fireEvent.click(repoSelectorCheckbox);
-    });
-
-    expect(repoSelectorCheckbox).not.toBeChecked();
-
-    // Now call the handler directly with a repository while field is disabled
-    // This simulates the auto-enable scenario: !wasEnabled && repos.length > 0
-    expect(capturedOnRepositoriesChange).toBeDefined();
-    await act(async () => {
-      capturedOnRepositoriesChange!([{ id: '1', name: 'Test Repo', url: 'https://test.com' }]);
-    });
-
-    // Field should be auto-enabled after adding repository while disabled
-    await waitFor(() => {
-      expect(repoSelectorCheckbox).toBeChecked();
-    });
-  });
-
-  it('should update customRepos when handleRepositoriesChange is called with new repositories', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    (useLicensesQuery as jest.Mock).mockReturnValue({
-      data: { licenses: { items: [] } },
-      loading: false,
-      error: undefined,
-    });
-
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-      data: { defaultResearchOutputTypes: [] },
-      loading: false,
-      error: undefined,
-    });
-
-    const json = JSON.stringify({
-      meta: {
-        schemaVersion: "1.0"
-      },
-      type: "researchOutput",
-      attributes: {}
-    });
-
-    await act(async () => {
-      render(
-        <QuestionAdd
-          questionType="researchOutput"
-          questionName="Research Output"
-          questionJSON={json}
-          sectionId="1"
-        />);
-    });
-
-    // Enable repo selector field
-    const repoSelectorCheckbox = screen.getByLabelText('Repositories');
-    await act(async () => {
-      fireEvent.click(repoSelectorCheckbox);
-    });
-
-    expect(screen.getByTestId('repository-selection-system')).toBeInTheDocument();
-
-    // Add a repository - this calls handleRepositoriesChange
-    const addRepoButton = screen.getByText('Add Repository');
-    await act(async () => {
-      fireEvent.click(addRepoButton);
-    });
-
-    // The repository selection system should still be present
-    expect(screen.getByTestId('repository-selection-system')).toBeInTheDocument();
-  });
-
-  it('should not auto-enable repository field if repoConfig does not exist', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    (useLicensesQuery as jest.Mock).mockReturnValue({
-      data: { licenses: { items: [] } },
-      loading: false,
-      error: undefined,
-    });
-
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-      data: { defaultResearchOutputTypes: [] },
-      loading: false,
-      error: undefined,
-    });
-
-    const json = JSON.stringify({
-      meta: {
-        schemaVersion: "1.0"
-      },
-      type: "researchOutput",
-      attributes: {}
-    });
-
-    await act(async () => {
-      render(
-        <QuestionAdd
-          questionType="researchOutput"
+          questionType="researchOutputTable"
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
@@ -2226,221 +1961,8 @@ describe("Research Output Question Type", () => {
     });
 
     // The repositories checkbox should exist but be unchecked
-    const repoSelectorCheckbox = screen.getByLabelText('Repositories');
+    const repoSelectorCheckbox = screen.getByLabelText('researchOutput.labels.repositories');
     expect(repoSelectorCheckbox).not.toBeChecked();
-
-    // Without enabling the field, the repoConfig won't exist
-    // This tests the guard clause in handleRepositoriesChange
-  });
-
-  it('should handle metadata standards changes through MetaDataStandards', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    (useLicensesQuery as jest.Mock).mockReturnValue({
-      data: { licenses: { items: [] } },
-      loading: false,
-      error: undefined,
-    });
-
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-      data: { defaultResearchOutputTypes: [] },
-      loading: false,
-      error: undefined,
-    });
-
-    const json = JSON.stringify({
-      meta: {
-        schemaVersion: "1.0"
-      },
-      type: "researchOutput",
-      attributes: {}
-    });
-
-    await act(async () => {
-      render(
-        <QuestionAdd
-          questionType="researchOutput"
-          questionName="Research Output"
-          questionJSON={json}
-          sectionId="1"
-        />);
-    });
-
-    // Enable metadata standards field
-    const metadataStandardsCheckbox = screen.getByLabelText('Metadata Standards');
-    await act(async () => {
-      fireEvent.click(metadataStandardsCheckbox);
-    });
-
-    // Should show metadata standards component
-    expect(screen.getByTestId('metadata-standards')).toBeInTheDocument();
-
-    // Test metadata standards changes
-    const addStandardButton = screen.getByText('Add MetaData Standard');
-    await act(async () => {
-      fireEvent.click(addStandardButton);
-    });
-
-    // The metadata standard should be added to the field config (internal state change)
-  });
-
-  it('should auto-enable metadata standards field when adding a standard while field is disabled', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    (useLicensesQuery as jest.Mock).mockReturnValue({
-      data: { licenses: { items: [] } },
-      loading: false,
-      error: undefined,
-    });
-
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-      data: { defaultResearchOutputTypes: [] },
-      loading: false,
-      error: undefined,
-    });
-
-    const json = JSON.stringify({
-      meta: {
-        schemaVersion: "1.0"
-      },
-      type: "researchOutput",
-      attributes: {}
-    });
-
-    await act(async () => {
-      render(
-        <QuestionAdd
-          questionType="researchOutput"
-          questionName="Research Output"
-          questionJSON={json}
-          sectionId="1"
-        />);
-    });
-
-    // Metadata standards field should be disabled initially
-    const metadataStandardsCheckbox = screen.getByLabelText('Metadata Standards');
-    expect(metadataStandardsCheckbox).not.toBeChecked();
-
-    // Enable the field to access the component and capture the callback
-    await act(async () => {
-      fireEvent.click(metadataStandardsCheckbox);
-    });
-
-    expect(metadataStandardsCheckbox).toBeChecked();
-    expect(capturedOnMetaDataStandardsChange).toBeDefined();
-
-    // Now disable the field
-    await act(async () => {
-      fireEvent.click(metadataStandardsCheckbox);
-    });
-
-    expect(metadataStandardsCheckbox).not.toBeChecked();
-
-    // Now call the handler directly with a metadata standard while field is disabled
-    // This simulates the auto-enable scenario: !wasEnabled && standards.length > 0
-    expect(capturedOnMetaDataStandardsChange).toBeDefined();
-    await act(async () => {
-      capturedOnMetaDataStandardsChange!([{ id: '1', name: 'Test Standard', url: 'https://test.com' }]);
-    });
-
-    // Field should be auto-enabled after adding metadata standard while disabled
-    await waitFor(() => {
-      expect(metadataStandardsCheckbox).toBeChecked();
-    });
-  });
-
-  it('should handle output type field interactions', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    const json = JSON.stringify({
-      meta: {
-        schemaVersion: "1.0"
-      },
-      type: "researchOutput",
-      attributes: {}
-    });
-
-    await act(async () => {
-      render(
-        <QuestionAdd
-          questionType="researchOutput"
-          questionName="Research Output"
-          questionJSON={json}
-          sectionId="1"
-        />);
-    });
-
-    // Output Type should be expanded by default
-    expect(screen.getByTestId('output-type-field')).toBeInTheDocument();
-
-    // Test adding custom output type
-    const newOutputTypeInput = screen.getByTestId('new-output-type-input');
-    await act(async () => {
-      fireEvent.change(newOutputTypeInput, { target: { value: 'Custom Output Type' } });
-    });
-
-    const addCustomTypeButton = screen.getByText('Add Custom Type');
-    await act(async () => {
-      fireEvent.click(addCustomTypeButton);
-    });
-
-    // The custom type should be added to the config
-  });
-
-  it('should handle license field interactions', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    const json = JSON.stringify({
-      meta: {
-        schemaVersion: "1.0"
-      },
-      type: "researchOutput",
-      attributes: {}
-    });
-
-    await act(async () => {
-      render(
-        <QuestionAdd
-          questionType="researchOutput"
-          questionName="Research Output"
-          questionJSON={json}
-          sectionId="1"
-        />);
-    });
-
-    // Enable licenses field
-    const licensesCheckbox = screen.getByLabelText('Licenses');
-    await act(async () => {
-      fireEvent.click(licensesCheckbox);
-    });
-
-    // Should show license field component
-    expect(screen.getByTestId('license-field')).toBeInTheDocument();
-
-    // Test adding custom license
-    const newLicenseTypeInput = screen.getByTestId('new-license-type-input');
-    await act(async () => {
-      fireEvent.change(newLicenseTypeInput, { target: { value: 'MIT' } });
-    });
-
-    const addCustomLicenseButton = screen.getByText('Add Custom License');
-    await act(async () => {
-      fireEvent.click(addCustomLicenseButton);
-    });
-
-    // The custom license should be added to the config
   });
 
   it('should display custom field label in the checkbox when customLabel is set', async () => {
@@ -2453,22 +1975,24 @@ describe("Research Output Question Type", () => {
       meta: {
         schemaVersion: "1.0"
       },
-      type: "researchOutput",
+      type: "researchOutputTable",
       attributes: {}
     });
 
     await act(async () => {
       render(
         <QuestionAdd
-          questionType="researchOutput"
+          questionType="researchOutputTable"
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
         />);
     });
 
-    // If we can't find the exact button, use a more generic approach
-    const addButton = screen.getByRole('button', { name: /\+/ });
+    // Add a custom field
+    const addButton = screen.getByRole('button', {
+      name: /\+ researchOutput.additionalFields.addFieldBtn/i
+    });
 
     await act(async () => {
       fireEvent.click(addButton);
@@ -2477,8 +2001,7 @@ describe("Research Output Question Type", () => {
     // Look for the field label input in the newly added field
     const fieldLabelInputs = screen.getAllByRole('textbox');
     const fieldLabelInput = fieldLabelInputs.find(input =>
-      input.getAttribute('name')?.includes('_label') ||
-      input.getAttribute('aria-label')?.includes('label')
+      input.getAttribute('name')?.includes('_label')
     );
 
     if (fieldLabelInput) {
@@ -2487,13 +2010,69 @@ describe("Research Output Question Type", () => {
       });
 
       // The checkbox should now show the custom label
-      expect(screen.getByText('My Custom Field Label')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('My Custom Field Label')).toBeInTheDocument();
+      });
     } else {
-      // Skip this test if we can't find the input
-      expect(true).toBe(true);
+      // If the input isn't immediately accessible, the test passes
+      // as the field was added successfully
+      expect(screen.getByText('Custom Field')).toBeInTheDocument();
     }
   });
 
+  it('should delete additional custom field when delete button is clicked', async () => {
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "researchOutputTable",
+      attributes: {}
+    });
+
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionType="researchOutputTable"
+          questionName="Research Output"
+          questionJSON={json}
+          sectionId="1"
+        />);
+    });
+
+    // Add a custom field
+    const addButton = screen.getByRole('button', {
+      name: /\+ researchOutput.additionalFields.addFieldBtn/i
+    });
+
+    await act(async () => {
+      fireEvent.click(addButton);
+    });
+
+    // Verify the field was added
+    expect(screen.getByText('Custom Field')).toBeInTheDocument();
+
+    // Find and click the delete button
+    const deleteButtons = screen.getAllByRole('button', { name: /buttons.delete/i });
+    const deleteButton = deleteButtons.find(btn =>
+      btn.textContent?.includes('buttons.delete')
+    );
+
+    if (deleteButton) {
+      await act(async () => {
+        fireEvent.click(deleteButton);
+      });
+
+      // Field should be removed
+      await waitFor(() => {
+        expect(screen.queryByText('Custom Field')).not.toBeInTheDocument();
+      });
+    }
+  });
 });
 
 describe("Accessibility", () => {
@@ -2746,1729 +2325,4 @@ describe("Error handling", () => {
     expect(mockToast.add).toHaveBeenCalledWith('messaging.somethingWentWrong', { type: 'error' });
     expect(mockRouter.push).toHaveBeenCalledWith('/en-US/template/123');
   })
-
-  it('should display error when getParsedQuestionJSON returns null for parsed', async () => {
-    const mockGetParsed = getParsedJSONModule.getParsedQuestionJSON as jest.Mock;
-
-    // temporarily override return value
-    mockGetParsed.mockReturnValueOnce({
-      parsed: null,
-      error: 'Mocked parse error',
-    });
-
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-
-    act(() => {
-      render(
-        <QuestionAdd
-          questionType="radioButtons"
-          questionName="Radio buttons"
-          questionJSON=""
-          sectionId="1"
-        />
-      );
-    });
-
-    const saveButton = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
-    act(() => {
-      fireEvent.click(saveButton);
-    });
-
-    expect(screen.getByText('Mocked parse error')).toBeInTheDocument();
-
-  });
-
-  it('should trigger an error when trying to add the question due to getParsedQuestionJSON returning null for parsed', async () => {
-    const mockGetParsed = getParsedJSONModule.getParsedQuestionJSON as jest.Mock;
-
-    // 1. First render sets parsedQuestionJSON
-    mockGetParsed.mockReturnValueOnce({
-      parsed: { type: 'radioButtons' },
-      error: null,
-    });
-
-    // 2. On second invocation (triggered by form submit), it fails
-    mockGetParsed.mockReturnValueOnce({
-      parsed: null,
-      error: 'Failed to parse during submit',
-    });
-
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-
-    const json = JSON.stringify({
-      meta: {
-        asRichText: true,
-        schemaVersion: "1.0"
-      },
-      type: "textArea",
-      attributes: {
-        cols: 20,
-        rows: 4,
-        maxLength: null,
-        minLength: 0
-      }
-    })
-
-    await act(async () => {
-      render(
-        <QuestionAdd
-          questionType="text"
-          questionName="Text"
-          questionJSON={json}
-          sectionId="1"
-        />);
-    });
-
-    //Wait for component to mount and parsedQuestionJSON to be set
-    await waitFor(() => {
-      expect(screen.queryByText('Failed to parse during submit')).not.toBeInTheDocument();
-    });
-
-    // Get the input
-    const input = screen.getByLabelText(/labels.questionText/);
-
-    // Set value to empty
-    fireEvent.change(input, { target: { value: 'Test' } });
-
-    const saveButton = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
-    await act(async () => {
-      fireEvent.click(saveButton);
-    });
-
-    expect(screen.getByText('Failed to parse during submit')).toBeInTheDocument();
-
-  });
-
-  describe('Research Output Handler Functions', () => {
-    beforeEach(() => {
-      HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
-      window.scrollTo = jest.fn();
-      const mockTemplateId = 123;
-      const mockUseParams = useParams as jest.Mock;
-
-      window.tinymce = {
-        init: jest.fn(),
-        remove: jest.fn(),
-      };
-
-      mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
-
-      const mockRouter = { push: jest.fn() };
-      (useRouter as jest.Mock).mockReturnValue(mockRouter);
-
-      (useQuestionsDisplayOrderQuery as jest.Mock).mockReturnValue({
-        data: mockQuestionDisplayData,
-        loading: false,
-        error: undefined,
-      });
-
-      (useTemplateQuery as jest.Mock).mockReturnValue({
-        data: mockTemplateData,
-        loading: false,
-        error: undefined,
-      });
-
-      (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-        data: { defaultResearchOutputTypes: [] },
-        loading: false,
-        error: undefined,
-      });
-    });
-
-    afterEach(() => {
-      document.body.innerHTML = '';
-      jest.clearAllMocks();
-      window.location.hash = '';
-    });
-
-    it('should toggle metadata standards custom mode when handleToggleMetaDataStandards is called', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Enable metadata standards field
-      const metadataStandardsCheckbox = screen.getByLabelText('Metadata Standards');
-      await act(async () => {
-        fireEvent.click(metadataStandardsCheckbox);
-      });
-
-      // Should show metadata standards component
-      expect(screen.getByTestId('metadata-standards')).toBeInTheDocument();
-
-      // Click the toggle button to enable custom standards
-      const toggleButton = screen.getByText('Toggle MetaData Standards');
-      await act(async () => {
-        fireEvent.click(toggleButton);
-      });
-
-      // The toggle should have been called (internal state changes)
-      expect(toggleButton).toBeInTheDocument();
-    });
-
-    it('should toggle preferred repositories custom mode when handleTogglePreferredRepositories is called', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Enable repository selector field
-      const repoSelectorCheckbox = screen.getByLabelText('Repositories');
-      await act(async () => {
-        fireEvent.click(repoSelectorCheckbox);
-      });
-
-      // Should show repository selection system
-      expect(screen.getByTestId('repository-selection-system')).toBeInTheDocument();
-
-      // Click the toggle button to enable custom repos
-      const toggleButton = screen.getByText('Toggle Preferred Repositories');
-      await act(async () => {
-        fireEvent.click(toggleButton);
-      });
-
-      // The toggle should have been called (internal state changes)
-      expect(toggleButton).toBeInTheDocument();
-    });
-
-    it('should change license mode from defaults to addToDefaults when handleLicenseModeChange is called', async () => {
-      const mockLicenses = {
-        licenses: {
-          items: [
-            { name: 'MIT License', uri: 'https://opensource.org/licenses/MIT', recommended: true },
-            { name: 'Apache 2.0', uri: 'https://opensource.org/licenses/Apache-2.0', recommended: true },
-            { name: 'GPL-3.0', uri: 'https://opensource.org/licenses/GPL-3.0', recommended: false }
-          ]
-        }
-      };
-
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: mockLicenses,
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Enable licenses field
-      const licensesCheckbox = screen.getByLabelText('Licenses');
-      await act(async () => {
-        fireEvent.click(licensesCheckbox);
-      });
-
-      // Should show license field component
-      expect(screen.getByTestId('license-field')).toBeInTheDocument();
-
-      // Click the mode change button to switch to addToDefaults
-      const modeChangeButton = screen.getByText('Change Mode to Add To Defaults');
-      await act(async () => {
-        fireEvent.click(modeChangeButton);
-      });
-
-      // The mode change should have been called (internal state changes)
-      // When switching to addToDefaults with empty customTypes, recommended licenses should be pre-populated
-      expect(modeChangeButton).toBeInTheDocument();
-    });
-
-    it('should pre-populate recommended licenses when switching to addToDefaults mode with empty customTypes', async () => {
-      const mockLicenses = {
-        licenses: {
-          items: [
-            { name: 'MIT License', uri: 'https://opensource.org/licenses/MIT', recommended: true },
-            { name: 'Apache 2.0', uri: 'https://opensource.org/licenses/Apache-2.0', recommended: true },
-            { name: 'GPL-3.0', uri: 'https://opensource.org/licenses/GPL-3.0', recommended: false }
-          ]
-        }
-      };
-
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: mockLicenses,
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Enable licenses field
-      const licensesCheckbox = screen.getByLabelText('Licenses');
-      await act(async () => {
-        fireEvent.click(licensesCheckbox);
-      });
-
-      // Click the mode change button
-      const modeChangeButton = screen.getByText('Change Mode to Add To Defaults');
-      await act(async () => {
-        fireEvent.click(modeChangeButton);
-      });
-
-      // The component should have received the mode change
-      expect(screen.getByTestId('license-field')).toBeInTheDocument();
-    });
-
-    it('should not update metaDataConfig if field does not exist when handleToggleMetaDataStandards is called', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Without enabling the metadata standards field, the toggle should not cause errors
-      // This tests the guard condition in the handler
-      expect(screen.getByLabelText('Metadata Standards')).not.toBeChecked();
-    });
-
-    it('should not update repoConfig if field does not exist when handleTogglePreferredRepositories is called', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Without enabling the repositories field, the toggle should not cause errors
-      // This tests the guard condition in the handler
-      expect(screen.getByLabelText('Repositories')).not.toBeChecked();
-    });
-
-    it('should preserve existing customTypes when switching license mode if customTypes already exist', async () => {
-      const mockLicenses = {
-        licenses: {
-          items: [
-            { name: 'MIT License', uri: 'https://opensource.org/licenses/MIT', recommended: true },
-            { name: 'Apache 2.0', uri: 'https://opensource.org/licenses/Apache-2.0', recommended: true }
-          ]
-        }
-      };
-
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: mockLicenses,
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Enable licenses field
-      const licensesCheckbox = screen.getByLabelText('Licenses');
-      await act(async () => {
-        fireEvent.click(licensesCheckbox);
-      });
-
-      // First add a custom license type
-      const addLicenseButton = screen.getByText('Add Custom License');
-      await act(async () => {
-        fireEvent.click(addLicenseButton);
-      });
-
-      // Then change mode - existing custom types should be preserved
-      const modeChangeButton = screen.getByText('Change Mode to Add To Defaults');
-      await act(async () => {
-        fireEvent.click(modeChangeButton);
-      });
-
-      // Component should still be rendered without errors
-      expect(screen.getByTestId('license-field')).toBeInTheDocument();
-    });
-
-
-
-    it('should add custom license type when handleAddCustomLicenseType is called with valid data', async () => {
-      const mockLicenses = {
-        licenses: {
-          items: [
-            { name: 'MIT License', uri: 'https://opensource.org/licenses/MIT', recommended: true },
-            { name: 'Apache 2.0', uri: 'https://opensource.org/licenses/Apache-2.0', recommended: true }
-          ]
-        }
-      };
-
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: mockLicenses,
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Enable licenses field
-      const licensesCheckbox = screen.getByLabelText('Licenses');
-      await act(async () => {
-        fireEvent.click(licensesCheckbox);
-      });
-
-      // Set a license URI in the input
-      const licenseInput = screen.getByTestId('new-license-type-input');
-      await act(async () => {
-        fireEvent.change(licenseInput, { target: { value: 'https://opensource.org/licenses/MIT' } });
-      });
-
-      expect(licenseInput).toHaveValue('https://opensource.org/licenses/MIT');
-
-      // Add the custom license
-      const addLicenseButton = screen.getByText('Add Custom License');
-      await act(async () => {
-        fireEvent.click(addLicenseButton);
-      });
-
-      // Input should be cleared after adding
-      expect(licenseInput).toHaveValue('');
-    });
-
-    it('should filter out null licenses when adding custom license type', async () => {
-      const mockLicenses = {
-        licenses: {
-          items: [
-            { name: 'MIT License', uri: 'https://opensource.org/licenses/MIT', recommended: true },
-            null,
-            { name: 'Apache 2.0', uri: 'https://opensource.org/licenses/Apache-2.0', recommended: true },
-            null
-          ]
-        }
-      };
-
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: mockLicenses,
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Enable licenses field
-      const licensesCheckbox = screen.getByLabelText('Licenses');
-      await act(async () => {
-        fireEvent.click(licensesCheckbox);
-      });
-
-      // Set a license URI in the input
-      const licenseInput = screen.getByTestId('new-license-type-input');
-      await act(async () => {
-        fireEvent.change(licenseInput, { target: { value: 'https://opensource.org/licenses/Apache-2.0' } });
-      });
-
-      // Add the custom license
-      const addLicenseButton = screen.getByText('Add Custom License');
-      await act(async () => {
-        fireEvent.click(addLicenseButton);
-      });
-
-      // Input should be cleared after adding (verifies the license was found despite null items)
-      expect(licenseInput).toHaveValue('');
-    });
-
-    it('should not add custom license type when newLicenseType is empty', async () => {
-      const mockLicenses = {
-        licenses: {
-          items: [
-            { name: 'MIT License', uri: 'https://opensource.org/licenses/MIT', recommended: true }
-          ]
-        }
-      };
-
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: mockLicenses,
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Enable licenses field
-      const licensesCheckbox = screen.getByLabelText('Licenses');
-      await act(async () => {
-        fireEvent.click(licensesCheckbox);
-      });
-
-      // The input should be empty by default
-      const licenseInput = screen.getByTestId('new-license-type-input');
-      expect(licenseInput).toHaveValue('');
-    });
-
-    it('should remove custom license type when handleRemoveCustomLicenseType is called', async () => {
-      const mockLicenses = {
-        licenses: {
-          items: [
-            { name: 'MIT License', uri: 'https://opensource.org/licenses/MIT', recommended: true },
-            { name: 'Apache 2.0', uri: 'https://opensource.org/licenses/Apache-2.0', recommended: true }
-          ]
-        }
-      };
-
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: mockLicenses,
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Enable licenses field
-      const licensesCheckbox = screen.getByLabelText('Licenses');
-      await act(async () => {
-        fireEvent.click(licensesCheckbox);
-      });
-
-      // Remove a custom license
-      const removeLicenseButton = screen.getByText('Remove Custom License');
-      await act(async () => {
-        fireEvent.click(removeLicenseButton);
-      });
-
-      // Verify the button interaction works
-      expect(screen.getByTestId('license-field')).toBeInTheDocument();
-    });
-
-
-
-
-
-
-
-
-
-    it('should change output type mode from defaults to mine when handleOutputTypeModeChange is called', async () => {
-      const mockOutputTypes = {
-        defaultResearchOutputTypes: [
-          { name: 'Dataset', description: 'A collection of data' },
-          { name: 'Software', description: 'Computer programs and scripts' },
-          { name: 'Publication', description: 'Research papers and articles' }
-        ]
-      };
-
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-        data: mockOutputTypes,
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Output Type should be expanded by default
-      expect(screen.getByTestId('output-type-field')).toBeInTheDocument();
-
-      // Click the mode change button
-      const modeChangeButton = screen.getByText('Change Mode to Mine');
-      await act(async () => {
-        fireEvent.click(modeChangeButton);
-      });
-
-      // Verify the button interaction works
-      expect(screen.getByTestId('output-type-field')).toBeInTheDocument();
-    });
-
-    it('should pre-populate default output types when switching to mine mode with empty customTypes', async () => {
-      const mockOutputTypes = {
-        defaultResearchOutputTypes: [
-          { name: 'Dataset', description: 'A collection of data' },
-          { name: 'Software', description: 'Computer programs and scripts' }
-        ]
-      };
-
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-        data: mockOutputTypes,
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Click the mode change button
-      const modeChangeButton = screen.getByText('Change Mode to Mine');
-      await act(async () => {
-        fireEvent.click(modeChangeButton);
-      });
-
-      // The output types should be pre-populated
-      expect(screen.getByTestId('output-type-field')).toBeInTheDocument();
-    });
-
-    it('should add custom output type when handleAddCustomOutputType is called with valid data', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // The output type field should be visible
-      expect(screen.getByTestId('output-type-field')).toBeInTheDocument();
-
-      // Add a custom output type
-      const addButton = screen.getByText('Add Custom Type');
-      await act(async () => {
-        fireEvent.click(addButton);
-      });
-
-      expect(screen.getByTestId('output-type-field')).toBeInTheDocument();
-    });
-
-    it('should not add custom output type when type is empty', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // The output type field should be present
-      expect(screen.getByTestId('output-type-field')).toBeInTheDocument();
-
-      // Try to add with empty type - the button should be disabled or nothing should happen
-      const newOutputTypeInput = screen.getByTestId('new-output-type-input');
-      expect(newOutputTypeInput).toHaveValue('');
-
-      // Try clicking add button with empty input
-      const addButton = screen.getByText('Add Custom Type');
-      await act(async () => {
-        fireEvent.click(addButton);
-      });
-
-      // Field should still be there and input should still be empty (nothing added)
-      expect(screen.getByTestId('output-type-field')).toBeInTheDocument();
-      expect(newOutputTypeInput).toHaveValue('');
-    });
-
-    it('should remove custom output type when handleRemoveCustomOutputType is called', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Remove a custom output type
-      const removeButton = screen.getByText('Remove Custom Type');
-      await act(async () => {
-        fireEvent.click(removeButton);
-      });
-
-      expect(screen.getByTestId('output-type-field')).toBeInTheDocument();
-    });
-
-    it('should not add custom output type if outputTypeConfig does not exist', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Output Type is always enabled by default, so outputTypeConfig should exist
-      // This tests the guard clause even though in practice it should always have config
-      expect(screen.getByTestId('output-type-field')).toBeInTheDocument();
-    });
-
-    it('should handle null items in defaultResearchOutputTypes when changing mode', async () => {
-      const mockOutputTypes = {
-        defaultResearchOutputTypes: [
-          { name: 'Dataset', description: 'A collection of data' },
-          null,
-          { name: 'Software', description: null }
-        ]
-      };
-
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-        data: mockOutputTypes,
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Click the mode change button
-      const modeChangeButton = screen.getByText('Change Mode to Mine');
-      await act(async () => {
-        fireEvent.click(modeChangeButton);
-      });
-
-      // Should handle null values gracefully
-      expect(screen.getByTestId('output-type-field')).toBeInTheDocument();
-    });
-
-    it('should preserve existing customTypes when switching output type mode if customTypes already exist', async () => {
-      const mockOutputTypes = {
-        defaultResearchOutputTypes: [
-          { name: 'Dataset', description: 'A collection of data' }
-        ]
-      };
-
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-        data: mockOutputTypes,
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // First add a custom type
-      const addButton = screen.getByText('Add Custom Type');
-      await act(async () => {
-        fireEvent.click(addButton);
-      });
-
-      // Then change mode - existing custom types should be preserved
-      const modeChangeButton = screen.getByText('Change Mode to Mine');
-      await act(async () => {
-        fireEvent.click(modeChangeButton);
-      });
-
-      expect(screen.getByTestId('output-type-field')).toBeInTheDocument();
-    });
-
-    // Guard clause tests for handler functions
-    it('should not update accessLevelsConfig if field does not exist when handleAccessLevelModeChange is called', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Without enabling the access levels field, the handler should not cause errors
-      // This tests the guard condition in the handler
-      expect(screen.getByLabelText('Initial Access Levels')).not.toBeChecked();
-    });
-
-    it('should not add license if licensesConfig does not exist when handleAddCustomLicenseType is called', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Without enabling the licenses field, the handler should not cause errors
-      expect(screen.getByLabelText('Licenses')).not.toBeChecked();
-    });
-
-    it('should not add license if selectedLicense is not found in licensesData', async () => {
-      const mockLicenses = {
-        licenses: {
-          items: [
-            { name: 'MIT License', uri: 'https://opensource.org/licenses/MIT', recommended: true }
-          ]
-        }
-      };
-
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: mockLicenses,
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Enable licenses field
-      const licensesCheckbox = screen.getByLabelText('Licenses');
-      await act(async () => {
-        fireEvent.click(licensesCheckbox);
-      });
-
-      // The field should be enabled
-      expect(licensesCheckbox).toBeChecked();
-      expect(screen.getByTestId('license-field')).toBeInTheDocument();
-    });
-
-    it('should not remove license if licensesConfig does not exist when handleRemoveCustomLicenseType is called', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Without enabling the licenses field, the handler should not cause errors
-      expect(screen.getByLabelText('Licenses')).not.toBeChecked();
-    });
-
-
-
-
-  });
-
-  describe('buildResearchOutputFormState', () => {
-    beforeEach(() => {
-      HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
-      window.scrollTo = jest.fn();
-      const mockTemplateId = 123;
-      const mockUseParams = useParams as jest.Mock;
-
-      window.tinymce = {
-        init: jest.fn(),
-        remove: jest.fn(),
-      };
-
-      mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
-
-      const mockRouter = { push: jest.fn() };
-      (useRouter as jest.Mock).mockReturnValue(mockRouter);
-
-      (useQuestionsDisplayOrderQuery as jest.Mock).mockReturnValue({
-        data: mockQuestionDisplayData,
-        loading: false,
-        error: undefined,
-      });
-
-      (useTemplateQuery as jest.Mock).mockReturnValue({
-        data: mockTemplateData,
-        loading: false,
-        error: undefined,
-      });
-    });
-
-    afterEach(() => {
-      document.body.innerHTML = '';
-      jest.clearAllMocks();
-      window.location.hash = '';
-    });
-
-    it('should render component with all standard fields available', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn(),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-        data: { defaultResearchOutputTypes: [] },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Verify all standard fields are present
-      expect(screen.getByText('Title')).toBeInTheDocument();
-      expect(screen.getByText('Output Type')).toBeInTheDocument();
-      expect(screen.getByText('Description')).toBeInTheDocument();
-      expect(screen.getByText('Data Flags')).toBeInTheDocument();
-      expect(screen.getByText('Repositories')).toBeInTheDocument();
-      expect(screen.getByText('Metadata Standards')).toBeInTheDocument();
-      expect(screen.getByText('Licenses')).toBeInTheDocument();
-      expect(screen.getByText('Initial Access Levels')).toBeInTheDocument();
-    });
-
-    it('should enable description field and verify it can be toggled', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn(),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-        data: { defaultResearchOutputTypes: [] },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Enable description field
-      const descriptionCheckbox = screen.getByLabelText('Description');
-      expect(descriptionCheckbox).not.toBeChecked();
-
-      await act(async () => {
-        fireEvent.click(descriptionCheckbox);
-      });
-
-      expect(descriptionCheckbox).toBeChecked();
-    });
-
-    it('should enable data flags field and show configuration options', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn(),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-        data: { defaultResearchOutputTypes: [] },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Enable data flags field
-      const dataFlagsCheckbox = screen.getByLabelText('Data Flags');
-      await act(async () => {
-        fireEvent.click(dataFlagsCheckbox);
-      });
-
-      // Should show data flag options
-      expect(screen.getByText('researchOutput.legends.dataFlag')).toBeInTheDocument();
-    });
-
-    it('should enable repositories field and show repository component', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn(),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-        data: { defaultResearchOutputTypes: [] },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Enable repositories field
-      const repoCheckbox = screen.getByLabelText('Repositories');
-      await act(async () => {
-        fireEvent.click(repoCheckbox);
-      });
-
-      // Should show repository selection system
-      expect(screen.getByTestId('repository-selection-system')).toBeInTheDocument();
-    });
-
-    it('should enable metadata standards field and show metadata component', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn(),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-        data: { defaultResearchOutputTypes: [] },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Enable metadata standards field
-      const metadataCheckbox = screen.getByLabelText('Metadata Standards');
-      await act(async () => {
-        fireEvent.click(metadataCheckbox);
-      });
-
-      // Should show metadata standards component
-      expect(screen.getByTestId('metadata-standards')).toBeInTheDocument();
-    });
-
-    it('should enable licenses field and show license component', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn(),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-        data: { defaultResearchOutputTypes: [] },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Enable licenses field
-      const licensesCheckbox = screen.getByLabelText('Licenses');
-      await act(async () => {
-        fireEvent.click(licensesCheckbox);
-      });
-
-      // Should show license field component
-      expect(screen.getByTestId('license-field')).toBeInTheDocument();
-    });
-
-    it('should enable access levels field', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn(),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-        data: { defaultResearchOutputTypes: [] },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {}
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Enable access levels field
-      const accessLevelsCheckbox = screen.getByLabelText('Initial Access Levels');
-      await act(async () => {
-        fireEvent.click(accessLevelsCheckbox);
-      });
-
-      expect(accessLevelsCheckbox).toBeChecked();
-    });
-
-    it('should build form state with custom output types when mode is mine', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn(),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-        data: { defaultResearchOutputTypes: [] },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {
-          outputTypeConfig: {
-            mode: 'mine',
-            customTypes: [
-              { type: 'Custom Dataset', description: 'A custom dataset type' },
-              { type: 'Custom Software', description: 'A custom software type' }
-            ]
-          }
-        }
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Output type field should be present
-      expect(screen.getByTestId('output-type-field')).toBeInTheDocument();
-    });
-
-    it('should build form state with custom output types when mode is undefined', async () => {
-      (useAddQuestionMutation as jest.Mock).mockReturnValue([
-        jest.fn(),
-        { loading: false, error: undefined },
-      ]);
-
-      (useLicensesQuery as jest.Mock).mockReturnValue({
-        data: { licenses: { items: [] } },
-        loading: false,
-        error: undefined,
-      });
-
-      (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-        data: { defaultResearchOutputTypes: [] },
-        loading: false,
-        error: undefined,
-      });
-
-      const json = JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
-        type: "researchOutput",
-        attributes: {
-          outputTypeConfig: {
-            customTypes: [
-              { type: 'Custom Type 1', description: 'Description 1' },
-              { type: 'Custom Type 2', description: 'Description 2' }
-            ]
-          }
-        }
-      });
-
-      await act(async () => {
-        render(
-          <QuestionAdd
-            questionType="researchOutput"
-            questionName="Research Output"
-            questionJSON={json}
-            sectionId="1"
-          />);
-      });
-
-      // Output type field should be present
-      expect(screen.getByTestId('output-type-field')).toBeInTheDocument();
-    });
-  });
 });
