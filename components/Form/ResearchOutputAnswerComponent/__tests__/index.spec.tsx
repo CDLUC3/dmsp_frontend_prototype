@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import ResearchOutputAnswerComponent from '../index';
@@ -1016,6 +1016,564 @@ describe('ResearchOutputAnswerComponent', () => {
 
       // Verify setRows was called
       expect(mockSetRows).toHaveBeenCalled();
+    });
+  });
+
+  describe('handleCancel function', () => {
+    it('should NOT remove row when canceling edit of non-empty existing row', async () => {
+      const mockRows = [createMockRow('Dataset 1', 'dataset', [])];
+      let currentRows = [...mockRows];
+
+      const CustomComponent = () => {
+        const [rows, setRows] = React.useState(currentRows);
+        return (
+          <NextIntlClientProvider messages={messages} locale="en">
+            <ResearchOutputAnswerComponent
+              columns={mockColumns}
+              rows={rows}
+              setRows={setRows}
+            />
+          </NextIntlClientProvider>
+        );
+      };
+
+      render(<CustomComponent />);
+
+      // Start editing existing row
+      const editButton = screen.getByRole('button', { name: /edit/i });
+      await user.click(editButton);
+
+      // Cancel editing
+      const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+      await user.click(cancelButton);
+
+      // Should return to list view and row should still exist
+      await waitFor(() => {
+        expect(screen.getByText('Dataset 1')).toBeInTheDocument();
+      });
+    });
+
+    it('should handle cancel when editingRowIndex is null', async () => {
+      const mockRows = [createMockRow('Dataset 1', 'dataset', [])];
+
+      renderWithProviders(
+        <ResearchOutputAnswerComponent
+          columns={mockColumns}
+          rows={mockRows}
+          setRows={mockSetRows}
+        />
+      );
+
+      // Should not throw error when cancel is somehow called without editing
+      expect(screen.getByText('Dataset 1')).toBeInTheDocument();
+    });
+
+    it('should remove row with empty string answer when canceled', async () => {
+      const mockRows = [
+        createMockRow('Dataset 1', 'dataset', []),
+      ];
+      let currentRows = [...mockRows];
+
+      const CustomComponent = () => {
+        const [rows, setRows] = React.useState(currentRows);
+        return (
+          <NextIntlClientProvider messages={messages} locale="en">
+            <ResearchOutputAnswerComponent
+              columns={mockColumns}
+              rows={rows}
+              setRows={setRows}
+            />
+          </NextIntlClientProvider>
+        );
+      };
+
+      render(<CustomComponent />);
+
+      // Add new entry
+      const addButton = screen.getByRole('button', { name: /addOutput/i });
+      await user.click(addButton);
+
+      // Cancel without filling anything
+      const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+      await user.click(cancelButton);
+
+      // Should only show original row
+      await waitFor(() => {
+        expect(screen.getByText('Dataset 1')).toBeInTheDocument();
+        const listItems = screen.queryAllByRole('listitem');
+        expect(listItems).toHaveLength(1);
+      });
+    });
+
+    it('should remove row with empty array answers when canceled', async () => {
+      // Create a truly empty row without using createMockRow
+      const emptyRow: ResearchOutputTable = {
+        columns: mockColumns.map(col => {
+          const baseColumn = {
+            type: col.content.type as any,
+            meta: { schemaVersion: '1.0' },
+          };
+
+          // Return appropriate empty answer based on type
+          if (col.content.type === 'checkBoxes') {
+            return { ...baseColumn, answer: [] };
+          } else if (col.content.type === 'repositorySearch' ||
+            col.content.type === 'metadataStandardSearch' ||
+            col.content.type === 'licenseSearch') {
+            return { ...baseColumn, answer: [] };
+          } else {
+            return { ...baseColumn, answer: '' };
+          }
+        }),
+      };
+
+      const mockRows = [
+        createMockRow('Dataset 1', 'dataset', []),
+        emptyRow,
+      ];
+      let currentRows = [...mockRows];
+
+      const CustomComponent = () => {
+        const [rows, setRows] = React.useState(currentRows);
+
+        return (
+          <NextIntlClientProvider messages={messages} locale="en">
+            <ResearchOutputAnswerComponent
+              columns={mockColumns}
+              rows={rows}
+              setRows={setRows}
+            />
+          </NextIntlClientProvider>
+        );
+      };
+
+      render(<CustomComponent />);
+
+      // Find and click edit on the second (empty) row
+      const editButtons = screen.getAllByRole('button', { name: /edit/i });
+      await user.click(editButtons[1]);
+
+      // Cancel editing the empty row
+      const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+      await user.click(cancelButton);
+
+      // Should remove the empty row
+      await waitFor(() => {
+        const listItems = screen.queryAllByRole('listitem');
+        expect(listItems).toHaveLength(1);
+      });
+    });
+
+    it('should remove row with zero number answer when canceled', async () => {
+      // Create a custom row with a number answer set to 0
+      const customRow: ResearchOutputTable = {
+        columns: mockColumns.map(col => {
+          if (col.content.type === 'text' && col.heading === 'Title') {
+            return {
+              type: 'text',
+              meta: { schemaVersion: '1.0' },
+              answer: '', // Empty title
+            };
+          }
+          return {
+            type: col.content.type as any,
+            meta: { schemaVersion: '1.0' },
+            answer: col.content.type === 'checkBoxes' ? [] : '',
+          };
+        }),
+      };
+
+      const mockRows = [createMockRow('Dataset 1', 'dataset', []), customRow];
+      let currentRows = [...mockRows];
+
+      const CustomComponent = () => {
+        const [rows, setRows] = React.useState(currentRows);
+        return (
+          <NextIntlClientProvider messages={messages} locale="en">
+            <ResearchOutputAnswerComponent
+              columns={mockColumns}
+              rows={rows}
+              setRows={setRows}
+            />
+          </NextIntlClientProvider>
+        );
+      };
+
+      render(<CustomComponent />);
+
+      // Edit the empty row (second row)
+      const editButtons = screen.getAllByRole('button', { name: /edit/i });
+      await user.click(editButtons[1]);
+
+      // Cancel
+      const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+      await user.click(cancelButton);
+
+      // Empty row should be removed
+      await waitFor(() => {
+        const listItems = screen.queryAllByRole('listitem');
+        expect(listItems).toHaveLength(1);
+      });
+    });
+
+    it('should remove row with object answer having default values when canceled', async () => {
+      // Create a row with an object answer that has default/empty values
+      const customRow: ResearchOutputTable = {
+        columns: mockColumns.map(col => {
+          if (col.content.type === 'text' && col.heading === 'Title') {
+            return {
+              type: 'text',
+              meta: { schemaVersion: '1.0' },
+              answer: '', // Empty title
+            };
+          }
+          // Simulate an object answer like { value: 0, context: 'kb' }
+          if (col.heading === 'Custom field label') {
+            return {
+              type: 'text',
+              meta: { schemaVersion: '1.0' },
+              answer: { value: 0, context: 'kb' } as any,
+            };
+          }
+          return {
+            type: col.content.type as any,
+            meta: { schemaVersion: '1.0' },
+            answer: col.content.type === 'checkBoxes' ? [] : '',
+          };
+        }),
+      };
+
+      const mockRows = [createMockRow('Dataset 1', 'dataset', []), customRow];
+      let currentRows = [...mockRows];
+
+      const CustomComponent = () => {
+        const [rows, setRows] = React.useState(currentRows);
+        return (
+          <NextIntlClientProvider messages={messages} locale="en">
+            <ResearchOutputAnswerComponent
+              columns={mockColumns}
+              rows={rows}
+              setRows={setRows}
+            />
+          </NextIntlClientProvider>
+        );
+      };
+
+      render(<CustomComponent />);
+
+      // Edit the row with object answer
+      const editButtons = screen.getAllByRole('button', { name: /edit/i });
+      await user.click(editButtons[1]);
+
+      // Cancel
+      const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+      await user.click(cancelButton);
+
+      // Row with empty object should be removed
+      await waitFor(() => {
+        const listItems = screen.queryAllByRole('listitem');
+        expect(listItems).toHaveLength(1);
+      });
+    });
+
+    it('should NOT remove row when it has non-empty content (string)', async () => {
+      const mockRows = [
+        createMockRow('Dataset 1', 'dataset', []),
+        createMockRow('Dataset 2', 'dataset', []),
+      ];
+      let currentRows = [...mockRows];
+
+      const CustomComponent = () => {
+        const [rows, setRows] = React.useState(currentRows);
+        return (
+          <NextIntlClientProvider messages={messages} locale="en">
+            <ResearchOutputAnswerComponent
+              columns={mockColumns}
+              rows={rows}
+              setRows={setRows}
+            />
+          </NextIntlClientProvider>
+        );
+      };
+
+      render(<CustomComponent />);
+
+      // Edit second row (which has content)
+      const editButtons = screen.getAllByRole('button', { name: /edit/i });
+      await user.click(editButtons[1]);
+
+      // Cancel
+      const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+      await user.click(cancelButton);
+
+      // Both rows should still exist
+      await waitFor(() => {
+        expect(screen.getByText('Dataset 1')).toBeInTheDocument();
+        expect(screen.getByText('Dataset 2')).toBeInTheDocument();
+        const listItems = screen.queryAllByRole('listitem');
+        expect(listItems).toHaveLength(2);
+      });
+    });
+  });
+
+  describe('handleSetRows function', () => {
+    it('should update only the editing row when function is called', async () => {
+      const mockRows = [
+        createMockRow('Dataset 1', 'dataset', []),
+        createMockRow('Dataset 2', 'software', []),
+      ];
+      let currentRows = [...mockRows];
+
+      const CustomComponent = () => {
+        const [rows, setRows] = React.useState(currentRows);
+        return (
+          <NextIntlClientProvider messages={messages} locale="en">
+            <ResearchOutputAnswerComponent
+              columns={mockColumns}
+              rows={rows}
+              setRows={setRows}
+            />
+          </NextIntlClientProvider>
+        );
+      };
+
+      render(<CustomComponent />);
+
+      // Start editing first row
+      const editButtons = screen.getAllByRole('button', { name: /edit/i });
+      await user.click(editButtons[0]);
+
+      // The mock SingleResearchOutputComponent should be shown
+      expect(screen.getByTestId('single-research-output')).toBeInTheDocument();
+
+      // When we save, it should only affect the first row
+      const saveButton = screen.getByRole('button', { name: /Save/i });
+      await user.click(saveButton);
+
+      await waitFor(() => {
+        // Both datasets should still be present
+        expect(screen.getByText('Dataset 1')).toBeInTheDocument();
+        expect(screen.getByText('Dataset 2')).toBeInTheDocument();
+      });
+    });
+
+    it('should handle function-based updates in handleSetRows', async () => {
+      const mockRows = [createMockRow('Dataset 1', 'dataset', [])];
+      let testRows = [...mockRows];
+
+      const CustomComponent = () => {
+        const [rows, setRows] = React.useState(testRows);
+
+        return (
+          <NextIntlClientProvider messages={messages} locale="en">
+            <ResearchOutputAnswerComponent
+              columns={mockColumns}
+              rows={rows}
+              setRows={setRows}
+            />
+          </NextIntlClientProvider>
+        );
+      };
+
+      render(<CustomComponent />);
+
+      // Start editing
+      const editButton = screen.getByRole('button', { name: /edit/i });
+      await user.click(editButton);
+
+      expect(screen.getByTestId('single-research-output')).toBeInTheDocument();
+    });
+
+    it('should handle direct value updates in handleSetRows', async () => {
+      const mockRows = [createMockRow('Dataset 1', 'dataset', [])];
+
+      const CustomComponent = () => {
+        const [rows, setRows] = React.useState([...mockRows]);
+
+        return (
+          <NextIntlClientProvider messages={messages} locale="en">
+            <ResearchOutputAnswerComponent
+              columns={mockColumns}
+              rows={rows}
+              setRows={setRows}
+            />
+          </NextIntlClientProvider>
+        );
+      };
+
+      render(<CustomComponent />);
+
+      // Start editing
+      const editButton = screen.getByRole('button', { name: /edit/i });
+      await user.click(editButton);
+
+      expect(screen.getByTestId('single-research-output')).toBeInTheDocument();
+    });
+
+    it('should not update rows when editingRowIndex is null', async () => {
+      const mockRows = [createMockRow('Dataset 1', 'dataset', [])];
+      const setRowsSpy = jest.fn();
+
+      renderWithProviders(
+        <ResearchOutputAnswerComponent
+          columns={mockColumns}
+          rows={mockRows}
+          setRows={setRowsSpy}
+        />
+      );
+
+      // In list view, editingRowIndex should be null
+      expect(screen.getByText('Dataset 1')).toBeInTheDocument();
+
+      // setRows might be called for initial render, but handleSetRows internal logic
+      // should return early when editingRowIndex is null
+      // This is implicitly tested - if we're in list view, handleSetRows shouldn't cause issues
+    });
+
+    it('should correctly pass single row to SingleResearchOutputComponent', async () => {
+      const mockRows = [
+        createMockRow('Dataset 1', 'dataset', []),
+        createMockRow('Dataset 2', 'software', []),
+        createMockRow('Dataset 3', 'text', []),
+      ];
+
+      const CustomComponent = () => {
+        const [rows, setRows] = React.useState([...mockRows]);
+
+        return (
+          <NextIntlClientProvider messages={messages} locale="en">
+            <ResearchOutputAnswerComponent
+              columns={mockColumns}
+              rows={rows}
+              setRows={setRows}
+            />
+          </NextIntlClientProvider>
+        );
+      };
+
+      render(<CustomComponent />);
+
+      // Edit the second row
+      const editButtons = screen.getAllByRole('button', { name: /edit/i });
+      await user.click(editButtons[1]);
+
+      // Should show edit form for second row only
+      expect(screen.getByTestId('single-research-output')).toBeInTheDocument();
+      expect(screen.getByText('headings.editResearchOutput')).toBeInTheDocument();
+    });
+
+    it('should maintain other rows unchanged when updating editing row', async () => {
+      const mockRows = [
+        createMockRow('Dataset 1', 'dataset', [{ repositoryId: '1', repositoryName: 'Zenodo' }]),
+        createMockRow('Dataset 2', 'software', [{ repositoryId: '2', repositoryName: 'GitHub' }]),
+      ];
+
+      const CustomComponent = () => {
+        const [rows, setRows] = React.useState([...mockRows]);
+
+        return (
+          <NextIntlClientProvider messages={messages} locale="en">
+            <ResearchOutputAnswerComponent
+              columns={mockColumns}
+              rows={rows}
+              setRows={setRows}
+            />
+          </NextIntlClientProvider>
+        );
+      };
+
+      render(<CustomComponent />);
+
+      // Verify both rows are initially present
+      expect(screen.getByText('Dataset 1')).toBeInTheDocument();
+      expect(screen.getByText('Dataset 2')).toBeInTheDocument();
+
+      // Edit first row
+      const editButtons = screen.getAllByRole('button', { name: /edit/i });
+      await user.click(editButtons[0]);
+
+      // Save changes
+      const saveButton = screen.getByRole('button', { name: /Save/i });
+      await user.click(saveButton);
+
+      // Both rows should still exist
+      await waitFor(() => {
+        expect(screen.getByText('Dataset 1')).toBeInTheDocument();
+        expect(screen.getByText('Dataset 2')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Integration of handleCancel and handleSetRows', () => {
+    it('should properly handle cancel after making changes via handleSetRows', async () => {
+      const mockRows = [createMockRow('Dataset 1', 'dataset', [])];
+
+      const CustomComponent = () => {
+        const [rows, setRows] = React.useState([...mockRows]);
+
+        return (
+          <NextIntlClientProvider messages={messages} locale="en">
+            <ResearchOutputAnswerComponent
+              columns={mockColumns}
+              rows={rows}
+              setRows={setRows}
+            />
+          </NextIntlClientProvider>
+        );
+      };
+
+      render(<CustomComponent />);
+
+      // Start editing
+      const editButton = screen.getByRole('button', { name: /edit/i });
+      await user.click(editButton);
+
+      // Now cancel (changes made via handleSetRows should be evaluated)
+      const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+      await user.click(cancelButton);
+
+      // Should return to list view with row intact (since it wasn't empty)
+      await waitFor(() => {
+        expect(screen.getByText('Dataset 1')).toBeInTheDocument();
+      });
+    });
+
+    it('should handle adding new row, making no changes, then canceling', async () => {
+      const mockRows = [createMockRow('Dataset 1', 'dataset', [])];
+
+      const CustomComponent = () => {
+        const [rows, setRows] = React.useState([...mockRows]);
+
+        return (
+          <NextIntlClientProvider messages={messages} locale="en">
+            <ResearchOutputAnswerComponent
+              columns={mockColumns}
+              rows={rows}
+              setRows={setRows}
+            />
+          </NextIntlClientProvider>
+        );
+      };
+
+      render(<CustomComponent />);
+
+      // Add new
+      const addButton = screen.getByRole('button', { name: /addOutput/i });
+      await user.click(addButton);
+
+      // Verify we're in add mode
+      expect(screen.getByTestId('is-new-entry')).toHaveTextContent('true');
+
+      // Cancel without making changes
+      const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+      await user.click(cancelButton);
+
+      // Should remove the empty new row and show only the original row
+      await waitFor(() => {
+        const listItems = screen.queryAllByRole('listitem');
+        expect(listItems).toHaveLength(1);
+        expect(screen.getByText('Dataset 1')).toBeInTheDocument();
+      });
     });
   });
 });

@@ -100,7 +100,6 @@ const SingleResearchOutputComponent = ({
   // Query request for default research output types
   const { data: defaultResearchOutputTypesData } = useDefaultResearchOutputTypesQuery();
 
-
   // Helper function to get translated label
   const getTranslatedLabel = (col: typeof columns[0]): string => {
     const translationKey = col.content.attributes?.labelTranslationKey;

@@ -337,6 +337,7 @@ const MetaDataStandardForAnswer = ({
             <Button
               onClick={() => setIsModalOpen(true)}
               className={styles.addItemBtn}
+              data-testid="open-standard-modal-btn"
             >
               {QuestionAdd('researchOutput.metaDataStandards.buttons.add')}
             </Button>
