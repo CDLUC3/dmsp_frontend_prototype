@@ -146,11 +146,9 @@ const QuestionEdit = () => {
     licensesData,
     defaultResearchOutputTypesData,
     expandedFields,
-    setExpandedFields,
     nonCustomizableFieldIds,
     standardFields,
     additionalFields,
-    setAdditionalFields,
     newOutputType,
     setNewOutputType,
     newLicenseType,
@@ -170,10 +168,8 @@ const QuestionEdit = () => {
     addAdditionalField,
     handleDeleteAdditionalField,
     handleUpdateAdditionalField,
-    setStandardFields,
     updateStandardFieldProperty
   } = useResearchOutputTable({ setHasUnsavedChanges, announce });
-
 
   // Run selected question query
   const {

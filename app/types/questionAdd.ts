@@ -1,5 +1,5 @@
 import { LicensesQuery } from '@/generated/graphql';
-import { AnyTableColumnAnswerType } from '@dmptool/types';
+import { AnyTableColumnAnswerType, AnyTableColumnQuestionType } from '@dmptool/types';
 
 
 export type DataFlagsConfig = {
@@ -29,7 +29,7 @@ export type StandardField = {
   placeholder?: string;
   helpText?: string;
   maxLength?: string;
-  content?: any;
+  content?: AnyTableColumnQuestionType;
   value?: string;
   byteSizeConfig?: {
     selectedUnit: 'bytes' | 'kb' | 'mb' | 'gb' | 'tb' | 'pb';
@@ -116,28 +116,6 @@ export type LicensesConfig = {
   selectedDefaults: string[];
   customTypes: { name: string; uri: string }[];
 };
-
-// Define the structure for each column in a row
-export type ColumnAnswer =
-  | { type: 'affiliationSearch'; answer: { affiliationId: string; affiliationName: string }; meta: any }
-  | { type: 'boolean'; answer: boolean; meta: any }
-  | { type: 'checkBoxes'; answer: string[]; meta: any }
-  | { type: 'currency'; answer: number | null; meta: any }
-  | { type: 'date'; answer: string | null; meta: any }
-  | { type: 'dateRange'; answer: { start: string | null; end: string | null }; meta: any }
-  | { type: 'email'; answer: string | null; meta: any }
-  | { type: 'licenseSearch'; answer: string; meta: any }
-  | { type: 'metadataStandardSearch'; answer: string; preferences?: Array<{ label: string; value: string }>; meta: any }
-  | { type: 'multiselectBox'; answer: string[]; meta: any }
-  | { type: 'number'; answer: number | null; meta: any }
-  | { type: 'numberWithContext'; answer: { number: number | null; context: string }; meta: any }
-  | { type: 'numberRange'; answer: { start: number | null; end: number | null }; meta: any }
-  | { type: 'radioButtons'; answer: string; meta: any }
-  | { type: 'repositorySearch'; answer: string; preferences?: Array<{ label: string; value: string }>; meta: any }
-  | { type: 'selectBox'; answer: string; meta: any }
-  | { type: 'text'; answer: string | null; meta: any }
-  | { type: 'textArea'; answer: string; meta: any }
-  | { type: 'url'; answer: string | null; meta: any };
 
 // Define the row structure
 export type ResearchOutputTable = {

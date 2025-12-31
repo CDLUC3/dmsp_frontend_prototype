@@ -400,7 +400,8 @@
       "dataFlags": "Mark all of the statements that are true about the dataset"
     },
     "headings": {
-      "bestPractice": "Best practice by DMP Tool"
+      "bestPractice": "Best practice by DMP Tool",
+      "displayingRepositoriesStatus": "Displaying repositories {current} of {total}"
     },
     "messages": {
       "errors": {

@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { DefaultResearchOutputTableQuestion } from '@dmptool/types';
 import {
   AccessLevelInterface,
   AnyParsedQuestion,
@@ -64,7 +63,14 @@ const standardKeys = new Set([
 export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initialData }: { setHasUnsavedChanges: React.Dispatch<React.SetStateAction<boolean>>, announce: (message: string) => void, initialData?: AnyParsedQuestion }) => {
 
   // Query request for all licenses
-  const { data: licensesData } = useLicensesQuery();
+  const { data: licensesData } = useLicensesQuery({
+    variables: {
+      paginationOptions: {// Not using pagination right now, but it's only way to get all licenses data
+        type: "OFFSET",
+        limit: 500
+      }
+    }
+  });
 
   // Query request for default research output types
   const { data: defaultResearchOutputTypesData } = useDefaultResearchOutputTypesQuery();
@@ -182,20 +188,6 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
       }
     },
   ], [QuestionAdd]);
-
-  // Create a mapping from field IDs to default columns
-  const DEFAULT_COLUMNS_MAP = {
-    title: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Title'),
-    description: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Description'),
-    outputType: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Type'),
-    dataFlags: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Data Flags'),
-    accessLevels: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Access Level'),
-    releaseDate: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Anticipated Release Date'),
-    byteSize: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Byte Size'),
-    repositories: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Repository(ies)'),
-    metadataStandards: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Metadata Standard(s)'),
-    licenses: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'License'),
-  };
 
   // States for Research Output table question type
   // Which fields cannot be customized
@@ -360,7 +352,6 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
       const recommendedLicenses = allLicenses
         .filter(license => license.recommended)
         .map(license => ({ name: license.name, uri: license.uri }));
-
       const customTypes = mode === 'addToDefaults' && currentField.licensesConfig.customTypes.length === 0
         ? recommendedLicenses
         : currentField.licensesConfig.customTypes;

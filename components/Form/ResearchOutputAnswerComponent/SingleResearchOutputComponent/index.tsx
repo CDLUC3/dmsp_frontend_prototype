@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -45,7 +44,7 @@ import {
   METADATA_STANDARD_SEARCH_ID,
   LICENSE_SEARCH_ID,
 } from '@/lib/constants';
-import { defaultAccessLevels, getDefaultAnswerForType } from '@/utils/researchOutputTable';
+import { defaultAccessLevels } from '@/utils/researchOutputTable';
 import { getCalendarDateValue } from '@/utils/dateUtils';
 import { createEmptyResearchOutputRow } from '@/utils/researchOutputTransformations';
 import styles from '../researchOutputAnswer.module.scss';
@@ -62,6 +61,18 @@ type ResearchOutputAnswerComponentProps = {
   hasOtherRows?: boolean; // Indicates if there are other rows in the list so we know whether to show back to list button
 };
 
+type valueType =
+  | string
+  | number
+  | boolean
+  | string[]
+  | { licenseId: string; licenseName: string }[]
+  | { metadataStandardId: string; metadataStandardName: string }[]
+  | { repositoryId: string; repositoryName: string }[]
+  | { affiliationId: string; affiliationName: string }
+  | { start: string; end: string }
+  | { value: number; context: string };
+
 
 const SingleResearchOutputComponent = ({
   columns,
@@ -69,7 +80,6 @@ const SingleResearchOutputComponent = ({
   setRows,
   onSave,
   onCancel,
-  onDelete,
   showButtons = false,
   isNewEntry = false,
   hasOtherRows = false
@@ -119,7 +129,7 @@ const SingleResearchOutputComponent = ({
 
 
   // Validate a single field
-  const validateField = (colIndex: number, value: any): string => {
+  const validateField = (colIndex: number, value: valueType): string => {
     const col = columns[colIndex];
     let error = "";
 
@@ -257,6 +267,7 @@ const SingleResearchOutputComponent = ({
 
 
   // Handle cell change
+  /*eslnt-disable @typescript-eslint/no-explicit-any */
   const handleCellChange = (colIndex: number, value: any) => {
     // Clear error for this field
     clearFieldError(colIndex);

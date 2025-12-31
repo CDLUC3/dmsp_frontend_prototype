@@ -1,8 +1,11 @@
 import { renderHook, act } from '@testing-library/react';
 import { useResearchOutputTable } from '../useResearchOutputTable';
+import type { ResearchOutputTableQuestionType } from '@dmptool/types';
+
 
 // Mocks for next-intl and GraphQL hooks
 jest.mock('next-intl', () => ({
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   useTranslations: () => (key: string, params?: any) => {
     if (params && typeof params === 'object') {
       return `${key} ${JSON.stringify(params)}`;
@@ -154,7 +157,7 @@ describe('useResearchOutputTable', () => {
 
   it('should build research output form state with enabled fields', () => {
     const { result } = renderHook(() => useResearchOutputTable({ setHasUnsavedChanges, announce }));
-    const formState = result.current.buildResearchOutputFormState(null);
+    const formState = result.current.buildResearchOutputFormState() as ResearchOutputTableQuestionType;
     expect(formState.type).toBeDefined();
     expect(Array.isArray(formState.columns)).toBe(true);
     expect(formState.columns.length).toBeGreaterThan(0);

@@ -4,7 +4,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from "react-aria-components";
 import {
-  CURRENT_SCHEMA_VERSION,
   DefaultResearchOutputTableQuestion
 } from '@dmptool/types';
 import { useTranslations } from "next-intl";
@@ -13,13 +12,7 @@ import {
   ResearchOutputTable
 } from '@/app/types';
 
-import {
-  REPOSITORY_SEARCH_ID,
-  METADATA_STANDARD_SEARCH_ID,
-} from '@/lib/constants';
-
 import SingleResearchOutputComponent from './SingleResearchOutputComponent';
-import { getDefaultAnswerForType } from '@/utils/researchOutputTable';
 import { createEmptyResearchOutputRow, getRowDisplayInfo } from '@/utils/researchOutputTransformations';
 import styles from './researchOutputAnswer.module.scss';
 

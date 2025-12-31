@@ -70,6 +70,7 @@ jest.mock('@/generated/graphql', () => ({
 
 // Mock child components
 jest.mock('@/components/RepoSelectorForAnswer', () => {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   return function MockRepoSelectorForAnswer({ value, onRepositoriesChange }: any) {
     return (
       <div data-testid="repo-selector">
@@ -92,6 +93,7 @@ jest.mock('@/components/MetaDataStandardForAnswer', () => {
   return function MockMetaDataStandardsForAnswer({
     value,
     onMetaDataStandardsChange,
+    /* eslint-disable @typescript-eslint/no-explicit-any */
   }: any) {
     return (
       <div data-testid="metadata-selector">
@@ -111,6 +113,7 @@ jest.mock('@/components/MetaDataStandardForAnswer', () => {
 });
 
 jest.mock('@/components/Form', () => ({
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   FormInput: ({ label, value, onChange, isInvalid, errorMessage, isRequired, helpMessage, maxLength, minLength, ...props }: any) => (
     <div data-testid={`form-input-${props.name}`}>
       <label>{label}</label>
@@ -155,7 +158,7 @@ jest.mock('@/components/Form', () => ({
       </div>
     );
   },
-  FormSelect: ({ label, items, selectedKey, onChange, children, isInvalid, errorMessage, selectClasses, ariaLabel, isRequired, helpMessage, ...props }: any) => (
+  FormSelect: ({ label, items, selectedKey, onChange, isInvalid, errorMessage, selectClasses, ariaLabel, isRequired, helpMessage, ...props }: any) => (
     <div data-testid={`form-select-${props.name}`} className={selectClasses}>
       <label>{label}</label>
       <select
@@ -177,7 +180,7 @@ jest.mock('@/components/Form', () => ({
       {errorMessage && <span data-testid="error">{errorMessage}</span>}
     </div>
   ),
-  CheckboxGroupComponent: ({ children, value, onChange, checkboxGroupLabel, checkboxGroupDescription, isRequired, ...props }: any) => (
+  CheckboxGroupComponent: ({ children, checkboxGroupLabel, checkboxGroupDescription, ...props }: any) => (
     <div data-testid={`checkbox-group-${props.name}`}>
       <label>{checkboxGroupLabel}</label>
       {checkboxGroupDescription && <p className="help-text">{checkboxGroupDescription}</p>}
@@ -199,21 +202,21 @@ jest.mock('@/components/Form', () => ({
   ),
 }));
 
-jest.mock('@/components/ErrorMessages', () => {
-  return React.forwardRef(({ errors, noScroll }: any, ref: any) => {
-    const errorList = Object.values(errors || {});
-    if (errorList.length === 0) return null;
-    return (
-      <div data-testid="error-messages" ref={ref}>
-        {errorList.map((error: any, index: number) => (
-          <div key={index} data-testid="error-message">
-            {error}
-          </div>
-        ))}
-      </div>
-    );
-  });
+const MockErrorMessages = React.forwardRef(({ errors }: any, ref: any) => {
+  const errorList = Object.values(errors || {});
+  if (errorList.length === 0) return null;
+  return (
+    <div data-testid="error-messages" ref={ref}>
+      {errorList.map((error: any, index: number) => (
+        <div key={index} data-testid="error-message">
+          {error}
+        </div>
+      ))}
+    </div>
+  );
 });
+MockErrorMessages.displayName = 'MockErrorMessages';
+jest.mock('@/components/ErrorMessages', () => MockErrorMessages);
 
 // Mock translations
 const messages = {
@@ -438,7 +441,6 @@ describe('SingleResearchOutputComponent', () => {
   let mockSetRows: jest.Mock;
   let mockOnSave: jest.Mock;
   let mockOnCancel: jest.Mock;
-  let mockOnDelete: jest.Mock;
   const user = userEvent.setup();
 
   beforeEach(() => {
@@ -447,7 +449,6 @@ describe('SingleResearchOutputComponent', () => {
     mockSetRows = jest.fn();
     mockOnSave = jest.fn();
     mockOnCancel = jest.fn();
-    mockOnDelete = jest.fn();
     jest.clearAllMocks();
   });
 
@@ -594,7 +595,7 @@ describe('SingleResearchOutputComponent', () => {
   describe('Field Interactions', () => {
     it('should update text field value', async () => {
       const mockRows = [createMockRow()];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -619,7 +620,7 @@ describe('SingleResearchOutputComponent', () => {
 
     it('should update textarea value', async () => {
       const mockRows = [createMockRow()];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -644,7 +645,7 @@ describe('SingleResearchOutputComponent', () => {
 
     it('should update select field value', async () => {
       const mockRows = [createMockRow()];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -669,7 +670,7 @@ describe('SingleResearchOutputComponent', () => {
 
     it('should handle repository selection', async () => {
       const mockRows = [createMockRow()];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -698,7 +699,7 @@ describe('SingleResearchOutputComponent', () => {
 
     it('should handle metadata standard selection', async () => {
       const mockRows = [createMockRow()];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -726,7 +727,7 @@ describe('SingleResearchOutputComponent', () => {
 
     it('should handle license selection', async () => {
       const mockRows = [createMockRow()];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -751,7 +752,7 @@ describe('SingleResearchOutputComponent', () => {
 
     it('should handle file size input', async () => {
       const mockRows = [createMockRow()];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -776,7 +777,7 @@ describe('SingleResearchOutputComponent', () => {
 
     it('should handle file size unit selection', async () => {
       const mockRows = [createMockRow()];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -833,7 +834,7 @@ describe('SingleResearchOutputComponent', () => {
 
     it('should clear field error when user types', async () => {
       const mockRows = [createMockRow()];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -937,7 +938,7 @@ describe('SingleResearchOutputComponent', () => {
 
     it('should show confirmation dialog when canceling with unsaved changes', async () => {
       const mockRows = [createMockRow('Title', 'Description', 'dataset')];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -975,7 +976,7 @@ describe('SingleResearchOutputComponent', () => {
     it('should not cancel if user declines confirmation', async () => {
       window.confirm = jest.fn(() => false);
       const mockRows = [createMockRow('Title', 'Description', 'dataset')];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -1008,7 +1009,7 @@ describe('SingleResearchOutputComponent', () => {
 
     it('should clear unsaved changes flag after successful save', async () => {
       const mockRows = [createMockRow('Title', 'Description', 'dataset')];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);

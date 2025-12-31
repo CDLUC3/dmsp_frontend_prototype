@@ -112,6 +112,7 @@ jest.mock('../hooks/useComments', () => {
 // Mock the ResearchOutputAnswerComponent directly at its source file
 jest.mock('@/components/Form/ResearchOutputAnswerComponent', () => ({
   __esModule: true,
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   default: ({ columns, rows, setRows, onSave, columnHeadings }: any) => (
     <div data-testid="research-output-table">
       <div data-testid="column-count">{columns.length}</div>

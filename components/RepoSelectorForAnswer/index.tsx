@@ -42,7 +42,6 @@ import { useToast } from "@/context/ToastContext";
 import logECS from "@/utils/clientLogger";
 import {
   RepositoryInterface,
-  RepositoryFieldInterface
 } from '@/app/types';
 import styles from './repoSelectorForAnswer.module.scss';
 
@@ -83,7 +82,6 @@ const RepoSelectorForAnswer = ({
   value?: RepositoryInterface[];
   onRepositoriesChange?: (repos: RepositoryInterface[]) => void;
 }) => {
-
   const params = useParams();
   const router = useRouter();
   // Toast context for notifications
@@ -94,11 +92,9 @@ const RepoSelectorForAnswer = ({
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
 
-
   // Translation keys
   const Global = useTranslations("Global");
   const QuestionAdd = useTranslations("QuestionAdd");
-
 
   // Instead of useState for selectedRepos, use value prop:
   const selectedRepos = useMemo(() => {
@@ -567,7 +563,7 @@ const RepoSelectorForAnswer = ({
                     <div className={styles.searchResults}>
                       <div className={styles.paginationWrapper}>
                         <span className={styles.paginationInfo}>
-                          Displaying repositories {repositories.length} of {totalCount} in total
+                          {QuestionAdd('headings.displayingRepositoriesStatus', { current: repositories.length, total: totalCount })}
                         </span>
                         <Pagination
                           currentPage={currentPage}
