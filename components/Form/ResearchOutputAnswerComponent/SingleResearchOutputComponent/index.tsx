@@ -8,7 +8,8 @@ import {
   Button
 } from "react-aria-components";
 import {
-  DefaultResearchOutputTableQuestion,
+  ResearchOutputTableQuestionType,
+  AnyTableColumnAnswerType,
   LicenseSearchAnswerType,
   RepositorySearchAnswerType,
   MetadataStandardSearchAnswerType
@@ -34,6 +35,7 @@ import {
 import RepoSelectorForAnswer from '@/components/RepoSelectorForAnswer';
 import MetaDataStandardsForAnswer from '@/components/MetaDataStandardForAnswer';
 import ErrorMessages from "@/components/ErrorMessages";
+import { useScrollToElement } from '../hooks/useScrollToElement';
 
 // Utils and other
 import {
@@ -52,7 +54,7 @@ import { createEmptyResearchOutputRow } from '@/utils/researchOutputTransformati
 import styles from '../researchOutputAnswer.module.scss';
 
 type ResearchOutputAnswerComponentProps = {
-  columns: typeof DefaultResearchOutputTableQuestion['columns'];
+  columns: ResearchOutputTableQuestionType['columns'];
   rows: ResearchOutputTable[];
   setRows: React.Dispatch<React.SetStateAction<ResearchOutputTable[]>>;
   onSave?: () => void;
@@ -63,17 +65,8 @@ type ResearchOutputAnswerComponentProps = {
   hasOtherRows?: boolean; // Indicates if there are other rows in the list so we know whether to show back to list button
 };
 
-type valueType =
-  | string
-  | number
-  | boolean
-  | string[]
-  | { licenseId: string; licenseName: string }[]
-  | { metadataStandardId: string; metadataStandardName: string }[]
-  | { repositoryId: string; repositoryName: string }[]
-  | { affiliationId: string; affiliationName: string }
-  | { start: string; end: string }
-  | { value: number; context: string };
+// Use the answer type directly from @dmptool/types
+type ValueType = AnyTableColumnAnswerType['answer'];
 
 
 const SingleResearchOutputComponent = ({
@@ -88,12 +81,15 @@ const SingleResearchOutputComponent = ({
 }: ResearchOutputAnswerComponentProps) => {
 
   const textAreaFirstUpdate = useRef<{ [key: number]: boolean }>({});
-  const initializedRef = useRef(false);
   // Track initial state for comparison
   const initialRowsRef = useRef<string | null>(null);
 
   // For form errors
   const errorRef = useRef<HTMLDivElement | null>(null);
+
+  // Track refs for each field to enable scrolling to invalid fields
+  const fieldRefs = useRef<{ [key: string]: HTMLElement | null }>({});
+  const firstInvalidFieldRef = useRef<HTMLElement | null>(null);
 
   // Add state for field-level errors
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -102,6 +98,9 @@ const SingleResearchOutputComponent = ({
 
   // Localization
   const Global = useTranslations('Global');
+
+  // Scroll utility
+  const scrollToElement = useScrollToElement();
 
   // GraphQL Queries
   // Query request for recommended licenses
@@ -131,7 +130,7 @@ const SingleResearchOutputComponent = ({
 
 
   // Validate a single field
-  const validateField = (colIndex: number, value: valueType): string => {
+  const validateField = (colIndex: number, value: ValueType): string => {
     const col = columns[colIndex];
     let error = "";
 
@@ -167,6 +166,7 @@ const SingleResearchOutputComponent = ({
   const isFormValid = (): boolean => {
     let isValid = true;
     const newErrors: { [key: string]: string } = {};
+    let firstInvalidKey: string | null = null;
 
     if (!currentRow) return false;
 
@@ -176,16 +176,23 @@ const SingleResearchOutputComponent = ({
       const error = validateField(colIndex, value);
 
       if (error) {
-        newErrors[`col-${colIndex}`] = error;
+        const errorKey = `col-${colIndex}`;
+        newErrors[errorKey] = error;
         isValid = false;
+        // Track the first invalid field
+        if (!firstInvalidKey) {
+          firstInvalidKey = errorKey;
+        }
       }
     });
 
     setErrors(newErrors);
 
-    // Scroll to errors if validation fails
-    if (!isValid && errorRef.current) {
-      errorRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Set the first invalid field ref for scrolling
+    if (!isValid && firstInvalidKey && fieldRefs.current[firstInvalidKey]) {
+      firstInvalidFieldRef.current = fieldRefs.current[firstInvalidKey];
+    } else {
+      firstInvalidFieldRef.current = null;
     }
 
     return isValid;
@@ -226,17 +233,7 @@ const SingleResearchOutputComponent = ({
         setHasUnsavedChanges(false);
         initialRowsRef.current = JSON.stringify(rows);
 
-        // scroll to top of this form + 20px offset
-        const formWrapper = document.querySelector('.research-output-form');
-        if (formWrapper) {
-          const elementPosition = formWrapper.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - 100;
-
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-          });
-        }
+        scrollToElement('.research-output-form');
       }
     }
   }
@@ -252,17 +249,7 @@ const SingleResearchOutputComponent = ({
     if (onCancel) {
       setHasUnsavedChanges(false); // Clear flag
       onCancel();
-      // scroll to top of this form + 20px offset
-      const formWrapper = document.querySelector('.research-output-form');
-      if (formWrapper) {
-        const elementPosition = formWrapper.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - 100;
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
-      }
+      scrollToElement('.research-output-form');
     }
 
   };
@@ -270,7 +257,7 @@ const SingleResearchOutputComponent = ({
 
   // Handle cell change
   /*eslnt-disable @typescript-eslint/no-explicit-any */
-  const handleCellChange = (colIndex: number, value: valueType) => {
+  const handleCellChange = (colIndex: number, value: ValueType) => {
     // Clear error for this field
     clearFieldError(colIndex);
 
@@ -355,16 +342,6 @@ const SingleResearchOutputComponent = ({
     });
   };
 
-
-  useEffect(() => {
-    if (!initializedRef.current && rows.length === 0) {
-      const emptyRow = createEmptyResearchOutputRow(columns);
-      setRows([emptyRow]);
-      initializedRef.current = true;
-    }
-  }, [columns]);
-
-
   // Capture initial state when component mounts or rows first populate
   useEffect(() => {
     if (rows.length > 0 && !initialRowsRef.current) {
@@ -392,7 +369,11 @@ const SingleResearchOutputComponent = ({
 
   return (
     <div className="research-output-form">
-      <ErrorMessages errors={errors} noScroll={true} ref={errorRef} />
+      <ErrorMessages
+        errors={Object.values(errors)}
+        ref={errorRef}
+        firstInvalidFieldRef={firstInvalidFieldRef}
+      />
       {columns.map((col, colIndex) => {
         const value = currentRow ? currentRow.columns[colIndex].answer : '';
         const name = col.heading.replace(/\s+/g, '_').toLowerCase();
@@ -401,7 +382,10 @@ const SingleResearchOutputComponent = ({
         switch (col.content.type) {
           case TEXT_FIELD_QUESTION_TYPE:
             return (
-              <div key={col.heading}>
+              <div
+                key={col.heading}
+                ref={(el) => { fieldRefs.current[`col-${colIndex}`] = el; }}
+              >
                 <FormInput
                   type="text"
                   value={typeof value === "string" || typeof value === "number" ? value : ""}
@@ -422,7 +406,10 @@ const SingleResearchOutputComponent = ({
 
           case TEXT_AREA_QUESTION_TYPE:
             return (
-              <div key={col.heading}>
+              <div
+                key={col.heading}
+                ref={(el) => { fieldRefs.current[`col-${colIndex}`] = el; }}
+              >
                 <FormTextArea
                   name={name}
                   isRequired={col.required}
@@ -463,7 +450,10 @@ const SingleResearchOutputComponent = ({
             }
 
             return (
-              <div key={col.heading}>
+              <div
+                key={col.heading}
+                ref={(el) => { fieldRefs.current[`col-${colIndex}`] = el; }}
+              >
                 <FormSelect
                   label={translatedLabel}
                   ariaLabel={translatedLabel}
@@ -493,7 +483,10 @@ const SingleResearchOutputComponent = ({
             }
 
             return (
-              <div key={col.heading}>
+              <div
+                key={col.heading}
+                ref={(el) => { fieldRefs.current[`col-${colIndex}`] = el; }}
+              >
                 <FormSelect
                   label={translatedLabel}
                   ariaLabel={translatedLabel}
@@ -549,7 +542,11 @@ const SingleResearchOutputComponent = ({
 
             return (
               options.length > 0 && (
-                <div key={col.heading} className={styles.checkboxGroupContainer}>
+                <div
+                  key={col.heading}
+                  className={styles.checkboxGroupContainer}
+                  ref={(el) => { fieldRefs.current[`col-${colIndex}`] = el; }}
+                >
                   <CheckboxGroupComponent
                     name={name}
                     value={selectedValues}
@@ -608,7 +605,10 @@ const SingleResearchOutputComponent = ({
                 : []);  // No answer yet - show preferences
 
             return (
-              <div key={col.heading}>
+              <div
+                key={col.heading}
+                ref={(el) => { fieldRefs.current[`col-${colIndex}`] = el; }}
+              >
                 <h3 className={`${styles.customHeading} h2`}>{translatedLabel}</h3>
                 {repoHelpText && (
                   <p className={styles.helpText}>{repoHelpText}</p>
@@ -667,7 +667,10 @@ const SingleResearchOutputComponent = ({
                 : []);  // No answer yet - show preferences
 
             return (
-              <div key={col.heading}>
+              <div
+                key={col.heading}
+                ref={(el) => { fieldRefs.current[`col-${colIndex}`] = el; }}
+              >
                 <h3 className={`${styles.customHeading} h2`}>{translatedLabel}</h3>
                 {stdHelpText && (
                   <p className={styles.helpText}>{stdHelpText}</p>
@@ -715,7 +718,10 @@ const SingleResearchOutputComponent = ({
                 ? licenseAnswer[0].licenseId
                 : '';
             return (
-              <div key={col.heading}>
+              <div
+                key={col.heading}
+                ref={(el) => { fieldRefs.current[`col-${colIndex}`] = el; }}
+              >
                 <FormSelect
                   label={translatedLabel}
                   ariaLabel={translatedLabel}

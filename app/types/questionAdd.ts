@@ -1,5 +1,8 @@
 import { LicensesQuery } from '@/generated/graphql';
-import { AnyTableColumnAnswerType, AnyTableColumnQuestionType } from '@dmptool/types';
+import {
+  AnyTableColumnQuestionType,
+  ResearchOutputTableAnswerType
+} from '@dmptool/types';
 
 
 export type DataFlagsConfig = {
@@ -117,10 +120,9 @@ export type LicensesConfig = {
   customTypes: { name: string; uri: string }[];
 };
 
-// Define the row structure
-export type ResearchOutputTable = {
-  columns: AnyTableColumnAnswerType[];
-};
+// Use the row structure from @dmptool/types
+// This is the type of each element in ResearchOutputTableAnswerType['answer']
+export type ResearchOutputTable = ResearchOutputTableAnswerType['answer'][number];
 
 export type AccessLevelsConfig = {
   mode: 'defaults' | 'addToDefaults';

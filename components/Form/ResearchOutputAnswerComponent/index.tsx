@@ -3,7 +3,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from "react-aria-components";
 import {
-  DefaultResearchOutputTableQuestion
+  DefaultResearchOutputTableQuestion,
+  ResearchOutputTableQuestionType
 } from '@dmptool/types';
 import { useTranslations } from "next-intl";
 
@@ -13,13 +14,14 @@ import {
 
 import SingleResearchOutputComponent from './SingleResearchOutputComponent';
 import { createEmptyResearchOutputRow, getRowDisplayInfo } from '@/utils/researchOutputTransformations';
+import { useScrollToElement } from './hooks/useScrollToElement';
 import styles from './researchOutputAnswer.module.scss';
 
 type ResearchOutputAnswerComponentProps = {
-  columns: typeof DefaultResearchOutputTableQuestion['columns'];
+  columns: ResearchOutputTableQuestionType['columns'];
   rows: ResearchOutputTable[];
   setRows: React.Dispatch<React.SetStateAction<ResearchOutputTable[]>>;
-  onSave?: (type?: string) => Promise<void>; // Callback to trigger parent save
+  onSave?: (rows: ResearchOutputTable[], type?: string) => Promise<void>; // Callback to trigger parent save with current data
 };
 
 const ResearchOutputAnswerComponent = ({
@@ -40,6 +42,9 @@ const ResearchOutputAnswerComponent = ({
   // Localization
   const Global = useTranslations('Global');
   const t = useTranslations('QuestionEdit');
+
+  // Scroll utility
+  const scrollToElement = useScrollToElement();
 
   // Create an empty research output row to add a new output
   const createEmptyRow = () => createEmptyResearchOutputRow(columns);
@@ -62,39 +67,34 @@ const ResearchOutputAnswerComponent = ({
   const handleDelete = useCallback(async (index: number) => {
     const msg = t('messages.areYouSureYouWantToDelete');
     if (confirm(msg)) {
-      setRows(prev => prev.filter((_, i) => i !== index));
+      // Calculate the new rows after deletion
+      const updatedRows = rows.filter((_, i) => i !== index);
+      setRows(updatedRows);
+
       // If we were editing this row, go back to list view
       if (editingRowIndex === index) {
         setEditingRowIndex(null);
       }
       // Trigger parent page save if onSave callback exists
       if (onSave) {
-        await onSave('delete');
-        // scroll to top of this form + 20px offset
-        const formWrapper = document.querySelector('.ro-form-wrapper');
-        if (formWrapper) {
-          const elementPosition = formWrapper.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - 100;
-
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-          });
-        }
+        await onSave(updatedRows, 'delete');
+        scrollToElement('.ro-form-wrapper');
       }
     }
-  }, [editingRowIndex, onSave, t]);
+  }, [editingRowIndex, onSave, rows, t]);
 
   // Handle done editing
   const handleDoneEditing = useCallback(async () => {
+    // Clear editing state
     setEditingRowIndex(null);
     setIsAddingNew(false);
 
-    // Trigger parent page save if onSave callback exists
+    // Trigger parent page save with current rows data
+    // Pass rows directly to avoid stale state issues
     if (onSave) {
-      await onSave();
+      await onSave(rows);
     }
-  }, [onSave]);
+  }, [onSave, rows]);
 
   // Handle cancel (go back to list view, and if it was a new empty row, remove it)
   const handleCancel = useCallback(() => {
@@ -137,7 +137,7 @@ const ResearchOutputAnswerComponent = ({
       }
       return newRows;
     });
-  }, [editingRowIndex]);
+  }, [editingRowIndex, rows.length]);
 
   // Automatically show form when there are no rows (i.e., first time adding an answer)
   useEffect(() => {
@@ -154,12 +154,16 @@ const ResearchOutputAnswerComponent = ({
     const timer = setTimeout(() => {
       if (!hasInitialized.current && rows.length === 0 && editingRowIndex === null) {
         hasInitialized.current = true;
-        handleAddNew();
+        // Create and add empty row, then set editing state synchronously
+        const emptyRow = createEmptyResearchOutputRow(columns);
+        setRows([emptyRow]);
+        setEditingRowIndex(0);
+        setIsAddingNew(true);
       }
     }, 50); // Small delay to let data load
 
     return () => clearTimeout(timer);
-  }, [rows.length, editingRowIndex]);
+  }, [rows.length, editingRowIndex, columns]);
 
   // Handle when all items are deleted
   useEffect(() => {

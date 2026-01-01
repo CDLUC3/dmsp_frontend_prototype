@@ -456,12 +456,12 @@ describe('SingleResearchOutputComponent', () => {
 
   describe('Initial Render', () => {
     it('should render all form fields', () => {
-      const mockRows = [createMockRow()];
+      const mockRow = createMockRow();
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={mockColumns}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
         />
       );
@@ -479,25 +479,23 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should render with existing data', () => {
-      const mockRows = [
-        createMockRow(
-          'Test Dataset',
-          'Test Description',
-          'dataset',
-          ['sensitive'],
-          [{ repositoryId: 'repo1', repositoryName: 'Zenodo' }],
-          [{ metadataStandardId: 'std1', metadataStandardName: 'Dublin Core' }],
-          [{ licenseId: 'https://spdx.org/licenses/CC0-1.0.json', licenseName: 'CC0-1.0' }],
-          'open',
-          '2025-12-31',
-          '100 mb'
-        ),
-      ];
+      const mockRow = createMockRow(
+        'Test Dataset',
+        'Test Description',
+        'dataset',
+        ['sensitive'],
+        [{ repositoryId: 'repo1', repositoryName: 'Zenodo' }],
+        [{ metadataStandardId: 'std1', metadataStandardName: 'Dublin Core' }],
+        [{ licenseId: 'https://spdx.org/licenses/CC0-1.0.json', licenseName: 'CC0-1.0' }],
+        'open',
+        '2025-12-31',
+        '100 mb'
+      );
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={mockColumns}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
         />
       );
@@ -508,12 +506,12 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should not show buttons when showButtons is false', () => {
-      const mockRows = [createMockRow()];
+      const mockRow = createMockRow();
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={mockColumns}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
           showButtons={false}
         />
@@ -525,12 +523,12 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should show Save button when isNewEntry is true', () => {
-      const mockRows = [createMockRow()];
+      const mockRow = createMockRow();
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={mockColumns}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
           showButtons={true}
           isNewEntry={true}
@@ -542,12 +540,12 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should show Update button when isNewEntry is false', () => {
-      const mockRows = [createMockRow()];
+      const mockRow = createMockRow();
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={mockColumns}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
           showButtons={true}
           isNewEntry={false}
@@ -559,12 +557,12 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should show Back to List button when hasOtherRows is true', () => {
-      const mockRows = [createMockRow()];
+      const mockRow = createMockRow();
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={mockColumns}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
           showButtons={true}
           hasOtherRows={true}
@@ -576,12 +574,12 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should not show Back to List button when isNewEntry and no other rows', () => {
-      const mockRows = [createMockRow()];
+      const mockRow = createMockRow();
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={mockColumns}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
           showButtons={true}
           isNewEntry={true}
@@ -596,11 +594,10 @@ describe('SingleResearchOutputComponent', () => {
 
   describe('Field Interactions', () => {
     it('should update text field value', async () => {
-      const mockRows = [createMockRow()];
-      const currentRows = [...mockRows];
+      const mockRow = createMockRow();
 
       const CustomComponent = () => {
-        const [rows, setRows] = React.useState(currentRows);
+        const [rows, setRows] = React.useState([mockRow]);
         return (
           <NextIntlClientProvider messages={messages} locale="en">
             <SingleResearchOutputComponent
@@ -621,11 +618,10 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should update textarea value', async () => {
-      const mockRows = [createMockRow()];
-      const currentRows = [...mockRows];
+      const mockRow = createMockRow();
 
       const CustomComponent = () => {
-        const [rows, setRows] = React.useState(currentRows);
+        const [rows, setRows] = React.useState([mockRow]);
         return (
           <NextIntlClientProvider messages={messages} locale="en">
             <SingleResearchOutputComponent
@@ -646,11 +642,10 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should update select field value', async () => {
-      const mockRows = [createMockRow()];
-      const currentRows = [...mockRows];
+      const mockRow = createMockRow();
 
       const CustomComponent = () => {
-        const [rows, setRows] = React.useState(currentRows);
+        const [rows, setRows] = React.useState([mockRow]);
         return (
           <NextIntlClientProvider messages={messages} locale="en">
             <SingleResearchOutputComponent
@@ -671,11 +666,10 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should handle repository selection', async () => {
-      const mockRows = [createMockRow()];
-      const currentRows = [...mockRows];
+      const mockRow = createMockRow();
 
       const CustomComponent = () => {
-        const [rows, setRows] = React.useState(currentRows);
+        const [rows, setRows] = React.useState([mockRow]);
         return (
           <NextIntlClientProvider messages={messages} locale="en">
             <SingleResearchOutputComponent
@@ -700,11 +694,10 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should handle metadata standard selection', async () => {
-      const mockRows = [createMockRow()];
-      const currentRows = [...mockRows];
+      const mockRow = createMockRow();
 
       const CustomComponent = () => {
-        const [rows, setRows] = React.useState(currentRows);
+        const [rows, setRows] = React.useState([mockRow]);
         return (
           <NextIntlClientProvider messages={messages} locale="en">
             <SingleResearchOutputComponent
@@ -728,11 +721,10 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should handle license selection', async () => {
-      const mockRows = [createMockRow()];
-      const currentRows = [...mockRows];
+      const mockRow = createMockRow();
 
       const CustomComponent = () => {
-        const [rows, setRows] = React.useState(currentRows);
+        const [rows, setRows] = React.useState([mockRow]);
         return (
           <NextIntlClientProvider messages={messages} locale="en">
             <SingleResearchOutputComponent
@@ -753,11 +745,10 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should handle file size input', async () => {
-      const mockRows = [createMockRow()];
-      const currentRows = [...mockRows];
+      const mockRow = createMockRow();
 
       const CustomComponent = () => {
-        const [rows, setRows] = React.useState(currentRows);
+        const [rows, setRows] = React.useState([mockRow]);
         return (
           <NextIntlClientProvider messages={messages} locale="en">
             <SingleResearchOutputComponent
@@ -778,11 +769,10 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should handle file size unit selection', async () => {
-      const mockRows = [createMockRow()];
-      const currentRows = [...mockRows];
+      const mockRow = createMockRow();
 
       const CustomComponent = () => {
-        const [rows, setRows] = React.useState(currentRows);
+        const [rows, setRows] = React.useState([mockRow]);
         return (
           <NextIntlClientProvider messages={messages} locale="en">
             <SingleResearchOutputComponent
@@ -811,12 +801,12 @@ describe('SingleResearchOutputComponent', () => {
 
   describe('Form Validation', () => {
     it('should show error for required empty title field', async () => {
-      const mockRows = [createMockRow()];
+      const mockRow = createMockRow();
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={mockColumns}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
           showButtons={true}
           onSave={mockOnSave}
@@ -835,11 +825,10 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should clear field error when user types', async () => {
-      const mockRows = [createMockRow()];
-      const currentRows = [...mockRows];
+      const mockRow = createMockRow();
 
       const CustomComponent = () => {
-        const [rows, setRows] = React.useState(currentRows);
+        const [rows, setRows] = React.useState([mockRow]);
         return (
           <NextIntlClientProvider messages={messages} locale="en">
             <SingleResearchOutputComponent
@@ -875,12 +864,12 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should allow save with all required fields filled', async () => {
-      const mockRows = [createMockRow('Test Title', 'Test Description', 'dataset')];
+      const mockRow = createMockRow('Test Title', 'Test Description', 'dataset');
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={mockColumns}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
           showButtons={true}
           onSave={mockOnSave}
@@ -898,12 +887,12 @@ describe('SingleResearchOutputComponent', () => {
 
   describe('Save, Cancel, and Delete Actions', () => {
     it('should call onSave when save button is clicked with valid form', async () => {
-      const mockRows = [createMockRow('Title', 'Description', 'dataset')];
+      const mockRow = createMockRow('Title', 'Description', 'dataset');
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={mockColumns}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
           showButtons={true}
           onSave={mockOnSave}
@@ -919,12 +908,12 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should call onCancel when cancel button is clicked without changes', async () => {
-      const mockRows = [createMockRow('Title', 'Description', 'dataset')];
+      const mockRow = createMockRow('Title', 'Description', 'dataset');
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={mockColumns}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
           showButtons={true}
           hasOtherRows={true}
@@ -939,11 +928,10 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should show confirmation dialog when canceling with unsaved changes', async () => {
-      const mockRows = [createMockRow('Title', 'Description', 'dataset')];
-      const currentRows = [...mockRows];
+      const mockRow = createMockRow('Title', 'Description', 'dataset');
 
       const CustomComponent = () => {
-        const [rows, setRows] = React.useState(currentRows);
+        const [rows, setRows] = React.useState([mockRow]);
         return (
           <NextIntlClientProvider messages={messages} locale="en">
             <SingleResearchOutputComponent
@@ -977,11 +965,10 @@ describe('SingleResearchOutputComponent', () => {
 
     it('should not cancel if user declines confirmation', async () => {
       window.confirm = jest.fn(() => false);
-      const mockRows = [createMockRow('Title', 'Description', 'dataset')];
-      const currentRows = [...mockRows];
+      const mockRow = createMockRow('Title', 'Description', 'dataset');
 
       const CustomComponent = () => {
-        const [rows, setRows] = React.useState(currentRows);
+        const [rows, setRows] = React.useState([mockRow]);
         return (
           <NextIntlClientProvider messages={messages} locale="en">
             <SingleResearchOutputComponent
@@ -1010,11 +997,10 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should clear unsaved changes flag after successful save', async () => {
-      const mockRows = [createMockRow('Title', 'Description', 'dataset')];
-      const currentRows = [...mockRows];
+      const mockRow = createMockRow('Title', 'Description', 'dataset');
 
       const CustomComponent = () => {
-        const [rows, setRows] = React.useState(currentRows);
+        const [rows, setRows] = React.useState([mockRow]);
         return (
           <NextIntlClientProvider messages={messages} locale="en">
             <SingleResearchOutputComponent
@@ -1056,12 +1042,12 @@ describe('SingleResearchOutputComponent', () => {
 
   describe('Default Research Output Types', () => {
     it('should render default research output types when no options provided', () => {
-      const mockRows = [createMockRow()];
+      const mockRow = createMockRow();
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={mockColumns}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
         />
       );
@@ -1080,12 +1066,12 @@ describe('SingleResearchOutputComponent', () => {
 
   describe('Recommended Licenses', () => {
     it('should render recommended licenses', () => {
-      const mockRows = [createMockRow()];
+      const mockRow = createMockRow();
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={mockColumns}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
         />
       );
@@ -1189,12 +1175,12 @@ describe('SingleResearchOutputComponent', () => {
         ],
       };
 
-      const mockRows = [createMockRow()];
+      const mockRow = createMockRow();
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={columnsWithPreferences as any}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
         />
       );
@@ -1210,12 +1196,12 @@ describe('SingleResearchOutputComponent', () => {
 
   describe('Byte Size Parsing', () => {
     it('should parse existing byte size answer correctly', () => {
-      const mockRows = [createMockRow('', '', '', [], [], [], [], '', '', '100 mb')];
+      const mockRow = createMockRow('', '', '', [], [], [], [], '', '', '100 mb');
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={mockColumns}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
         />
       );
@@ -1228,12 +1214,12 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should handle empty byte size answer', () => {
-      const mockRows = [createMockRow()];
+      const mockRow = createMockRow();
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={mockColumns}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
         />
       );
@@ -1248,12 +1234,12 @@ describe('SingleResearchOutputComponent', () => {
 
   describe('Data Flags Checkbox', () => {
     it('should render only checked data flags options', () => {
-      const mockRows = [createMockRow()];
+      const mockRow = createMockRow();
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={mockColumns}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
         />
       );
@@ -1266,12 +1252,12 @@ describe('SingleResearchOutputComponent', () => {
 
   describe('Error Messages Display', () => {
     it('should display error messages component when errors exist', async () => {
-      const mockRows = [createMockRow()];
+      const mockRow = createMockRow();
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={mockColumns}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
           showButtons={true}
           onSave={mockOnSave}
@@ -1289,12 +1275,12 @@ describe('SingleResearchOutputComponent', () => {
     });
 
     it('should not display error messages when no errors', () => {
-      const mockRows = [createMockRow('Title', 'Description', 'dataset')];
+      const mockRow = createMockRow('Title', 'Description', 'dataset');
 
       renderWithProviders(
         <SingleResearchOutputComponent
           columns={mockColumns}
-          rows={mockRows}
+          rows={[mockRow]}
           setRows={mockSetRows}
         />
       );

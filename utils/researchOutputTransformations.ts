@@ -1,6 +1,7 @@
 import {
   CURRENT_SCHEMA_VERSION,
   DefaultResearchOutputTableQuestion,
+  ResearchOutputTableQuestionType,
   AnyTableColumnQuestionType,
   RepositorySearchAnswerType
 } from '@dmptool/types';
@@ -95,7 +96,7 @@ const DEFAULT_COLUMNS_MAP: Record<string, ResearchOutputColumn | undefined> = {
  * Handles preferences for repositories and metadata standards
  */
 export const createEmptyResearchOutputRow = (
-  columns: typeof DefaultResearchOutputTableQuestion['columns']
+  columns: ResearchOutputTableQuestionType['columns']
 ): ResearchOutputTable => {
   return {
     columns: [
@@ -152,7 +153,7 @@ export const createEmptyResearchOutputRow = (
  */
 export const getRowDisplayInfo = (
   row: ResearchOutputTable,
-  columns: typeof DefaultResearchOutputTableQuestion['columns']
+  columns: ResearchOutputTableQuestionType['columns']
 ): { title: string; outputType: string; repositories: string[] } => {
   const titleIndex = columns.findIndex(col =>
     col.heading.toLowerCase() === 'title'
@@ -607,20 +608,26 @@ export const jsonToState = (
 
       case RO_OUTPUT_TYPE_ID: {
         const col = findColumn(['researchOutput.outputType', 'Output Type']);
-        if (col && col.content && 'options' in col.content && Array.isArray(col.content.options) && col.content.options.length > 0) {
+        if (col) {
           updated.enabled = !!col.enabled;
-          // Type for select box options
-          type SelectOption = { label: string; value: string; selected: boolean };
+          updated.helpText = getHelpText(col.content.attributes);
 
-          updated.outputTypeConfig = {
-            ...updated.outputTypeConfig,
-            mode: 'mine',
-            customTypes: (col.content.options as SelectOption[]).map(opt => ({
-              type: opt.label,
-              description: ''
-            })),
-            selectedDefaults: [],
-          };
+          // Check if there are custom options (mine mode)
+          if (col.content && 'options' in col.content && Array.isArray(col.content.options) && col.content.options.length > 0) {
+            // Type for select box options
+            type SelectOption = { label: string; value: string; selected: boolean };
+
+            updated.outputTypeConfig = {
+              ...updated.outputTypeConfig,
+              mode: 'mine',
+              customTypes: (col.content.options as SelectOption[]).map(opt => ({
+                type: opt.label,
+                description: ''
+              })),
+              selectedDefaults: [],
+            };
+          }
+          // If no custom options, it's using defaults mode - just update helpText
         }
         break;
       }

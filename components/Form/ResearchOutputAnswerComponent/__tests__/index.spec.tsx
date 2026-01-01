@@ -789,7 +789,7 @@ describe('ResearchOutputAnswerComponent', () => {
       await user.click(deleteButton);
 
       await waitFor(() => {
-        expect(mockOnSave).toHaveBeenCalledWith('delete');
+        expect(mockOnSave).toHaveBeenCalledWith([], 'delete');
       });
     });
   });

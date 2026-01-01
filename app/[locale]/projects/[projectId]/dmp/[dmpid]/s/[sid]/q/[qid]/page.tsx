@@ -209,6 +209,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Separate state for researchOutputTable
   const [researchOutputRows, setResearchOutputRows] = useState<ResearchOutputTable[]>([]);
+  // Ref to track latest rows synchronously (to avoid stale closure issues)
+  const researchOutputRowsRef = useRef<ResearchOutputTable[]>([]);
 
   // Form state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -218,6 +220,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout>();
+  const answerCreatedRef = useRef(false); // Track if answer was created in this session
 
   // Localization
   const Global = useTranslations('Global');
@@ -582,16 +585,29 @@ const PlanOverviewQuestionPage: React.FC = () => {
   }
 
   // Pass this save function to research output table so it can trigger a save
-  const saveResearchOutputs = async (type?: string) => {
+  const saveResearchOutputs = async (rows: ResearchOutputTable[], type?: string) => {
+    // Clear hasUnsavedChanges immediately to cancel any pending auto-save effect
+    setHasUnsavedChanges(false);
+
+    // Cancel any pending auto-save since we're doing a manual save now
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+      autoSaveTimeoutRef.current = undefined;
+    }
+
+    // Update parent state with the latest rows data
+    setResearchOutputRows(rows);
+    // Also update ref for synchronous access
+    researchOutputRowsRef.current = rows;
+
     // Show saving indicator
     setIsAutoSaving(true);
-    setHasUnsavedChanges(true);
 
     try {
-      const { success } = await addAnswer(false);
+      // Pass rows directly to addAnswer so it uses fresh data
+      const { success } = await addAnswer(false, rows);
       if (success) {
         setLastSavedAt(new Date());
-        setHasUnsavedChanges(false);
         showSuccessToast(type);
       }
     } finally {
@@ -599,6 +615,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
       setIsAutoSaving(false);
     }
   };
+
+  // Keep ref in sync with state for research output rows
+  useEffect(() => {
+    researchOutputRowsRef.current = researchOutputRows;
+  }, [researchOutputRows]);
 
   // Prefill the current question with existing answer
   /*eslint-disable @typescript-eslint/no-explicit-any*/
@@ -731,7 +752,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   };
 
   // Get the answer for the question
-  const getAnswerJson = (): Record<string, any> => {
+  const getAnswerJson = (overrideRows?: ResearchOutputTable[]): Record<string, any> => {
     switch (questionType) {
       case TEXT_AREA_QUESTION_TYPE:
         return {
@@ -815,13 +836,14 @@ const PlanOverviewQuestionPage: React.FC = () => {
           ]
           : [];
 
+        // Use the most current data available: overrideRows > ref > state
+        const rowsToUse = overrideRows !== undefined ? overrideRows : (researchOutputRowsRef.current.length > 0 ? researchOutputRowsRef.current : researchOutputRows);
+
         return {
           type: RESEARCH_OUTPUT_QUESTION_TYPE,
           columnHeadings,
-          answer: researchOutputRows
-        };
-
-      case DATE_RANGE_QUESTION_TYPE:
+          answer: rowsToUse
+        }; case DATE_RANGE_QUESTION_TYPE:
         return {
           type: DATE_RANGE_QUESTION_TYPE,
           answer: {
@@ -871,21 +893,25 @@ const PlanOverviewQuestionPage: React.FC = () => {
   };
 
   // Call Server Action updateAnswerAction or addAnswerAction to save answer
-  const addAnswer = async (isAutoSave = false) => {
+  const addAnswer = async (isAutoSave = false, overrideRows?: ResearchOutputTable[]) => {
     if (isAutoSave) {
       setIsAutoSaving(true);
     }
 
-    const jsonPayload = getAnswerJson();
+    const jsonPayload = getAnswerJson(overrideRows);
 
     // Check if answer already exists. If so, we want to call an update mutation rather than add
-    const isUpdate = Boolean(answerData?.answerByVersionedQuestionId);
+    // Use ref to track if answer was created in this session, since answerData query won't update immediately
+    const isUpdate = Boolean(answerData?.answerByVersionedQuestionId) || answerCreatedRef.current;
+
+    // Get the answer ID from either the query or the state (after first create)
+    const currentAnswerId = answerId || answerData?.answerByVersionedQuestionId?.id; // Very important because we have to make sure to apply the latest answer ID
 
     if (selectedQuestion) {
       try {
         const response = isUpdate
           ? await updateAnswerAction({
-            answerId: Number(answerData?.answerByVersionedQuestionId?.id),
+            answerId: Number(currentAnswerId),
             json: JSON.stringify(jsonPayload),
           })
           : await addAnswerAction({
@@ -897,6 +923,16 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
         if (response.redirect) {
           router.push(response.redirect);
+        }
+
+        // Track that answer was created so subsequent saves will use update
+        if (!isUpdate && response.success) {
+          // The answer ID is directly in response.data.id
+          const newAnswerId = response.data?.id;
+          if (newAnswerId) {
+            answerCreatedRef.current = true;
+            setAnswerId(newAnswerId);
+          }
         }
 
         return {

@@ -241,7 +241,6 @@ describe('ResearchOutputComponent', () => {
 
       render(<ResearchOutputComponent {...propsWithDataFlagsExpanded} />);
 
-      screen.debug(undefined, Infinity);
       // Find the sensitive data checkbox within the data flags section
       const sensitiveCheckbox = screen.getByLabelText('May contain sensitive data?');
 

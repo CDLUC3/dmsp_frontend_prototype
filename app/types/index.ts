@@ -388,6 +388,7 @@ export interface ActionResponse {
   success: boolean;
   errors?: string[];
   data?: {
+    id?: number | null;
     errors?: {
       [key: string]: string | null;
     };

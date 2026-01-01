@@ -198,15 +198,27 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
 
                     {/** Output Type Configuration */}
                     {field.id === 'outputType' && (
-                      <OutputTypeField
-                        field={field}
-                        defaultResearchOutputTypesData={defaultResearchOutputTypesData}
-                        newOutputType={newOutputType}
-                        setNewOutputType={setNewOutputType}
-                        onModeChange={onOutputTypeModeChange}
-                        onAddCustomType={onAddCustomOutputType}
-                        onRemoveCustomType={onRemoveCustomOutputType}
-                      />
+                      <>
+                        <OutputTypeField
+                          field={field}
+                          defaultResearchOutputTypesData={defaultResearchOutputTypesData}
+                          newOutputType={newOutputType}
+                          setNewOutputType={setNewOutputType}
+                          onModeChange={onOutputTypeModeChange}
+                          onAddCustomType={onAddCustomOutputType}
+                          onRemoveCustomType={onRemoveCustomOutputType}
+                        />
+                        <FormInput
+                          name="outputTypeHelpText"
+                          type="text"
+                          isRequired={false}
+                          label={QuestionAdd('labels.helpText', { fieldName: field.label })}
+                          value={field.helpText || ''}
+                          onChange={(e) => onUpdateStandardFieldProperty('outputType', 'helpText', e.currentTarget.value)}
+                          helpMessage={QuestionAdd('researchOutput.helpText')}
+                          maxLength={300}
+                        />
+                      </>
                     )}
 
                     {/** Repository Selector */}
