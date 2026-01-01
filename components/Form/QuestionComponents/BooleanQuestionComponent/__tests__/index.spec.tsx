@@ -15,8 +15,8 @@ describe('RadioButtonsQuestionComponent', () => {
       schemaVersion: "1.0",
     },
     attributes: {
-      checked: true,
-      labelTranslationKey: "questions.use_existing_data"
+      label: "Use existing data",
+      value: true
     }
   };
 
@@ -70,8 +70,8 @@ describe('RadioButtonsQuestionComponent', () => {
         schemaVersion: "1.0",
       },
       attributes: {
-        checked: false,
-        labelTranslationKey: "questions.use_existing_data"
+        label: "Use existing data",
+        value: false
       }
     };
 

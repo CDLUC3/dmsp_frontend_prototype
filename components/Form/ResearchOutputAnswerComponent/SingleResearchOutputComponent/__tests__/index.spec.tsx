@@ -202,21 +202,23 @@ jest.mock('@/components/Form', () => ({
   ),
 }));
 
-const MockErrorMessages = React.forwardRef(({ errors }: any, ref: any) => {
-  const errorList = Object.values(errors || {});
-  if (errorList.length === 0) return null;
-  return (
-    <div data-testid="error-messages" ref={ref}>
-      {errorList.map((error: any, index: number) => (
-        <div key={index} data-testid="error-message">
-          {error}
-        </div>
-      ))}
-    </div>
-  );
+jest.mock('@/components/ErrorMessages', () => {
+  const MockErrorMessages = React.forwardRef(({ errors }: any, ref: any) => {
+    const errorList = Object.values(errors || {});
+    if (errorList.length === 0) return null;
+    return (
+      <div data-testid="error-messages" ref={ref}>
+        {errorList.map((error: any, index: number) => (
+          <div key={index} data-testid="error-message">
+            {error}
+          </div>
+        ))}
+      </div>
+    );
+  });
+  MockErrorMessages.displayName = 'MockErrorMessages';
+  return MockErrorMessages;
 });
-MockErrorMessages.displayName = 'MockErrorMessages';
-jest.mock('@/components/ErrorMessages', () => MockErrorMessages);
 
 // Mock translations
 const messages = {

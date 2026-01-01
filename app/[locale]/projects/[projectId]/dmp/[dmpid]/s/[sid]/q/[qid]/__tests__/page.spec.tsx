@@ -1307,7 +1307,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 14,
-        json: "{\"type\":\"boolean\",\"answer\":\"no\"}"
+        json: "{\"type\":\"boolean\",\"answer\":false}"
       });
     });
   })

@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
 'use client'
 
-import { Button, Checkbox, Radio } from "react-aria-components";
+import { Button, Checkbox } from "react-aria-components";
 import { useTranslations } from 'next-intl';
-import { FormInput, RadioGroupComponent } from '@/components/Form';
+import { FormInput } from '@/components/Form';
 import RepositorySelectionSystem from '@/components/QuestionAdd/ReposSelector';
 import MetaDataStandards from '@/components/QuestionAdd/MetaDataStandards';
 import OutputTypeField from '@/components/QuestionAdd/OutputTypeField';
@@ -161,22 +161,24 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                     )}
 
                     {/** Data Flags Configuration */}
-                    {field.id === 'dataFlags' && field.content && (
+                    {field.id === 'dataFlags' && field.content && field.content.type === 'checkBoxes' && (
                       <div style={{ marginBottom: '1.5rem' }}>
                         <fieldset>
                           <legend>{QuestionAdd('researchOutput.legends.dataFlag')}</legend>
                           <div className={styles.dataFlagsConfig}>
-                            {field.content.options.map((option: { label: string, value: string, checked: boolean }, index: number) => (
+                            {field.content.options.map((option, index) => (
                               <div key={`${option.value}-${index}`} style={{ marginBottom: '0.5rem' }}>
                                 <Checkbox
                                   isSelected={option.checked}
                                   onChange={(isSelected) => {
-                                    const updatedOptions = [...field.content.options];
-                                    updatedOptions[index] = { ...option, checked: isSelected };
-                                    onUpdateStandardFieldProperty('dataFlags', 'content', {
-                                      ...field.content,
-                                      options: updatedOptions
-                                    });
+                                    if (field.content?.type === 'checkBoxes') {
+                                      const updatedOptions = [...field.content.options];
+                                      updatedOptions[index] = { ...option, checked: isSelected };
+                                      onUpdateStandardFieldProperty('dataFlags', 'content', {
+                                        ...field.content,
+                                        options: updatedOptions
+                                      });
+                                    }
                                   }}
                                 >
                                   <div className="checkbox">
@@ -192,6 +194,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                         </fieldset>
                       </div>
                     )}
+
 
                     {/** Output Type Configuration */}
                     {field.id === 'outputType' && (

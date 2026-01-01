@@ -1,4 +1,9 @@
-import { CURRENT_SCHEMA_VERSION, DefaultResearchOutputTableQuestion } from '@dmptool/types';
+import {
+  CURRENT_SCHEMA_VERSION,
+  DefaultResearchOutputTableQuestion,
+  AnyTableColumnQuestionType,
+  RepositorySearchAnswerType
+} from '@dmptool/types';
 import {
   RESEARCH_OUTPUT_QUESTION_TYPE,
   RO_TITLE_ID,
@@ -38,6 +43,21 @@ type ResearchOutputState = {
   expandedFields: string[];
 };
 
+// Create a flexible column type for building columns dynamically
+type FlexibleResearchOutputColumn = {
+  heading: string;
+  required: boolean;
+  enabled: boolean;
+  help?: string;
+  content: AnyTableColumnQuestionType;
+  preferences?: { label: string; value: string }[];
+};
+
+// Type for the strict columns from defaults
+type ResearchOutputColumn = typeof DefaultResearchOutputTableQuestion['columns'][number];
+// Type alias for repository item
+type RepositoryItem = RepositorySearchAnswerType['answer'][number];
+
 // Standard field identifiers that we recognize
 const standardKeys = new Set([
   'researchOutput.title',
@@ -59,7 +79,7 @@ const standardKeys = new Set([
 ]);
 
 // Create a mapping from field IDs to default columns
-const DEFAULT_COLUMNS_MAP = {
+const DEFAULT_COLUMNS_MAP: Record<string, ResearchOutputColumn | undefined> = {
   title: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Title'),
   description: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Description'),
   outputType: DefaultResearchOutputTableQuestion.columns.find(col => col.heading === 'Type'),
@@ -86,12 +106,13 @@ export const createEmptyResearchOutputRow = (
         // Handle repositorySearch with preferences
         if (col.content.type === REPOSITORY_SEARCH_ID) {
           const colRepoPreferences = 'preferences' in col && Array.isArray(col.preferences)
-            ? col.preferences : undefined;
+            ? col.preferences as { label: string; value: string }[]
+            : undefined;
           if (colRepoPreferences && colRepoPreferences.length > 0) {
             return {
               type: "repositorySearch" as const,
               meta: baseAnswer.meta,
-              answer: colRepoPreferences.map((pref: any) => ({
+              answer: colRepoPreferences.map((pref) => ({
                 repositoryId: pref.value,
                 repositoryName: pref.label
               }))
@@ -102,12 +123,13 @@ export const createEmptyResearchOutputRow = (
         // Handle metadataStandardSearch with preferences
         if (col.content.type === METADATA_STANDARD_SEARCH_ID) {
           const colStdPreferences = 'preferences' in col && Array.isArray(col.preferences)
-            ? col.preferences : undefined;
+            ? col.preferences as { label: string; value: string }[]
+            : undefined;
           if (colStdPreferences && colStdPreferences.length > 0) {
             return {
               type: "metadataStandardSearch" as const,
               meta: baseAnswer.meta,
-              answer: colStdPreferences.map((pref: any) => ({
+              answer: colStdPreferences.map((pref) => ({
                 metadataStandardId: String(pref.value),
                 metadataStandardName: pref.label
               }))
@@ -130,7 +152,7 @@ export const createEmptyResearchOutputRow = (
  */
 export const getRowDisplayInfo = (
   row: ResearchOutputTable,
-  columns: any[]
+  columns: typeof DefaultResearchOutputTableQuestion['columns']
 ): { title: string; outputType: string; repositories: string[] } => {
   const titleIndex = columns.findIndex(col =>
     col.heading.toLowerCase() === 'title'
@@ -158,14 +180,15 @@ export const getRowDisplayInfo = (
   const outputType = outputTypeIndex !== -1 &&
     row.columns[outputTypeIndex] &&
     typeof row.columns[outputTypeIndex].answer === 'string'
-    ? row.columns[outputTypeIndex].answer
+    ? row.columns[outputTypeIndex].answer as string
     : '';
 
   // Extract repositories
   const repositories = repoIndex !== -1 &&
     Array.isArray(row.columns[repoIndex]?.answer)
-    ? row.columns[repoIndex].answer.map((repo: any) => repo.repositoryName)
+    ? (row.columns[repoIndex].answer as RepositoryItem[]).map(repo => repo.repositoryName)
     : [];
+
 
   return { title, outputType, repositories };
 };
@@ -181,33 +204,37 @@ const hasMetaDataConfig = (field: StandardField): field is StandardField & { met
 const buildColumnFromDefault = (
   fieldId: keyof typeof DEFAULT_COLUMNS_MAP,
   field: StandardField,
-  contentOverrides: any = {}
-) => {
+  contentOverrides: Partial<AnyTableColumnQuestionType> = {}
+): FlexibleResearchOutputColumn => {
+
   const defaultColumn = DEFAULT_COLUMNS_MAP[fieldId];
 
   if (!defaultColumn) {
     throw new Error(`No default column found for ${fieldId}`);
   }
 
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const content: AnyTableColumnQuestionType = {
+    type: defaultColumn.content.type,
+    meta: { ...defaultColumn.content.meta },
+    attributes: {
+      ...defaultColumn.content.attributes,
+      ...(field.helpText && { help: field.helpText }),
+      ...(field.label && { label: field.label }),
+      ...(field.languageTranslationKey && { labelTranslationKey: field.languageTranslationKey }),
+      ...contentOverrides.attributes,
+    },
+    ...(('options' in defaultColumn.content) && { options: defaultColumn.content.options }),
+    ...(('graphQL' in defaultColumn.content) && { graphQL: defaultColumn.content.graphQL }),
+    ...contentOverrides
+  } as AnyTableColumnQuestionType;
+
   return {
     heading: field.label || defaultColumn.heading,
     required: field.required ?? defaultColumn.required,
     enabled: field.enabled ?? defaultColumn.enabled ?? false,
     help: defaultColumn.help,
-    content: {
-      type: defaultColumn.content.type,
-      meta: { ...defaultColumn.content.meta },
-      attributes: {
-        ...defaultColumn.content.attributes,
-        ...(field.helpText && { help: field.helpText }),
-        ...(field.label && { label: field.label }),
-        ...(field.languageTranslationKey && { labelTranslationKey: field.languageTranslationKey }),
-        ...contentOverrides.attributes,
-      },
-      ...(('options' in defaultColumn.content) && { options: defaultColumn.content.options }),
-      ...(('graphQL' in defaultColumn.content) && { graphQL: defaultColumn.content.graphQL }),
-      ...contentOverrides
-    }
+    content,
   };
 };
 
@@ -218,9 +245,11 @@ const buildColumnFromDefault = (
 export const stateToJSON = (
   standardFields: StandardField[],
   additionalFields: AdditionalFieldsType[],
-  defaultResearchOutputTypesData?: any
+  defaultResearchOutputTypesData?: { defaultResearchOutputTypes?: ({ name: string; value?: string } | null)[] }
 ): AnyParsedQuestion => {
-  const columns: any[] = [];
+  // Use the flexible type for building
+  const columns: FlexibleResearchOutputColumn[] = [];
+
 
   standardFields.forEach(field => {
     if (!field.enabled) return;
@@ -242,11 +271,16 @@ export const stateToJSON = (
         break;
 
       case RO_OUTPUT_TYPE_ID: {
-        const outputTypeOptions: any[] = [];
+        interface OutputTypeOption {
+          label: string;
+          value: string;
+          selected: boolean;
+        }
+        const outputTypeOptions: OutputTypeOption[] = [];
         if (field.outputTypeConfig?.mode === 'defaults' || !field.outputTypeConfig?.mode) {
           field.outputTypeConfig?.selectedDefaults?.forEach(defaultType => {
             const backendType = defaultResearchOutputTypesData?.defaultResearchOutputTypes?.find(
-              (item: any) => item?.name === defaultType
+              (item) => item?.name === defaultType
             );
             outputTypeOptions.push({
               label: defaultType,
@@ -273,14 +307,11 @@ export const stateToJSON = (
 
       case RO_DATA_FLAGS_ID: {
         const defaultColumn = DEFAULT_COLUMNS_MAP.dataFlags;
-        if (!defaultColumn) break;
+        if (!defaultColumn || defaultColumn.content.type !== 'checkBoxes') break;
 
-        const baseContent = field.content || {
-          type: defaultColumn.content.type,
-          meta: defaultColumn.content.meta,
-          attributes: defaultColumn.content.attributes,
-          ...('options' in defaultColumn.content && { options: defaultColumn.content.options })
-        };
+        const baseContent = field.content && field.content.type === 'checkBoxes'
+          ? field.content
+          : defaultColumn.content;
 
         columns.push({
           heading: field.label || defaultColumn.heading,
@@ -288,11 +319,13 @@ export const stateToJSON = (
           enabled: field.enabled ?? false,
           help: defaultColumn.help,
           content: {
-            ...baseContent,
+            type: 'checkBoxes',
+            meta: baseContent.meta,
             attributes: {
               ...baseContent.attributes,
               ...(field.languageTranslationKey && { labelTranslationKey: field.languageTranslationKey }),
-            }
+            },
+            options: baseContent.options
           }
         });
         break;
@@ -300,18 +333,22 @@ export const stateToJSON = (
 
       case RO_REPO_SELECTOR_ID: {
         const defaultColumn = DEFAULT_COLUMNS_MAP.repositories;
-        const repoColumn: any = {
-          heading: field.label || defaultColumn?.heading,
+        if (!defaultColumn || defaultColumn.content.type !== 'repositorySearch') break;
+
+        const repoColumn: FlexibleResearchOutputColumn = {
+          heading: field.label || defaultColumn?.heading || '',
           required: field.required ?? defaultColumn?.required ?? false,
           enabled: field.enabled ?? false,
           help: defaultColumn?.help,
           content: {
-            ...defaultColumn?.content,
+            type: 'repositorySearch',
+            meta: defaultColumn.content.meta,
+            graphQL: defaultColumn.content.graphQL,
             attributes: {
-              ...defaultColumn?.content?.attributes,
+              ...defaultColumn.content.attributes,
               ...(field.languageTranslationKey && { labelTranslationKey: field.languageTranslationKey }),
-              label: field.label || defaultColumn?.heading,
-              help: field.helpText || defaultColumn?.content?.attributes?.help || '',
+              label: field.label || defaultColumn.heading,
+              help: field.helpText || defaultColumn.content.attributes?.help || '',
             }
           }
         };
@@ -328,8 +365,9 @@ export const stateToJSON = (
 
       case RO_METADATA_STANDARD_SELECTOR_ID: {
         const defaultColumn = DEFAULT_COLUMNS_MAP.metadataStandards;
-        const metadataColumn: any = {
-          heading: field.label || defaultColumn?.heading,
+        if (!defaultColumn || defaultColumn.content.type !== 'metadataStandardSearch') break;
+        const metadataColumn: FlexibleResearchOutputColumn = {
+          heading: field.label || defaultColumn?.heading || '',
           required: field.required ?? defaultColumn?.required ?? false,
           enabled: field.enabled ?? false,
           content: {
@@ -346,7 +384,7 @@ export const stateToJSON = (
         if (hasMetaDataConfig(field) && field.metaDataConfig?.customStandards && field.metaDataConfig.customStandards.length > 0) {
           metadataColumn.preferences = field.metaDataConfig.customStandards.map(standard => ({
             label: standard.name,
-            value: standard.uri || (standard as any).url || ''
+            value: standard.uri
           }));
         }
         columns.push(metadataColumn);
@@ -355,17 +393,21 @@ export const stateToJSON = (
 
       case RO_LICENSES_ID: {
         const defaultColumn = DEFAULT_COLUMNS_MAP.licenses;
-        const licenseColumn: any = {
+        if (!defaultColumn || defaultColumn.content.type !== 'licenseSearch') break;
+
+        const licenseColumn: FlexibleResearchOutputColumn = {
           heading: field.label || defaultColumn?.heading,
           required: field.required ?? defaultColumn?.required ?? false,
           enabled: field.enabled ?? false,
           content: {
-            ...defaultColumn?.content,
+            type: 'licenseSearch',
+            meta: defaultColumn.content.meta,
+            graphQL: defaultColumn.content.graphQL,
             attributes: {
-              ...defaultColumn?.content?.attributes,
+              ...defaultColumn.content.attributes,
               ...(field.languageTranslationKey && { labelTranslationKey: field.languageTranslationKey }),
-              label: field.label || defaultColumn?.heading,
-              help: field.helpText || defaultColumn?.content?.attributes?.help || ''
+              label: field.label || defaultColumn.heading,
+              help: field.helpText || defaultColumn.content.attributes?.help || ''
             }
           }
         };
@@ -384,7 +426,13 @@ export const stateToJSON = (
       }
 
       case RO_ACCESS_LEVELS_ID: {
-        const accessLevelOptions: any[] = [];
+        interface AccessLevelOption {
+          label: string;
+          value: string;
+          selected: boolean;
+        }
+
+        const accessLevelOptions: AccessLevelOption[] = [];
         if (field.accessLevelsConfig?.mode === 'defaults' || !field.accessLevelsConfig?.mode) {
           field.accessLevelsConfig?.selectedDefaults?.forEach(level => {
             accessLevelOptions.push({
@@ -415,22 +463,32 @@ export const stateToJSON = (
   // Add additional (custom) fields
   additionalFields.forEach(customField => {
     if (customField.enabled) {
+      const maxLength = customField.maxLength ? Number(customField.maxLength) : 500; // Default to 500 if not specified
+
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      const content: AnyTableColumnQuestionType = {
+        type: 'text',
+        meta: { schemaVersion: CURRENT_SCHEMA_VERSION },
+        attributes: {
+          label: customField.customLabel || customField.label,
+          help: customField.helpText || '',
+          maxLength,
+          minLength: 0,
+          pattern: '^.+$'
+        }
+      } as AnyTableColumnQuestionType;
+
       columns.push({
         heading: customField.customLabel || customField.label,
-        content: {
-          type: 'text',
-          attributes: {
-            label: customField.customLabel || customField.label,
-            help: customField.helpText || '',
-            maxLength: customField.maxLength ? Number(customField.maxLength) : undefined,
-            defaultValue: customField.defaultValue || undefined
-          }
-        }
+        required: false,
+        enabled: true,
+        content
       });
     }
   });
 
-  return {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const result: AnyParsedQuestion = {
     type: RESEARCH_OUTPUT_QUESTION_TYPE,
     columns,
     meta: DefaultResearchOutputTableQuestion.meta,
@@ -442,6 +500,8 @@ export const stateToJSON = (
       help: DefaultResearchOutputTableQuestion.attributes?.help ?? '',
     }
   } as AnyParsedQuestion;
+
+  return result;
 };
 
 /**
@@ -460,9 +520,22 @@ export const jsonToState = (
     };
   }
 
+  // Type for preferences
+  type Preference = { label: string; value: string };
+
+  // Helper to safely get help text from attributes
+  const getHelpText = (attributes: AnyTableColumnQuestionType['attributes'] | undefined): string => {
+    if (!attributes) return '';
+    if ('help' in attributes && typeof attributes.help === 'string') {
+      return attributes.help;
+    }
+    return '';
+  };
+
+
   // Helper to find a column by heading
-  const findColumn = (keys: string[]) =>
-    parsed.columns.find((col: any) =>
+  const findColumn = (keys: string[]): FlexibleResearchOutputColumn | undefined =>
+    parsed.columns.find((col: FlexibleResearchOutputColumn) =>
       col?.heading && keys.includes(col.heading)
     );
 
@@ -473,12 +546,12 @@ export const jsonToState = (
     switch (field.id) {
       case RO_REPO_SELECTOR_ID: {
         const col = findColumn(['researchOutput.repositories', 'Repositories']);
-        if (col && 'preferences' in col) {
+        if (col && 'preferences' in col && Array.isArray(col.preferences)) {
           updated.enabled = !!col.enabled;
-          updated.helpText = col.content.attributes?.help || '';
+          updated.helpText = getHelpText(col.content.attributes);
           updated.repoConfig = {
             ...updated.repoConfig,
-            customRepos: col.preferences.map((repo: any) => ({
+            customRepos: (col.preferences as Preference[]).map(repo => ({
               name: repo.label,
               uri: repo.value
             })),
@@ -492,19 +565,19 @@ export const jsonToState = (
         const col = findColumn(['researchOutput.accessLevels', 'Initial Access Levels']);
         if (col && col.enabled === true) {
           updated.enabled = col.enabled;
-          updated.helpText = col.content.attributes?.help || '';
+          updated.helpText = getHelpText(col.content.attributes);
         }
         break;
       }
 
       case RO_METADATA_STANDARD_SELECTOR_ID: {
         const col = findColumn(['researchOutput.metadataStandards', 'Metadata Standards']);
-        if (col && 'preferences' in col) {
+        if (col && 'preferences' in col && Array.isArray(col.preferences)) {
           updated.enabled = !!col.enabled;
-          updated.helpText = col.content.attributes?.help || '';
+          updated.helpText = getHelpText(col.content.attributes);
           updated.metaDataConfig = {
             ...updated.metaDataConfig,
-            customStandards: col.preferences.map((std: any) => ({
+            customStandards: (col.preferences as Preference[]).map((std) => ({
               name: std.label,
               uri: std.value
             })),
@@ -516,13 +589,13 @@ export const jsonToState = (
 
       case RO_LICENSES_ID: {
         const col = findColumn(['researchOutput.licenses', 'Licenses']);
-        if (col && 'preferences' in col) {
+        if (col && 'preferences' in col && Array.isArray(col.preferences)) {
           updated.enabled = !!col.enabled;
-          updated.helpText = col.content.attributes?.help || '';
+          updated.helpText = getHelpText(col.content.attributes);
           updated.licensesConfig = {
             ...updated.licensesConfig,
             mode: col?.preferences.length > 0 ? 'addToDefaults' : 'defaults',
-            customTypes: col.preferences.map((lic: any) => ({
+            customTypes: (col.preferences as Preference[]).map((lic) => ({
               name: lic.label,
               uri: lic.value
             })),
@@ -534,12 +607,18 @@ export const jsonToState = (
 
       case RO_OUTPUT_TYPE_ID: {
         const col = findColumn(['researchOutput.outputType', 'Output Type']);
-        if (col && col.content && 'options' in col.content && col?.content?.options.length > 0) {
+        if (col && col.content && 'options' in col.content && Array.isArray(col.content.options) && col.content.options.length > 0) {
           updated.enabled = !!col.enabled;
+          // Type for select box options
+          type SelectOption = { label: string; value: string; selected: boolean };
+
           updated.outputTypeConfig = {
             ...updated.outputTypeConfig,
             mode: 'mine',
-            customTypes: col.content.options.map((opt: any) => ({ type: opt.label, description: '' })),
+            customTypes: (col.content.options as SelectOption[]).map(opt => ({
+              type: opt.label,
+              description: ''
+            })),
             selectedDefaults: [],
           };
         }
@@ -550,7 +629,7 @@ export const jsonToState = (
         const dataFlagsCol = findColumn(['researchOutput.dataFlags', 'Data Flags']);
         if (dataFlagsCol) {
           updated.enabled = !!dataFlagsCol.enabled;
-          updated.helpText = dataFlagsCol.content?.attributes?.help || '';
+          updated.helpText = getHelpText(dataFlagsCol.content?.attributes);
           if (dataFlagsCol.content) {
             updated.content = dataFlagsCol.content;
           }
@@ -566,7 +645,7 @@ export const jsonToState = (
         ]);
         if (col) {
           updated.enabled = !!col.enabled;
-          updated.helpText = col.content?.attributes?.help || updated.helpText;
+          updated.helpText = getHelpText(col.content?.attributes);
           updated.required = !!col.required;
         }
         break;
@@ -577,34 +656,34 @@ export const jsonToState = (
   });
 
   // Hydrate additional fields (custom columns)
-  const customCols = parsed.columns.filter((col: any) => {
+  const customCols = parsed.columns.filter((col: FlexibleResearchOutputColumn) => {
     const isStandard = (col?.heading && standardKeys.has(col.heading));
     return !isStandard;
   });
 
-  function hasDefaultValue(attr: any): attr is { defaultValue: string } {
-    return attr && typeof attr.defaultValue !== 'undefined';
+  function hasDefaultValue(attr: AnyTableColumnQuestionType['attributes'] | undefined): attr is (AnyTableColumnQuestionType['attributes'] & { defaultValue: string }) {
+    return attr !== undefined && 'defaultValue' in attr && typeof attr.defaultValue === 'string';
   }
 
-  function hasMaxLength(attr: any): attr is { maxLength: string } {
-    return attr && typeof attr.maxLength !== 'undefined';
+  function hasMaxLength(attr: AnyTableColumnQuestionType['attributes'] | undefined): attr is (AnyTableColumnQuestionType['attributes'] & { maxLength: number }) {
+    return attr !== undefined && 'maxLength' in attr && typeof attr.maxLength === 'number';
   }
 
-  const hydratedAdditionalFields = customCols.map((col: any, idx: number) => ({
+  const hydratedAdditionalFields = customCols.map((col: FlexibleResearchOutputColumn, idx: number) => ({
     id: col.heading?.toLowerCase().replace(/\s+/g, '_') || `custom_field_${idx}`,
     label: col.heading || `Custom Field ${idx + 1}`,
     enabled: !!col.enabled,
     defaultValue: hasDefaultValue(col.content?.attributes) ? col.content.attributes.defaultValue : '',
     customLabel: col.heading || '',
-    helpText: col.content?.attributes?.help || '',
-    maxLength: hasMaxLength(col.content?.attributes) ? col.content.attributes.maxLength : '',
+    helpText: getHelpText(col.content?.attributes),
+    maxLength: hasMaxLength(col.content?.attributes) ? String(col.content.attributes.maxLength) : '',
   }));
 
   // Hydrate expanded fields
   const hydratedExpandedFields = [
     ...parsed.columns
-      .filter((col: any) => col.enabled)
-      .map((col: any) => {
+      .filter((col: FlexibleResearchOutputColumn) => col.enabled)
+      .map((col: FlexibleResearchOutputColumn) => {
         const key = col?.heading;
         switch (key) {
           case 'researchOutput.title': return 'title';

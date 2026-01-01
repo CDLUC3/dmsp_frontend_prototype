@@ -38,7 +38,7 @@ type ResearchOutputTableColumn = QuestionTypeMap["researchOutputTable"]["columns
 // List of question types to filter out from the available types
 const filteredOutQuestionTypes = ['licenseSearch', 'metadataStandardSearch', 'numberWithContext', 'repositorySearch', 'table'];
 
-export const QUESTION_TYPE_DEFAULTS: Record<string, any> = {
+export const QUESTION_TYPE_DEFAULTS = {
   affiliationSearch: DefaultAffiliationSearchQuestion,
   boolean: DefaultBooleanQuestion,
   checkBoxes: DefaultCheckboxesQuestion,
@@ -60,7 +60,10 @@ export const QUESTION_TYPE_DEFAULTS: Record<string, any> = {
   text: DefaultTextQuestion,
   textArea: DefaultTextAreaQuestion,
   url: DefaultURLQuestion,
-};
+} as const;
+
+// Type helper to extract the types
+export type QuestionTypeDefaults = typeof QUESTION_TYPE_DEFAULTS;
 
 // Fetch the usage information and then Parse the Zod schema with no input to generate the
 // default JSON schemas
@@ -68,7 +71,9 @@ export function getQuestionFormatInfo(name: string): QuestionFormatInterface | n
   if (name in QuestionSchemaMap) {
     const usage: QuestionFormatsUsageInterface = QuestionFormatsUsage[name as QuestionType];
     const schema: z.ZodTypeAny = QuestionSchemaMap[name as QuestionType];
-    const base = QUESTION_TYPE_DEFAULTS[name] || { type: name };
+    const base = (name in QUESTION_TYPE_DEFAULTS)
+      ? QUESTION_TYPE_DEFAULTS[name as keyof typeof QUESTION_TYPE_DEFAULTS]
+      : { type: name };
     const parsedSchema = schema.parse(base) as AnyQuestionType;
 
     return {
@@ -616,7 +621,7 @@ export const questionTypeHandlers: Record<string, QuestionTypeHandler> = {
         const type = baseContent.type;
 
         // Hydrate required fields for each type
-        let hydratedContent: any = { ...baseContent };
+        const hydratedContent: any = { ...baseContent };
 
         // All types require meta
         hydratedContent.meta = {

@@ -83,8 +83,6 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
 
   const mutationString = typeof document === "string" ? document : print(document);
 
-  console.log("**Variables in executeGraphQLMutation:", variables); // --- IGNORE ---
-  console.log("***Mutation String in executeGraphQLMutation:", mutationString); // --- IGNORE ---
   try {
     if (!mutationString) {
       throw new Error("No mutation string provided");
@@ -121,7 +119,6 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
       }),
     });
 
-    console.log("***Response status:", response); // --- IGNORE ---
     const result = await response.json();
 
     // Handle GraphQL errors

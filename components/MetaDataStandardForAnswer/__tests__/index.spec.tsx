@@ -17,23 +17,24 @@ jest.mock('next/navigation', () => ({
 
 // Mock the GraphQL query
 const mockFetchMetaDataStandards = jest.fn();
+const mockUseMetadataStandardsLazyQuery = jest.fn();
 jest.mock('@/generated/graphql', () => ({
-  useMetadataStandardsLazyQuery: jest.fn(() => [
-    mockFetchMetaDataStandards,
-    { data: mockMetadataStandardsData }, // Reference to stable object
-  ]),
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any*/
+  useMetadataStandardsLazyQuery: (...args: any[]) => mockUseMetadataStandardsLazyQuery(...args),
 }));
 
 
 // Mock the server action
 const mockAddMetaDataStandardsAction = jest.fn();
 jest.mock('@/app/actions', () => ({
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any*/
   addMetaDataStandardsAction: (...args: any[]) => mockAddMetaDataStandardsAction(...args),
 }));
 
 // Mock ErrorMessages component
 jest.mock('@/components/ErrorMessages', () => {
-  return React.forwardRef(({ errors }: any, ref: any) => {
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any*/
+  const MockErrorMessages = React.forwardRef(({ errors }: any, ref: any) => {
     if (!errors || errors.length === 0) return null;
     return (
       <div data-testid="error-messages" ref={ref}>
@@ -45,6 +46,8 @@ jest.mock('@/components/ErrorMessages', () => {
       </div>
     );
   });
+  MockErrorMessages.displayName = 'MockErrorMessages';
+  return MockErrorMessages;
 });
 
 // Mock Pagination component
@@ -55,6 +58,7 @@ jest.mock('@/components/Pagination', () => {
     hasPreviousPage,
     hasNextPage,
     handlePageClick,
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any*/
   }: any) {
     return (
       <div data-testid="pagination">
@@ -81,6 +85,7 @@ jest.mock('@/components/Pagination', () => {
 
 // Mock FormInput
 jest.mock('@/components/Form', () => ({
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any*/
   FormInput: ({ label, value, onChange, isRequired, helpMessage, ...props }: any) => (
     <div data-testid={`form-input-${props.name}`}>
       <label>{label}</label>
@@ -163,6 +168,12 @@ describe('MetaDataStandardForAnswer', () => {
 
   beforeEach(() => {
     mockOnMetaDataStandardsChange = jest.fn();
+
+    // Set default mock return value for the lazy query hook
+    mockUseMetadataStandardsLazyQuery.mockReturnValue([
+      mockFetchMetaDataStandards,
+      { data: mockMetadataStandardsData },
+    ]);
 
     // Mock the resolved value when the lazy query is called
     mockFetchMetaDataStandards.mockResolvedValue({
@@ -345,8 +356,8 @@ describe('MetaDataStandardForAnswer', () => {
 
   describe('Select/Deselect Standards', () => {
     it('should select a metadata standard', async () => {
-      const { useMetadataStandardsLazyQuery } = require('@/generated/graphql');
-      useMetadataStandardsLazyQuery.mockReturnValue([
+
+      mockUseMetadataStandardsLazyQuery.mockReturnValue([
         mockFetchMetaDataStandards,
         {
           data: {
@@ -393,7 +404,7 @@ describe('MetaDataStandardForAnswer', () => {
         ]);
       });
 
-      expect(mockToastAdd).toHaveBeenCalledWith('Terminal RI Unicamp added', { type: 'success' });
+      expect(mockToastAdd).toHaveBeenCalledWith("researchOutput.repoSelector.messages.addedItem", { type: "success" });
     });
 
     it('should deselect a metadata standard', async () => {
@@ -406,8 +417,7 @@ describe('MetaDataStandardForAnswer', () => {
         },
       ];
 
-      const { useMetadataStandardsLazyQuery } = require('@/generated/graphql');
-      useMetadataStandardsLazyQuery.mockReturnValue([
+      mockUseMetadataStandardsLazyQuery.mockReturnValue([
         mockFetchMetaDataStandards,
         {
           data: {
@@ -455,7 +465,7 @@ describe('MetaDataStandardForAnswer', () => {
         expect(mockOnMetaDataStandardsChange).toHaveBeenCalledWith([]);
       });
 
-      expect(mockToastAdd).toHaveBeenCalledWith('Terminal RI Unicamp removed', { type: 'success' });
+      expect(mockToastAdd).toHaveBeenCalledWith("researchOutput.repoSelector.messages.removedItem", { type: "success" });
     });
   });
 
@@ -530,10 +540,6 @@ describe('MetaDataStandardForAnswer', () => {
       const removeAllButton = screen.getByRole('button', { name: 'buttons.removeAll' });
       await user.click(removeAllButton);
 
-      expect(window.confirm).toHaveBeenCalledWith(
-        'researchOutput.metaDataStandards.messages.confirmRemovalAll'
-      );
-
       await waitFor(() => {
         expect(mockOnMetaDataStandardsChange).toHaveBeenCalledWith([]);
       });
@@ -541,32 +547,6 @@ describe('MetaDataStandardForAnswer', () => {
       expect(mockToastAdd).toHaveBeenCalledWith('researchOutput.metaDataStandards.messages.allRemoved', {
         type: 'success',
       });
-    });
-
-    it('should not remove all standards when confirmation is cancelled', async () => {
-      window.confirm = jest.fn(() => false);
-
-      const selectedStandards: MetaDataStandardInterface[] = [
-        {
-          id: 28,
-          name: 'Terminal RI Unicamp',
-          uri: 'https://repositorio.unicamp.br/',
-          description: 'Institutional Repository from Unicamp',
-        },
-      ];
-
-      renderWithProviders(
-        <MetaDataStandardForAnswer
-          value={selectedStandards}
-          onMetaDataStandardsChange={mockOnMetaDataStandardsChange}
-        />
-      );
-
-      const removeAllButton = screen.getByRole('button', { name: 'buttons.removeAll' });
-      await user.click(removeAllButton);
-
-      expect(mockOnMetaDataStandardsChange).not.toHaveBeenCalled();
-      expect(mockToastAdd).not.toHaveBeenCalled();
     });
   });
 
@@ -756,8 +736,7 @@ describe('MetaDataStandardForAnswer', () => {
 
   describe('Pagination', () => {
     it('should handle page navigation', async () => {
-      const { useMetadataStandardsLazyQuery } = require('@/generated/graphql');
-      useMetadataStandardsLazyQuery.mockReturnValue([
+      mockUseMetadataStandardsLazyQuery.mockReturnValue([
         mockFetchMetaDataStandards,
         {
           data: {
@@ -809,8 +788,7 @@ describe('MetaDataStandardForAnswer', () => {
     });
 
     it('should display pagination info', async () => {
-      const { useMetadataStandardsLazyQuery } = require('@/generated/graphql');
-      useMetadataStandardsLazyQuery.mockReturnValue([
+      mockUseMetadataStandardsLazyQuery.mockReturnValue([
         mockFetchMetaDataStandards,
         {
           data: {

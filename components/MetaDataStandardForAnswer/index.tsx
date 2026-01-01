@@ -57,12 +57,13 @@ const MetaDataStandardForAnswer = ({
 }) => {
   // Derive selected standards from value prop
   const selectedStandards = useMemo(() => {
+    const result: { [uri: string]: MetaDataStandardInterface } = {};
     return (value || []).reduce((acc, std) => {
       if (std.uri !== undefined) {
         acc[std.uri] = std;
       }
       return acc;
-    }, {} as { [uri: string]: MetaDataStandardInterface });
+    }, result);
   }, [value]);
 
   const toastState = useToast();
@@ -150,7 +151,6 @@ const MetaDataStandardForAnswer = ({
     await fetchMetaDataStandards({ searchTerm: term });
   }
 
-
   const toggleSelection = (std: MetaDataStandardInterface) => {
     if (std.uri === undefined) return; // Guard: skip if no id
 
@@ -170,11 +170,7 @@ const MetaDataStandardForAnswer = ({
     onMetaDataStandardsChange?.(newSelected);
 
     // Call toasts AFTER state update completes
-    if (isSelected) {
-      toastState.add(`${std.name} removed`, { type: 'success' });
-    } else {
-      toastState.add(`${std.name} added`, { type: 'success' });
-    }
+    toastState.add(QuestionAdd('researchOutput.repoSelector.messages.' + (isSelected ? 'removedItem' : 'addedItem'), { name: std.name }), { type: 'success' });
   };
 
   // Remove single standard from selected list
@@ -188,10 +184,8 @@ const MetaDataStandardForAnswer = ({
 
   // Remove all selected standards
   const removeAllStandards = () => {
-    if (window.confirm(QuestionAdd('researchOutput.metaDataStandards.messages.confirmRemovalAll'))) {
-      onMetaDataStandardsChange?.([]);
-      toastState.add(QuestionAdd('researchOutput.metaDataStandards.messages.allRemoved'), { type: 'success' });
-    }
+    onMetaDataStandardsChange?.([]);
+    toastState.add(QuestionAdd('researchOutput.metaDataStandards.messages.allRemoved'), { type: 'success' });
   };
   const handleAddCustomStandard = useCallback(async () => {
     setErrors([]);

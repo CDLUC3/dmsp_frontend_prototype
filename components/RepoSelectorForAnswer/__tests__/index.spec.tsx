@@ -49,6 +49,7 @@ jest.mock('@/utils/clientLogger', () => ({
 }));
 
 jest.mock('@/utils/routes', () => ({
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any*/
   routePath: jest.fn((path: string, params: any) => `/template/${params.templateId}/question/new`),
 }));
 
@@ -270,28 +271,14 @@ describe('RepoSelectorForAnswer', () => {
     });
 
     it('should remove all repositories with confirmation', () => {
-      window.confirm = jest.fn(() => true);
 
       render(<RepoSelectorForAnswer value={mockValue} onRepositoriesChange={mockOnRepositoriesChange} />);
 
       const removeAllButton = screen.getByText('buttons.removeAll');
       fireEvent.click(removeAllButton);
 
-      expect(window.confirm).toHaveBeenCalled();
       expect(mockOnRepositoriesChange).toHaveBeenCalledWith([]);
       expect(mockAddToast).toHaveBeenCalled();
-    });
-
-    it('should not remove all repositories if confirmation is cancelled', () => {
-      window.confirm = jest.fn(() => false);
-
-      render(<RepoSelectorForAnswer value={mockValue} onRepositoriesChange={mockOnRepositoriesChange} />);
-
-      const removeAllButton = screen.getByText('buttons.removeAll');
-      fireEvent.click(removeAllButton);
-
-      expect(window.confirm).toHaveBeenCalled();
-      expect(mockOnRepositoriesChange).not.toHaveBeenCalled();
     });
   });
 
@@ -370,7 +357,6 @@ describe('RepoSelectorForAnswer', () => {
         data: { uri: 'https://custom-repo.com' },
       });
 
-      const user = userEvent.setup();
       render(<RepoSelectorForAnswer value={[]} onRepositoriesChange={mockOnRepositoriesChange} />);
 
       fireEvent.click(screen.getByText('researchOutput.repoSelector.buttons.addRepo'));
@@ -488,7 +474,6 @@ describe('RepoSelectorForAnswer', () => {
         errors: ['Failed to create repository'],
       });
 
-      const user = userEvent.setup();
       render(<RepoSelectorForAnswer onRepositoriesChange={mockOnRepositoriesChange} />);
 
       fireEvent.click(screen.getByText('researchOutput.repoSelector.buttons.addRepo'));

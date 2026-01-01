@@ -620,7 +620,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       case BOOLEAN_QUESTION_TYPE:
         setFormData(prev => ({
           ...prev,
-          yesNoValue: answer
+          yesNoValue: answer === true ? 'yes' : 'no'
         }));
         break;
       case CHECKBOXES_QUESTION_TYPE:
@@ -772,7 +772,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       case BOOLEAN_QUESTION_TYPE:
         return {
           type: BOOLEAN_QUESTION_TYPE,
-          answer: formData.yesNoValue
+          answer: formData.yesNoValue === 'yes'
         };
 
       case EMAIL_QUESTION_TYPE:

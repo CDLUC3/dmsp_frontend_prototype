@@ -221,10 +221,10 @@ describe('ResearchOutputComponent', () => {
           return {
             ...field,
             content: {
-              type: 'checkboxes' as const,
+              type: 'checkBoxes' as const,
               options: [
-                { label: 'May contain sensitive data', value: 'sensitive', checked: false },
-                { label: 'May contain personal data', value: 'personal', checked: false }
+                { label: 'May contain sensitive data?', value: 'sensitive', checked: false },
+                { label: 'May contain personally identifiable information?', value: 'personal', checked: false }
               ]
             }
           };
@@ -241,8 +241,9 @@ describe('ResearchOutputComponent', () => {
 
       render(<ResearchOutputComponent {...propsWithDataFlagsExpanded} />);
 
+      screen.debug(undefined, Infinity);
       // Find the sensitive data checkbox within the data flags section
-      const sensitiveCheckbox = screen.getByLabelText('May contain sensitive data');
+      const sensitiveCheckbox = screen.getByLabelText('May contain sensitive data?');
 
       await act(async () => {
         fireEvent.click(sensitiveCheckbox);

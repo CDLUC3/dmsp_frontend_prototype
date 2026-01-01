@@ -479,8 +479,8 @@
         },
         "descriptionLabel": "Description for Repositories field",
         "messages": {
-          "removedRepo": "{name} removed",
-          "addedRepo": "{name} added",
+          "removedItem": "{name} removed",
+          "addedItem": "{name} added",
           "confirmRemoveAll": "Are you sure you want to remove all selected repositories?",
           "allRemoved": "All repositories removed",
           "customRepoAdded": "Custom repository {name} added successfully"

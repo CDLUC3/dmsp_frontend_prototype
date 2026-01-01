@@ -4,7 +4,26 @@ import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import ResearchOutputAnswerComponent from '../index';
 import { ResearchOutputTable } from '@/app/types';
-import { DefaultResearchOutputTableQuestion } from '@dmptool/types';
+import {
+  DefaultResearchOutputTableQuestion,
+  RepositorySearchAnswerType,
+  MetadataStandardSearchAnswerType,
+  LicenseSearchAnswerType,
+  AnyTableColumnAnswerType
+} from '@dmptool/types';
+
+// Define props interface for the mock component
+interface MockSingleResearchOutputComponentProps {
+  columns: typeof DefaultResearchOutputTableQuestion['columns'];
+  rows: ResearchOutputTable[];
+  setRows: React.Dispatch<React.SetStateAction<ResearchOutputTable[]>>;
+  onSave?: () => void;
+  onCancel?: () => void;
+  onDelete?: () => void;
+  showButtons?: boolean;
+  isNewEntry?: boolean;
+  hasOtherRows?: boolean;
+}
 
 // Mock the SingleResearchOutputComponent
 jest.mock('../SingleResearchOutputComponent', () => {
@@ -14,7 +33,7 @@ jest.mock('../SingleResearchOutputComponent', () => {
     onDelete,
     isNewEntry,
     hasOtherRows
-  }: any) {
+  }: MockSingleResearchOutputComponentProps) {
     return (
       <div data-testid="single-research-output">
         <button onClick={onSave}>Save</button>
@@ -257,25 +276,13 @@ const mockColumns: typeof DefaultResearchOutputTableQuestion['columns'] = [
   },
 ];
 
-const mockColumnHeadings = [
-  'Title',
-  'Description',
-  'Output Type',
-  'Data Flags',
-  'Repositories',
-  'Metadata Standards',
-  'Licenses',
-  'Initial Access Levels',
-  'Custom field label'
-];
-
 const createMockRow = (
   title: string,
   outputType: string,
-  repositories: any[] = [],
+  repositories: RepositorySearchAnswerType['answer'] = [],
   description: string = '',
-  metadataStandards: any[] = [],
-  licenses: any[] = [],
+  metadataStandards: MetadataStandardSearchAnswerType['answer'] = [],
+  licenses: LicenseSearchAnswerType['answer'] = [],
   dataFlags: string[] = [],
   accessLevel: string = '',
   customField: string = ''
@@ -335,13 +342,13 @@ const createMockRow = (
       meta: { schemaVersion: '1.0' },
       answer: customField,
     },
-    // Date metadata (text) - appears to be created/modified date
+    // Date metadata (text)
     {
       type: 'text',
       meta: { schemaVersion: '1.0' },
       answer: '2025-12-16',
     },
-    // Size metadata (text) - appears to be size with unit
+    // Size metadata (text)
     {
       type: 'text',
       meta: { schemaVersion: '1.0' },
@@ -349,6 +356,47 @@ const createMockRow = (
     },
   ],
 });
+
+// Helper function to create an empty answer for a given column type
+const createEmptyAnswer = (columnType: string): AnyTableColumnAnswerType => {
+  const baseAnswer = {
+    meta: { schemaVersion: '1.0' as const },
+  };
+
+  switch (columnType) {
+    case 'text':
+    case 'textArea':
+    case 'email':
+    case 'url':
+    case 'selectBox':
+    case 'radioButtons':
+      return { ...baseAnswer, type: columnType, answer: '' };
+    case 'checkBoxes':
+    case 'multiselectBox':
+      return { ...baseAnswer, type: columnType, answer: [] };
+    case 'number':
+    case 'currency':
+      return { ...baseAnswer, type: columnType, answer: 0 };
+    case 'boolean':
+      return { ...baseAnswer, type: columnType, answer: false };
+    case 'date':
+      return { ...baseAnswer, type: 'date', answer: '' };
+    case 'dateRange':
+      return { ...baseAnswer, type: 'dateRange', answer: { start: '', end: '' } };
+    case 'repositorySearch':
+      return { ...baseAnswer, type: 'repositorySearch', answer: [] };
+    case 'metadataStandardSearch':
+      return { ...baseAnswer, type: 'metadataStandardSearch', answer: [] };
+    case 'licenseSearch':
+      return { ...baseAnswer, type: 'licenseSearch', answer: [] };
+    case 'affiliationSearch':
+      return { ...baseAnswer, type: 'affiliationSearch', answer: { affiliationId: '', affiliationName: '' } };
+    case 'numberWithContext':
+      return { ...baseAnswer, type: 'numberWithContext', answer: { value: 0, context: '' } };
+    default:
+      return { ...baseAnswer, type: 'text', answer: '' };
+  }
+};
 
 describe('ResearchOutputAnswerComponent', () => {
   let mockSetRows: jest.Mock;
@@ -883,7 +931,7 @@ describe('ResearchOutputAnswerComponent', () => {
     it('should automatically add new form when all rows are deleted', async () => {
       global.confirm = jest.fn(() => true);
       const mockRows = [createMockRow('Dataset 1', 'dataset', [])];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -929,7 +977,7 @@ describe('ResearchOutputAnswerComponent', () => {
 
   describe('Column Preferences', () => {
     it('should handle repository preferences when creating empty row', async () => {
-      const columnsWithPreferences = mockColumns.map(col => {
+      const columnsWithPreferences: typeof DefaultResearchOutputTableQuestion['columns'] = mockColumns.map(col => {
         if (col.heading === 'Repositories') {
           return {
             ...col,
@@ -944,7 +992,7 @@ describe('ResearchOutputAnswerComponent', () => {
 
       renderWithProviders(
         <ResearchOutputAnswerComponent
-          columns={columnsWithPreferences as any}
+          columns={columnsWithPreferences}
           rows={[]}
           setRows={mockSetRows}
         />
@@ -959,7 +1007,7 @@ describe('ResearchOutputAnswerComponent', () => {
     });
 
     it('should handle metadata standard preferences when creating empty row', async () => {
-      const columnsWithPreferences = mockColumns.map(col => {
+      const columnsWithPreferences: typeof DefaultResearchOutputTableQuestion['columns'] = mockColumns.map(col => {
         if (col.heading === 'Metadata Standards') {
           return {
             ...col,
@@ -974,7 +1022,7 @@ describe('ResearchOutputAnswerComponent', () => {
 
       renderWithProviders(
         <ResearchOutputAnswerComponent
-          columns={columnsWithPreferences as any}
+          columns={columnsWithPreferences}
           rows={[]}
           setRows={mockSetRows}
         />
@@ -989,7 +1037,7 @@ describe('ResearchOutputAnswerComponent', () => {
     });
 
     it('should handle license preferences when creating empty row', async () => {
-      const columnsWithPreferences = mockColumns.map(col => {
+      const columnsWithPreferences: typeof DefaultResearchOutputTableQuestion['columns'] = mockColumns.map(col => {
         if (col.heading === 'Licenses') {
           return {
             ...col,
@@ -1004,7 +1052,7 @@ describe('ResearchOutputAnswerComponent', () => {
 
       renderWithProviders(
         <ResearchOutputAnswerComponent
-          columns={columnsWithPreferences as any}
+          columns={columnsWithPreferences}
           rows={[]}
           setRows={mockSetRows}
         />
@@ -1022,7 +1070,7 @@ describe('ResearchOutputAnswerComponent', () => {
   describe('handleCancel function', () => {
     it('should NOT remove row when canceling edit of non-empty existing row', async () => {
       const mockRows = [createMockRow('Dataset 1', 'dataset', [])];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -1072,7 +1120,7 @@ describe('ResearchOutputAnswerComponent', () => {
       const mockRows = [
         createMockRow('Dataset 1', 'dataset', []),
       ];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -1108,30 +1156,14 @@ describe('ResearchOutputAnswerComponent', () => {
     it('should remove row with empty array answers when canceled', async () => {
       // Create a truly empty row without using createMockRow
       const emptyRow: ResearchOutputTable = {
-        columns: mockColumns.map(col => {
-          const baseColumn = {
-            type: col.content.type as any,
-            meta: { schemaVersion: '1.0' },
-          };
-
-          // Return appropriate empty answer based on type
-          if (col.content.type === 'checkBoxes') {
-            return { ...baseColumn, answer: [] };
-          } else if (col.content.type === 'repositorySearch' ||
-            col.content.type === 'metadataStandardSearch' ||
-            col.content.type === 'licenseSearch') {
-            return { ...baseColumn, answer: [] };
-          } else {
-            return { ...baseColumn, answer: '' };
-          }
-        }),
+        columns: mockColumns.map(col => createEmptyAnswer(col.content.type)),
       };
 
       const mockRows = [
         createMockRow('Dataset 1', 'dataset', []),
         emptyRow,
       ];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -1167,24 +1199,11 @@ describe('ResearchOutputAnswerComponent', () => {
     it('should remove row with zero number answer when canceled', async () => {
       // Create a custom row with a number answer set to 0
       const customRow: ResearchOutputTable = {
-        columns: mockColumns.map(col => {
-          if (col.content.type === 'text' && col.heading === 'Title') {
-            return {
-              type: 'text',
-              meta: { schemaVersion: '1.0' },
-              answer: '', // Empty title
-            };
-          }
-          return {
-            type: col.content.type as any,
-            meta: { schemaVersion: '1.0' },
-            answer: col.content.type === 'checkBoxes' ? [] : '',
-          };
-        }),
+        columns: mockColumns.map(col => createEmptyAnswer(col.content.type)),
       };
 
       const mockRows = [createMockRow('Dataset 1', 'dataset', []), customRow];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -1219,7 +1238,7 @@ describe('ResearchOutputAnswerComponent', () => {
     it('should remove row with object answer having default values when canceled', async () => {
       // Create a row with an object answer that has default/empty values
       const customRow: ResearchOutputTable = {
-        columns: mockColumns.map(col => {
+        columns: mockColumns.map((col): AnyTableColumnAnswerType => {
           if (col.content.type === 'text' && col.heading === 'Title') {
             return {
               type: 'text',
@@ -1227,24 +1246,21 @@ describe('ResearchOutputAnswerComponent', () => {
               answer: '', // Empty title
             };
           }
-          // Simulate an object answer like { value: 0, context: 'kb' }
+          // For the custom field, use numberWithContext type to properly test object answers
           if (col.heading === 'Custom field label') {
             return {
-              type: 'text',
+              type: 'numberWithContext',
               meta: { schemaVersion: '1.0' },
-              answer: { value: 0, context: 'kb' } as any,
+              answer: { value: 0, context: 'kb' },
             };
           }
-          return {
-            type: col.content.type as any,
-            meta: { schemaVersion: '1.0' },
-            answer: col.content.type === 'checkBoxes' ? [] : '',
-          };
+          // Use the helper for all other columns
+          return createEmptyAnswer(col.content.type);
         }),
       };
 
       const mockRows = [createMockRow('Dataset 1', 'dataset', []), customRow];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -1281,7 +1297,7 @@ describe('ResearchOutputAnswerComponent', () => {
         createMockRow('Dataset 1', 'dataset', []),
         createMockRow('Dataset 2', 'dataset', []),
       ];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -1322,7 +1338,7 @@ describe('ResearchOutputAnswerComponent', () => {
         createMockRow('Dataset 1', 'dataset', []),
         createMockRow('Dataset 2', 'software', []),
       ];
-      let currentRows = [...mockRows];
+      const currentRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(currentRows);
@@ -1359,7 +1375,7 @@ describe('ResearchOutputAnswerComponent', () => {
 
     it('should handle function-based updates in handleSetRows', async () => {
       const mockRows = [createMockRow('Dataset 1', 'dataset', [])];
-      let testRows = [...mockRows];
+      const testRows = [...mockRows];
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState(testRows);

@@ -232,9 +232,9 @@ const RepositorySelectionSystem = ({
 
     // Call toasts AFTER state update completes
     if (isRemoving) {
-      toastState.add(QuestionAdd('researchOutput.repoSelector.messages.removedRepo', { name: repo.name }), { type: 'success' });
+      toastState.add(QuestionAdd('researchOutput.repoSelector.messages.removedItem', { name: repo.name }), { type: 'success' });
     } else {
-      toastState.add(QuestionAdd('researchOutput.repoSelector.messages.addedRepo', { name: repo.name }), { type: 'success' });
+      toastState.add(QuestionAdd('researchOutput.repoSelector.messages.addedItem', { name: repo.name }), { type: 'success' });
     }
   };
 
@@ -246,7 +246,7 @@ const RepositorySelectionSystem = ({
       delete newSelected[repoId];
       return newSelected;
     });
-    toastState.add(QuestionAdd('researchOutput.repoSelector.messages.removedRepo', { name: repo.name }), { type: 'success' });
+    toastState.add(QuestionAdd('researchOutput.repoSelector.messages.removedItem', { name: repo.name }), { type: 'success' });
   };
   // Removal of all selected repositories from the non-modal view
   const removeAllRepos = () => {

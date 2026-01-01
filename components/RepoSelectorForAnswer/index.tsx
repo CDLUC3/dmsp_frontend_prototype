@@ -98,12 +98,13 @@ const RepoSelectorForAnswer = ({
 
   // Instead of useState for selectedRepos, use value prop:
   const selectedRepos = useMemo(() => {
+    const result: { [id: string]: RepositoryInterface } = {};
     return (value || []).reduce((acc, repo) => {
       if (repo.uri !== '') {
         acc[repo.uri] = repo;
       }
       return acc;
-    }, {} as { [id: string]: RepositoryInterface });
+    }, result);
   }, [value]);
 
 
@@ -219,20 +220,19 @@ const RepoSelectorForAnswer = ({
       newSelected = [...Object.values(selectedRepos), repo];
     }
     onRepositoriesChange?.(newSelected);
+    toastState.add(QuestionAdd('researchOutput.repoSelector.messages.' + (isSelected ? 'removedItem' : 'addedItem'), { name: repo.name }), { type: 'success' });
   };
 
   const removeRepo = (repoId: string) => {
     const repo = selectedRepos[repoId];
     const newSelected = Object.values(selectedRepos).filter(r => r.uri !== repoId);
     onRepositoriesChange?.(newSelected);
-    toastState.add(QuestionAdd('researchOutput.repoSelector.messages.removedRepo', { name: repo.name }), { type: 'success' });
+    toastState.add(QuestionAdd('researchOutput.repoSelector.messages.removedItem', { name: repo.name }), { type: 'success' });
   };
 
   const removeAllRepos = () => {
-    if (window.confirm(QuestionAdd('researchOutput.repoSelector.messages.confirmRemoveAll'))) {
-      onRepositoriesChange?.([]);
-      toastState.add(QuestionAdd('researchOutput.repoSelector.messages.allRemoved'), { type: 'success' });
-    }
+    onRepositoriesChange?.([]);
+    toastState.add(QuestionAdd('researchOutput.repoSelector.messages.allRemoved'), { type: 'success' });
   };
 
   // Toggle display of additional repository details in modal view

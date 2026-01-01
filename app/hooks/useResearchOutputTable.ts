@@ -208,7 +208,16 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
    */
   // In buildResearchOutputFormState
   const buildResearchOutputFormState = useCallback(() => {
-    return stateToJSON(standardFields, additionalFields, defaultResearchOutputTypesData);
+    // Transform the GraphQL query result to match the expected type
+    const transformedData = defaultResearchOutputTypesData?.defaultResearchOutputTypes
+      ? {
+        defaultResearchOutputTypes: defaultResearchOutputTypesData.defaultResearchOutputTypes.map(item =>
+          item ? { name: item.name, value: item.value } : null
+        )
+      }
+      : undefined;
+
+    return stateToJSON(standardFields, additionalFields, transformedData);
   }, [standardFields, additionalFields, defaultResearchOutputTypesData]);
 
 

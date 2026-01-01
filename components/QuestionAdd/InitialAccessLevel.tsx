@@ -1,16 +1,16 @@
 import { useTranslations } from 'next-intl';
 import {
-  AccessLevelInterface,
-  AccessLevelsFieldProps,
-} from '@/app/types';
-
-import {
   Button,
   Dialog,
   DialogTrigger,
   OverlayArrow,
   Popover,
 } from "react-aria-components";
+
+import {
+  AccessLevelsFieldProps,
+} from '@/app/types';
+
 import { DmpIcon } from "@/components/Icons";
 import { defaultAccessLevels } from '@/utils/researchOutputTable';
 import styles from './questionAdd.module.scss';

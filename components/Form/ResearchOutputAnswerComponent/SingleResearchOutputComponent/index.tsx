@@ -9,7 +9,9 @@ import {
 } from "react-aria-components";
 import {
   DefaultResearchOutputTableQuestion,
-  LicenseSearchAnswerType
+  LicenseSearchAnswerType,
+  RepositorySearchAnswerType,
+  MetadataStandardSearchAnswerType
 } from '@dmptool/types';
 
 //GraphQL
@@ -268,7 +270,7 @@ const SingleResearchOutputComponent = ({
 
   // Handle cell change
   /*eslnt-disable @typescript-eslint/no-explicit-any */
-  const handleCellChange = (colIndex: number, value: any) => {
+  const handleCellChange = (colIndex: number, value: valueType) => {
     // Clear error for this field
     clearFieldError(colIndex);
 
@@ -287,33 +289,67 @@ const SingleResearchOutputComponent = ({
 
       let newValue = value;
 
+      // Type guard for repository search
       if (colType === REPOSITORY_SEARCH_ID && Array.isArray(value)) {
-        newValue = value.map(repo => ({
-          repositoryId: repo.uri || repo.id,
-          repositoryName: repo.name
-        }));
+        // Handle empty array (all repos removed)
+        if (value.length === 0) {
+          newValue = [];
+        } else {
+          const isRepoArray = typeof value[0] === 'object' &&
+            value[0] !== null &&
+            ('repositoryId' in value[0] || 'uri' in value[0]);
+
+          if (isRepoArray) {
+            // Extract the array item type from the RepositorySearchAnswerType
+            type RepoItem = RepositorySearchAnswerType['answer'][number];
+
+            newValue = (value as RepoItem[]).map((repo) => ({
+              repositoryId: repo.repositoryId || '',
+              repositoryName: repo.repositoryName || ''
+            }));
+          }
+        }
       }
 
+      // Type guard for metadata standard search
       if (colType === METADATA_STANDARD_SEARCH_ID && Array.isArray(value)) {
-        newValue = value.map(std => ({
-          metadataStandardId: String(std.id || std.value || std.metadataStandardId),
-          metadataStandardName: std.name || std.label || std.metadataStandardName
-        }));
+        // Handle empty array (all standards removed)
+        if (value.length === 0) {
+          newValue = [];
+        } else {
+          const isMetadataArray = typeof value[0] === 'object' &&
+            value[0] !== null &&
+            ('metadataStandardId' in value[0] || 'id' in value[0]);
+
+          if (isMetadataArray) {
+            // Extract the array item type from the MetadataStandardSearchAnswerType
+            type MetadataItem = MetadataStandardSearchAnswerType['answer'][number];
+
+            newValue = (value as MetadataItem[]).map((std) => ({
+              metadataStandardId: std.metadataStandardId,
+              metadataStandardName: std.metadataStandardName
+            }));
+          }
+        }
       }
 
+      // Handle byte size (file size with unit)
       if (
         colIndex === columns.length + 1 &&
         value &&
-        typeof value === "object"
+        typeof value === "object" &&
+        'value' in value &&
+        'context' in value
       ) {
         newValue =
-          value.value !== undefined && value.value !== ""
+          value.value !== undefined && value.value !== 0
             ? `${value.value} ${value.context}`
             : "";
       }
 
       updatedRow.columns[colIndex].answer = newValue;
       updatedRows[0] = updatedRow;
+
 
       return updatedRows;
     });
@@ -480,13 +516,12 @@ const SingleResearchOutputComponent = ({
             let allOptions: { value: string; label: string; checked?: boolean }[] = [];
 
             if (isDataFlags) {
-              colHelp = Global('helpText.dataFlags'); //Translate for dataFlags
+              colHelp = Global('helpText.dataFlags');
 
               allOptions =
                 'options' in col.content && Array.isArray(col.content.options)
                   ? col.content.options.map(opt => ({
                     ...opt,
-                    // Translate option labels
                     label: opt.value === 'sensitive'
                       ? Global('labels.mayContainSensitiveData')
                       : opt.value === 'personal'
@@ -507,12 +542,10 @@ const SingleResearchOutputComponent = ({
               ? allOptions.filter(opt => opt.checked === true)
               : allOptions;
 
-            const selectedValues = Array.isArray(value)
-              ? value.map((v: any) => {
-                return (typeof v === 'string' ? v : v.value);
-              })
+            // Type guard to ensure value is a string array for checkboxes
+            const selectedValues: string[] = Array.isArray(value) && value.every(v => typeof v === 'string')
+              ? value as string[]
               : [];
-
 
             return (
               options.length > 0 && (
@@ -547,19 +580,32 @@ const SingleResearchOutputComponent = ({
             const colRepoPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
             const repoHelpText = col?.content?.attributes?.help || col?.help;
 
-            const existingRepos = Array.isArray(value)
-              ? value.map((repo: any) => ({
-                id: repo.repositoryId,
-                uri: repo.repositoryId,
-                name: repo.repositoryName
-              }))
+            // Check if we have an explicit answer (even if empty) vs no answer at all
+            const hasExplicitRepoAnswer = Array.isArray(value);
+
+            // Type guard for repository answer
+            type RepoAnswer = { repositoryId: string; repositoryName: string };
+            const repoValue = (Array.isArray(value) && value.length > 0 &&
+              typeof value[0] === 'object' &&
+              'repositoryId' in value[0])
+              ? value as RepoAnswer[]
+              : [];
+
+            const existingRepos = hasExplicitRepoAnswer
+              ? (repoValue.length > 0
+                ? repoValue.map((repo) => ({
+                  id: repo.repositoryId,
+                  uri: repo.repositoryId,
+                  name: repo.repositoryName
+                }))
+                : [])  // User explicitly removed all items - show empty
               : ((colRepoPreferences && colRepoPreferences.length > 0)
-                ? colRepoPreferences.map((pref: any) => ({
+                ? colRepoPreferences.map((pref: { value: string; label: string }) => ({
                   id: pref.value,
                   uri: pref.value,
                   name: pref.label
                 }))
-                : []);
+                : []);  // No answer yet - show preferences
 
             return (
               <div key={col.heading}>
@@ -571,7 +617,12 @@ const SingleResearchOutputComponent = ({
                 <RepoSelectorForAnswer
                   value={existingRepos}
                   onRepositoriesChange={(repos) => {
-                    handleCellChange(colIndex, repos);
+                    // Transform RepositoryInterface[] to the answer format
+                    const repoAnswers = repos.map(repo => ({
+                      repositoryId: repo.uri,
+                      repositoryName: repo.name
+                    }));
+                    handleCellChange(colIndex, repoAnswers);
                   }}
                 />
               </div>
@@ -580,23 +631,40 @@ const SingleResearchOutputComponent = ({
             const colStdPreferences = 'preferences' in col && Array.isArray(col.preferences) ? col.preferences : undefined;
             const stdHelpText = col?.content?.attributes?.help || col?.help;
 
-            const existingMetaDataStandards = Array.isArray(value)
-              ? value
-                .filter((std: any) => std.metadataStandardId && std.metadataStandardName)//Filter out values with no data
-                .map((std: any) => ({
-                  id: std.metadataStandardId,
-                  name: std.metadataStandardName,
-                  uri: std.metadataStandardId
-                }))
+            // Check if we have an explicit answer (even if empty) vs no answer at all
+            const hasExplicitStdAnswer = Array.isArray(value);
+
+            // Type guard for metadata standard answer
+            type MetadataStdAnswer = { metadataStandardId: string; metadataStandardName: string };
+            const metadataValue = (Array.isArray(value) && value.length > 0 &&
+              typeof value[0] === 'object' &&
+              'metadataStandardId' in value[0])
+              ? value as MetadataStdAnswer[]
+              : [];
+
+            const existingMetaDataStandards = hasExplicitStdAnswer
+              ? (metadataValue.length > 0
+                ? metadataValue
+                  .filter((std): std is MetadataStdAnswer =>
+                    !!std.metadataStandardId && !!std.metadataStandardName
+                  )
+                  .map((std) => ({
+                    id: std.metadataStandardId,
+                    name: std.metadataStandardName,
+                    uri: std.metadataStandardId
+                  }))
+                : [])  // User explicitly removed all items - show empty
               : ((colStdPreferences && colStdPreferences.length > 0)
                 ? colStdPreferences
-                  .filter((pref: any) => pref.value && pref.label) //filter out items with no data
-                  .map((pref: any) => ({
+                  .filter((pref: { value?: string; label?: string }): pref is { value: string; label: string } =>
+                    !!pref.value && !!pref.label
+                  )
+                  .map((pref) => ({
                     id: pref.value,
                     name: pref.label,
                     uri: pref.value
                   }))
-                : []);
+                : []);  // No answer yet - show preferences
 
             return (
               <div key={col.heading}>
@@ -607,7 +675,12 @@ const SingleResearchOutputComponent = ({
                 <MetaDataStandardsForAnswer
                   value={existingMetaDataStandards}
                   onMetaDataStandardsChange={(stds) => {
-                    handleCellChange(colIndex, stds);
+                    // Transform to the answer format (assuming MetaDataStandardsForAnswer returns a similar interface)
+                    const stdAnswers = stds.map(std => ({
+                      metadataStandardId: String(std.uri || std.id),
+                      metadataStandardName: std.name
+                    }));
+                    handleCellChange(colIndex, stdAnswers);
                   }}
                 />
               </div>
@@ -695,9 +768,10 @@ const SingleResearchOutputComponent = ({
           min={0}
           onChange={(e) => {
             handleCellChange(byteSizeColIndex, {
-              value: e.target.value === '' ? undefined : Number(e.target.value),
+              value: e.target.value === '' ? 0 : Number(e.target.value),
               context: byteSizeUnit
             });
+
           }}
           maxLength={10}
         />
@@ -719,7 +793,7 @@ const SingleResearchOutputComponent = ({
           selectedKey={byteSizeUnit}
           onChange={(val) => {
             handleCellChange(byteSizeColIndex, {
-              value: byteSizeValue,
+              value: byteSizeValue === '' ? 0 : Number(byteSizeValue),
               context: val
             });
           }}
