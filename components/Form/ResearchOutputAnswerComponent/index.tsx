@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from "react-aria-components";
 import {
-  DefaultResearchOutputTableQuestion,
   ResearchOutputTableQuestionType
 } from '@dmptool/types';
 import { useTranslations } from "next-intl";
@@ -31,11 +30,10 @@ const ResearchOutputAnswerComponent = ({
   onSave,
 }: ResearchOutputAnswerComponentProps) => {
 
-  // To track that the page was rendered once
-  const hasInitialized = useRef(false);
-
   // State to track which row is being edited (null means showing list view)
   const [editingRowIndex, setEditingRowIndex] = useState<number | null>(null);
+  // To track that the page was rendered once
+  const hasInitialized = useRef(false);
   // State to track if we're adding a new entry
   const [isAddingNew, setIsAddingNew] = useState(false);
 
@@ -49,7 +47,7 @@ const ResearchOutputAnswerComponent = ({
   // Create an empty research output row to add a new output
   const createEmptyRow = () => createEmptyResearchOutputRow(columns);
 
-  // Handle adding a new research output - memoize with useCallback
+  // Handle adding a new research output
   const handleAddNew = useCallback(() => {
     const emptyRow = createEmptyRow();
     setRows(prev => [...prev, emptyRow]);
@@ -57,7 +55,7 @@ const ResearchOutputAnswerComponent = ({
     setIsAddingNew(true); // Mark as adding new
   }, [rows.length, columns]);
 
-  // Handle edit button click - memoize with useCallback
+  // Handle edit button click
   const handleEdit = useCallback((index: number) => {
     setEditingRowIndex(index);
     setIsAddingNew(false); // Mark as editing existing
@@ -263,7 +261,6 @@ const ResearchOutputAnswerComponent = ({
           );
         })}
       </ul>
-
     </div>
   );
 };

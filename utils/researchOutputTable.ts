@@ -44,10 +44,6 @@ export const getDefaultAnswerForType = (
   }
 };
 
-
-
-
-// Frontend will hard-code these for now
 // These match the schema defaults in ResearchOutputAccessLevelColumnSchema
 // TODO: Consider moving to backend
 export const defaultAccessLevels: AccessLevelInterface[] = [

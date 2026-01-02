@@ -41,6 +41,8 @@ import {
 } from '@/app/types';
 import styles from './metadataStandardForAnswer.module.scss';
 
+// TODO: There is some overlap with components/QuestionAdd/MetaDataStandards.tsx - consider refactoring shared logic
+
 const LIMIT = 5;
 
 type AddMetaDataStandardsErrors = {
@@ -69,9 +71,8 @@ const MetaDataStandardForAnswer = ({
   const toastState = useToast();
   const params = useParams();
   const router = useRouter();
-  // Get tempateId from the URL
+  // Get templateId from the URL
   const templateId = String(params.templateId);
-
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -99,7 +100,6 @@ const MetaDataStandardForAnswer = ({
 
   // Metadata standards lazy query
   const [fetchMetaDataStandardsData, { data: metaDataStandardsData }] = useMetadataStandardsLazyQuery();
-
 
   // Fetch metadata standards based on search term criteria
   const fetchMetaDataStandards = async ({

@@ -180,7 +180,6 @@ describe('MetaDataStandardForAnswer', () => {
       data: mockMetadataStandardsData,
     });
 
-    // ... rest of your setup
     mockAddMetaDataStandardsAction.mockResolvedValue({
       success: true,
       data: { errors: null },
@@ -572,7 +571,7 @@ describe('MetaDataStandardForAnswer', () => {
         expect(screen.getByText('researchOutput.metaDataStandards.headings.dialogHeading')).toBeInTheDocument();
       });
 
-      // Use within to scope to the modal, and wait for the button to be available
+      // Wait for the button to be available
       const modal = screen.getByTestId('modal');
       const addButtonInModal = await waitFor(() =>
         within(modal).getAllByRole('button', { name: 'researchOutput.metaDataStandards.buttons.add' })[0]
@@ -606,7 +605,7 @@ describe('MetaDataStandardForAnswer', () => {
         expect(screen.getByText('researchOutput.metaDataStandards.headings.dialogHeading')).toBeInTheDocument();
       });
 
-      // Use within to scope to the modal, and wait for the button to be available
+      // Wait for the button to be available
       const modal = screen.getByTestId('modal');
       const addButtonInModal = await waitFor(() =>
         within(modal).getAllByRole('button', { name: 'researchOutput.metaDataStandards.buttons.add' })[0]

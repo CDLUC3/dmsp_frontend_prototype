@@ -37,24 +37,7 @@ import {
 import {
   addAnswerAction,
   updateAnswerAction,
-} from './actions'; // server action mutations
-
-// Components
-import {
-  ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel,
-  DrawerPanel
-} from "@/components/Container";
-import PageHeader from "@/components/PageHeader";
-import { Card, } from "@/components/Card/card";
-import ErrorMessages from '@/components/ErrorMessages';
-import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
-import { DmpIcon } from "@/components/Icons";
-import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
-import ExpandableContentSection from '@/components/ExpandableContentSection';
-import SafeHtml from '@/components/SafeHtml';
-import Loading from '@/components/Loading';
+} from './actions';
 
 // Constants
 import {
@@ -77,6 +60,23 @@ import {
 } from '@/lib/constants';
 import { QuestionTypeMap } from '@dmptool/types';
 
+// Components
+import {
+  ContentContainer,
+  LayoutWithPanel,
+  SidebarPanel,
+  DrawerPanel
+} from "@/components/Container";
+import PageHeader from "@/components/PageHeader";
+import { Card, } from "@/components/Card/card";
+import ErrorMessages from '@/components/ErrorMessages';
+import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
+import { DmpIcon } from "@/components/Icons";
+import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
+import ExpandableContentSection from '@/components/ExpandableContentSection';
+import SafeHtml from '@/components/SafeHtml';
+import Loading from '@/components/Loading';
+
 // Context
 import { useToast } from '@/context/ToastContext';
 
@@ -85,7 +85,6 @@ import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import { createEmptyResearchOutputRow } from '@/utils/researchOutputTransformations';
-
 
 //hooks
 import { useComments } from './hooks/useComments';
@@ -186,7 +185,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   const routeParams = { projectId, dmpId, versionedSectionId, versionedQuestionId };
 
-  // Question field states
+  // Question field states (excluding Research Output table)
   const [formData, setFormData] = useState<FormDataInterface>({
     affiliationData: { affiliationName: '', affiliationId: '' },
     dateValue: null,
@@ -207,10 +206,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
     yesNoValue: 'no',
   });
 
-  // Separate state for researchOutputTable
+  // Separate state for researchOutputTable since it's such a large structure
   const [researchOutputRows, setResearchOutputRows] = useState<ResearchOutputTable[]>([]);
   // Ref to track latest rows synchronously (to avoid stale closure issues)
   const researchOutputRowsRef = useRef<ResearchOutputTable[]>([]);
+  const answerCreatedRef = useRef(false); // Track if answer was created in this session for update vs add
 
   // Form state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -220,7 +220,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout>();
-  const answerCreatedRef = useRef(false); // Track if answer was created in this session
 
   // Localization
   const Global = useTranslations('Global');
@@ -228,8 +227,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const t = useTranslations('PlanOverviewQuestionPage');
 
   /*GraphQL queries */
-
-  // Run selected question query
   const {
     data: selectedQuestion,
     loading: versionedQuestionLoading,
@@ -827,7 +824,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         };
 
       case RESEARCH_OUTPUT_QUESTION_TYPE:
-        // Extract column headings from parsed columns
+        // Extract column headings from parsed question columns
         const columnHeadings = parsed?.type === RESEARCH_OUTPUT_QUESTION_TYPE
           ? [
             ...parsed.columns.map(col => col.heading),
@@ -905,7 +902,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     const isUpdate = Boolean(answerData?.answerByVersionedQuestionId) || answerCreatedRef.current;
 
     // Get the answer ID from either the query or the state (after first create)
-    const currentAnswerId = answerId || answerData?.answerByVersionedQuestionId?.id; // Very important because we have to make sure to apply the latest answer ID
+    const currentAnswerId = answerId || answerData?.answerByVersionedQuestionId?.id; // Very important because we have to make sure to apply the latest answer ID, otherwise addAnswerAction is called more than once for same id
 
     if (selectedQuestion) {
       try {
@@ -1110,7 +1107,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     const json = answerData?.answerByVersionedQuestionId?.json;
     if (json && questionType) {
       const parsed = JSON.parse(json);
-      // Deep clone to see the actual value at this moment
       if (parsed?.answer !== undefined) {
         prefillAnswer(parsed.answer, questionType);
       }
@@ -1145,7 +1141,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     return () => clearTimeout(autoSaveTimeoutRef.current);
   }, [formData, researchOutputRows, versionedQuestionId, versionedSectionId, question, hasUnsavedChanges]);
 
-  // Detect changes to research output rows
+  // Detect changes to research output rows to set hasUnsavedChanges
   useEffect(() => {
     if (researchOutputRows.length > 0 && questionType === RESEARCH_OUTPUT_QUESTION_TYPE) {
       setHasUnsavedChanges(true);

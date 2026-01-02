@@ -109,7 +109,7 @@ jest.mock('../hooks/useComments', () => {
   };
 });
 
-// Mock the ResearchOutputAnswerComponent directly at its source file
+// Mock the ResearchOutputAnswerComponent
 jest.mock('@/components/Form/ResearchOutputAnswerComponent', () => ({
   __esModule: true,
   /* eslint-disable @typescript-eslint/no-explicit-any */

@@ -146,7 +146,6 @@ export const createEmptyResearchOutputRow = (
   };
 };
 
-
 /**
  * Extracts display information from a research output row
  * Used for showing row summaries in list views
@@ -250,7 +249,6 @@ export const stateToJSON = (
 ): AnyParsedQuestion => {
   // Use the flexible type for building
   const columns: FlexibleResearchOutputColumn[] = [];
-
 
   standardFields.forEach(field => {
     if (!field.enabled) return;
@@ -532,7 +530,6 @@ export const jsonToState = (
     }
     return '';
   };
-
 
   // Helper to find a column by heading
   const findColumn = (keys: string[]): FlexibleResearchOutputColumn | undefined =>

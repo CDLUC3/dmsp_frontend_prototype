@@ -45,9 +45,9 @@ import {
 } from '@/app/types';
 import styles from './repoSelectorForAnswer.module.scss';
 
+// TODO: There is some overlap with components/QuestionAdd/RepoSelector.tsx - consider refactoring shared logic
 // # of repositories displayed per page
 const LIMIT = 5;
-
 
 type AddRepositoryErrors = {
   general?: string;
@@ -56,6 +56,8 @@ type AddRepositoryErrors = {
   repositoryTypes?: string;
   website?: string;
 }
+
+// Convert subject area string to object with id and name
 function toSubjectAreaObject(str: string): { id: string; name: string } {
   // Convert to ID-friendly slug
   const id = str
@@ -133,7 +135,7 @@ const RepoSelectorForAnswer = ({
     }))
     , []);
 
-  // Get Repository Subject Areas - for future dynamic subject area fetching
+  // Get Repository Subject Areas
   const { data: subjectAreasData } = useRepositorySubjectAreasQuery();
 
   // Transform subject areas data for FormSelect - add empty option for deselection
@@ -176,7 +178,6 @@ const RepoSelectorForAnswer = ({
     });
   };
 
-
   // Handle pagination page click
   const handlePageClick = async (page: number) => {
     await fetchRepositories({
@@ -185,6 +186,7 @@ const RepoSelectorForAnswer = ({
     });
   };
 
+  // Update search term state on input change
   const handleSearchInput = (term: string) => {
     setSearchTerm(term);
   };
@@ -223,6 +225,7 @@ const RepoSelectorForAnswer = ({
     toastState.add(QuestionAdd('researchOutput.repoSelector.messages.' + (isSelected ? 'removedItem' : 'addedItem'), { name: repo.name }), { type: 'success' });
   };
 
+  // Remove a single repository from selection
   const removeRepo = (repoId: string) => {
     const repo = selectedRepos[repoId];
     const newSelected = Object.values(selectedRepos).filter(r => r.uri !== repoId);
@@ -230,6 +233,7 @@ const RepoSelectorForAnswer = ({
     toastState.add(QuestionAdd('researchOutput.repoSelector.messages.removedItem', { name: repo.name }), { type: 'success' });
   };
 
+  // Remove all selected repositories
   const removeAllRepos = () => {
     onRepositoriesChange?.([]);
     toastState.add(QuestionAdd('researchOutput.repoSelector.messages.allRemoved'), { type: 'success' });
@@ -243,6 +247,7 @@ const RepoSelectorForAnswer = ({
     }));
   };
 
+  // Handle adding a custom repository
   const handleAddCustomRepo = useCallback(async () => {
     setErrors([]);
     const { name, description, website } = customForm;
@@ -399,8 +404,6 @@ const RepoSelectorForAnswer = ({
               {QuestionAdd('researchOutput.repoSelector.buttons.addRepo')}
             </Button>
           </div>
-
-
         </div>
       </div>
 

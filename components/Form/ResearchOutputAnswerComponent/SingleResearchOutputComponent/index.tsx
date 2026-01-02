@@ -103,15 +103,13 @@ const SingleResearchOutputComponent = ({
   const scrollToElement = useScrollToElement();
 
   // GraphQL Queries
-  // Query request for recommended licenses
   const { data: recommendedLicensesData } = useRecommendedLicensesQuery({
     variables: { recommended: true },
   });
 
-  // Query request for default research output types
   const { data: defaultResearchOutputTypesData } = useDefaultResearchOutputTypesQuery();
 
-  // Helper function to get translated label
+  // Helper function to get translated label from column
   const getTranslatedLabel = (col: typeof columns[0]): string => {
     const translationKey = col.content.attributes?.labelTranslationKey;
     if (translationKey) {
@@ -129,7 +127,7 @@ const SingleResearchOutputComponent = ({
   };
 
 
-  // Validate a single field
+  // Validate form field
   const validateField = (colIndex: number, value: ValueType): string => {
     const col = columns[colIndex];
     let error = "";
@@ -179,7 +177,7 @@ const SingleResearchOutputComponent = ({
         const errorKey = `col-${colIndex}`;
         newErrors[errorKey] = error;
         isValid = false;
-        // Track the first invalid field
+        // Track the first invalid field for scrolling
         if (!firstInvalidKey) {
           firstInvalidKey = errorKey;
         }
@@ -251,11 +249,9 @@ const SingleResearchOutputComponent = ({
       onCancel();
       scrollToElement('.research-output-form');
     }
-
   };
 
-
-  // Handle cell change
+  // Handle cell change - change to any field in the answer row
   /*eslnt-disable @typescript-eslint/no-explicit-any */
   const handleCellChange = (colIndex: number, value: ValueType) => {
     // Clear error for this field
@@ -529,7 +525,6 @@ const SingleResearchOutputComponent = ({
                   : [];
             }
 
-
             // Filter to only show checked options if this is Data Flags
             const options = isDataFlags
               ? allOptions.filter(opt => opt.checked === true)
@@ -690,9 +685,7 @@ const SingleResearchOutputComponent = ({
             )
 
           case LICENSE_SEARCH_ID:
-
             const licenseAnswer = value as LicenseSearchAnswerType['answer'];
-
             const colLicensesPreferences = 'preferences' in col ? col.preferences : undefined;
 
             // Use preferences if available, otherwise fall back to recommended licenses
@@ -717,6 +710,7 @@ const SingleResearchOutputComponent = ({
               licenseAnswer.length > 0 && licenseAnswer[0]?.licenseId
                 ? licenseAnswer[0].licenseId
                 : '';
+
             return (
               <div
                 key={col.heading}

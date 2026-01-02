@@ -276,7 +276,8 @@
     "buttons": {
       "changeType": "Mudar os Tipos",
       "previewQuestion": "Pergunta de visualização",
-      "deleteQuestion": "Excluir questão"
+      "deleteQuestion": "Excluir questão",
+      "addOutput": "Adicionar saída"
     },
     "descriptions": {
       "sampleText": "Forneça um exemplo ou modelo de resposta esperada (opcional, mas recomendado)",
@@ -303,6 +304,7 @@
       "sampleText": "Texto de amostra"
     },
     "messages": {
+      "areYouSureYouWantToDelete": "Tem certeza de que deseja excluir esta saída de pesquisa?",
       "errors": {
         "questionTextRequired": "Conjunto de perguntas (obrigatório.",
         "questionUpdateError": "Erro ao criar a seção",
@@ -398,7 +400,8 @@
       "dataFlags": "Marque todas as afirmações que são verdadeiras sobre o conjunto de dados"
     },
     "headings": {
-      "bestPractice": "Melhores práticas pela Ferramenta DMP"
+      "bestPractice": "Melhores práticas pela Ferramenta DMP",
+      "displayingRepositoriesStatus": "Exibindo repositórios {current} de {total}"
     },
     "messages": {
       "errors": {
