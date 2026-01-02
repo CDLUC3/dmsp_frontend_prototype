@@ -10,6 +10,7 @@
 - Fixed related works pagination.
 
 ### Chore
+- Removing `github/dependabot.yaml` file because we are opting to use `renovate` to notify us of dependency updates
 - Updated `next` to version 15.5.9 due to vulnerability
 - Updated version of `next` to `15.5.8` due to vulnerability
 ==========================================================================================
