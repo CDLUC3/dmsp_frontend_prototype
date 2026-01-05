@@ -31,7 +31,7 @@ import {
 
 import {
   addRepositoryAction
-} from "./actions";
+} from "@/app/actions";
 
 // Components
 import ErrorMessages from '../ErrorMessages';
@@ -232,9 +232,9 @@ const RepositorySelectionSystem = ({
 
     // Call toasts AFTER state update completes
     if (isRemoving) {
-      toastState.add(QuestionAdd('researchOutput.repoSelector.messages.removedRepo', { name: repo.name }), { type: 'success' });
+      toastState.add(QuestionAdd('researchOutput.repoSelector.messages.removedItem', { name: repo.name }), { type: 'success' });
     } else {
-      toastState.add(QuestionAdd('researchOutput.repoSelector.messages.addedRepo', { name: repo.name }), { type: 'success' });
+      toastState.add(QuestionAdd('researchOutput.repoSelector.messages.addedItem', { name: repo.name }), { type: 'success' });
     }
   };
 
@@ -246,7 +246,7 @@ const RepositorySelectionSystem = ({
       delete newSelected[repoId];
       return newSelected;
     });
-    toastState.add(QuestionAdd('researchOutput.repoSelector.messages.removedRepo', { name: repo.name }), { type: 'success' });
+    toastState.add(QuestionAdd('researchOutput.repoSelector.messages.removedItem', { name: repo.name }), { type: 'success' });
   };
   // Removal of all selected repositories from the non-modal view
   const removeAllRepos = () => {
@@ -494,7 +494,7 @@ const RepositorySelectionSystem = ({
                             name="status"
                             items={subjectAreas}
                             onChange={(value) => searchOnSubjectArea(value)}
-                            selectedKey={subjectArea}
+                            selectedKey={subjectArea ?? undefined}
                           >
                             {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
                           </FormSelect>
@@ -510,7 +510,7 @@ const RepositorySelectionSystem = ({
                             name="status"
                             items={repositoryTypes}
                             onChange={(value) => searchOnRepositoryType(value)}
-                            selectedKey={repoType}
+                            selectedKey={repoType ?? undefined}
                           >
                             {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
                           </FormSelect>

@@ -14,7 +14,8 @@
     "headings": {
       "comments": "Comments",
       "leaveAComment": "Deixar uma foto",
-      "requirementsBy": "Requisitos de {funder}"
+      "requirementsBy": "Requisitos de {funder}",
+      "question": "Pergunta"
     },
     "labels": {
       "saveAnswer": "Resposta salva",
@@ -193,7 +194,9 @@
   "PlanOverviewQuestionPage": {
     "messages": {
       "success": {
-        "questionSaved": "Detalhes da pergunta salvos com sucesso"
+        "questionSaved": "Detalhes da pergunta salvos com sucesso",
+        "questionDeleted": "Detalhes da pergunta apagados com sucesso",
+        "saved": "Alterações salvas com sucesso"
       },
       "unsavedChanges": "Alterações não Salvas",
       "savedJustNow": "Salvo há pouco",

@@ -34,6 +34,7 @@ interface MySelectProps<T extends SelectItem>
   onChange?: (value: string) => void;
   items?: T[];
   placeHolder?: string;
+  selectedKey?: string;
   children?: React.ReactNode | ((item: T) => React.ReactNode);
 }
 
@@ -50,6 +51,7 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
     onChange,
     items,
     placeholder,
+    selectedKey,
     ...rest
   } = props;
   const showRequired = isRequired || isRequiredVisualOnly;
@@ -65,7 +67,7 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
   return (
     <Select
       {...rest}
-      selectedKey={rest.selectedKey}
+      selectedKey={selectedKey}
       data-invalid={errorMessage}
       className={`${selectClasses} ${styles.mySelect} react-aria-Select`}
       aria-label={ariaLabel}
@@ -78,8 +80,10 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
           <Label>
             {label}{showRequired && <span className="is-required" aria-hidden="true"> ({t('required')})</span>}
           </Label>
-          <Text slot="description" className="help">
-            {description}</Text>
+          {description && (
+            <Text slot="description" className="help">
+              {description}</Text>
+          )}
           <Button className='react-aria-Button selectButton' ref={ref} data-testid="select-button">
             <SelectValue />
             <span

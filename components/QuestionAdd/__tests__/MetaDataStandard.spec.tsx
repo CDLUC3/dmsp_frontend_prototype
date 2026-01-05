@@ -8,7 +8,7 @@ import {
   useMetadataStandardsLazyQuery
 } from '@/generated/graphql';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { addMetaDataStandardsAction } from '../actions';
+import { addMetaDataStandardsAction } from '@/app/actions';
 import { useParams, useRouter } from 'next/navigation';
 
 import MetaDataStandardsSelector from '../MetaDataStandards';
@@ -34,7 +34,7 @@ jest.mock('@/context/ToastContext', () => ({
 }));
 
 // Mock the addMetaDataStandardsAction
-jest.mock('../actions', () => ({
+jest.mock('@/app/actions', () => ({
   addMetaDataStandardsAction: jest.fn(),
 }));
 

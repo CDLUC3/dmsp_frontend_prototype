@@ -725,6 +725,7 @@
       "saveAndAdd": "Salvar e adicionar",
       "saveAndUpdate": "Salvar e atualizar",
       "saveChanges": "Salvar as alterações",
+      "update": "Atualização",
       "remove": "Remover",
       "removeAll": "Remover todos os",
       "confirm": "Confirmação",
@@ -747,6 +748,7 @@
       "addAnother": "Adicionar mais",
       "goToProject": "Ir para o projeto",
       "back": "Voltar",
+      "backToList": "Voltar para a lista",
       "add": "Adicionar",
       "customize": "Personalizar",
       "applyFilter": "Aplicar filtro(s)",
@@ -766,12 +768,27 @@
       "nextPage": "Próxima página",
       "name": "Nome:",
       "url": "URL:",
-      "description": "Descrição:",
-      "searchTerm": "Termo para pesquisa"
+      "unit": "Unidade",
+      "description": "Descrição",
+      "searchTerm": "Termo para pesquisa",
+      "title": "Título",
+      "dataFlags": "Sinalizadores de dados",
+      "outputType": "Tipo de saída",
+      "repositories": "Repositórios",
+      "metadataStandards": "Padrões de metadados",
+      "licenses": "Licenças",
+      "initialAccessLevels": "Níveis de acesso inicial",
+      "anticipatedReleaseDate": "Data prevista de lançamento",
+      "anticipatedFileSize": "Tamanho de arquivo previsto",
+      "fileSizeUnit": "Unidade de tamanho do arquivo",
+      "selectAnItem": "Selecione um item",
+      "mayContainSensitiveData": "Pode conter dados sensíveis?",
+      "mayContainPersonalData": "Pode conter informações pessoalmente identificáveis?"
     },
     "helpText": {
       "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc.",
-      "funderSearch": "Pesquisar por organização de pesquisa, nome do financiador ou palavras-chave relacionadas."
+      "funderSearch": "Pesquisar por organização de pesquisa, nome do financiador ou palavras-chave relacionadas.",
+      "dataFlags": "Marque todas as afirmações que são verdadeiras sobre o conjunto de dados"
     },
     "descriptions": {
       "requiredFieldDescription": "Atenção aos usuários que isto é considerado uma questão necessária para este template DMP pela organização. Os usuários poderão optar por ignorar isso dentro da ferramenta e não será necessário responder antes de movê-la."
@@ -805,7 +822,8 @@
       "errors": {
         "invalidQuestionType": "Tipo de questão inválido encontrado.",
         "questionUnexpectedFormat": "Formato inesperado para question.json.",
-        "questionJSONFParseFailed": "JSON.parse falhou."
+        "questionJSONFParseFailed": "JSON.parse falhou.",
+        "requiredField": "{field} é obrigatório"
       },
       "numDisplaying": "Mostrando {num} de {total}",
       "unsavedChangesWarning": "Você tem alterações não salvas. Tem certeza que deseja sair desta página?"

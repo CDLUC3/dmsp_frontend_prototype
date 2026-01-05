@@ -1,5 +1,15 @@
-
+## Added
+- Added new `ResearchOutputAnswerComponent`, `SingleResearchOutputComponent`, `RepoSelectorForAnswer` and `MetaDataStandardForAnswer` components for the rendering of `researchOutputTable` question type answer form [#787]
+- Added `utils/researchOutputTransformations.ts` to group utilities for `researchOutputTable` [#787]
 ### Updated
+- Updated `QuestionAdd` and associated unit tests to include tests for new `researchOutputTable` question type [#787]
+- Update `PlanOverviewQuestionPage` component and related unit test in template builder flow to add `researchOutputTable` question type support [#787]
+- Updated `QuestionEdit` page and related unit test to improve the `researchOutputTable` question type application by moving hydration out to hook [#787]
+- Update `hooks/useResearchOutputTable` to memoize some functions and moved some code out to new `researchOutputTransformations` util  [#787]
+- Moved `ResearchOutputQuestionComponent` and `ResearchOutputAnswerComponent` under `components/Form` [#787]
+- Updated shared `ErrorMessages` to pass in `ref` so we can control which field error to scroll to [#787]
+- Updated `hooks/useRenderQuestionField` hook to include rendering of `researchOutputTable` answer form [#787]
+- Updated `utils/questionTypeHandlers` with use of `Default` types from `@dmptool/types` [#787]
 - Hooked up the `Research Output table` for template builder for `QuestionAdd` and `QuestionEdit` components. Updated `QuestionEdit` to use server actions[#869]
   - Updated associated research output field components, like `InitialAccessLevel`, `LicenseField`, `MetaDataStandards`, `OutputTypeField` and `ReposSelector` [#869]
   - Added a `ResearchOutputComponent` to consolidate the code for that question type [#869]
@@ -11,6 +21,8 @@
 
 ### Chore
 - Removing `github/dependabot.yaml` file because we are opting to use `renovate` to notify us of dependency updates
+- Updated the following packages: `@types/react` to 18.3.27, `react` to 19.2.3, `react-dom` to 19.2.3, `node-fetch` to 3.3.2, `@types/node` to 24.10.4, `eslint` to 9.39.2, `eslint-plugin-unused-imports` to 4.3.0, `husky` to 9.1.7, `pino` to 9.14.0 and `prettier` to 3.7.4
+- Updated `qs` to 6.14.1 version due to vulnerability and updated dependency `cypress` to version 15.0.0
 - Updated `next` to version 15.5.9 due to vulnerability
 - Updated version of `next` to `15.5.8` due to vulnerability
 ==========================================================================================
