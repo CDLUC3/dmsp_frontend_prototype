@@ -1,4 +1,5 @@
 ## Added
+- Added Question Preview for `ResearchOutput` type [#1055]
 - Added new `ResearchOutputAnswerComponent`, `SingleResearchOutputComponent`, `RepoSelectorForAnswer` and `MetaDataStandardForAnswer` components for the rendering of `researchOutputTable` question type answer form [#787]
 - Added `utils/researchOutputTransformations.ts` to group utilities for `researchOutputTable` [#787]
 ### Updated

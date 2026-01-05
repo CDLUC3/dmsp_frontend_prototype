@@ -7,6 +7,8 @@ import * as apolloClientModule from '@/lib/graphql/client/apollo-client';
 
 import {
   useTemplateQuery,
+  useRecommendedLicensesQuery,
+  useDefaultResearchOutputTypesQuery
 } from '@/generated/graphql';
 import QuestionView from '@/components/QuestionView';
 import {
@@ -21,6 +23,7 @@ import {
   NumberQuestionType,
   NumberRangeQuestionType,
   RadioButtonsQuestionType,
+  ResearchOutputTableQuestionType,
   SelectBoxQuestionType,
   TextQuestionType,
   URLQuestionType
@@ -60,6 +63,8 @@ jest.mock('@/lib/graphql/client/apollo-client');
 jest.mock('@/generated/graphql', () => ({
   useQuestionTypesQuery: jest.fn(),
   useTemplateQuery: jest.fn(),
+  useRecommendedLicensesQuery: jest.fn(),
+  useDefaultResearchOutputTypesQuery: jest.fn(),
 }));
 
 
@@ -119,6 +124,81 @@ describe("QuestionView", () => {
 
     mockHook(useTemplateQuery).mockReturnValue({
       data: { template: mockTemplate },
+      loading: false,
+      error: null,
+    });
+
+    mockHook(useRecommendedLicensesQuery).mockReturnValue({
+      data: {
+        recommendedLicenses: [
+          {
+            __typename: "License",
+            name: "CC0-1.0",
+            id: 54,
+            uri: "https://spdx.org/licenses/CC0-1.0.json"
+          },
+          {
+            __typename: "License",
+            name: "CC-BY-4.0",
+            id: 55,
+            uri: "https://spdx.org/licenses/CC-BY-4.0.json"
+          },
+          {
+            __typename: "License",
+            name: "MIT",
+            id: 56,
+            uri: "https://spdx.org/licenses/MIT.json"
+          }
+        ]
+      },
+      loading: false,
+      error: null,
+    });
+
+    mockHook(useDefaultResearchOutputTypesQuery).mockReturnValue({
+      data: {
+        defaultResearchOutputTypes: [
+          {
+            __typename: "ResearchOutputType",
+            id: 1,
+            name: "Audiovisual",
+            value: "audiovisual",
+            errors: {
+              __typename: "ResearchOutputTypeErrors",
+              general: null,
+              name: null,
+              value: null
+            },
+            description: "A series of visual representations imparting an impression of motion when shown in succession. May or may not include sound. (e.g. films, video, etc.)"
+          },
+          {
+            __typename: "ResearchOutputType",
+            id: 2,
+            name: "Collection",
+            value: "collection",
+            errors: {
+              __typename: "ResearchOutputTypeErrors",
+              general: null,
+              name: null,
+              value: null
+            },
+            description: "An aggregation of resources, which may encompass collections of one resourceType as well as those of mixed types. A collection is described as a group; its parts may also be separately described. (e.g. A collection of samples, or various files making up a report)"
+          },
+          {
+            __typename: "ResearchOutputType",
+            id: 3,
+            name: "Data paper",
+            value: "data-paper",
+            errors: {
+              __typename: "ResearchOutputTypeErrors",
+              general: null,
+              name: null,
+              value: null
+            },
+            description: "A factual and objective publication with a focused intent to identify and describe specific data, sets of data, or data collections to facilitate discoverability. (i.e. A data paper describes data provenance and methodologies used in the gathering, processing, organizing, and representing the data)"
+          }
+        ]
+      },
       loading: false,
       error: null,
     });
@@ -756,6 +836,128 @@ describe("QuestionView", () => {
     const searchInput = screen.getByRole('textbox');
     expect(searchInput).toBeInTheDocument();
     expect(searchInput).toHaveValue('Test Institution');
+  });
+
+  it('should render the researchOutputTable question type', async () => {
+    const json: ResearchOutputTableQuestionType = {
+      meta: {
+        title: "Research Output Table",
+        schemaVersion: "1.0",
+        usageDescription: "A table for collecting structured research output data"
+      },
+      type: "researchOutputTable",
+      columns: [
+        {
+          help: "Enter the title of this research output",
+          content: {
+            meta: {
+              schemaVersion: "1.0"
+            },
+            type: "text",
+            attributes: {
+              maxLength: 500
+            }
+          },
+          enabled: true,
+          heading: "Title",
+          required: true
+        },
+        {
+          help: "Enter a brief description of this research output",
+          content: {
+            meta: {
+              schemaVersion: "1.0"
+            },
+            type: "textArea",
+            attributes: {
+              cols: 20,
+              rows: 2,
+              maxLength: 10000,
+              asRichText: true,
+              label: "Description",
+              labelTranslationKey: "labels.description"
+            }
+          },
+          enabled: true,
+          heading: "Description",
+          required: true
+        },
+        {
+          help: "Select the type of this research output",
+          content: {
+            meta: {
+              schemaVersion: "1.0"
+            },
+            type: "selectBox",
+            options: [
+              {
+                label: "Dataset",
+                value: "dataset",
+                selected: false
+              },
+              {
+                label: "Software",
+                value: "software",
+                selected: false
+              }
+            ],
+            attributes: {
+              multiple: false,
+              label: "Output Type",
+              labelTranslationKey: "labels.outputType"
+            }
+          },
+          enabled: true,
+          heading: "Output Type",
+          required: true
+        }
+      ],
+      attributes: {
+        help: "",
+        label: "",
+        canAddRows: true,
+        initialRows: 1,
+        canRemoveRows: true,
+        labelTranslationKey: ""
+      }
+    };
+    const mockQuestionWithResearchOutput = { ...mockQuestion, json: JSON.stringify(json) };
+
+    render(
+      <QuestionView
+        question={mockQuestionWithResearchOutput}
+        isPreview={true}
+        templateId={1}
+        path="/template/123"
+      />
+    );
+
+    // Check that the research output table component is rendered
+    const cardBody = screen.getByTestId('card-body');
+    expect(cardBody).toBeInTheDocument();
+
+    // Check for the add button text that's shown in the initial empty state
+    expect(cardBody.textContent).toContain('buttons.addOutput');
+
+    // Click the add button to display the form fields
+    const addButton = screen.getByRole('button');
+    expect(addButton).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(addButton);
+    });
+
+    // Check that the form fields are rendered
+    expect(screen.getByText('Title')).toBeInTheDocument();
+    expect(screen.getByText('headings.addResearchOutput')).toBeInTheDocument();
+    expect(screen.getByText('Enter the title of this research output')).toBeInTheDocument();
+    expect(screen.getByText('labels.description')).toBeInTheDocument();
+    expect(screen.getByText('Enter a brief description of this research output')).toBeInTheDocument();
+    expect(screen.getByText('labels.outputType')).toBeInTheDocument();
+    expect(screen.getAllByText('Select the type of this research output')).toHaveLength(2); // once for label, once for help text
+    expect(screen.getByText('labels.anticipatedReleaseDate')).toBeInTheDocument();
+    expect(screen.getByText('labels.anticipatedFileSize')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buttons.save' })).toBeInTheDocument();
   });
 
   it('should not execute logic when question is undefined', () => {
