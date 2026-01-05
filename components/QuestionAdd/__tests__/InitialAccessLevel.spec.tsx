@@ -8,9 +8,9 @@ expect.extend(toHaveNoViolations);
 
 describe('InitialAccessLevelField', () => {
   const mockDefaultAccessLevels = [
-    { label: 'Controlled access', value: 'controlled', description: 'Restricts access to certain areas' },
-    { label: 'Unrestricted access', value: 'open', description: 'Allows access to all areas' },
-    { label: 'Other', value: 'other', description: 'Other type of access' },
+    { label: 'Controlled access', value: 'controlled', description: 'Restricts access to certain areas', selected: false },
+    { label: 'Unrestricted access', value: 'open', description: 'Allows access to all areas', selected: false },
+    { label: 'Other', value: 'other', description: 'Other type of access', selected: false },
   ];
 
   const defaultProps: AccessLevelsFieldProps & { defaultAccessLevels: typeof mockDefaultAccessLevels } = {
@@ -20,7 +20,7 @@ describe('InitialAccessLevelField', () => {
       enabled: true,
       accessLevelsConfig: {
         mode: 'defaults',
-        customLevels: [{ label: 'Controlled access', value: 'controlled', description: 'Restricts access to certain areas' }],
+        customLevels: [{ label: 'Controlled access', value: 'controlled', description: 'Restricts access to certain areas', selected: false }],
         selectedDefaults: [],
       },
     },

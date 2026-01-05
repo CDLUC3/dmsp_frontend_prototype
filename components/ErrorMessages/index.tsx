@@ -3,16 +3,28 @@ import { scrollToTop } from '@/utils/general';
 
 type ErrorMessagesProps = {
   errors: string[] | Record<string, string | null | undefined>;
+  noScroll?: boolean;
+  firstInvalidFieldRef?: React.RefObject<HTMLElement>;
 };
 
 // Shared Error Message rendering component for both arrays and objects
 const ErrorMessages = forwardRef<HTMLDivElement, ErrorMessagesProps>(
-  ({ errors }, ref) => {
+  ({ errors, noScroll, firstInvalidFieldRef }, ref) => {
     useEffect(() => {
-      if (errors && Object.keys(errors).length > 0 && ref && "current" in ref && ref.current) {
+      if (noScroll || !errors || Object.keys(errors).length === 0) return;
+
+      // If we have a specific field ref, scroll to that field instead of the error message
+      if (firstInvalidFieldRef?.current) {
+        firstInvalidFieldRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Focus the field for accessibility
+        if ('focus' in firstInvalidFieldRef.current && typeof firstInvalidFieldRef.current.focus === 'function') {
+          firstInvalidFieldRef.current.focus();
+        }
+      } else if (ref && "current" in ref && ref.current) {
+        // Fall back to scrolling to the error message container
         scrollToTop(ref);
       }
-    }, [errors, ref]);
+    }, [errors, ref, noScroll, firstInvalidFieldRef]);
 
 
     // Filter out empty or invalid errors

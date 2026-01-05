@@ -3,6 +3,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useTranslations } from "next-intl";
+import { CalendarDate, DateValue } from "@internationalized/date";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -16,17 +18,8 @@ import {
   Tooltip,
   TooltipTrigger
 } from "react-aria-components";
-import { CalendarDate, DateValue } from "@internationalized/date";
 
-import styles from './PlanOverviewQuestionPage.module.scss';
-import { useTranslations } from "next-intl";
-import {
-  ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel,
-  DrawerPanel
-} from "@/components/Container";
-
+// GraphQL 
 import {
   useMeQuery,
   usePlanQuery,
@@ -35,7 +28,45 @@ import {
   useGuidanceGroupsQuery
 } from '@/generated/graphql';
 
+import {
+  Question,
+  MergedComment,
+  ResearchOutputTable
+} from '@/app/types';
+
+import {
+  addAnswerAction,
+  updateAnswerAction,
+} from './actions';
+
+// Constants
+import {
+  CHECKBOXES_QUESTION_TYPE,
+  RADIOBUTTONS_QUESTION_TYPE,
+  TYPEAHEAD_QUESTION_TYPE,
+  TEXT_AREA_QUESTION_TYPE,
+  RESEARCH_OUTPUT_QUESTION_TYPE,
+  TEXT_FIELD_QUESTION_TYPE,
+  SELECTBOX_QUESTION_TYPE,
+  MULTISELECTBOX_QUESTION_TYPE,
+  BOOLEAN_QUESTION_TYPE,
+  EMAIL_QUESTION_TYPE,
+  URL_QUESTION_TYPE,
+  NUMBER_QUESTION_TYPE,
+  CURRENCY_QUESTION_TYPE,
+  DATE_QUESTION_TYPE,
+  DATE_RANGE_QUESTION_TYPE,
+  NUMBER_RANGE_QUESTION_TYPE
+} from '@/lib/constants';
+import { CURRENT_SCHEMA_VERSION, QuestionTypeMap } from '@dmptool/types';
+
 // Components
+import {
+  ContentContainer,
+  LayoutWithPanel,
+  SidebarPanel,
+  DrawerPanel
+} from "@/components/Container";
 import PageHeader from "@/components/PageHeader";
 import { Card, } from "@/components/Card/card";
 import ErrorMessages from '@/components/ErrorMessages';
@@ -43,8 +74,8 @@ import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON'
 import { DmpIcon } from "@/components/Icons";
 import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
 import ExpandableContentSection from '@/components/ExpandableContentSection';
-import CommentsDrawer from './CommentsDrawer';
 import SafeHtml from '@/components/SafeHtml';
+import Loading from '@/components/Loading';
 
 // Context
 import { useToast } from '@/context/ToastContext';
@@ -53,40 +84,32 @@ import { useToast } from '@/context/ToastContext';
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
-import { QuestionTypeMap } from '@dmptool/types';
-
-import {
-  Question,
-  MergedComment
-} from '@/app/types';
-
-// server action mutations
-import {
-  addAnswerAction,
-  updateAnswerAction,
-} from './actions';
+import { createEmptyResearchOutputRow } from '@/utils/researchOutputTransformations';
 
 //hooks
 import { useComments } from './hooks/useComments';
+import CommentsDrawer from './CommentsDrawer';
+import styles from './PlanOverviewQuestionPage.module.scss';
+
 
 interface FormDataInterface {
-  otherField: boolean;
   affiliationData: { affiliationName: string; affiliationId: string };
-  otherAffiliationName: string;
-  selectedRadioValue: string;
-  numberValue: number | null;
-  urlValue: string | null;
-  emailValue: string | null;
-  textValue: string | number | null;
-  inputCurrencyValue: number | null;
-  selectedCheckboxValues: string[];
-  yesNoValue: string;
-  textAreaContent: string;
-  selectedMultiSelectValues: Set<string>;
-  selectedSelectValue: string | undefined;
   dateValue: string | DateValue | CalendarDate | null;
   dateRange: { startDate: string | DateValue | CalendarDate | null; endDate: string | DateValue | CalendarDate | null };
+  emailValue: string | null;
+  inputCurrencyValue: number | null;
   numberRange: { startNumber: number | null; endNumber: number | null };
+  otherField: boolean;
+  otherAffiliationName: string;
+  selectedCheckboxValues: string[];
+  selectedRadioValue: string;
+  selectedMultiSelectValues: Set<string>;
+  selectedSelectValue: string | undefined;
+  numberValue: number | null;
+  urlValue: string | null;
+  textValue: string | number | null;
+  textAreaContent: string;
+  yesNoValue: string;
 }
 
 type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
@@ -162,26 +185,32 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   const routeParams = { projectId, dmpId, versionedSectionId, versionedQuestionId };
 
-  // Question field states
+  // Question field states (excluding Research Output table)
   const [formData, setFormData] = useState<FormDataInterface>({
-    otherField: false,
     affiliationData: { affiliationName: '', affiliationId: '' },
-    otherAffiliationName: '',
-    selectedRadioValue: '',
-    numberValue: null,
-    urlValue: null,
-    emailValue: null,
-    textValue: null,
-    inputCurrencyValue: null,
-    selectedCheckboxValues: [],
-    yesNoValue: 'no',
-    textAreaContent: '',
-    selectedMultiSelectValues: new Set<string>(),
-    selectedSelectValue: undefined,
     dateValue: null,
     dateRange: { startDate: '', endDate: '' },
+    emailValue: null,
+    inputCurrencyValue: null,
+    otherField: false,
+    otherAffiliationName: '',
+    numberValue: null,
     numberRange: { startNumber: 0, endNumber: 0 },
+    selectedRadioValue: '',
+    selectedMultiSelectValues: new Set<string>(),
+    selectedSelectValue: undefined,
+    textValue: null,
+    textAreaContent: '',
+    selectedCheckboxValues: [],
+    urlValue: null,
+    yesNoValue: 'no',
   });
+
+  // Separate state for researchOutputTable since it's such a large structure
+  const [researchOutputRows, setResearchOutputRows] = useState<ResearchOutputTable[]>([]);
+  // Ref to track latest rows synchronously (to avoid stale closure issues)
+  const researchOutputRowsRef = useRef<ResearchOutputTable[]>([]);
+  const answerCreatedRef = useRef(false); // Track if answer was created in this session for update vs add
 
   // Form state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -197,10 +226,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const PlanOverview = useTranslations('PlanOverview');
   const t = useTranslations('PlanOverviewQuestionPage');
 
-
   /*GraphQL queries */
-
-  // Run selected question query
   const {
     data: selectedQuestion,
     loading: versionedQuestionLoading,
@@ -308,9 +334,19 @@ const PlanOverviewQuestionPage: React.FC = () => {
   });
 
   // Show Success Message
-  const showSuccessToast = () => {
-    const successMessage = t('messages.success.questionSaved');
-    toastState.add(successMessage, { type: 'success', timeout: 3000 });
+  const showSuccessToast = (type?: string) => {
+    if (type === 'save') {
+      const successMessage = t('messages.success.questionSaved');
+      toastState.add(successMessage, { type: 'success', timeout: 3000 });
+
+    } else if (type === 'delete') {
+      const successMessage = t('messages.success.questionDeleted');
+      toastState.add(successMessage, { type: 'success', timeout: 3000 });
+    } else {
+      const successMessage = t('messages.success.saved');
+      toastState.add(successMessage, { type: 'success', timeout: 3000 });
+    }
+
   }
 
   /*Handling Drawer Panels*/
@@ -545,105 +581,48 @@ const PlanOverviewQuestionPage: React.FC = () => {
     router.push(routePath('projects.dmp.versionedSection', { projectId, dmpId, versionedSectionId }))
   }
 
+  // Pass this save function to research output table so it can trigger a save
+  const saveResearchOutputs = async (rows: ResearchOutputTable[], type?: string) => {
+    // Clear hasUnsavedChanges immediately to cancel any pending auto-save effect
+    setHasUnsavedChanges(false);
+
+    // Cancel any pending auto-save since we're doing a manual save now
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+      autoSaveTimeoutRef.current = undefined;
+    }
+
+    // Update parent state with the latest rows data
+    setResearchOutputRows(rows);
+    // Also update ref for synchronous access
+    researchOutputRowsRef.current = rows;
+
+    // Show saving indicator
+    setIsAutoSaving(true);
+
+    try {
+      // Pass rows directly to addAnswer so it uses fresh data
+      const { success } = await addAnswer(false, rows);
+      if (success) {
+        setLastSavedAt(new Date());
+        showSuccessToast(type);
+      }
+    } finally {
+      // Always clear saving indicator
+      setIsAutoSaving(false);
+    }
+  };
+
+  // Keep ref in sync with state for research output rows
+  useEffect(() => {
+    researchOutputRowsRef.current = researchOutputRows;
+  }, [researchOutputRows]);
+
   // Prefill the current question with existing answer
   /*eslint-disable @typescript-eslint/no-explicit-any*/
   const prefillAnswer = (answer: any, type: string) => {
     switch (type) {
-      case 'text':
-        setFormData(prev => ({
-          ...prev,
-          textValue: answer
-        }));
-        break;
-      case 'textArea':
-        setFormData(prev => ({
-          ...prev,
-          textAreaContent: answer
-        }));
-        break;
-      case 'radioButtons':
-        setFormData(prev => ({
-          ...prev,
-          selectedRadioValue: answer
-        }));
-        break;
-      case 'checkBoxes':
-        setFormData(prev => ({
-          ...prev,
-          selectedCheckboxValues: answer
-        }));
-        break;
-      case 'selectBox':
-        setFormData(prev => ({
-          ...prev,
-          selectedSelectValue: answer
-        }));
-        break;
-      case 'multiselectBox':
-        setFormData(prev => ({
-          ...prev,
-          selectedMultiSelectValues: new Set(answer)
-        }));
-        break;
-      case 'boolean':
-        setFormData(prev => ({
-          ...prev,
-          yesNoValue: answer
-        }));
-        break;
-      case 'email':
-        setFormData(prev => ({
-          ...prev,
-          emailValue: answer
-        }));
-        break;
-      case 'url':
-        setFormData(prev => ({
-          ...prev,
-          urlValue: answer
-        }));
-        break;
-      case 'number':
-        setFormData(prev => ({
-          ...prev,
-          numberValue: answer
-        }));
-        break;
-      case 'currency':
-        setFormData(prev => ({
-          ...prev,
-          inputCurrencyValue: answer
-        }));
-        break;
-      case 'date':
-        setFormData(prev => ({
-          ...prev,
-          dateValue: answer
-        }));
-        break;
-      case 'dateRange':
-        if (answer?.start || answer?.end) {
-          setFormData(prev => ({
-            ...prev,
-            dateRange: {
-              startDate: answer?.start,
-              endDate: answer?.end
-            }
-          }));
-        }
-        break;
-      case 'numberRange':
-        if (answer?.start || answer?.end) {
-          setFormData(prev => ({
-            ...prev,
-            numberRange: {
-              startNumber: answer?.start,
-              endNumber: answer?.end
-            }
-          }));
-        }
-        break;
-      case 'affiliationSearch':
+      case TYPEAHEAD_QUESTION_TYPE:
         if (answer) {
           setFormData(prev => ({
             ...prev,
@@ -656,117 +635,296 @@ const PlanOverviewQuestionPage: React.FC = () => {
           }));
         }
         break;
+      case BOOLEAN_QUESTION_TYPE:
+        setFormData(prev => ({
+          ...prev,
+          yesNoValue: answer === true ? 'yes' : 'no'
+        }));
+        break;
+      case CHECKBOXES_QUESTION_TYPE:
+        setFormData(prev => ({
+          ...prev,
+          selectedCheckboxValues: answer
+        }));
+        break;
+      case CURRENCY_QUESTION_TYPE:
+        setFormData(prev => ({
+          ...prev,
+          inputCurrencyValue: answer
+        }));
+        break;
+      case DATE_QUESTION_TYPE:
+        setFormData(prev => ({
+          ...prev,
+          dateValue: answer
+        }));
+        break;
+      case DATE_RANGE_QUESTION_TYPE:
+        if (answer?.start || answer?.end) {
+          setFormData(prev => ({
+            ...prev,
+            dateRange: {
+              startDate: answer?.start,
+              endDate: answer?.end
+            }
+          }));
+        }
+        break;
+      case EMAIL_QUESTION_TYPE:
+        setFormData(prev => ({
+          ...prev,
+          emailValue: answer
+        }));
+        break;
+      case MULTISELECTBOX_QUESTION_TYPE:
+        setFormData(prev => ({
+          ...prev,
+          selectedMultiSelectValues: new Set(answer)
+        }));
+        break;
+      case NUMBER_QUESTION_TYPE:
+        setFormData(prev => ({
+          ...prev,
+          numberValue: answer
+        }));
+        break;
+      case NUMBER_RANGE_QUESTION_TYPE:
+        if (answer?.start || answer?.end) {
+          setFormData(prev => ({
+            ...prev,
+            numberRange: {
+              startNumber: answer?.start,
+              endNumber: answer?.end
+            }
+          }));
+        }
+        break;
+      case RADIOBUTTONS_QUESTION_TYPE:
+        setFormData(prev => ({
+          ...prev,
+          selectedRadioValue: answer
+        }));
+        break;
+      case RESEARCH_OUTPUT_QUESTION_TYPE:
+        if (answer && Array.isArray(answer)) {
+          setResearchOutputRows(answer);
+        } else {
+          // Initialize with empty row if no answer exists AND no rows exist yet
+          if (parsed?.type === RESEARCH_OUTPUT_QUESTION_TYPE) {
+            setResearchOutputRows(prev => {
+              if (prev.length > 0) return prev;
+              const emptyRow = createEmptyResearchOutputRow(parsed.columns);
+              return [emptyRow];
+            });
+          }
+        }
+        break;
+      case SELECTBOX_QUESTION_TYPE:
+        setFormData(prev => ({
+          ...prev,
+          selectedSelectValue: answer
+        }));
+        break;
+      case TEXT_FIELD_QUESTION_TYPE:
+        setFormData(prev => ({
+          ...prev,
+          textValue: answer
+        }));
+        break;
+      case TEXT_AREA_QUESTION_TYPE:
+        setFormData(prev => ({
+          ...prev,
+          textAreaContent: answer
+        }));
+        break;
+      case URL_QUESTION_TYPE:
+        setFormData(prev => ({
+          ...prev,
+          urlValue: answer
+        }));
+        break;
       default:
         break;
     }
   };
 
   // Get the answer for the question
-  const getAnswerJson = (): Record<string, any> => {
+  const getAnswerJson = (overrideRows?: ResearchOutputTable[]): Record<string, any> => {
     switch (questionType) {
-      case 'textArea':
+      case TEXT_AREA_QUESTION_TYPE:
         return {
-          type: 'textArea',
-          answer: formData.textAreaContent
+          type: TEXT_AREA_QUESTION_TYPE,
+          answer: formData.textAreaContent,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
-      case 'text':
+      case TEXT_FIELD_QUESTION_TYPE:
         return {
-          type: 'text',
-          answer: formData.textValue
+          type: TEXT_FIELD_QUESTION_TYPE,
+          answer: formData.textValue,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
-      case 'radioButtons':
+      case RADIOBUTTONS_QUESTION_TYPE:
         return {
-          type: 'radioButtons',
-          answer: formData.selectedRadioValue
+          type: RADIOBUTTONS_QUESTION_TYPE,
+          answer: formData.selectedRadioValue,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
-      case 'checkBoxes':
+      case CHECKBOXES_QUESTION_TYPE:
         return {
-          type: 'checkBoxes',
-          answer: formData.selectedCheckboxValues
+          type: CHECKBOXES_QUESTION_TYPE,
+          answer: formData.selectedCheckboxValues,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
-      case 'selectBox':
+      case SELECTBOX_QUESTION_TYPE:
         return {
-          type: 'selectBox',
-          answer: formData.selectedSelectValue
+          type: SELECTBOX_QUESTION_TYPE,
+          answer: formData.selectedSelectValue,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
-      case 'multiselectBox':
+      case MULTISELECTBOX_QUESTION_TYPE:
         return {
-          type: 'multiselectBox',
-          answer: Array.from(formData.selectedMultiSelectValues)
+          type: MULTISELECTBOX_QUESTION_TYPE,
+          answer: Array.from(formData.selectedMultiSelectValues),
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
-      case 'boolean':
+      case BOOLEAN_QUESTION_TYPE:
         return {
-          type: 'boolean',
-          answer: formData.yesNoValue
+          type: BOOLEAN_QUESTION_TYPE,
+          answer: formData.yesNoValue === 'yes',
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
-      case 'email':
+      case EMAIL_QUESTION_TYPE:
         return {
-          type: 'email',
-          answer: formData.emailValue
+          type: EMAIL_QUESTION_TYPE,
+          answer: formData.emailValue,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
-      case 'url':
+      case URL_QUESTION_TYPE:
         return {
-          type: 'url',
-          answer: formData.urlValue
+          type: URL_QUESTION_TYPE,
+          answer: formData.urlValue,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
-      case 'number':
+      case NUMBER_QUESTION_TYPE:
         return {
-          type: 'number',
-          answer: formData.numberValue
+          type: NUMBER_QUESTION_TYPE,
+          answer: formData.numberValue,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
-      case 'currency':
+      case CURRENCY_QUESTION_TYPE:
         return {
-          type: 'currency',
-          answer: formData.inputCurrencyValue
+          type: CURRENCY_QUESTION_TYPE,
+          answer: formData.inputCurrencyValue,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
-      case 'date':
+      case DATE_QUESTION_TYPE:
         return {
-          type: 'date',
-          answer: formData.dateValue?.toString()
+          type: DATE_QUESTION_TYPE,
+          answer: formData.dateValue?.toString(),
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
-      case 'dateRange':
+      case RESEARCH_OUTPUT_QUESTION_TYPE:
+        // Extract column headings from parsed question columns
+        const columnHeadings = parsed?.type === RESEARCH_OUTPUT_QUESTION_TYPE
+          ? [
+            ...parsed.columns.map(col => col.heading),
+            'Anticipated Release Date',
+            'Anticipated file size'
+          ]
+          : [];
+
+        // Use the most current data available: overrideRows > ref > state
+        const rowsToUse = overrideRows !== undefined ? overrideRows : (researchOutputRowsRef.current.length > 0 ? researchOutputRowsRef.current : researchOutputRows);
+
         return {
-          type: 'dateRange',
+          type: RESEARCH_OUTPUT_QUESTION_TYPE,
+          columnHeadings,
+          answer: rowsToUse,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
+        };
+
+      case DATE_RANGE_QUESTION_TYPE:
+
+        return {
+          type: DATE_RANGE_QUESTION_TYPE,
           answer: {
             start: formData.dateRange.startDate?.toString() ?? null,
             end: formData.dateRange.endDate?.toString() ?? null
+          },
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
           }
         };
 
-      case 'numberRange':
+      case NUMBER_RANGE_QUESTION_TYPE:
         return {
-          type: 'numberRange',
+          type: NUMBER_RANGE_QUESTION_TYPE,
           answer: {
             start: formData.numberRange.startNumber,
             end: formData.numberRange.endNumber
+          },
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
           }
         };
 
-      case 'affiliationSearch':
+      case TYPEAHEAD_QUESTION_TYPE:
         return {
-          type: 'affiliationSearch',
+          type: TYPEAHEAD_QUESTION_TYPE,
           answer: {
             affiliationId: formData.affiliationData.affiliationId,
             affiliationName: formData.otherField ? formData.otherAffiliationName : formData.affiliationData.affiliationName,
+          },
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
           }
         };
 
       default:
         return {
           type: questionType,
-          answer: formData.textAreaContent
+          answer: formData.textAreaContent,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
     }
   };
@@ -786,20 +944,25 @@ const PlanOverviewQuestionPage: React.FC = () => {
   };
 
   // Call Server Action updateAnswerAction or addAnswerAction to save answer
-  const addAnswer = async (isAutoSave = false) => {
+  const addAnswer = async (isAutoSave = false, overrideRows?: ResearchOutputTable[]) => {
     if (isAutoSave) {
       setIsAutoSaving(true);
     }
 
-    const jsonPayload = getAnswerJson();
-    // Check is answer already exists. If so, we want to call an update mutation rather than add
-    const isUpdate = Boolean(answerData?.answerByVersionedQuestionId);
+    const jsonPayload = getAnswerJson(overrideRows);
+
+    // Check if answer already exists. If so, we want to call an update mutation rather than add
+    // Use ref to track if answer was created in this session, since answerData query won't update immediately
+    const isUpdate = Boolean(answerData?.answerByVersionedQuestionId) || answerCreatedRef.current;
+
+    // Get the answer ID from either the query or the state (after first create)
+    const currentAnswerId = answerId || answerData?.answerByVersionedQuestionId?.id; // Very important because we have to make sure to apply the latest answer ID, otherwise addAnswerAction is called more than once for same id
 
     if (selectedQuestion) {
       try {
         const response = isUpdate
           ? await updateAnswerAction({
-            answerId: Number(answerData?.answerByVersionedQuestionId?.id),
+            answerId: Number(currentAnswerId),
             json: JSON.stringify(jsonPayload),
           })
           : await addAnswerAction({
@@ -811,6 +974,16 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
         if (response.redirect) {
           router.push(response.redirect);
+        }
+
+        // Track that answer was created so subsequent saves will use update
+        if (!isUpdate && response.success) {
+          // The answer ID is directly in response.data.id
+          const newAnswerId = response.data?.id;
+          if (newAnswerId) {
+            answerCreatedRef.current = true;
+            setAnswerId(newAnswerId);
+          }
         }
 
         return {
@@ -873,7 +1046,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       } else {
         setHasUnsavedChanges(false);
         // Show user a success message and redirect back to the Section page
-        showSuccessToast();
+        showSuccessToast('save');
         router.push(routePath('projects.dmp.versionedSection', { projectId, dmpId, versionedSectionId }))
       }
     }
@@ -881,7 +1054,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Helper function to format the last saved messaging
   const getLastSavedText = () => {
-
     if (isAutoSaving) {
       return `${Global('buttons.saving')}...`;
     }
@@ -905,7 +1077,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
   useEffect(() => {
     if (selectedQuestion) {
       const q = selectedQuestion.publishedQuestion;
-
       const cleanedQuestion = {
         ...q,
         required: q?.required ?? undefined // convert null to undefined
@@ -1022,9 +1193,14 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }, 3000);
 
     return () => clearTimeout(autoSaveTimeoutRef.current);
-  }, [formData, versionedQuestionId, versionedSectionId, question, hasUnsavedChanges]);
+  }, [formData, researchOutputRows, versionedQuestionId, versionedSectionId, question, hasUnsavedChanges]);
 
-
+  // Detect changes to research output rows to set hasUnsavedChanges
+  useEffect(() => {
+    if (researchOutputRows.length > 0 && questionType === RESEARCH_OUTPUT_QUESTION_TYPE) {
+      setHasUnsavedChanges(true);
+    }
+  }, [researchOutputRows, questionType]);
 
   // Auto-save on window blur and before unload
   useEffect(() => {
@@ -1075,6 +1251,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   useEffect(() => {
     setErrors((prevErrors) => [...prevErrors, ...commentErrors]);
   }, [commentErrors])
+
 
   // Render the question using the useRenderQuestionField helper
   const questionField = useRenderQuestionField({
@@ -1151,14 +1328,23 @@ const PlanOverviewQuestionPage: React.FC = () => {
       handleAffiliationChange,
       handleOtherAffiliationChange,
     },
+    researchOutputTableAnswerProps:
+      parsed?.type === RESEARCH_OUTPUT_QUESTION_TYPE
+        ? {
+          columns: parsed.columns,
+          rows: researchOutputRows,
+          setRows: setResearchOutputRows,
+          onSave: saveResearchOutputs,
+        }
+        : undefined,
   });
 
   if (versionedQuestionLoading || planQueryLoading || answerLoading) {
-    return <div>{Global('messaging.loading')}...</div>;
+    return <Loading />;
   }
 
   if (versionedQuestionError || planQueryError || answerError) {
-    return <div>{Global('messaging.somethingWentWrong')}</div>
+    return <div className="error">{Global('messaging.somethingWentWrong')}</div>
   }
 
   return (
@@ -1210,7 +1396,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
             </p>
             <Form onSubmit={handleSubmit}>
               <Card data-testid='question-card'>
-                <span>Question</span>
+                <span>{PlanOverview('headings.question')}</span>
                 <h2 id="question-title" className="h3">
                   {stripHtmlTags(question?.questionText)}
                 </h2>
@@ -1237,7 +1423,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 <div>
                   <div className={styles.buttonsRow}>
                     {/**Only include sample text button for textArea question types and if sampleText is not empty */}
-                    {(questionType === 'textArea' && question?.sampleText) && (
+                    {(questionType === TEXT_AREA_QUESTION_TYPE && question?.sampleText) && (
                       <Button
                         ref={openSampleTextButtonRef}
                         className="tertiary small"
@@ -1411,7 +1597,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
         {/** Sample text drawer. Only include for question types = Text Area */}
         {
-          questionType === 'textArea' && (
+          questionType === TEXT_AREA_QUESTION_TYPE && (
             <DrawerPanel
               isOpen={isSampleTextDrawerOpen}
               onClose={closeCurrentDrawer}

@@ -276,7 +276,8 @@
     "buttons": {
       "changeType": "Mudar os Tipos",
       "previewQuestion": "Pergunta de visualização",
-      "deleteQuestion": "Excluir questão"
+      "deleteQuestion": "Excluir questão",
+      "addOutput": "Adicionar saída"
     },
     "descriptions": {
       "sampleText": "Forneça um exemplo ou modelo de resposta esperada (opcional, mas recomendado)",
@@ -303,6 +304,7 @@
       "sampleText": "Texto de amostra"
     },
     "messages": {
+      "areYouSureYouWantToDelete": "Tem certeza de que deseja excluir esta saída de pesquisa?",
       "errors": {
         "questionTextRequired": "Conjunto de perguntas (obrigatório.",
         "questionUpdateError": "Erro ao criar a seção",
@@ -317,7 +319,13 @@
     "headings": {
       "bestPractice": "Melhores práticas da Ferramenta DMP",
       "deleteQuestion": "Apagar Pergunta",
-      "confirmDelete": "Confirmar exclusão?"
+      "confirmDelete": "Confirmar exclusão?",
+      "addResearchOutput": "Adicionar saída de pesquisa",
+      "editResearchOutput": "Editar saída de pesquisa"
+    },
+    "definitions": {
+      "type": "Tipo",
+      "repository": "Repositório"
     }
   },
   "QuestionOptionsComponent": {
@@ -371,7 +379,9 @@
       "addCustomAccessLevel": "Adicionar nível personalizado de acesso",
       "customTypeList": "Lista de tipos de saídas personalizados",
       "customAccessLevelList": "Lista de níveis de acesso personalizado",
-      "helpText": "Texto de Ajuda para {fieldName}"
+      "helpText": "Texto de Ajuda para {fieldName}",
+      "mayContainSensitiveData": "Pode conter dados sensíveis?",
+      "mayContainPersonalData": "Pode conter informações pessoalmente identificáveis?"
     },
     "buttons": {
       "addRow": "Adicionar linha",
@@ -386,10 +396,12 @@
       "questionText": "Mantenha a pergunta concisa e clara. Use os requisitos ou orientações para fornecer explicações adicionais.",
       "requirementText": "Use isto para instruções específicas sobre o que os pesquisadores precisam incluir em sua resposta, tais como as propriedades dos seus dados que devem listar.",
       "guidanceText": "Permita que os pesquisadores saibam como fornecer melhor respostas aos requisitos, tais como políticas para considerar de sua organização ou quais fatores considerar.",
-      "sampleText": "Os criadores de planos poderão copiar o texto da amostra para o campo como ponto de partida, para acelerar a entrada de conteúdo."
+      "sampleText": "Os criadores de planos poderão copiar o texto da amostra para o campo como ponto de partida, para acelerar a entrada de conteúdo.",
+      "dataFlags": "Marque todas as afirmações que são verdadeiras sobre o conjunto de dados"
     },
     "headings": {
-      "bestPractice": "Melhores práticas pela Ferramenta DMP"
+      "bestPractice": "Melhores práticas pela Ferramenta DMP",
+      "displayingRepositoriesStatus": "Exibindo repositórios {current} de {total}"
     },
     "messages": {
       "errors": {
@@ -428,10 +440,19 @@
         "requiredFields": "Esses campos são necessários para todas as saídas de pesquisa."
       },
       "labels": {
-        "description": "Descrição:",
+        "description": "Descrição",
         "descriptionLowerCase": "Descrição",
         "taxonomyURL": "URL de taxonomia",
-        "websiteURL": "Website URL"
+        "websiteURL": "URL do site",
+        "title": "Título",
+        "dataFlags": "Sinalizadores de dados",
+        "outputType": "Tipo de saída",
+        "repositories": "Repositórios",
+        "metadataStandards": "Padrões de metadados",
+        "licenses": "Licenças",
+        "initialAccessLevels": "Níveis de acesso iniciais",
+        "useCustomList": "Use lista personalizada",
+        "useDefaults": "Use padrões"
       },
       "legends": {
         "dataFlag": "Quais bandeiras de dados a exibir"
@@ -456,8 +477,8 @@
         },
         "descriptionLabel": "Descrição do campo Repositories",
         "messages": {
-          "removedRepo": "{name} removido",
-          "addedRepo": "{name} adicionado",
+          "removedItem": "{name} removido",
+          "addedItem": "{name} adicionado",
           "confirmRemoveAll": "Tem certeza que deseja remover todos os repositórios selecionados?",
           "allRemoved": "Todos os repositórios removidos",
           "customRepoAdded": "Repositório personalizado {name} adicionado com sucesso"
@@ -517,8 +538,8 @@
       "outputType": {
         "labels": {
           "defineOutputTypes": "Definir os tipos de saída",
-          "enterOutputType": "Enter type",
-          "typeDescription": "Type description",
+          "enterOutputType": "Digite o tipo",
+          "typeDescription": "Descrição do tipo",
           "removeOutputType": "Remover {type}"
         },
         "legends": {
@@ -562,18 +583,18 @@
           "helpText": "O rótulo que será exibido para este campo"
         },
         "helpText": {
-          "label": "Help text",
-          "helpText": "Optional help text to guide users. Max length 300 characters."
+          "label": "Texto de ajuda",
+          "helpText": "Texto de ajuda opcional para orientar os usuários. Comprimento máximo de 300 caracteres."
         },
         "maxLength": {
-          "label": "Maximum length",
-          "helpText": "Maximum number of characters allowed (leave empty for no limit)"
+          "label": "Comprimento máximo",
+          "helpText": "Número máximo de caracteres permitidos (deixe vazio para sem limite)"
         },
         "defaultValue": {
-          "label": "Default value",
-          "helpText": "Default value for this field"
+          "label": "Valor padrão",
+          "helpText": "Valor padrão para este campo"
         },
-        "addFieldBtn": "Add additional field"
+        "addFieldBtn": "Adicionar campo adicional"
       }
     }
   },

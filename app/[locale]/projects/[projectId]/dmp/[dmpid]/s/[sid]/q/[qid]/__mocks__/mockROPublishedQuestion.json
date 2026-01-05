@@ -1,0 +1,13 @@
+{
+  "publishedQuestion": {
+    "versionedQuestionId": 350,
+    "questionText": "Research Output Table question",
+    "json": "{\"type\":\"researchOutputTable\",\"columns\":[{\"heading\":\"Title\",\"required\":true,\"content\":{\"type\":\"text\",\"meta\":{\"schemaVersion\":\"1.0\"}}},{\"heading\":\"Description\",\"required\":true,\"content\":{\"type\":\"textArea\",\"meta\":{\"schemaVersion\":\"1.0\"}}}],\"meta\":{\"schemaVersion\":\"1.0\"}}",
+    "displayOrder": 1,
+    "required": false,
+    "guidanceText": "<p>Guidance for research output</p>",
+    "requirementText": "<p>Requirements for research output</p>",
+    "sampleText": null,
+    "useSampleTextAsDefault": false
+  }
+}

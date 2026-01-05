@@ -1,0 +1,62 @@
+{
+  "metadataStandards": {
+    "__typename": "MetadataStandardSearchResults",
+    "hasNextPage": true,
+    "currentOffset": 0,
+    "hasPreviousPage": false,
+    "limit": 5,
+    "nextCursor": null,
+    "totalCount": 51,
+    "availableSortFields": [
+      "m.name",
+      "m.created"
+    ],
+    "items": [
+      {
+        "__typename": "MetadataStandard",
+        "id": 28,
+        "errors": null,
+        "name": "Terminal RI Unicamp",
+        "uri": "https://repositorio.unicamp.br/",
+        "description": "Institutional Repository from Unicamp",
+        "keywords": null
+      },
+      {
+        "__typename": "MetadataStandard",
+        "id": 18,
+        "errors": null,
+        "name": "STAC 1.2.0",
+        "uri": "https://stac-extensions.github.io/version/v1.2.0/schema.json",
+        "description": "STAC Versioning Indicators Extension for STAC Items and STAC Collections.",
+        "keywords": null
+      },
+      {
+        "__typename": "MetadataStandard",
+        "id": 33,
+        "errors": null,
+        "name": "Sintomas osteomusculares",
+        "uri": "https://prpi.usp.br/gestao-de-dados-cientificos/?codmnu=9979",
+        "description": "Gestão de dados científicos",
+        "keywords": null
+      },
+      {
+        "__typename": "MetadataStandard",
+        "id": 25,
+        "errors": null,
+        "name": "schema.org",
+        "uri": "https://rdamsc.bath.ac.uk/api2/m101",
+        "description": " Schema.org is a collaborative, community activity with a mission to create, maintain, and promote schemas for structured data on the Internet, on web pages, in email messages, and beyond. Schema.org vocabulary can be used with many different encodings",
+        "keywords": null
+      },
+      {
+        "__typename": "MetadataStandard",
+        "id": 7,
+        "errors": null,
+        "name": "REDCap Metadata & Data Dictionary",
+        "uri": "https://project-redcap.org",
+        "description": " REDCap metadata includes structured definitions of survey instruments, field attributes, variable names, branching logic, and event mappings. The data dictionary provides a CSV-formatted file that defines all variables used in the survey, supporting repr",
+        "keywords": null
+      }
+    ]
+  }
+}

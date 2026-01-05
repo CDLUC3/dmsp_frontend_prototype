@@ -1,6 +1,8 @@
+import React, { Dispatch, SetStateAction } from 'react';
 import { CalendarDate, DateValue } from "@internationalized/date";
 import { useTranslations } from "next-intl";
 
+import { DefaultResearchOutputTableQuestion } from '@dmptool/types';
 import {
   RADIOBUTTONS_QUESTION_TYPE,
   CHECKBOXES_QUESTION_TYPE,
@@ -16,6 +18,7 @@ import {
   EMAIL_QUESTION_TYPE,
   BOOLEAN_QUESTION_TYPE,
   TYPEAHEAD_QUESTION_TYPE, MULTISELECTBOX_QUESTION_TYPE,
+  RESEARCH_OUTPUT_QUESTION_TYPE
 } from '@/lib/constants';
 
 import {
@@ -27,19 +30,21 @@ import {
   NumberRangeQuestionComponent,
   CurrencyQuestionComponent,
   AffiliationSearchQuestionComponent,
-  BooleanQuestionComponent
+  BooleanQuestionComponent,
 } from '@/components/Form/QuestionComponents';
 
 import {
   DateComponent,
   FormInput,
   NumberComponent,
+  ResearchOutputAnswerComponent
 } from '@/components/Form';
 
 import logECS from '@/utils/clientLogger';
 
 import {
-  Question
+  Question,
+  ResearchOutputTable,
 } from '@/app/types';
 
 import TinyMCEEditor from '@/components/TinyMCEEditor';
@@ -51,6 +56,7 @@ import { QuestionTypeMap } from '@dmptool/types';
 export type QuestionType = keyof QuestionTypeMap;
 
 export type ParsedQuestion = QuestionTypeMap[QuestionType];
+
 
 export interface RenderQuestionFieldProps {
   questionType: string;
@@ -141,6 +147,13 @@ export interface RenderQuestionFieldProps {
     handleAffiliationChange: (id: string, value: string) => Promise<void>
     handleOtherAffiliationChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   };
+
+  researchOutputTableAnswerProps?: {
+    columns: typeof DefaultResearchOutputTableQuestion['columns'];
+    rows: ResearchOutputTable[];
+    setRows: Dispatch<SetStateAction<ResearchOutputTable[]>>
+    onSave?: (rows: ResearchOutputTable[], type?: string) => Promise<void>;
+  };
 }
 
 export function useRenderQuestionField({
@@ -160,8 +173,8 @@ export function useRenderQuestionField({
   urlProps,
   emailProps,
   booleanProps,
-  typeaheadSearchProps
-
+  typeaheadSearchProps,
+  researchOutputTableAnswerProps,
 }: RenderQuestionFieldProps) {
   const Global = useTranslations('Global');
 
@@ -389,6 +402,20 @@ export function useRenderQuestionField({
             setOtherField={typeaheadSearchProps.setOtherField}
             handleAffiliationChange={typeaheadSearchProps.handleAffiliationChange}
             handleOtherAffiliationChange={typeaheadSearchProps.handleOtherAffiliationChange}
+          />
+        );
+      }
+      break;
+
+    case RESEARCH_OUTPUT_QUESTION_TYPE:
+      if (parsed.type === 'researchOutputTable' && researchOutputTableAnswerProps) {
+
+        return (
+          <ResearchOutputAnswerComponent
+            columns={parsed.columns}
+            rows={researchOutputTableAnswerProps?.rows}
+            setRows={researchOutputTableAnswerProps?.setRows}
+            onSave={researchOutputTableAnswerProps?.onSave}
           />
         );
       }
