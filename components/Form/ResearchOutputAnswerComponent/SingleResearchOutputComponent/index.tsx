@@ -50,7 +50,6 @@ import {
 } from '@/lib/constants';
 import { defaultAccessLevels } from '@/utils/researchOutputTable';
 import { getCalendarDateValue } from '@/utils/dateUtils';
-import { createEmptyResearchOutputRow } from '@/utils/researchOutputTransformations';
 import styles from '../researchOutputAnswer.module.scss';
 
 type ResearchOutputAnswerComponentProps = {
