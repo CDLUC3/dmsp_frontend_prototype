@@ -9,6 +9,7 @@ import {
   Heading,
   Input,
   Label,
+  Link,
   ListBoxItem,
   Modal,
   SearchField,
@@ -361,7 +362,7 @@ const RepoSelectorForAnswer = ({
                 <Button
                   onClick={removeAllRepos}
                   isDisabled={selectedCount === 0}
-                  className="medium secondary"
+                  className={`${styles.removeBtn} medium secondary`}
                 >
                   {Global('buttons.removeAll')}
                 </Button>
@@ -376,14 +377,14 @@ const RepoSelectorForAnswer = ({
                     <div className={styles.itemHeader}>
                       <div className={styles.itemContent}>
                         <div className={styles.itemTitle}>{repo.name}
-                          <a
-                            href={repo.website}
+                          <Link
+                            href={repo.uri}
                             target="_blank"
                             rel="noopener noreferrer"
                             className={styles.itemLink}
                           >
                             {QuestionAdd('researchOutput.repoSelector.links.viewRepository')} →
-                          </a>
+                          </Link>
                         </div>
                       </div>
                       <Button

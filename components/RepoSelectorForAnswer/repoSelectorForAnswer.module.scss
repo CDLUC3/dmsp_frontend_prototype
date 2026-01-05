@@ -10,6 +10,19 @@
   background: var(--slate-100);
   border-radius: 6px;
   min-height: 100px;
+
+  .removeBtn {
+    &:active:not(:disabled):not(:hover),
+    &[data-pressed]:not(:disabled):not(:hover) {
+      background: var(--bg-white) !important;
+    }
+    
+    &:hover:not(:disabled) {
+      background: var(--blue-500) !important;
+      color: #fff !important;
+      box-shadow: 0 0 0 2px var(--blue-500) inset !important;
+    }
+  }
 }
 
 .selectedItemsHeader {
