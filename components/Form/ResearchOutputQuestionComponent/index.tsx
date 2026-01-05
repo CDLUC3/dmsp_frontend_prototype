@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
 'use client'
 
-import { Button, Checkbox, Radio } from "react-aria-components";
+import { Button, Checkbox } from "react-aria-components";
 import { useTranslations } from 'next-intl';
-import { FormInput, RadioGroupComponent } from '@/components/Form';
+import { FormInput } from '@/components/Form';
 import RepositorySelectionSystem from '@/components/QuestionAdd/ReposSelector';
 import MetaDataStandards from '@/components/QuestionAdd/MetaDataStandards';
 import OutputTypeField from '@/components/QuestionAdd/OutputTypeField';
@@ -161,48 +161,64 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                     )}
 
                     {/** Data Flags Configuration */}
-                    {field.id === 'dataFlags' && (
+                    {field.id === 'dataFlags' && field.content && field.content.type === 'checkBoxes' && (
                       <div style={{ marginBottom: '1.5rem' }}>
                         <fieldset>
                           <legend>{QuestionAdd('researchOutput.legends.dataFlag')}</legend>
                           <div className={styles.dataFlagsConfig}>
-                            <RadioGroupComponent
-                              name="dataFlagsMode"
-                              value={field.flagsConfig?.mode || 'both'}
-                              radioGroupLabel={QuestionAdd('researchOutput.dataFlags.description')}
-                              onChange={(mode) => onUpdateStandardFieldProperty('dataFlags', 'flagsConfig', {
-                                ...field.flagsConfig,
-                                mode,
-                                showSensitiveData: mode === 'sensitiveOnly' || mode === 'both',
-                                showPersonalData: mode === 'personalOnly' || mode === 'both'
-                              })}
-                            >
-                              <div>
-                                <Radio value="sensitiveOnly">{QuestionAdd('researchOutput.dataFlags.options.sensitiveOnly')}</Radio>
+                            {field.content.options.map((option, index) => (
+                              <div key={`${option.value}-${index}`} style={{ marginBottom: '0.5rem' }}>
+                                <Checkbox
+                                  isSelected={option.checked}
+                                  onChange={(isSelected) => {
+                                    if (field.content?.type === 'checkBoxes') {
+                                      const updatedOptions = [...field.content.options];
+                                      updatedOptions[index] = { ...option, checked: isSelected };
+                                      onUpdateStandardFieldProperty('dataFlags', 'content', {
+                                        ...field.content,
+                                        options: updatedOptions
+                                      });
+                                    }
+                                  }}
+                                >
+                                  <div className="checkbox">
+                                    <svg viewBox="0 0 18 18" aria-hidden="true">
+                                      <polyline points="1 9 7 14 15 4" />
+                                    </svg>
+                                  </div>
+                                  <span>{option.label}</span>
+                                </Checkbox>
                               </div>
-                              <div>
-                                <Radio value="personalOnly">{QuestionAdd('researchOutput.dataFlags.options.personalOnly')}</Radio>
-                              </div>
-                              <div>
-                                <Radio value="both">{QuestionAdd('researchOutput.dataFlags.options.both')}</Radio>
-                              </div>
-                            </RadioGroupComponent>
+                            ))}
                           </div>
                         </fieldset>
                       </div>
                     )}
 
+
                     {/** Output Type Configuration */}
                     {field.id === 'outputType' && (
-                      <OutputTypeField
-                        field={field}
-                        defaultResearchOutputTypesData={defaultResearchOutputTypesData}
-                        newOutputType={newOutputType}
-                        setNewOutputType={setNewOutputType}
-                        onModeChange={onOutputTypeModeChange}
-                        onAddCustomType={onAddCustomOutputType}
-                        onRemoveCustomType={onRemoveCustomOutputType}
-                      />
+                      <>
+                        <OutputTypeField
+                          field={field}
+                          defaultResearchOutputTypesData={defaultResearchOutputTypesData}
+                          newOutputType={newOutputType}
+                          setNewOutputType={setNewOutputType}
+                          onModeChange={onOutputTypeModeChange}
+                          onAddCustomType={onAddCustomOutputType}
+                          onRemoveCustomType={onRemoveCustomOutputType}
+                        />
+                        <FormInput
+                          name="outputTypeHelpText"
+                          type="text"
+                          isRequired={false}
+                          label={QuestionAdd('labels.helpText', { fieldName: field.label })}
+                          value={field.helpText || ''}
+                          onChange={(e) => onUpdateStandardFieldProperty('outputType', 'helpText', e.currentTarget.value)}
+                          helpMessage={QuestionAdd('researchOutput.helpText')}
+                          maxLength={300}
+                        />
+                      </>
                     )}
 
                     {/** Repository Selector */}
@@ -311,7 +327,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                   <div className={styles.fieldRow}>
                     <Checkbox
                       isSelected={field.enabled}
-                      onChange={(isSelected) => onStandardFieldChange(field.id, isSelected)}
+                      onChange={(isSelected) => onUpdateAdditionalField(field.id, 'enabled', isSelected)}
                     >
                       <div className="checkbox">
                         <svg viewBox="0 0 18 18" aria-hidden="true">
@@ -335,7 +351,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                         type="button"
                         className={`buttonLink link ${styles.deleteButton}`}
                         onPress={() => onDeleteAdditionalField(field.id)}
-                        aria-label={Global('buttons.deleteLabel', { item: field.customLabel || field.label })}
+                        aria-label={Global('buttons.delete', { item: field.customLabel || field.label })}
                       >
                         {Global('buttons.delete')}
                       </Button>

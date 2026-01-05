@@ -36,6 +36,7 @@ import mockQuestionDataForTextField from '@/__mocks__/common/mockPublishedQuesti
 import mockQuestionDataForTypeAheadSearch from '@/__mocks__/common/mockPublishedQuestionDataForAffiliationSearch.json';
 import mockQuestionDataForURL from '@/__mocks__/common/mockPublishedQuestionDataForURL.json';
 import mockOtherQuestion from '../__mocks__/mockOtherQuestionData.json';
+import mockQuestionDataForResearchOutput from '../__mocks__/mockROPublishedQuestion.json';
 
 // Mocked answer data
 import mockAnswerDataForTextField from '@/__mocks__/common/mockAnswerDataForTextField.json';
@@ -54,6 +55,7 @@ import mockAnswerDataForRadioButton from '@/__mocks__/common/mockAnswerDataForRa
 import mockAnswerDataForTextArea from '@/__mocks__/common/mockAnswerDataForTextArea.json';
 import mockCheckboxAnswer from '../__mocks__/mockCheckboxAnswer.json';
 import mockOtherAnswerData from '../__mocks__/mockOtherAnswerData.json'
+import mockAnswerDataForResearchOutput from '../__mocks__/mockROAnswer.json';
 
 import { mockScrollIntoView } from "@/__mocks__/common";
 import PlanOverviewQuestionPage from "../page";
@@ -106,6 +108,28 @@ jest.mock('../hooks/useComments', () => {
     useComments: mockUseComments,
   };
 });
+
+// Mock the ResearchOutputAnswerComponent
+jest.mock('@/components/Form/ResearchOutputAnswerComponent', () => ({
+  __esModule: true,
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  default: ({ columns, rows, setRows, onSave, columnHeadings }: any) => (
+    <div data-testid="research-output-table">
+      <div data-testid="column-count">{columns.length}</div>
+      <div data-testid="row-count">{rows.length}</div>
+      <div data-testid="heading-count">{columnHeadings?.length || 0}</div>
+      <button
+        onClick={() => {
+          // Simulate adding a row
+          setRows([...rows, { columns: [] }]);
+        }}
+      >
+        Add Output
+      </button>
+      <button onClick={() => onSave?.('save')}>Save Output</button>
+    </div>
+  ),
+}));
 
 beforeEach(() => {
   const affiliationQuery = `
@@ -1028,10 +1052,9 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 20,
-        json: "{\"type\":\"affiliationSearch\",\"answer\":{\"affiliationId\":\"https://ror.org/0168r3w48\",\"affiliationName\":\"UCOP\"}}"
+        json: "{\"type\":\"affiliationSearch\",\"answer\":{\"affiliationId\":\"https://ror.org/0168r3w48\",\"affiliationName\":\"UCOP\"},\"meta\":{\"schemaVersion\":\"1.0\"}}",
       });
     });
-
   })
 
   it('should call updateAnswerAction with correct data for checkbox', async () => {
@@ -1054,7 +1077,7 @@ describe('Call to updateAnswerAction', () => {
           general: null,
         },
         id: 27,
-        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}",
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"],\"meta\":{\"schemaVersion\":\"1.0\"}}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -1084,7 +1107,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 27,
-        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\"]}"
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\"],\"meta\":{\"schemaVersion\":\"1.0\"}}"
       });
     });
   });
@@ -1121,7 +1144,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 5,
-        json: "{\"type\":\"radioButtons\",\"answer\":\"No\"}"
+        json: "{\"type\":\"radioButtons\",\"answer\":\"No\",\"meta\":{\"schemaVersion\":\"1.0\"}}"
       });
     });
   });
@@ -1161,7 +1184,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 21,
-        json: "{\"type\":\"text\",\"answer\":\"New input value\"}"
+        json: "{\"type\":\"text\",\"answer\":\"New input value\",\"meta\":{\"schemaVersion\":\"1.0\"}}"
       });
     });
   })
@@ -1201,7 +1224,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 16,
-        json: "{\"type\":\"dateRange\",\"answer\":{\"start\":\"2025-05-15\",\"end\":\"2025-07-05\"}}"
+        json: "{\"type\":\"dateRange\",\"answer\":{\"start\":\"2025-05-15\",\"end\":\"2025-07-05\"},\"meta\":{\"schemaVersion\":\"1.0\"}}"
       });
     });
   })
@@ -1242,7 +1265,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 15,
-        json: "{\"type\":\"date\",\"answer\":\"2025-07-15\"}"
+        json: "{\"type\":\"date\",\"answer\":\"2025-07-15\",\"meta\":{\"schemaVersion\":\"1.0\"}}"
       });
     });
   })
@@ -1284,7 +1307,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 14,
-        json: "{\"type\":\"boolean\",\"answer\":\"no\"}"
+        json: "{\"type\":\"boolean\",\"answer\":false,\"meta\":{\"schemaVersion\":\"1.0\"}}"
       });
     });
   })
@@ -1320,7 +1343,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 13,
-        json: "{\"type\":\"url\",\"answer\":\"https://ucop.edu\"}"
+        json: "{\"type\":\"url\",\"answer\":\"https://ucop.edu\",\"meta\":{\"schemaVersion\":\"1.0\"}}"
       });
     });
   })
@@ -1355,7 +1378,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 12,
-        json: "{\"type\":\"email\",\"answer\":\"test@example.com\"}"
+        json: "{\"type\":\"email\",\"answer\":\"test@example.com\",\"meta\":{\"schemaVersion\":\"1.0\"}}"
       });
     });
   })
@@ -1419,7 +1442,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 4,
-        json: "{\"type\":\"textArea\",\"answer\":\"This is the text area content\"}"
+        json: "{\"type\":\"textArea\",\"answer\":\"This is the text area content\",\"meta\":{\"schemaVersion\":\"1.0\"}}"
       });
     });
   });
@@ -1457,7 +1480,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 11,
-        json: "{\"type\":\"currency\",\"answer\":15}"
+        json: "{\"type\":\"currency\",\"answer\":15,\"meta\":{\"schemaVersion\":\"1.0\"}}"
       });
     });
   })
@@ -1494,7 +1517,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 10,
-        json: "{\"type\":\"numberRange\",\"answer\":{\"start\":2,\"end\":10}}"
+        json: "{\"type\":\"numberRange\",\"answer\":{\"start\":2,\"end\":10},\"meta\":{\"schemaVersion\":\"1.0\"}}"
       });
     });
   })
@@ -1530,7 +1553,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 9,
-        json: "{\"type\":\"number\",\"answer\":3}"
+        json: "{\"type\":\"number\",\"answer\":3,\"meta\":{\"schemaVersion\":\"1.0\"}}"
       });
     });
   })
@@ -1566,7 +1589,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 18,
-        json: "{\"type\":\"multiselectBox\",\"answer\":[\"Banana\",\"Pear\",\"Orange\",\"Apple\"]}"
+        json: "{\"type\":\"multiselectBox\",\"answer\":[\"Banana\",\"Pear\",\"Orange\",\"Apple\"],\"meta\":{\"schemaVersion\":\"1.0\"}}"
       });
     });
   })
@@ -1605,7 +1628,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 30,
-        json: "{\"type\":\"selectBox\",\"answer\":\"California\"}"
+        json: "{\"type\":\"selectBox\",\"answer\":\"California\",\"meta\":{\"schemaVersion\":\"1.0\"}}"
       });
     });
   })
@@ -1631,7 +1654,7 @@ describe('Call to updateAnswerAction', () => {
           general: null,
         },
         id: 27,
-        json: "{\"type\":\"textArea\",\"answer\":\"This is a test\"}",
+        json: "{\"type\":\"textArea\",\"answer\":\"This is a test\",\"meta\":{\"schemaVersion\":\"1.0\"}}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -1701,7 +1724,7 @@ describe('Call to updateAnswerAction', () => {
           versionedQuestionId: 'versionedQuestionId already exists'
         },
         id: 27,
-        json: "{\"type\":\"textArea\",\"answer\":\"This is a test\"}",
+        json: "{\"type\":\"textArea\",\"answer\":\"This is a test\",\"meta\":{\"schemaVersion\":\"1.0\"}}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -1775,7 +1798,7 @@ describe('Call to updateAnswerAction', () => {
           versionedQuestionId: 'versionedQuestionId already exists'
         },
         id: 27,
-        json: "{\"type\":\"textArea123\",\"answer\":\"This is a test\"}",
+        json: "{\"type\":\"textArea123\",\"answer\":\"This is a test\",\"meta\":{\"schemaVersion\":\"1.0\"}}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -1851,7 +1874,7 @@ describe('Call to addAnswerAction', () => {
           general: null,
         },
         id: 27,
-        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}",
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"],\"meta\":{\"schemaVersion\":\"1.0\"}}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -1883,7 +1906,7 @@ describe('Call to addAnswerAction', () => {
         planId: 1,
         versionedSectionId: 22,
         versionedQuestionId: 344,
-        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}"
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"],\"meta\":{\"schemaVersion\":\"1.0\"}}"
       });
     });
   });
@@ -2326,4 +2349,203 @@ describe('Auto save', () => {
 
     setTimeoutSpy.mockRestore();
   });
+
+  describe('PlanOverviewQuestionPage - Research Output Table', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+
+      window.tinymce = {
+        init: jest.fn(),
+        remove: jest.fn(),
+      };
+
+      mockUseParams.mockReturnValue({ projectId: 1, dmpid: 1, sid: 22, qid: 344 });
+      mockUseRouter.mockReturnValue({
+        push: jest.fn(),
+      });
+
+      (useMeQuery as jest.Mock).mockReturnValue({
+        data: mockMeData,
+        loading: false,
+        error: undefined
+      });
+
+      mockUseComments.mockReturnValue(defaultMockReturn);
+
+      (usePlanQuery as jest.Mock).mockReturnValue({
+        data: mockPlanData,
+        loading: false,
+        error: undefined,
+      });
+
+      (useGuidanceGroupsQuery as jest.Mock).mockReturnValue({
+        data: mockGuidanceGroupsData,
+        loading: false,
+        error: undefined,
+      });
+    });
+
+    it('should load correct question content for research output table question', async () => {
+      (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
+        data: mockQuestionDataForResearchOutput,
+        loading: false,
+        error: undefined,
+      });
+
+      (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+        data: null,
+        loading: false,
+        error: undefined,
+      });
+
+      await act(async () => {
+        render(<PlanOverviewQuestionPage />);
+      });
+
+      expect(screen.getByRole('heading', { level: 2, name: 'Research Output Table question' })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
+
+      const researchOutputTable = screen.getByTestId('research-output-table');
+      expect(researchOutputTable).toBeInTheDocument();
+
+      // Check that columns are rendered
+      expect(screen.getByTestId('column-count')).toHaveTextContent('2');
+    });
+
+    it('should call updateAnswerAction with correct data for research output table', async () => {
+      (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
+        data: mockQuestionDataForResearchOutput,
+        loading: false,
+        error: undefined,
+      });
+
+      (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+        data: mockAnswerDataForResearchOutput,
+        loading: false,
+        error: undefined,
+      });
+
+      (updateAnswerAction as jest.Mock).mockResolvedValue({
+        success: true,
+        data: {
+          errors: { general: null },
+          id: 25,
+          json: '{"type":"researchOutputTable","columnHeadings":["Title","Description","Anticipated Release Date","Anticipated file size"],"answer":[{"columns":[{"type":"text","answer":"My Dataset","meta":{"schemaVersion":"1.0"}},{"type":"textArea","answer":"Updated description","meta":{"schemaVersion":"1.0"}}]}]}',
+          modified: "1735000000000",
+          versionedQuestion: {
+            versionedSectionId: 22
+          }
+        },
+      });
+
+      await act(async () => {
+        render(<PlanOverviewQuestionPage />);
+      });
+
+      // Simulate adding a row
+      const addButton = screen.getByText('Add Output');
+      await act(async () => {
+        fireEvent.click(addButton);
+      });
+
+      // Click the main save button
+      const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+      await act(async () => {
+        fireEvent.click(saveBtn);
+      });
+
+      await waitFor(() => {
+        expect(updateAnswerAction).toHaveBeenCalled();
+        const callArgs = (updateAnswerAction as jest.Mock).mock.calls[0][0];
+        expect(callArgs.answerId).toBe(25);
+        const parsedJson = JSON.parse(callArgs.json);
+        expect(parsedJson.type).toBe('researchOutputTable');
+        expect(parsedJson.columnHeadings).toBeDefined();
+        expect(Array.isArray(parsedJson.answer)).toBe(true);
+      });
+    });
+
+    it('should call addAnswerAction when creating new research output table answer', async () => {
+      (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
+        data: mockQuestionDataForResearchOutput,
+        loading: false,
+        error: undefined,
+      });
+
+      (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+        data: null,
+        loading: false,
+        error: undefined,
+      });
+
+      (addAnswerAction as jest.Mock).mockResolvedValue({
+        success: true,
+        data: {
+          errors: { general: null },
+          id: 26,
+          json: '{"type":"researchOutputTable","columnHeadings":["Title","Description","Anticipated Release Date","Anticipated file size"],"answer":[]}',
+          modified: "1735000000000",
+          versionedQuestion: {
+            versionedSectionId: 22
+          }
+        },
+      });
+
+      await act(async () => {
+        render(<PlanOverviewQuestionPage />);
+      });
+
+      const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+      await act(async () => {
+        fireEvent.click(saveBtn);
+      });
+
+      await waitFor(() => {
+        expect(addAnswerAction).toHaveBeenCalledWith({
+          planId: 1,
+          versionedSectionId: 22,
+          versionedQuestionId: 344,
+          json: expect.stringContaining('"type":"researchOutputTable"')
+        });
+      });
+    });
+
+    it('should trigger onSave callback when research output table internal save is called', async () => {
+      (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
+        data: mockQuestionDataForResearchOutput,
+        loading: false,
+        error: undefined,
+      });
+
+      (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+        data: mockAnswerDataForResearchOutput,
+        loading: false,
+        error: undefined,
+      });
+
+      (updateAnswerAction as jest.Mock).mockResolvedValue({
+        success: true,
+        data: {
+          errors: { general: null },
+        },
+      });
+
+      await act(async () => {
+        render(<PlanOverviewQuestionPage />);
+      });
+
+      // Click the internal save button in the research output component
+      const internalSaveBtn = screen.getByText('Save Output');
+      await act(async () => {
+        fireEvent.click(internalSaveBtn);
+      });
+
+      await waitFor(() => {
+        expect(updateAnswerAction).toHaveBeenCalled();
+      });
+    });
+  });
 });
+
+

@@ -684,7 +684,8 @@ describe("QuestionView", () => {
       },
       type: "boolean",
       attributes: {
-        checked: false
+        label: "Boolean Question",
+        value: false
       }
     };
     const mockQuestionWithBooleanField = { ...mockQuestion, json: JSON.stringify(json) };

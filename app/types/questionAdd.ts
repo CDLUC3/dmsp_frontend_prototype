@@ -1,4 +1,9 @@
 import { LicensesQuery } from '@/generated/graphql';
+import {
+  AnyTableColumnQuestionType,
+  ResearchOutputTableAnswerType
+} from '@dmptool/types';
+
 
 export type DataFlagsConfig = {
   showSensitiveData: boolean;
@@ -19,13 +24,28 @@ export type MetaDataConfig = {
 export type StandardField = {
   id: string;
   label: string;
+  languageTranslationKey?: string;
   enabled: boolean;
   required?: boolean;
+  heading?: string;
   defaultValue?: string;
   placeholder?: string;
   helpText?: string;
   maxLength?: string;
+  content?: AnyTableColumnQuestionType;
   value?: string;
+  byteSizeConfig?: {
+    selectedUnit: 'bytes' | 'kb' | 'mb' | 'gb' | 'tb' | 'pb';
+    availableUnits: {
+      label: string;
+      value: 'bytes' | 'kb' | 'mb' | 'gb' | 'tb' | 'pb';
+      selected: boolean;
+    }[];
+  };
+  byteSizeFieldConfig?: {
+    enabled: boolean;
+    maxByteSize: number;
+  };
   customLabel?: string; // For additional custom fields
   licensesConfig?: LicensesConfig;
   accessLevelsConfig?: {
@@ -67,10 +87,10 @@ export interface RepositoryFieldInterface {
 }
 
 export interface MetaDataStandardInterface {
-  id?: number;
+  id?: number | string;
   name: string;
-  description?: string;
   uri: string;
+  description?: string;
 }
 
 export interface MetaDataStandardFieldInterface {
@@ -78,10 +98,20 @@ export interface MetaDataStandardFieldInterface {
   label: string;
   enabled: boolean;
   helpText?: string;
+  value?: string;
   metaDataConfig: {
     hasCustomStandards: boolean;
     customStandards: MetaDataStandardInterface[];
   }
+}
+
+export interface LicensesFieldInterface {
+  id: string;
+  label: string;
+  enabled: boolean;
+  defaultValue?: string;
+  helpText?: string;
+  licensesConfig: LicensesConfig;
 }
 
 export type LicensesConfig = {
@@ -89,6 +119,10 @@ export type LicensesConfig = {
   selectedDefaults: string[];
   customTypes: { name: string; uri: string }[];
 };
+
+// Use the row structure from @dmptool/types
+// This is the type of each element in ResearchOutputTableAnswerType['answer']
+export type ResearchOutputTable = ResearchOutputTableAnswerType['answer'][number];
 
 export type AccessLevelsConfig = {
   mode: 'defaults' | 'addToDefaults';
@@ -119,6 +153,7 @@ export interface AccessLevelInterface {
   label: string;
   value: string;
   description?: string;
+  selected: boolean;
 }
 
 export interface OutputTypeFieldConfigProps {
@@ -128,4 +163,14 @@ export interface OutputTypeFieldConfigProps {
   onModeChange: (mode: 'defaults' | 'mine') => void;
   onAddCustomType: () => void;
   onRemoveCustomType: (type: string) => void;
+}
+
+export type AdditionalFieldsType = {
+  id: string;
+  label: string;
+  enabled: boolean;
+  defaultValue: string;
+  customLabel: string;
+  helpText: string;
+  maxLength: string;
 }

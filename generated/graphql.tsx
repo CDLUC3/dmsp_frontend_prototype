@@ -5059,7 +5059,9 @@ export type RecommendedLicensesQueryVariables = Exact<{
 
 export type RecommendedLicensesQuery = { __typename?: 'Query', recommendedLicenses?: Array<{ __typename?: 'License', name: string, id?: number | null, uri: string } | null> | null };
 
-export type LicensesQueryVariables = Exact<{ [key: string]: never; }>;
+export type LicensesQueryVariables = Exact<{
+  paginationOptions?: InputMaybe<PaginationOptions>;
+}>;
 
 
 export type LicensesQuery = { __typename?: 'Query', licenses?: { __typename?: 'LicenseSearchResults', items?: Array<{ __typename?: 'License', id?: number | null, name: string, uri: string, recommended: boolean } | null> | null } | null };
@@ -8530,8 +8532,8 @@ export type RecommendedLicensesLazyQueryHookResult = ReturnType<typeof useRecomm
 export type RecommendedLicensesSuspenseQueryHookResult = ReturnType<typeof useRecommendedLicensesSuspenseQuery>;
 export type RecommendedLicensesQueryResult = Apollo.QueryResult<RecommendedLicensesQuery, RecommendedLicensesQueryVariables>;
 export const LicensesDocument = gql`
-    query Licenses {
-  licenses {
+    query Licenses($paginationOptions: PaginationOptions) {
+  licenses(paginationOptions: $paginationOptions) {
     items {
       id
       name
@@ -8554,6 +8556,7 @@ export const LicensesDocument = gql`
  * @example
  * const { data, loading, error } = useLicensesQuery({
  *   variables: {
+ *      paginationOptions: // value for 'paginationOptions'
  *   },
  * });
  */

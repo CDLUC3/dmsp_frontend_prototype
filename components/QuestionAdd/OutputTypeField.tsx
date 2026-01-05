@@ -18,11 +18,6 @@ import { DmpIcon } from "@/components/Icons";
 
 import styles from './questionAdd.module.scss';
 
-const outputTypeOptions = [
-  { id: 'defaults', name: 'Use defaults' },
-  { id: 'mine', name: 'Use custom list' },
-];
-
 interface OutputTypeFieldProps extends OutputTypeFieldConfigProps {
   defaultResearchOutputTypesData?: DefaultResearchOutputTypesQuery;
 }
@@ -38,6 +33,11 @@ const OutputTypeField = ({
 }: OutputTypeFieldProps) => {
   const QuestionAdd = useTranslations('QuestionAdd');
 
+
+  const outputTypeOptions = [
+    { id: 'defaults', name: QuestionAdd('researchOutput.labels.useDefaults') },
+    { id: 'mine', name: QuestionAdd('researchOutput.labels.useCustomList') },
+  ];
   // Transform backend data to match the display format
   const defaultOutputTypes = defaultResearchOutputTypesData?.defaultResearchOutputTypes
     ?.filter((item): item is NonNullable<typeof item> => item !== null)

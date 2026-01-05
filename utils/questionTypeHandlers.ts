@@ -8,12 +8,62 @@ import {
   QuestionFormatsEnum,
   QuestionFormatsUsage,
   QuestionFormatsUsageInterface,
+  DefaultAffiliationSearchQuestion,
+  DefaultBooleanQuestion,
+  DefaultCheckboxesQuestion,
+  DefaultCurrencyQuestion,
+  DefaultDateQuestion,
+  DefaultDateRangeQuestion,
+  DefaultEmailQuestion,
+  DefaultLicenseSearchQuestion,
+  DefaultMetadataStandardSearchQuestion,
+  DefaultMultiselectBoxQuestion,
+  DefaultNumberQuestion,
+  DefaultNumberRangeQuestion,
+  DefaultNumberWithContextQuestion,
+  DefaultRadioButtonsQuestion,
+  DefaultRepositorySearchQuestion,
+  DefaultResearchOutputTableQuestion,
+  DefaultSelectBoxQuestion,
+  DefaultTableQuestion,
+  DefaultTextQuestion,
+  DefaultTextAreaQuestion,
+  DefaultURLQuestion,
 } from "@dmptool/types";
 
 type QuestionType = z.infer<typeof QuestionFormatsEnum>
 
+type ResearchOutputTableColumn = QuestionTypeMap["researchOutputTable"]["columns"][number];
+
 // List of question types to filter out from the available types
 const filteredOutQuestionTypes = ['licenseSearch', 'metadataStandardSearch', 'numberWithContext', 'repositorySearch', 'table'];
+
+export const QUESTION_TYPE_DEFAULTS = {
+  affiliationSearch: DefaultAffiliationSearchQuestion,
+  boolean: DefaultBooleanQuestion,
+  checkBoxes: DefaultCheckboxesQuestion,
+  currency: DefaultCurrencyQuestion,
+  date: DefaultDateQuestion,
+  dateRange: DefaultDateRangeQuestion,
+  email: DefaultEmailQuestion,
+  licenseSearch: DefaultLicenseSearchQuestion,
+  metadataStandardSearch: DefaultMetadataStandardSearchQuestion,
+  multiselectBox: DefaultMultiselectBoxQuestion,
+  number: DefaultNumberQuestion,
+  numberRange: DefaultNumberRangeQuestion,
+  numberWithContext: DefaultNumberWithContextQuestion,
+  radioButtons: DefaultRadioButtonsQuestion,
+  repositorySearch: DefaultRepositorySearchQuestion,
+  researchOutputTable: DefaultResearchOutputTableQuestion,
+  selectBox: DefaultSelectBoxQuestion,
+  table: DefaultTableQuestion,
+  text: DefaultTextQuestion,
+  textArea: DefaultTextAreaQuestion,
+  url: DefaultURLQuestion,
+} as const;
+
+// Type helper to extract the types
+export type QuestionTypeDefaults = typeof QUESTION_TYPE_DEFAULTS;
 
 // Fetch the usage information and then Parse the Zod schema with no input to generate the
 // default JSON schemas
@@ -21,13 +71,16 @@ export function getQuestionFormatInfo(name: string): QuestionFormatInterface | n
   if (name in QuestionSchemaMap) {
     const usage: QuestionFormatsUsageInterface = QuestionFormatsUsage[name as QuestionType];
     const schema: z.ZodTypeAny = QuestionSchemaMap[name as QuestionType];
-    const parsedSchema = schema.parse({ type: name });
+    const base = (name in QUESTION_TYPE_DEFAULTS)
+      ? QUESTION_TYPE_DEFAULTS[name as keyof typeof QUESTION_TYPE_DEFAULTS]
+      : { type: name };
+    const parsedSchema = schema.parse(base) as AnyQuestionType;
 
     return {
       type: name,
       title: usage?.title,
       usageDescription: usage?.usageDescription,
-      defaultJSON: parsedSchema
+      defaultJSON: parsedSchema,
     };
   } else {
     return null;
@@ -273,15 +326,14 @@ export const questionTypeHandlers: Record<string, QuestionTypeHandler> = {
     return createAndValidateQuestion("selectBox", questionData, QuestionSchemaMap["multiselectBox"]);
   },
 
-  boolean: (json, input: QuestionTypeMap["boolean"]['attributes']) => {
+  boolean: (json, input: QuestionTypeMap["boolean"]) => {
     const questionData: QuestionTypeMap["boolean"] = {
       ...json,
       type: "boolean",
       attributes: {
         ...json.attributes,
-        label: input?.label,
-        help: input?.help,
-        checked: input?.checked ?? false,
+        label: input?.attributes?.label ?? "",
+        value: input?.attributes?.value ?? false
       },
       meta: {
         ...json.meta,
@@ -549,34 +601,13 @@ export const questionTypeHandlers: Record<string, QuestionTypeHandler> = {
    * The columns array is dynamically built based on which fields are enabled
    * in the standardFields configuration.
    */
-  researchOutputTable: (json, input: {
-    columns?: {
-      heading?: string;
-      required?: boolean;
-      enabled?: boolean;
-      content?: QuestionTypeMap["table"]['columns'][number]['content'];
-      preferences?: {
-        label?: string;
-        value?: string;
-      }[];
-      attributes?: {
-        help?: string;
-        labelTranslationKey?: string;
-      };
-      meta?: {
-        schemaVersion?: string;
-        labelTranslationKey?: string;
-      };
-    }[];
-    attributes?: QuestionTypeMap["table"]["attributes"];
-  }) => {
-
-    // researchOutputTable uses the table schema structure with additional column properties
+  researchOutputTable: (json, input) => {
     const questionData: QuestionTypeMap["researchOutputTable"] = {
       ...json,
       type: "researchOutputTable",
       attributes: {
         label: input?.attributes?.label ?? "",
+        languageTranslationKey: input?.attributes?.languageTranslationKey ?? "",
         help: input?.attributes?.help ?? "",
         labelTranslationKey: input?.attributes?.labelTranslationKey ?? "",
         canAddRows: input?.attributes?.canAddRows ?? true,
@@ -585,29 +616,41 @@ export const questionTypeHandlers: Record<string, QuestionTypeHandler> = {
         maxRows: input?.attributes?.maxRows,
         minRows: input?.attributes?.minRows,
       },
-      columns: input?.columns?.map(column => {
-        const baseColumn: any = {
-          heading: column.heading ?? "Column A",
-          required: column.required ?? false,
-          enabled: column.enabled ?? true,
-          content: column.content ?? { type: "textArea" },
-          meta: {
-            schemaVersion: column.meta?.schemaVersion ?? CURRENT_SCHEMA_VERSION,
-            labelTranslationKey: column.meta?.labelTranslationKey,
-          },
+      columns: input?.columns?.map((column: ResearchOutputTableColumn) => {
+        const baseContent = column.content ?? {};
+        const type = baseContent.type;
+
+        // Hydrate required fields for each type
+        const hydratedContent: any = { ...baseContent };
+
+        // All types require meta
+        hydratedContent.meta = {
+          ...(baseContent.meta || {}),
+          schemaVersion: CURRENT_SCHEMA_VERSION,
         };
 
-        // Add preferences array if provided (for repository, metadata standard, and license columns)
-        if (column.preferences && column.preferences.length > 0) {
-          baseColumn.preferences = column.preferences;
+        // Add options array for types that need it
+        if (["selectBox", "checkBoxes", "radioButtons"].includes(type)) {
+          hydratedContent.options = (baseContent as { options?: any[] }).options ?? [];
         }
 
-        // Add column-level attributes if provided (help text, labelTranslationKey)
-        if (column.attributes) {
-          baseColumn.attributes = column.attributes;
+        // Add graphQL for search types
+        if (["repositorySearch", "metadataStandardSearch", "licenseSearch"].includes(type)) {
+          hydratedContent.graphQL = (baseContent as { graphQL?: any }).graphQL ?? {};
         }
 
-        return baseColumn;
+        // Add attributes.context for numberWithContext
+        if (type === "numberWithContext") {
+          hydratedContent.attributes = {
+            ...(baseContent.attributes || {}),
+            context: baseContent.attributes?.context ?? []
+          };
+        }
+
+        return {
+          ...column,
+          content: hydratedContent
+        };
       }) ?? [],
       meta: {
         ...json.meta,

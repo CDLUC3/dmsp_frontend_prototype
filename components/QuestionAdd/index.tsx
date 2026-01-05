@@ -27,8 +27,6 @@ import {
 import {
   useAddQuestionMutation,
   useQuestionsDisplayOrderQuery,
-  useLicensesQuery,
-  useDefaultResearchOutputTypesQuery,
 } from '@/generated/graphql';
 
 import {
@@ -55,7 +53,7 @@ import QuestionView from '@/components/QuestionView';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 
 //Other
-import { useResearchOutputTable } from '@/hooks/useResearchOutputTable';
+import { useResearchOutputTable } from '@/app/hooks/useResearchOutputTable';
 import { useToast } from '@/context/ToastContext';
 import { stripHtmlTags } from '@/utils/general';
 import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
@@ -141,12 +139,6 @@ const QuestionAdd = ({
     skip: !sectionId
   })
 
-  // Query request for all licenses
-  const { data: licensesData } = useLicensesQuery();
-
-  // Query request for default research output types
-  const { data: defaultResearchOutputTypesData } = useDefaultResearchOutputTypesQuery();
-
   // Helper function to make announcements
   const announce = (message: string) => {
     setAnnouncement(message);
@@ -165,6 +157,8 @@ const QuestionAdd = ({
     newOutputType,
     setNewOutputType,
     newLicenseType,
+    licensesData,
+    defaultResearchOutputTypesData,
     setNewLicenseType,
     handleRepositoriesChange,
     handleMetaDataStandardsChange,
@@ -183,8 +177,6 @@ const QuestionAdd = ({
     handleUpdateAdditionalField,
     updateStandardFieldProperty
   } = useResearchOutputTable({ setHasUnsavedChanges, announce });
-
-
 
   // Send user back to the selection of question types
   const redirectToQuestionTypes = () => {
@@ -326,7 +318,7 @@ const QuestionAdd = ({
     }
 
     if (questionType === RESEARCH_OUTPUT_QUESTION_TYPE) {
-      return buildResearchOutputFormState(parsed);
+      return buildResearchOutputFormState();
     }
 
     if (!parsed) {

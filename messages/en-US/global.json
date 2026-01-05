@@ -725,6 +725,7 @@
       "saveAndAdd": "Save and add",
       "saveAndUpdate": "Save and update",
       "saveChanges": "Save changes",
+      "update": "Update",
       "remove": "Remove",
       "removeAll": "Remove all",
       "confirm": "Confirm",
@@ -747,6 +748,7 @@
       "addAnother": "Add another",
       "goToProject": "Go to project",
       "back": "Back",
+      "backToList": "Back to list",
       "add": "Add",
       "customize": "Customize",
       "applyFilter": "Apply filter(s)",
@@ -766,12 +768,27 @@
       "nextPage": "Next page",
       "name": "Name",
       "url": "URL",
+      "unit": "Unit",
       "description": "Description",
-      "searchTerm": "Search term"
+      "searchTerm": "Search term",
+      "title": "Title",
+      "dataFlags": "Data Flags",
+      "outputType": "Output Type",
+      "repositories": "Repositories",
+      "metadataStandards": "Metadata Standards",
+      "licenses": "Licenses",
+      "initialAccessLevels": "Initial Access Levels",
+      "anticipatedReleaseDate": "Anticipated Release Date",
+      "anticipatedFileSize": "Anticipated File Size",
+      "fileSizeUnit": "File size unit",
+      "selectAnItem": "Select an item",
+      "mayContainSensitiveData": "May contain sensitive data?",
+      "mayContainPersonalData": "May contain personally identifiable information?"
     },
     "helpText": {
       "searchHelpText": "Search by research organization, field station or lab, template description, etc.",
-      "funderSearch": "Search by research organization, funder name, or related keywords."
+      "funderSearch": "Search by research organization, funder name, or related keywords.",
+      "dataFlags": "Mark all of the statements that are true about the dataset"
     },
     "descriptions": {
       "requiredFieldDescription": "Warn users that this is considered a required question for this DMP template by the organization. Users will be able to choose to ignore this within the tool and will not be required to answer before moving it."
@@ -805,7 +822,8 @@
       "errors": {
         "invalidQuestionType": "Invalid question type found.",
         "questionUnexpectedFormat": "Unexpected format for question.json.",
-        "questionJSONFParseFailed": "JSON.parse failed."
+        "questionJSONFParseFailed": "JSON.parse failed.",
+        "requiredField": "{field} is required"
       },
       "numDisplaying": "Showing {num} of {total}",
       "unsavedChangesWarning": "You have unsaved changes. Are you sure you want to leave this page?"

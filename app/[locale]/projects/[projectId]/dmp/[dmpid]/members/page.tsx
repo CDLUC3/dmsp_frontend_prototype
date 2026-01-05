@@ -593,7 +593,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
                           description={PlanMembers('form.select.description')}
                           onChange={(selected) =>
                             dispatch({ type: 'SET_SELECTED_PLAN_MEMBER', payload: selected as string })
-                          } selectedKey={selectedPlanMember}
+                          } selectedKey={selectedPlanMember ?? undefined}
                         >
                           {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
                         </FormSelect>

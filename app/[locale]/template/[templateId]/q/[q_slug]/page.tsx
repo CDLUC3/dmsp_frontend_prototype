@@ -63,7 +63,7 @@ import QuestionView from '@/components/QuestionView';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 
 //Utils and Other
-import { useResearchOutputTable } from '@/hooks/useResearchOutputTable';
+import { useResearchOutputTable } from '@/app/hooks/useResearchOutputTable';
 import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
@@ -142,15 +142,13 @@ const QuestionEdit = () => {
   // Research Output Table Hooks
   const {
     buildResearchOutputFormState,
+    hydrateFromJSON,
     licensesData,
     defaultResearchOutputTypesData,
-    standardKeys,
     expandedFields,
-    setExpandedFields,
     nonCustomizableFieldIds,
     standardFields,
     additionalFields,
-    setAdditionalFields,
     newOutputType,
     setNewOutputType,
     newLicenseType,
@@ -170,10 +168,8 @@ const QuestionEdit = () => {
     addAdditionalField,
     handleDeleteAdditionalField,
     handleUpdateAdditionalField,
-    setStandardFields,
     updateStandardFieldProperty
   } = useResearchOutputTable({ setHasUnsavedChanges, announce });
-
 
   // Run selected question query
   const {
@@ -299,7 +295,7 @@ const QuestionEdit = () => {
     const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }), Global);
 
     if (questionType === RESEARCH_OUTPUT_QUESTION_TYPE) {
-      return buildResearchOutputFormState(parsed);
+      return buildResearchOutputFormState();
     }
 
     if (!parsed) {
@@ -462,7 +458,8 @@ const QuestionEdit = () => {
         }
 
         const questionType = parsed.type;
-        const questionTypeFriendlyName = Global(`questionTypes.${questionType}`);
+        const translationKey = `questionTypes.${questionType}`;
+        const questionTypeFriendlyName = Global(translationKey);
 
         setQuestionType(questionType);
         setQuestionTypeName(questionTypeFriendlyName);
@@ -521,181 +518,19 @@ const QuestionEdit = () => {
     }
   }, [parsedQuestionJSON])
 
-  // Set initial research output table field states from parsedQuestionJSON
+  // Research Output Question - Hydrate state from JSON
   useEffect(() => {
-    if (!hasHydrated.current && parsedQuestionJSON?.type === RESEARCH_OUTPUT_QUESTION_TYPE && Array.isArray(parsedQuestionJSON.columns)) {
+    if (!hasHydrated.current &&
+      parsedQuestionJSON?.type === RESEARCH_OUTPUT_QUESTION_TYPE &&
+      Array.isArray(parsedQuestionJSON.columns)) {
       try {
-        // Helper to find a column by labelTranslationKey or heading
-        const findColumn = (keys: string[]) =>
-          parsedQuestionJSON.columns.find(
-            (col) =>
-              (col?.meta?.labelTranslationKey && keys.includes(col.meta.labelTranslationKey)) ||
-              (col?.heading && keys.includes(col.heading))
-          );
-
-        // Hydrate standard fields
-        setStandardFields((prevFields) => prevFields.map((field) => {
-          const updated = { ...field };
-          switch (field.id) {
-            case 'repoSelector': {
-              const col = findColumn(['researchOutput.repositories', 'Repositories']);
-              if (col && 'preferences' in col) {
-                updated.enabled = !!col.enabled;
-                updated.helpText = col.content.attributes?.help || '';
-                updated.repoConfig = {
-                  ...updated.repoConfig,
-                  customRepos: col.preferences.map((repo) => ({
-                    name: repo.label,
-                    uri: repo.value
-                  })),
-                  hasCustomRepos: col?.preferences.length > 0,
-                };
-              }
-              break;
-            }
-            case 'accessLevels': {
-              const col = findColumn(['researchOutput.accessLevels', 'Initial Access Levels']);
-              if (col && col.enabled === true) {
-                updated.enabled = col.enabled;
-                updated.helpText = col.content.attributes?.help || '';
-              }
-              break;
-            }
-            case 'metadataStandards': {
-              const col = findColumn(['researchOutput.metadataStandards', 'Metadata Standards']);
-              if (col && 'preferences' in col) {
-                updated.enabled = !!col.enabled;
-                updated.helpText = col.content.attributes?.help || '';
-                updated.metaDataConfig = {
-                  ...updated.metaDataConfig,
-                  customStandards: col.preferences.map((std) => ({
-                    name: std.label,
-                    uri: std.value
-                  })),
-                  hasCustomStandards: col?.preferences.length > 0,
-                };
-              }
-              break;
-            }
-            case 'licenses': {
-              const col = findColumn(['researchOutput.licenses', 'Licenses']);
-              if (col && 'preferences' in col) {
-                updated.enabled = !!col.enabled;
-                updated.helpText = col.content.attributes?.help || '';
-                updated.licensesConfig = {
-                  ...updated.licensesConfig,
-                  mode: col?.preferences.length > 0 ? 'addToDefaults' : 'defaults',
-                  customTypes: col.preferences.map((lic) => ({
-                    name: lic.label,
-                    uri: lic.value
-                  })),
-                  selectedDefaults: updated.licensesConfig?.selectedDefaults || [],
-                };
-              }
-              break;
-            }
-            case 'outputType': {
-              const col = findColumn(['researchOutput.outputType', 'Output Type']);
-              if (col && col.content && 'options' in col.content && col?.content?.options.length > 0) {
-                updated.enabled = !!col.enabled;
-                updated.outputTypeConfig = {
-                  ...updated.outputTypeConfig,
-                  mode: 'mine',
-                  customTypes: col.content.options.map(opt => ({ type: opt.label, description: '' })),
-                  selectedDefaults: [],
-                };
-              }
-              break;
-            }
-            case 'dataFlags': {
-              const sensCol = findColumn(['researchOutput.sensitiveData', 'Sensitive Data']);
-              const persCol = findColumn(['researchOutput.personalData', 'Personal Data']);
-              updated.enabled = !!(sensCol || persCol);
-              updated.flagsConfig = {
-                ...updated.flagsConfig,
-                showSensitiveData: !!sensCol,
-                showPersonalData: !!persCol,
-                mode: updated.flagsConfig?.mode || 'both'
-              };
-              break;
-            }
-            case 'title':
-            case 'description': {
-              const col = findColumn([
-                field.id === 'title' ? 'researchOutput.title' : 'researchOutput.description',
-                field.id === 'title' ? 'Title' : 'Description',
-              ]);
-              if (col) {
-                updated.enabled = !!col.enabled;
-                updated.label = col.heading || updated.label;
-                updated.helpText = col.content?.attributes?.help || updated.helpText;
-                updated.required = !!col.required;
-              }
-              break;
-            }
-            default:
-              break;
-          }
-          return updated;
-        }));
-
-        // Hydrate additional fields (custom columns)
-        const customCols = parsedQuestionJSON.columns.filter(
-          (col) =>
-            !(col?.meta?.labelTranslationKey && standardKeys.has(col.meta.labelTranslationKey)) &&
-            !(col?.heading && standardKeys.has(col.heading))
-        );
-
-        /* eslint-disable @typescript-eslint/no-explicit-any */
-        function hasDefaultValue(attr: any): attr is { defaultValue: string } {
-          return attr && typeof attr.defaultValue !== 'undefined';
-        }
-
-        /* eslint-disable @typescript-eslint/no-explicit-any */
-        function hasMaxLength(attr: any): attr is { maxLength: string } {
-          return attr && typeof attr.maxLength !== 'undefined';
-        }
-
-        setAdditionalFields(
-          customCols.map((col, idx) => ({
-            id: col.heading?.toLowerCase().replace(/\s+/g, '_') || `custom_field_${idx}`,
-            label: col.heading || `Custom Field ${idx + 1}`,
-            enabled: !!col.enabled,
-            defaultValue: hasDefaultValue(col.content?.attributes) ? col.content.attributes.defaultValue : '',
-            customLabel: col.heading || '',
-            helpText: col.content?.attributes?.help || '',
-            maxLength: hasMaxLength(col.content?.attributes) ? col.content.attributes.maxLength : '',
-          }))
-        );
-
-        // Hydrate expanded fields (expand all enabled fields by default)
-        setExpandedFields([
-          ...parsedQuestionJSON.columns
-            .filter((col) => col.enabled)
-            .map((col) => {
-              // Try to match to field id by labelTranslationKey or heading
-              const key = col?.meta?.labelTranslationKey || col?.heading;
-              switch (key) {
-                case 'researchOutput.title': return 'title';
-                case 'researchOutput.description': return 'description';
-                case 'researchOutput.outputType': return 'outputType';
-                case 'researchOutput.dataFlags': return 'dataFlags';
-                case 'researchOutput.repositories': return 'repoSelector';
-                case 'researchOutput.metadataStandards': return 'metadataStandards';
-                case 'researchOutput.licenses': return 'licenses';
-                case 'researchOutput.accessLevels': return 'accessLevels';
-                default:
-                  // For custom fields, use the generated id
-                  return col.heading?.toLowerCase().replace(/\s+/g, '_');
-              }
-            })
-        ]);
+        hydrateFromJSON(parsedQuestionJSON);
+        hasHydrated.current = true;
       } catch (error) {
         console.error('Error hydrating research output fields from JSON', error);
       }
-      hasHydrated.current = true;
     }
-  }, [parsedQuestionJSON]);
+  }, [parsedQuestionJSON, hydrateFromJSON]);
 
   // If a user changes their question type, then we need to fetch the question types to set the new json schema
   useEffect(() => {
