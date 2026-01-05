@@ -58,7 +58,7 @@ import {
   DATE_RANGE_QUESTION_TYPE,
   NUMBER_RANGE_QUESTION_TYPE
 } from '@/lib/constants';
-import { QuestionTypeMap } from '@dmptool/types';
+import { CURRENT_SCHEMA_VERSION, QuestionTypeMap } from '@dmptool/types';
 
 // Components
 import {
@@ -754,73 +754,109 @@ const PlanOverviewQuestionPage: React.FC = () => {
       case TEXT_AREA_QUESTION_TYPE:
         return {
           type: TEXT_AREA_QUESTION_TYPE,
-          answer: formData.textAreaContent
+          answer: formData.textAreaContent,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
       case TEXT_FIELD_QUESTION_TYPE:
         return {
           type: TEXT_FIELD_QUESTION_TYPE,
-          answer: formData.textValue
+          answer: formData.textValue,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
       case RADIOBUTTONS_QUESTION_TYPE:
         return {
           type: RADIOBUTTONS_QUESTION_TYPE,
-          answer: formData.selectedRadioValue
+          answer: formData.selectedRadioValue,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
       case CHECKBOXES_QUESTION_TYPE:
         return {
           type: CHECKBOXES_QUESTION_TYPE,
-          answer: formData.selectedCheckboxValues
+          answer: formData.selectedCheckboxValues,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
       case SELECTBOX_QUESTION_TYPE:
         return {
           type: SELECTBOX_QUESTION_TYPE,
-          answer: formData.selectedSelectValue
+          answer: formData.selectedSelectValue,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
       case MULTISELECTBOX_QUESTION_TYPE:
         return {
           type: MULTISELECTBOX_QUESTION_TYPE,
-          answer: Array.from(formData.selectedMultiSelectValues)
+          answer: Array.from(formData.selectedMultiSelectValues),
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
       case BOOLEAN_QUESTION_TYPE:
         return {
           type: BOOLEAN_QUESTION_TYPE,
-          answer: formData.yesNoValue === 'yes'
+          answer: formData.yesNoValue === 'yes',
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
       case EMAIL_QUESTION_TYPE:
         return {
           type: EMAIL_QUESTION_TYPE,
-          answer: formData.emailValue
+          answer: formData.emailValue,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
       case URL_QUESTION_TYPE:
         return {
           type: URL_QUESTION_TYPE,
-          answer: formData.urlValue
+          answer: formData.urlValue,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
       case NUMBER_QUESTION_TYPE:
         return {
           type: NUMBER_QUESTION_TYPE,
-          answer: formData.numberValue
+          answer: formData.numberValue,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
       case CURRENCY_QUESTION_TYPE:
         return {
           type: CURRENCY_QUESTION_TYPE,
-          answer: formData.inputCurrencyValue
+          answer: formData.inputCurrencyValue,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
       case DATE_QUESTION_TYPE:
         return {
           type: DATE_QUESTION_TYPE,
-          answer: formData.dateValue?.toString()
+          answer: formData.dateValue?.toString(),
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
 
       case RESEARCH_OUTPUT_QUESTION_TYPE:
@@ -839,13 +875,22 @@ const PlanOverviewQuestionPage: React.FC = () => {
         return {
           type: RESEARCH_OUTPUT_QUESTION_TYPE,
           columnHeadings,
-          answer: rowsToUse
-        }; case DATE_RANGE_QUESTION_TYPE:
+          answer: rowsToUse,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
+        };
+
+      case DATE_RANGE_QUESTION_TYPE:
+
         return {
           type: DATE_RANGE_QUESTION_TYPE,
           answer: {
             start: formData.dateRange.startDate?.toString() ?? null,
             end: formData.dateRange.endDate?.toString() ?? null
+          },
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
           }
         };
 
@@ -855,6 +900,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
           answer: {
             start: formData.numberRange.startNumber,
             end: formData.numberRange.endNumber
+          },
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
           }
         };
 
@@ -864,13 +912,19 @@ const PlanOverviewQuestionPage: React.FC = () => {
           answer: {
             affiliationId: formData.affiliationData.affiliationId,
             affiliationName: formData.otherField ? formData.otherAffiliationName : formData.affiliationData.affiliationName,
+          },
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
           }
         };
 
       default:
         return {
           type: questionType,
-          answer: formData.textAreaContent
+          answer: formData.textAreaContent,
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION
+          }
         };
     }
   };
