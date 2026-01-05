@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen, fireEvent } from '@testing-library/react';
+import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import OutputTypeField from '../OutputTypeField';
@@ -42,6 +42,99 @@ describe('OutputTypeField', () => {
   const renderComponent = (props: Partial<OutputTypeFieldConfigProps> = {}) => {
     return render(<OutputTypeField {...defaultProps} {...props} />);
   };
+
+  describe('Popover/Dialog Interactions', () => {
+    it('should show description in popover when info button is clicked in defaults mode', async () => {
+      renderComponent();
+
+      // Find the first info button
+      const infoButtons = screen.getAllByLabelText('labels.clickForMoreInfo');
+      expect(infoButtons.length).toBeGreaterThan(0);
+
+      // Click the first info button
+      await act(async () => {
+        fireEvent.click(infoButtons[0]);
+      });
+
+      // Wait for dialog to appear
+      await waitFor(() => {
+        const dialog = screen.getByRole('dialog');
+        expect(dialog).toBeInTheDocument();
+      });
+
+      // Just verify that a dialog with some description appears
+      const dialog = screen.getByRole('dialog');
+      expect(dialog.textContent).toBeTruthy();
+      expect(dialog.textContent!.length).toBeGreaterThan(0);
+    });
+
+    it('should show description in popover when info button is clicked for custom type with description', async () => {
+      renderComponent({
+        field: {
+          ...defaultProps.field,
+          outputTypeConfig: {
+            mode: 'mine',
+            customTypes: [
+              { type: 'Custom Type', description: 'This is a custom description' }
+            ],
+            selectedDefaults: [],
+          },
+        },
+      });
+
+      const infoButton = screen.getByLabelText('labels.clickForMoreInfo');
+
+      await act(async () => {
+        fireEvent.click(infoButton);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('This is a custom description')).toBeInTheDocument();
+      });
+    });
+
+    it('should not show info button for custom type without description', () => {
+      renderComponent({
+        field: {
+          ...defaultProps.field,
+          outputTypeConfig: {
+            mode: 'mine',
+            customTypes: [
+              { type: 'Custom Type', description: '' }
+            ],
+            selectedDefaults: [],
+          },
+        },
+      });
+
+      expect(screen.queryByLabelText('labels.clickForMoreInfo')).not.toBeInTheDocument();
+    });
+
+    it('should close popover when Escape key is pressed', async () => {
+      renderComponent();
+
+      const infoButton = screen.getAllByLabelText('labels.clickForMoreInfo')[0];
+
+      await act(async () => {
+        fireEvent.click(infoButton);
+      });
+
+      // Verify popover is open
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+
+      // Press Escape to close
+      await act(async () => {
+        fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+      });
+
+      // Popover should be closed
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      });
+    });
+  });
 
   describe('Rendering', () => {
     it('renders without crashing', () => {
@@ -234,7 +327,7 @@ describe('OutputTypeField', () => {
         await userEvent.click(selectButton);
 
         // Find and click the "Use mine" option in the listbox
-        const mineOption = screen.getByRole('option', { name: 'Use custom list' });
+        const mineOption = screen.getByRole('option', { name: 'researchOutput.labels.useCustomList' });
         await userEvent.click(mineOption);
 
         expect(onModeChange).toHaveBeenCalledWith('mine');
@@ -397,7 +490,7 @@ describe('OutputTypeField', () => {
         });
 
         const selectButton = screen.getByTestId('select-button');
-        expect(selectButton).toHaveTextContent('Use defaults');
+        expect(selectButton).toHaveTextContent('researchOutput.labels.useDefaultsOpen drop down');
       });
 
       it('handles field without outputTypeConfig mode', () => {
@@ -413,7 +506,7 @@ describe('OutputTypeField', () => {
         });
 
         const selectButton = screen.getByTestId('select-button');
-        expect(selectButton).toHaveTextContent('Use custom listOpen drop down');
+        expect(selectButton).toHaveTextContent('researchOutput.labels.useCustomListOpen drop down');
       });
     });
 

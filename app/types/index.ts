@@ -388,6 +388,7 @@ export interface ActionResponse {
   success: boolean;
   errors?: string[];
   data?: {
+    id?: number | null;
     errors?: {
       [key: string]: string | null;
     };
@@ -420,7 +421,6 @@ export interface addRepositoryActionResponse extends ActionResponse {
     };
   }
 };
-
 export interface updateQuestionActionResponse extends ActionResponse {
   data?: {
     id?: number | null;

@@ -1,5 +1,5 @@
 import React from "react";
-import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import { act, fireEvent, render, screen, waitFor, within } from '@/utils/test-utils';
 import { routePath } from '@/utils/routes';
 import {
   useQuestionQuery,
@@ -1831,13 +1831,13 @@ describe("Research Output Question Type - Edit", () => {
     expect(screen.getByText('researchOutput.headings.additionalTextFields')).toBeInTheDocument();
 
     // Check for standard fields
-    expect(screen.getByText('Title')).toBeInTheDocument();
-    expect(screen.getByText('Output Type')).toBeInTheDocument();
-    expect(screen.getByText('Description')).toBeInTheDocument();
-    expect(screen.getByText('Data Flags')).toBeInTheDocument();
-    expect(screen.getByText('Repositories')).toBeInTheDocument();
-    expect(screen.getByText('Metadata Standards')).toBeInTheDocument();
-    expect(screen.getByText('Licenses')).toBeInTheDocument();
+    expect(screen.getByText('researchOutput.labels.title')).toBeInTheDocument();
+    expect(screen.getByText('researchOutput.labels.outputType')).toBeInTheDocument();
+    expect(screen.getByText('researchOutput.labels.description')).toBeInTheDocument();
+    expect(screen.getByText('researchOutput.labels.dataFlags')).toBeInTheDocument();
+    expect(screen.getByText('researchOutput.labels.repositories')).toBeInTheDocument();
+    expect(screen.getByText('researchOutput.labels.metadataStandards')).toBeInTheDocument();
+    expect(screen.getByText('researchOutput.labels.licenses')).toBeInTheDocument();
   });
 
   it('should show tooltip for required fields (Title and Output Type) on edit', async () => {
@@ -1851,8 +1851,8 @@ describe("Research Output Question Type - Edit", () => {
       render(<QuestionEdit />);
     });
 
-    const titleCheckbox = screen.getByLabelText('Title');
-    const outputTypeCheckbox = screen.getByLabelText('Output Type');
+    const titleCheckbox = screen.getByLabelText('researchOutput.labels.title');
+    const outputTypeCheckbox = screen.getByLabelText('researchOutput.labels.outputType');
 
     expect(titleCheckbox).toBeDisabled();
     expect(outputTypeCheckbox).toBeDisabled();
@@ -1890,7 +1890,7 @@ describe("Research Output Question Type - Edit", () => {
 
     await act(async () => { render(<QuestionEdit />); });
 
-    const descriptionCheckbox = screen.getByLabelText('Description');
+    const descriptionCheckbox = screen.getByLabelText('researchOutput.labels.description');
     expect(descriptionCheckbox).not.toBeChecked();
 
     await act(async () => { fireEvent.click(descriptionCheckbox); });
@@ -1900,20 +1900,34 @@ describe("Research Output Question Type - Edit", () => {
 
   it('should show data flags configuration when data flags field is customized (edit)', async () => {
     (useQuestionQuery as jest.Mock).mockReturnValueOnce({
-      data: { question: { id: 67, questionText: 'Research Output Table Question', json: researchOutputJson, displayOrder: 1, sectionId: 67, requirementText: '', guidanceText: '', sampleText: '', useSampleTextAsDefault: false, required: false } },
+      data: mockSelectedQuestion,
       loading: false,
       error: undefined,
     });
 
-    await act(async () => { render(<QuestionEdit />); });
+    render(<QuestionEdit />);
 
-    const dataFlagsCheckbox = screen.getByLabelText('Data Flags');
-    await act(async () => { fireEvent.click(dataFlagsCheckbox); });
+    // Find the Data Flags checkbox
+    const dataFlagsCheckbox = screen.getByLabelText('researchOutput.labels.dataFlags');
 
+    // Find the customize button in the same row
+    const dataFlagsRow = dataFlagsCheckbox.closest('.fieldRow') as HTMLElement;
+
+    if (!dataFlagsRow) {
+      throw new Error('Could not find data flags row');
+    }
+
+    const customizeButton = within(dataFlagsRow).getByRole('button', { name: /customize|buttons.customize/i });
+
+    // Click the customize button to expand the panel
+    await act(async () => {
+      fireEvent.click(customizeButton);
+    });
+
+    // Now the legend and options should be visible
     expect(screen.getByText('researchOutput.legends.dataFlag')).toBeInTheDocument();
-    expect(screen.getByText('researchOutput.dataFlags.options.sensitiveOnly')).toBeInTheDocument();
-    expect(screen.getByText('researchOutput.dataFlags.options.personalOnly')).toBeInTheDocument();
-    expect(screen.getByText('researchOutput.dataFlags.options.both')).toBeInTheDocument();
+    expect(screen.getByText('May contain sensitive data?')).toBeInTheDocument();
+    expect(screen.getByText('May contain personally identifiable information?')).toBeInTheDocument();
   });
 
   it('should handle repository configuration and repo selection system (edit)', async () => {
@@ -1924,7 +1938,7 @@ describe("Research Output Question Type - Edit", () => {
     });
     await act(async () => { render(<QuestionEdit />); });
 
-    const repoSelectorCheckbox = screen.getByLabelText('Repositories');
+    const repoSelectorCheckbox = screen.getByLabelText('researchOutput.labels.repositories');
     await act(async () => { fireEvent.click(repoSelectorCheckbox); });
 
     expect(screen.getByTestId('repository-selection-system')).toBeInTheDocument();
@@ -1943,9 +1957,9 @@ describe("Research Output Question Type - Edit", () => {
     (useLicensesQuery as jest.Mock).mockReturnValue({ data: { licenses: { items: [] } }, loading: false, error: undefined });
     (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({ data: { defaultResearchOutputTypes: [] }, loading: false, error: undefined });
 
-    await act(async () => { render(<QuestionEdit />); });
+    render(<QuestionEdit />);
 
-    const repoSelectorCheckbox = screen.getByLabelText('Repositories');
+    const repoSelectorCheckbox = screen.getByLabelText('researchOutput.labels.repositories');
     expect(repoSelectorCheckbox).not.toBeChecked();
 
     await act(async () => { fireEvent.click(repoSelectorCheckbox); });
@@ -1971,9 +1985,9 @@ describe("Research Output Question Type - Edit", () => {
     (useLicensesQuery as jest.Mock).mockReturnValue({ data: { licenses: { items: [] } }, loading: false, error: undefined });
     (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({ data: { defaultResearchOutputTypes: [] }, loading: false, error: undefined });
 
-    await act(async () => { render(<QuestionEdit />); });
+    render(<QuestionEdit />);
 
-    const metadataStandardsCheckbox = screen.getByLabelText('Metadata Standards');
+    const metadataStandardsCheckbox = screen.getByLabelText('researchOutput.labels.metadataStandards');
     expect(metadataStandardsCheckbox).toBeChecked();
 
     await act(async () => { fireEvent.click(metadataStandardsCheckbox); });
@@ -1996,7 +2010,7 @@ describe("Research Output Question Type - Edit", () => {
 
     await act(async () => { render(<QuestionEdit />); });
 
-    const licensesCheckbox = screen.getByLabelText('Licenses');
+    const licensesCheckbox = screen.getByLabelText('researchOutput.labels.licenses');
     await act(async () => { fireEvent.click(licensesCheckbox); });
 
     expect(screen.getByTestId('license-field')).toBeInTheDocument();
@@ -2017,7 +2031,7 @@ describe("Research Output Question Type - Edit", () => {
 
     await act(async () => { render(<QuestionEdit />); });
 
-    const descriptionCheckbox = screen.getByLabelText('Description');
+    const descriptionCheckbox = screen.getByLabelText('researchOutput.labels.description');
     await act(async () => { fireEvent.click(descriptionCheckbox); });
 
     const input = screen.getByLabelText(/labels.questionText/);

@@ -1,8 +1,8 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { useParams } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import ResearchOutputComponent from '@/components/Form/ResearchOutputComponent';
+import ResearchOutputComponent from '@/components/Form/ResearchOutputQuestionComponent';
 import {
   StandardField,
   AccessLevelInterface,
@@ -50,7 +50,8 @@ const mockOutputType: OutputTypeInterface = {
 const mockAccessLevel: AccessLevelInterface = {
   label: '',
   value: '',
-  description: ''
+  description: '',
+  selected: false,
 };
 
 const mockParams = useParams as jest.Mock;
@@ -211,24 +212,50 @@ describe('ResearchOutputComponent', () => {
       expect(mockOnUpdate).toHaveBeenCalledWith('description', 'helpText', 'New description help text');
     });
 
-    it('should call onUpdateStandardFieldProperty when dataFlags mode is changed', () => {
+    it('should call onUpdateStandardFieldProperty when dataFlags checkbox is toggled', async () => {
       const mockOnUpdate = jest.fn();
+
+      // Mock standard fields with dataFlags having options
+      const fieldsWithDataFlags = mockStandardFields.map(field => {
+        if (field.id === 'dataFlags') {
+          return {
+            ...field,
+            content: {
+              type: 'checkBoxes' as const,
+              options: [
+                { label: 'May contain sensitive data?', value: 'sensitive', checked: false },
+                { label: 'May contain personally identifiable information?', value: 'personal', checked: false }
+              ]
+            }
+          };
+        }
+        return field;
+      }) as StandardField[];
+
       const propsWithDataFlagsExpanded = {
         ...defaultProps,
+        standardFields: fieldsWithDataFlags,
         expandedFields: ['dataFlags'],
         onUpdateStandardFieldProperty: mockOnUpdate
       };
+
       render(<ResearchOutputComponent {...propsWithDataFlagsExpanded} />);
 
-      // Find and click a radio option
-      const sensitiveOnlyRadio = screen.getByLabelText('researchOutput.dataFlags.options.sensitiveOnly');
-      fireEvent.click(sensitiveOnlyRadio);
+      // Find the sensitive data checkbox within the data flags section
+      const sensitiveCheckbox = screen.getByLabelText('May contain sensitive data?');
 
-      expect(mockOnUpdate).toHaveBeenCalledWith('dataFlags', 'flagsConfig', expect.objectContaining({
-        mode: 'sensitiveOnly',
-        showSensitiveData: true,
-        showPersonalData: false
-      }));
+      await act(async () => {
+        fireEvent.click(sensitiveCheckbox);
+      });
+
+      // Verify the callback was called with updated content
+      expect(mockOnUpdate).toHaveBeenCalledWith('dataFlags', 'content',
+        expect.objectContaining({
+          options: expect.arrayContaining([
+            expect.objectContaining({ value: 'sensitive', checked: true })
+          ])
+        })
+      );
     });
 
     it('should call onUpdateStandardFieldProperty when repoSelector help text is changed', () => {
@@ -312,7 +339,7 @@ describe('ResearchOutputComponent', () => {
     it('should show delete button for additional fields', () => {
       render(<ResearchOutputComponent {...defaultProps} />);
 
-      const deleteButton = screen.getByLabelText('buttons.deleteLabel');
+      const deleteButton = screen.getByLabelText('buttons.delete');
       expect(deleteButton).toBeInTheDocument();
     });
 
@@ -320,7 +347,7 @@ describe('ResearchOutputComponent', () => {
       const mockOnDelete = jest.fn();
       render(<ResearchOutputComponent {...defaultProps} onDeleteAdditionalField={mockOnDelete} />);
 
-      const deleteButton = screen.getByLabelText('buttons.deleteLabel');
+      const deleteButton = screen.getByLabelText('buttons.delete');
       fireEvent.click(deleteButton);
 
       expect(mockOnDelete).toHaveBeenCalledWith(expect.any(String));
@@ -427,14 +454,14 @@ describe('ResearchOutputComponent', () => {
       expect(mockOnUpdate).toHaveBeenCalledWith('coverage', 'defaultValue', 'Default coverage value');
     });
 
-    it('should call onStandardFieldChange when additional field checkbox is toggled', () => {
+    it('should call onUpdateAdditionalField when additional field checkbox is toggled', () => {
       const mockOnChange = jest.fn();
-      render(<ResearchOutputComponent {...defaultProps} onStandardFieldChange={mockOnChange} />);
+      render(<ResearchOutputComponent {...defaultProps} onUpdateAdditionalField={mockOnChange} />);
 
       const coverageCheckbox = screen.getByLabelText('Coverage');
       fireEvent.click(coverageCheckbox);
 
-      expect(mockOnChange).toHaveBeenCalledWith('coverage', expect.any(Boolean));
+      expect(mockOnChange).toHaveBeenCalledWith('coverage', 'enabled', expect.any(Boolean));
     });
   });
 

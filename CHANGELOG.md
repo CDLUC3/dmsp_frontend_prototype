@@ -1,5 +1,15 @@
-
+## Added
+- Added new `ResearchOutputAnswerComponent`, `SingleResearchOutputComponent`, `RepoSelectorForAnswer` and `MetaDataStandardForAnswer` components for the rendering of `researchOutputTable` question type answer form [#787]
+- Added `utils/researchOutputTransformations.ts` to group utilities for `researchOutputTable` [#787]
 ### Updated
+- Updated `QuestionAdd` and associated unit tests to include tests for new `researchOutputTable` question type [#787]
+- Update `PlanOverviewQuestionPage` component and related unit test in template builder flow to add `researchOutputTable` question type support [#787]
+- Updated `QuestionEdit` page and related unit test to improve the `researchOutputTable` question type application by moving hydration out to hook [#787]
+- Update `hooks/useResearchOutputTable` to memoize some functions and moved some code out to new `researchOutputTransformations` util  [#787]
+- Moved `ResearchOutputQuestionComponent` and `ResearchOutputAnswerComponent` under `components/Form` [#787]
+- Updated shared `ErrorMessages` to pass in `ref` so we can control which field error to scroll to [#787]
+- Updated `hooks/useRenderQuestionField` hook to include rendering of `researchOutputTable` answer form [#787]
+- Updated `utils/questionTypeHandlers` with use of `Default` types from `@dmptool/types` [#787]
 - Hooked up the `Research Output table` for template builder for `QuestionAdd` and `QuestionEdit` components. Updated `QuestionEdit` to use server actions[#869]
   - Updated associated research output field components, like `InitialAccessLevel`, `LicenseField`, `MetaDataStandards`, `OutputTypeField` and `ReposSelector` [#869]
   - Added a `ResearchOutputComponent` to consolidate the code for that question type [#869]

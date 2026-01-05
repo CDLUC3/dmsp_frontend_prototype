@@ -1,0 +1,22 @@
+{
+  "recommendedLicenses": [
+    {
+      "__typename": "License",
+      "name": "CC0-1.0",
+      "id": 54,
+      "uri": "https://spdx.org/licenses/CC0-1.0.json"
+    },
+    {
+      "__typename": "License",
+      "name": "CC-BY-4.0",
+      "id": 55,
+      "uri": "https://spdx.org/licenses/CC-BY-4.0.json"
+    },
+    {
+      "__typename": "License",
+      "name": "MIT",
+      "id": 56,
+      "uri": "https://spdx.org/licenses/MIT.json"
+    }
+  ]
+}
