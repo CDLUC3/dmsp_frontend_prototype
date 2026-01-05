@@ -20,6 +20,7 @@
 - Fixed related works pagination.
 
 ### Chore
+- Updated `qs` to 6.14.1 version due to vulnerability and updated dependency `cypress` to version 15.0.0
 - Updated `next` to version 15.5.9 due to vulnerability
 - Updated version of `next` to `15.5.8` due to vulnerability
 ==========================================================================================
