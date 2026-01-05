@@ -20,6 +20,7 @@
 - Fixed related works pagination.
 
 ### Chore
+- Updated the following packages: `@types/react` to 18.3.27, `react` to 19.2.3, `react-dom` to 19.2.3, `node-fetch` to 3.3.2, `@types/node` to 24.10.4, `eslint` to 9.39.2, `eslint-plugin-unused-imports` to 4.3.0, `husky` to 9.1.7, `pino` to 9.14.0 and `prettier` to 3.7.4
 - Updated `qs` to 6.14.1 version due to vulnerability and updated dependency `cypress` to version 15.0.0
 - Updated `next` to version 15.5.9 due to vulnerability
 - Updated version of `next` to `15.5.8` due to vulnerability
