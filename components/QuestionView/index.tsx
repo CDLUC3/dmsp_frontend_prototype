@@ -56,6 +56,7 @@ import TinyMCEEditor from '@/components/TinyMCEEditor';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 import ExpandableContentSection from '@/components/ExpandableContentSection';
 import { ResearchOutputAnswerComponent } from '@/components/Form';
+import { createEmptyResearchOutputRow } from '@/utils/researchOutputTransformations';
 
 // Utils
 import { getCalendarDateValue } from "@/utils/dateUtils";
@@ -249,6 +250,14 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       if (qtJson?.type === type) {
         setQuestionType(type);
         break;
+      }
+    }
+
+    // Initialize research output rows if this is a research output question
+    if (type === RESEARCH_OUTPUT_QUESTION_TYPE && parsed.type === 'researchOutputTable') {
+      if (researchOutputRows.length === 0) {
+        const emptyRow = createEmptyResearchOutputRow(parsed.columns);
+        setResearchOutputRows([emptyRow]);
       }
     }
   })
@@ -476,6 +485,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               rows={[...researchOutputRows]}
               setRows={setResearchOutputRows}
               onSave={handleResearchOutputChange}
+              initialViewMode="form"
             />
           )
         }

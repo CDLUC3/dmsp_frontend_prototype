@@ -21,14 +21,16 @@ type ResearchOutputAnswerComponentProps = {
   rows: ResearchOutputTable[];
   setRows: React.Dispatch<React.SetStateAction<ResearchOutputTable[]>>;
   onSave?: (rows: ResearchOutputTable[], type?: string) => Promise<void>; // Callback to trigger parent save with current data
+  initialViewMode?: 'list' | 'form'; // Control initial view - 'form' for preview, 'list' for normal use
 };
 
-const ResearchOutputAnswerComponent = ({
+const ResearchOutputAnswerComponent: React.FC<ResearchOutputAnswerComponentProps> = ({
   columns,
   rows,
   setRows,
   onSave,
-}: ResearchOutputAnswerComponentProps) => {
+  initialViewMode = 'list',
+}) => {
 
   // State to track which row is being edited (null means showing list view)
   const [editingRowIndex, setEditingRowIndex] = useState<number | null>(null);
@@ -138,30 +140,36 @@ const ResearchOutputAnswerComponent = ({
   }, [editingRowIndex, rows.length]);
 
   // Automatically show form when there are no rows (i.e., first time adding an answer)
+  // OR when initialViewMode is 'form' (for preview mode)
   useEffect(() => {
     // Skip if already initialized
     if (hasInitialized.current) return;
 
-    // If rows already exist (data loaded), just mark as initialized
-    if (rows.length > 0) {
+    // If rows already exist (data loaded) and we're not forcing form view, just mark as initialized
+    if (rows.length > 0 && initialViewMode === 'list') {
       hasInitialized.current = true;
       return;
     }
 
     // Wait briefly for async data to load before deciding to show form
     const timer = setTimeout(() => {
-      if (!hasInitialized.current && rows.length === 0 && editingRowIndex === null) {
+      if (!hasInitialized.current && editingRowIndex === null) {
         hasInitialized.current = true;
-        // Create and add empty row, then set editing state synchronously
-        const emptyRow = createEmptyResearchOutputRow(columns);
-        setRows([emptyRow]);
-        setEditingRowIndex(0);
-        setIsAddingNew(true);
+        // For preview mode or when no rows exist, show the form
+        if (initialViewMode === 'form' || rows.length === 0) {
+          // Create and add empty row if needed, then set editing state
+          if (rows.length === 0) {
+            const emptyRow = createEmptyResearchOutputRow(columns);
+            setRows([emptyRow]);
+          }
+          setEditingRowIndex(0);
+          setIsAddingNew(true);
+        }
       }
     }, 50); // Small delay to let data load
 
     return () => clearTimeout(timer);
-  }, [rows.length, editingRowIndex, columns]);
+  }, [rows.length, editingRowIndex, columns, initialViewMode]);
 
   // Handle when all items are deleted
   useEffect(() => {

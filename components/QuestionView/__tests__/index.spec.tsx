@@ -940,7 +940,7 @@ describe("QuestionView", () => {
     expect(cardBody.textContent).toContain('buttons.addOutput');
 
     // Click the add button to display the form fields
-    const addButton = screen.getByRole('button');
+    const addButton = screen.getByRole('button', { name: '+ buttons.addOutput' });
     expect(addButton).toBeInTheDocument();
 
     await act(async () => {

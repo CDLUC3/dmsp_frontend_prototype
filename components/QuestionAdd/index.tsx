@@ -178,6 +178,17 @@ const QuestionAdd = ({
     updateStandardFieldProperty
   } = useResearchOutputTable({ setHasUnsavedChanges, announce });
 
+  // Update question.json whenever Research Output fields change
+  useEffect(() => {
+    if (questionType === RESEARCH_OUTPUT_QUESTION_TYPE) {
+      const updatedJSON = buildResearchOutputFormState();
+      setQuestion(prev => ({
+        ...prev,
+        json: JSON.stringify(updatedJSON),
+      }));
+    }
+  }, [questionType, standardFields, additionalFields, buildResearchOutputFormState]);
+
   // Send user back to the selection of question types
   const redirectToQuestionTypes = () => {
     router.push(step1Url)
