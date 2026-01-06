@@ -251,7 +251,7 @@ const ResearchOutputAnswerComponent = ({
                   {Global('buttons.edit')}
                 </Button>
                 <Button
-                  className="danger small"
+                  className={`${styles.deleteBtn} small danger`}
                   onPress={() => handleDelete(index)}
                 >
                   {Global('buttons.delete')}
