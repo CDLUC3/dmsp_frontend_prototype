@@ -806,7 +806,7 @@ const SingleResearchOutputComponent = ({
         <div className={styles.btnContainer}>
           {(!isNewEntry || hasOtherRows) && onCancel && (
             <Button
-              className="secondary small"
+              className={`${styles.editBtn} small secondary`}
               onPress={handleCancelClick}
             >
               &lt; {Global('buttons.backToList')}

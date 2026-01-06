@@ -301,7 +301,7 @@ const MetaDataStandardForAnswer = ({
                 <Button
                   onClick={removeAllStandards}
                   isDisabled={selectedCount === 0}
-                  className="secondary medium"
+                  className={`${styles.removeBtn} medium secondary`}
                 >
                   {Global('buttons.removeAll')}
                 </Button>
@@ -318,7 +318,7 @@ const MetaDataStandardForAnswer = ({
                       </div>
                       <Button
                         onClick={() => removeStandard(std.id ? String(std.id) : '')}
-                        className="secondary small"
+                        className={`${styles.removeBtn} small secondary`}
                       >
                         {Global('buttons.remove')}
                       </Button>

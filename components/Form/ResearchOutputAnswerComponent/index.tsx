@@ -245,7 +245,7 @@ const ResearchOutputAnswerComponent = ({
 
               <div className={styles.outputActions}>
                 <Button
-                  className="secondary small"
+                  className={`${styles.editBtn} small secondary`}
                   onPress={() => handleEdit(index)}
                 >
                   {Global('buttons.edit')}

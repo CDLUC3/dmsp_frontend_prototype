@@ -144,6 +144,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     startNumber: 0,
     endNumber: 0,
   });
+
+  // Local state for research output table rows
   const [researchOutputRows, setResearchOutputRows] = useState<ResearchOutputTable[]>([]);
 
 
