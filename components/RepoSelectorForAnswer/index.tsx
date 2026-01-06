@@ -99,16 +99,22 @@ const RepoSelectorForAnswer = ({
   const Global = useTranslations("Global");
   const QuestionAdd = useTranslations("QuestionAdd");
 
+  // Cache of complete repository data (from search results or custom additions)
+  // This ensures we don't lose details when toggling selections
+  const [completeRepoData, setCompleteRepoData] = useState<{ [uri: string]: RepositoryInterface }>({});
+
   // Instead of useState for selectedRepos, use value prop:
+  // Enrich with complete data from cache when available
   const selectedRepos = useMemo(() => {
     const result: { [id: string]: RepositoryInterface } = {};
     return (value || []).reduce((acc, repo) => {
       if (repo.uri !== '') {
-        acc[repo.uri] = repo;
+        // Use complete data from cache if available, otherwise use the stored value
+        acc[repo.uri] = completeRepoData[repo.uri] || repo;
       }
       return acc;
     }, result);
-  }, [value]);
+  }, [value, completeRepoData]);
 
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -215,6 +221,13 @@ const RepoSelectorForAnswer = ({
 
   // Handle add/removal of repository selections in modal view and display confirmation toasts
   const toggleSelection = (repo: RepositoryInterface) => {
+
+    // Cache the complete repository data
+    setCompleteRepoData(prev => ({
+      ...prev,
+      [repo.uri]: repo
+    }));
+
     const isSelected = !!selectedRepos[repo.uri];
     let newSelected: RepositoryInterface[];
     if (isSelected) {
@@ -297,10 +310,17 @@ const RepoSelectorForAnswer = ({
         id: response.data?.uri || '',
         name: name.trim(),
         uri: website.trim(),
+        website: website.trim(),
         description: description.trim(),
         keywords: [],
         repositoryType: []
       };
+
+      // Cache the complete repository data
+      setCompleteRepoData(prev => ({
+        ...prev,
+        [newRepo.uri]: newRepo
+      }));
 
       onRepositoriesChange?.([...Object.values(selectedRepos), newRepo]);
       setCustomForm({ name: '', website: '', description: '' });
@@ -309,7 +329,7 @@ const RepoSelectorForAnswer = ({
       const successMessage = QuestionAdd('researchOutput.repoSelector.messages.customRepoAdded', { name: name.trim() });
       toastState.add(successMessage, { type: "success" });
     }
-  }, [customForm, templateId, Global, router, QuestionAdd, toastState]);
+  }, [customForm, templateId, Global, router, QuestionAdd, toastState, selectedRepos]);
 
 
   // Process repositoriesData changes
@@ -378,7 +398,7 @@ const RepoSelectorForAnswer = ({
                       <div className={styles.itemContent}>
                         <div className={styles.itemTitle}>{repo.name}
                           <Link
-                            href={repo.uri}
+                            href={repo.website}
                             target="_blank"
                             rel="noopener noreferrer"
                             className={styles.itemLink}

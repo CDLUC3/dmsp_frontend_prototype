@@ -25,6 +25,7 @@ import {
   MetaDataConfig,
   OutputTypeInterface,
   AccessLevelInterface,
+  RepoPreference,
   ResearchOutputTable
 } from '@/app/types';
 
@@ -355,7 +356,10 @@ export const stateToJSON = (
         if (field.repoConfig?.customRepos && field.repoConfig.customRepos.length > 0) {
           repoColumn.preferences = field.repoConfig.customRepos.map(repo => ({
             label: repo.name,
-            value: repo.uri || ''
+            value: repo.uri || '',
+            ...(repo.website && { website: repo.website }),
+            ...(repo.description && { description: repo.description }),
+            ...(repo.keywords && { keywords: repo.keywords })
           }));
         }
         columns.push(repoColumn);
@@ -549,9 +553,12 @@ export const jsonToState = (
           updated.helpText = getHelpText(col.content.attributes);
           updated.repoConfig = {
             ...updated.repoConfig,
-            customRepos: (col.preferences as Preference[]).map(repo => ({
+            customRepos: (col.preferences as RepoPreference[]).map(repo => ({
               name: repo.label,
-              uri: repo.value
+              uri: repo.value,
+              ...(repo.website && { website: repo.website }),
+              ...(repo.description && { description: repo.description }),
+              ...(repo.keywords && { keywords: repo.keywords })
             })),
             hasCustomRepos: col?.preferences.length > 0,
           };

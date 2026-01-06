@@ -86,6 +86,16 @@ export interface RepositoryFieldInterface {
   }
 }
 
+// Type for repository preferences with extended fields
+export type RepoPreference = {
+  label: string;
+  value: string;
+  website?: string;
+  description?: string;
+  keywords?: string[];
+  repositoryType?: string[];
+};
+
 export interface MetaDataStandardInterface {
   id?: number | string;
   name: string;

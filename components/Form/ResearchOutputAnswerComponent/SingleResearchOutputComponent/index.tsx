@@ -11,12 +11,12 @@ import {
   ResearchOutputTableQuestionType,
   AnyTableColumnAnswerType,
   LicenseSearchAnswerType,
-  RepositorySearchAnswerType,
   MetadataStandardSearchAnswerType
 } from '@dmptool/types';
 
 //GraphQL
 import {
+  RepoPreference,
   ResearchOutputTable
 } from '@/app/types';
 import {
@@ -66,7 +66,6 @@ type ResearchOutputAnswerComponentProps = {
 
 // Use the answer type directly from @dmptool/types
 type ValueType = AnyTableColumnAnswerType['answer'];
-
 
 const SingleResearchOutputComponent = ({
   columns,
@@ -282,12 +281,26 @@ const SingleResearchOutputComponent = ({
             ('repositoryId' in value[0] || 'uri' in value[0]);
 
           if (isRepoArray) {
-            // Extract the array item type from the RepositorySearchAnswerType
-            type RepoItem = RepositorySearchAnswerType['answer'][number];
+            // Define extended type that includes all fields we want to preserve
+            type ExtendedRepoItem = {
+              repositoryId?: string;
+              repositoryName?: string;
+              repositoryWebsite?: string;
+              repositoryDescription?: string;
+              repositoryKeywords?: string[];
+              repositoryType?: string[];
+              uri?: string;
+              name?: string;
+            };
 
-            newValue = (value as RepoItem[]).map((repo) => ({
-              repositoryId: repo.repositoryId || '',
-              repositoryName: repo.repositoryName || ''
+            // Save all repository data to preserve website, description, keywords
+            newValue = (value as ExtendedRepoItem[]).map((repo) => ({
+              repositoryId: repo.repositoryId || repo.uri || '',
+              repositoryName: repo.repositoryName || repo.name || '',
+              repositoryWebsite: repo.repositoryWebsite || '',
+              repositoryDescription: repo.repositoryDescription || '',
+              repositoryKeywords: repo.repositoryKeywords || [],
+              repositoryType: repo.repositoryType || []
             }));
           }
         }
@@ -575,27 +588,60 @@ const SingleResearchOutputComponent = ({
             const hasExplicitRepoAnswer = Array.isArray(value);
 
             // Type guard for repository answer
-            type RepoAnswer = { repositoryId: string; repositoryName: string };
+            type RepoAnswer = {
+              repositoryId: string;
+              repositoryName: string;
+              repositoryWebsite?: string;
+              repositoryDescription?: string;
+              repositoryKeywords?: string[];
+              repositoryType?: string[];
+            };
             const repoValue = (Array.isArray(value) && value.length > 0 &&
               typeof value[0] === 'object' &&
               'repositoryId' in value[0])
               ? value as RepoAnswer[]
               : [];
 
+            // Build a preferences lookup map for enriching answer data
+            const preferencesMap = new Map<string, RepoPreference>();
+            if (colRepoPreferences && Array.isArray(colRepoPreferences)) {
+              colRepoPreferences.forEach((pref) => {
+                const typedPref = pref as RepoPreference;
+                if (typedPref.value) {
+                  preferencesMap.set(typedPref.value, typedPref);
+                }
+              });
+            }
+
             const existingRepos = hasExplicitRepoAnswer
               ? (repoValue.length > 0
-                ? repoValue.map((repo) => ({
-                  id: repo.repositoryId,
-                  uri: repo.repositoryId,
-                  name: repo.repositoryName
-                }))
+                ? repoValue.map((repo) => {
+                  // Try to enrich from preferences if available
+                  const prefData = preferencesMap.get(repo.repositoryId);
+                  return {
+                    id: repo.repositoryId,
+                    uri: repo.repositoryId,
+                    name: repo.repositoryName,
+                    website: repo.repositoryWebsite || prefData?.website || '',
+                    description: repo.repositoryDescription || prefData?.description || '',
+                    keywords: repo.repositoryKeywords || prefData?.keywords || [],
+                    repositoryType: repo.repositoryType || prefData?.repositoryType || []
+                  };
+                })
                 : [])  // User explicitly removed all items - show empty
               : ((colRepoPreferences && colRepoPreferences.length > 0)
-                ? colRepoPreferences.map((pref: { value: string; label: string }) => ({
-                  id: pref.value,
-                  uri: pref.value,
-                  name: pref.label
-                }))
+                ? colRepoPreferences.map((pref) => {
+                  const typedPref = pref as RepoPreference;
+                  return {
+                    id: typedPref.value,
+                    uri: typedPref.value,
+                    name: typedPref.label,
+                    website: typedPref.website || '',
+                    description: typedPref.description || '',
+                    keywords: typedPref.keywords || [],
+                    repositoryType: typedPref.repositoryType || []
+                  };
+                })
                 : []);  // No answer yet - show preferences
 
             return (
@@ -612,9 +658,14 @@ const SingleResearchOutputComponent = ({
                   value={existingRepos}
                   onRepositoriesChange={(repos) => {
                     // Transform RepositoryInterface[] to the answer format
+                    // Save all repository data to preserve it across selections
                     const repoAnswers = repos.map(repo => ({
                       repositoryId: repo.uri,
-                      repositoryName: repo.name
+                      repositoryName: repo.name,
+                      repositoryWebsite: repo.website,
+                      repositoryDescription: repo.description,
+                      repositoryKeywords: repo.keywords,
+                      repositoryType: repo.repositoryType
                     }));
                     handleCellChange(colIndex, repoAnswers);
                   }}
