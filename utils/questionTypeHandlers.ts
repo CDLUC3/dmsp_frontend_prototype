@@ -602,6 +602,16 @@ export const questionTypeHandlers: Record<string, QuestionTypeHandler> = {
    * in the standardFields configuration.
    */
   researchOutputTable: (json, input) => {
+    // Store original preferences before validation to preserve extra fields
+    const originalPreferences = new Map();
+    input?.columns?.forEach((column: ResearchOutputTableColumn, index: number) => {
+      // Type assertion needed because preferences only exists on search-type columns
+      const columnWithPrefs = column as any;
+      if (columnWithPrefs.preferences && Array.isArray(columnWithPrefs.preferences)) {
+        originalPreferences.set(index, columnWithPrefs.preferences);
+      }
+    });
+
     const questionData: QuestionTypeMap["researchOutputTable"] = {
       ...json,
       type: "researchOutputTable",
@@ -647,10 +657,19 @@ export const questionTypeHandlers: Record<string, QuestionTypeHandler> = {
           };
         }
 
-        return {
+        // Build the result object with all column properties
+        const result: any = {
           ...column,
           content: hydratedContent
         };
+
+        // Preserve preferences if they exist (for repositorySearch, metadataStandardSearch, licenseSearch)
+        const columnWithPrefs = column as any;
+        if (columnWithPrefs.preferences && Array.isArray(columnWithPrefs.preferences)) {
+          result.preferences = columnWithPrefs.preferences;
+        }
+
+        return result;
       }) ?? [],
       meta: {
         ...json.meta,
@@ -660,6 +679,17 @@ export const questionTypeHandlers: Record<string, QuestionTypeHandler> = {
       },
     };
 
-    return createAndValidateQuestion("researchOutputTable", questionData, QuestionSchemaMap['researchOutputTable']);
+    const validationResult = createAndValidateQuestion("researchOutputTable", questionData, QuestionSchemaMap['researchOutputTable']);
+
+    // Restore original preferences with all fields after Zod validation strips them
+    if (validationResult.success && validationResult.data && validationResult.data.columns) {
+      validationResult.data.columns.forEach((column: any, index: number) => {
+        if (originalPreferences.has(index)) {
+          column.preferences = originalPreferences.get(index);
+        }
+      });
+    }
+
+    return validationResult;
   },
 };

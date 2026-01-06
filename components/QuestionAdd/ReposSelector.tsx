@@ -10,6 +10,7 @@ import {
   Heading,
   Input,
   Label,
+  Link,
   ListBoxItem,
   Modal,
   SearchField,
@@ -314,6 +315,7 @@ const RepositorySelectionSystem = ({
         id: response.data?.uri || '',
         name: name.trim(),
         uri: website.trim(),
+        website: website.trim(),
         description: description.trim(),
         keywords: [],
         repositoryType: []
@@ -399,7 +401,7 @@ const RepositorySelectionSystem = ({
                   <Button
                     onClick={removeAllRepos}
                     isDisabled={selectedCount === 0}
-                    className="medium secondary"
+                    className={`${styles.removeBtn} medium secondary`}
                   >
                     {Global('buttons.removeAll')}
                   </Button>
@@ -414,14 +416,14 @@ const RepositorySelectionSystem = ({
                       <div className={styles.itemHeader}>
                         <div className={styles.itemContent}>
                           <div className={styles.itemTitle}>{repo.name}
-                            <a
+                            <Link
                               href={repo.website}
                               target="_blank"
                               rel="noopener noreferrer"
                               className={styles.itemLink}
                             >
                               {QuestionAdd('researchOutput.repoSelector.links.viewRepository')} →
-                            </a>
+                            </Link>
                           </div>
                         </div>
                         <Button

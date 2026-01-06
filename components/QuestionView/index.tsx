@@ -9,11 +9,16 @@ import { CalendarDate, DateValue } from "@internationalized/date";
 import {
   Button,
 } from "react-aria-components";
+
+// GraphQL
 import {
   useTemplateQuery,
 } from '@/generated/graphql';
 
-import { Question } from '@/app/types';
+import {
+  Question,
+  ResearchOutputTable
+} from '@/app/types';
 
 // Components
 import {
@@ -30,7 +35,6 @@ import {
   CardHeading,
 } from "@/components/Card/card";
 
-import TinyMCEEditor from '@/components/TinyMCEEditor';
 import {
   DateComponent,
   FormInput,
@@ -48,6 +52,11 @@ import {
   AffiliationSearchQuestionComponent,
   BooleanQuestionComponent
 } from '@/components/Form/QuestionComponents';
+import TinyMCEEditor from '@/components/TinyMCEEditor';
+import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
+import ExpandableContentSection from '@/components/ExpandableContentSection';
+import { ResearchOutputAnswerComponent } from '@/components/Form';
+import { createEmptyResearchOutputRow } from '@/utils/researchOutputTransformations';
 
 // Utils
 import { getCalendarDateValue } from "@/utils/dateUtils";
@@ -66,11 +75,11 @@ import {
   TEXT_FIELD_QUESTION_TYPE,
   TYPEAHEAD_QUESTION_TYPE,
   URL_QUESTION_TYPE,
+  RESEARCH_OUTPUT_QUESTION_TYPE
 } from '@/lib/constants';
-import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
-import styles from './QuestionView.module.scss';
-import ExpandableContentSection from '@/components/ExpandableContentSection';
 import { getQuestionTypes } from "@/utils/questionTypeHandlers";
+import styles from './QuestionView.module.scss';
+
 
 
 interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -137,9 +146,17 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     endNumber: 0,
   });
 
+  // Local state for research output table rows
+  const [researchOutputRows, setResearchOutputRows] = useState<ResearchOutputTable[]>([]);
+
+
   // localization keys
   const Global = useTranslations('Global');
 
+  const handleResearchOutputChange = (rows: ResearchOutputTable[]): Promise<void> => {
+    setResearchOutputRows(rows);
+    return Promise.resolve();
+  };
   // These handlers are here so that users can interact with the different question types in the Question Preview
   // However, their changes are not saved anywhere. It's just so they can see how the questions will look and behave
   const handleAffiliationChange = async (id: string, value: string) => {
@@ -160,7 +177,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     const value = e.target.value;
     setUrlValue(value);
   };
-
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -234,6 +250,14 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       if (qtJson?.type === type) {
         setQuestionType(type);
         break;
+      }
+    }
+
+    // Initialize research output rows if this is a research output question
+    if (type === RESEARCH_OUTPUT_QUESTION_TYPE && parsed.type === 'researchOutputTable') {
+      if (researchOutputRows.length === 0) {
+        const emptyRow = createEmptyResearchOutputRow(parsed.columns);
+        setResearchOutputRows([emptyRow]);
       }
     }
   })
@@ -450,6 +474,18 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               setOtherField={setOtherField}
               handleAffiliationChange={(handleAffiliationChange)}
               handleOtherAffiliationChange={handleOtherAffiliationChange}
+            />
+          )
+        }
+      case RESEARCH_OUTPUT_QUESTION_TYPE:
+        if (parsed.type === 'researchOutputTable') {
+          return (
+            <ResearchOutputAnswerComponent
+              columns={parsed.columns}
+              rows={[...researchOutputRows]}
+              setRows={setResearchOutputRows}
+              onSave={handleResearchOutputChange}
+              initialViewMode="form"
             />
           )
         }
