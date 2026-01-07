@@ -856,6 +856,11 @@
       "table": "Table",
       "affiliationSearch": "Affiliation search",
       "researchOutputTable": "Research output table"
+    },
+    "status": {
+      "published": "Published",
+      "draft": "Draft",
+      "unpublishedChanges": "Unpublished changes"
     }
   },
   "OrganizationTemplates": {
