@@ -315,6 +315,18 @@ input[type="submit"].danger {
   background: var(--bg-white);
   color: var(--text-color)
 }
+
+// button-link variants for <Link> components
+a.button-link.secondary,
+.button-link.secondary {
+  @include button-secondary;
+}
+
+a.button-link.tertiary,
+.button-link.tertiary {
+  @include button-tertiary;
+}
+
 // Button size styles
 button.small {
   padding: 6px 16px;

@@ -360,6 +360,207 @@ describe("TemplateEditPage", () => {
     });
   });
 
+  it("should display draft status when there is no publish date", async () => {
+    const mockTemplateDataWithNoPublishDate = {
+      __typename: "Template",
+      id: 395,
+      name: "Test Template",
+      description: null,
+      errors: {
+        __typename: "TemplateErrors",
+        general: null,
+        name: null,
+        ownerId: null
+      },
+      latestPublishVersion: "",
+      latestPublishDate: null,
+      created: "2026-01-06 16:02:26",
+      sections: [
+        {
+          __typename: "Section",
+          id: 1815,
+          name: "Section One",
+          bestPractice: false,
+          displayOrder: 1,
+          isDirty: false,
+          questions: [
+            {
+              __typename: "Question",
+              errors: {
+                __typename: "QuestionErrors",
+                general: null,
+              },
+              displayOrder: 1,
+              guidanceText: "",
+              id: 3688,
+              questionText: "Text area question123",
+              sectionId: 1815,
+              templateId: 395
+            }
+          ]
+        }
+      ],
+      owner: {
+        __typename: "Affiliation",
+        displayName: "California Digital Library (cdlib.org)",
+        id: 1
+      },
+      latestPublishVisibility: "PUBLIC",
+      bestPractice: false,
+      isDirty: true
+    };
+
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateDataWithNoPublishDate },
+      loading: false,
+      error: null,
+    });
+    (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: "value" } }), // Correct way to mock a resolved promise
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(<TemplateEditPage />);
+    });
+
+    expect(screen.getByText("status.draft")).toBeInTheDocument();
+  });
+
+  it("should display published status when there is a publish date and isDirty is false", async () => {
+    const mockPublishedTemplateWithNoEdits = {
+      __typename: "Template",
+      id: 395,
+      name: "Test Template",
+      description: null,
+      errors: {
+        __typename: "TemplateErrors",
+        general: null,
+        name: null,
+        ownerId: null
+      },
+      latestPublishVersion: "",
+      latestPublishDate: "1767715403000",
+      created: "2026-01-06 16:02:26",
+      sections: [
+        {
+          __typename: "Section",
+          id: 1815,
+          name: "Section One",
+          bestPractice: false,
+          displayOrder: 1,
+          isDirty: false,
+          questions: [
+            {
+              __typename: "Question",
+              errors: {
+                __typename: "QuestionErrors",
+                general: null,
+              },
+              displayOrder: 1,
+              guidanceText: "",
+              id: 3688,
+              questionText: "Text area question123",
+              sectionId: 1815,
+              templateId: 395
+            }
+          ]
+        }
+      ],
+      owner: {
+        __typename: "Affiliation",
+        displayName: "California Digital Library (cdlib.org)",
+        id: 1
+      },
+      latestPublishVisibility: "PUBLIC",
+      bestPractice: false,
+      isDirty: false
+    };
+
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockPublishedTemplateWithNoEdits },
+      loading: false,
+      error: null,
+    });
+    (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: "value" } }), // Correct way to mock a resolved promise
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(<TemplateEditPage />);
+    });
+
+    expect(screen.getByText("status.published")).toBeInTheDocument();
+  });
+
+  it("should display \"Unpublished changes\" status when there is a publish date and isDirty is true", async () => {
+    const mockPublishedTemplateWithNoEdits = {
+      __typename: "Template",
+      id: 395,
+      name: "Test Template",
+      description: null,
+      errors: {
+        __typename: "TemplateErrors",
+        general: null,
+        name: null,
+        ownerId: null
+      },
+      latestPublishVersion: "",
+      latestPublishDate: "1767715403000",
+      created: "2026-01-06 16:02:26",
+      sections: [
+        {
+          __typename: "Section",
+          id: 1815,
+          name: "Section One",
+          bestPractice: false,
+          displayOrder: 1,
+          isDirty: false,
+          questions: [
+            {
+              __typename: "Question",
+              errors: {
+                __typename: "QuestionErrors",
+                general: null,
+              },
+              displayOrder: 1,
+              guidanceText: "",
+              id: 3688,
+              questionText: "Text area question123",
+              sectionId: 1815,
+              templateId: 395
+            }
+          ]
+        }
+      ],
+      owner: {
+        __typename: "Affiliation",
+        displayName: "California Digital Library (cdlib.org)",
+        id: 1
+      },
+      latestPublishVisibility: "PUBLIC",
+      bestPractice: false,
+      isDirty: true
+    };
+
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockPublishedTemplateWithNoEdits },
+      loading: false,
+      error: null,
+    });
+    (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: "value" } }), // Correct way to mock a resolved promise
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(<TemplateEditPage />);
+    });
+
+    expect(screen.getByText("status.unpublishedChanges")).toBeInTheDocument();
+  });
+
   it("should display errors.saveTemplate error message if no result when calling saveTemplate", async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },

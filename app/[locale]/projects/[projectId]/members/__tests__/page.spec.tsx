@@ -1,10 +1,10 @@
 import React from 'react';
-import {act, fireEvent, render, screen} from '@testing-library/react';
-import {useParams, useRouter} from 'next/navigation';
-import {useProjectMembersQuery} from '@/generated/graphql';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { useParams, useRouter } from 'next/navigation';
+import { useProjectMembersQuery } from '@/generated/graphql';
 import ProjectsProjectMembers from '../page';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
@@ -117,7 +117,7 @@ describe('ProjectsProjectMembers', () => {
     expect(editButton).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: 'headings.h2AllowCollaborators' })).toBeInTheDocument();
     expect(screen.getByText('para.para1AllowCollaborators')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /buttons.shareWithPeople/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /buttons.shareWithPeople/i })).toBeInTheDocument();
   });
 
   it('should handle add member button click', () => {
@@ -139,16 +139,6 @@ describe('ProjectsProjectMembers', () => {
     fireEvent.click(editButtons[0]);
 
     expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/1/members/1/edit');
-  });
-
-  it('should handle share button click', () => {
-    mockUseProjectMembersQuery.mockReturnValue({ data: { projectMembers: [] } });
-
-    render(<ProjectsProjectMembers />);
-
-    fireEvent.click(screen.getByText('buttons.shareWithPeople'));
-
-    expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/1/share');
   });
 
   it('should pass axe accessibility test', async () => {
