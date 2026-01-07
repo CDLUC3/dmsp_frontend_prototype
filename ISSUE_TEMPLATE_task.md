@@ -7,13 +7,13 @@ labels:
 ---
 
 ### Summary
-One-line summary of the task.
+Short summary of the task.
 
 ### Context
 Why it's needed / background context
 
-### Links to impacted pages
-Provide specific URLs to examples of pages that would be affected
+### Links to impacted areas
+Provide specific URLs to pages or other areas that would be affected
 
 ### Design Information
 Provide links to wireframes, URLs of current tool pages to copy, screenshots, mock-ups, or a detailed description of what it should look like
