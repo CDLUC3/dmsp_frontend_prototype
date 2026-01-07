@@ -101,6 +101,10 @@ describe('LoginPage', () => {
       expect(screen.getByTestId("passInput")).toBeInTheDocument();
       expect(screen.getByTestId("actionSubmit")).toBeInTheDocument();
     });
+
+    // Ensure that email field is read-only on this step
+    const emailField = screen.getByTestId("emailInput");
+    expect(emailField).toHaveAttribute('readonly');
   });
 
   it("should redirect to home on successful login", async () => {
