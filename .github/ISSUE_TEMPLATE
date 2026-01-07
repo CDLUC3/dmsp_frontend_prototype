@@ -1,0 +1,52 @@
+---
+name: "Template"
+about: "Copmbined template for new task and bug tickets"
+---
+
+### Summary
+
+Short summary of the issue or task
+
+### Links to impacted areas
+
+Provide specific URLs/direction to pages or other areas that are affected
+
+### Images
+
+For bugs, provide pictures or video of the issue occurring
+For tasks, provide links to wireframes, URLs of current tool pages to copy, screenshots, mock-ups, or a detailed description of what it should look like
+
+### Acceptance criteria
+
+Add more specific details here about what to implement and how the end behavior should work.  For Bugs this may just be that the bug is fixed per expected behavior, but sometimes if that fix isn't clear this may be needed.
+- [ ] Criterion 1
+- [ ] Criterion 2
+
+### Relevant technical decisions
+
+As we make decisions as a group on technical or implementation details, add notes here.  This just should be updated over time and have the latest information
+
+## For bugs only, add the following:
+
+### Environment/Context
+
+Environment variables, browser, OS, or other potentially relevant technical details about the situation where it was encountered
+
+### Steps to reproduce
+
+Add specific steps here on how to reproduce the issue, ending with the incorrect behavior observed
+- Step 1
+- Step 2
+- Step 3
+
+### Actual behavior
+
+What is currently happening that shouldn't after the steps above
+
+### Expected behavior
+
+What precisely should happen after the steps
+
+### Workarounds
+
+What other options there are, if any, for the user to get past the issue (e.g. navigating to a page a different way if there is a broken link)
