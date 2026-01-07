@@ -4,6 +4,7 @@
 - Added `utils/researchOutputTransformations.ts` to group utilities for `researchOutputTable` [#787]
 ### Updated
 - Updated "Share with people" link on `ProjectsProjectMember` component to go to `/collaboration` page [#845]
+- Updated `TemplateEditPage` component with the new `Unpublished changes` status [#875]
 - Updated `QuestionAdd` and associated unit tests to include tests for new `researchOutputTable` question type [#787]
 - Update `PlanOverviewQuestionPage` component and related unit test in template builder flow to add `researchOutputTable` question type support [#787]
 - Updated `QuestionEdit` page and related unit test to improve the `researchOutputTable` question type application by moving hydration out to hook [#787]

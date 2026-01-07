@@ -855,6 +855,11 @@
       "filteredSearch": "Pesquisa com filtros",
       "table": "Tabela",
       "affiliationSearch": "Busca de afiliação"
+    },
+    "status": {
+      "published": "Publicado",
+      "draft": "Rascunho",
+      "unpublishedChanges": "Alterações não publicadas"
     }
   },
   "OrganizationTemplates": {
