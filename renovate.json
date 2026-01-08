@@ -3,6 +3,10 @@
   "extends": [
     "config:recommended"
   ],
+  "timezone": "America/Los_Angeles",
+  "schedule": [
+    "before 5am on monday"
+  ],
   "enabledManagers": [
     "npm"
   ],
@@ -22,7 +26,11 @@
         "@apollo/experimental-nextjs-app-support"
       ],
       "enabled": false,
-      "description": "Disable updates for specific Apollo GraphQL packages"
+      "description": "Disable updates for Apollo GraphQL packages"
     }
+  ],
+  "ignoreDeps": [
+    "@apollo/client",
+    "@apollo/experimental-nextjs-app-support"
   ]
 }
