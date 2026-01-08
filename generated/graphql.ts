@@ -1,6 +1,7 @@
+/* eslint-disable */
 import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
-export type InputMaybe<T> = Maybe<T>;
+export type InputMaybe<T> = T | null | undefined;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
@@ -14,10 +15,14 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   DateTimeISO: { input: any; output: any; }
+  /** A Data Management and Sharing Plan's (DMSP) ID */
   DmspId: { input: any; output: any; }
   EmailAddress: { input: any; output: any; }
+  /** An MD5 hash, represented as a 32-character hexadecimal string. */
   MD5: { input: any; output: any; }
+  /** A researcher ORCID */
   Orcid: { input: any; output: any; }
+  /** An organization ROR ID */
   Ror: { input: any; output: any; }
   URL: { input: any; output: any; }
 };

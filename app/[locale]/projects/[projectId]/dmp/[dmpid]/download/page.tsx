@@ -13,8 +13,10 @@ import { useParams } from "next/navigation";
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
+// GraphQL
+import { useQuery } from '@apollo/client/react';
 import {
-  usePlanQuery
+  PlanDocument
 } from "@/generated/graphql";
 
 // Components
@@ -26,7 +28,7 @@ import {
 } from "@/components/Container";
 import ErrorMessages from '@/components/ErrorMessages';
 
-// Other
+// Utils and Other
 import { DOI_REGEX } from "@/lib/constants";
 import { routePath } from "@/utils/routes";
 import logECS from "@/utils/clientLogger";
@@ -92,7 +94,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
   // Get Plan using planId
   const {
     data,
-  } = usePlanQuery({
+  } = useQuery(PlanDocument, {
     variables: { planId: Number(planId) },
     skip: isNaN(Number(planId)),
     notifyOnNetworkStatusChange: true,
@@ -213,7 +215,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
             <Breadcrumb><Link href={routePath("app.home")}>{Global("breadcrumbs.home")}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath("projects.index")}>{Global("breadcrumbs.projects")}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.show', { projectId: String(projectId) })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('projects.dmp.show', { projectId, dmpId })}>{Global('breadcrumbs.planOverview')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.dmp.show', { projectId, dmpId: planId })}>{Global('breadcrumbs.planOverview')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.downloadPlan')}</Breadcrumb>
           </Breadcrumbs>
         }

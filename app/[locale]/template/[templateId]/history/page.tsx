@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from 'next-intl';
-import { useTemplateVersionsQuery } from '@/generated/graphql';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -16,15 +15,18 @@ import {
   TableHeader,
 } from "react-aria-components";
 
+// GraphQL
+import { useQuery } from '@apollo/client/react';
+import { TemplateVersionsDocument } from '@/generated/graphql';
+
 // Components
 import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import ErrorMessages from "@/components/ErrorMessages";
 
-
+// Utils and other
 import { handleApolloErrors } from "@/utils/gqlErrorHandler";
 import { formatToDateOnly, formatWithTimeAndDate } from "@/utils/dateUtils"
-
 import styles from './history.module.scss';
 
 const TemplateHistory = () => {
@@ -41,26 +43,16 @@ const TemplateHistory = () => {
   const Global = useTranslations('Global');
 
   // Query for Template versions
-  const { data = {}, loading, error, refetch } = useTemplateVersionsQuery(
-    { variables: { templateId } }
-  );
+  const { data = {}, loading, error, refetch } = useQuery(TemplateVersionsDocument, {
+    variables: { templateId }
+  });
 
-  // UseEffect to handle async error handling
+  // UseEffect to handle error handling
   useEffect(() => {
     if (error) {
-      const handleErrors = async () => {
-        await handleApolloErrors(
-          error.graphQLErrors,
-          error.networkError,
-          setErrors,
-          refetch,
-          router
-        );
-      };
-
-      handleErrors();
+      setErrors([error.message]);
     }
-  }, [error, refetch, router]);
+  }, [error]);
 
   // Handle loading state
   if (loading) {

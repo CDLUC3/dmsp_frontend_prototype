@@ -22,13 +22,16 @@ import TemplateList from '@/components/TemplateList';
 import ErrorMessages from '@/components/ErrorMessages';
 import Pagination from '@/components/Pagination';
 
+// Apollo Client
+import { useMutation, useLazyQuery } from '@apollo/client/react';
+
 //GraphQL
 import {
   PublishedTemplateSearchResults,
   TemplateSearchResult,
-  useAddTemplateMutation,
-  useTemplatesLazyQuery,
-  usePublishedTemplatesLazyQuery,
+  AddTemplateDocument,
+  TemplatesDocument,
+  PublishedTemplatesDocument,
   VersionedTemplateSearchResult,
 } from '@/generated/graphql';
 
@@ -59,6 +62,8 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
+  // check if this is initial mount
+  const isInitialMount = useRef(true);
   const formatDate = useFormatDate();
   const router = useRouter();
   const toastState = useToast();
@@ -92,11 +97,11 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   const Global = useTranslations('Global');
 
   // Separate lazy queries for published sections
-  const [fetchPublishedTemplates, { data: publishedTemplatesData, loading: publishedTemplatesLoading }] = usePublishedTemplatesLazyQuery();
-  const [fetchMyTemplates, { data: myTemplatesData, loading: myTemplatesLoading }] = useTemplatesLazyQuery();
+  const [fetchPublishedTemplates, { data: publishedTemplatesData, loading: publishedTemplatesLoading }] = useLazyQuery(PublishedTemplatesDocument);
+  const [fetchMyTemplates, { data: myTemplatesData, loading: myTemplatesLoading }] = useLazyQuery(TemplatesDocument);
 
   // GraphQL mutation for adding the new template
-  const [addTemplateMutation] = useAddTemplateMutation({
+  const [addTemplateMutation] = useMutation(AddTemplateDocument, {
     notifyOnNetworkStatusChange: true,
   });
 
@@ -159,9 +164,25 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   };
 
   // zero out search and filters
-  const resetSearch = () => {
+  const resetSearch = async () => {
     setSearchTerm('');
-    handleSearchInput('');
+    // Reset both paginations to first page
+    setPublishedPagination(prev => ({ ...prev, currentPage: 1 }));
+    setMyTemplatesPagination(prev => ({ ...prev, currentPage: 1 }));
+
+    try {
+      // Fetch both types without search term
+      await Promise.all([
+        fetchTemplatesByType({ templateType: 'published', page: 1, searchTerm: '' }),
+        fetchTemplatesByType({ templateType: 'myTemplates', page: 1, searchTerm: '' })
+      ]);
+    } catch (error) {
+      // Ignore AbortError - it's expected when queries are cancelled
+      if (error instanceof Error && error.name !== 'AbortError') {
+        console.error('Error fetching templates:', error);
+      }
+
+    }
   }
 
 
@@ -169,10 +190,6 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   const handleInputChange = (value: string) => {
     // Update search term immediately for UI responsiveness
     setSearchTerm(value);
-    if (value === '') {
-      //reset search
-      resetSearch();
-    }
   };
 
   // Handle search when user presses search button
@@ -378,6 +395,12 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   }, [myTemplatesData]);
 
   useEffect(() => {
+    // Skip on initial mount since the other useEffect handles it
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
     // Need this to set list of templates back to original
     if (searchTerm === '') {
       resetSearch();
@@ -387,8 +410,8 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   // Fetch templates on initial load
   useEffect(() => {
     const load = async () => {
-      await fetchTemplatesByType({ templateType: 'published', page: 1 });
-      await fetchTemplatesByType({ templateType: 'myTemplates', page: 1 });
+      await fetchTemplatesByType({ templateType: 'published', page: 1 }).catch(() => { });
+      await fetchTemplatesByType({ templateType: 'myTemplates', page: 1 }).catch(() => { });
     };
     load();
   }, []);

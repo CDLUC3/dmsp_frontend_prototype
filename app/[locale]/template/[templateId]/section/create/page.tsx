@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useQuery, useMutation } from '@apollo/client/react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -26,9 +26,8 @@ import {
 import {
   SectionErrors,
   SectionsDisplayOrderDocument,
-  useAddSectionMutation,
-  useSectionsDisplayOrderQuery,
-  useTagsQuery
+  AddSectionDocument,
+  TagsDocument
 } from '@/generated/graphql';
 
 //Components
@@ -102,13 +101,13 @@ const CreateSectionPage: React.FC = () => {
   const [tags, setTags] = useState<TagsInterface[]>([]);
 
   // Initialize user addSection mutation
-  const [addSectionMutation] = useAddSectionMutation();
+  const [addSectionMutation] = useMutation(AddSectionDocument);
 
   // Query for all tags
-  const { data: tagsData } = useTagsQuery();
+  const { data: tagsData } = useQuery(TagsDocument);
 
   // Query for all section displayOrder
-  const { data: sectionDisplayOrders } = useSectionsDisplayOrderQuery({
+  const { data: sectionDisplayOrders } = useQuery(SectionsDisplayOrderDocument, {
     variables: {
       templateId: Number(templateId)
     }
@@ -208,11 +207,7 @@ const CreateSectionPage: React.FC = () => {
         return response.data.addSection.errors;
       }
     } catch (error) {
-      if (error instanceof ApolloError) {
-        setErrors(prevErrors => [...prevErrors, error.message]);
-      } else {
-        setErrors(prevErrors => [...prevErrors, CreateSectionPage('messages.errorCreatingSection')]);
-      }
+      setErrors(prevErrors => [...prevErrors, CreateSectionPage('messages.errorCreatingSection')]);
     }
     return {};
   };

@@ -1,6 +1,10 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+
+// Apollo Client
+import { useQuery, useMutation, useLazyQuery } from '@apollo/client/react';
+
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -15,7 +19,7 @@ import {
 import { useFormatter, useTranslations } from "next-intl";
 
 //GraphQL
-import { useTemplatesLazyQuery } from "@/generated/graphql";
+import { TemplatesDocument } from "@/generated/graphql";
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -67,7 +71,9 @@ const OrganizationTemplateListPage: React.FC = () => {
   const TEMPLATE_CREATE_URL = routePath("template.create");
 
   // Lazy query for organization templates
-  const [fetchTemplates, { data: templateData, loading, error: queryError }] = useTemplatesLazyQuery();
+  const [fetchTemplates, { data: templateData, loading, error: queryError }] = useLazyQuery(TemplatesDocument, {
+    notifyOnNetworkStatusChange: true,
+  });
 
   // zero out search and filters
   const resetSearch = async () => {

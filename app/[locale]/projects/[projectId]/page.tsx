@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
-import { PlanSearchResult, PlanSectionProgress, useProjectQuery } from "@/generated/graphql";
-
-import { routePath } from "@/utils/routes";
+// Apollo Client
+import { useQuery } from '@apollo/client/react';
+import { PlanSearchResult, PlanSectionProgress, ProjectDocument } from "@/generated/graphql";
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -14,6 +14,9 @@ import { Card } from "@/components/Card/card";
 import { ContentContainer, LayoutWithPanel, SidebarPanel } from "@/components/Container";
 import OverviewSection from "@/components/OverviewSection";
 import Loading from "@/components/Loading";
+
+// Utils and other
+import { routePath } from "@/utils/routes";
 
 interface FundingInterface {
   name: string;
@@ -62,7 +65,7 @@ const ProjectOverviewPage: React.FC = () => {
   const COLLABORATION_URL = routePath("projects.collaboration", { projectId });
 
   // Get Project using projectId
-  const { data, loading, error } = useProjectQuery({
+  const { data, loading, error } = useQuery(ProjectDocument, {
     variables: { projectId: Number(projectId) },
     notifyOnNetworkStatusChange: true,
   });

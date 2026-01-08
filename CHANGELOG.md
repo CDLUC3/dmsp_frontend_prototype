@@ -3,6 +3,8 @@
 - Added new `ResearchOutputAnswerComponent`, `SingleResearchOutputComponent`, `RepoSelectorForAnswer` and `MetaDataStandardForAnswer` components for the rendering of `researchOutputTable` question type answer form [#787]
 - Added `utils/researchOutputTransformations.ts` to group utilities for `researchOutputTable` [#787]
 ### Updated
+- Updated `codegen.ts` for new Client Preset approach [#1089]
+- Updated all components to use the new Apollo Client v4 approach of using Documents and wrapping them in hooks, like `useQuery` and `useMutation` from `apollo/client/react` [#1089]
 - Updated `/login` page to disable `email` field when on second step of login [#997]
 - Updated "Share with people" link on `ProjectsProjectMember` component to go to `/collaboration` page [#845]
 - Updated `TemplateEditPage` component with the new `Unpublished changes` status [#875]
@@ -24,6 +26,10 @@
 - Fixed related works pagination.
 
 ### Chore
+- Updates required in conjunction with update of Apollo Client version [#1089]
+  - Updated Apollo Client from `3.13.8 to 4.0.11`
+  - Removed `@apollo/experimental-nextjs-app-support` to `@apollo/client-integration-nextjs@0.14.1`
+  - Removed `@graphql-codegen/typescript-react-apollo` and replaced with `@graphql-codegen/client-preset`
 - Removing `github/dependabot.yaml` file because we are opting to use `renovate` to notify us of dependency updates
 - Updated the following packages: `@types/react` to 18.3.27, `react` to 19.2.3, `react-dom` to 19.2.3, `node-fetch` to 3.3.2, `@types/node` to 24.10.4, `eslint` to 9.39.2, `eslint-plugin-unused-imports` to 4.3.0, `husky` to 9.1.7, `pino` to 9.14.0 and `prettier` to 3.7.4
 - Updated `qs` to 6.14.1 version due to vulnerability and updated dependency `cypress` to version 15.0.0

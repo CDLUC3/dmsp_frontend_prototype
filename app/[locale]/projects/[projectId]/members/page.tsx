@@ -5,7 +5,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Breadcrumb, Breadcrumbs, Button, Link } from "react-aria-components";
 
-import { useProjectMembersQuery } from '@/generated/graphql';
+// GraphQL
+import { useQuery } from '@apollo/client/react';
+import { ProjectMembersDocument } from '@/generated/graphql';
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -41,7 +43,7 @@ const ProjectsProjectMembers = () => {
   const [errors, setErrors] = useState<string[]>([]);
 
   // Get project members using projectid
-  const { data, loading, error: queryError } = useProjectMembersQuery(
+  const { data, loading, error: queryError } = useQuery(ProjectMembersDocument,
     {
       variables: { projectId: Number(projectId) },
       fetchPolicy: 'network-only',// So that when members are deleted the page refreshes 

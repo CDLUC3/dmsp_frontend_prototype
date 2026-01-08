@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useMutation, useQuery, useLazyQuery } from '@apollo/client/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -26,13 +27,13 @@ import Pagination from '@/components/Pagination';
 
 // GraphQL
 import {
-  useAddPlanMutation,
+  AddPlanDocument,
   PlanErrors,
-  useMeQuery,
-  useAddPlanFundingMutation,
-  useProjectFundingsQuery,
-  usePublishedTemplatesMetaDataQuery,
-  usePublishedTemplatesLazyQuery,
+  MeDocument,
+  AddPlanFundingDocument,
+  ProjectFundingsDocument,
+  PublishedTemplatesMetaDataDocument,
+  PublishedTemplatesDocument,
 } from '@/generated/graphql';
 
 // Other
@@ -102,18 +103,18 @@ const PlanCreate: React.FC = () => {
 
 
   // Published templates lazy query
-  const [fetchPublishedTemplates, { data: publishedTemplates, loading, error: publishedTemplatesError }] = usePublishedTemplatesLazyQuery();
+  const [fetchPublishedTemplates, { data: publishedTemplates, loading, error: publishedTemplatesError }] = useLazyQuery(PublishedTemplatesDocument);
 
   // Get Project Funders data
-  const { data: projectFundings, loading: projectFundingsLoading, error: projectFundingsError } = useProjectFundingsQuery({
+  const { data: projectFundings, loading: projectFundingsLoading, error: projectFundingsError } = useQuery(ProjectFundingsDocument, {
     variables: { projectId: Number(projectId) },
   });
 
   // User's data for user's affiliation
-  const { data: userData, loading: userLoading, error: userError } = useMeQuery();
+  const { data: userData, loading: userLoading, error: userError } = useQuery(MeDocument);
 
   // Get meta data about the available published templates
-  const { data: templateMetaData, loading: templatesMetaDataLoading, error: templatesMetaDataError } = usePublishedTemplatesMetaDataQuery({
+  const { data: templateMetaData, loading: templatesMetaDataLoading, error: templatesMetaDataError } = useQuery(PublishedTemplatesMetaDataDocument, {
     variables: {
       paginationOptions: {
         offset: 0,
@@ -129,21 +130,23 @@ const PlanCreate: React.FC = () => {
 
 
   // Initialize the addPlan mutation
-  const [addPlanMutation] = useAddPlanMutation({
+  const [addPlanMutation] = useMutation(AddPlanDocument, {
     notifyOnNetworkStatusChange: true,
   });
 
   // Initialize the addPlanFunding mutation
-  const [addPlanFundingMutation] = useAddPlanFundingMutation({});
+  const [addPlanFundingMutation] = useMutation(AddPlanFundingDocument, {});
 
   const fetchTemplatesForCurrentFilters = useCallback(async () => {
     // After clearing, fetch templates for current filters
     if (bestPractice) { // If best practice is checked, then filter on that
-      fetchTemplates({ page: currentPage, bestPractice: true, selectedOwnerURIs: [], searchTerm: '' });
+      // Need to keep catch to avoid unhandled promise rejection - known limitation of Apollo Client 4 handling lazy queries
+      // This silent catch is acceptable here because errors are handled in the useEffect monitoring publishedTemplatesError
+      fetchTemplates({ page: currentPage, bestPractice: true, selectedOwnerURIs: [], searchTerm: '' }).catch(() => { });
     } else if (selectedFunders.length > 0) { // If funders are checked, then filter on those
-      fetchTemplates({ page: currentPage, selectedOwnerURIs: selectedFunders, searchTerm: '' });
+      fetchTemplates({ page: currentPage, selectedOwnerURIs: selectedFunders, searchTerm: '' }).catch(() => { });
     } else {
-      fetchTemplates({ page: currentPage, searchTerm: '' });
+      fetchTemplates({ page: currentPage, searchTerm: '' }).catch(() => { });
     }
   }, [bestPractice, selectedFunders, currentPage, searchTerm]);
 
@@ -200,19 +203,19 @@ const PlanCreate: React.FC = () => {
       setSelectedFunders([]);
       setSelectedBestPracticeItems([]);
       // Default to all templates when no criteria selected, or templates matching search term
-      await fetchTemplates({ page: currentPage, searchTerm });
+      await fetchTemplates({ page: currentPage, searchTerm }).catch(() => { });
 
     } else if (typ === 'funders') {
       // Always set selected filter items (whether empty or not)
       setSelectedFunders(value);
       setBestPractice(false);
       // Fetch templates for selected funders
-      await fetchTemplates({ selectedOwnerURIs: value, searchTerm });
+      await fetchTemplates({ selectedOwnerURIs: value, searchTerm }).catch(() => { });
     } else if (typ === 'bestPractice') {
       setSelectedBestPracticeItems(value);
       setBestPractice(true);
       // Fetch best practice templates
-      await fetchTemplates({ bestPractice: true, selectedOwnerURIs: [], searchTerm });
+      await fetchTemplates({ bestPractice: true, selectedOwnerURIs: [], searchTerm }).catch(() => { });
     }
   };
 
@@ -224,7 +227,7 @@ const PlanCreate: React.FC = () => {
       bestPractice,
       selectedOwnerURIs: selectedFunders,
       searchTerm
-    });
+    }).catch(() => { });
   };
 
   // Handle filtering when user clicks search button
@@ -238,11 +241,11 @@ const PlanCreate: React.FC = () => {
 
     // Fetch templates based on currently checked filters and search term
     if (bestPractice) {
-      await fetchTemplates({ searchTerm: term, bestPractice: true, selectedOwnerURIs: [] });
+      await fetchTemplates({ searchTerm: term, bestPractice: true, selectedOwnerURIs: [] }).catch(() => { });
     } else if (selectedFunders.length > 0) {
-      await fetchTemplates({ searchTerm: term, selectedOwnerURIs: selectedFunders });
+      await fetchTemplates({ searchTerm: term, selectedOwnerURIs: selectedFunders }).catch(() => { });
     } else {
-      await fetchTemplates({ searchTerm: term });
+      await fetchTemplates({ searchTerm: term }).catch(() => { });
     }
   };
 
@@ -518,17 +521,17 @@ const PlanCreate: React.FC = () => {
         setFunders(initialFilterConfig.fundersData);
         setSelectedFunders(initialFilterConfig.funderURIs);
         setBestPractice(false);
-        await fetchTemplates({ selectedOwnerURIs: initialFilterConfig.funderURIs });
+        await fetchTemplates({ selectedOwnerURIs: initialFilterConfig.funderURIs }).catch(() => { });
 
       } else if (initialFilterConfig.type === 'bestPractice') {
         // Apply best practice filter
         setSelectedBestPracticeItems(["DMP Best Practice"]);
         setBestPractice(true);
-        await fetchTemplates({ bestPractice: true });
+        await fetchTemplates({ bestPractice: true }).catch(() => { });
 
       } else {
         // Show all templates
-        await fetchTemplates({ page: currentPage });
+        await fetchTemplates({ page: currentPage }).catch(() => { });
       }
 
       if (!isCancelled) {
@@ -561,7 +564,7 @@ const PlanCreate: React.FC = () => {
   // trigger fetching all templates when searchTerm is manually cleared (place after all state/effect declarations)
   useEffect(() => {
     if (searchTerm === '') {
-      fetchTemplatesForCurrentFilters();
+      fetchTemplatesForCurrentFilters().catch(() => { });
     }
   }, [searchTerm]);
 

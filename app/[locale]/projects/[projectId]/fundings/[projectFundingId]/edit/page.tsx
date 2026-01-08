@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import {
@@ -13,11 +12,13 @@ import {
   ListBoxItem,
 } from "react-aria-components";
 
+// Apollo Client
+import { useQuery, useMutation, useApolloClient } from '@apollo/client/react';
 import {
   ProjectFundingErrors,
   ProjectFundingStatus,
-  useProjectFundingQuery,
-  useUpdateProjectFundingMutation
+  ProjectFundingDocument,
+  UpdateProjectFundingDocument,
 } from '@/generated/graphql';
 
 // Components
@@ -97,6 +98,9 @@ const ProjectsProjectFundingEdit = () => {
   const EditFunding = useTranslations('ProjectsProjectFundingEdit');
   const Global = useTranslations('Global');
 
+  // Get Apollo client for cache updates
+  const client = useApolloClient();
+
   // Place statuses into SelectItem interface for FormSelect component
   const fundingStatuses = Object.values(ProjectFundingStatus).map(status => ({
     id: status,
@@ -104,20 +108,18 @@ const ProjectsProjectFundingEdit = () => {
   }));
 
   // Get Project Funding data
-  const { data, loading, error: queryError, refetch } = useProjectFundingQuery(
-    {
-      variables: { projectFundingId: Number(projectFundingId) },
-      /*Needed to add this fetchPolicy so that users get fresh data when coming back to this page after editing because it was
-      previously showing stale data. I believe that it's ok to use this here because:
-      - Edit pages typically are low traffic
-      - Data accuracy is critical on form pages and we don't want users overwriting their changes*/
-      fetchPolicy: 'network-only',
-      notifyOnNetworkStatusChange: true
-    }
-  );
+  const { data, loading, error: queryError, refetch } = useQuery(ProjectFundingDocument, {
+    variables: { projectFundingId: Number(projectFundingId) },
+    /*Needed to add this fetchPolicy so that users get fresh data when coming back to this page after editing because it was
+    previously showing stale data. I believe that it's ok to use this here because:
+    - Edit pages typically are low traffic
+    - Data accuracy is critical on form pages and we don't want users overwriting their changes*/
+    fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true
+  });
 
   // Initialize useUpdateProjectMutation
-  const [updateProjectFundingMutation] = useUpdateProjectFundingMutation();
+  const [updateProjectFundingMutation] = useMutation(UpdateProjectFundingDocument);
 
   const clearAllFieldErrors = () => {
     //Remove all field errors
@@ -174,16 +176,8 @@ const ProjectsProjectFundingEdit = () => {
         error,
         url: { path: '/projects/[projectId]/fundings/[projectFundingId]/edit' }
       });
-      if (error instanceof ApolloError) {
-        if (error.message.toLowerCase() === "unauthorized") {
-          // Need to refresh values if the refresh token was refreshed in the graphql error handler
-          refetch();
-        }
-        return [{}, false];
-      } else {
-        setErrorMessages(prevErrors => [...prevErrors, EditFunding('messages.errors.projectFundingUpdateFailed')]);
-        return [{}, false];
-      }
+      setErrorMessages(prevErrors => [...prevErrors, EditFunding('messages.errors.projectFundingUpdateFailed')]);
+      return [{}, false];
     }
   };
 
@@ -250,6 +244,28 @@ const ProjectsProjectFundingEdit = () => {
         if (errs.length > 0) {
           setErrorMessages(prev => prev.concat(errs));
         } else {
+          // Update cache to remove the deleted funding
+          const cache = client.cache;
+
+          // Modify the Query.projectFundings to remove the deleted funding
+          cache.modify({
+            fields: {
+              projectFundings(existingFundings = [], { readField }) {
+                return existingFundings.filter(
+                  (fundingRef: any) => readField('id', fundingRef) !== Number(projectFundingId)
+                );
+              }
+            }
+          });
+
+          // Evict the specific ProjectFunding object from cache
+          cache.evict({
+            id: cache.identify({ __typename: 'ProjectFunding', id: Number(projectFundingId) })
+          });
+
+          // Run garbage collection to clean up orphaned objects
+          cache.gc();
+
           const successMessage = EditFunding('messages.success.removedFunding');
           toastState.add(successMessage, { type: 'success' });
           // Redirect back to the project funding page

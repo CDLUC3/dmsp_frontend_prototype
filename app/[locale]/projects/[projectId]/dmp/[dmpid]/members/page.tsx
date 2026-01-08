@@ -7,7 +7,7 @@ import {
   useRef,
   FormEvent
 } from 'react';
-import { ApolloError } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client/react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -36,11 +36,11 @@ import { useScrollToTop } from '@/hooks/scrollToTop';
 
 // Other
 import {
-  useProjectMembersQuery,
-  useUpdatePlanMemberMutation,
-  usePlanMembersQuery,
+  ProjectMembersDocument,
+  UpdatePlanMemberDocument,
+  PlanMembersDocument,
   ProjectMember,
-  useRemovePlanMemberMutation,
+  RemovePlanMemberDocument,
   PlanMemberErrors,
   PlanMember
 } from '@/generated/graphql';
@@ -147,7 +147,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
   const Global = useTranslations('Global');
 
   // Get Project Members using projectid
-  const { data, loading, error: queryError, refetch: refetchProjectMembers } = useProjectMembersQuery(
+  const { data, loading, error: queryError, refetch: refetchProjectMembers } = useQuery(ProjectMembersDocument,
     {
       variables: { projectId: Number(projectId) },
       notifyOnNetworkStatusChange: true
@@ -155,7 +155,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
   );
 
   //Get Plan Members so that we know which members are already part of this plan
-  const { data: planMemberData, loading: planMemberLoading, refetch, error: planMemberError } = usePlanMembersQuery(
+  const { data: planMemberData, loading: planMemberLoading, refetch, error: planMemberError } = useQuery(PlanMembersDocument,
     {
       variables: { planId: Number(dmpId) },
       notifyOnNetworkStatusChange: true
@@ -167,8 +167,8 @@ const ProjectsProjectPlanAdjustMembers = () => {
   let isError = queryError || planMemberError;
 
   // Initialize mutations
-  const [RemovePlanMemberMutation] = useRemovePlanMemberMutation();
-  const [UpdatePlanMemberMutation] = useUpdatePlanMemberMutation();
+  const [RemovePlanMemberMutation] = useMutation(RemovePlanMemberDocument);
+  const [UpdatePlanMemberMutation] = useMutation(UpdatePlanMemberDocument);
 
 
   // Check if the given member is the primary contact
@@ -256,15 +256,11 @@ const ProjectsProjectPlanAdjustMembers = () => {
         return response.data.removePlanMember.errors;
       }
     } catch (error) {
-      if (error instanceof ApolloError) {
-        await refetch(); // Needed to refresh page after token refresh is triggered by an UNAUTHENTICATED graphql error
-      } else {
-        dispatch({ type: 'SET_ERROR_MESSAGES', payload: [Global('messaging.somethingWentWrong')] });
-        logECS('error', 'removePlanMember', {
-          error,
-          url: { path: PLAN_MEMBERS_ROUTE }
-        });
-      }
+      dispatch({ type: 'SET_ERROR_MESSAGES', payload: [Global('messaging.somethingWentWrong')] });
+      logECS('error', 'removePlanMember', {
+        error,
+        url: { path: PLAN_MEMBERS_ROUTE }
+      });
     }
     return {};
   };
@@ -319,16 +315,11 @@ const ProjectsProjectPlanAdjustMembers = () => {
         return response.data.updatePlanMember.errors as PlanMemberErrors;
       }
     } catch (error) {
-
-      if (error instanceof ApolloError) {
-        await refetch();// Needed to refresh page after token refresh is triggered by an UNAUTHENTICATED graphql error
-      } else {
-        dispatch({ type: 'SET_ERROR_MESSAGES', payload: [Global('messaging.somethingWentWrong')] });
-        logECS('error', 'updatePlanMember', {
-          error,
-          url: { path: PLAN_MEMBERS_ROUTE }
-        });
-      }
+      dispatch({ type: 'SET_ERROR_MESSAGES', payload: [Global('messaging.somethingWentWrong')] });
+      logECS('error', 'updatePlanMember', {
+        error,
+        url: { path: PLAN_MEMBERS_ROUTE }
+      });
     }
     return {};
   }
@@ -463,14 +454,11 @@ const ProjectsProjectPlanAdjustMembers = () => {
 
 
   useEffect(() => {
-    const refetchData = async () => {
-      await refetchProjectMembers();
-      await refetch();
-    } // Refetch data when the user logs in
-
-    if (queryError instanceof ApolloError || planMemberError instanceof ApolloError) {
-      isError = undefined;
-      refetchData(); // To handle UNAUTHENTICATED errors
+    if (queryError) {
+      dispatch({ type: 'SET_ERROR_MESSAGES', payload: queryError.message ? [queryError.message] : [] });
+    }
+    if (planMemberError) {
+      dispatch({ type: 'SET_ERROR_MESSAGES', payload: planMemberError.message ? [planMemberError.message] : [] });
     }
   }, [queryError, planMemberError])
 

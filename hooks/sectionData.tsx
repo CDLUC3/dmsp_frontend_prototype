@@ -1,8 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react';
+
+// GraphQL
+import { useQuery } from '@apollo/client/react';
+import { SectionDocument, } from '@/generated/graphql';
+
+// Utils and other
 import { SectionFormInterface, TagsInterface } from '@/app/types';
-import { useSectionQuery, } from '@/generated/graphql';
 import { stripHtmlTags } from '@/utils/general';
 
 export const useSectionData = (sectionId: number) => {
@@ -21,7 +26,7 @@ export const useSectionData = (sectionId: number) => {
   const [checkboxTags, setCheckboxTags] = useState<string[]>([]);
 
   // Query for the specified section
-  const { data, loading } = useSectionQuery({
+  const { data, loading } = useQuery(SectionDocument, {
     variables: {
       sectionId: Number(sectionId)
     }

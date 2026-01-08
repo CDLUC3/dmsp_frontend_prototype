@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useFormatter, useTranslations } from 'next-intl';
+import { useLazyQuery } from '@apollo/client/react';
 
 // Components
 import {
@@ -21,7 +22,7 @@ import { ContentContainer, LayoutContainer } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
 
 //GraphQL
-import { useMyProjectsLazyQuery } from '@/generated/graphql';
+import { MyProjectsDocument } from '@/generated/graphql';
 
 import {
   ProjectItemProps,
@@ -50,7 +51,9 @@ const ProjectsListPage: React.FC = () => {
   const [nextCursor, setNextCursor] = useState<string | null>(null);
 
   const [totalCount, setTotalCount] = useState<number | null>(0);
-  const [fetchProjects, { data: projectData }] = useMyProjectsLazyQuery();
+  const [fetchProjects, { data: projectData }] = useLazyQuery(MyProjectsDocument, {
+    notifyOnNetworkStatusChange: true,
+  });
   const [searchResults, setSearchResults] = useState<ProjectItemProps[]>([]);
   const [isSearchFetch, setIsSearchFetch] = useState(false);
   const [firstNewIndex, setFirstNewIndex] = useState<number | null>(null);
@@ -81,7 +84,6 @@ const ProjectsListPage: React.FC = () => {
           limit: LIMIT,
         },
       },
-      notifyOnNetworkStatusChange: true,
     });
     scrollToTop(topRef);
   }
@@ -157,7 +159,6 @@ const ProjectsListPage: React.FC = () => {
             limit: LIMIT,
           },
         },
-        notifyOnNetworkStatusChange: true,
       });
 
     } catch (err) {
@@ -193,7 +194,6 @@ const ProjectsListPage: React.FC = () => {
           limit: LIMIT,
         },
       },
-      notifyOnNetworkStatusChange: true,
     });
   }, []);
 
