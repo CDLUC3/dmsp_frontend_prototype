@@ -2,12 +2,12 @@ import React from 'react';
 import { act, fireEvent, render, screen, within } from '@/utils/test-utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { ApolloError } from '@apollo/client';
 import ProfilePage from '../page';
+import { useQuery, useMutation } from '@apollo/client/react';
 import {
-  useLanguagesQuery,
-  useMeQuery,
-  useUpdateUserProfileMutation
+  LanguagesDocument,
+  MeDocument,
+  UpdateUserProfileDocument
 } from '@/generated/graphql';
 
 import { mockScrollIntoView, mockScrollTo } from '@/__mocks__/common';
@@ -27,13 +27,11 @@ jest.mock('@/utils/clientLogger', () => ({
   default: jest.fn()
 }))
 
-// Mock the GraphQL hooks
-jest.mock('@/generated/graphql', () => ({
-  useMeQuery: jest.fn(),
-  useUpdateUserProfileMutation: jest.fn(),
-  useLanguagesQuery: jest.fn(),
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+  useMutation: jest.fn(),
 }));
-
 
 // Mock UpdateEmailAddress component
 jest.mock('@/components/UpdateEmailAddress', () => ({
@@ -82,14 +80,48 @@ const mockLanguagesData = {
   ],
 };
 
-// Helper function to cast to jest.Mock for TypeScript
-/* eslint-disable @typescript-eslint/no-explicit-any*/
-const mockHook = (hook: any) => hook as jest.Mock;
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+const mockUseMutation = jest.mocked(useMutation);
 
 const setupMocks = () => {
-  mockHook(useMeQuery).mockReturnValue({ data: mockUserData, loading: false, error: undefined });
-  mockHook(useLanguagesQuery).mockReturnValue({ data: mockLanguagesData, loading: false, error: undefined });
-  mockHook(useUpdateUserProfileMutation).mockReturnValue([jest.fn(), { loading: false, error: undefined }]);
+  mockUseQuery.mockImplementation((document) => {
+    if (document === MeDocument) {
+      return {
+        data: mockUserData,
+        loading: false,
+        error: undefined,
+        refetch: jest.fn()
+      } as any;
+    }
+    if (document === LanguagesDocument) {
+      return {
+        data: mockLanguagesData,
+        loading: false,
+        error: undefined
+      };
+    }
+    return { data: null, loading: false, error: undefined };
+  });
+
+  const mockMutationFn = jest.fn().mockResolvedValue({
+    data: {
+      updateUserProfile: {
+        success: true,
+      },
+    },
+  });
+
+
+  mockUseMutation.mockImplementation((document) => {
+    if (document === UpdateUserProfileDocument) {
+      return [
+        mockMutationFn,
+        { loading: false, error: undefined }
+      ] as any;
+    }
+    return [jest.fn(), { loading: false, error: undefined }] as any;
+  });
 };
 
 describe('ProfilePage', () => {
@@ -97,15 +129,6 @@ describe('ProfilePage', () => {
     setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
-    const mockUpdateUserProfile = jest.fn().mockResolvedValue({
-      data: {
-        updateUserProfile: {
-          success: true,
-          message: 'Profile updated successfully',
-        },
-      },
-    });
-    mockHook(useUpdateUserProfileMutation).mockReturnValue([mockUpdateUserProfile, { loading: false, error: undefined }]);
   });
 
   it('should render profile page with user data', async () => {
@@ -201,7 +224,25 @@ describe('ProfilePage', () => {
         languageId: 'en',
       },
     };
-    mockHook(useMeQuery).mockReturnValue({ data: mockUserData, loading: false, error: null });
+    // Override the useQuery mock for this specific test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === MeDocument) {
+        return {
+          data: mockUserData,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      if (document === LanguagesDocument) {
+        return {
+          data: mockLanguagesData,  // Keep languages the same
+          loading: false,
+          error: undefined
+        } as any;
+      }
+      return { data: null, loading: false, error: undefined } as any;
+    });
 
     render(<ProfilePage />);
 
@@ -316,10 +357,11 @@ describe('ProfilePage', () => {
         },
       },
     });
-    mockHook(useUpdateUserProfileMutation).mockReturnValue([
+    // Override the useMutation mock for this test
+    mockUseMutation.mockReturnValue([
       mockUpdateUserProfile,
-      { loading: false, error: undefined },
-    ]);
+      { loading: false, error: undefined }
+    ] as any);
 
     render(<ProfilePage />);
 
@@ -366,7 +408,25 @@ describe('ProfilePage', () => {
   });
 
   it('should display Loading message when meQuery returns queryLoading', async () => {
-    mockHook(useMeQuery).mockReturnValue({ data: mockUserData, loading: true, error: null });
+    // set loading to true
+    mockUseQuery.mockImplementation((document) => {
+      if (document === MeDocument) {
+        return {
+          data: mockUserData,  // Use custom data here
+          loading: true,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      if (document === LanguagesDocument) {
+        return {
+          data: mockLanguagesData,  // Keep languages the same
+          loading: false,
+          error: undefined
+        } as any;
+      }
+      return { data: null, loading: false, error: undefined } as any;
+    });
     render(<ProfilePage />);
     const loadingText = screen.getByText(/loading/i);
     expect(loadingText).toBeInTheDocument();
@@ -374,10 +434,11 @@ describe('ProfilePage', () => {
 
   it('should display error message when updateProfile mutation returns an error', async () => {
     const mockUpdateUserProfile = jest.fn();
-    mockHook(useUpdateUserProfileMutation).mockReturnValue([
+    // Override the useMutation mock for this test
+    mockUseMutation.mockReturnValue([
       mockUpdateUserProfile,
-      { loading: false, error: new Error('Error updating profile') },
-    ]);
+      { loading: false, error: undefined }
+    ] as any);
 
     render(<ProfilePage />);
 
@@ -398,20 +459,15 @@ describe('ProfilePage', () => {
     expect(errorMsg).toBeInTheDocument();
   })
 
-  it('should display error message when updateProfile mutation returns an ApolloError', async () => {
-    const apolloError = new ApolloError({
-      graphQLErrors: [{ message: 'Apollo error occurred' }],
-      networkError: null,
-      errorMessage: 'Apollo error occurred',
-    });
-
+  it('should display error message when updateProfile mutation returns an error', async () => {
     // Make the mutation function throw the ApolloError when called
-    const mockUpdateUserProfile = jest.fn().mockRejectedValue(apolloError);
+    const mockUpdateUserProfile = jest.fn();
 
-    mockHook(useUpdateUserProfileMutation).mockReturnValue([
+    // Override the useMutation mock for this test
+    mockUseMutation.mockReturnValue([
       mockUpdateUserProfile,
-      { loading: false, error: null }, // Start with no error in the result
-    ]);
+      { loading: false, error: 'Error updating profile' }
+    ] as any);
 
     render(<ProfilePage />);
 

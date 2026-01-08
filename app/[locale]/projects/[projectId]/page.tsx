@@ -4,9 +4,14 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
-// Apollo Client
+
+// GraphQL
 import { useQuery } from '@apollo/client/react';
-import { PlanSearchResult, PlanSectionProgress, ProjectDocument } from "@/generated/graphql";
+import {
+  PlanSearchResult,
+  PlanSectionProgress,
+  ProjectDocument
+} from "@/generated/graphql";
 
 // Components
 import PageHeader from "@/components/PageHeader";

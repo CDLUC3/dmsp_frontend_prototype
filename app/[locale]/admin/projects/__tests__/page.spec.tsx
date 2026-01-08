@@ -1,6 +1,6 @@
 import React from "react";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { MockedProvider } from "@apollo/client/testing";
+import { MockedProvider } from "@apollo/client/testing/react";
 import { MyProjectsDocument } from "@/generated/graphql";
 import { axe, toHaveNoViolations } from "jest-axe";
 import OrganizationProjectsListPage from "../page";
@@ -559,12 +559,19 @@ describe("OrganizationProjectsListPage", () => {
     });
   });
 
+  afterEach(async () => {
+    // Give more time for pending queries to complete
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    });
+  });
+
+
   it("should render the OrganizationProjectsListPage component", async () => {
     await act(async () => {
       render(
         <MockedProvider
           mocks={mocks}
-          addTypename={false}
         >
           <OrganizationProjectsListPage />
         </MockedProvider>,
@@ -596,7 +603,6 @@ describe("OrganizationProjectsListPage", () => {
       render(
         <MockedProvider
           mocks={mocks}
-          addTypename={false}
         >
           <OrganizationProjectsListPage />
         </MockedProvider>,
@@ -644,7 +650,6 @@ describe("OrganizationProjectsListPage", () => {
       render(
         <MockedProvider
           mocks={mocks}
-          addTypename={false}
         >
           <OrganizationProjectsListPage />
         </MockedProvider>,
@@ -668,7 +673,6 @@ describe("OrganizationProjectsListPage", () => {
       render(
         <MockedProvider
           mocks={mocks}
-          addTypename={false}
         >
           <OrganizationProjectsListPage />
         </MockedProvider>,
@@ -701,7 +705,6 @@ describe("OrganizationProjectsListPage", () => {
       render(
         <MockedProvider
           mocks={mocks}
-          addTypename={false}
         >
           <OrganizationProjectsListPage />
         </MockedProvider>,
@@ -724,7 +727,6 @@ describe("OrganizationProjectsListPage", () => {
       render(
         <MockedProvider
           mocks={mocks}
-          addTypename={false}
         >
           <OrganizationProjectsListPage />
         </MockedProvider>,
@@ -758,7 +760,6 @@ describe("OrganizationProjectsListPage", () => {
       render(
         <MockedProvider
           mocks={mocks}
-          addTypename={false}
         >
           <OrganizationProjectsListPage />
         </MockedProvider>,
@@ -781,7 +782,6 @@ describe("OrganizationProjectsListPage", () => {
       render(
         <MockedProvider
           mocks={mocks}
-          addTypename={false}
         >
           <OrganizationProjectsListPage />
         </MockedProvider>,
@@ -801,10 +801,14 @@ describe("OrganizationProjectsListPage", () => {
     });
 
     const searchInput = screen.getByLabelText("Global.labels.searchByKeyword");
-    fireEvent.change(searchInput, { target: { value: "" } });
+    await act(async () => {
+      fireEvent.change(searchInput, { target: { value: "" } });
+    });
 
     const searchButton = screen.getByText("Global.buttons.search");
-    fireEvent.click(searchButton);
+    await act(async () => {
+      fireEvent.click(searchButton);
+    });
 
     // Nothing should have changed
     await waitFor(() => {
@@ -828,7 +832,6 @@ describe("OrganizationProjectsListPage", () => {
     const { container } = render(
       <MockedProvider
         mocks={mocks}
-        addTypename={false}
       >
         <OrganizationProjectsListPage />
       </MockedProvider>,

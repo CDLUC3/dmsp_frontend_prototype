@@ -8,7 +8,12 @@ import { usePathname } from "@/i18n/routing";
 import { Breadcrumb, Breadcrumbs, Button, Form, ListBoxItem, Text } from "react-aria-components";
 
 // GraphQL queries and mutations
-import { LanguagesDocument, MeDocument, UserErrors, UpdateUserProfileDocument } from "@/generated/graphql";
+import {
+  LanguagesDocument,
+  MeDocument,
+  UserErrors,
+  UpdateUserProfileDocument
+} from "@/generated/graphql";
 
 // Components
 import PageHeader from "@/components/PageHeader";

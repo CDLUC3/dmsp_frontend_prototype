@@ -8,7 +8,7 @@ import {
   within
 } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { MockedProvider } from "@apollo/client/testing";
+import { MockedProvider } from "@apollo/client/testing/react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useParams, useRouter } from 'next/navigation';
 import logECS from '@/utils/clientLogger';
@@ -238,7 +238,7 @@ describe("GuidanceGroupIndexPage", () => {
 
   it("should initially render loading spinner", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -251,7 +251,7 @@ describe("GuidanceGroupIndexPage", () => {
 
   it("should render guidance text fields", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -298,7 +298,7 @@ describe("GuidanceGroupIndexPage", () => {
 
   it('should update existing guidance text locally when editor changes', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -327,7 +327,7 @@ describe("GuidanceGroupIndexPage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -365,7 +365,7 @@ describe("GuidanceGroupIndexPage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -402,7 +402,7 @@ describe("GuidanceGroupIndexPage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -444,7 +444,7 @@ describe("GuidanceGroupIndexPage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -481,7 +481,7 @@ describe("GuidanceGroupIndexPage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -515,7 +515,7 @@ describe("GuidanceGroupIndexPage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -561,7 +561,7 @@ describe("GuidanceGroupIndexPage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -599,7 +599,7 @@ describe("GuidanceGroupIndexPage", () => {
       },
     });
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -639,7 +639,7 @@ describe("GuidanceGroupIndexPage", () => {
       redirect: '/en-US/admin/guidance/redirect-page'
     });
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -663,7 +663,7 @@ describe("GuidanceGroupIndexPage", () => {
       errors: ['Some error occurred'],
     });
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -707,7 +707,7 @@ describe("GuidanceGroupIndexPage", () => {
       },
     });
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -750,7 +750,7 @@ describe("GuidanceGroupIndexPage", () => {
       },
     });
     render(
-      <MockedProvider mocks={inactiveGroupMocks} addTypename={false}>
+      <MockedProvider mocks={inactiveGroupMocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -795,7 +795,7 @@ describe("GuidanceGroupIndexPage", () => {
       redirect: '/en-US/admin/guidance/redirect-page'
     });
     render(
-      <MockedProvider mocks={inactiveGroupMocks} addTypename={false}>
+      <MockedProvider mocks={inactiveGroupMocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -820,7 +820,7 @@ describe("GuidanceGroupIndexPage", () => {
       errors: ['Some error occurred'],
     });
     render(
-      <MockedProvider mocks={inactiveGroupMocks} addTypename={false}>
+      <MockedProvider mocks={inactiveGroupMocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -864,7 +864,7 @@ describe("GuidanceGroupIndexPage", () => {
       },
     });
     render(
-      <MockedProvider mocks={inactiveGroupMocks} addTypename={false}>
+      <MockedProvider mocks={inactiveGroupMocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -895,7 +895,7 @@ describe("GuidanceGroupIndexPage", () => {
 
   it("should pass accessibility tests", async () => {
     const { container } = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );

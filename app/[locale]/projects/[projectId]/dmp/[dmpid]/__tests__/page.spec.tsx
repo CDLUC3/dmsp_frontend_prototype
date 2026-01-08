@@ -9,8 +9,19 @@ import {
   updatePlanStatusAction,
   updatePlanTitleAction
 } from '../actions';
-import { usePlanQuery, usePlanFeedbackStatusQuery } from '@/generated/graphql';
+import { useQuery } from '@apollo/client/react';
+import {
+  PlanDocument,
+  PlanFeedbackStatusDocument
+} from '@/generated/graphql';
 import { useToast } from '@/context/ToastContext';
+
+// Mock Apollo Client
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+}));
+
+const mockUseQuery = jest.mocked(useQuery);
 
 jest.mock('../actions/index', () => ({
   publishPlanAction: jest.fn(),
@@ -46,6 +57,7 @@ jest.mock('next-intl', () => ({
 
 // Mock the graphql hooks
 jest.mock("@/generated/graphql", () => ({
+  ...jest.requireActual("@/generated/graphql"),
   PlanStatus: {
     Archived: 'ARCHIVED',
     Complete: 'COMPLETE',
@@ -56,14 +68,6 @@ jest.mock("@/generated/graphql", () => ({
     Private: 'PRIVATE',
     Organizational: 'ORGANIZATIONAL',
   },
-  usePlanQuery: jest.fn(),
-
-  usePlanFeedbackStatusQuery: jest.fn().mockReturnValue({
-    data: { planFeedbackStatus: 'NONE' },
-    loading: false,
-    error: null,
-    refetch: jest.fn(),
-  }),
 }));
 
 import {
@@ -94,8 +98,38 @@ const mockToast = {
 expect.extend(toHaveNoViolations);
 
 
+const setupMocks = () => {
+  // Mock useQuery to return different data based on which document is queried
+  mockUseQuery.mockImplementation((document) => {
+    if (document === PlanDocument) {
+      return {
+        data: { plan: mockPlanData },
+        loading: false,
+        error: undefined,
+        refetch: jest.fn(),
+      } as any;
+    }
+
+    if (document === PlanFeedbackStatusDocument) {
+      return {
+        data: { planFeedbackStatus: 'NONE' },
+        loading: false,
+        error: undefined,
+      } as any;
+    }
+
+    // Default fallback
+    return {
+      data: null,
+      loading: false,
+      error: undefined,
+    } as any;
+  });
+};
+
 describe('PlanOverviewPage', () => {
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
 
@@ -107,13 +141,6 @@ describe('PlanOverviewPage', () => {
     (useToast as jest.Mock).mockReturnValue(mockToast);
 
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
-    // Mock the hook for data state
-    (usePlanQuery as jest.Mock).mockReturnValue({
-      data: { plan: mockPlanData.plan },
-      loading: false,
-      error: null,
-      refetch: jest.fn()
-    });
   })
 
   afterEach(() => {
@@ -121,10 +148,30 @@ describe('PlanOverviewPage', () => {
   });
 
   it('should render loading state', () => {
-    (usePlanQuery as jest.Mock).mockReturnValue({
-      data: null,
-      loading: true,
-      error: null,
+    // Override mock for this test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PlanDocument) {
+        return {
+          data: null,
+          loading: true,
+          error: undefined,
+          refetch: jest.fn(),
+        } as any;
+      }
+
+      if (document === PlanFeedbackStatusDocument) {
+        return {
+          data: null,
+          loading: false,
+          error: undefined,
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: true,
+        error: undefined,
+      } as any;
     });
 
     render(<PlanOverviewPage />);
@@ -132,13 +179,39 @@ describe('PlanOverviewPage', () => {
   });
 
   it('should render error state', () => {
-    (usePlanQuery as jest.Mock).mockReturnValue({
-      data: null,
-      loading: false,
-      error: { message: 'Error' },
+    // Create error object outside so it has stable reference
+    const mockError = { message: 'Error loading plan' };
+
+    // Override mock for this test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PlanDocument) {
+        return {
+          data: null,
+          loading: false,
+          error: mockError,
+          refetch: jest.fn(),
+        } as any;
+      }
+
+      if (document === PlanFeedbackStatusDocument) {
+        return {
+          data: null,
+          loading: false,
+          error: undefined,
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined,
+      } as any;
     });
+
     render(<PlanOverviewPage />);
-    expect(screen.getByText(/Error/i)).toBeInTheDocument();
+
+    // Wait for error to appear since it's set via useEffect
+    expect(screen.getByText(/Error loading plan/i)).toBeInTheDocument();
   });
 
   it('should render plan data', async () => {

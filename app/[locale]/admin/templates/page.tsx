@@ -1,10 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-
-// Apollo Client
-import { useQuery, useMutation, useLazyQuery } from '@apollo/client/react';
-
+import { useFormatter, useTranslations } from "next-intl";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -16,9 +13,9 @@ import {
   SearchField,
   Text,
 } from "react-aria-components";
-import { useFormatter, useTranslations } from "next-intl";
 
-//GraphQL
+// GraphQL
+import { useLazyQuery } from '@apollo/client/react';
 import { TemplatesDocument } from "@/generated/graphql";
 
 // Components
