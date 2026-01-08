@@ -50,7 +50,7 @@ function RelatedWorksListItem({ relatedWork, highlightMatches, updateRelatedWork
                 <h3 id={headingId}>
                   <a
                     href={doiToUrl(relatedWork.workVersion.work.doi)}
-                    aria-label={`${t("header.title")}: ${relatedWork.workVersion?.title}`}
+                    aria-label={`${t("title")}: ${relatedWork.workVersion?.title}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

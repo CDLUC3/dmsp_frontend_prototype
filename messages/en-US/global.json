@@ -697,7 +697,8 @@
       "editGroup": "Edit group",
       "createText": "Create Text",
       "editText": "Edit Text",
-      "group": "Group"
+      "group": "Group",
+      "relatedWorks": "Related works"
     },
     "form": {
       "yesLabel": "Yes",

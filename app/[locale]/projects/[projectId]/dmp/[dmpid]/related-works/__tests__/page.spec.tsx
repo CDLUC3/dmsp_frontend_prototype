@@ -65,8 +65,8 @@ describe("RelatedWorks", () => {
       error: null,
     });
     render(<RelatedWorksHarness />);
-    expect(screen.getByText("header.title")).toBeInTheDocument();
-    expect(screen.getByText("header.description")).toBeInTheDocument();
+    expect(screen.getByText("title")).toBeInTheDocument();
+    expect(screen.getByText("description")).toBeInTheDocument();
   });
 
   it("should render the breadcrumb links", () => {

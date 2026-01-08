@@ -1,9 +1,7 @@
 {
   "RelatedWorksPage": {
-    "header": {
-      "title": "Obras Relacionadas",
-      "description": "Combine trabalhos relacionados ao seu projeto de pesquisa."
-    },
+    "title": "Obras Relacionadas",
+    "description": "Combine trabalhos relacionados ao seu projeto de pesquisa.",
     "buttons": {
       "addRelatedWorkManually": "Adicionar trabalho relacionado"
     },

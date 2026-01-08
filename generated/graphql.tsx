@@ -1759,6 +1759,43 @@ export type MutationUploadPlanArgs = {
   projectId: Scalars['Int']['input'];
 };
 
+/** Work metadata returned by the OpenSearch works-index */
+export type OpenSearchWork = {
+  __typename?: 'OpenSearchWork';
+  /** The abstract of the work */
+  abstractText?: Maybe<Scalars['String']['output']>;
+  /** The authors of the work */
+  authors: Array<Author>;
+  /** The awards that funded the work */
+  awards: Array<Award>;
+  /** The DOI of the work */
+  doi: Scalars['String']['output'];
+  /** The funders of the work */
+  funders: Array<Funder>;
+  /** The unique institutions of the authors of the work */
+  institutions: Array<Institution>;
+  /** The date that the work was published YYYY-MM-DD */
+  publicationDate?: Maybe<Scalars['String']['output']>;
+  /** The venue where the work was published, e.g. IEEE Transactions on Software Engineering, Zenodo etc */
+  publicationVenue?: Maybe<Scalars['String']['output']>;
+  /** The source of the work */
+  source: OpenSearchWorkSource;
+  /** The title of the work */
+  title?: Maybe<Scalars['String']['output']>;
+  /** The date that the work was updated YYYY-MM-DD */
+  updatedDate?: Maybe<Scalars['String']['output']>;
+  /** The type of the work */
+  workType: WorkType;
+};
+
+export type OpenSearchWorkSource = {
+  __typename?: 'OpenSearchWorkSource';
+  /** The name of the source where the work was found */
+  name: Scalars['String']['output'];
+  /** The URL for the source of the work */
+  url?: Maybe<Scalars['String']['output']>;
+};
+
 export type PaginatedQueryResults = {
   /** The sortFields that are available for this query (for standard offset pagination only!) */
   availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
@@ -2480,6 +2517,8 @@ export type Query = {
   defaultResearchOutputTypes?: Maybe<Array<Maybe<ResearchOutputType>>>;
   /** Search for a User to add as a collaborator */
   findCollaborator?: Maybe<CollaboratorSearchResults>;
+  /** Find a work with an identifier */
+  findWorkByIdentifier?: Maybe<Array<Maybe<OpenSearchWork>>>;
   /** Get a specific Guidance item by ID */
   guidance?: Maybe<Guidance>;
   /** Get all Guidance items for a specific GuidanceGroup */
@@ -2663,6 +2702,11 @@ export type QueryChildResearchDomainsArgs = {
 export type QueryFindCollaboratorArgs = {
   options?: InputMaybe<PaginationOptions>;
   term: Scalars['String']['input'];
+};
+
+
+export type QueryFindWorkByIdentifierArgs = {
+  doi?: InputMaybe<Scalars['String']['input']>;
 };
 
 
