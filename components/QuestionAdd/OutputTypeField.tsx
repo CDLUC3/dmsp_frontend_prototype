@@ -4,6 +4,7 @@ import {
   OutputTypeFieldConfigProps,
   OutputTypeInterface,
 } from '@/app/types';
+import { DefaultResearchOutputTypesQuery } from '@/generated/graphql';
 
 import {
   Button,
@@ -17,37 +18,34 @@ import { DmpIcon } from "@/components/Icons";
 
 import styles from './questionAdd.module.scss';
 
-const outputTypeOptions = [
-  { id: 'defaults', name: 'Use defaults' },
-  { id: 'mine', name: 'Use custom list' },
-];
-
-const defaultOutputTypes = [
-  { id: 'Audiovisual', type: 'Audiovisual', description: 'A series of visual representations imparting an impression of motion when shown in succession. May or may not include sound.' },
-  { id: 'Collection', type: 'Collection', description: 'An aggregation of resources, which may encompass collections of one resourceType as well as those of mixed types. A collection is described as a group; its parts may also be separately described.' },
-  { id: 'Data paper', type: 'Data paper', description: 'A factual and objective publication with a focused intent to identify and describe specific data, sets of data, or data collections to facilitate discoverability.' },
-  { id: 'Dataset', type: 'Dataset', description: 'Data encoded in a defined structure.' },
-  { id: 'Event', type: 'Event', description: 'A non-persistent, time-based occurrence.' },
-  { id: 'Image', type: 'Image', description: 'A visual representation other than text.' },
-  { id: 'Interactive resource', type: 'Interactive resource', description: 'A resource requiring interaction from the user to be understood, executed, or experienced.' },
-  { id: 'Model representation', type: 'Model representation', description: 'An abstract, conceptual, graphical, mathematical or visualization model that represents empirical objects, phenomena, or physical processes.' },
-  { id: 'Physical object', type: 'Physical object', description: 'A physical object or substance.' },
-  { id: 'Service', type: 'Service', description: 'An organized system of apparatus, appliances, staff, etc., for supplying some function(s) required by end users.' },
-  { id: 'Software', type: 'Software', description: 'A computer program other than a computational notebook, in either source code (text) or compiled form. Use this type for general software components supporting scholarly research. Use the “ComputationalNotebook” value for virtual notebooks.' },
-  { id: 'Sound', type: 'Sound', description: 'A resource primarily intended to be heard.' },
-  { id: 'Text', type: 'Text', description: 'A resource consisting primarily of words for reading that is not covered by any other textual resource type in this list.' },
-  { id: 'Workflow', type: 'Workflow', description: 'A structured series of steps which can be executed to produce a final outcome, allowing users a means to specify and enact their work in a more reproducible manner.' }
-];
+interface OutputTypeFieldProps extends OutputTypeFieldConfigProps {
+  defaultResearchOutputTypesData?: DefaultResearchOutputTypesQuery;
+}
 
 const OutputTypeField = ({
   field,
+  defaultResearchOutputTypesData,
   newOutputType,
   setNewOutputType,
   onModeChange,
   onAddCustomType,
   onRemoveCustomType,
-}: OutputTypeFieldConfigProps) => {
+}: OutputTypeFieldProps) => {
   const QuestionAdd = useTranslations('QuestionAdd');
+
+
+  const outputTypeOptions = [
+    { id: 'defaults', name: QuestionAdd('researchOutput.labels.useDefaults') },
+    { id: 'mine', name: QuestionAdd('researchOutput.labels.useCustomList') },
+  ];
+  // Transform backend data to match the display format
+  const defaultOutputTypes = defaultResearchOutputTypesData?.defaultResearchOutputTypes
+    ?.filter((item): item is NonNullable<typeof item> => item !== null)
+    .map(item => ({
+      id: item.name,
+      type: item.name,
+      description: item.description || ''
+    })) || [];
   return (
     <div className={styles.typeConfig}>
       <div className={styles.typeModeSelector}>
@@ -125,6 +123,7 @@ const OutputTypeField = ({
                   }
                 }}
               />
+              {/*There is currently no way to save description for the outputType in dmptool-types. We have a ticket to update that*/}
               <FormInput
                 name="custom_types_description"
                 type="text"
@@ -167,27 +166,30 @@ const OutputTypeField = ({
                     >
                       <div className={styles.infoWrapper}>
                         <span id={`custom-type-${index}`}>{customType.type}</span>
-                        <DialogTrigger>
-                          <Button
-                            className="popover-btn"
-                            aria-label={QuestionAdd('labels.clickForMoreInfo')}
-                            aria-describedby={`custom-type-${index}`}
-                          >
-                            <div className="icon info"><DmpIcon icon="info" /></div>
-                          </Button>
-                          <Popover className="dynamic-popover-width react-aria-Popover">
-                            <OverlayArrow>
-                              <svg width={12} height={12} viewBox="0 0 12 12" aria-hidden="true">
-                                <path d="M0 0 L6 6 L12 0" />
-                              </svg>
-                            </OverlayArrow>
-                            <Dialog aria-label={QuestionAdd('labels.typeDescription', { type: customType.type || '' })}>
-                              <div className="flex-col">
-                                {customType.description}
-                              </div>
-                            </Dialog>
-                          </Popover>
-                        </DialogTrigger>
+                        {customType.description && (
+                          <DialogTrigger>
+                            <Button
+                              className="popover-btn"
+                              aria-label={QuestionAdd('labels.clickForMoreInfo')}
+                              aria-describedby={`custom-type-${index}`}
+                            >
+                              <div className="icon info"><DmpIcon icon="info" /></div>
+                            </Button>
+                            <Popover className="dynamic-popover-width react-aria-Popover">
+                              <OverlayArrow>
+                                <svg width={12} height={12} viewBox="0 0 12 12" aria-hidden="true">
+                                  <path d="M0 0 L6 6 L12 0" />
+                                </svg>
+                              </OverlayArrow>
+                              <Dialog aria-label={QuestionAdd('labels.typeDescription', { type: customType.type || '' })}>
+                                <div className="flex-col">
+                                  {customType.description}
+                                </div>
+                              </Dialog>
+                            </Popover>
+                          </DialogTrigger>
+                        )}
+
                       </div>
                       <Button
                         type="button"

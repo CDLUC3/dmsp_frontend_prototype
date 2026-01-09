@@ -14,7 +14,8 @@
     "headings": {
       "comments": "Comments",
       "leaveAComment": "Deixar uma foto",
-      "requirementsBy": "Requisitos definidos por {funder}"
+      "requirementsBy": "Requisitos de {funder}",
+      "question": "Pergunta"
     },
     "labels": {
       "saveAnswer": "Resposta salva",
@@ -79,7 +80,7 @@
       },
       "feedback": {
         "title": "Registrar",
-        "none": "Sem feedback",
+        "none": "Nenhum feedback",
         "requested": "Feedback solicitado",
         "completed": "Feedback recebido"
       }
@@ -140,8 +141,8 @@
     "title": "Plano: Selecione um modelo DMP",
     "description": "Selecione um modelo para usar ao criar o DMP.",
     "checkbox": {
-      "filterByFunderLabel": "Filtrar por financiador ou organização",
-      "filterByFunderDescription": "Selecione se você quer ver apenas modelos pelo seu fundo ou organização.",
+      "filterByFunderLabel": "Filter by funder or organization",
+      "filterByFunderDescription": "Select if you want to only see templates by your funder or organization.",
       "filterByBestPracticesLabel": "Filtrar por melhores práticas",
       "filterByBestPracticesDescription": "Selecione se você quer ver apenas os modelos de boas práticas"
     },
@@ -193,7 +194,9 @@
   "PlanOverviewQuestionPage": {
     "messages": {
       "success": {
-        "questionSaved": "Detalhes da pergunta salvos com sucesso"
+        "questionSaved": "Detalhes da pergunta salvos com sucesso",
+        "questionDeleted": "Detalhes da pergunta apagados com sucesso",
+        "saved": "Alterações salvas com sucesso"
       },
       "unsavedChanges": "Alterações não Salvas",
       "savedJustNow": "Salvo há pouco",
@@ -266,45 +269,45 @@
     "download": "Baixar",
     "description": "Você pode baixar seu Plano de Gerenciamento de Dados (DMP) em qualquer um dos formatos listados abaixo.",
     "labels": {
-      "fileFormat": "FFormato do arquivo",
+      "fileFormat": "Formato do arquivo",
       "font": "Fonte",
       "fontSize": "Tamanho da fonte",
       "fontSizeUnit": "pt",
-      "includeCoverSheet": "Incluir uma folha de rosto com detalhes do projeto",
-      "includeSectionHeadings": "Incluir os títulos das seções",
-      "includeQuestionText": "Incluir o texto da pergunta",
-      "includeUnansweredQuestions": "Incluir quaisquer perguntas não respondidas",
-      "top": "Superior",
+      "includeCoverSheet": "Incluir uma folha de detalhes do projeto",
+      "includeSectionHeadings": "Incluir os títulos da seção",
+      "includeQuestionText": "Incluir o texto da questão",
+      "includeUnansweredQuestions": "Incluir perguntas sem resposta",
+      "top": "Mais votados",
       "bottom": "Inferior",
       "left": "Esquerda",
       "right": "Direita"
     },
     "downloadSection": {
-      "downloadText": "Baixar \"{fileName}.{fileExtension}\"",
+      "downloadText": "Download \"{fileName}.{fileExtension}\"",
       "downloadButton": "Baixar {format}"
     },
     "headings": {
       "chooseFileFormat": "Escolher formato de arquivo",
-      "settings": "Configurações",
-      "formattingOptions": "Opções de formatação (somente PDF)",
+      "settings": "Confirgurações",
+      "formattingOptions": "Opções de formatação (PDF apenas)",
       "font": "Fonte",
       "fontSize": "Tamanho da fonte",
       "margins": "Margens"
     },
-    "bestPracticep1": "PDFs oferecem compatibilidade universal e preservam a formatação em todos os dispositivos e plataformas, garantindo que seu documento tenha uma aparência perfeita a cada vez - ao contrário dos documentos do Word. Escolha PDF para garantir uma apresentação consistente, profissional e segura para seus documentos. Além disso, a maioria dos financiadores exige que os DMPs sejam enviados em formato PDF.",
-    "bestPracticep2": "Se sua organização, financiador ou projeto tiver requisitos específicos, você também pode baixar seu DMP nos formatos HTML, CSV ou JSON.",
+    "bestPracticep1": "Os PDFs oferecem compatibilidade universal e preservam a formatação em todos os dispositivos e plataformas, garantindo que seu documento pareça perfeito sempre - ao contrário dos documentos do Word. Escolha PDF para garantir uma apresentação consistente, profissional e segura dos seus documentos. Além disso, a maioria dos Funders exige que os DMPs sejam enviados no formato PDF.",
+    "bestPracticep2": "Se sua organização, financiador ou projeto tiverem requisitos específicos, você também poderá baixar seu DMP em formatos HTML, CSV ou JSON.",
     "messages": {
       "errors": {
-        "downloadFailed": "Falha no download. Por favor, tente novamente."
+        "downloadFailed": "Download não concluído. Por favor, tente novamente."
       }
     }
   },
   "ProjectsProjectPlanNew": {
-    "title": "Adicionar um Plano de Gerenciamento de Dados ao seu projeto",
+    "title": "Adicione um Plano de Gerenciamento de Dados ao seu projeto",
     "labels": {
-      "startNewPlan": "Criar um plano na ferramenta DMP",
+      "startNewPlan": "Criar um plano na Ferramenta DMP",
       "uploadExistingPlan": "Carregar um plano criado em outro lugar",
-      "startNewOrUploadExisting": "Você gostaria de criar um novo plano ou carregar um existente?"
+      "startNewOrUploadExisting": "Gostaria de criar um novo plano ou fazer upload de um existente?"
     }
   }
 }

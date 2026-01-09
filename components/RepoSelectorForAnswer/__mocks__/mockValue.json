@@ -1,0 +1,15 @@
+[
+  {
+    "id": "https://www.re3data.org/repository/r3d100010468",
+    "uri": "https://www.re3data.org/repository/https://www.re3data.org/api/v1/repository/r3d100010468",
+    "name": "Zenodo",
+    "description": "ZENODO repository",
+    "website": "https://zenodo.org/",
+    "keywords": [
+      "FAIR"
+    ],
+    "repositoryType": [
+      "OTHER"
+    ]
+  }
+]

@@ -1,0 +1,175 @@
+@use '@/styles/responsive' as r;
+
+.checkboxGroupContainer {
+  margin-bottom: var(--space-5);
+}
+
+.fileSizeRow{
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.listView {
+  margin: 2rem 0;
+}
+
+.listHeader {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: var(--space-5);
+  
+  h3 {
+    margin: 0;
+  }
+}
+
+.outputList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.outputItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-3);
+  background-color: var(--bg-white);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: var(--focus-ring);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+}
+
+.outputTitle {
+  flex: 1;
+  font-weight: 500;
+  font-size: 1rem;
+  color: var(--blue-900);
+  margin-right: var(--space-4);
+}
+
+.outputTitleText {
+  margin: 0;
+
+}
+
+.outputActions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.editBtn { // This is needed because when the preview opens, the button state is active, with wrong styles
+  &:active:not(:disabled):not(:hover),
+  &[data-pressed]:not(:disabled):not(:hover) {
+    background: var(--bg-white) !important;
+  }
+  
+  &:hover:not(:disabled) {
+    background: var(--blue-500) !important;
+    color: #fff !important;
+    box-shadow: 0 0 0 2px var(--blue-500) inset !important;
+  }
+}
+
+.deleteBtn {
+  &:active:not(:disabled):not(:hover),
+  &[data-pressed]:not(:disabled):not(:hover) {
+    background: var(--red-400) !important;
+  } 
+  
+  &:hover:not(:disabled) {
+    background: var(--blue-900);
+    color: #fff;
+    text-decoration: none;
+  }
+}
+
+.singleEditView {
+  margin: var(--space-6) 0;
+}
+
+.fileSizeSelect {
+  min-width: 120px;
+}
+
+.btnContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.customHeading {
+  margin-bottom: 0;
+}
+
+.helpText {
+  margin-top: 0;
+  font-size: var(--font-size-sm);
+}
+// Repo list card definitions
+.dList {
+  display: flex;
+  gap: var(--space-1); 
+  align-items: baseline;
+  
+  dt, dd {
+    margin: 0;
+  }
+  
+  dt {
+    font-weight: 400;
+  }
+  
+  dd {
+    margin-right: var(--space-3); // Space after the value before next dt
+    
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+
+.listHeader,
+.editHeader {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.outputItem {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.outputActions {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+
+// Desktop/tablet overrides
+@include r.device('md') {
+  .listHeader,
+  .editHeader {
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+  }
+  .outputItem {
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+  }
+  .outputActions {
+    width: auto;
+    justify-content: flex-end;
+  }
+}

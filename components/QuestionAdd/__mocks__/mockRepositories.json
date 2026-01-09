@@ -1,0 +1,137 @@
+{
+  "repositories": {
+    "__typename": "RepositorySearchResults",
+    "hasPreviousPage": false,
+    "hasNextPage": true,
+    "currentOffset": 0,
+    "availableSortFields": [
+      "r.name",
+      "r.created"
+    ],
+    "totalCount": 53,
+    "nextCursor": null,
+    "limit": 5,
+    "items": [
+      {
+        "__typename": "Repository",
+        "keywords": [
+          "FAIR",
+          "multidisciplinary"
+        ],
+        "id": 3,
+        "errors": {
+          "__typename": "RepositoryErrors",
+          "general": null,
+          "uri": null
+        },
+        "name": "Zenodo",
+        "description": "ZENODO builds and operates a simple and innovative service that enables researchers, scientists, EU projects and institutions to share and showcase multidisciplinary research results (data and publications) that are not part of the existing institutional ",
+        "uri": "https://www.re3data.org/repository/https://www.re3data.org/api/v1/repository/r3d100010468",
+        "website": "https://zenodo.org/",
+        "repositoryTypes": [
+          "OTHER"
+        ]
+      },
+      {
+        "__typename": "Repository",
+        "keywords": [
+          "Academic publications",
+          "Bibliometrics",
+          "Data citation",
+          "Doctoral theses",
+          "EOSC",
+          "FAIR principles",
+          "Institutional repository",
+          "Interoperability",
+          "Metadata management",
+          "Open access",
+          "Open research data",
+          "OpenAIRE",
+          "OpenDOAR",
+          "Persistent identifiers (DOI, ORCID)",
+          "Research data repository",
+          "Scholarly communication"
+        ],
+        "id": 4,
+        "errors": {
+          "__typename": "RepositoryErrors",
+          "general": null,
+          "uri": null
+        },
+        "name": "University of Opole Knowledge Base",
+        "description": "The University of Opole Knowledge Base is the central institutional system for recording, archiving, and disseminating the scholarly, artistic, and educational outputs of the University of Opole community. It includes a repository that stores publications",
+        "uri": "https://www.re3data.org/repository/r3d100014686",
+        "website": "https://repo.uni.opole.pl/",
+        "repositoryTypes": [
+          "INSTITUTIONAL"
+        ]
+      },
+      {
+        "__typename": "Repository",
+        "keywords": [
+          "Interdisciplinary",
+          "Open Access"
+        ],
+        "id": 27,
+        "errors": {
+          "__typename": "RepositoryErrors",
+          "general": null,
+          "uri": null
+        },
+        "name": "University of Johannesburg Data Repository",
+        "description": "UJ DR is the University of Johannesburg’s Open Access Data Repository. Our data repository collects Research data/Raw data/Datasets, which are data in whatever formats or form collected, observed, generated, created and obtained during the entire course o",
+        "uri": "https://www.re3data.org/repository/r3d100014661",
+        "website": "https://repository.uj.ac.za/research-data",
+        "repositoryTypes": [
+          "INSTITUTIONAL"
+        ]
+      },
+      {
+        "__typename": "Repository",
+        "keywords": [
+          "agriculture",
+          "artificial intelligence",
+          "earth sciences",
+          "ecology",
+          "economics",
+          "food sciences",
+          "veterinary"
+        ],
+        "id": 40,
+        "errors": {
+          "__typename": "RepositoryErrors",
+          "general": null,
+          "uri": null
+        },
+        "name": "UFS Figshare",
+        "description": "figshare is the RDM system at the University. It is a cloud-based data repository that supports multiple file formats. Research data in the form of datasets, code, audio, images and more can be disseminated via the University's figshare. Citations can be ",
+        "uri": "https://www.re3data.org/repository/r3d100014256",
+        "website": "https://ufs.figshare.com/",
+        "repositoryTypes": [
+          "DISCIPLINARY"
+        ]
+      },
+      {
+        "__typename": "Repository",
+        "keywords": [
+          "Code",
+          "Interdisciplinary",
+          "Research data"
+        ],
+        "id": 18,
+        "errors": {
+          "__typename": "RepositoryErrors",
+          "general": null,
+          "uri": null
+        },
+        "name": "TU Data",
+        "description": "TU Wien Research Data is an institutional repository of TU Wien to enable storing, sharing and publishing of digital objects, in particular research data. It facilitates the funders' requirements for open access to research data and the FAIR principles by",
+        "uri": "https://www.re3data.org/repository/r3d100013557",
+        "website": "https://researchdata.tuwien.at/",
+        "repositoryTypes": [
+          "INSTITUTIONAL"
+        ]
+      }
+    ]
+  }
+}

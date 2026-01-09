@@ -220,27 +220,6 @@ const QuestionTypeSelectPage: React.FC = () => {
                               handleSelect={handleSelect}
                             />
                           ))}
-                          {/** This is temporary, until we add research output question type to questionTypes */}
-                          <QuestionTypeCard
-                            key="researchOutput"
-                            questionType={{
-                              type: "researchOutput",
-                              title: "Research Output",
-                              usageDescription: "A description of the research output.",
-                              defaultJSON: {
-                                meta: {
-                                  schemaVersion: "1.0",
-                                },
-                                type: "researchOutput",
-                                title: "Research Output",
-                                description: "",
-                                helpText: "",
-                                required: false,
-                              }
-                            } as any} // eslint-disable-line @typescript-eslint/no-explicit-any
-                            handleSelect={handleSelect}
-                          />
-
                         </>
                       )
                       }

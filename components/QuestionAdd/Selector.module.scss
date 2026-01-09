@@ -107,6 +107,7 @@
   background: #f8f9fa;
   border-radius: 4px;
   font-size: var(--fs-small);
+  overflow-wrap: anywhere; // Prevent overflow for long URLs
 
   dl {
     display: grid;
@@ -123,6 +124,7 @@
   dd {
     color: var(--gray-600);
     font-size: var(--fs-small);
+    margin-left: 0;
 
     a {
       color: var(--blue-500);
@@ -267,19 +269,17 @@
 // Pagination and Search Results
 .paginationWrapper {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 1rem;
   margin-bottom: var(--space-2);
   padding-bottom: var(--space-4);
   border-bottom: 1px solid #dee2e6;
-  flex-wrap: wrap;
 }
 
 .paginationInfo {
   font-size: var(--fs-small);
   color: var(--slate-700);
-  margin-right: auto;
 }
 
 .searchResultItem {

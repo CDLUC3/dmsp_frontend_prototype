@@ -34,6 +34,7 @@ import {
   LayoutContainer,
 } from "@/components/Container";
 import ErrorMessages from '@/components/ErrorMessages';
+import Loading from '@/components/Loading';
 
 // Utils and other
 import { routePath } from '@/utils/routes';
@@ -330,7 +331,7 @@ const ProjectsProjectCollaboration = () => {
   }, [queryError])
 
   if (loading) {
-    return <div>{Global('messaging.loading')}...</div>;
+    return <Loading />
   }
 
   return (

@@ -18,8 +18,8 @@ const BooleanQuestionComponent: React.FC<BooleanQuestionProps> = ({
   // Localization keys
   const Global = useTranslations('Global');
 
-  // Set checked value based on parsedQuestion.attributes.checked
-  const initialChecked = parsedQuestion?.attributes?.checked ? 'yes' : 'no';
+  // Set checked value based on parsedQuestion.attributes.value
+  const initialChecked = parsedQuestion?.attributes?.value ? 'yes' : 'no';
 
   const value = selectedValue ?? initialChecked;
 

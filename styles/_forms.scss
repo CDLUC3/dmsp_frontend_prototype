@@ -50,3 +50,9 @@
 .field-label {
   font-weight: var(--fw-bold, 600);
 }
+
+.disabled-look {
+    background-color: var(--slate-200) !important;
+    color: var(--text-color) !important;
+    cursor: not-allowed !important;
+}

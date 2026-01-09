@@ -1,0 +1,17 @@
+mutation AddMetadataStandardInput($input: AddMetadataStandardInput!) {
+  addMetadataStandard(input: $input) {
+    id
+    errors {
+      description
+      general
+      keywords
+      name
+      researchDomainIds
+      uri
+    }
+    description
+    keywords
+    name
+    uri
+  }
+}

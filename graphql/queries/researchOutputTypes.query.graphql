@@ -1,0 +1,13 @@
+query DefaultResearchOutputTypes {
+  defaultResearchOutputTypes {
+    id
+    name
+    value
+    errors {
+      general
+      name
+      value
+    }
+    description
+  }
+}

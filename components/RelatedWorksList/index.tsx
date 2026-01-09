@@ -125,7 +125,7 @@ export const RelatedWorksList = ({
         confidence: apiConfidence,
       },
       paginationOptions: {
-        offset: currentPage,
+        offset: (currentPage - 1) * LIMIT,
         limit: LIMIT,
         type: "OFFSET",
         sortField,

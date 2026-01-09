@@ -1,0 +1,413 @@
+@use '@/styles/responsive' as r;
+
+.wrapper {
+  max-width: 1200px;
+}
+
+.selectedItems {
+  margin-bottom: var(--space-6);
+  padding: 20px;
+  background: var(--slate-100);
+  border-radius: 6px;
+  min-height: 100px;
+
+    .removeBtn { // This is needed because when the preview opens, the button state is active, with wrong styles
+    &:active:not(:disabled):not(:hover),
+    &[data-pressed]:not(:disabled):not(:hover) {
+      background: var(--bg-white) !important;
+    }
+    
+    &:hover:not(:disabled) {
+      background: var(--blue-500) !important;
+      color: #fff !important;
+      box-shadow: 0 0 0 2px var(--blue-500) inset !important;
+    }
+  }
+}
+
+.selectedItemsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.selectedCount {
+  font-size: var(--fs-small);
+  color: var(--gray-600);
+  font-weight: 500;
+}
+
+
+/* Repository Items selected */
+.item {
+  background: var(--gray-50);
+  padding: var(--space-4);
+  margin-bottom: var(--space-2);
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.itemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.itemContent {
+  flex: 1;
+}
+
+.itemTitle {
+  font-weight: 600;
+  color: var(--slate-700);
+}
+
+.itemMeta {
+  display: flex;
+  gap: 10px;
+  margin-top: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.itemBadge {
+  display: inline-block;
+  padding: 3px 8px;
+  background: var(--gray-75);
+  border-radius: 3px;
+  font-size: 12px;
+    color: var(--slate-800);
+
+  &.open {
+    background: var(--blue-100);
+    color: var(--slate-800);
+  }
+}
+
+.itemLink {
+  font-size: var(--fs-small);
+  text-decoration: none;
+}
+/* End Repository Items selected */
+
+
+
+/* Repository search list items */
+.itemDescription {
+  margin-top: 10px;
+  color: var(--text-color-base);
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+
+.itemLink {
+  display: block;
+  margin-top: var(--space-2);
+}
+
+.moreInfoToggle {
+  font-size: var(--fs-small) !important;
+
+  &:hover {
+    color: #0056b3;
+  }
+}
+
+.repoDetails {
+  margin-top: var(--space-2);
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  font-size: var(--fs-small);
+  overflow-wrap: anywhere; // Prevent overflow for long URLs
+
+  dl {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 10px;
+  }
+
+  dt {
+    font-weight: 700;
+    color: var(--gray-600);
+    font-size: var(--fs-small);
+  }
+
+  dd {
+    color: var(--gray-600);
+    font-size: var(--fs-small);
+    margin-left: 0;
+
+    a {
+      color: var(--blue-500);
+      text-decoration: none;
+      font-size: var(--fs-small);
+
+      &:hover {
+        color: var(--blue-600);
+      }
+    }
+  }
+}
+
+.addItemBtn {
+  margin-top: var(--space-4);
+}
+/* End Repository search list items */
+
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  width: min(700px, 90vw); // never exceeds viewport width
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 6px;
+  background: var(--gray-50);
+  overflow: hidden;
+}
+
+.modalHeader {
+  padding: 20px;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalTitle {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--slate-600);
+  padding: 0 0 2px 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50px;
+  transition: background-color 0.2s ease; /* smooth transition */
+}
+
+.modalBody {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-gutter: stable; // Prevent layout shift when scrollbar appears
+}
+
+.filterSection {
+  margin-bottom: var(--space-6);
+}
+
+.filterRow {
+  display: flex;
+  gap: 15px;
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.filterGroup {
+  flex: 1;
+  min-width: 200px;
+
+    :global {
+    .react-aria-Select {
+      margin-bottom: var(--space-2);
+    }
+  }
+}
+
+.applyFilterBtn {
+  background: var(--blue-600) !important;
+  color: var(--gray-50);
+}
+
+.customRepoForm {
+  background: var(--slate-100);
+  padding: 20px;
+  border-radius: 6px;
+  margin-bottom: var(--space-6);
+
+  h4 {
+    margin-top: 0;
+    margin-bottom: var(--space-4);
+    font-weight: 600;
+  }
+}
+
+.formActions {
+  display: flex;
+  gap: 10px;
+}
+
+.searchResults {
+  margin-top: var(--space-4);
+}
+
+// Pagination and Search Results
+.paginationWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid #dee2e6;
+}
+
+.paginationInfo {
+  font-size: var(--fs-small);
+  color: var(--slate-700);
+}
+
+.searchResultItem {
+  padding: var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  margin-bottom: var(--space-2);
+  transition: all 0.2s;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &.selected {
+    background: var(--blue-50);
+    border-color: var(--blue-300);
+  }
+}
+
+.searchResultHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.searchResultTitle {
+  font-weight: 600;
+  color: #2c3e50;
+  flex: 1;
+}
+
+.tags {
+  display: flex;
+  gap: 8px;
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.tag {
+  background: var(--gray-75);
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: var(--fs-small);
+  color: var(--gray-600);
+}
+
+.searchWrapper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.formSelect {
+  :global {
+    .react-aria-Label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      font-size: var(--fs-small);
+      line-height: 1.5;
+    }
+
+    .react-aria-SelectValue[data-placeholder] {
+      border-radius: 4px;
+      font-size: var(--fs-small);
+      font-style:normal;
+    }
+  }
+}
+
+.searchRepos {
+  flex: 1;
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+  
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.5; // Ensure consistent height
+  }
+  
+  input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: var(--fs-small);
+  }
+}
+
+.filterActions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+
+  button {
+    flex: 0 0 auto; // keep buttons side by side
+  }
+
+  // For screens >= 640px
+  @include r.device(sm) {
+    width: auto;
+    margin-top: 26px; // Need this exact size to align with search field
+  }
+
+  // For medium
+  @include r.device(md){
+    gap: 12px;
+  }
+}
+/* End Modal Styles */

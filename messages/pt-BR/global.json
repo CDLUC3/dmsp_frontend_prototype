@@ -2,24 +2,24 @@
   "HomePage": {
     "title": "Página inicial",
     "createAndManage": {
-      "title": "Criar e Gerenciar",
+      "title": "Criar & Gerenciar",
       "description": "Criar novos modelos e projetos"
     },
     "accountAndAdmin": {
       "title": "Conta e Administração",
-      "description": "Gerenciar sua conta e acessar recursos administrativos"
+      "description": "Gerencie sua conta e acesse as funções de administrador"
     },
     "sections": {
       "templateManagement": {
-        "title": "Gerenciamento de Modelos",
-        "description": "Criar e gerenciar modelos (É necessário ser administrador para acessar)"
+        "title": "Gerenciamento de modelos",
+        "description": "Criar e gerenciar modelos (Deve ser Administrador para acessar)"
       },
       "planDashboard": {
-        "title": "Painel de Planos",
-        "description": "Criar e gerenciar projetos"
+        "title": "Painel de planos",
+        "description": "Crie e gerencie projetos e planos"
       },
       "accountSettings": {
-        "title": "Configurações da Conta",
+        "title": "Configurações de Conta",
         "description": "Visualizar e gerenciar sua conta"
       },
       "adminOverview": {
@@ -27,8 +27,8 @@
         "description": "Acessar funções administrativas"
       }
     },
-    "linkText": "Ir para a página de Conexões",
-    "content": "É um fato amplamente estabelecido que um leitor será distraído pelo conteúdo legível de uma página ao olhar para seu layout."
+    "linkText": "Ir para a página de conexões",
+    "content": "É um fato estabelecido há muito tempo que um leitor se distrairá com o conteúdo legível de uma página ao observar sua disposição."
   },
   "About": {
     "title": "Bem-vindo à Ferramenta DMP"
@@ -37,7 +37,7 @@
     "menuDashboard": "Painel de controle",
     "menuUpload": "Carregar plano",
     "menuCreatePlan": "Criar plano",
-    "menuProjectsPlans": "Painel de Planos",
+    "menuProjectsPlans": "Painel de planos",
     "menuPublicPlans": "Planos públicos",
     "menuFunderRequirements": "Requisitos de Barbatana",
     "menuAbout": "Sobre",
@@ -63,7 +63,7 @@
     "subMenuEditProfile": "Editar perfil",
     "subMenu3rdParty": "Apps de terceiros",
     "subMenuDevTools": "Ferramentas para desenvolvedor",
-    "subMenuEnglish": "English (US)",
+    "subMenuEnglish": "Portuguese (Brazil)",
     "subMenuPortuguese": "Português (Brasil)",
     "btnLogout": "Sair",
     "btnSignup": "Cadastre-se",
@@ -91,7 +91,7 @@
     "headingRelatedActions": "Ações relacionadas",
     "primaryEmailDesc": "Este e-mail será usado para seu login de conta. Ele também pode ser usado para redefinições de senha.",
     "SSODesc": "Este endereço de e-mail é gerenciado por cdl.edu e conectado à instituição.",
-    "notificationsDesc": "Este endereço de e-mail será usado para notificações DMP. <manage>Gerencie suas notificações</manage>.",
+    "notificationsDesc": "Este endereço de e-mail será usado para notificações DMP. &lt;manage&gt;Gerencie suas notificações&lt;/manage&gt;.",
     "aliasEmailDesc": "Os endereços de e-mail do pseudônimo podem ser usados para ajudar outros a encontrar você, por exemplo, se eles quiserem compartilhar um DMP com você.",
     "linkMakePrimary": "Endereço de e-mail principal",
     "helpTextForAddAlias": "Você receberá um e-mail para confirmar esta adição",
@@ -210,7 +210,7 @@
     "headerDescription": "Selecione o fundo para usar neste projeto. Este pode ser o financiador que você planeja aplicar ou de onde você já tem financiamento. Você poderá adicionar fundos adicionais mais tarde, se tiver mais de um.",
     "funder": "Finalizações",
     "popularTitle": "Financiadores mais populares",
-    "found": "{count} erros encontrados",
+    "found": "Financiamentos {count} encontrados",
     "noResults": "Nenhum resultado encontrado",
     "showCount": "Mostrando {count} de {total}",
     "addManuallyHeading": "Não está nesta lista.",
@@ -557,9 +557,10 @@
       },
       "groupIndex": {
         "title": "Editar {groupName}",
-        "description": "Gerenciar os textos de orientação neste grupo",
+        "description": "Abaixo estão todas as tags que são aplicadas às Questões e Seções. Adicione sua orientação abaixo e ela será exibida nos templates quando essa tag for selecionada.",
         "createText": "Criar texto de orientação",
-        "editGroup": "Editar grupo"
+        "editGroup": "Editar informações do grupo",
+        "noTags": "Nenhum texto de orientação encontrado neste grupo"
       },
       "groupCreate": {
         "title": "Criar Novo Grupo de Orientação",
@@ -588,8 +589,13 @@
     },
     "fields": {
       "groupName": {
-        "label": "Nome do Grupo",
+        "label": "Group name",
         "placeholder": "Inserir nome do grupo"
+      },
+      "groupDescription": {
+        "label": "Descrição do grupo",
+        "placeholder": "Insira uma descrição para o grupo",
+        "helpText": "Opcional - apenas para uso interno"
       },
       "title": {
         "label": "Título",
@@ -608,14 +614,14 @@
       }
     },
     "status": {
+      "publicationStatus": "Status da Publicação",
+      "lastPublished": "Última publicação",
+      "notYetPublished": "Ainda não publicado",
       "published": "Publicado",
       "draft": "Rascunho",
       "archived": "Arquivado",
       "lastUpdated": "Última atualização",
       "status": "SItuação",
-      "publicationStatus": "Status da Publicação",
-      "lastPublished": "Última publicação",
-      "notYetPublished": "Ainda não publicado",
       "unpublishedChanges": "Alterações não publicadas",
       "publishedVersion": "Versão publicada"
     },
@@ -638,17 +644,20 @@
     "messages": {
       "noGroups": "Não foram encontrados grupos de orientação",
       "noTexts": "Não há textos de orientação encontrados neste grupo",
-      "loadingPleaseWait": "Carregando, por favor aguarde...",
-      "unPublishBtnTooltipMessage": "Não é possível despublicar o grupo de orientação porque não há versões publicadas.",
-      "publishBtnTooltipMessage": "O grupo de orientação já está publicado.",
+      "loadingPleaseWait": "Aguarde. Carregando...",
+      "unPublishBtnTooltipMessage": "Não é possível cancelar a publicação do grupo de orientação porque não há versões publicadas.",
+      "publishBtnTooltipMessage": "Grupo de Orientação já foi publicado.",
       "success": {
         "guidanceGroupCreated": "Grupo de orientação {groupName} criado com sucesso",
         "guidanceGroupPublished": "Grupo de orientação {groupName} publicado com sucesso",
         "guidanceGroupUnpublished": "Grupo de orientação {groupName} despublicado com sucesso",
         "guidanceGroupUpdated": "Grupo de orientação {groupName} atualizado com sucesso",
-        "guidanceTextAdded": "Texto de orientação adicionado com sucesso a {tagName}. As alterações precisam ser publicadas para entrarem em vigor.",
-        "guidanceTextUpdated": "Texto de orientação para {tagName} atualizado com sucesso. As alterações precisam ser publicadas para entrarem em vigor."
+        "guidanceTextAdded": "Texto de orientação adicionado com sucesso ao {tagName}. As alterações precisam ser publicadas para que tenham efeito.",
+        "guidanceTextUpdated": "Texto de orientação para {tagName} atualizado com sucesso. As alterações precisam ser publicadas para terem efeito."
       }
+    },
+    "labels": {
+      "optionalSubset": "Este é um subconjunto opcional para uso departmental?"
     }
   },
   "Global": {
@@ -671,13 +680,14 @@
       "selectQuestionType": "Selecionar o tipo de questão",
       "project": "Projeto",
       "projects": "Projetos",
-      "planDashboard": "Painel do plano",
+      "planDashboard": "Painel de planos",
       "startDMP": "Iniciar DMP",
       "projectOverview": "Visão geral do projeto",
       "projectFunding": "Orçamento do projeto",
       "projectFundingSearch": "Pesquisa de financiamento de projeto",
       "planOverview": "Resumo do plano",
       "planFunding": "Financiamento do plano",
+      "downloadPlan": "Baixar plano",
       "sectionOverview": "Visão geral da seção",
       "feedback": "Registrar",
       "questionDetails": "Detalhes da pergunta",
@@ -696,6 +706,7 @@
     "lastRevisedBy": "Última revisão por",
     "lastUpdated": "Últimas atualizações",
     "published": "Publicada",
+    "draft": "Rascunho",
     "visibility": "Visibilidade",
     "notPublished": "Não publicado",
     "editTitle": "Editar título",
@@ -703,17 +714,18 @@
     "dataDescription": "Descrição dos dados",
     "dataFormat": "Formato de dados:",
     "dataVolume": "Volume dos dados",
-    "opensInNewTab": "Abre em uma nova aba",
+    "opensInNewTab": "Abrir em uma nova aba",
     "buttons": {
       "search": "Buscar",
-      "lookup": "Pesquisar",
-      "select": "Selecionar",
+      "lookup": "Procurar",
+      "select": "Select",
       "next": "Seguinte",
       "save": "Salvar",
       "saving": "Salvando",
       "saveAndAdd": "Salvar e adicionar",
       "saveAndUpdate": "Salvar e atualizar",
       "saveChanges": "Salvar as alterações",
+      "update": "Atualização",
       "remove": "Remover",
       "removeAll": "Remover todos os",
       "confirm": "Confirmação",
@@ -725,26 +737,28 @@
       "continue": "Avançar",
       "edit": "Alterar",
       "delete": "Apagar",
+      "deleteLabel": "Apagar {item}",
       "preview": "Pré-visualizar",
       "publish": "Publicar",
       "publishChanges": "Publicar alterações",
-      "unpublish": "Despublicar",
+      "unpublish": "Retirar a publicação",
       "close": "Fechar",
       "closeModal": "Fechar modal",
       "loadMore": "Carregar mais",
       "addAnother": "Adicionar mais",
       "goToProject": "Ir para o projeto",
       "back": "Voltar",
+      "backToList": "Voltar para a lista",
       "add": "Adicionar",
       "customize": "Personalizar",
       "applyFilter": "Aplicar filtro(s)",
       "moreInfo": "Mais informações",
       "lessInfo": "Menos informações",
-      "createNewPlan": "Criar novo DMP"
+      "createNewPlan": "Criar nova DMP"
     },
     "labels": {
       "required": "Obrigatório",
-      "recommended": "Recomendado",
+      "recommended": "recomendado",
       "searchByKeyword": "Pesquisar por palavra-chave",
       "startDate": "Data de início",
       "endDate": "Data final",
@@ -754,15 +768,30 @@
       "nextPage": "Próxima página",
       "name": "Nome:",
       "url": "URL:",
-      "description": "Descrição:",
-      "searchTerm": "Termo para pesquisa"
+      "unit": "Unidade",
+      "description": "Descrição",
+      "searchTerm": "Termo para pesquisa",
+      "title": "Título",
+      "dataFlags": "Sinalizadores de dados",
+      "outputType": "Tipo de saída",
+      "repositories": "Repositórios",
+      "metadataStandards": "Padrões de metadados",
+      "licenses": "Licenças",
+      "initialAccessLevels": "Níveis de acesso inicial",
+      "anticipatedReleaseDate": "Data prevista de lançamento",
+      "anticipatedFileSize": "Tamanho de arquivo previsto",
+      "fileSizeUnit": "Unidade de tamanho do arquivo",
+      "selectAnItem": "Selecione um item",
+      "mayContainSensitiveData": "Pode conter dados sensíveis?",
+      "mayContainPersonalData": "Pode conter informações pessoalmente identificáveis?"
     },
     "helpText": {
       "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc.",
-      "funderSearch": "Pesquisar por organização de pesquisa, nome do financiador ou palavras-chave relacionadas."
+      "funderSearch": "Pesquisar por organização de pesquisa, nome do financiador ou palavras-chave relacionadas.",
+      "dataFlags": "Marque todas as afirmações que são verdadeiras sobre o conjunto de dados"
     },
     "descriptions": {
-      "requiredFieldDescription": "Avise os usuários que esta é considerada uma pergunta obrigatória para este modelo de DMP pela organização. Os usuários poderão optar por ignorá-la na ferramenta e não precisarão respondê-la antes de prosseguir."
+      "requiredFieldDescription": "Atenção aos usuários que isto é considerado uma questão necessária para este template DMP pela organização. Os usuários poderão optar por ignorar isso dentro da ferramenta e não será necessário responder antes de movê-la."
     },
     "placeholders": {
       "funderSearch": "Insira o nome da pasta"
@@ -793,7 +822,8 @@
       "errors": {
         "invalidQuestionType": "Tipo de questão inválido encontrado.",
         "questionUnexpectedFormat": "Formato inesperado para question.json.",
-        "questionJSONFParseFailed": "JSON.parse falhou."
+        "questionJSONFParseFailed": "JSON.parse falhou.",
+        "requiredField": "{field} é obrigatório"
       },
       "numDisplaying": "Mostrando {num} de {total}",
       "unsavedChangesWarning": "Você tem alterações não salvas. Tem certeza que deseja sair desta página?"
@@ -825,6 +855,11 @@
       "filteredSearch": "Pesquisa com filtros",
       "table": "Tabela",
       "affiliationSearch": "Busca de afiliação"
+    },
+    "status": {
+      "published": "Publicado",
+      "draft": "Rascunho",
+      "unpublishedChanges": "Alterações não publicadas"
     }
   },
   "OrganizationTemplates": {

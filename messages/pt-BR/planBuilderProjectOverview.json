@@ -23,6 +23,9 @@
     "memberInfo": "{name} ({role})",
     "editMembers": "Editar Detalhes do Projeto",
     "editProjectMembers": "Editar Detalhes do Projeto",
+    "outputCount": "{count, plural, =0 {0 outputs} one {1 output} other {{count} outputs}}",
+    "editOutputs": "Editar resultados de pesquisa",
+    "editResearchOutputs": "Editar resultados de pesquisa",
     "plan": "Planejamento",
     "plans": "Planos",
     "sections": "Turmas",
@@ -62,7 +65,7 @@
     }
   },
   "ProjectsListPage": {
-    "intro": "Gerencie seus planos de gerenciamento de dados e projetos. Para criar um novo plano dentro do mesmo projeto de pesquisa, abra o projeto abaixo primeiro e depois crie um novo plano dentro dele.",
+    "intro": "Gerencie seus planos e projetos de gerenciamento de dados. Para criar um novo plano dentro do mesmo projeto de pesquisa, abra o projeto abaixo e, em seguida, crie um novo plano dentro dele.",
     "buttons": {
       "createProject": "Criar projeto"
     },
@@ -74,12 +77,12 @@
   },
   "ProjectsCreateProject": {
     "pageTitle": "Criar detalhes do projeto",
-    "description": "Começaremos pedindo detalhes sobre seu projeto de pesquisa para que possamos ajudá-lo a criar o plano de gerenciamento de dados certo para ele. Você pode então adicionar planos adicionais ao mesmo projeto.",
+    "description": "Vamos começar pedindo detalhes sobre seu projeto de pesquisa para que possamos ajudá-lo a criar o plano de gerenciamento de dados certo para ele. Você pode então adicionar planos adicionais para o mesmo projeto.",
     "isThisMockProject": "Este é um projeto fictício?",
     "form": {
-      "projectTitle": "Qual é o título do projeto de pesquisa para este DMP?",
-      "projectTitleHelpText": "Você pode mudar isso a qualquer momento. Se já solicitou financiamento, recomendamos que se utilize o título formal do projeto para ser consistente.",
-      "radioGroupLabel": "Este é um projeto fictício para fins de teste ou um projeto real?"
+      "projectTitle": "Qual é o título do projeto de investigação para este DMP?",
+      "projectTitleHelpText": "Você pode mudar isso a qualquer momento. Se já solicitou financiamento, recomendamos o uso do título formal do projeto para consistência e para ajudar a encontrar detalhes nas bases de dados de financiamentos.",
+      "radioGroupLabel": "Será este um projeto simulado para fins de teste ou um projeto real?"
     },
     "messages": {
       "success": "Projeto criado com sucesso",
@@ -90,7 +93,7 @@
       }
     },
     "labels": {
-      "mockProject": "Projeto simulado",
+      "mockProject": "Projeto fictício",
       "realProject": "Projeto real"
     },
     "descriptions": {
@@ -294,12 +297,13 @@
       "access": {
         "label": "O que esta pessoa deve poder fazer?",
         "edit": "Editar o plano",
-        "comment": "Comentário somente"
+        "comment": "Comentário somente",
+        "own": "Próprio plano"
       }
     },
     "accessLevelOn": "{accessLevel} em",
     "para1": "When you click <strong>Grant access</strong> we'll send an email to this person inviting them to view your plan.",
-    "para2": "Se eles ainda não forem membros da Ferramenta DMP, nós os convidaremos a participar.",
+    "para2": "Se eles ainda não são membros da Ferramenta de DMP, nós os convidaremos a participar.",
     "para3": "Enviamos um convite para <strong>{email}</strong>. Eles terão acesso a este projeto.",
     "para4": "Para também adicioná-los como membro do projeto, <projectmember>vá para a página de membros do projeto</projectmember>.",
     "para5": "Eles terão acesso a DMPs {access} neste projeto.",
@@ -361,58 +365,57 @@
     }
   },
   "ProjectsProjectMembersSearch": {
-    "title": "Adicionar membro ao projeto",
-    "description": "Se você conhece o ORCiD completo de 16 caracteres de uma pessoa, insira-o abaixo e use o botão Pesquisar para associá-la a este projeto. Se você não souber o ORCiD dela, basta inserir as informações dela abaixo.",
-    "searchLabel": "ID do ORCiD (recomendado)",
-    "searchDescription": "Se conhecido, insira o ORCiD completo de 16 caracteres do membro do projeto no formato XXXX-XXXX-XXXX-XXXX e clique em Pesquisar. Caso contrário, preencha as informações abaixo manualmente.",
+    "title": "Adicionar membro",
+    "description": "Se você sabe o ORD de 16 caracteres completos, insira-o abaixo e use o botão Pesquisar para associá-lo a este projeto. Se você não sabe o ORCiD dela, insira as informações abaixo",
+    "searchLabel": "ORCiD ID",
+    "searchDescription": "Se conhecido, insira o ORCiD de 16 caracteres do membro do projeto no formato XXXX-XXXX-XXXX-XXXX ou URL ORCiD e clique em Pesquisar. Caso contrário, complete as informações abaixo manualmente.",
     "ariaSearchInput": "Pesquisa",
     "ariaSearchItemName": "Membro: {name}",
-    "ariaSelectSearchResult": "Selecionar {name} para preencher formulário",
+    "ariaSelectSearchResult": "Selecione {name} para preencher formulário",
     "ariaAddMemberButton": "Adicionar {name} como membro do projeto",
-    "createCollaboratorDescription": "Se seu colaborador não estiver mostrado, você pode adicionar seus detalhes manualmente",
     "buttons": {
       "addToProject": "Adicionar ao projeto",
       "clearForm": "Limpar formulário"
     },
     "headings": {
-      "searchResultsHeader": "Mostrando 1-{length} dos resultados {total}",
-      "enterMemberDetails": "Inserir detalhes do membro"
+      "enterMemberDetails": "Detalhes do membro do projeto",
+      "searchResultsHeader": "Encontrado uma correspondência"
     },
     "messaging": {
-      "noSearchResultsFound": "Nenhum registro associado a esse ORCiD foi encontrado. Verifique o ORCiD e tente novamente.",
+      "noSearchResultsFound": "Nenhum registro associado ao ORCiD foi encontrado. Por favor, verifique o ORCiD e tente novamente.",
       "errors": {
         "failedToLoadCollaborators": "Falha ao carregar mais colaboradores",
         "failedToAddProjectMember": "Falha ao adicionar membro. Por favor, tente novamente.",
         "surNameRequired": "Sobrenome é obrigatório",
-        "givenNameRequired": "Nome é obrigatório",
-        "emailRequired": "Endereço de e-mail é obrigatório",
-        "invalidEmail": "Por favor, insira um endereço de e-mail válido",
-        "projectRolesRequired": "Pelo menos um papel do projeto deve ser selecionado",
-        "affiliationRequired": "Afiliação é obrigatória",
-        "searchTermRequired": "Por favor, insira um ORCiD ou uma URL contendo um ORCiD para pesquisar",
-        "valueOrcidRequired": "Por favor, insira um ORCiD válido no formato XXXX-XXXX-XXXX-XXXX ou uma URL contendo um ORCiD"
+        "givenNameRequired": "O primeiro nome é obrigatório",
+        "emailRequired": "É necessário um endereço de e-mail",
+        "invalidEmail": "Por favor insira um endereço de e-mail válido",
+        "projectRolesRequired": "Pelo menos uma função do projeto deve ser selecionada",
+        "affiliationRequired": "Afiliação é necessária",
+        "searchTermRequired": "Por favor, informe um ORCiD ou um URL contendo um ORCiD para pesquisar",
+        "valueOrcidRequired": "Por favor, digite um ORCiD válido no formato XXXX-XXXX-XXXX-XXXX ou uma URL contendo um ORCiD"
       },
       "success": {
         "addedProjectMember": "Adicionado com sucesso {name} como membro do projeto"
       }
     },
     "labels": {
-      "givenName": "Nome",
+      "givenName": "Primeiro nome",
       "surName": "Sobrenome",
-      "affiliation": "Afiliação",
-      "otherAffiliationName": "Outro nome de afiliação",
-      "email": "Endereço de e-mail",
-      "definedRole": "Definir o(s) papel(éis) do membro neste projeto",
-      "ariaMemberRoles": "Opções de papéis do membro do projeto",
+      "affiliation": "Filiação",
+      "otherAffiliationName": "Outro Nome de Afiliação",
+      "email": "E-mail",
+      "definedRole": "Definir a(s) função(ões) do membro neste projeto",
+      "ariaMemberRoles": "Opções de papéis dos membros do projeto",
       "selected": "Selecionado",
-      "selectedFromSearch": "Selecionado da pesquisa",
+      "selectedFromSearch": "Selecionado da busca",
       "orcid": "ORCID",
       "orcidFromSearch": "ORCID do resultado da pesquisa"
     },
     "links": {
-      "learnMoreAboutCreditTaxonomy": "Saiba mais sobre cada papel"
+      "learnMoreAboutCreditTaxonomy": "Saiba mais sobre cada função"
     },
-    "memberRolesDescription": "<p>Selecione uma ou mais funções que descrevem melhor as contribuições desta pessoa para este projeto.</p>"
+    "memberRolesDescription": "<p>Select the role(s) that should be displayed within citations for this project member with the DMP.</p><p>We use an ANSI/NISO standard called CRediT, a community-owned 14 role taxonomy that can be used to describe the key types of contributions typically made to the production and publication of research output such as research articles. </p><p><link />Saiba mais sobre a Taxonomia CRediT ↗</p>"
   },
   "ProjectsProjectMemberCreate": {
     "title": "Adicionar um novo membro ao projeto",
