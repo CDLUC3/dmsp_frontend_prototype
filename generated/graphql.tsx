@@ -1772,6 +1772,8 @@ export type OpenSearchWork = {
   doi: Scalars['String']['output'];
   /** The funders of the work */
   funders: Array<Funder>;
+  /** A hash of the content of this version of a work */
+  hash: Scalars['MD5']['output'];
   /** The unique institutions of the authors of the work */
   institutions: Array<Institution>;
   /** The date that the work was published YYYY-MM-DD */
@@ -2518,7 +2520,7 @@ export type Query = {
   /** Search for a User to add as a collaborator */
   findCollaborator?: Maybe<CollaboratorSearchResults>;
   /** Find a work with an identifier */
-  findWorkByIdentifier?: Maybe<Array<Maybe<OpenSearchWork>>>;
+  findWorkByIdentifier?: Maybe<RelatedWorkSearchResults>;
   /** Get a specific Guidance item by ID */
   guidance?: Maybe<Guidance>;
   /** Get all Guidance items for a specific GuidanceGroup */
@@ -2707,6 +2709,8 @@ export type QueryFindCollaboratorArgs = {
 
 export type QueryFindWorkByIdentifierArgs = {
   doi?: InputMaybe<Scalars['String']['input']>;
+  paginationOptions?: InputMaybe<PaginationOptions>;
+  planId: Scalars['Int']['input'];
 };
 
 
@@ -3142,7 +3146,7 @@ export type RelatedWorkSearchResult = {
   /** Details how relevant the title and abstract of the work were to the plan */
   contentMatch?: Maybe<ContentMatch>;
   /** The timestamp when the Object was created */
-  created: Scalars['String']['output'];
+  created?: Maybe<Scalars['String']['output']>;
   /** The user who created the Object. Null if the related work was automatically found */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** Details whether the work's DOI was found on a funder award page */
@@ -3150,23 +3154,23 @@ export type RelatedWorkSearchResult = {
   /** Details which funders matched from the work and the fields they matched on */
   funderMatches?: Maybe<Array<ItemMatch>>;
   /** The unique identifier for the Object */
-  id: Scalars['Int']['output'];
+  id?: Maybe<Scalars['Int']['output']>;
   /** Details which institutions matched from the work and the fields they matched on */
   institutionMatches?: Maybe<Array<ItemMatch>>;
   /** The timestamp when the Object was last modified */
-  modified: Scalars['String']['output'];
+  modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The unique identifier of the plan that this related work has been matched to */
-  planId: Scalars['Int']['output'];
+  planId?: Maybe<Scalars['Int']['output']>;
   /** The confidence score indicating how well the work matches the plan */
   score?: Maybe<Scalars['Float']['output']>;
   /** The maximum confidence score returned when this work was matched to the plan */
-  scoreMax: Scalars['Float']['output'];
+  scoreMax?: Maybe<Scalars['Float']['output']>;
   /** The normalised confidence score from 0.0-1.0 */
-  scoreNorm: Scalars['Float']['output'];
+  scoreNorm?: Maybe<Scalars['Float']['output']>;
   /** Whether the related work was automatically or manually added */
-  sourceType: RelatedWorkSourceType;
+  sourceType?: Maybe<RelatedWorkSourceType>;
   /** The status of the related work */
   status: RelatedWorkStatus;
   /** The version of the work that the plan was matched to */
@@ -4888,7 +4892,14 @@ export type UpdateRelatedWorkStatusMutationVariables = Exact<{
 }>;
 
 
-export type UpdateRelatedWorkStatusMutation = { __typename?: 'Mutation', updateRelatedWorkStatus?: { __typename?: 'RelatedWorkSearchResult', id: number, status: RelatedWorkStatus } | null };
+export type UpdateRelatedWorkStatusMutation = { __typename?: 'Mutation', updateRelatedWorkStatus?: { __typename?: 'RelatedWorkSearchResult', id?: number | null, status: RelatedWorkStatus } | null };
+
+export type AddRelatedWorkMutationVariables = Exact<{
+  input: AddRelatedWorkInput;
+}>;
+
+
+export type AddRelatedWorkMutation = { __typename?: 'Mutation', addRelatedWork?: { __typename?: 'RelatedWorkSearchResult', id?: number | null, planId?: number | null, status: RelatedWorkStatus } | null };
 
 export type AddRepositoryMutationVariables = Exact<{
   input?: InputMaybe<AddRepositoryInput>;
@@ -5231,7 +5242,15 @@ export type RelatedWorksByPlanQueryVariables = Exact<{
 }>;
 
 
-export type RelatedWorksByPlanQuery = { __typename?: 'Query', relatedWorksByPlan?: { __typename?: 'RelatedWorkSearchResults', totalCount?: number | null, limit?: number | null, currentOffset?: number | null, hasNextPage?: boolean | null, hasPreviousPage?: boolean | null, availableSortFields?: Array<string | null> | null, statusOnlyCount?: number | null, items?: Array<{ __typename?: 'RelatedWorkSearchResult', id: number, scoreNorm: number, confidence?: RelatedWorkConfidence | null, status: RelatedWorkStatus, created: string, modified: string, workVersion: { __typename?: 'WorkVersion', id: number, hash: any, workType: WorkType, publicationDate?: string | null, title?: string | null, publicationVenue?: string | null, sourceName: string, sourceUrl?: string | null, work: { __typename?: 'Work', id: number, doi: string }, authors: Array<{ __typename?: 'Author', orcid?: string | null, firstInitial?: string | null, givenName?: string | null, middleInitials?: string | null, middleNames?: string | null, surname?: string | null, full?: string | null }>, institutions: Array<{ __typename?: 'Institution', name?: string | null, ror?: string | null }>, funders: Array<{ __typename?: 'Funder', name?: string | null, ror?: string | null }>, awards: Array<{ __typename?: 'Award', awardId?: string | null }> }, doiMatch?: { __typename?: 'DoiMatch', found: boolean, score: number, sources: Array<{ __typename?: 'DoiMatchSource', parentAwardId?: string | null, awardId: string, awardUrl: string }> } | null, contentMatch?: { __typename?: 'ContentMatch', score: number, titleHighlight?: string | null, abstractHighlights: Array<string> } | null, authorMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, institutionMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, funderMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, awardMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null } | null> | null, workTypeCounts?: Array<{ __typename?: 'TypeCount', typeId: string, count: number }> | null, confidenceCounts?: Array<{ __typename?: 'TypeCount', typeId: string, count: number }> | null } | null };
+export type RelatedWorksByPlanQuery = { __typename?: 'Query', relatedWorksByPlan?: { __typename?: 'RelatedWorkSearchResults', totalCount?: number | null, limit?: number | null, currentOffset?: number | null, hasNextPage?: boolean | null, hasPreviousPage?: boolean | null, availableSortFields?: Array<string | null> | null, statusOnlyCount?: number | null, items?: Array<{ __typename?: 'RelatedWorkSearchResult', id?: number | null, scoreNorm?: number | null, confidence?: RelatedWorkConfidence | null, status: RelatedWorkStatus, created?: string | null, modified?: string | null, workVersion: { __typename?: 'WorkVersion', id: number, hash: any, workType: WorkType, publicationDate?: string | null, title?: string | null, publicationVenue?: string | null, sourceName: string, sourceUrl?: string | null, work: { __typename?: 'Work', id: number, doi: string }, authors: Array<{ __typename?: 'Author', orcid?: string | null, firstInitial?: string | null, givenName?: string | null, middleInitials?: string | null, middleNames?: string | null, surname?: string | null, full?: string | null }>, institutions: Array<{ __typename?: 'Institution', name?: string | null, ror?: string | null }>, funders: Array<{ __typename?: 'Funder', name?: string | null, ror?: string | null }>, awards: Array<{ __typename?: 'Award', awardId?: string | null }> }, doiMatch?: { __typename?: 'DoiMatch', found: boolean, score: number, sources: Array<{ __typename?: 'DoiMatchSource', parentAwardId?: string | null, awardId: string, awardUrl: string }> } | null, contentMatch?: { __typename?: 'ContentMatch', score: number, titleHighlight?: string | null, abstractHighlights: Array<string> } | null, authorMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, institutionMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, funderMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, awardMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null } | null> | null, workTypeCounts?: Array<{ __typename?: 'TypeCount', typeId: string, count: number }> | null, confidenceCounts?: Array<{ __typename?: 'TypeCount', typeId: string, count: number }> | null } | null };
+
+export type FindWorkByIdentifierQueryVariables = Exact<{
+  planId: Scalars['Int']['input'];
+  doi?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type FindWorkByIdentifierQuery = { __typename?: 'Query', findWorkByIdentifier?: { __typename?: 'RelatedWorkSearchResults', items?: Array<{ __typename?: 'RelatedWorkSearchResult', id?: number | null, planId?: number | null, status: RelatedWorkStatus, sourceType?: RelatedWorkSourceType | null, modified?: string | null, workVersion: { __typename?: 'WorkVersion', title?: string | null, hash: any, workType: WorkType, publicationDate?: string | null, publicationVenue?: string | null, sourceName: string, sourceUrl?: string | null, work: { __typename?: 'Work', doi: string }, authors: Array<{ __typename?: 'Author', orcid?: string | null, firstInitial?: string | null, givenName?: string | null, surname?: string | null, full?: string | null }> } } | null> | null } | null };
 
 export type RepositoriesQueryVariables = Exact<{
   input: RepositorySearchInput;
@@ -7162,6 +7181,41 @@ export function useUpdateRelatedWorkStatusMutation(baseOptions?: Apollo.Mutation
 export type UpdateRelatedWorkStatusMutationHookResult = ReturnType<typeof useUpdateRelatedWorkStatusMutation>;
 export type UpdateRelatedWorkStatusMutationResult = Apollo.MutationResult<UpdateRelatedWorkStatusMutation>;
 export type UpdateRelatedWorkStatusMutationOptions = Apollo.BaseMutationOptions<UpdateRelatedWorkStatusMutation, UpdateRelatedWorkStatusMutationVariables>;
+export const AddRelatedWorkDocument = gql`
+    mutation AddRelatedWork($input: AddRelatedWorkInput!) {
+  addRelatedWork(input: $input) {
+    id
+    planId
+    status
+  }
+}
+    `;
+export type AddRelatedWorkMutationFn = Apollo.MutationFunction<AddRelatedWorkMutation, AddRelatedWorkMutationVariables>;
+
+/**
+ * __useAddRelatedWorkMutation__
+ *
+ * To run a mutation, you first call `useAddRelatedWorkMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddRelatedWorkMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addRelatedWorkMutation, { data, loading, error }] = useAddRelatedWorkMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddRelatedWorkMutation(baseOptions?: Apollo.MutationHookOptions<AddRelatedWorkMutation, AddRelatedWorkMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddRelatedWorkMutation, AddRelatedWorkMutationVariables>(AddRelatedWorkDocument, options);
+      }
+export type AddRelatedWorkMutationHookResult = ReturnType<typeof useAddRelatedWorkMutation>;
+export type AddRelatedWorkMutationResult = Apollo.MutationResult<AddRelatedWorkMutation>;
+export type AddRelatedWorkMutationOptions = Apollo.BaseMutationOptions<AddRelatedWorkMutation, AddRelatedWorkMutationVariables>;
 export const AddRepositoryDocument = gql`
     mutation AddRepository($input: AddRepositoryInput) {
   addRepository(input: $input) {
@@ -9677,6 +9731,72 @@ export type RelatedWorksByPlanQueryHookResult = ReturnType<typeof useRelatedWork
 export type RelatedWorksByPlanLazyQueryHookResult = ReturnType<typeof useRelatedWorksByPlanLazyQuery>;
 export type RelatedWorksByPlanSuspenseQueryHookResult = ReturnType<typeof useRelatedWorksByPlanSuspenseQuery>;
 export type RelatedWorksByPlanQueryResult = Apollo.QueryResult<RelatedWorksByPlanQuery, RelatedWorksByPlanQueryVariables>;
+export const FindWorkByIdentifierDocument = gql`
+    query FindWorkByIdentifier($planId: Int!, $doi: String) {
+  findWorkByIdentifier(planId: $planId, doi: $doi) {
+    items {
+      id
+      planId
+      workVersion {
+        work {
+          doi
+        }
+        title
+        hash
+        workType
+        publicationDate
+        publicationVenue
+        authors {
+          orcid
+          firstInitial
+          givenName
+          surname
+          full
+        }
+        sourceName
+        sourceUrl
+      }
+      status
+      sourceType
+      modified
+    }
+  }
+}
+    `;
+
+/**
+ * __useFindWorkByIdentifierQuery__
+ *
+ * To run a query within a React component, call `useFindWorkByIdentifierQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindWorkByIdentifierQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindWorkByIdentifierQuery({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      doi: // value for 'doi'
+ *   },
+ * });
+ */
+export function useFindWorkByIdentifierQuery(baseOptions: Apollo.QueryHookOptions<FindWorkByIdentifierQuery, FindWorkByIdentifierQueryVariables> & ({ variables: FindWorkByIdentifierQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FindWorkByIdentifierQuery, FindWorkByIdentifierQueryVariables>(FindWorkByIdentifierDocument, options);
+      }
+export function useFindWorkByIdentifierLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindWorkByIdentifierQuery, FindWorkByIdentifierQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FindWorkByIdentifierQuery, FindWorkByIdentifierQueryVariables>(FindWorkByIdentifierDocument, options);
+        }
+export function useFindWorkByIdentifierSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<FindWorkByIdentifierQuery, FindWorkByIdentifierQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<FindWorkByIdentifierQuery, FindWorkByIdentifierQueryVariables>(FindWorkByIdentifierDocument, options);
+        }
+export type FindWorkByIdentifierQueryHookResult = ReturnType<typeof useFindWorkByIdentifierQuery>;
+export type FindWorkByIdentifierLazyQueryHookResult = ReturnType<typeof useFindWorkByIdentifierLazyQuery>;
+export type FindWorkByIdentifierSuspenseQueryHookResult = ReturnType<typeof useFindWorkByIdentifierSuspenseQuery>;
+export type FindWorkByIdentifierQueryResult = Apollo.QueryResult<FindWorkByIdentifierQuery, FindWorkByIdentifierQueryVariables>;
 export const RepositoriesDocument = gql`
     query Repositories($input: RepositorySearchInput!) {
   repositories(input: $input) {

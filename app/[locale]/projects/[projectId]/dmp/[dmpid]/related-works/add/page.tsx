@@ -1,52 +1,68 @@
-'use client';
+"use client";
 
-import React, { useEffect, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
+import React, { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
+import { useParams } from "next/navigation";
 
-import {
-  Breadcrumb,
-  Breadcrumbs,
-  Button,
-  Form,
-  Input,
-  Label,
-  Link,
-  SearchField,
-  Text
-} from "react-aria-components";
+import { Breadcrumb, Breadcrumbs, Button, Form, Input, Label, Link, SearchField, Text } from "react-aria-components";
 import {
   RelatedWorkConfidence,
   RelatedWorkSearchResult,
   RelatedWorkStatus,
-  useFin,
+  useFindWorkByIdentifierQuery,
   WorkType,
 } from "@/generated/graphql";
 //GraphQL
-import {
-  CollaboratorSearchResult,
-} from '@/generated/graphql';
+import { CollaboratorSearchResult } from "@/generated/graphql";
 
 // Components
 import PageHeader from "@/components/PageHeader";
-import {
-  ContentContainer,
-  LayoutContainer,
-} from "@/components/Container";
-import { OrcidIcon } from '@/components/Icons/orcid/';
+import { ContentContainer, LayoutContainer } from "@/components/Container";
+import { OrcidIcon } from "@/components/Icons/orcid/";
 import { FormInput } from "@/components/Form";
-import { TypeAheadWithOther, useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
-import Loading from '@/components/Loading';
+import { TypeAheadWithOther, useAffiliationSearch } from "@/components/Form/TypeAheadWithOther";
+import Loading from "@/components/Loading";
 // import ProjectRoles from '../ProjectRoles';
-import ErrorMessages from '@/components/ErrorMessages';
+import ErrorMessages from "@/components/ErrorMessages";
 
 // Hooks
 // import { useCollaboratorSearch } from './hooks/useCollaboratorSearch';
 // import { useProjectMemberForm } from './hooks/useProjectMemberForm';
 
 // Utils
-import { routePath } from '@/utils/index';
-// import styles from './ProjectsProjectMembersSearch.module.scss';
+import { routePath } from "@/utils/index";
+// import styles
+//   from "@/app/[locale]/projects/[projectId]/research-outputs/ProjectsProjectResearchOutputs.module.scss";
+import styles from "./AddRelatedWork.module.scss";
+import { formatAuthorNameFirstLast, formatSubtitle } from "@/lib/relatedWorks";
+import { doiToUrl, orcidToUrl, rorToUrl } from "@/lib/idToUrl";
+import ExpandButton from "@/components/ExpandButton";
+import ExpandableNameList from "@/components/ExpandableNameList";
+import { useFormatDate } from "@/hooks/useFormatDate";
+
+const MAX_AUTHOR_CHARS = 40;
+
+export function extractDoi(text: string | null | undefined): string | null {
+  if (!text) {
+    return null;
+  }
+  const pattern = /10\.[\d.]+\/[^\s]+/i;
+  const match = text.match(pattern);
+
+  if (match) {
+    return cleanString(match[0]);
+  }
+
+  return null;
+}
+
+export function cleanString(text: string | null | undefined): string | null {
+  if (!text) {
+    return null;
+  }
+
+  return text.toLowerCase().trim();
+}
 
 const AddRelatedWorkPage = () => {
   const params = useParams();
@@ -60,125 +76,56 @@ const AddRelatedWorkPage = () => {
   // const errorRef = useRef<HTMLDivElement | null>(null);
   //
   // // Translation keys
-  const Global = useTranslations('Global');
-  const t = useTranslations('AddRelatedWorkPage');
+  const Global = useTranslations("Global");
+  const t = useTranslations("AddRelatedWorkPage");
+  const dataTypes = useTranslations("RelatedWorksDataTypes");
 
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [doi, setDoi] = useState<string | null>(null);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
 
-  //
-  // // For TypeAhead component
-  // const { suggestions, handleSearch: handleAffiliationSearch } = useAffiliationSearch();
-  //
-  // const [otherField, setOtherField] = useState(false);
-  //
-  // // Use the custom hook for form management
-  // const {
-  //   projectMember,
-  //   setProjectMember,
-  //   roles,
-  //   memberRoles,
-  //   errors,
-  //   fieldErrors,
-  //   handleCheckboxChange,
-  //   handleFormSubmit,
-  //   resetErrors,
-  //   updateAffiliationFormData,
-  //   clearAllFormFields,
-  // } = useProjectMemberForm(projectId);
-  //
-  // const {
-  //   term,
-  //   results,
-  //   isSearching,
-  //   loading: searchLoading,
-  //   errors: searchErrors,
-  //   setSearchTerm,
-  //   handleMemberSearch: handleCollaboratorSearch,
-  //   clearSearch
-  // } = useCollaboratorSearch();
-  //
-  // const reset = () => {
-  //   resetErrors();
-  //   clearAllFormFields();
-  // }
-  //
-  // // Handle any changes to form field values
-  // function handleOtherAffiliationInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-  //   // Clear previous error messages
-  //   resetErrors();
-  //   const { name, value } = e.target;
-  //   setProjectMember({ ...projectMember, [name]: value });
-  // }
-  //
-  //
-  // //Update searchTerm state whenever entry in the search field changes
-  const handleSearchInput = (value: string) => {
-    // reset(); // clear form and errors when search input changes
-    setSearchTerm(value);
-  }
-
-  //
-  // // Handler for search button - now uses the hook's functionality
-  const handleMemberSearch = async () => {
-    // clearAllFormFields();
-    // resetErrors();
-    // await handleCollaboratorSearch();
-  };
-  //
-  //
-  // // Handle selecting a search result to populate form fields
-  // const handleSelectSearchResult = (result: CollaboratorSearchResult) => {
-  //   setProjectMember({
-  //     givenName: result?.givenName || '',
-  //     surName: result?.surName || '',
-  //     email: result?.email || '',
-  //     orcid: result?.orcid || '',
-  //     affiliationName: result?.affiliationName || '',
-  //     affiliationId: result?.affiliationId || result?.affiliationRORId || '',
-  //     otherAffiliationName: '',
-  //   });
-  //
-  //   // Clear any previous errors
-  //   resetErrors();
-  // }
-  //
-  // // Handle clearing the form to start fresh
-  // const handleClearForm = () => {
-  //   clearSearch();
-  // }
-  //
-  // // Auto-populate form with the result when we get search results
-  // useEffect(() => {
-  //   if (results.length > 0) {
-  //     const firstResult = results[0];
-  //     handleSelectSearchResult(firstResult);
-  //   }
-  // }, [results]);
-  //
-  //
-  // // Reset form when search term is cleared
-  // useEffect(() => {
-  //   if (term === '') {
-  //     // Clear form when search is cleared
-  //     clearAllFormFields();
-  //     resetErrors();
-  //   }
-  // }, [term, clearAllFormFields, resetErrors])
+  // Query data
+  const {
+    data: results,
+    // previousData,
+    loading: isLoading,
+    // refetch: relatedWorksRefetch,
+  } = useFindWorkByIdentifierQuery({
+    variables: {
+      planId,
+      doi,
+    },
+    fetchPolicy: "cache-and-network", // required so that results in different tabs update when status of a related work is updated
+  });
 
   return (
     <>
       <PageHeader
-        title={t('title')}
-        description={t('description')}
+        title={t("title")}
+        description={t("description")}
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('projects.dmp.show', { projectId, dmpId: planId })}>{Global('breadcrumbs.planOverview')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('projects.dmp.relatedWorks', { projectId, dmpId: planId })}>{Global('breadcrumbs.relatedWorks')}</Link></Breadcrumb>
-            <Breadcrumb>{t('title')}</Breadcrumb>
+            <Breadcrumb>
+              <Link href={routePath("app.home")}>{Global("breadcrumbs.home")}</Link>
+            </Breadcrumb>
+            <Breadcrumb>
+              <Link href={routePath("projects.index")}>{Global("breadcrumbs.projects")}</Link>
+            </Breadcrumb>
+            <Breadcrumb>
+              <Link href={routePath("projects.show", { projectId })}>{Global("breadcrumbs.projectOverview")}</Link>
+            </Breadcrumb>
+            <Breadcrumb>
+              <Link href={routePath("projects.dmp.show", { projectId, dmpId: planId })}>
+                {Global("breadcrumbs.planOverview")}
+              </Link>
+            </Breadcrumb>
+            <Breadcrumb>
+              <Link href={routePath("projects.dmp.relatedWorks", { projectId, dmpId: planId })}>
+                {Global("breadcrumbs.relatedWorks")}
+              </Link>
+            </Breadcrumb>
+            <Breadcrumb>{t("title")}</Breadcrumb>
           </Breadcrumbs>
         }
         className="page-project-members-search"
@@ -189,193 +136,189 @@ const AddRelatedWorkPage = () => {
       <LayoutContainer>
         <ContentContainer>
           {/** Search */}
-          <section id="search-section" role="search" >
-            {/*className={styles.searchSection} ref={topRef}*/}
+          <section
+            id="search-section"
+            role="search"
+            className={styles.searchSection}
+          >
+            {/* ref={topRef}*/}
             <SearchField>
-              <Label>{t('searchLabel')}</Label>
+              <Label>{t("searchLabel")}</Label>
               <Input
                 aria-describedby="search-help"
                 value={searchTerm}
-                onChange={e => handleSearchInput(e.target.value)} />
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
               <Button
                 onPress={() => {
-                  handleMemberSearch();
+                  const doi = extractDoi(searchTerm);
+                  setDoi(doi);
+                  setIsSearching(true);
                 }}
               >
-                {Global('buttons.lookup')}
+                {Global("buttons.lookup")}
               </Button>
-              <Text slot="description" className="help-text" id="search-help">
-                {t.rich('searchDescription', {code: (chunks) => <span style={{backgroundColor: "rgb(236, 236, 236)"}}>{chunks}</span>})}
+              <Text
+                slot="description"
+                className="help-text"
+                id="search-help"
+              >
+                {t.rich("searchDescription", {
+                  code: (chunks) => <span style={{ backgroundColor: "rgb(236, 236, 236)" }}>{chunks}</span>,
+                })}
               </Text>
             </SearchField>
           </section>
 
-          {/*/!** Search Result section *!/*/}
-          {/*{isSearching && (*/}
-          {/*  <section aria-labelledby="results-section">*/}
-          {/*    {results.length > 0 && (*/}
-          {/*      <>*/}
-          {/*        <div id="results-section" className={styles.resultsHeader}><strong>{t('headings.searchResultsHeader')}</strong>*/}
-          {/*          <Button*/}
-          {/*            className="link"*/}
-          {/*            onPress={handleClearForm}*/}
-          {/*            aria-label={t('buttons.clearForm')}*/}
-          {/*          >*/}
-          {/*            {t('buttons.clearForm')}*/}
-          {/*          </Button>*/}
-          {/*        </div>*/}
-          {/*      </>*/}
-          {/*    )}*/}
+          <section aria-labelledby="results-section">
+            {doi === null && isSearching && (
+              <div className={styles.noResults}>
+                <p>{t("invalidDoi")}</p>
+              </div>
+            )}
 
-          {/*    <div>*/}
-          {/*      {searchLoading && (*/}
-          {/*        <Loading*/}
-          {/*          variant="inline"*/}
-          {/*          message={Global('messaging.loading')}*/}
-          {/*          isActive={true}*/}
-          {/*        />*/}
-          {/*      )}*/}
+            {doi !== null &&
+              results &&
+              results.findWorkByIdentifier?.items?.length === 0 &&
+              !isLoading &&
+              isSearching && (
+                <div className={styles.noResults}>
+                  <p>{Global("messaging.noItemsFound")}</p>
+                </div>
+              )}
 
-          {/*      {results.length === 0 && !searchLoading && (*/}
-          {/*        <div className={styles.noResults}>*/}
-          {/*          <p>{Global('messaging.noItemsFound')}</p>*/}
-          {/*        </div>*/}
-          {/*      )}*/}
-
-          {/*      {results.map((result: CollaboratorSearchResult, index: number) => {*/}
-          {/*        const name = `${result?.givenName} ${result?.surName} `;*/}
-          {/*        return (*/}
-          {/*          <div*/}
-          {/*            key={result.id}*/}
-          {/*            data-testid={`result-${index} `}*/}
-          {/*            data-result-index={index}*/}
-          {/*            className={`${styles.memberResultsListItem}`}*/}
-          {/*            role="button"*/}
-          {/*            tabIndex={0}*/}
-          {/*            onClick={() => handleSelectSearchResult(result)}*/}
-          {/*            onKeyDown={(e) => {*/}
-          {/*              if (e.key === 'Enter' || e.key === ' ') {*/}
-          {/*                e.preventDefault();*/}
-          {/*                handleSelectSearchResult(result);*/}
-          {/*              }*/}
-          {/*            }}*/}
-          {/*            aria-label={t('ariaSelectSearchResult', { name })}*/}
-          {/*            style={{ cursor: 'pointer' }}*/}
-          {/*          >*/}
-          {/*            <div className={styles.memberInfo}>*/}
-          {/*              <div className={styles.nameAndOrcid}>*/}
-          {/*                <p className={styles.name}>{name}</p>*/}
-          {/*              </div>*/}
-          {/*              <p className={styles.organization}>*/}
-          {/*                {result?.affiliationName}*/}
-
-          {/*                <br />*/}
-          {/*                {result?.orcid && (*/}
-          {/*                  <span className={styles.orcid}>*/}
-          {/*                    <OrcidIcon icon="orcid" classes={styles.orcidLogo} />*/}
-          {/*                    {result.orcid}*/}
-          {/*                  </span>*/}
-          {/*                )}*/}
-          {/*              </p>*/}
-          {/*            </div>*/}
-          {/*          </div>*/}
-          {/*        )*/}
-          {/*      })}*/}
-          {/*    </div>*/}
-          {/*  </section>*/}
-          {/*)}*/}
-
-          {/*/!** Member Details section *!/*/}
-          {/*<section id="member-details">*/}
-          {/*  <h2>{t('headings.enterMemberDetails')}</h2>*/}
-          {/*  <Form onSubmit={handleFormSubmit}>*/}
-          {/*    <FormInput*/}
-          {/*      name="firstName"*/}
-          {/*      id="firstName"*/}
-          {/*      type="text"*/}
-          {/*      isRequiredVisualOnly={true}*/}
-          {/*      label={t('labels.givenName')}*/}
-          {/*      value={projectMember.givenName}*/}
-          {/*      onChange={(e) => {*/}
-          {/*        resetErrors();*/}
-          {/*        setProjectMember({ ...projectMember, givenName: e.target.value })*/}
-          {/*      }}*/}
-          {/*      isInvalid={(!!fieldErrors.givenName)}*/}
-          {/*      errorMessage={fieldErrors.givenName}*/}
-          {/*    />*/}
-
-          {/*    <FormInput*/}
-          {/*      name="lastName"*/}
-          {/*      id="lastName"*/}
-          {/*      type="text"*/}
-          {/*      isRequiredVisualOnly={true}*/}
-          {/*      label={t('labels.surName')}*/}
-          {/*      value={projectMember.surName}*/}
-          {/*      onChange={(e) => {*/}
-          {/*        resetErrors();*/}
-          {/*        setProjectMember({ ...projectMember, surName: e.target.value })*/}
-          {/*      }}*/}
-          {/*      isInvalid={(!!fieldErrors.surName)}*/}
-          {/*      errorMessage={fieldErrors.surName}*/}
-          {/*    />*/}
-
-          {/*    <TypeAheadWithOther*/}
-          {/*      label={t('labels.affiliation')}*/}
-          {/*      fieldName="affiliation"*/}
-          {/*      setOtherField={setOtherField}*/}
-          {/*      isRequiredVisualOnly={true}*/}
-          {/*      error={fieldErrors.affiliationName}*/}
-          {/*      updateFormData={updateAffiliationFormData}*/}
-          {/*      value={projectMember.affiliationName}*/}
-          {/*      suggestions={suggestions}*/}
-          {/*      onSearch={handleAffiliationSearch}*/}
-          {/*    />*/}
-          {/*    {otherField && (*/}
-          {/*      <div className={`${styles.formRow} ${styles.oneItemRow}`}>*/}
-          {/*        <FormInput*/}
-          {/*          name="otherAffiliationName"*/}
-          {/*          id="otherAffiliationName"*/}
-          {/*          type="text"*/}
-          {/*          label={t('labels.otherAffiliationName')}*/}
-          {/*          placeholder={projectMember.otherAffiliationName}*/}
-          {/*          value={projectMember.otherAffiliationName}*/}
-          {/*          onChange={handleOtherAffiliationInputChange}*/}
-          {/*        />*/}
-          {/*      </div>*/}
-          {/*    )}*/}
-
-          {/*    <FormInput*/}
-          {/*      name="email"*/}
-          {/*      id="email"*/}
-          {/*      type="email"*/}
-          {/*      isRequired={false}*/}
-          {/*      isRecommended={true}*/}
-          {/*      label={t('labels.email')}*/}
-          {/*      value={projectMember.email}*/}
-          {/*      onChange={(e) => {*/}
-          {/*        resetErrors();*/}
-          {/*        setProjectMember({ ...projectMember, email: e.target.value })*/}
-          {/*      }}*/}
-          {/*      isInvalid={(!!fieldErrors.email)}*/}
-          {/*      errorMessage={fieldErrors.email}*/}
-          {/*    />*/}
-
-          {/*    <div className={styles.memberRoles}>*/}
-          {/*      <ProjectRoles*/}
-          {/*        roles={roles}*/}
-          {/*        handleCheckboxChange={handleCheckboxChange}*/}
-          {/*        isInvalid={(!!fieldErrors.projectRoles)}*/}
-          {/*        errorMessage={fieldErrors.projectRoles}*/}
-          {/*        memberRoles={memberRoles}*/}
-          {/*      />*/}
-          {/*    </div>*/}
-          {/*    <Button type="submit" className="submit-button">{t('buttons.addToProject')}</Button>*/}
-          {/*  </Form>*/}
-          {/*</section>*/}
+            {results &&
+              results.findWorkByIdentifier?.items?.map((relatedWork, i) => {
+                return (
+                  <AddRelatedWorkPageListItem
+                    relatedWork={relatedWork}
+                    key={i}
+                  />
+                );
+              })}
+          </section>
         </ContentContainer>
-      </LayoutContainer >
+      </LayoutContainer>
     </>
   );
 };
+
+interface AddRelatedWorkPageListItemProps {
+  relatedWork: RelatedWorkSearchResult;
+}
+
+
+function AddRelatedWorkPageListItem  ({ relatedWork }: AddRelatedWorkPageListItemProps) {
+  const Global = useTranslations("Global");
+  const t = useTranslations("AddRelatedWorkPage");
+  const dataTypes = useTranslations("RelatedWorksDataTypes");
+
+  const { authorNames, containerTitle, publicationYear } = formatSubtitle(
+    relatedWork.workVersion.authors,
+    relatedWork.workVersion.publicationVenue,
+    relatedWork.workVersion.publicationDate,
+    MAX_AUTHOR_CHARS,
+  );
+  const dateReviewed = useFormatDate(relatedWork.modified);
+
+  return (
+    <div
+      className={styles.relatedWorksItem}
+      role="listitem"
+      data-testid={relatedWork?.workVersion.work.doi}
+    >
+      <div className={styles.overview}>
+        <div className={styles.overviewHeader}>
+          <div className={styles.overviewTitle}>
+            <div>
+              <section>
+                <h3>
+                  <a
+                    href={doiToUrl(relatedWork?.workVersion.work.doi as string)}
+                    aria-label={`${t("title")}: ${relatedWork?.workVersion.title}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {relatedWork?.workVersion.title}
+                  </a>
+                </h3>
+                <h4>
+                  <span>{authorNames}</span>
+                  <span>{containerTitle}</span>
+                  <span data-testid="publicationYear">{publicationYear}</span>
+                </h4>
+              </section>
+            </div>
+          </div>
+
+          <div className={styles.overviewHeaderActions}>
+            <span
+              data-testid="status"
+              className={styles.confidence}
+            >
+              {t("fieldNames.status")}: {dataTypes(`status.${relatedWork.status}`)}
+            </span>
+          </div>
+        </div>
+
+        <div className={styles.overviewFooter}>
+          <div className={styles.overviewMetadata}>
+            {[RelatedWorkStatus.Accepted, RelatedWorkStatus.Rejected].includes(relatedWork.status) && (
+              <span data-testid="dateReviewed">
+                {t("fieldNames.dateReviewed")}: {dateReviewed}
+              </span>
+            )}
+            <span data-testid="workType">
+              {t("fieldNames.type")}: {dataTypes(`workType.${relatedWork?.workVersion.workType}`)}
+            </span>
+            <span>
+              {t("fieldNames.source")}:{" "}
+              {relatedWork?.workVersion.sourceUrl != null && (
+                <a
+                  href={relatedWork?.workVersion.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.sourceUrl}
+                >
+                  {relatedWork?.workVersion.sourceName}
+                </a>
+              )}
+              {relatedWork?.workVersion.sourceUrl == null && <>{relatedWork?.workVersion.sourceName}</>}
+            </span>
+          </div>
+
+          <div className={styles.overviewFooterActions}>
+            {[RelatedWorkStatus.Rejected, RelatedWorkStatus.Pending, null].includes(relatedWork.status) && (
+              <Button
+                onPress={async () => {
+                  // setFadeOut(true);
+                  // await updateRelatedWorkStatus(relatedWork.id, RelatedWorkStatus.Accepted);
+                }}
+                className={[relatedWork.status === RelatedWorkStatus.Pending ? "primary" : "secondary", "small"].join(
+                  " ",
+                )}
+              >
+                {t("buttons.accept")}
+              </Button>
+            )}
+            {[RelatedWorkStatus.Pending, RelatedWorkStatus.Accepted].includes(relatedWork.status) && (
+              <Button
+                onPress={async () => {
+                  // setFadeOut(true);
+                  // await updateRelatedWorkStatus(relatedWork.id, RelatedWorkStatus.Rejected);
+                }}
+                className={[relatedWork.status === RelatedWorkStatus.Pending ? "primary" : "secondary", "small"].join(
+                  " ",
+                )}
+              >
+                {t("buttons.reject")}
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default AddRelatedWorkPage;

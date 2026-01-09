@@ -4,3 +4,11 @@ mutation UpdateRelatedWorkStatus($input: UpdateRelatedWorkStatusInput!) {
     status
   }
 }
+
+mutation AddRelatedWork($input: AddRelatedWorkInput!) {
+  addRelatedWork(input: $input) {
+    id
+    planId
+    status
+  }
+}

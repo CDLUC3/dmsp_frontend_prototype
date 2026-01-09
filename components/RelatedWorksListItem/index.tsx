@@ -7,6 +7,7 @@ import ExpandButton from "@/components/ExpandButton";
 import { doiToUrl, orcidToUrl, rorToUrl } from "@/lib/idToUrl";
 import ExpandableNameList from "@/components/ExpandableNameList";
 import { Author, RelatedWorkSearchResult, RelatedWorkStatus, WorkVersion } from "@/generated/graphql";
+import {formatAuthorNameFirstLast, formatSubtitle} from "@/lib/relatedWorks";
 
 const MAX_ITEMS = 10;
 const MAX_AUTHOR_CHARS = 40;
@@ -28,7 +29,9 @@ function RelatedWorksListItem({ relatedWork, highlightMatches, updateRelatedWork
   const expandedContentId = `${relatedWork.workVersion?.title?.toLowerCase().replace(/\s+/g, "-")}-content`;
   const headingId = `${relatedWork.workVersion?.title?.toLowerCase().replace(/\s+/g, "-")}-heading`;
   const { authorNames, containerTitle, publicationYear } = formatSubtitle(
-    relatedWork.workVersion as WorkVersion,
+    relatedWork.workVersion.authors,
+    relatedWork.workVersion.publicationVenue,
+    relatedWork.workVersion.publicationDate,
     MAX_AUTHOR_CHARS,
   );
 
@@ -358,71 +361,5 @@ const useFormatDate = (date: Date | string | null | undefined) => {
   return formattedDate.replace(/\//g, "-");
 };
 
-const formatAuthorNameAbrev = (author: Author): string | null => {
-  const parts = [];
-
-  if (author.firstInitial && author.surname) {
-    // Combine initials
-    const initials = [];
-    if (author.firstInitial) {
-      initials.push(author.firstInitial);
-    }
-    if (author.middleInitials) {
-      initials.push(author.middleInitials);
-    }
-    parts.push(initials.join("")); // Join initials
-    parts.push(author.surname); // Add surname
-  } else if (author.full) {
-    // Fallback to full name
-    parts.push(author.full);
-  }
-
-  return parts.length > 0 ? parts.join(" ").trim() : null;
-};
-
-const formatAuthorNameFirstLast = (author: Author): string | null => {
-  const parts = [];
-
-  if (author.givenName && author.surname) {
-    parts.push(author.givenName);
-    parts.push(author.surname);
-  } else if (author.full) {
-    // Fallback to full name
-    parts.push(author.full);
-  }
-
-  return parts.length > 0 ? parts.join(" ").trim() : null;
-};
-
-const formatSubtitle = (
-  workVersion: WorkVersion,
-  maxAuthorChars: number,
-): { authorNames: string; containerTitle: string; publicationYear: string } => {
-  // Build author names
-  const names = workVersion.authors.map(formatAuthorNameAbrev).filter((n): n is string => !!n);
-
-  // Choose what names to display based on the total character length
-  const authorNames = [];
-  let totalChars = 0;
-  for (const name of names) {
-    authorNames.push(name);
-    totalChars += name.length;
-    if (totalChars >= maxAuthorChars) break;
-  }
-  if (names.length > authorNames.length) {
-    authorNames.push("et al");
-  }
-
-  // Build container title
-  let containerTitle = "";
-  if (workVersion.publicationVenue) {
-    containerTitle = ` ${workVersion.publicationVenue}${workVersion.publicationDate ? ", " : "."}`;
-  }
-
-  // Build publication year
-  const publicationYear = workVersion.publicationDate ? `${new Date(workVersion.publicationDate).getFullYear()}.` : "";
-
-  return { authorNames: authorNames.join(", ") + ". ", containerTitle, publicationYear };
-};
 
 export default RelatedWorksListItem;
