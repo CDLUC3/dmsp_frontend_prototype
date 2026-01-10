@@ -108,7 +108,7 @@ const ProjectsProjectFundingEdit = () => {
   }));
 
   // Get Project Funding data
-  const { data, loading, error: queryError, refetch } = useQuery(ProjectFundingDocument, {
+  const { data, loading, error: queryError } = useQuery(ProjectFundingDocument, {
     variables: { projectFundingId: Number(projectFundingId) },
     /*Needed to add this fetchPolicy so that users get fresh data when coming back to this page after editing because it was
     previously showing stale data. I believe that it's ok to use this here because:

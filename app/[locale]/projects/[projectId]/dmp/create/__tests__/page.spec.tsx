@@ -1,6 +1,7 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor, within, cleanup } from '@testing-library/react';
-import { MockedProvider } from '@apollo/client/testing';
+import { InMemoryCache } from '@apollo/client';
+import { MockedProvider } from '@apollo/client/testing/react';
 import PlanCreate from '../page';
 import { useParams, useRouter } from 'next/navigation';
 import { useToast } from '@/context/ToastContext';
@@ -710,6 +711,161 @@ const publishedTemplatesMocks = [
       loading: false
     },
   },
+  {
+    request: {
+      query: PublishedTemplatesDocument,
+      variables: {
+        paginationOptions: {
+          offset: 0,
+          limit: 5,
+          type: "OFFSET",
+          sortDir: "DESC",
+          selectOwnerURIs: ["http://affiliation-1.gov", "http://affiliation-2.gov"],
+          bestPractice: false
+        },
+        term: ""
+      },
+    },
+    result: {
+      data: {
+        publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
+          limit: 5,
+          nextCursor: null,
+          totalCount: 1,
+          availableSortFields: ['vt.bestPractice'],
+          currentOffset: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+          items: Array.from({ length: 3 }, (_, i) => {
+            const count = i + 6;
+            return {
+              __typename: "VersionedTemplateSearchResult",
+              id: count,
+              bestPractice: (count == 5) ? true : false,
+              description: `Template ${count} Description`,
+              name: `Template ${count} Name`,
+              visibility: "PUBLIC",
+              ownerDisplayName: `Template Owner ${count}`,
+              ownerURI: `http://template${count}.gov`,
+              modified: "2021-10-25 18:42:37",
+              modifiedByName: "John Doe",
+              modifiedById: 14,
+              ownerId: 100 + count,
+              version: "v5",
+              templateId: 10 + count,
+              ownerSearchName: `Owner ${count} Search`
+            }
+          }),
+        },
+      },
+      loading: false
+    },
+  },
+  {
+    request: {
+      query: PublishedTemplatesDocument,
+      variables: {
+        paginationOptions: {
+          offset: 0,
+          limit: 5,
+          type: "OFFSET",
+          sortDir: "DESC",
+          selectOwnerURIs: ["http://affiliation-1.gov", "http://affiliation-2.gov"],
+          bestPractice: false
+        },
+        term: "NSF"
+      },
+    },
+    result: {
+      data: {
+        publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
+          limit: 5,
+          nextCursor: null,
+          totalCount: 1,
+          availableSortFields: ['vt.bestPractice'],
+          currentOffset: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+          items: [
+            {
+              __typename: "VersionedTemplateSearchResult",
+              bestPractice: false,
+              description: "NSF SEARCH",
+              id: "1",
+              name: "NSF Search",
+              visibility: "PUBLIC",
+              ownerDisplayName: "National Science Foundation (nsf.gov)",
+              ownerURI: "http://nsf.gov",
+              modified: "2021-10-25 18:42:37",
+              modifiedByName: "John Doe",
+              modifiedById: 14,
+              ownerId: 122,
+              version: "v5",
+              templateId: 4,
+              ownerSearchName: "National Science Foundation | nsf.gov | NSF"
+            },
+          ]
+        },
+      },
+      loading: false
+    },
+  },
+  {
+    request: {
+      query: PublishedTemplatesDocument,
+      variables: {
+        paginationOptions: {
+          offset: 0,
+          limit: 5,
+          type: "OFFSET",
+          sortDir: "DESC",
+          selectOwnerURIs: [
+            "http://affiliation-1.gov",
+            "http://affiliation-2.gov"
+          ],
+          bestPractice: false
+        },
+        term: ""
+      },
+    },
+    result: {
+      data: {
+        publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
+          limit: 5,
+          nextCursor: null,
+          totalCount: 8,
+          availableSortFields: ['vt.bestPractice'],
+          currentOffset: 1,
+          hasNextPage: true,
+          hasPreviousPage: false,
+          items: Array.from({ length: 5 }, (_, i) => {
+            const count = i + 1;
+            return {
+              __typename: "VersionedTemplateSearchResult",
+              id: count,
+              bestPractice: (count == 5) ? true : false,
+              description: `Template ${count} Description`,
+              name: `Template ${count} Name`,
+              visibility: "PUBLIC",
+              ownerDisplayName: `Template Owner ${count}`,
+              ownerURI: `http://template${count}.gov`,
+              modified: "2021-10-25 18:42:37",
+              modifiedByName: "John Doe",
+              modifiedById: 14,
+              ownerId: 100 + count,
+              version: "v5",
+              templateId: 10 + count,
+              ownerSearchName: `Owner ${count} Search`
+            }
+          }),
+        },
+      },
+    },
+  },
+
 ];
 
 const errorMocks = [
@@ -904,8 +1060,11 @@ const baseMocks = [
 
 describe('PlanCreate Component using base mock', () => {
   const mockUseParams = useParams as jest.Mock;
+  let apolloCache: InMemoryCache;
 
   beforeEach(() => {
+    // Create fresh cache for each test
+    apolloCache = new InMemoryCache();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
     mockUseParams.mockReturnValue({ projectId: '1' });
@@ -920,17 +1079,21 @@ describe('PlanCreate Component using base mock', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    apolloCache.reset();
     cleanup();
   })
 
   it('should render PlanCreate component with funder checkbox', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={baseMocks}>
+        <MockedProvider mocks={baseMocks} cache={apolloCache}>
           <PlanCreate />
         </MockedProvider>
       );
     });
+
+    // Wait for the funder checkboxes to load
+    await screen.findByText('checkbox.filterByFunderLabel');
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: /title/i })).toBeInTheDocument();
@@ -966,11 +1129,14 @@ describe('PlanCreate Component using base mock', () => {
   it('should handle funder filter changes', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={baseMocks}>
+        <MockedProvider mocks={baseMocks} cache={apolloCache}>
           <PlanCreate />
         </MockedProvider>
       );
     });
+
+    // Wait for the funder checkboxes to load
+    await screen.findByText('checkbox.filterByFunderLabel');
 
     await waitFor(() => {
       // Both checkboxes should be checked initially
@@ -1002,7 +1168,7 @@ describe('PlanCreate Component using base mock', () => {
   it('should handle no items found in search', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={baseMocks}>
+        <MockedProvider mocks={baseMocks} cache={apolloCache}>
           <PlanCreate />
         </MockedProvider>
       );
@@ -1025,11 +1191,14 @@ describe('PlanCreate Component using base mock', () => {
   it('should handle page navigation', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={baseMocks}>
+        <MockedProvider mocks={baseMocks} cache={apolloCache}>
           <PlanCreate />
         </MockedProvider>
       );
     });
+
+    // Wait for the funder checkboxes to load
+    await screen.findByText('checkbox.filterByFunderLabel');
 
     await waitFor(() => {
       const nextBtn = screen.getAllByRole('button', { name: "labels.nextPage" });
@@ -1045,7 +1214,7 @@ describe('PlanCreate Component using base mock', () => {
   it('should return matching templates on search item', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={baseMocks}>
+        <MockedProvider mocks={baseMocks} cache={apolloCache}>
           <PlanCreate />
         </MockedProvider>
       );
@@ -1079,7 +1248,7 @@ describe('PlanCreate Component using base mock', () => {
   it('should reset templates if user clicks on \'clear filter\' link', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={baseMocks}>
+        <MockedProvider mocks={baseMocks} cache={apolloCache}>
           <PlanCreate />
         </MockedProvider>
       );
@@ -1115,7 +1284,7 @@ describe('PlanCreate Component using base mock', () => {
     mockUseParams.mockReturnValue({ projectId: '2' });
     await act(async () => {
       render(
-        <MockedProvider mocks={baseMocks}>
+        <MockedProvider mocks={baseMocks} cache={apolloCache}>
           <PlanCreate />
         </MockedProvider>
       );
@@ -1137,17 +1306,13 @@ describe('PlanCreate Component using base mock', () => {
 
     await act(async () => {
       render(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={mocks} cache={apolloCache}>
           <PlanCreate />
         </MockedProvider>
       );
     });
 
-
-    await waitFor(() => {
-      const search = screen.getByText('labels.searchByKeyword');
-      expect(search).toBeInTheDocument();
-    })
+    await screen.findByText('checkbox.filterByBestPracticesLabel');
     const checkbox = screen.getByTestId('checkbox-group');
     expect(checkbox).toBeInTheDocument();
     expect(screen.getByText('checkbox.filterByBestPracticesLabel')).toBeInTheDocument();
@@ -1186,7 +1351,7 @@ describe('PlanCreate Component using base mock', () => {
 
     await act(async () => {
       render(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={mocks} cache={apolloCache}>
           <PlanCreate />
         </MockedProvider>
       );
@@ -1210,7 +1375,7 @@ describe('PlanCreate Component using base mock', () => {
   it('should add the plan and redirect when selecting a template', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={baseMocks}>
+        <MockedProvider mocks={baseMocks} cache={apolloCache}>
           <PlanCreate />
         </MockedProvider>
       );
@@ -1235,7 +1400,7 @@ describe('PlanCreate Component using base mock', () => {
 
     await act(async () => {
       render(
-        <MockedProvider mocks={baseMocks}>
+        <MockedProvider mocks={baseMocks} cache={apolloCache}>
           <PlanCreate />
         </MockedProvider>
       );
@@ -1266,7 +1431,7 @@ describe('PlanCreate Component using base mock', () => {
 
     await act(async () => {
       render(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={mocks} cache={apolloCache}>
           <PlanCreate />
         </MockedProvider>
       );
@@ -1307,7 +1472,7 @@ describe('PlanCreate Component using base mock', () => {
 
     await act(async () => {
       render(
-        <MockedProvider mocks={mocks}>
+        <MockedProvider mocks={mocks} cache={apolloCache}>
           <PlanCreate />
         </MockedProvider>
       );
@@ -1336,7 +1501,7 @@ describe('PlanCreate Component using base mock', () => {
 
   it('should pass axe accessibility test', async () => {
     const { container } = render(
-      <MockedProvider mocks={baseMocks}>
+      <MockedProvider mocks={baseMocks} cache={apolloCache}>
         <PlanCreate />
       </MockedProvider>
     );

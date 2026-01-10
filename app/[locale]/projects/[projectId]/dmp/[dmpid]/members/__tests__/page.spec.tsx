@@ -1,14 +1,14 @@
 import React from 'react';
-import { ApolloError } from '@apollo/client';
 import { act, render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
+import { useQuery, useMutation } from '@apollo/client/react';
 import {
-  useAddPlanMemberMutation,
-  useProjectMembersQuery,
-  useUpdatePlanMemberMutation,
-  usePlanMembersQuery,
-  useRemovePlanMemberMutation,
+  AddPlanMemberDocument,
+  ProjectMembersDocument,
+  UpdatePlanMemberDocument,
+  PlanMembersDocument,
+  RemovePlanMemberDocument,
 } from '@/generated/graphql';
 import { useParams } from 'next/navigation';
 import logECS from '@/utils/clientLogger';
@@ -17,6 +17,7 @@ import ProjectsProjectPlanAdjustMembers from '../page';
 import mockProjectMembers from '../__mocks__/projectMembersMock.json';
 import mockPlanMembers from '../__mocks__/planMembersMock.json'
 import { addPlanMemberAction } from '../actions/addPlanMemberAction';
+import { set } from 'zod';
 
 expect.extend(toHaveNoViolations);
 
@@ -25,14 +26,12 @@ jest.mock('../actions/addPlanMemberAction', () => ({
   addPlanMemberAction: jest.fn()
 }));
 
-jest.mock("@/generated/graphql", () => ({
-  AddPlanMemberDocument: jest.fn(),
-  useProjectMembersQuery: jest.fn(),
-  usePlanMembersQuery: jest.fn(),
-  useAddPlanMemberMutation: jest.fn(),
-  useUpdatePlanMemberMutation: jest.fn(),
-  useRemovePlanMemberMutation: jest.fn(),
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+  useMutation: jest.fn(),
 }));
+
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -41,47 +40,99 @@ jest.mock('next/navigation', () => ({
 
 const mockRefetch = jest.fn();
 
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+const mockUseMutation = jest.mocked(useMutation);
+
+const setupMocks = () => {
+  mockUseQuery.mockImplementation((document) => {
+    if (document === ProjectMembersDocument) {
+      return {
+        data: mockProjectMembers,
+        loading: false,
+        error: undefined,
+        refetch: jest.fn()
+      } as any;
+    }
+    if (document === PlanMembersDocument) {
+      return {
+        data: mockPlanMembers,
+        loading: false,
+        error: undefined,
+        refetch: mockRefetch
+      };
+    }
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+
+  const mockMutationFn = jest.fn().mockResolvedValue({
+    data: {
+      key: 'value'
+    },
+  });
+
+
+  mockUseMutation.mockImplementation((document) => {
+    if (document === AddPlanMemberDocument) {
+      return [
+        mockMutationFn,
+        { loading: false, error: undefined }
+      ] as any;
+    }
+
+    if (document === RemovePlanMemberDocument) {
+      return [
+        mockMutationFn,
+        { loading: false, error: undefined }
+      ] as any;
+    }
+
+    if (document === UpdatePlanMemberDocument) {
+      return [
+        mockMutationFn,
+        { loading: false, error: undefined }
+      ] as any;
+    }
+    return [jest.fn(), { loading: false, error: undefined }] as any;
+  });
+};
+
 describe('ProjectsProjectPlanAdjustMembers', () => {
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
     const mockUseParams = useParams as jest.Mock;
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ projectId: 1, dmpid: 1 });
-    (useProjectMembersQuery as jest.Mock).mockReturnValue({
-      data: mockProjectMembers,
-      loading: false,
-      error: undefined,
-    });
-
-    (usePlanMembersQuery as jest.Mock).mockReturnValue({
-      data: mockPlanMembers,
-      loading: false,
-      error: null,
-      refetch: mockRefetch
-    });
-    (useAddPlanMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
-      { loading: false, error: undefined },
-    ]);
-
-
-    (useRemovePlanMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
-      { loading: false, error: undefined },
-    ]);
-
-    (useUpdatePlanMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
-      { loading: false, error: undefined },
-    ]);
   });
 
   it('should render the loading state when queries are still loading', async () => {
-    (useProjectMembersQuery as jest.Mock).mockReturnValue({
-      data: null,
-      loading: true,
-      error: undefined,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === ProjectMembersDocument) {
+        return {
+          data: null,
+          loading: true,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      if (document === PlanMembersDocument) {
+        return {
+          data: mockPlanMembers,
+          loading: false,
+          error: undefined
+        };
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -93,10 +144,35 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
   });
 
   it('should render errors when errors from queries are returned', async () => {
-    (useProjectMembersQuery as jest.Mock).mockReturnValue({
+    // Create stable references OUTSIDE mockImplementation
+    const stableError = new Error('Error');
+    const stableRefetch = jest.fn();
+
+    const projectMembersReturn = {
       data: null,
       loading: false,
-      error: new Error('Error'),
+      error: stableError,
+      refetch: stableRefetch
+    };
+
+    const planMembersReturn = {
+      data: mockPlanMembers,
+      loading: false,
+      error: undefined
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === ProjectMembersDocument) {
+        return projectMembersReturn as any;
+      }
+      if (document === PlanMembersDocument) {
+        return planMembersReturn as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -104,6 +180,7 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
         <ProjectsProjectPlanAdjustMembers />
       );
     });
+
     expect(screen.getByText('messaging.error')).toBeInTheDocument();
   });
 
@@ -148,21 +225,21 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
   });
 
   it('should call refetch for projectsMemberQuery when an Apollo Error instance is returned from removing a member', async () => {
-    const apolloError = new ApolloError({
-      graphQLErrors: [{ message: 'Apollo error occurred' }],
-      networkError: null,
-      errorMessage: 'Apollo error occurred',
-    });
+    const error = new Error('Apollo error occurred');
 
     const mockRemoveEmailResponse = jest.fn()
-      .mockRejectedValueOnce(apolloError) // First call returns an Apollo error
+      .mockRejectedValueOnce(error) // First call returns an error
       .mockResolvedValueOnce({ data: { removeUserEmail: [{ errors: null }] } }); // Second call succeeds
 
-
-    (useRemovePlanMemberMutation as jest.Mock).mockReturnValue([
-      mockRemoveEmailResponse,
-      { loading: false, error: undefined }
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === RemovePlanMemberDocument) {
+        return [
+          mockRemoveEmailResponse,
+          { loading: false, error: undefined }
+        ] as any;
+      }
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -186,10 +263,18 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
 
   it('should call logECS when useRemovePlanMemberMutation throws an error', async () => {
 
-    (useRemovePlanMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockRejectedValueOnce(new Error("Error")),
-      { loading: false, error: undefined },
-    ]);
+    const mockRemoveFn = jest.fn().mockRejectedValueOnce(new Error("Error"));
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === RemovePlanMemberDocument) {
+        return [
+          mockRemoveFn,
+          { loading: false, error: undefined }
+        ] as any;
+      }
+      // Return other mutations as needed
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -331,12 +416,18 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
   });
 
   it('should handle updating the primary contact', async () => {
+
     const mockUpdatePlanMember = jest.fn().mockResolvedValueOnce({ data: { key: 'value' } });
 
-    (useUpdatePlanMemberMutation as jest.Mock).mockReturnValue([
-      mockUpdatePlanMember, // Use the mock function here
-      { loading: false, error: undefined },
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === UpdatePlanMemberDocument) {
+        return [
+          mockUpdatePlanMember,
+          { loading: false, error: undefined }
+        ] as any;
+      }
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(

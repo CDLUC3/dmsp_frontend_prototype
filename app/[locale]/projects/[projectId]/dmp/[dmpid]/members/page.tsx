@@ -147,7 +147,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
   const Global = useTranslations('Global');
 
   // Get Project Members using projectid
-  const { data, loading, error: queryError, refetch: refetchProjectMembers } = useQuery(ProjectMembersDocument,
+  const { data, loading, error: queryError } = useQuery(ProjectMembersDocument,
     {
       variables: { projectId: Number(projectId) },
       notifyOnNetworkStatusChange: true

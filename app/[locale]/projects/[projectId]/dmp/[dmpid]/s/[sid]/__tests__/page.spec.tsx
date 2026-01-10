@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { useParams } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
 
@@ -315,7 +315,7 @@ describe('PlanOverviewSectionPage', () => {
 
   it('should render the page with questions and section data', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <PlanOverviewSectionPage />
       </MockedProvider>
     );
@@ -351,7 +351,7 @@ describe('PlanOverviewSectionPage', () => {
 
   it('should handle empty questions list', async () => {
     render(
-      <MockedProvider mocks={emptyQuestionsMocks} addTypename={false}>
+      <MockedProvider mocks={emptyQuestionsMocks}>
         <PlanOverviewSectionPage />
       </MockedProvider>
     );
@@ -371,7 +371,7 @@ describe('PlanOverviewSectionPage', () => {
 
   it('should handle GraphQL errors gracefully', async () => {
     render(
-      <MockedProvider mocks={errorMocks} addTypename={false}>
+      <MockedProvider mocks={errorMocks}>
         <PlanOverviewSectionPage />
       </MockedProvider>
     );
@@ -384,7 +384,7 @@ describe('PlanOverviewSectionPage', () => {
 
   it('should render question cards with proper structure', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <PlanOverviewSectionPage />
       </MockedProvider>
     );
@@ -420,7 +420,7 @@ describe('PlanOverviewSectionPage', () => {
 
   it('should generate correct links for questions', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <PlanOverviewSectionPage />
       </MockedProvider>
     );
@@ -454,7 +454,7 @@ describe('PlanOverviewSectionPage', () => {
 
   it('should generate correct completed description for questions', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <PlanOverviewSectionPage />
       </MockedProvider>
     );
@@ -506,7 +506,7 @@ describe('PlanOverviewSectionPage', () => {
     ];
 
     render(
-      <MockedProvider mocks={missingSectionMocks} addTypename={false}>
+      <MockedProvider mocks={missingSectionMocks}>
         <PlanOverviewSectionPage />
       </MockedProvider>
     );
@@ -558,7 +558,7 @@ describe('PlanOverviewSectionPage', () => {
     ];
 
     render(
-      <MockedProvider mocks={nullQuestionsMocks} addTypename={false}>
+      <MockedProvider mocks={nullQuestionsMocks}>
         <PlanOverviewSectionPage />
       </MockedProvider>
     );
@@ -577,7 +577,7 @@ describe('PlanOverviewSectionPage', () => {
 
   it('should pass accessibility tests', async () => {
     const { container } = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <PlanOverviewSectionPage />
       </MockedProvider>
     );
@@ -641,7 +641,7 @@ describe('PlanOverviewSectionPage', () => {
     ];
 
     render(
-      <MockedProvider mocks={incompleteMocks} addTypename={false}>
+      <MockedProvider mocks={incompleteMocks}>
         <PlanOverviewSectionPage />
       </MockedProvider>
     );

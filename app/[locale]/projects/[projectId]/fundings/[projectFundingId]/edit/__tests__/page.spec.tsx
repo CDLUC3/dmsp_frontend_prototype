@@ -1,10 +1,10 @@
 import React from 'react';
 import { act, fireEvent, render, screen, within, waitFor } from '@testing-library/react';
 import { useParams, useRouter } from 'next/navigation';
-import { ApolloError } from '@apollo/client';
+import { useQuery, useMutation, useApolloClient } from '@apollo/client/react';
 import {
-  useProjectFundingQuery,
-  useUpdateProjectFundingMutation
+  ProjectFundingDocument,
+  UpdateProjectFundingDocument
 } from '@/generated/graphql';
 import {
   removeProjectFundingAction
@@ -27,9 +27,22 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn()
 }));
 
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+  useMutation: jest.fn(),
+  useApolloClient: () => ({
+    cache: {
+      evict: jest.fn(),
+      gc: jest.fn(),
+      modify: jest.fn(),
+      identify: jest.fn(),
+    },
+  }),
+}));
+
 jest.mock('@/generated/graphql', () => ({
-  useProjectFundingQuery: jest.fn(),
-  useUpdateProjectFundingMutation: jest.fn(),
+  ...jest.requireActual('@/generated/graphql'),
   ProjectFundingStatus: {
     Planned: 'PLANNED',
     Denied: 'DENIED',
@@ -45,41 +58,68 @@ const mockToast = {
   add: jest.fn(),
 };
 
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+const mockUseMutation = jest.mocked(useMutation);
+
+const setupMocks = () => {
+  // Create stable references OUTSIDE mockImplementation, so that 
+  // the different objects are returned on every call and causing infinite loop
+  const stableQueryReturn = {
+    data: {
+      projectFunding: {
+        affiliation: {
+          name: 'National Science Foundation',
+        },
+        funderOpportunityNumber: 'NSF-12345-ABC',
+        funderProjectNumber: 'IRL-123-1234',
+        grantId: 'https://example.com/awards/IRL-000000X1',
+        status: 'DENIED',
+      },
+    },
+    loading: false,
+    refetch: jest.fn()
+  };
+
+  const stableMutationFn = jest.fn().mockResolvedValue({
+    data: { key: 'value' },
+  });
+
+  mockUseQuery.mockImplementation((document) => {
+    if (document === ProjectFundingDocument) {
+      return stableQueryReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+
+  mockUseMutation.mockImplementation((document) => {
+    if (document === UpdateProjectFundingDocument) {
+      return [stableMutationFn, { loading: false, error: undefined }] as any;
+    }
+
+    return [jest.fn(), { loading: false, error: undefined }] as any;
+  });
+};
 
 describe('ProjectsProjectFundingEdit', () => {
   const mockUseParams = useParams as jest.Mock;
-  const mockUseProjectFundingQuery = useProjectFundingQuery as jest.Mock;
 
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
     mockUseParams.mockReturnValue({ projectId: '1', projectFundingId: '1' });
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     // Mock Toast
     (useToast as jest.Mock).mockReturnValue(mockToast);
-    mockUseProjectFundingQuery.mockReturnValue({
-      data: {
-        projectFunding: {
-          affiliation: {
-            name: 'National Science Foundation',
-          },
-          funderOpportunityNumber: 'NSF-12345-ABC',
-          funderProjectNumber: 'IRL-123-1234',
-          grantId: 'https://example.com/awards/IRL-000000X1',
-          status: 'DENIED',
-        },
-      },
-      loading: false,
-      refetch: jest.fn()
-    });
   });
 
   it('should render the project details form', async () => {
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
       render(
         <ProjectsProjectFundingEdit />
@@ -121,15 +161,23 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should display error if the initial ProjectFundingsQuery returns an error', async () => {
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    mockUseProjectFundingQuery.mockReturnValue({
+    // Create stable references OUTSIDE mockImplementation
+    const projectFundingReturn = {
       data: null,
       loading: false,
-      error: { message: 'There was an error getting the funders.' }
+      error: { message: 'There was an error getting the funders.' },
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === ProjectFundingDocument) {
+        return projectFundingReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -142,11 +190,6 @@ describe('ProjectsProjectFundingEdit', () => {
   })
 
   it('should update the fundingStatus field when the user selects a new option', async () => {
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
       render(
         <ProjectsProjectFundingEdit />
@@ -160,11 +203,6 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should update the grantNumber field when the user types in the input', async () => {
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
       render(
         <ProjectsProjectFundingEdit />
@@ -178,11 +216,6 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should update the projectNumber field when the user types in the input', async () => {
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
       render(
         <ProjectsProjectFundingEdit />
@@ -197,11 +230,6 @@ describe('ProjectsProjectFundingEdit', () => {
 
 
   it('should update the opportunityNumber field when the user types in the input', async () => {
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
       render(
         <ProjectsProjectFundingEdit />
@@ -215,11 +243,24 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should display loading message when data is loading', async () => {
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-    mockUseProjectFundingQuery.mockReturnValueOnce({ loading: true });
+    const projectFundingReturn = {
+      data: null,
+      loading: true,
+      error: undefined
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === ProjectFundingDocument) {
+        return projectFundingReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
+
     await act(async () => {
       render(
         <ProjectsProjectFundingEdit />
@@ -234,12 +275,13 @@ describe('ProjectsProjectFundingEdit', () => {
       data: { updateProjectFunding: { errors: null } },
     });
 
-    // Override the mock for this specific test
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      mockUpdateProjectFundingMutation,
-      { loading: false, error: undefined },
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === UpdateProjectFundingDocument) {
+        return [mockUpdateProjectFundingMutation, { loading: false, error: undefined }] as any;
+      }
 
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -262,10 +304,15 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should display error messages when mutation throws an error', async () => {
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockRejectedValueOnce(new Error("Error")),
-      { loading: false, error: undefined },
-    ]);
+    const mockUpdateProjectFundingMutationError = jest.fn().mockRejectedValueOnce(new Error('Error'));
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === UpdateProjectFundingDocument) {
+        return [mockUpdateProjectFundingMutationError, { loading: false, error: undefined }] as any;
+      }
+
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -292,10 +339,13 @@ describe('ProjectsProjectFundingEdit', () => {
       data: { updateProjectFunding: { errors: { general: 'Update failed' } } },
     });
 
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      mockUpdateProjectFundingMutation,
-      { loading: false, error: undefined },
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === UpdateProjectFundingDocument) {
+        return [mockUpdateProjectFundingMutation, { loading: false, error: undefined }] as any;
+      }
+
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -307,58 +357,8 @@ describe('ProjectsProjectFundingEdit', () => {
     expect(await screen.findByText('Update failed')).toBeInTheDocument();
   });
 
-  it('should call refetch when the mutation returns an error that is an instance of Apollo Error', async () => {
-    const apolloError = new ApolloError({
-      graphQLErrors: [{ message: 'Apollo error occurred' }],
-      networkError: null,
-      errorMessage: 'unauthorized',
-    });
-
-    const mockRefetch = jest.fn(); // Mock the refetch function
-
-    mockUseProjectFundingQuery.mockReturnValue({
-      data: {
-        projectFunding: {
-          affiliation: {
-            name: 'National Science Foundation',
-          },
-          funderOpportunityNumber: 'NSF-12345-ABC',
-          funderProjectNumber: 'IRL-123-1234',
-          grantId: 'https://example.com/awards/IRL-000000X1',
-          status: 'DENIED',
-        },
-      },
-      loading: false,
-      refetch: mockRefetch, // Use the mocked refetch function
-    });
-
-    const mockUpdateUserFunding = jest.fn().mockRejectedValue(apolloError);
-
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      mockUpdateUserFunding,
-      { loading: false, error: undefined },
-    ]);
-
-    await act(async () => {
-      render(
-        <ProjectsProjectFundingEdit />
-      );
-    });
-
-    fireEvent.submit(screen.getByRole('button', { name: /buttons.saveChanges/i }));
-
-    // Assert that refetch was called
-    await waitFor(() => {
-      expect(mockRefetch).toHaveBeenCalled();
-    });
-  });
 
   it('should not allow editing of the funderName input field', async () => {
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
       render(
         <ProjectsProjectFundingEdit />
@@ -370,10 +370,6 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should redirect user to the Add Funder page when they click the \'Add another\' button', async () => {
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
 
     await act(async () => {
       render(
@@ -388,10 +384,6 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should call removeProjectFunding and redirect user when the \'Remove funder\' button is clicked', async () => {
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
 
     (removeProjectFundingAction as jest.Mock).mockResolvedValue({
       success: true,
@@ -426,11 +418,6 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should redirect user if the call to removeProjectFundingAction returns a redirect url', async () => {
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     (removeProjectFundingAction as jest.Mock).mockResolvedValue({
       success: true,
       redirect: "/login",
@@ -464,10 +451,6 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should display error message if removeProjectFundingAction returns errors', async () => {
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
 
     (removeProjectFundingAction as jest.Mock).mockResolvedValue({
       success: false,
@@ -490,10 +473,6 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should display error message if removeProjectFundingAction returns field-level errors', async () => {
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
 
     (removeProjectFundingAction as jest.Mock).mockResolvedValue({
       success: true,
@@ -527,10 +506,6 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should pass axe accessibility test', async () => {
-    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
     const { container } = render(
       <ProjectsProjectFundingEdit />
     );

@@ -9,7 +9,7 @@ import {
 } from '@testing-library/react';
 
 import { useParams, useRouter } from 'next/navigation';
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import {
   AffiliationFundersDocument,
   PopularFundersDocument,

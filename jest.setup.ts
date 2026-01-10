@@ -1,9 +1,37 @@
 import '@testing-library/jest-dom';
 import dotenv from 'dotenv';
+import DOMException from 'domexception';
 
 
 //Load environment variables from .env.local
 dotenv.config({ path: './.env.local' });//
+
+const originalError = console.error;
+
+beforeAll(() => {
+  console.error = (...args: any[]) => {
+    if (
+      args[0] instanceof DOMException ||
+      String(args[0]).includes('AbortError')
+    ) {
+      return;
+    }
+    originalError(...args);
+  };
+});
+
+afterAll(() => {
+  console.error = originalError;
+});
+
+
+// DOMException polyfill used by Apollo Client's MockedProvider, but is not available in Node.js environment
+global.DOMException = DOMException as any;
+
+// Also set it on window if it exists (for jsdom)
+if (typeof window !== 'undefined') {
+  window.DOMException = DOMException as any;
+}
 
 // Mock toast
 jest.mock('@/context/ToastContext', () => ({

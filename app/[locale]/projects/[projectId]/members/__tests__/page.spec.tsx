@@ -1,10 +1,12 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useParams, useRouter } from 'next/navigation';
-import { useProjectMembersQuery } from '@/generated/graphql';
+import { useQuery } from '@apollo/client/react';
+import { ProjectMembersDocument } from '@/generated/graphql';
 import ProjectsProjectMembers from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
+import { set } from 'zod';
 
 expect.extend(toHaveNoViolations);
 
@@ -13,8 +15,9 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn()
 }));
 
-jest.mock('@/generated/graphql', () => ({
-  useProjectMembersQuery: jest.fn(),
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
 }));
 
 
@@ -61,13 +64,34 @@ const mockProjectMembersData = {
   loading: false,
 }
 
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+
+const setupMocks = () => {
+  mockUseQuery.mockImplementation((document) => {
+    if (document === ProjectMembersDocument) {
+      return {
+        data: mockProjectMembersData,
+        loading: false,
+        error: undefined,
+        refetch: jest.fn()
+      } as any;
+    }
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+};
+
 describe('ProjectsProjectMembers', () => {
   const mockUseParams = useParams as jest.Mock;
   const mockRouter = { push: jest.fn() };
   (useRouter as jest.Mock).mockReturnValue(mockRouter);
-  const mockUseProjectMembersQuery = useProjectMembersQuery as jest.Mock;
 
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
     mockUseParams.mockReturnValue({ projectId: '1' });
@@ -79,7 +103,21 @@ describe('ProjectsProjectMembers', () => {
 
 
   it('should render loading state', () => {
-    mockUseProjectMembersQuery.mockReturnValue({ loading: true });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === ProjectMembersDocument) {
+        return {
+          data: null,
+          loading: true,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
 
     render(<ProjectsProjectMembers />);
 
@@ -87,7 +125,21 @@ describe('ProjectsProjectMembers', () => {
   });
 
   it('should render error state', () => {
-    mockUseProjectMembersQuery.mockReturnValue({ error: true });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === ProjectMembersDocument) {
+        return {
+          data: null,
+          loading: false,
+          error: true,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
 
     render(<ProjectsProjectMembers />);
 
@@ -95,7 +147,21 @@ describe('ProjectsProjectMembers', () => {
   });
 
   it('renders project members', () => {
-    mockUseProjectMembersQuery.mockReturnValue({ data: mockProjectMembersData });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === ProjectMembersDocument) {
+        return {
+          data: mockProjectMembersData,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
 
     render(<ProjectsProjectMembers />);
 
@@ -121,7 +187,21 @@ describe('ProjectsProjectMembers', () => {
   });
 
   it('should handle add member button click', () => {
-    mockUseProjectMembersQuery.mockReturnValue({ data: { projectMembers: [] } });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === ProjectMembersDocument) {
+        return {
+          data: { data: { projectMembers: [] } },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
 
     render(<ProjectsProjectMembers />);
 
@@ -131,7 +211,21 @@ describe('ProjectsProjectMembers', () => {
   });
 
   it('should handle edit member button click', () => {
-    mockUseProjectMembersQuery.mockReturnValue({ data: mockProjectMembersData });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === ProjectMembersDocument) {
+        return {
+          data: mockProjectMembersData,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
 
     render(<ProjectsProjectMembers />);
 
@@ -142,7 +236,6 @@ describe('ProjectsProjectMembers', () => {
   });
 
   it('should pass axe accessibility test', async () => {
-    mockUseProjectMembersQuery.mockReturnValue({ data: mockProjectMembersData });
 
     const { container } = render(
       <ProjectsProjectMembers />

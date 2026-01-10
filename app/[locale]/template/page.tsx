@@ -156,7 +156,6 @@ const TemplateListPage: React.FC = () => {
   const handleLoadMore = async () => {
     if (!nextCursor) return;
     setFirstNewIndex(templates.length);
-
     await fetchTemplates({
       variables: {
         paginationOptions: {
@@ -335,6 +334,7 @@ const TemplateListPage: React.FC = () => {
               {searchResults.map((template, index) => (
                 <div
                   key={`${template.id}-${index}`}
+                  role="listitem"
                   data-index={index}
                 >
                   <TemplateSelectListItem

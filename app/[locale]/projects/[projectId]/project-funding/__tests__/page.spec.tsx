@@ -2,7 +2,7 @@ import React from 'react';
 import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { ProjectFundingsApiDocument } from '@/generated/graphql';
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 
 import { useParams, useRouter } from 'next/navigation';
 import ProjectsCreateProjectFunding from '../page';
@@ -81,7 +81,7 @@ describe('ProjectsCreateProjectFunding', () => {
   it('should render the component', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={withoutAPIMocks} addTypename={false}>
+        <MockedProvider mocks={withoutAPIMocks}>
           <ProjectsCreateProjectFunding />
         </MockedProvider>
       );
@@ -99,7 +99,7 @@ describe('ProjectsCreateProjectFunding', () => {
   it('should handle funding "yes" selected (no API)', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={withoutAPIMocks} addTypename={false}>
+        <MockedProvider mocks={withoutAPIMocks}>
           <ProjectsCreateProjectFunding />
         </MockedProvider>
       );
@@ -115,7 +115,7 @@ describe('ProjectsCreateProjectFunding', () => {
   it('should handle funding "yes" selected (with API)', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={withAPIMocks} addTypename={false}>
+        <MockedProvider mocks={withAPIMocks}>
           <ProjectsCreateProjectFunding />
         </MockedProvider>
       );
@@ -131,7 +131,7 @@ describe('ProjectsCreateProjectFunding', () => {
   it('should handle form submission with "no" selected', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={withoutAPIMocks} addTypename={false}>
+        <MockedProvider mocks={withoutAPIMocks}>
           <ProjectsCreateProjectFunding />
         </MockedProvider>
       );
@@ -146,7 +146,7 @@ describe('ProjectsCreateProjectFunding', () => {
 
   it('should pass axe accessibility test', async () => {
     const { container } = render(
-      <MockedProvider mocks={withoutAPIMocks} addTypename={false}>
+      <MockedProvider mocks={withoutAPIMocks}>
         <ProjectsCreateProjectFunding />
       </MockedProvider>
     );

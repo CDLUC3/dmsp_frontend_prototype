@@ -92,7 +92,7 @@ const ProjectsProjectDetail = () => {
   const [updateProjectMutation] = useMutation(UpdateProjectDocument);
 
   // Get Project using projectId
-  const { data, loading, error: queryError, refetch } = useQuery(ProjectDocument, {
+  const { data, loading, error: queryError } = useQuery(ProjectDocument, {
     variables: { projectId: Number(projectId) },
     notifyOnNetworkStatusChange: true
   });
