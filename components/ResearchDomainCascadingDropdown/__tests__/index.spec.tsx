@@ -42,6 +42,7 @@ const setupMocks = () => {
 
   mockUseQuery.mockImplementation((document) => {
     if (document === TopLevelResearchDomainsDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableTopLevelReturn as any;
     }
 
@@ -66,6 +67,7 @@ const setupMocks = () => {
 
   mockUseLazyQuery.mockImplementation((document) => {
     if (document === ChildResearchDomainsDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableChildResearchDomainsReturn as any;
     }
     return {
@@ -125,6 +127,7 @@ describe('ResearchDomainCascadingDropdown', () => {
 
     mockUseQuery.mockImplementation((document) => {
       if (document === TopLevelResearchDomainsDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return mockTopLevelResearchDomainsQuery as any;
       }
       return {
@@ -165,6 +168,7 @@ describe('ResearchDomainCascadingDropdown', () => {
 
     mockUseLazyQuery.mockImplementation((document) => {
       if (document === ChildResearchDomainsDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return stableChildResearchDomainsReturn as any;
       }
       return {
@@ -227,6 +231,7 @@ describe('ResearchDomainCascadingDropdown', () => {
 
     mockUseQuery.mockImplementation((document) => {
       if (document === TopLevelResearchDomainsDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return mockTopLevelResearchDomainsQuery as any;
       }
       return {
@@ -262,6 +267,7 @@ describe('ResearchDomainCascadingDropdown', () => {
 
     mockUseLazyQuery.mockImplementation((document) => {
       if (document === ChildResearchDomainsDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return stableChildResearchDomainsReturn as any;
       }
       return [jest.fn(), { data: null, loading: false, error: undefined }] as any;

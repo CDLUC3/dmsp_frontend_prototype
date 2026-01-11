@@ -5,12 +5,12 @@ import { NextIntlClientProvider } from 'next-intl';
 import SingleResearchOutputComponent from '../index';
 import { ResearchOutputTable } from '@/app/types';
 import { DefaultResearchOutputTableQuestion } from '@dmptool/types';
-
+import { RecommendedLicensesDocument, DefaultResearchOutputTypesDocument } from '@/generated/graphql';
 // Mock Apollo Client's useQuery hook
 jest.mock('@apollo/client/react', () => ({
   useQuery: jest.fn((document) => {
     // Mock RecommendedLicensesDocument query
-    if (document === require('@/generated/graphql').RecommendedLicensesDocument) {
+    if (document === RecommendedLicensesDocument) {
       return {
         data: {
           recommendedLicenses: [
@@ -40,7 +40,7 @@ jest.mock('@apollo/client/react', () => ({
     }
 
     // Mock DefaultResearchOutputTypesDocument query
-    if (document === require('@/generated/graphql').DefaultResearchOutputTypesDocument) {
+    if (document === DefaultResearchOutputTypesDocument) {
       return {
         data: {
           defaultResearchOutputTypes: [

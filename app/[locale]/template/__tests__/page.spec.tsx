@@ -66,21 +66,20 @@ describe('TemplateListPage', () => {
     cleanup();
   })
 
-  const renderPage = (apolloMocks: ReadonlyArray<MockedResponse> = mocks) =>
-    render(
-      <MockedProvider
-        mocks={apolloMocks}
-        cache={apolloCache}
-        //  link={ApolloLink.empty()}
-        defaultOptions={{
-          query: { fetchPolicy: 'no-cache', errorPolicy: 'all' },
-          watchQuery: { fetchPolicy: 'no-cache', errorPolicy: 'all' },
-          mutate: { errorPolicy: 'all' }
-        }}
-      >
-        <TemplateListPage />
-      </MockedProvider>
-    );
+  const renderPage = (apolloMocks: readonly MockedResponse[] = mocks) => render(
+    <MockedProvider
+      mocks={apolloMocks}
+      cache={apolloCache}
+      //  link={ApolloLink.empty()}
+      defaultOptions={{
+        query: { fetchPolicy: 'no-cache', errorPolicy: 'all' },
+        watchQuery: { fetchPolicy: 'no-cache', errorPolicy: 'all' },
+        mutate: { errorPolicy: 'all' }
+      }}
+    >
+      <TemplateListPage />
+    </MockedProvider>
+  );
 
   it('should render the page header with correct title and description', async () => {
     renderPage();

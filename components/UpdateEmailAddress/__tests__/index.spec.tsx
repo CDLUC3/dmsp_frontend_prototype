@@ -10,7 +10,7 @@ import {
 import { axe, toHaveNoViolations } from 'jest-axe';
 import UpdateEmailAddress from '..';
 import { RichTranslationValues } from 'next-intl';
-import { useQuery, useMutation } from '@apollo/client/react';
+import { useMutation } from '@apollo/client/react';
 import {
   MeDocument,
   AddUserEmailDocument,
@@ -102,7 +102,6 @@ const mockEmailData = {
 
 
 // Cast with jest.mocked utility
-const mockUseQuery = jest.mocked(useQuery);
 const mockUseMutation = jest.mocked(useMutation);
 
 let mockSetPrimaryUserEmailMutationFn: jest.Mock;
@@ -125,17 +124,20 @@ const setupMocks = () => {
 
   mockUseMutation.mockImplementation((document) => {
     if (document === SetPrimaryUserEmailDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [mockSetPrimaryUserEmailMutationFn, { loading: false, error: undefined }] as any;
     }
 
     if (document === AddUserEmailDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [mockAddUserEmailMutationFn, { loading: false, error: undefined }] as any;
     }
 
     if (document === RemoveUserEmailDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [mockRemoveUserEmailMutationFn, { loading: false, error: undefined }] as any;
     }
-
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     return [jest.fn(), { loading: false, error: undefined }] as any;
   });
 };
@@ -226,8 +228,10 @@ describe('UpdateEmailAddressPage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === RemoveUserEmailDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockRemoveEmailMutation, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -275,8 +279,10 @@ describe('UpdateEmailAddressPage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === RemoveUserEmailDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockRemoveEmailResponse, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -309,8 +315,10 @@ describe('UpdateEmailAddressPage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddUserEmailDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockAddUserEmailMutation, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -367,8 +375,10 @@ describe('UpdateEmailAddressPage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === SetPrimaryUserEmailDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockSetPrimaryUserEmailMutation, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -418,8 +428,10 @@ describe('UpdateEmailAddressPage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === SetPrimaryUserEmailDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockSetPrimaryUserEmailResponse, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -454,8 +466,10 @@ describe('UpdateEmailAddressPage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === SetPrimaryUserEmailDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockSetPrimaryUserEmailResponse, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -490,8 +504,10 @@ describe('UpdateEmailAddressPage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddUserEmailDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockAddUserEmailMutation, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -537,8 +553,10 @@ describe('UpdateEmailAddressPage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddUserEmailDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockAddUserEmailMutationResponse, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 

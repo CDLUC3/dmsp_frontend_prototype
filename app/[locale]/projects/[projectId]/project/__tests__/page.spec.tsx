@@ -29,13 +29,6 @@ jest.mock('@apollo/client/react', () => ({
   useLazyQuery: jest.fn(),
 }));
 
-const mockChildDomains = {
-  childResearchDomains: [
-    { id: '1', name: 'Child Domain 1' },
-    { id: '2', name: 'Child Domain 2' },
-  ],
-};
-
 const mockRefetch = jest.fn();
 
 // Cast with jest.mocked utility
@@ -74,10 +67,12 @@ const setupMocks = () => {
 
   mockUseQuery.mockImplementation((document) => {
     if (document === ProjectDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableProjectQueryReturn as any;
     }
 
     if (document === TopLevelResearchDomainsDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableTopLevelDomainsReturn as any;
     }
 
@@ -107,6 +102,7 @@ const setupMocks = () => {
           error: undefined,
           called: false,
         }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       ] as any;
     }
 
@@ -118,6 +114,7 @@ const setupMocks = () => {
         error: undefined,
         called: false,
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
     ] as any;
   });
 
@@ -132,9 +129,10 @@ const setupMocks = () => {
       return [
         mockMutationFn,
         { loading: false, error: undefined }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       ] as any;
     }
-
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     return [jest.fn(), { loading: false, error: undefined }] as any;
   });
 };
@@ -191,12 +189,14 @@ describe('ProjectsProjectDetail', () => {
           loading: true,  // ← Set loading to true
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
       return {
         data: null,
         loading: false,
         error: undefined
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     });
 
@@ -219,6 +219,7 @@ describe('ProjectsProjectDetail', () => {
         data: null,
         loading: false,
         error: undefined
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     });
 
@@ -233,8 +234,10 @@ describe('ProjectsProjectDetail', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === UpdateProjectDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockMutationFn, { loading: false, error: { message: 'There was an error' } }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -253,8 +256,10 @@ describe('ProjectsProjectDetail', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === UpdateProjectDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateProjectMutation, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -287,9 +292,10 @@ describe('ProjectsProjectDetail', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === UpdateProjectDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateProjectFundingMutationError, { loading: false, error: undefined }] as any;
       }
-
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -325,8 +331,10 @@ describe('ProjectsProjectDetail', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === UpdateProjectDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateProjectMutation, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 

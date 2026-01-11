@@ -13,7 +13,6 @@ import {
   MOCK_PENDING_WORKS,
   MOCK_REJECTED_WORKS,
 } from "@/components/RelatedWorksList/__tests__/index.spec";
-import { set } from "zod";
 
 expect.extend(toHaveNoViolations);
 
@@ -47,6 +46,7 @@ const setupMocks = () => {
         loading: false,
         error: undefined,
         refetch: jest.fn()
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     }
 
@@ -123,6 +123,7 @@ describe("RelatedWorks", () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 
@@ -154,6 +155,7 @@ describe("RelatedWorks", () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 
@@ -186,6 +188,7 @@ describe("RelatedWorks", () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 
@@ -213,6 +216,7 @@ describe("RelatedWorks", () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 

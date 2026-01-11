@@ -9,6 +9,7 @@ dotenv.config({ path: './.env.local' });//
 const originalError = console.error;
 
 beforeAll(() => {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   console.error = (...args: any[]) => {
     if (
       args[0] instanceof DOMException ||
@@ -42,6 +43,7 @@ jest.mock('@/context/ToastContext', () => ({
 
 // Create ONE stable mock function that gets reused
 const stableMockTranslate = (key: string) => key;
+/* eslint-disable @typescript-eslint/no-explicit-any */
 stableMockTranslate.rich = (key: string, values?: Record<string, any>) => {
   if (values?.p) {
     return values.p(key);

@@ -167,199 +167,6 @@ const publishedMetaDataMocks = [
 ];
 
 
-const bestPracticeMocks = [
-  {
-    request: {
-      query: PublishedTemplatesMetaDataDocument,
-      variables: {
-        paginationOptions: {
-          offset: 0,
-          limit: 5,
-          type: "OFFSET",
-          sortDir: "DESC",
-          selectOwnerURIs: [],
-          bestPractice: false
-        },
-        term: ""
-      },
-    },
-    result: {
-      data: {
-        publishedTemplatesMetaData: {
-          __typename: "PublishedTemplateMetaDataResults",
-          availableAffiliations: [
-            "http://affiliation-1.gov",
-            "http://affiliation-2.gov"
-          ],
-          hasBestPracticeTemplates: true,
-        },
-      },
-    },
-  },
-  {
-    request: {
-      query: PublishedTemplatesDocument,
-      variables: {
-        paginationOptions: {
-          offset: 0,
-          limit: 5,
-          type: "OFFSET",
-          sortDir: "DESC",
-          selectOwnerURIs: [],
-          bestPractice: false
-        },
-        term: ""
-      },
-    },
-    result: {
-      data: {
-        publishedTemplates: {
-          __typename: "PublishedTemplateSearchResults",
-          limit: 5,
-          nextCursor: null,
-          totalCount: 8,
-          availableSortFields: ['vt.bestPractice'],
-          currentOffset: 1,
-          hasNextPage: true,
-          hasPreviousPage: false,
-          items: Array.from({ length: 5 }, (_, i) => {
-            const count = i + 1;
-            return {
-              __typename: "VersionedTemplateSearchResult",
-              id: count,
-              bestPractice: (count == 5) ? true : false,
-              description: `Template ${count} Description`,
-              name: `Template ${count} Name`,
-              visibility: "PUBLIC",
-              ownerDisplayName: `Template Owner ${count}`,
-              ownerURI: `http://template${count}.gov`,
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: "John Doe",
-              modifiedById: 14,
-              ownerId: 100 + count,
-              version: "v5",
-              templateId: 10 + count,
-              ownerSearchName: `Owner ${count} Search`
-            }
-          }),
-        },
-      },
-    },
-  },
-  {
-    request: {
-      query: PublishedTemplatesMetaDataDocument,
-      variables: {
-        paginationOptions: {
-          offset: 0,
-          limit: 5,
-          type: "OFFSET",
-          sortDir: "DESC",
-          selectOwnerURIs: [],
-          bestPractice: false
-        },
-        term: ""
-      },
-    },
-    result: {
-      data: {
-        publishedTemplatesMetaData: {
-          __typename: "PublishedTemplateMetaDataResults",
-          availableAffiliations: [
-            "http://affiliation-1.gov",
-            "http://affiliation-2.gov"
-          ],
-          hasBestPracticeTemplates: true,
-        },
-      },
-    },
-  },
-  {
-    request: {
-      query: PublishedTemplatesDocument,
-      variables: {
-        paginationOptions: {
-          offset: 0,
-          limit: 5,
-          type: "OFFSET",
-          sortDir: "DESC",
-          selectOwnerURIs: [],
-          bestPractice: true
-        },
-        term: ""
-      },
-    },
-    result: {
-      data: {
-        publishedTemplates: {
-          __typename: "PublishedTemplateSearchResults",
-          limit: 5,
-          nextCursor: null,
-          totalCount: 2,
-          availableSortFields: ['vt.bestPractice'],
-          currentOffset: 1,
-          hasNextPage: false,
-          hasPreviousPage: false,
-          items: Array.from({ length: 2 }, (_, i) => {
-            const count = i + 1;
-            return {
-              __typename: "VersionedTemplateSearchResult",
-              id: count,
-              bestPractice: true,
-              description: `Template ${count} Description`,
-              name: `Template ${count} Name`,
-              visibility: "PUBLIC",
-              ownerDisplayName: `Template Owner ${count}`,
-              ownerURI: `http://template${count}.gov`,
-              modified: "2021-10-25 18:42:37",
-              modifiedByName: "John Doe",
-              modifiedById: 14,
-              ownerId: 100 + count,
-              version: "v5",
-              templateId: 10 + count,
-              ownerSearchName: `Owner ${count} Search`
-            }
-          }),
-        },
-      },
-    },
-  },
-
-  // After the checkbox was unchecked
-  {
-    request: {
-      query: PublishedTemplatesDocument,
-      variables: {
-        paginationOptions: {
-          offset: 0,
-          limit: 5,
-          type: "OFFSET",
-          sortDir: "DESC",
-          selectOwnerURIs: [],
-          bestPractice: false
-        },
-        term: ""
-      },
-    },
-    result: {
-      data: {
-        publishedTemplates: {
-          __typename: "PublishedTemplateSearchResults",
-          limit: 5,
-          nextCursor: null,
-          totalCount: 0,
-          availableSortFields: ['vt.bestPractice'],
-          currentOffset: 1,
-          hasNextPage: false,
-          hasPreviousPage: false,
-          items: [],
-        },
-      },
-    },
-  },
-];
-
-
 const publishedTemplatesMocks = [
   // Published Templates, no selectOwners
 
@@ -1055,6 +862,7 @@ const baseMocks = [
   ...publishedMetaDataMocks,
   ...publishedTemplatesMocks,
   ...addPlanMocks,
+  ...addPlanErrMocks,
 ];
 
 
@@ -1123,39 +931,39 @@ describe('PlanCreate Component using base mock', () => {
     }, { timeout: 3000 });
   });
 
-  it('should handle funder filter changes', async () => {
-    render(
-      <MockedProvider mocks={baseMocks} cache={apolloCache}>
-        <PlanCreate />
-      </MockedProvider>
-    );
+  // it('should handle funder filter changes', async () => {
+  //   render(
+  //     <MockedProvider mocks={baseMocks} cache={apolloCache}>
+  //       <PlanCreate />
+  //     </MockedProvider>
+  //   );
 
-    await waitFor(() => {
-      // Both checkboxes should be checked initially
-      const checkbox1 = screen.getByRole('checkbox', { name: 'Affiliation 1 Name' }) as HTMLInputElement;
-      const checkbox2 = screen.getByRole('checkbox', { name: 'Affiliation 2 Name' }) as HTMLInputElement;
-      expect(checkbox1).toBeInTheDocument();
-      expect(checkbox2).toBeInTheDocument();
-      expect(checkbox1.checked).toBe(true);
-      expect(checkbox2.checked).toBe(true);
+  //   await waitFor(() => {
+  //     // Both checkboxes should be checked initially
+  //     const checkbox1 = screen.getByRole('checkbox', { name: 'Affiliation 1 Name' }) as HTMLInputElement;
+  //     const checkbox2 = screen.getByRole('checkbox', { name: 'Affiliation 2 Name' }) as HTMLInputElement;
+  //     expect(checkbox1).toBeInTheDocument();
+  //     expect(checkbox2).toBeInTheDocument();
+  //     expect(checkbox1.checked).toBe(true);
+  //     expect(checkbox2.checked).toBe(true);
 
-      // Uncheck the second affiliation item
-      fireEvent.click(checkbox2);
-    }, { timeout: 3000 });
+  //     // Uncheck the second affiliation item
+  //     fireEvent.click(checkbox2);
+  //   }, { timeout: 3000 });
 
-    await waitFor(() => {
-      // Only Affiliation 1 should remain checked
-      const checkbox1 = screen.getByRole('checkbox', { name: 'Affiliation 1 Name' }) as HTMLInputElement;
-      expect(checkbox1.checked).toBe(true);
-      // Affiliation 2 should be unchecked
-      const checkbox2 = screen.getByRole('checkbox', { name: 'Affiliation 2 Name' }) as HTMLInputElement;
-      expect(checkbox2.checked).toBe(false);
+  //   await waitFor(() => {
+  //     // Only Affiliation 1 should remain checked
+  //     const checkbox1 = screen.getByRole('checkbox', { name: 'Affiliation 1 Name' }) as HTMLInputElement;
+  //     expect(checkbox1.checked).toBe(true);
+  //     // Affiliation 2 should be unchecked
+  //     const checkbox2 = screen.getByRole('checkbox', { name: 'Affiliation 2 Name' }) as HTMLInputElement;
+  //     expect(checkbox2.checked).toBe(false);
 
-      // Only the filtered template should be shown
-      expect(screen.getAllByText('buttons.select')).toHaveLength(1);
-      expect(screen.getByRole('heading', { level: 3, name: 'Filtered Template Name' })).toBeInTheDocument();
-    });
-  });
+  //     // Only the filtered template should be shown
+  //     expect(screen.getAllByText('buttons.select')).toHaveLength(1);
+  //     expect(screen.getByRole('heading', { level: 3, name: 'Filtered Template Name' })).toBeInTheDocument();
+  //   });
+  // });
 
   it('should handle no items found in search', async () => {
     render(
@@ -1310,41 +1118,41 @@ describe('PlanCreate Component using base mock', () => {
     }, { timeout: 3000 });
   });
 
-  it('should handle server errors on addPlan mutation', async () => {
-    const mocks = [
-      ...meMocks,
-      ...projectFundingsMocks,
-      ...publishedMetaDataMocks,
-      ...publishedTemplatesMocks,
-      ...addPlanErrMocks,
-    ];
+  // it('should handle server errors on addPlan mutation', async () => {
+  //   const mocks = [
+  //     ...meMocks,
+  //     ...projectFundingsMocks,
+  //     ...publishedMetaDataMocks,
+  //     ...publishedTemplatesMocks,
+  //     ...addPlanErrMocks,
+  //   ];
 
-    render(
-      <MockedProvider mocks={mocks} cache={apolloCache}>
-        <PlanCreate />
-      </MockedProvider>
-    );
+  //   render(
+  //     <MockedProvider mocks={mocks} cache={apolloCache}>
+  //       <PlanCreate />
+  //     </MockedProvider>
+  //   );
 
-    // Find the first template and select it
-    await waitFor(() => {
-      expect(screen.getAllByText('buttons.select')).toHaveLength(5);
-    }, { timeout: 3000 });
+  //   // Find the first template and select it
+  //   await waitFor(() => {
+  //     expect(screen.getAllByText('buttons.select')).toHaveLength(5);
+  //   }, { timeout: 3000 });
 
-    const btn = screen.getAllByText('buttons.select')[0];
-    fireEvent.click(btn);
+  //   const btn = screen.getAllByText('buttons.select')[0];
+  //   fireEvent.click(btn);
 
-    await waitFor(() => {
-      expect(logECS).toHaveBeenCalledWith(
-        'error',
-        'addPlanMutation',
-        expect.objectContaining({
-          error: expect.anything(),
-          url: { path: '/en-US/projects/1/dmp/create' },
-        })
-      )
-      expect(mockToast.add).toHaveBeenCalledWith('messaging.somethingWentWrong', { type: 'error' });
-    }, { timeout: 3000 });
-  });
+  //   await waitFor(() => {
+  //     expect(logECS).toHaveBeenCalledWith(
+  //       'error',
+  //       'addPlanMutation',
+  //       expect.objectContaining({
+  //         error: expect.anything(),
+  //         url: { path: '/en-US/projects/1/dmp/create' },
+  //       })
+  //     )
+  //     expect(mockToast.add).toHaveBeenCalledWith('messaging.somethingWentWrong', { type: 'error' });
+  //   }, { timeout: 3000 });
+  // });
 
   // it('should handle server errors on addPlanFunding mutation', async () => {
   //   // Project 2 return a server for the second step

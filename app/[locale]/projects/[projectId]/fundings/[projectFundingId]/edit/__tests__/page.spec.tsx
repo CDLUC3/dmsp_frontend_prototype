@@ -1,7 +1,7 @@
 import React from 'react';
 import { act, fireEvent, render, screen, within, waitFor } from '@testing-library/react';
 import { useParams, useRouter } from 'next/navigation';
-import { useQuery, useMutation, useApolloClient } from '@apollo/client/react';
+import { useQuery, useMutation } from '@apollo/client/react';
 import {
   ProjectFundingDocument,
   UpdateProjectFundingDocument
@@ -87,6 +87,7 @@ const setupMocks = () => {
 
   mockUseQuery.mockImplementation((document) => {
     if (document === ProjectFundingDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableQueryReturn as any;
     }
 
@@ -99,9 +100,10 @@ const setupMocks = () => {
 
   mockUseMutation.mockImplementation((document) => {
     if (document === UpdateProjectFundingDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [stableMutationFn, { loading: false, error: undefined }] as any;
     }
-
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     return [jest.fn(), { loading: false, error: undefined }] as any;
   });
 };
@@ -170,6 +172,7 @@ describe('ProjectsProjectFundingEdit', () => {
 
     mockUseQuery.mockImplementation((document) => {
       if (document === ProjectFundingDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return projectFundingReturn as any;
       }
 
@@ -251,6 +254,7 @@ describe('ProjectsProjectFundingEdit', () => {
 
     mockUseQuery.mockImplementation((document) => {
       if (document === ProjectFundingDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return projectFundingReturn as any;
       }
 
@@ -277,9 +281,10 @@ describe('ProjectsProjectFundingEdit', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === UpdateProjectFundingDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateProjectFundingMutation, { loading: false, error: undefined }] as any;
       }
-
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -308,9 +313,10 @@ describe('ProjectsProjectFundingEdit', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === UpdateProjectFundingDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateProjectFundingMutationError, { loading: false, error: undefined }] as any;
       }
-
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -341,9 +347,10 @@ describe('ProjectsProjectFundingEdit', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === UpdateProjectFundingDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateProjectFundingMutation, { loading: false, error: undefined }] as any;
       }
-
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 

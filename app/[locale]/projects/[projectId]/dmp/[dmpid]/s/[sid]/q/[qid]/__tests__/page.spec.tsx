@@ -66,7 +66,6 @@ import { AffiliationSearchQuestionType } from "@dmptool/types";
 import { mockUseComments, defaultMockReturn } from '../hooks/__mocks__/useComments';
 import { TypeAheadInputProps } from '@/components/Form/TypeAheadWithOther/TypeAheadWithOther';
 import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
-import { mock } from 'node:test';
 
 jest.mock('@/components/Form/TypeAheadWithOther', () => ({
   __esModule: true,

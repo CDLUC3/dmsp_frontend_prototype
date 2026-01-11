@@ -62,10 +62,12 @@ const setupMocks = () => {
 
   mockUseQuery.mockImplementation((document) => {
     if (document === ProjectMemberDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableProjectMemberReturn as any;
     }
 
     if (document === MemberRolesDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableMemberRolesReturn as any;
     }
 
@@ -86,13 +88,16 @@ const setupMocks = () => {
 
   mockUseMutation.mockImplementation((document) => {
     if (document === UpdateProjectMemberDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [mockUpdateProjectMemberFn, { loading: false, error: undefined }] as any;
     }
 
     if (document === RemoveProjectMemberDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [mockRemoveProjectMemberFn, { loading: false, error: undefined }] as any;
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     return [jest.fn(), { loading: false, error: undefined }] as any;
   });
 };
@@ -152,6 +157,7 @@ describe("ProjectsProjectMembersEdit", () => {
           data: null,
           loading: true,
           error: null,
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
       if (document === ProjectMemberDocument) {
@@ -159,6 +165,7 @@ describe("ProjectsProjectMembersEdit", () => {
           data: mockProjectMemberData,
           loading: false,
           error: null,
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
       return {
@@ -183,6 +190,7 @@ describe("ProjectsProjectMembersEdit", () => {
           data: null,
           loading: false,
           error: true,
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
       if (document === ProjectMemberDocument) {
@@ -190,6 +198,7 @@ describe("ProjectsProjectMembersEdit", () => {
           data: mockProjectMemberData,
           loading: false,
           error: null,
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
       return {

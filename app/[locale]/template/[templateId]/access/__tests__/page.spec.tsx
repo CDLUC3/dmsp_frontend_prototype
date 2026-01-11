@@ -15,7 +15,6 @@ import { useToast } from '@/context/ToastContext';
 
 import mockData from '../__mocks__/mockData.json';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
-import { set } from 'zod';
 
 expect.extend(toHaveNoViolations);
 
@@ -62,6 +61,7 @@ const setupMocks = () => {
 
   mockUseQuery.mockImplementation((document) => {
     if (document === TemplateCollaboratorsDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableTemplateCollaboratorsReturn as any;
     }
 
@@ -82,13 +82,15 @@ const setupMocks = () => {
 
   mockUseMutation.mockImplementation((document) => {
     if (document === AddTemplateCollaboratorDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [mockAddCollaboratorFn, { loading: false, error: undefined }] as any;
     }
 
     if (document === RemoveTemplateCollaboratorDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [mockRemoveCollaboratorFn, { loading: false, error: undefined }] as any;
     }
-
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     return [jest.fn(), { loading: false, error: undefined }] as any;
   });
 };
@@ -190,11 +192,14 @@ describe('TemplateAccessPage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === RemoveTemplateCollaboratorDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockRemoveError, { loading: false, error: undefined }] as any;
       }
       if (document === AddTemplateCollaboratorDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockAddCollaboratorFn, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -231,11 +236,14 @@ describe('TemplateAccessPage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === RemoveTemplateCollaboratorDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockRemoveApolloError, { loading: false, error: undefined }] as any;
       }
       if (document === AddTemplateCollaboratorDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockAddCollaboratorFn, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -266,11 +274,14 @@ describe('TemplateAccessPage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === RemoveTemplateCollaboratorDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockRemoveSuccess, { loading: false, error: undefined }] as any;
       }
       if (document === AddTemplateCollaboratorDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockAddCollaboratorFn, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -307,11 +318,14 @@ describe('TemplateAccessPage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddTemplateCollaboratorDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockAddError, { loading: false, error: undefined }] as any;
       }
       if (document === RemoveTemplateCollaboratorDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockRemoveCollaboratorFn, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -338,11 +352,14 @@ describe('TemplateAccessPage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddTemplateCollaboratorDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockAddThrowError, { loading: false, error: undefined }] as any;
       }
       if (document === RemoveTemplateCollaboratorDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockRemoveCollaboratorFn, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -381,11 +398,14 @@ describe('TemplateAccessPage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddTemplateCollaboratorDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockAddApolloError, { loading: false, error: undefined }] as any;
       }
       if (document === RemoveTemplateCollaboratorDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockRemoveCollaboratorFn, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 

@@ -13,7 +13,6 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 import CreateSectionPage from '../page';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 import mockSectionData from '../__mocks__/addSectionMock.json';
-import { set } from "zod";
 
 expect.extend(toHaveNoViolations);
 
@@ -129,10 +128,12 @@ const setupMocks = () => {
 
   mockUseQuery.mockImplementation((document) => {
     if (document === SectionsDisplayOrderDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableSectionReturn as any;
     }
 
     if (document === TagsDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableTagsReturn as any;
     }
 
@@ -149,8 +150,10 @@ const setupMocks = () => {
 
   mockUseMutation.mockImplementation((document) => {
     if (document === AddSectionDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [mockAddSectionFn, { loading: false, error: undefined }] as any;
     }
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     return [jest.fn(), { loading: false, error: undefined }] as any;
   });
 };
@@ -235,8 +238,10 @@ describe("CreateSectionPage", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddSectionDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockAddSection, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -275,8 +280,10 @@ describe("CreateSectionPage", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddSectionDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockAddSection, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -324,8 +331,10 @@ describe("CreateSectionPage", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddSectionDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockAddSection, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -356,8 +365,10 @@ describe("CreateSectionPage", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddSectionDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateSection, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -393,8 +404,10 @@ describe("CreateSectionPage", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddSectionDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateSection, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 

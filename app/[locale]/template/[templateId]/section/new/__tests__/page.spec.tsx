@@ -55,6 +55,7 @@ const setupMocks = () => {
 
   mockUseLazyQuery.mockImplementation((document) => {
     if (document === PublishedSectionsDocument) {
+      /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
       return stablePublishedSectionReturn as any;
     }
 
@@ -71,8 +72,10 @@ const setupMocks = () => {
 
   mockUseMutation.mockImplementation((document) => {
     if (document === AddSectionDocument) {
+      /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
       return [mockAddSectionFn, { loading: false, error: undefined }] as any;
     }
+    /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
     return [jest.fn(), { loading: false, error: undefined }] as any;
   });
 };
@@ -107,6 +110,7 @@ describe("SectionTypeSelectPage", () => {
 
     mockUseLazyQuery.mockImplementation((document) => {
       if (document === PublishedSectionsDocument) {
+        /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
         return stablePublishedSectionReturn as any;
       }
 
@@ -139,6 +143,7 @@ describe("SectionTypeSelectPage", () => {
 
     mockUseLazyQuery.mockImplementation((document) => {
       if (document === PublishedSectionsDocument) {
+        /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
         return stablePublishedSectionReturn as any;
       }
 
@@ -236,8 +241,10 @@ describe("SectionTypeSelectPage", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddSectionDocument) {
+        /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
         return [mockAddSection, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -279,6 +286,7 @@ describe("SectionTypeSelectPage", () => {
 
     mockUseLazyQuery.mockImplementation((document) => {
       if (document === PublishedSectionsDocument) {
+        /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
         return stablePublishedSectionReturn as any;
       }
 
@@ -425,8 +433,10 @@ describe("SectionTypeSelectPage", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddSectionDocument) {
+        /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
         return [mockAddSection, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -462,8 +472,10 @@ describe("SectionTypeSelectPage", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddSectionDocument) {
+        /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
         return [mockAddSection, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -494,8 +506,10 @@ describe("SectionTypeSelectPage", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddSectionDocument) {
+        /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
         return [mockAddSection, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -521,8 +535,10 @@ describe("SectionTypeSelectPage", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddSectionDocument) {
+        /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
         return [mockAddSection, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 

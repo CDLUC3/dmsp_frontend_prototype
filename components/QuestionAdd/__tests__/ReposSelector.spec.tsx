@@ -81,6 +81,7 @@ const setupMocks = () => {
 
   mockUseQuery.mockImplementation((document) => {
     if (document === RepositorySubjectAreasDocument) {
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any*/
       return stableRepositoriesSubjectAreasReturn as any;
     }
 
@@ -99,6 +100,7 @@ const setupMocks = () => {
 
   mockUseLazyQuery.mockImplementation((document) => {
     if (document === RepositoriesDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableRepositoriesReturn as any;
     }
 

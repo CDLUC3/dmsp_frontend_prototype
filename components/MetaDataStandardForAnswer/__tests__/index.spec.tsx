@@ -190,6 +190,7 @@ const setupMocks = () => {
 
   mockUseLazyQuery.mockImplementation((document) => {
     if (document === MetadataStandardsDocument) {
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any*/
       return stableMetadataStandardsReturn as any;
     }
 
@@ -200,6 +201,7 @@ const setupMocks = () => {
         loading: false,
         error: undefined
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
     ] as any;
   });
 };

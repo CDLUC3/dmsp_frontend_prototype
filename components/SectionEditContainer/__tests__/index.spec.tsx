@@ -8,8 +8,6 @@ import SectionEditContainer from '../index';
 import { useQuery } from '@apollo/client/react';
 import { SectionDocument } from '@/generated/graphql';
 import { updateQuestionDisplayOrderAction } from '../actions';
-import { set } from 'zod';
-import { ref } from 'process';
 
 expect.extend(toHaveNoViolations);
 

@@ -6,7 +6,6 @@ import { ProjectMembersDocument } from '@/generated/graphql';
 import ProjectsProjectMembers from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
-import { set } from 'zod';
 
 expect.extend(toHaveNoViolations);
 
@@ -75,6 +74,7 @@ const setupMocks = () => {
         loading: false,
         error: undefined,
         refetch: jest.fn()
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     }
     return {
@@ -110,6 +110,7 @@ describe('ProjectsProjectMembers', () => {
           loading: true,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
       return {
@@ -132,6 +133,7 @@ describe('ProjectsProjectMembers', () => {
           loading: false,
           error: true,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
       return {
@@ -154,6 +156,7 @@ describe('ProjectsProjectMembers', () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
       return {
@@ -194,6 +197,7 @@ describe('ProjectsProjectMembers', () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
       return {
@@ -218,6 +222,7 @@ describe('ProjectsProjectMembers', () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
       return {

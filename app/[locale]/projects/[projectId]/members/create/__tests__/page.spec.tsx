@@ -3,9 +3,9 @@ import { fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import { useParams, useRouter } from 'next/navigation';
 import { useToast } from '@/context/ToastContext';
 import logECS from '@/utils/clientLogger';
-
+import { useQuery } from '@apollo/client/react';
 import {
-  useMemberRolesQuery,
+  MemberRolesDocument,
 } from '@/generated/graphql';
 
 import { addProjectMemberAction } from '@/app/actions';
@@ -18,9 +18,9 @@ import addProjectMemberRresponseMock from '../__mocks__/addProjectMemberResponse
 
 expect.extend(toHaveNoViolations);
 
-// Mock the graphql hooks
-jest.mock("@/generated/graphql", () => ({
-  useMemberRolesQuery: jest.fn(),
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
 }));
 
 jest.mock('@/app/actions', () => ({
@@ -38,10 +38,31 @@ const mockToast = {
 
 const mockAddProjectMemberAction = addProjectMemberAction as jest.MockedFunction<typeof addProjectMemberAction>;
 
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
 
+const setupMocks = () => {
+  mockUseQuery.mockImplementation((document) => {
+    if (document === MemberRolesDocument) {
+      return {
+        data: mockMemberRoles,
+        loading: false,
+        error: undefined,
+        refetch: jest.fn()
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
+    }
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+};
 
 describe("ProjectsProjectMemberCreate", () => {
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
     const mockUseParams = useParams as jest.Mock;
@@ -58,12 +79,6 @@ describe("ProjectsProjectMemberCreate", () => {
       data: undefined,
       errors: []
     });
-
-    (useMemberRolesQuery as jest.Mock).mockReturnValue({
-      data: mockMemberRoles,
-      loading: false,
-      error: null,
-    });
   });
 
   afterEach(() => {
@@ -71,10 +86,21 @@ describe("ProjectsProjectMemberCreate", () => {
   });
 
   it('should render loading state', async () => {
-    (useMemberRolesQuery as jest.Mock).mockReturnValue({
-      data: null,
-      loading: true,
-      error: null,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === MemberRolesDocument) {
+        return {
+          data: null,
+          loading: true,
+          error: undefined,
+          refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     render(
@@ -84,12 +110,21 @@ describe("ProjectsProjectMemberCreate", () => {
   });
 
   it('should render error state', async () => {
-    (useMemberRolesQuery as jest.Mock).mockReturnValue({
-      data: null,
-      loading: false,
-      error: true,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === MemberRolesDocument) {
+        return {
+          data: null,
+          loading: false,
+          error: true
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
-
     render(
       <ProjectsProjectMemberCreate />
     );

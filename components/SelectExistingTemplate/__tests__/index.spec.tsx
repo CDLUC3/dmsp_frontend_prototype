@@ -109,10 +109,12 @@ const setupMocks = () => {
 
   mockUseLazyQuery.mockImplementation((document) => {
     if (document === PublishedTemplatesDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stablePublishedTemplatesReturn as any;
     }
 
     if (document === TemplatesDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableTemplatesReturn as any;
     }
 
@@ -129,9 +131,10 @@ const setupMocks = () => {
 
   mockUseMutation.mockImplementation((document) => {
     if (document === AddTemplateDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [mockAddTemplateFn, { loading: false, error: undefined }] as any;
     }
-
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     return [jest.fn(), { loading: false, error: undefined }] as any;
   });
 };
@@ -308,10 +311,12 @@ describe('TemplateSelectTemplatePage', () => {
 
     mockUseLazyQuery.mockImplementation((document) => {
       if (document === PublishedTemplatesDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return stablePublishedTemplatesReturn as any;
       }
 
       if (document === TemplatesDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return stableTemplatesReturn as any;
       }
 
@@ -380,10 +385,12 @@ describe('TemplateSelectTemplatePage', () => {
 
     mockUseLazyQuery.mockImplementation((document) => {
       if (document === PublishedTemplatesDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return stablePublishedTemplatesReturn as any;
       }
 
       if (document === TemplatesDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return stableTemplatesReturn as any;
       }
 
@@ -499,10 +506,12 @@ describe('TemplateSelectTemplatePage', () => {
 
     mockUseLazyQuery.mockImplementation((document) => {
       if (document === PublishedTemplatesDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return stablePublishedTemplatesReturn as any;
       }
 
       if (document === TemplatesDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return stableTemplatesReturn as any;
       }
 
@@ -541,9 +550,10 @@ describe('TemplateSelectTemplatePage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddTemplateDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockAddTemplateFn, { loading: false, error: undefined }] as any;
       }
-
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -575,9 +585,10 @@ describe('TemplateSelectTemplatePage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddTemplateDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockAddTemplateFn, { loading: false, error: undefined }] as any;
       }
-
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -601,9 +612,10 @@ describe('TemplateSelectTemplatePage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddTemplateDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockAddTemplateFn, { loading: false, error: undefined }] as any;
       }
-
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -641,9 +653,10 @@ describe('TemplateSelectTemplatePage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddTemplateDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockAddTemplateFn, { loading: false, error: undefined }] as any;
       }
-
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -675,9 +688,10 @@ describe('TemplateSelectTemplatePage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddTemplateDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockAddTemplateFn, { loading: false, error: undefined }] as any;
       }
-
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -700,9 +714,10 @@ describe('TemplateSelectTemplatePage', () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === AddTemplateDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockAddTemplateFn, { loading: false, error: undefined }] as any;
       }
-
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 

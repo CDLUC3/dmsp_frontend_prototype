@@ -13,7 +13,6 @@ import {
   RelatedWorksByPlanDocument,
   WorkType,
 } from "@/generated/graphql";
-import { set } from "zod";
 
 expect.extend(toHaveNoViolations);
 
@@ -541,6 +540,7 @@ const setupMocks = () => {
         loading: false,
         error: undefined,
         refetch: jest.fn()
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     }
 
@@ -594,6 +594,7 @@ describe("RelatedWorksList", () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 
@@ -634,6 +635,7 @@ describe("RelatedWorksList", () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 
@@ -673,6 +675,7 @@ describe("RelatedWorksList", () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 
@@ -712,6 +715,7 @@ describe("RelatedWorksList", () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 
@@ -765,6 +769,7 @@ describe("RelatedWorksList", () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 
@@ -815,6 +820,7 @@ describe("RelatedWorksList", () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 
@@ -868,6 +874,7 @@ describe("RelatedWorksList", () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 
@@ -920,6 +927,7 @@ describe("RelatedWorksList", () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 
@@ -974,6 +982,7 @@ describe("RelatedWorksList", () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 
@@ -1015,6 +1024,7 @@ describe("RelatedWorksList", () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 
@@ -1059,6 +1069,7 @@ describe("RelatedWorksList", () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 
@@ -1121,6 +1132,7 @@ describe("RelatedWorksList", () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 

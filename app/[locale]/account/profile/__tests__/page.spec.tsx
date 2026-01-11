@@ -92,6 +92,7 @@ const setupMocks = () => {
         loading: false,
         error: undefined,
         refetch: jest.fn()
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     }
     if (document === LanguagesDocument) {
@@ -118,8 +119,10 @@ const setupMocks = () => {
       return [
         mockMutationFn,
         { loading: false, error: undefined }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       ] as any;
     }
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     return [jest.fn(), { loading: false, error: undefined }] as any;
   });
 };
@@ -232,6 +235,7 @@ describe('ProfilePage', () => {
           loading: false,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
       if (document === LanguagesDocument) {
@@ -239,8 +243,10 @@ describe('ProfilePage', () => {
           data: mockLanguagesData,  // Keep languages the same
           loading: false,
           error: undefined
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return { data: null, loading: false, error: undefined } as any;
     });
 
@@ -361,6 +367,7 @@ describe('ProfilePage', () => {
     mockUseMutation.mockReturnValue([
       mockUpdateUserProfile,
       { loading: false, error: undefined }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
     ] as any);
 
     render(<ProfilePage />);
@@ -416,6 +423,7 @@ describe('ProfilePage', () => {
           loading: true,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
       if (document === LanguagesDocument) {
@@ -423,8 +431,10 @@ describe('ProfilePage', () => {
           data: mockLanguagesData,  // Keep languages the same
           loading: false,
           error: undefined
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return { data: null, loading: false, error: undefined } as any;
     });
     render(<ProfilePage />);
@@ -438,6 +448,7 @@ describe('ProfilePage', () => {
     mockUseMutation.mockReturnValue([
       mockUpdateUserProfile,
       { loading: false, error: undefined }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
     ] as any);
 
     render(<ProfilePage />);
@@ -467,6 +478,7 @@ describe('ProfilePage', () => {
     mockUseMutation.mockReturnValue([
       mockUpdateUserProfile,
       { loading: false, error: 'Error updating profile' }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
     ] as any);
 
     render(<ProfilePage />);

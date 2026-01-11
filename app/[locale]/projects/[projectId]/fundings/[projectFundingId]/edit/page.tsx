@@ -252,6 +252,7 @@ const ProjectsProjectFundingEdit = () => {
             fields: {
               projectFundings(existingFundings = [], { readField }) {
                 return existingFundings.filter(
+                  /* eslint-disable @typescript-eslint/no-explicit-any */
                   (fundingRef: any) => readField('id', fundingRef) !== Number(projectFundingId)
                 );
               }

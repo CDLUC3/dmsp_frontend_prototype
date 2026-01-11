@@ -74,6 +74,7 @@ const setupMocks = () => {
 
   mockUseQuery.mockImplementation((document) => {
     if (document === RepositorySubjectAreasDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableRepositoriesSubjectAreasReturn as any;
     }
     return {

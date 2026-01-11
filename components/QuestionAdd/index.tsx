@@ -68,6 +68,7 @@ import {
   isOptionsType,
   getOverrides,
 } from './hooks/useAddQuestion';
+import logECS from '@/utils/clientLogger';
 import styles from './questionAdd.module.scss';
 
 const defaultQuestion = {
@@ -410,6 +411,9 @@ const QuestionAdd = ({
           ...prevErrors,
           QuestionAdd('messages.errors.questionAddingError'),
         ]);
+        logECS('error', 'Adding Question in QuestionAdd', {
+          error,
+        });
       }
     } else {
       const errorMessage = error ?? QuestionAdd('messages.errors.questionAddingError');

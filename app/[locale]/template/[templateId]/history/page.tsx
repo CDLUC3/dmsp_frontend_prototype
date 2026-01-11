@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useFormatter, useTranslations } from 'next-intl';
 import {
   Breadcrumb,
@@ -34,7 +34,6 @@ const TemplateHistory = () => {
   const errorRef = useRef<HTMLDivElement | null>(null);
   const params = useParams();
   const templateId = Number(params.templateId);
-  const router = useRouter();
   const [errors, setErrors] = useState<string[]>([]);
 
   // Localization keys
@@ -42,7 +41,7 @@ const TemplateHistory = () => {
   const Global = useTranslations('Global');
 
   // Query for Template versions
-  const { data = {}, loading, error, refetch } = useQuery(TemplateVersionsDocument, {
+  const { data = {}, loading, error } = useQuery(TemplateVersionsDocument, {
     variables: { templateId }
   });
 

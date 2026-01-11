@@ -69,6 +69,7 @@ const setupMocks = () => {
 
   mockUseQuery.mockImplementation((document) => {
     if (document === TemplateVersionsDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableTemplateVersionsReturn as any;
     }
 
@@ -130,6 +131,7 @@ describe('TemplateHistory', () => {
     };
     mockUseQuery.mockImplementation((document) => {
       if (document === TemplateVersionsDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return stableTemplateVersionsReturn as any;
       }
 
@@ -170,6 +172,7 @@ describe('TemplateHistory', () => {
 
     mockUseQuery.mockImplementation((document) => {
       if (document === TemplateVersionsDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return stableTemplateVersionsReturn as any;
       }
 
@@ -199,6 +202,7 @@ describe('TemplateHistory', () => {
           loading: false,
           error: null,
           refetch: jest.fn(),
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
       return {
@@ -226,6 +230,7 @@ describe('TemplateHistory', () => {
           loading: false,
           error: null,
           refetch: jest.fn(),
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
       return {
@@ -253,6 +258,7 @@ describe('TemplateHistory', () => {
           loading: false,
           error: null,
           refetch: jest.fn(),
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
       return {
@@ -285,6 +291,7 @@ describe('TemplateHistory', () => {
           loading: false,
           error: null,
           refetch: jest.fn(),
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
       return {

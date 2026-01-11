@@ -45,6 +45,7 @@ import {
   SectionFormInterface,
   TagsInterface
 } from '@/app/types';
+import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
 
 const CreateSectionPage: React.FC = () => {
@@ -208,6 +209,9 @@ const CreateSectionPage: React.FC = () => {
       }
     } catch (error) {
       setErrors(prevErrors => [...prevErrors, CreateSectionPage('messages.errorCreatingSection')]);
+      logECS("error", "Creating Section in CreateSectionPage", {
+        errors: error,
+      });
     }
     return {};
   };

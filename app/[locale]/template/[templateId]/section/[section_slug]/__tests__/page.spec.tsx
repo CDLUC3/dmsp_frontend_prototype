@@ -176,10 +176,12 @@ const setupMocks = () => {
 
   mockUseQuery.mockImplementation((document) => {
     if (document === SectionDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableSectionReturn as any;
     }
 
     if (document === TagsDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableTagsReturn as any;
     }
 
@@ -274,8 +276,10 @@ describe("SectionUpdatePage", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === UpdateSectionDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateSection, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -317,8 +321,10 @@ describe("SectionUpdatePage", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === UpdateSectionDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateSection, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -367,8 +373,10 @@ describe("SectionUpdatePage", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === UpdateSectionDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateSection, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -392,8 +400,10 @@ describe("SectionUpdatePage", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === UpdateSectionDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateSection, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -433,8 +443,10 @@ describe("SectionUpdatePage", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === UpdateSectionDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateSection, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -465,8 +477,10 @@ describe("SectionUpdatePage", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === UpdateSectionDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateSection, { loading: false, error: undefined }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -585,8 +599,10 @@ describe("SectionUpdatePage", () => {
 
       mockUseMutation.mockImplementation((document) => {
         if (document === RemoveSectionDocument) {
+          /* eslint-disable @typescript-eslint/no-explicit-any */
           return [mockRemoveSection, { loading: false, error: undefined }] as any;
         }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
@@ -617,8 +633,10 @@ describe("SectionUpdatePage", () => {
 
       mockUseMutation.mockImplementation((document) => {
         if (document === RemoveSectionDocument) {
+          /* eslint-disable @typescript-eslint/no-explicit-any */
           return [mockRemoveSection, { loading: false, error: undefined }] as any;
         }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
       await act(async () => {
@@ -655,8 +673,10 @@ describe("SectionUpdatePage", () => {
 
       mockUseMutation.mockImplementation((document) => {
         if (document === RemoveSectionDocument) {
+          /* eslint-disable @typescript-eslint/no-explicit-any */
           return [mockRemoveSection, { loading: false, error: undefined }] as any;
         }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 

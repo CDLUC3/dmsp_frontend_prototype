@@ -112,6 +112,7 @@ const setupMocks = () => {
     loading: false,
     error: undefined,
     refetch: jest.fn(),
+    /* eslint-disable @typescript-eslint/no-explicit-any */
   } as any);
 };
 
@@ -143,6 +144,7 @@ describe('ProjectOverviewPage', () => {
       loading: false,
       error: undefined,
       refetch: jest.fn(),
+      /* eslint-disable @typescript-eslint/no-explicit-any */
     } as any);
 
     render(<ProjectOverviewPage />);
@@ -172,6 +174,7 @@ describe('ProjectOverviewPage', () => {
       error: undefined,
       loading: true,
       refetch: jest.fn(),
+      /* eslint-disable @typescript-eslint/no-explicit-any */
     } as any);
 
     render(<ProjectOverviewPage />);

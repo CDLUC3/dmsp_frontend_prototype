@@ -164,7 +164,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
 
 
   const isLoading = loading || planMemberLoading;
-  let isError = queryError || planMemberError;
+  const isError = queryError || planMemberError;
 
   // Initialize mutations
   const [RemovePlanMemberMutation] = useMutation(RemovePlanMemberDocument);

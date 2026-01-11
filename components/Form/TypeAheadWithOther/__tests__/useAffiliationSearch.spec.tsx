@@ -2,7 +2,6 @@ import { renderHook, act } from '@testing-library/react';
 import { useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
 import { useLazyQuery } from '@apollo/client/react';
 import { AffiliationsDocument } from '@/generated/graphql';
-import { set } from 'zod';
 
 // Mock debounce to run immediately instead of waiting 300ms
 jest.mock('@/hooks/debounce', () => ({

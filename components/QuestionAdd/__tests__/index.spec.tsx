@@ -1417,8 +1417,6 @@ describe("QuestionAdd", () => {
 
 describe("Research Output Question Type", () => {
   let mockRouter;
-  const mockFetchMetaDataStandards = jest.fn();
-  const mockFetchRepositories = jest.fn();
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     window.scrollTo = jest.fn();

@@ -1,10 +1,9 @@
 import React from 'react';
 import type { NumberRangeQuestionType } from '@dmptool/types';
-import { act, fireEvent, render, screen } from '@/utils/test-utils';
+import { act, render, screen } from '@/utils/test-utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { NumberRangeQuestionComponent } from '@/components/Form/QuestionComponents';
-import { start } from 'repl';
 
 expect.extend(toHaveNoViolations);
 

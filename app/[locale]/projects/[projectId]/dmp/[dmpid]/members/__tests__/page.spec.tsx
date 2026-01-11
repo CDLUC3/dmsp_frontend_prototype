@@ -51,6 +51,7 @@ const setupMocks = () => {
         loading: false,
         error: undefined,
         refetch: jest.fn()
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     }
     if (document === PlanMembersDocument) {
@@ -80,6 +81,7 @@ const setupMocks = () => {
       return [
         mockMutationFn,
         { loading: false, error: undefined }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       ] as any;
     }
 
@@ -87,6 +89,7 @@ const setupMocks = () => {
       return [
         mockMutationFn,
         { loading: false, error: undefined }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       ] as any;
     }
 
@@ -94,8 +97,10 @@ const setupMocks = () => {
       return [
         mockMutationFn,
         { loading: false, error: undefined }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       ] as any;
     }
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     return [jest.fn(), { loading: false, error: undefined }] as any;
   });
 };
@@ -118,6 +123,7 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
           loading: true,
           error: undefined,
           refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
       if (document === PlanMembersDocument) {
@@ -235,8 +241,10 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
         return [
           mockRemoveEmailResponse,
           { loading: false, error: undefined }
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         ] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -269,9 +277,11 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
         return [
           mockRemoveFn,
           { loading: false, error: undefined }
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         ] as any;
       }
       // Return other mutations as needed
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -423,8 +433,10 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
         return [
           mockUpdatePlanMember,
           { loading: false, error: undefined }
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         ] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 

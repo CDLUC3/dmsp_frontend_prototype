@@ -126,6 +126,7 @@ const setupMocks = () => {
       data: null,
       loading: false,
       error: undefined,
+      /* eslint-disable @typescript-eslint/no-explicit-any */
     } as any;
   });
 };
@@ -159,6 +160,7 @@ describe('PlanOverviewPage', () => {
           loading: true,
           error: undefined,
           refetch: jest.fn(),
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 
@@ -167,6 +169,7 @@ describe('PlanOverviewPage', () => {
           data: null,
           loading: false,
           error: undefined,
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 
@@ -174,6 +177,7 @@ describe('PlanOverviewPage', () => {
         data: null,
         loading: true,
         error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     });
 
@@ -193,6 +197,7 @@ describe('PlanOverviewPage', () => {
           loading: false,
           error: mockError,
           refetch: jest.fn(),
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 
@@ -201,6 +206,7 @@ describe('PlanOverviewPage', () => {
           data: null,
           loading: false,
           error: undefined,
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
 
@@ -208,6 +214,7 @@ describe('PlanOverviewPage', () => {
         data: null,
         loading: false,
         error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     });
 
@@ -291,6 +298,7 @@ describe('PlanOverviewPage', () => {
         data: null,
         loading: false,
         error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     });
 
@@ -364,6 +372,7 @@ describe('PlanOverviewPage', () => {
         data: null,
         loading: false,
         error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     });
 
@@ -406,6 +415,7 @@ describe('PlanOverviewPage', () => {
         data: null,
         loading: false,
         error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     });
 
@@ -451,6 +461,7 @@ describe('PlanOverviewPage', () => {
         data: null,
         loading: false,
         error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     });
 
@@ -1121,6 +1132,7 @@ describe('PlanOverviewPage', () => {
         data: null,
         loading: false,
         error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     });
 
@@ -1173,6 +1185,7 @@ describe('PlanOverviewPage', () => {
         data: null,
         loading: false,
         error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     });
 
@@ -1222,6 +1235,7 @@ describe('PlanOverviewPage', () => {
         data: null,
         loading: false,
         error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     });
 
@@ -1265,6 +1279,7 @@ describe('PlanOverviewPage', () => {
         data: null,
         loading: false,
         error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     });
 
@@ -1308,6 +1323,7 @@ describe('PlanOverviewPage', () => {
         data: null,
         loading: false,
         error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     });
 
