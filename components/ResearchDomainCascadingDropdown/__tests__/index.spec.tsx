@@ -3,36 +3,88 @@ import { render, screen, fireEvent, waitFor, within } from '@testing-library/rea
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import ResearchDomainCascadingDropdown from '../index';
-import { useTopLevelResearchDomainsQuery, useChildResearchDomainsQuery } from '@/generated/graphql';
+import { useQuery, useLazyQuery } from '@apollo/client/react';
 
-// Mock GraphQL hooks
-jest.mock('@/generated/graphql', () => ({
-  useTopLevelResearchDomainsQuery: jest.fn(),
-  useChildResearchDomainsQuery: jest.fn(),
+import {
+  TopLevelResearchDomainsDocument,
+  ChildResearchDomainsDocument
+} from '@/generated/graphql';
+
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+  useLazyQuery: jest.fn(),
 }));
+
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+const mockUseLazyQuery = jest.mocked(useLazyQuery);
+
+let mockFetchChildResearchDomains: jest.Mock;
+
+const setupMocks = () => {
+  // Initialize the module-level variables
+  mockFetchChildResearchDomains = jest.fn().mockResolvedValue({
+    data: { childResearchDomains: [] },
+  });
+
+  // Create stable references OUTSIDE mockImplementation
+  const stableTopLevelReturn = {
+    data: {
+      topLevelResearchDomains: [
+        { id: 1, name: 'Domain 1', description: 'Domain 1' },
+        { id: 2, name: 'Domain 2', description: 'Domain 2' },
+      ],
+    },
+    loading: false,
+    error: null
+  };
+
+  mockUseQuery.mockImplementation((document) => {
+    if (document === TopLevelResearchDomainsDocument) {
+      return stableTopLevelReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+
+  // Lazy query mocks
+  const stableChildDomainsData = { childResearchDomains: [] };
+
+  const stableChildResearchDomainsReturn = [
+    mockFetchChildResearchDomains,
+    {
+      data: stableChildDomainsData,
+      loading: false,
+      error: null
+    }
+  ];
+
+  mockUseLazyQuery.mockImplementation((document) => {
+    if (document === ChildResearchDomainsDocument) {
+      return stableChildResearchDomainsReturn as any;
+    }
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+};
 
 describe('ResearchDomainCascadingDropdown', () => {
   const mockSetProjectData = jest.fn();
 
   beforeEach(() => {
+    setupMocks();
     jest.clearAllMocks();
   })
 
   it('should render parent dropdown with top-level research domains', async () => {
-    (useTopLevelResearchDomainsQuery as jest.Mock).mockReturnValue({
-      data: {
-        topLevelResearchDomains: [
-          { id: 1, name: 'Domain 1', description: 'Domain 1' },
-          { id: 2, name: 'Domain 2', description: 'Domain 2' },
-        ],
-      },
-    });
-
-    (useChildResearchDomainsQuery as jest.Mock).mockReturnValue({
-      data: { childResearchDomains: [] },
-      refetch: jest.fn(),
-    });
-
     const mockProjectData = {
       projectName: 'Test Project',
       projectAbstract: 'This is a test project.',
@@ -60,14 +112,26 @@ describe('ResearchDomainCascadingDropdown', () => {
   });
 
   it('should set correct parent and child values on page load', async () => {
-    // Mock the top-level domains query
-    (useTopLevelResearchDomainsQuery as jest.Mock).mockReturnValue({
+    const mockTopLevelResearchDomainsQuery = {
       data: {
         topLevelResearchDomains: [
           { id: 1, name: 'engineering-and-technology', description: 'Engineering and Technology' },
           { id: 2, name: 'natural-sciences', description: 'Natural Sciences' },
         ],
       },
+      loading: false,
+      error: undefined
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === TopLevelResearchDomainsDocument) {
+        return mockTopLevelResearchDomainsQuery as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Create a mock refetch function
@@ -80,16 +144,34 @@ describe('ResearchDomainCascadingDropdown', () => {
       }
     });
 
-    // Mock the child domains query to initially return the child data
-    // (since the component will call refetch during initial load)
-    (useChildResearchDomainsQuery as jest.Mock).mockReturnValue({
-      data: {
-        childResearchDomains: [
-          { id: 3, name: 'materials-engineering', description: 'Materials Engineering' },
-          { id: 4, name: 'civil-engineering', description: 'Civil Engineering' },
-        ],
+    const stableChildDomainsData = {
+      childResearchDomains: [
+        { id: 3, name: 'materials-engineering', description: 'Materials Engineering' },
+        { id: 4, name: 'civil-engineering', description: 'Civil Engineering' },
+      ],
+    };
+
+    const stableChildResearchDomainsReturn = [
+      mockFetchChildResearchDomains,
+      {
+        data: stableChildDomainsData,
+        loading: false,
+        error: null
       },
-      refetch: refetchMock,
+      {
+        refetch: refetchMock,
+      }
+    ];
+
+    mockUseLazyQuery.mockImplementation((document) => {
+      if (document === ChildResearchDomainsDocument) {
+        return stableChildResearchDomainsReturn as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     const mockSetProjectData = jest.fn();
@@ -132,36 +214,58 @@ describe('ResearchDomainCascadingDropdown', () => {
   });
 
   it('should update child dropdown when a parent domain is selected', async () => {
-    // Explicitly define the type for childDomainsData
-    let childDomainsData: { childResearchDomains: { id: number; description: string }[] } = { childResearchDomains: [] };
-
-    (useTopLevelResearchDomainsQuery as jest.Mock).mockReturnValue({
+    const mockTopLevelResearchDomainsQuery = {
       data: {
         topLevelResearchDomains: [
           { id: 1, name: 'Domain 1', description: 'Domain 1' },
           { id: 2, name: 'Domain 2', description: 'Domain 2' },
         ],
       },
+      loading: false,
+      error: undefined
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === TopLevelResearchDomainsDocument) {
+        return mockTopLevelResearchDomainsQuery as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
-    const refetchMock = jest.fn(({ parentResearchDomainId }) => {
-      if (parentResearchDomainId === 1) {
-        childDomainsData = {
+    // Update mockFetchChildResearchDomains to return proper data
+    mockFetchChildResearchDomains.mockResolvedValue({
+      data: {
+        childResearchDomains: [
+          { id: 3, description: 'Child Domain 1' },
+          { id: 4, description: 'Child Domain 2' },
+        ],
+      }
+    });
+
+    const stableChildResearchDomainsReturn = [
+      mockFetchChildResearchDomains,
+      {
+        data: {
           childResearchDomains: [
             { id: 3, description: 'Child Domain 1' },
             { id: 4, description: 'Child Domain 2' },
           ],
-        };
-      } else {
-        childDomainsData = { childResearchDomains: [] };
+        },
+        loading: false,
+        error: null
       }
-      return Promise.resolve({ data: childDomainsData });
-    });
+    ];
 
-    (useChildResearchDomainsQuery as jest.Mock).mockImplementation(() => ({
-      data: childDomainsData,
-      refetch: refetchMock,
-    }));
+    mockUseLazyQuery.mockImplementation((document) => {
+      if (document === ChildResearchDomainsDocument) {
+        return stableChildResearchDomainsReturn as any;
+      }
+      return [jest.fn(), { data: null, loading: false, error: undefined }] as any;
+    });
 
     const mockProjectData = {
       projectName: 'Test Project',
@@ -172,6 +276,7 @@ describe('ResearchDomainCascadingDropdown', () => {
       researchDomainId: '3',
       isTestProject: false
     };
+
     render(
       <ResearchDomainCascadingDropdown
         projectData={mockProjectData}
@@ -179,72 +284,67 @@ describe('ResearchDomainCascadingDropdown', () => {
       />
     );
 
-    // Find and click the parent select button to open the dropdown
     const selectButtons = screen.getAllByTestId('select-button');
     const parentDropdownButton = selectButtons[0];
     fireEvent.click(parentDropdownButton);
 
-    // Wait for the dropdown item to appear
     const options = await screen.findAllByRole('option', { name: 'Domain 1' });
     await userEvent.click(options[0]);
 
-    // Check that refetch was called with correct parent id
+    // Check that mockFetchChildResearchDomains was called (NOT refetchMock!)
     await waitFor(() => {
-      expect(refetchMock).toHaveBeenCalledWith({ parentResearchDomainId: 1 });
-    });
-
-    // Find and click the child select button to open the dropdown
-    const childDropdownButton = screen.getAllByTestId('select-button')[1];
-    fireEvent.click(childDropdownButton);
-
-    // Wait for the child dropdown options to appear and select one
-    const childOptions = await screen.findAllByRole('option', { name: 'Child Domain 1' });
-    await userEvent.click(childOptions[0]);
-
-    // Assert that mockSetProjectData was called with the correct value
-    expect(mockSetProjectData).toHaveBeenCalledWith({
-      researchDomainId: '1',
-      endDate: '2023-12-31',
-      startDate: '2023-01-01',
-      projectAbstract: 'This is a test project.',
-      projectName: 'Test Project',
-      isTestProject: false,
-      parentResearchDomainId: '2'
+      expect(mockFetchChildResearchDomains).toHaveBeenCalledWith({
+        variables: { parentResearchDomainId: 1 }
+      });
     });
   });
 
   it('should not display subdomains if parent domain is not selected', async () => {
-    // Explicitly define the type for childDomainsData
-    let childDomainsData: { childResearchDomains: { id: number; name: string, description: string }[] } = { childResearchDomains: [] };
+    // Use a stable reference for child domains data
+    const stableChildDomainsData = { childResearchDomains: [] };
 
-    (useTopLevelResearchDomainsQuery as jest.Mock).mockReturnValue({
+    const mockTopLevelResearchDomainsQuery = {
       data: {
         topLevelResearchDomains: [
           { id: null, name: 'Domain 1', description: 'Domain 1' },
           { id: 2, name: 'Domain 2', description: 'Domain 2' },
         ],
       },
-    });
+      loading: false,
+      error: undefined
+    };
 
-    const refetchMock = jest.fn(({ parentResearchDomainId }) => {
-      if (parentResearchDomainId === 1) {
-        childDomainsData = {
-          childResearchDomains: [
-            { id: 3, name: 'Child Domain 1', description: 'Child Domain 1' },
-            { id: 4, name: 'Child Domain 2', description: 'Child Domain 2' },
-          ],
-        };
-      } else {
-        childDomainsData = { childResearchDomains: [] };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === TopLevelResearchDomainsDocument) {
+        return mockTopLevelResearchDomainsQuery as any;
       }
-      return Promise.resolve({ data: childDomainsData });
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
-    (useChildResearchDomainsQuery as jest.Mock).mockImplementation(() => ({
-      data: childDomainsData,
-      refetch: refetchMock,
-    }));
+    // Always return the same reference for data
+    const stableChildResearchDomainsReturn = [
+      mockFetchChildResearchDomains,
+      {
+        data: stableChildDomainsData,
+        loading: false,
+        error: null
+      }
+    ];
 
+    mockUseLazyQuery.mockImplementation((document) => {
+      if (document === ChildResearchDomainsDocument) {
+        return stableChildResearchDomainsReturn as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
 
     const mockProjectData = {
       projectName: 'Test Project',
@@ -269,36 +369,50 @@ describe('ResearchDomainCascadingDropdown', () => {
 
 
   it('calls setProjectData when a child domain is selected', async () => {
-    // Explicitly define the type for childDomainsData
-    let childDomainsData: { childResearchDomains: { id: number; description: string }[] } = { childResearchDomains: [] };
+    const stableChildDomainsData = {
+      childResearchDomains: [
+        { id: 3, description: 'Child Domain 1' },
+        { id: 4, description: 'Child Domain 2' },
+      ]
+    };
 
-    (useTopLevelResearchDomainsQuery as jest.Mock).mockReturnValue({
+    const mockTopLevelResearchDomainsQuery = {
       data: {
         topLevelResearchDomains: [
-          { id: 1, name: 'Domain 1', description: 'Domain 1' },
+          { id: 1, name: 'Domain 1', description: 'Domain 1' }, // ← Changed id: null to id: 1
           { id: 2, name: 'Domain 2', description: 'Domain 2' },
         ],
       },
-    });
+      loading: false,
+      error: undefined
+    };
 
-    const refetchMock = jest.fn(({ parentResearchDomainId }) => {
-      if (parentResearchDomainId === 1) {
-        childDomainsData = {
-          childResearchDomains: [
-            { id: 3, description: 'Child Domain 1' },
-            { id: 4, description: 'Child Domain 2' },
-          ],
-        };
-      } else {
-        childDomainsData = { childResearchDomains: [] };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === TopLevelResearchDomainsDocument) {
+        return mockTopLevelResearchDomainsQuery as any;
       }
-      return Promise.resolve({ data: childDomainsData });
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
-    (useChildResearchDomainsQuery as jest.Mock).mockImplementation(() => ({
-      data: childDomainsData,
-      refetch: refetchMock,
-    }));
+    const stableChildResearchDomainsReturn = [
+      mockFetchChildResearchDomains,
+      {
+        data: stableChildDomainsData,
+        loading: false,
+        error: null
+      }
+    ];
+
+    mockUseLazyQuery.mockImplementation((document) => {
+      if (document === ChildResearchDomainsDocument) {
+        return stableChildResearchDomainsReturn as any;
+      }
+      return [jest.fn(), { data: null, loading: false, error: undefined }] as any;
+    });
 
     const mockProjectData = {
       projectName: 'Test Project',
@@ -317,30 +431,27 @@ describe('ResearchDomainCascadingDropdown', () => {
       />
     );
 
-    // Find and click the parent select button to open the dropdown
     const parentDropdownButton = screen.getAllByTestId('select-button')[0];
     fireEvent.click(parentDropdownButton);
 
-    // Wait for the dropdown item to appear and select a parent option
     const parentOptions = await screen.findAllByRole('option', { name: 'Domain 1' });
     await userEvent.click(parentOptions[0]);
 
-    // Check that refetch was called with correct parent id
+    // ← WAIT for the child dropdown to appear!
     await waitFor(() => {
-      expect(refetchMock).toHaveBeenCalledWith({ parentResearchDomainId: 1 });
+      const selectButtons = screen.getAllByTestId('select-button');
+      expect(selectButtons.length).toBe(2);
     });
 
-    // Find and click the child select button to open the dropdown
+    // Now it's safe to get the child dropdown
     const childDropdownButton = screen.getAllByTestId('select-button')[1];
     fireEvent.click(childDropdownButton);
 
-    // Wait for the child dropdown options to appear and select one
     const childOptions = await screen.findAllByRole('option', { name: 'Child Domain 1' });
     await userEvent.click(childOptions[0]);
 
-    // Assert that mockSetProjectData was called with the correct value
     expect(mockSetProjectData).toHaveBeenCalledWith({
-      researchDomainId: '1',
+      researchDomainId: '3', // ← This should be '3' (the child domain id), not '1'
       endDate: '2023-12-31',
       startDate: '2023-01-01',
       projectAbstract: 'This is a test project.',

@@ -40,26 +40,44 @@ jest.mock('@/context/ToastContext', () => ({
   })),
 }));
 
+// Create ONE stable mock function that gets reused
+const stableMockTranslate = (key: string) => key;
+stableMockTranslate.rich = (key: string, values?: Record<string, any>) => {
+  if (values?.p) {
+    return values.p(key);
+  }
+  return key;
+};
+
 jest.mock('next-intl', () => {
-  // Enable the other parts of next-intl to not be mocked
   const originalModule = jest.requireActual('next-intl');
 
   return {
     ...originalModule,
-
-    useTranslations: jest.fn(() => {
-      const mockUseTranslations = (key: string) => key;
-      /*eslint-disable-next-line @typescript-eslint/no-explicit-any*/
-      mockUseTranslations.rich = (key: string, values?: Record<string, any>) => {
-        if (values?.p) {
-          return values.p(key);
-        }
-        return key;
-      };
-      return mockUseTranslations;
-    }),
+    useTranslations: jest.fn(() => stableMockTranslate), // ← Return SAME function each time
   };
 });
+
+// jest.mock('next-intl', () => {
+//   // Enable the other parts of next-intl to not be mocked
+//   const originalModule = jest.requireActual('next-intl');
+
+//   return {
+//     ...originalModule,
+
+//     useTranslations: jest.fn(() => {
+//       const mockUseTranslations = (key: string) => key;
+//       /*eslint-disable-next-line @typescript-eslint/no-explicit-any*/
+//       mockUseTranslations.rich = (key: string, values?: Record<string, any>) => {
+//         if (values?.p) {
+//           return values.p(key);
+//         }
+//         return key;
+//       };
+//       return mockUseTranslations;
+//     }),
+//   };
+// });
 
 // Mock the clientLogger
 jest.mock('@/utils/clientLogger', () => jest.fn());

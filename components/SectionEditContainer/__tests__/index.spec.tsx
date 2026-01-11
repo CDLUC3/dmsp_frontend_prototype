@@ -5,8 +5,11 @@ import { useParams, useRouter } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useToast } from '@/context/ToastContext';
 import SectionEditContainer from '../index';
-import { useSectionQuery } from '@/generated/graphql';
+import { useQuery } from '@apollo/client/react';
+import { SectionDocument } from '@/generated/graphql';
 import { updateQuestionDisplayOrderAction } from '../actions';
+import { set } from 'zod';
+import { ref } from 'process';
 
 expect.extend(toHaveNoViolations);
 
@@ -40,10 +43,9 @@ jest.mock('../actions', () => ({
   updateQuestionDisplayOrderAction: jest.fn(),
 }));
 
-// Mock useSectionQuery
-jest.mock('@/generated/graphql', () => ({
-  ...jest.requireActual('@/generated/graphql'),
-  useSectionQuery: jest.fn(),
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
 }));
 
 const mockToast = {
@@ -66,8 +68,34 @@ const sectionData = {
   },
 };
 const mockPush = jest.fn();
+
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+
+const setupMocks = () => {
+  // Create stable references OUTSIDE mockImplementation
+  const stableSectionReturn = {
+    data: sectionData,
+    loading: false,
+    error: null
+  };
+
+  mockUseQuery.mockImplementation((document) => {
+    if (document === SectionDocument) {
+      return stableSectionReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+};
+
 describe('SectionEditContainer', () => {
   beforeEach(() => {
+    setupMocks();
     const mockUseParams = useParams as jest.Mock;
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ templateId: '123' });
@@ -95,10 +123,21 @@ describe('SectionEditContainer', () => {
       data: null,
     });
 
-    (useSectionQuery as jest.Mock).mockReturnValue({
+    const mockSectionQuery = {
+      data: sectionData,
       loading: true,
-      data: undefined,
-      error: undefined,
+      error: undefined
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === SectionDocument) {
+        return mockSectionQuery as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -118,10 +157,22 @@ describe('SectionEditContainer', () => {
   });
 
   it('should render error state', async () => {
-    (useSectionQuery as jest.Mock).mockReturnValue({
-      loading: false,
+
+    const mockSectionQuery = {
       data: undefined,
+      loading: false,
       error: new Error('Failed'),
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === SectionDocument) {
+        return mockSectionQuery as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -141,11 +192,22 @@ describe('SectionEditContainer', () => {
   });
 
   it('should render section and questions sorted by displayOrder', async () => {
-    (useSectionQuery as jest.Mock).mockReturnValue({
-      loading: false,
+    const mockSectionQuery = {
       data: sectionData,
+      loading: false,
       error: undefined,
       refetch: jest.fn(),
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === SectionDocument) {
+        return mockSectionQuery as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -173,13 +235,23 @@ describe('SectionEditContainer', () => {
   });
 
   it('should update order when user clicks move up/move down buttons', async () => {
-    (useSectionQuery as jest.Mock).mockReturnValue({
-      loading: false,
+    const mockSectionQuery = {
       data: sectionData,
+      loading: false,
       error: undefined,
       refetch: jest.fn(),
-    });
+    };
 
+    mockUseQuery.mockImplementation((document) => {
+      if (document === SectionDocument) {
+        return mockSectionQuery as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
     await act(async () => {
       render(
         <SectionEditContainer
@@ -218,11 +290,22 @@ describe('SectionEditContainer', () => {
   });
 
   it('should renders empty questions array gracefully', async () => {
-    (useSectionQuery as jest.Mock).mockReturnValue({
-      loading: false,
+    const mockSectionQuery = {
       data: { section: { ...sectionData.section, questions: [] } },
+      loading: false,
       error: undefined,
       refetch: jest.fn(),
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === SectionDocument) {
+        return mockSectionQuery as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -243,11 +326,22 @@ describe('SectionEditContainer', () => {
   });
 
   it('should handle section.questions as undefined and render gracefully', async () => {
-    (useSectionQuery as jest.Mock).mockReturnValue({
-      loading: false,
+    const mockSectionQuery = {
       data: { section: { ...sectionData.section, questions: undefined } },
+      loading: false,
       error: undefined,
       refetch: jest.fn(),
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === SectionDocument) {
+        return mockSectionQuery as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -273,12 +367,22 @@ describe('SectionEditContainer', () => {
       { id: 11, questionText: 'Q2', displayOrder: 1 },
     ];
 
-
-    (useSectionQuery as jest.Mock).mockReturnValue({
-      loading: false,
+    const mockSectionQuery = {
       data: { section: { ...sectionData.section, questions } },
+      loading: false,
       error: undefined,
       refetch: jest.fn(),
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === SectionDocument) {
+        return mockSectionQuery as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -299,11 +403,22 @@ describe('SectionEditContainer', () => {
   });
 
   it('should pass axe accessibility test', async () => {
-    (useSectionQuery as jest.Mock).mockReturnValue({
-      loading: false,
+    const mockSectionQuery = {
       data: sectionData,
+      loading: false,
       error: undefined,
       refetch: jest.fn(),
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === SectionDocument) {
+        return mockSectionQuery as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     let container: HTMLElement;
@@ -340,12 +455,24 @@ describe('Move Up Button for questions', () => {
       data: null,
     });
 
-    (useSectionQuery as jest.Mock).mockReturnValue({
-      loading: false,
+    const mockSectionQuery = {
       data: sectionData,
+      loading: false,
       error: undefined,
       refetch: jest.fn(),
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === SectionDocument) {
+        return mockSectionQuery as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
+
 
     render(
       <SectionEditContainer
@@ -404,11 +531,23 @@ describe('Move Up Button for questions', () => {
         ],
       },
     };
-    (useSectionQuery as jest.Mock).mockReturnValue({
-      loading: false,
+
+    const mockSectionQuery = {
       data: sectionData2,
+      loading: false,
       error: undefined,
       refetch: jest.fn(),
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === SectionDocument) {
+        return mockSectionQuery as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     render(
@@ -463,11 +602,22 @@ describe('Error Handling', () => {
       data: null,
     });
 
-    (useSectionQuery as jest.Mock).mockReturnValue({
-      loading: false,
+    const mockSectionQuery = {
       data: sectionData,
+      loading: false,
       error: undefined,
       refetch: jest.fn(),
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === SectionDocument) {
+        return mockSectionQuery as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     render(
@@ -517,11 +667,22 @@ describe('Error Handling', () => {
       },
     });
 
-    (useSectionQuery as jest.Mock).mockReturnValue({
-      loading: false,
+    const mockSectionQuery = {
       data: sectionData,
+      loading: false,
       error: undefined,
       refetch: jest.fn(),
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === SectionDocument) {
+        return mockSectionQuery as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     render(
@@ -574,11 +735,22 @@ describe('Error Handling', () => {
       redirect: '/template'
     });
 
-    (useSectionQuery as jest.Mock).mockReturnValue({
-      loading: false,
+    const mockSectionQuery = {
       data: sectionData,
+      loading: false,
       error: undefined,
       refetch: jest.fn(),
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === SectionDocument) {
+        return mockSectionQuery as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     render(
@@ -631,11 +803,22 @@ describe('Success Announcement', () => {
       data: null,
     });
 
-    (useSectionQuery as jest.Mock).mockReturnValue({
-      loading: false,
+    const mockSectionQuery = {
       data: sectionData,
+      loading: false,
       error: undefined,
       refetch: jest.fn(),
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === SectionDocument) {
+        return mockSectionQuery as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     render(

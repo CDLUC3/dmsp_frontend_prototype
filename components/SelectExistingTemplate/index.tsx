@@ -22,10 +22,8 @@ import TemplateList from '@/components/TemplateList';
 import ErrorMessages from '@/components/ErrorMessages';
 import Pagination from '@/components/Pagination';
 
-// Apollo Client
-import { useMutation, useLazyQuery } from '@apollo/client/react';
-
 //GraphQL
+import { useMutation, useLazyQuery } from '@apollo/client/react';
 import {
   PublishedTemplateSearchResults,
   TemplateSearchResult,

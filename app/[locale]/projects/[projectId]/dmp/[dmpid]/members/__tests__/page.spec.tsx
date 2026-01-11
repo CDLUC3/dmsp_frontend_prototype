@@ -17,7 +17,6 @@ import ProjectsProjectPlanAdjustMembers from '../page';
 import mockProjectMembers from '../__mocks__/projectMembersMock.json';
 import mockPlanMembers from '../__mocks__/planMembersMock.json'
 import { addPlanMemberAction } from '../actions/addPlanMemberAction';
-import { set } from 'zod';
 
 expect.extend(toHaveNoViolations);
 

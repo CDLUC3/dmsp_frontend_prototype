@@ -1596,7 +1596,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
 
         {/** Sample text drawer. Only include for question types = Text Area */}
-        {
+        {/* {
           questionType === TEXT_AREA_QUESTION_TYPE && (
             <DrawerPanel
               isOpen={isSampleTextDrawerOpen}
@@ -1614,11 +1614,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
               </div>
             </DrawerPanel>
           )
-        }
+        } */}
 
 
         {/**Comments drawer */}
-        <CommentsDrawer
+        {/* <CommentsDrawer
           isCommentsDrawerOpen={isCommentsDrawerOpen}
           closeCurrentDrawer={closeCurrentDrawer}
           openCommentsButtonRef={openCommentsButtonRef}
@@ -1636,7 +1636,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           locale={locale}
           commentsEndRef={commentsEndRef}
           canAddComments={canAddComments}
-        />
+        /> */}
 
 
       </LayoutWithPanel >

@@ -13,8 +13,6 @@ import logECS from '@/utils/clientLogger';
 import ProjectsProjectDetail from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
-import { set } from 'zod';
-import { error } from 'console';
 
 expect.extend(toHaveNoViolations);
 

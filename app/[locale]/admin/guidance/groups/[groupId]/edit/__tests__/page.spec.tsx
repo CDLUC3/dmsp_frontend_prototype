@@ -5,7 +5,7 @@ import { axe, toHaveNoViolations } from "jest-axe";
 import GuidanceGroupEditPage from "../page";
 import logECS from "@/utils/clientLogger";
 import { useTranslations } from "next-intl";
-import { MockedProvider } from "@apollo/client/testing";
+import { MockedProvider } from "@apollo/client/testing/react";
 import { useParams, useRouter } from "next/navigation";
 import { GuidanceGroupDocument } from "@/generated/graphql";
 import { updateGuidanceGroupAction } from "../actions";
@@ -96,7 +96,7 @@ describe("GuidanceGroupEditPage", () => {
 
   it("should render form with loaded guidance group data", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupEditPage />
       </MockedProvider>,
     );
@@ -119,7 +119,7 @@ describe("GuidanceGroupEditPage", () => {
 
   it("should update group name input value", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupEditPage />
       </MockedProvider>,
     );
@@ -137,7 +137,7 @@ describe("GuidanceGroupEditPage", () => {
 
   it("should update group description input value", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupEditPage />
       </MockedProvider>,
     );
@@ -161,7 +161,7 @@ describe("GuidanceGroupEditPage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupEditPage />
       </MockedProvider>,
     );
@@ -194,7 +194,7 @@ describe("GuidanceGroupEditPage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupEditPage />
       </MockedProvider>,
     );
@@ -223,7 +223,7 @@ describe("GuidanceGroupEditPage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupEditPage />
       </MockedProvider>,
     );
@@ -253,7 +253,7 @@ describe("GuidanceGroupEditPage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupEditPage />
       </MockedProvider>,
     );
@@ -271,7 +271,7 @@ describe("GuidanceGroupEditPage", () => {
 
   it("should pass accessibility check", async () => {
     const { container } = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupEditPage />
       </MockedProvider>,
     );

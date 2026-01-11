@@ -1,14 +1,15 @@
 import React from "react";
 import { act, fireEvent, render, screen, waitFor, within } from '@/utils/test-utils';
+import { useMutation, useQuery, useLazyQuery } from '@apollo/client/react';
 import {
-  useAddQuestionMutation,
-  useQuestionsDisplayOrderQuery,
-  useTemplateQuery, // Added for when we test contents of Question Preview
-  useLicensesQuery,
-  useDefaultResearchOutputTypesQuery,
-  useMetadataStandardsLazyQuery,
-  useRepositoriesLazyQuery,
-  useRepositorySubjectAreasQuery
+  AddQuestionDocument,
+  QuestionsDisplayOrderDocument,
+  TemplateDocument, // Added for when we test contents of Question Preview
+  LicensesDocument,
+  DefaultResearchOutputTypesDocument,
+  MetadataStandardsDocument,
+  RepositoriesDocument,
+  RepositorySubjectAreasDocument
 } from '@/generated/graphql';
 
 import { addMetaDataStandardsAction } from '@/app/actions';
@@ -58,17 +59,12 @@ jest.mock('@/components/Form/TypeAheadWithOther', () => ({
   ),
 }));
 
-// Mock the hooks
-jest.mock("@/generated/graphql", () => ({
-  ...jest.requireActual("@/generated/graphql"),
-  useQuestionsDisplayOrderQuery: jest.fn(),
-  useAddQuestionMutation: jest.fn(),
-  useTemplateQuery: jest.fn(),
-  useLicensesQuery: jest.fn(),
-  useDefaultResearchOutputTypesQuery: jest.fn(),
-  useMetadataStandardsLazyQuery: jest.fn(),
-  useRepositoriesLazyQuery: jest.fn(),
-  useRepositorySubjectAreasQuery: jest.fn(),
+
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+  useMutation: jest.fn(),
+  useLazyQuery: jest.fn(),
 }));
 
 jest.mock('next/navigation', () => ({
@@ -157,10 +153,135 @@ const mockQuestionDisplayData = {
   ]
 }
 
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+const mockUseMutation = jest.mocked(useMutation);
+const mockUseLazyQuery = jest.mocked(useLazyQuery);
+
+let mockAddQuestionFn: jest.Mock;
+
+const setupMocks = () => {
+  // Create stable references OUTSIDE mockImplementation
+  const stableQuestionsDisplayOrderReturn = {
+    data: mockQuestionDisplayData,
+    loading: false,
+    error: null,
+  };
+
+  const stableTemplateReturn = {
+    data: mockTemplateData,
+    loading: false,
+    error: null,
+  };
+
+  const stableLicensesReturn = {
+    data: { licenses: [] },
+    loading: false,
+    error: null,
+  };
+
+  const stableDefaultResearchOutputTypesReturn = {
+    data: { defaultResearchOutputTypes: [] },
+    loading: false,
+    error: null,
+  };
+
+  const stableRepositoriesSubjectAreasReturn = {
+    data: mockSubjectAreas,
+    loading: false,
+    error: null,
+  };
+
+
+  mockUseQuery.mockImplementation((document) => {
+    if (document === QuestionsDisplayOrderDocument) {
+      return stableQuestionsDisplayOrderReturn as any;
+    }
+
+    if (document === TemplateDocument) {
+      return stableTemplateReturn as any;
+    }
+
+    if (document === TemplateDocument) {
+      return stableTemplateReturn as any;
+    }
+    if (document === LicensesDocument) {
+      return stableLicensesReturn as any;
+    }
+
+    if (document === DefaultResearchOutputTypesDocument) {
+      return stableDefaultResearchOutputTypesReturn as any;
+    }
+
+    if (document === RepositorySubjectAreasDocument) {
+      return stableRepositoriesSubjectAreasReturn as any;
+    }
+
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+
+  // Lazy query mocks
+  const mockFetchMetaDataStandards = jest.fn().mockResolvedValue({
+    data: mockMetaDataStandards
+  });
+
+  const mockFetchRepositories = jest.fn().mockResolvedValue({
+    data: mockRepositories
+  });
+
+
+  const stableMetadataStandardsReturn = [
+    mockFetchMetaDataStandards,
+    {
+      data: mockMetaDataStandards,
+      loading: false,
+      error: null
+    }
+  ];
+
+  const stableRepositoriesReturn = [
+    mockFetchRepositories,
+    { data: mockRepositories, loading: false, error: null }
+  ]
+
+  mockUseLazyQuery.mockImplementation((document) => {
+    if (document === MetadataStandardsDocument) {
+      return stableMetadataStandardsReturn as any;
+    }
+
+    if (document === RepositoriesDocument) {
+      return stableRepositoriesReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+
+  mockAddQuestionFn = jest.fn().mockResolvedValue({
+    data: { key: 'value' }
+  });
+
+  mockUseMutation.mockImplementation((document) => {
+    if (document === AddQuestionDocument) {
+      return [mockAddQuestionFn, { loading: false, error: undefined }] as any;
+    }
+
+    return [jest.fn(), { loading: false, error: undefined }] as any;
+  });
+};
 
 describe("QuestionAdd", () => {
   let mockRouter;
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
     const mockTemplateId = 123;
@@ -178,30 +299,6 @@ describe("QuestionAdd", () => {
     // Mock the router
     mockRouter = { push: jest.fn() };
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
-
-    (useQuestionsDisplayOrderQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDisplayData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useTemplateQuery as jest.Mock).mockReturnValue({ // Added for when we test contents of Question preview
-      data: mockTemplateData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useLicensesQuery as jest.Mock).mockReturnValue({
-      data: { licenses: [] },
-      loading: false,
-      error: undefined,
-    });
-
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-      data: { defaultResearchOutputTypes: [] },
-      loading: false,
-      error: undefined,
-    });
   });
 
   afterEach(() => {
@@ -217,10 +314,6 @@ describe("QuestionAdd", () => {
 
 
   it("should render correct fields and content", async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
 
     const json = JSON.stringify({
       meta: {
@@ -282,11 +375,6 @@ describe("QuestionAdd", () => {
   });
 
   it("should return user to the template edit page if questionType is missing", async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -314,10 +402,6 @@ describe("QuestionAdd", () => {
   });
 
   it('should call router.push with correct url when user clicks on Change type button', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -351,10 +435,12 @@ describe("QuestionAdd", () => {
       data: { addQuestion: { id: 1 } },
     });
 
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      mockAddQuestionMutation,
-      { loading: false, error: undefined },
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddQuestionDocument) {
+        return [mockAddQuestionMutation, { loading: false, error: undefined }] as any;
+      }
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     const json = JSON.stringify({
       meta: {
@@ -434,10 +520,12 @@ describe("QuestionAdd", () => {
       data: { addQuestion: { id: 1 } },
     });
 
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      mockAddQuestionMutation,
-      { loading: false, error: undefined },
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddQuestionDocument) {
+        return [mockAddQuestionMutation, { loading: false, error: undefined }] as any;
+      }
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     const json = JSON.stringify({
       meta: {
@@ -500,10 +588,13 @@ describe("QuestionAdd", () => {
       data: { addQuestion: { id: 1 } },
     });
 
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      mockAddQuestionMutation,
-      { loading: false, error: undefined },
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddQuestionDocument) {
+        return [mockAddQuestionMutation, { loading: false, error: undefined }] as any;
+      }
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
+
 
     const json = JSON.stringify({
       meta: {
@@ -567,10 +658,13 @@ describe("QuestionAdd", () => {
       data: { addQuestion: { id: 1 } },
     });
 
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      mockAddQuestionMutation,
-      { loading: false, error: undefined },
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddQuestionDocument) {
+        return [mockAddQuestionMutation, { loading: false, error: undefined }] as any;
+      }
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
+
 
     const json = JSON.stringify({
       meta: {
@@ -631,10 +725,12 @@ describe("QuestionAdd", () => {
       data: { addQuestion: { id: 1 } },
     });
 
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      mockAddQuestionMutation,
-      { loading: false, error: undefined },
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddQuestionDocument) {
+        return [mockAddQuestionMutation, { loading: false, error: undefined }] as any;
+      }
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     const json = JSON.stringify({
       meta: {
@@ -693,10 +789,12 @@ describe("QuestionAdd", () => {
       data: { addQuestion: { id: 1 } },
     });
 
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      mockAddQuestionMutation,
-      { loading: false, error: undefined },
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddQuestionDocument) {
+        return [mockAddQuestionMutation, { loading: false, error: undefined }] as any;
+      }
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     const json = JSON.stringify({
       meta: {
@@ -756,10 +854,12 @@ describe("QuestionAdd", () => {
       data: { addQuestion: { id: 1 } },
     });
 
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      mockAddQuestionMutation,
-      { loading: false, error: undefined },
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddQuestionDocument) {
+        return [mockAddQuestionMutation, { loading: false, error: undefined }] as any;
+      }
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     const json = JSON.stringify({
       meta: {
@@ -815,11 +915,6 @@ describe("QuestionAdd", () => {
 
   // QuestionOptionsComponent has it's own separate unit test, so we are just testing that it loads here
   it('should load QuestionOptionsComponent', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -853,10 +948,6 @@ describe("QuestionAdd", () => {
   })
 
   it('should add a new row when the add button is clicked', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
     const mockQuestionJSON = "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"radioButtons\",\"options\":[{\"type\":\"option\",\"attributes\":{\"label\":\"Option 1\",\"value\":\"1\",\"selected\":false}},{\"type\":\"option\",\"attributes\":{\"label\":\"Option 2\",\"value\":\"2\",\"selected\":true}}]}"
 
     await act(async () => {
@@ -886,17 +977,12 @@ describe("QuestionAdd", () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(useAddQuestionMutation).toHaveBeenCalled();
+      expect(mockUseMutation).toHaveBeenCalled();
     });
   });
 
 
   it('should call the useAddQuestionMutation when user clicks \'save\' button', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -928,16 +1014,11 @@ describe("QuestionAdd", () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(useAddQuestionMutation).toHaveBeenCalled();
+      expect(mockUseMutation).toHaveBeenCalled();
     });
   })
 
   it('should not display the useSampleTextAsDefault checkbox if the questionTypeId is Radio Button field', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -968,11 +1049,6 @@ describe("QuestionAdd", () => {
   })
 
   it('should display the useSampleTextAsDefault checkbox if the questionTypeId is a Text area field', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         asRichText: true,
@@ -1001,10 +1077,6 @@ describe("QuestionAdd", () => {
   })
 
   it('should call handleRangeLabelChange when RangeComponent input changes', () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
     const mockDateRangeJSON = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -1049,10 +1121,6 @@ describe("QuestionAdd", () => {
   });
 
   it('should call handleRangeLabelChange for numberRange changes', () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
     const mockDateRangeJSON = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -1103,21 +1171,33 @@ describe("QuestionAdd", () => {
   });
 
   it('should set displayOrder to 1 for the new question, if there are no existing questions', async () => {
-
-    (useQuestionsDisplayOrderQuery as jest.Mock).mockReturnValue({
+    const mockQuestionsDisplay = {
       data: null,
       loading: false,
-      error: undefined,
+      error: undefined
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionsDisplayOrderDocument) {
+        return mockQuestionsDisplay as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     const mockAddQuestionMutation = jest.fn().mockResolvedValueOnce({
       data: { addQuestion: { id: 1 } },
     });
 
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      mockAddQuestionMutation,
-      { loading: false, error: undefined },
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddQuestionDocument) {
+        return [mockAddQuestionMutation, { loading: false, error: undefined }] as any;
+      }
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
+
 
     const json = JSON.stringify({
       meta: {
@@ -1193,11 +1273,6 @@ describe("QuestionAdd", () => {
   })
 
   it('should call handleTypeAheadSearchLabelChange when typeaheadSearch label value changes and pass correct value to Question Preview', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json: AffiliationSearchQuestionType = {
       meta: {
         schemaVersion: "1.0"
@@ -1271,10 +1346,6 @@ describe("QuestionAdd", () => {
   });
 
   it('should call handleTypeAheadHelpTextChange when typeaheadSearch help text value changes and pass correct value to Question Preview', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
     const json: AffiliationSearchQuestionType = {
       meta: {
         schemaVersion: "1.0"
@@ -1364,29 +1435,6 @@ describe("Research Output Question Type", () => {
     mockRouter = { push: jest.fn() };
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
 
-    (useQuestionsDisplayOrderQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDisplayData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useTemplateQuery as jest.Mock).mockReturnValue({
-      data: mockTemplateData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useLicensesQuery as jest.Mock).mockReturnValue({
-      data: { licenses: { items: [] } },
-      loading: false,
-      error: undefined,
-    });
-
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-      data: { defaultResearchOutputTypes: [] },
-      loading: false,
-      error: undefined,
-    });
 
     // Mock addMetaDataStandardsAction to return success
     (addMetaDataStandardsAction as jest.Mock).mockResolvedValue({
@@ -1400,22 +1448,6 @@ describe("Research Output Question Type", () => {
         }
       }
     });
-
-    // Return [fetchFunction, { data, loading, error }] for metadata standards query
-    (useMetadataStandardsLazyQuery as jest.Mock).mockReturnValue([
-      mockFetchMetaDataStandards,
-      { data: mockMetaDataStandards, loading: false, error: null }
-    ]);
-
-    (useRepositoriesLazyQuery as jest.Mock).mockReturnValue([
-      mockFetchRepositories,
-      { data: mockRepositories, loading: false, error: null }
-    ]);
-
-    (useRepositorySubjectAreasQuery as jest.Mock).mockReturnValue([
-      { data: mockSubjectAreas, loading: false, error: null }
-    ]);
-
   });
 
   afterEach(() => {
@@ -1425,11 +1457,6 @@ describe("Research Output Question Type", () => {
   });
 
   it('should render research output fields when questionType is researchOutput', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -1465,11 +1492,6 @@ describe("Research Output Question Type", () => {
   });
 
   it('should show tooltip for required fields (Title and Output Type)', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -1500,11 +1522,6 @@ describe("Research Output Question Type", () => {
   });
 
   it('should toggle field customization panels when customize button is clicked', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -1542,11 +1559,6 @@ describe("Research Output Question Type", () => {
   });
 
   it('should enable/disable standard fields when checkbox is toggled', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -1578,11 +1590,6 @@ describe("Research Output Question Type", () => {
   });
 
   it('should show data flags configuration when data flags field is enabled', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -1612,11 +1619,6 @@ describe("Research Output Question Type", () => {
   });
 
   it('should add additional custom fields when add button is clicked', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -1649,11 +1651,6 @@ describe("Research Output Question Type", () => {
   });
 
   it('should update additional field properties when customizing', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -1700,11 +1697,6 @@ describe("Research Output Question Type", () => {
   });
 
   it('should handle output type mode changes', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -1753,11 +1745,6 @@ describe("Research Output Question Type", () => {
   });
 
   it('should handle repository configuration', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -1789,12 +1776,7 @@ describe("Research Output Question Type", () => {
     });
   });
 
-  it.only('should handle metadata standards configuration', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
+  it('should handle metadata standards configuration', async () => {
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -1827,11 +1809,6 @@ describe("Research Output Question Type", () => {
   });
 
   it('should handle license configuration', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -1862,11 +1839,6 @@ describe("Research Output Question Type", () => {
 
   it('should set hasUnsavedChanges when research output fields are modified', async () => {
     const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
-
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
 
     const json = JSON.stringify({
       meta: {
@@ -1910,11 +1882,6 @@ describe("Research Output Question Type", () => {
   });
 
   it('should not show research output fields for non-research output question types', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -1939,11 +1906,6 @@ describe("Research Output Question Type", () => {
   });
 
   it('should not show repository configuration when field is disabled', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -1968,11 +1930,6 @@ describe("Research Output Question Type", () => {
   });
 
   it('should display custom field label in the checkbox when customLabel is set', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -2023,11 +1980,6 @@ describe("Research Output Question Type", () => {
   });
 
   it('should delete additional custom field when delete button is clicked', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -2097,18 +2049,6 @@ describe("Accessibility", () => {
     // Mock the router
     mockRouter = { push: jest.fn() };
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
-
-    (useQuestionsDisplayOrderQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDisplayData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useTemplateQuery as jest.Mock).mockReturnValue({
-      data: mockTemplateData,
-      loading: false,
-      error: undefined,
-    });
   });
 
   afterEach(() => {
@@ -2119,11 +2059,6 @@ describe("Accessibility", () => {
     jest.clearAllMocks();
   });
   it('should pass axe accessibility test', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -2187,20 +2122,9 @@ describe("Error handling", () => {
 
     // Mock Toast
     (useToast as jest.Mock).mockReturnValue(mockToast);
-
-    (useQuestionsDisplayOrderQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDisplayData,
-      loading: false,
-      error: undefined,
-    });
   });
 
   it('should display error when no value is entered in question Text field', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -2242,10 +2166,12 @@ describe("Error handling", () => {
   it('should display error when addQuestionMutation returns an error', async () => {
     const mockAddQuestionMutation = jest.fn().mockRejectedValueOnce(new Error("Error"));
 
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      mockAddQuestionMutation,
-      { loading: false, error: undefined },
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddQuestionDocument) {
+        return [mockAddQuestionMutation, { loading: false, error: undefined }] as any;
+      }
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     const json = JSON.stringify({
       meta: {
@@ -2295,11 +2221,6 @@ describe("Error handling", () => {
   })
 
   it('should display toast error and call router.push when no sectionId', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"

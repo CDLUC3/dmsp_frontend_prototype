@@ -3,10 +3,11 @@ import { act, fireEvent, render, screen, waitFor, within } from '@/utils/test-ut
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { RichTranslationValues } from 'next-intl';
 import TemplateSelectTemplatePage from '../index';
+import { useMutation, useLazyQuery } from '@apollo/client/react';
 import {
-  useAddTemplateMutation,
-  usePublishedTemplatesLazyQuery,
-  useTemplatesLazyQuery
+  AddTemplateDocument,
+  PublishedTemplatesDocument,
+  TemplatesDocument
 } from '@/generated/graphql';
 import { useRouter } from 'next/navigation';
 import logECS from '@/utils/clientLogger';
@@ -56,11 +57,10 @@ jest.mock('@/components/PageHeader', () => ({
   default: () => <div data-testid="mock-page-header" />
 }));
 
-// Mock the GraphQL hooks
-jest.mock('@/generated/graphql', () => ({
-  useAddTemplateMutation: jest.fn(),
-  usePublishedTemplatesLazyQuery: jest.fn(),
-  useTemplatesLazyQuery: jest.fn()
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useMutation: jest.fn(),
+  useLazyQuery: jest.fn(),
 }));
 
 // Mock the Next.js router
@@ -76,31 +76,74 @@ jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`,
 }));
 
-const mockFetchPublishedTemplates = jest.fn();
-const mockFetchMyTemplates = jest.fn();
+
+// Cast with jest.mocked utility
+const mockUseMutation = jest.mocked(useMutation);
+const mockUseLazyQuery = jest.mocked(useLazyQuery);
+
+let mockAddTemplateFn: jest.Mock;
+const mockFetchPublished = jest.fn().mockResolvedValue({
+  data: mockPublishedTemplates
+});
+
+const mockFetchMyTemplates = jest.fn().mockResolvedValue({
+  data: mockMyTemplates
+});
+
+const setupMocks = () => {
+
+  // Lazy query mocks
+  const stablePublishedTemplatesReturn = [
+    mockFetchPublished,
+    {
+      data: mockPublishedTemplates,
+      loading: false,
+      error: null
+    }
+  ];
+
+  const stableTemplatesReturn = [
+    mockFetchMyTemplates,
+    { data: mockMyTemplates, loading: false, error: null }
+  ]
+
+  mockUseLazyQuery.mockImplementation((document) => {
+    if (document === PublishedTemplatesDocument) {
+      return stablePublishedTemplatesReturn as any;
+    }
+
+    if (document === TemplatesDocument) {
+      return stableTemplatesReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+
+  mockAddTemplateFn = jest.fn().mockResolvedValue({
+    data: { key: 'value' }
+  });
+
+  mockUseMutation.mockImplementation((document) => {
+    if (document === AddTemplateDocument) {
+      return [mockAddTemplateFn, { loading: false, error: undefined }] as any;
+    }
+
+    return [jest.fn(), { loading: false, error: undefined }] as any;
+  });
+};
 
 describe('TemplateSelectTemplatePage', () => {
   let pushMock: jest.Mock;
   beforeEach(() => {
+    setupMocks();
     pushMock = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({ push: pushMock });
     window.scrollTo = jest.fn();
     HTMLElement.prototype.scrollIntoView = jest.fn();
-
-    (useAddTemplateMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    // Return [fetchFunction, { data, loading, error }]
-    (usePublishedTemplatesLazyQuery as jest.Mock).mockReturnValue([
-      mockFetchPublishedTemplates,
-      { data: mockPublishedTemplates, loading: false, error: null }
-    ]);
-    (useTemplatesLazyQuery as jest.Mock).mockReturnValue([
-      mockFetchMyTemplates,
-      { data: mockMyTemplates, loading: false, error: null }
-    ]);
   });
 
   afterEach(() => {
@@ -245,16 +288,39 @@ describe('TemplateSelectTemplatePage', () => {
       }
     };
 
-    // Return [fetchFunction, { data, loading, error }]
-    (usePublishedTemplatesLazyQuery as jest.Mock).mockReturnValue([
-      mockFetchPublishedTemplates,
-      { data: mockPublishedTemplatesWithEmptyFields, loading: false, error: null }
-    ]);
+    const stablePublishedTemplatesReturn = [
+      mockFetchPublished,
+      {
+        data: mockPublishedTemplatesWithEmptyFields,
+        loading: false,
+        error: null
+      }
+    ];
 
-    (useTemplatesLazyQuery as jest.Mock).mockReturnValue([
+    const stableTemplatesReturn = [
       mockFetchMyTemplates,
-      { data: mockTemplatesWithEmptyFields, loading: false, error: null }
-    ]);
+      {
+        data: mockTemplatesWithEmptyFields,
+        loading: false,
+        error: null
+      }
+    ]
+
+    mockUseLazyQuery.mockImplementation((document) => {
+      if (document === PublishedTemplatesDocument) {
+        return stablePublishedTemplatesReturn as any;
+      }
+
+      if (document === TemplatesDocument) {
+        return stableTemplatesReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
 
     await act(async () => {
       render(
@@ -298,11 +364,36 @@ describe('TemplateSelectTemplatePage', () => {
   });
 
   it('should render text loading text if templates are still loading', async () => {
-    // Return [fetchFunction, { data, loading, error }]
-    (usePublishedTemplatesLazyQuery as jest.Mock).mockReturnValue([
-      mockFetchPublishedTemplates,
-      { data: undefined, loading: true, error: null }
-    ]);
+    const stablePublishedTemplatesReturn = [
+      mockFetchPublished,
+      {
+        data: undefined,
+        loading: true,
+        error: null
+      }
+    ];
+
+    const stableTemplatesReturn = [
+      mockFetchMyTemplates,
+      { data: mockMyTemplates, loading: false, error: null }
+    ]
+
+    mockUseLazyQuery.mockImplementation((document) => {
+      if (document === PublishedTemplatesDocument) {
+        return stablePublishedTemplatesReturn as any;
+      }
+
+      if (document === TemplatesDocument) {
+        return stableTemplatesReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
+
     await act(async () => {
       render(
         <TemplateSelectTemplatePage templateName="test" />
@@ -388,15 +479,39 @@ describe('TemplateSelectTemplatePage', () => {
   });
 
   it("Should show message when no templates were found", async () => {
-    // Return [fetchFunction, { data, loading, error }]
-    (usePublishedTemplatesLazyQuery as jest.Mock).mockReturnValue([
-      mockFetchPublishedTemplates,
-      { data: { publishedTemplates: [] }, loading: false, error: null }
-    ]);
-    (useTemplatesLazyQuery as jest.Mock).mockReturnValue([
+    const stablePublishedTemplatesReturn = [
+      mockFetchPublished,
+      {
+        data: { publishedTemplates: [] },
+        loading: false,
+        error: null
+      }
+    ];
+
+    const stableTemplatesReturn = [
       mockFetchMyTemplates,
-      { data: { myTemplates: [] }, loading: false, error: null }
-    ]);
+      {
+        data: { myTemplates: [] },
+        loading: false,
+        error: null
+      }
+    ]
+
+    mockUseLazyQuery.mockImplementation((document) => {
+      if (document === PublishedTemplatesDocument) {
+        return stablePublishedTemplatesReturn as any;
+      }
+
+      if (document === TemplatesDocument) {
+        return stableTemplatesReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
 
     render(<TemplateSelectTemplatePage templateName="test" />);
 
@@ -415,16 +530,22 @@ describe('TemplateSelectTemplatePage', () => {
   });
 
   it('should call useAddTemplateMutation when a user clicks a \'Select\' button', async () => {
-    (useAddTemplateMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValue({
-        data: {
-          addTemplate: {
-            id: 1,
-            errors: null
-          }
+    mockAddTemplateFn = jest.fn().mockResolvedValue({
+      data: {
+        addTemplate: {
+          id: 1,
+          errors: null
         }
-      })
-    ]);
+      }
+    });
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddTemplateDocument) {
+        return [mockAddTemplateFn, { loading: false, error: undefined }] as any;
+      }
+
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -436,23 +557,29 @@ describe('TemplateSelectTemplatePage', () => {
     fireEvent.click(selectButton[0]);
 
     await waitFor(() => {
-      expect(useAddTemplateMutation).toHaveBeenCalled();
+      expect(mockUseMutation).toHaveBeenCalled();
     });
   });
 
   it('should handle response errors when user clicks a \'Select\' button', async () => {
-    (useAddTemplateMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValue({
-        data: {
-          addTemplate: {
-            id: 1,
-            errors: {
-              global: 'New Template, something went wrong...',
-            },
-          }
+    mockAddTemplateFn = jest.fn().mockResolvedValue({
+      data: {
+        addTemplate: {
+          id: 1,
+          errors: {
+            global: 'New Template, something went wrong...',
+          },
         }
-      })
-    ]);
+      }
+    });
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddTemplateDocument) {
+        return [mockAddTemplateFn, { loading: false, error: undefined }] as any;
+      }
+
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -465,14 +592,20 @@ describe('TemplateSelectTemplatePage', () => {
 
     // Wait for the mutation to be called
     await waitFor(() => {
-      expect(useAddTemplateMutation).toHaveBeenCalled();
+      expect(mockUseMutation).toHaveBeenCalled();
     });
   });
 
   it('should log error when useAddTemplateMutation rejects with an error', async () => {
-    (useAddTemplateMutation as jest.Mock).mockReturnValue([
-      jest.fn(() => Promise.reject(new Error('Mutation failed'))), // Mock the mutation function
-    ]);
+    mockAddTemplateFn = jest.fn(() => Promise.reject(new Error('Mutation failed')));
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddTemplateDocument) {
+        return [mockAddTemplateFn, { loading: false, error: undefined }] as any;
+      }
+
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -497,16 +630,22 @@ describe('TemplateSelectTemplatePage', () => {
   });
 
   it('should call useAddTemplateMuration when user clicks to start a new template', async () => {
-    (useAddTemplateMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValue({
-        data: {
-          addTemplate: {
-            id: 1,
-            errors: null
-          }
+    mockAddTemplateFn = jest.fn().mockResolvedValue({
+      data: {
+        addTemplate: {
+          id: 1,
+          errors: null
         }
-      })
-    ]);
+      }
+    });
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddTemplateDocument) {
+        return [mockAddTemplateFn, { loading: false, error: undefined }] as any;
+      }
+
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -518,23 +657,29 @@ describe('TemplateSelectTemplatePage', () => {
     fireEvent.click(selectButton);
 
     await waitFor(() => {
-      expect(useAddTemplateMutation).toHaveBeenCalled();
+      expect(mockUseMutation).toHaveBeenCalled();
     });
   });
 
   it('should handle response errors when user clicks start a new template', async () => {
-    (useAddTemplateMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValue({
-        data: {
-          addTemplate: {
-            id: 1,
-            errors: {
-              global: 'New Template, something went wrong...',
-            },
+    mockAddTemplateFn = jest.fn().mockResolvedValue({
+      data: {
+        addTemplate: {
+          id: 1,
+          errors: {
+            global: 'New Template, something went wrong...',
           },
         },
-      })
-    ]);
+      },
+    });
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddTemplateDocument) {
+        return [mockAddTemplateFn, { loading: false, error: undefined }] as any;
+      }
+
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -546,14 +691,20 @@ describe('TemplateSelectTemplatePage', () => {
     fireEvent.click(selectButton);
 
     await waitFor(() => {
-      expect(useAddTemplateMutation).toHaveBeenCalled();
+      expect(mockUseMutation).toHaveBeenCalled();
     });
   });
 
   it('should handle errors when a user clicks on start a new template', async () => {
-    (useAddTemplateMutation as jest.Mock).mockReturnValue([
-      jest.fn(() => Promise.reject(new Error('Mutation failed'))), // Mock the mutation function
-    ]);
+    mockAddTemplateFn = jest.fn(() => Promise.reject(new Error('Mutation failed')));
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddTemplateDocument) {
+        return [mockAddTemplateFn, { loading: false, error: undefined }] as any;
+      }
+
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -565,7 +716,7 @@ describe('TemplateSelectTemplatePage', () => {
     fireEvent.click(selectButton);
 
     await waitFor(() => {
-      expect(useAddTemplateMutation).toHaveBeenCalled();
+      expect(mockUseMutation).toHaveBeenCalled();
     });
 
     expect(logECS).toHaveBeenCalledWith(

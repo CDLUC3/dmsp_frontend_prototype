@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { ApolloError } from '@apollo/client';
 import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import { useQuery, useMutation } from '@apollo/client/react';
 import {
-  useSectionQuery,
-  useTagsQuery,
-  useUpdateSectionMutation,
-  useRemoveSectionMutation
+  SectionDocument,
+  TagsDocument,
+  UpdateSectionDocument,
+  RemoveSectionDocument
 } from '@/generated/graphql';
 
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -16,19 +16,18 @@ import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
-// Mock the useTemplateQuery hook
-jest.mock("@/generated/graphql", () => ({
-  useTagsQuery: jest.fn(),
-  useUpdateSectionMutation: jest.fn(),
-  useRemoveSectionMutation: jest.fn(),
-  UpdateSectionDocument: jest.fn(),
-  useSectionQuery: jest.fn()
-}));
-
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
   useParams: jest.fn()
 }));
+
+
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+  useMutation: jest.fn(),
+}));
+
 
 // Need to mock the useSectionData hook with state to get react to re-render
 // when the state changes
@@ -154,8 +153,67 @@ const mockTagsData = {
   ]
 };
 
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+const mockUseMutation = jest.mocked(useMutation);
+
+let mockUpdateSectionFn: jest.Mock;
+let mockRemoveSectionFn: jest.Mock;
+
+const setupMocks = () => {
+  // Create stable references OUTSIDE mockImplementation
+  const stableSectionReturn = {
+    data: mockSectionsData,
+    loading: false,
+    error: null,
+  };
+
+  const stableTagsReturn = {
+    data: mockTagsData,
+    loading: false,
+    error: null,
+  };
+
+  mockUseQuery.mockImplementation((document) => {
+    if (document === SectionDocument) {
+      return stableSectionReturn as any;
+    }
+
+    if (document === TagsDocument) {
+      return stableTagsReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+
+  mockUpdateSectionFn = jest.fn().mockResolvedValue({
+    data: { key: 'value' }
+  });
+
+  mockRemoveSectionFn = jest.fn().mockResolvedValue({
+    data: { removeSection: { id: 123, name: 'Test Section' } }
+  });
+
+  mockUseMutation.mockImplementation((document) => {
+    if (document === UpdateSectionDocument) {
+      return [mockUpdateSectionFn, { loading: false, error: undefined }] as any;
+    }
+
+    if (document === RemoveSectionDocument) {
+      return [mockRemoveSectionFn, { loading: false, error: undefined }] as any;
+    }
+
+    return [jest.fn(), { loading: false, error: undefined }] as any;
+  });
+};
+
 describe("SectionUpdatePage", () => {
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
     const mockTemplateId = 123;
@@ -168,36 +226,14 @@ describe("SectionUpdatePage", () => {
       remove: jest.fn(),
     };
 
-
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}`, section_slug: '123' });
-    (useTagsQuery as jest.Mock).mockReturnValue({
-      data: mockTagsData,
-      loading: true,
-      error: null,
-    });
-
     mockUseRouter.mockReturnValue({
       push: jest.fn(),
     });
-
-    (useSectionQuery as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce(mockSectionsData),
-      { loading: false, error: undefined },
-    ]);
-
-    (useRemoveSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { removeSection: { id: 123, name: 'Test Section' } } }),
-      { loading: false, error: undefined },
-    ]);
-
   });
 
   it("should render correct fields", async () => {
-    (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
 
     await act(async () => {
       render(
@@ -233,11 +269,15 @@ describe("SectionUpdatePage", () => {
   });
 
   it('should call updateSectionMutation with new value when save button is clicked', async () => {
+    // Override the mock for this specific test
     const mockUpdateSection = jest.fn().mockResolvedValueOnce({ data: { updateSection: { errors: null } } });
-    (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-      mockUpdateSection,
-      { loading: false, error: undefined },
-    ]);
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === UpdateSectionDocument) {
+        return [mockUpdateSection, { loading: false, error: undefined }] as any;
+      }
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(<SectionUpdatePage />);
@@ -274,10 +314,13 @@ describe("SectionUpdatePage", () => {
     const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
     const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener');
     const mockUpdateSection = jest.fn().mockResolvedValueOnce({ data: { updateSection: { errors: null } } });
-    (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-      mockUpdateSection,
-      { loading: false, error: undefined },
-    ]);
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === UpdateSectionDocument) {
+        return [mockUpdateSection, { loading: false, error: undefined }] as any;
+      }
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(<SectionUpdatePage />);
@@ -319,10 +362,15 @@ describe("SectionUpdatePage", () => {
   });
 
   it('should display error when no value is entered in section name field', async () => {
-    (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
+    // Override the mock for this specific test
+    const mockUpdateSection = jest.fn().mockResolvedValueOnce({ data: { key: 'value' } });
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === UpdateSectionDocument) {
+        return [mockUpdateSection, { loading: false, error: undefined }] as any;
+      }
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -339,10 +387,15 @@ describe("SectionUpdatePage", () => {
   })
 
   it('should call logECS when updateSection throws an error', async () => {
-    (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockRejectedValueOnce(new Error("Error")),
-      { loading: false, error: undefined },
-    ]);
+    // Override the mock for this specific test
+    const mockUpdateSection = jest.fn().mockRejectedValueOnce(new Error("Error"));
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === UpdateSectionDocument) {
+        return [mockUpdateSection, { loading: false, error: undefined }] as any;
+      }
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(<SectionUpdatePage />);
@@ -373,21 +426,17 @@ describe("SectionUpdatePage", () => {
   });
 
   it('should log error when an apollo error instance is returned', async () => {
-    const apolloError = new ApolloError({
-      graphQLErrors: [{ message: 'Apollo error occurred' }],
-      networkError: null,
-      errorMessage: 'Apollo error occurred',
-    });
 
     const mockUpdateSection = jest.fn()
-      .mockRejectedValueOnce(apolloError) // First call returns an Apollo error
+      .mockRejectedValueOnce(new Error("Apollo error occurred")) // First call returns an Apollo error
       .mockResolvedValueOnce({ data: { removeUserEmail: [{ errors: null }] } }); // Second call succeeds
 
-
-    (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-      mockUpdateSection,
-      { loading: false, error: undefined }
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === UpdateSectionDocument) {
+        return [mockUpdateSection, { loading: false, error: undefined }] as any;
+      }
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(<SectionUpdatePage />);
@@ -411,10 +460,15 @@ describe("SectionUpdatePage", () => {
   });
 
   it('should log error when field-level errors are returned', async () => {
-    (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { updateSection: { errors: { general: 'Error updating section' } } } }),
-      { loading: false, error: undefined },
-    ]);
+    // Override the mock for this specific test
+    const mockUpdateSection = jest.fn().mockResolvedValueOnce({ data: { updateSection: { errors: { general: 'Error updating section' } } } });
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === UpdateSectionDocument) {
+        return [mockUpdateSection, { loading: false, error: undefined }] as any;
+      }
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(<SectionUpdatePage />);
@@ -438,11 +492,6 @@ describe("SectionUpdatePage", () => {
   });
 
   it('should redirect to Edit Template page after submitting form', async () => {
-    (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
       render(<SectionUpdatePage />);
     });
@@ -463,11 +512,6 @@ describe("SectionUpdatePage", () => {
 
 
   it('should pass axe accessibility test', async () => {
-    (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const { container } = render(
       <SectionUpdatePage />
     );
@@ -484,10 +528,6 @@ describe("SectionUpdatePage", () => {
 
   describe('Delete Section Functionality', () => {
     it('should render delete section button in danger zone', async () => {
-      (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
 
       await act(async () => {
         render(<SectionUpdatePage />);
@@ -502,10 +542,6 @@ describe("SectionUpdatePage", () => {
     });
 
     it('should open delete confirmation dialog when delete button is clicked', async () => {
-      (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
 
       await act(async () => {
         render(<SectionUpdatePage />);
@@ -523,11 +559,6 @@ describe("SectionUpdatePage", () => {
     });
 
     it('should close dialog when cancel button is clicked', async () => {
-      (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
       await act(async () => {
         render(<SectionUpdatePage />);
       });
@@ -552,15 +583,12 @@ describe("SectionUpdatePage", () => {
         data: { removeSection: { id: 123, name: 'Test Section' } }
       });
 
-      (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useRemoveSectionMutation as jest.Mock).mockReturnValue([
-        mockRemoveSection,
-        { loading: false, error: undefined },
-      ]);
+      mockUseMutation.mockImplementation((document) => {
+        if (document === RemoveSectionDocument) {
+          return [mockRemoveSection, { loading: false, error: undefined }] as any;
+        }
+        return [jest.fn(), { loading: false, error: undefined }] as any;
+      });
 
       await act(async () => {
         render(<SectionUpdatePage />);
@@ -587,16 +615,12 @@ describe("SectionUpdatePage", () => {
     it('should show error message when delete section fails', async () => {
       const mockRemoveSection = jest.fn().mockRejectedValueOnce(new Error('Delete failed'));
 
-      (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useRemoveSectionMutation as jest.Mock).mockReturnValue([
-        mockRemoveSection,
-        { loading: false, error: undefined },
-      ]);
-
+      mockUseMutation.mockImplementation((document) => {
+        if (document === RemoveSectionDocument) {
+          return [mockRemoveSection, { loading: false, error: undefined }] as any;
+        }
+        return [jest.fn(), { loading: false, error: undefined }] as any;
+      });
       await act(async () => {
         render(<SectionUpdatePage />);
       });
@@ -629,15 +653,12 @@ describe("SectionUpdatePage", () => {
         new Promise(resolve => setTimeout(() => resolve({ data: { removeSection: { id: 123 } } }), 100))
       );
 
-      (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-        { loading: false, error: undefined },
-      ]);
-
-      (useRemoveSectionMutation as jest.Mock).mockReturnValue([
-        mockRemoveSection,
-        { loading: false, error: undefined },
-      ]);
+      mockUseMutation.mockImplementation((document) => {
+        if (document === RemoveSectionDocument) {
+          return [mockRemoveSection, { loading: false, error: undefined }] as any;
+        }
+        return [jest.fn(), { loading: false, error: undefined }] as any;
+      });
 
       await act(async () => {
         render(<SectionUpdatePage />);

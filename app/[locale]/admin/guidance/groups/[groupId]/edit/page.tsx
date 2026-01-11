@@ -4,10 +4,10 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Breadcrumb, Breadcrumbs, Link, Button } from "react-aria-components";
 import { useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
-
+import { useQuery } from "@apollo/client/react";
 // GraphQL
 import {
-  useGuidanceGroupQuery,
+  GuidanceGroupDocument,
 } from '@/generated/graphql';
 import { updateGuidanceGroupAction } from "./actions";
 
@@ -64,7 +64,7 @@ const GuidanceGroupEditPage: React.FC = () => {
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
   // Fetch guidance group data
-  const { data: guidanceGroupData, loading } = useGuidanceGroupQuery({
+  const { data: guidanceGroupData, loading } = useQuery(GuidanceGroupDocument, {
     variables: {
       guidanceGroupId: parseInt(groupId, 10)
     },

@@ -25,7 +25,6 @@ import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import ErrorMessages from "@/components/ErrorMessages";
 
 // Utils and other
-import { handleApolloErrors } from "@/utils/gqlErrorHandler";
 import { formatToDateOnly, formatWithTimeAndDate } from "@/utils/dateUtils"
 import styles from './history.module.scss';
 

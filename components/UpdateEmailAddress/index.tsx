@@ -80,7 +80,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
       // Display other errors
       setErrors(prevErrors => ({
         ...prevErrors,
-        general: 'Error when setting primary email'
+        general: t('messages.errorSettingPrimaryEmail')
       }));
       logECS('error', 'makePrimaryEmail', {
         error: err,
@@ -133,7 +133,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
       // Display other errors
       setErrors(prevErrors => ({
         ...prevErrors,
-        general: 'Error when adding new email'
+        general: t("messages.errorAddingNewEmail")
       }));
       logECS('error', 'handleAddingAlias', {
         error: err,
@@ -166,7 +166,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
       // Display other errors
       setErrors(prevErrors => ({
         ...prevErrors,
-        general: 'Error when deleting email'
+        general: t('messages.errorDeletingEmail')
       }));
       logECS('error', 'deleteEmail', {
         error: err,
