@@ -507,30 +507,26 @@ const PlanCreate: React.FC = () => {
   ]);
 
   // Only for initial data fetching
+  // In your PlanCreate component
   useEffect(() => {
-    // Don't run if no config or already applied
+    // CRITICAL: Don't run if no config or already applied
     if (!initialFilterConfig || initialSelectionApplied) return;
 
-    let isCancelled = false;
+    let isCancelled = false; // Add cancellation flag
 
     const applyInitialFilters = async () => {
-      if (isCancelled) return;
+      if (isCancelled) return; // Check before state updates
 
       if (initialFilterConfig.type === 'funders') {
-        // Apply funder filters
-        setFunders(initialFilterConfig.fundersData);
-        setSelectedFunders(initialFilterConfig.funderURIs);
-        setBestPractice(false);
+        if (!isCancelled) setFunders(initialFilterConfig.fundersData);
+        if (!isCancelled) setSelectedFunders(initialFilterConfig.funderURIs);
+        if (!isCancelled) setBestPractice(false);
         await fetchTemplates({ selectedOwnerURIs: initialFilterConfig.funderURIs }).catch(() => { });
-
       } else if (initialFilterConfig.type === 'bestPractice') {
-        // Apply best practice filter
-        setSelectedBestPracticeItems(["DMP Best Practice"]);
-        setBestPractice(true);
+        if (!isCancelled) setSelectedBestPracticeItems(["DMP Best Practice"]);
+        if (!isCancelled) setBestPractice(true);
         await fetchTemplates({ bestPractice: true }).catch(() => { });
-
       } else {
-        // Show all templates
         await fetchTemplates({ page: currentPage }).catch(() => { });
       }
 
@@ -542,7 +538,7 @@ const PlanCreate: React.FC = () => {
     applyInitialFilters();
 
     return () => {
-      isCancelled = true;
+      isCancelled = true; // Cleanup: prevent state updates after unmount
     };
   }, [initialFilterConfig, initialSelectionApplied]);
 

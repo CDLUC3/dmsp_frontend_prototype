@@ -3,12 +3,12 @@ import { act, fireEvent, render, screen, waitFor, within } from '@/utils/test-ut
 import { useParams, useRouter } from 'next/navigation';
 import { useToast } from '@/context/ToastContext';
 import logECS from '@/utils/clientLogger';
-
+import { useQuery, useMutation } from '@apollo/client/react';
 import {
-  useProjectMemberQuery,
-  useMemberRolesQuery,
-  useUpdateProjectMemberMutation,
-  useRemoveProjectMemberMutation
+  ProjectMemberDocument,
+  MemberRolesDocument,
+  UpdateProjectMemberDocument,
+  RemoveProjectMemberDocument
 } from '@/generated/graphql';
 import { useProjectMemberData } from '@/hooks/projectMemberData';
 
@@ -21,12 +21,10 @@ import mockResponse from '../__mocks__/mockResponseFromMutation.json';
 
 expect.extend(toHaveNoViolations);
 
-// Mock the graphql hooks
-jest.mock("@/generated/graphql", () => ({
-  useProjectMemberQuery: jest.fn(),
-  useMemberRolesQuery: jest.fn(),
-  useUpdateProjectMemberMutation: jest.fn(),
-  useRemoveProjectMemberMutation: jest.fn(),
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+  useMutation: jest.fn(),
 }));
 
 jest.mock('@/hooks/projectMemberData', () => ({
@@ -41,29 +39,77 @@ const mockToast = {
   add: jest.fn(),
 };
 
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+const mockUseMutation = jest.mocked(useMutation);
+
+let mockUpdateProjectMemberFn: jest.Mock;
+let mockRemoveProjectMemberFn: jest.Mock;
+
+const setupMocks = () => {
+  // Create stable references OUTSIDE mockImplementation
+  const stableProjectMemberReturn = {
+    data: mockProjectMemberData,
+    loading: false,
+    error: null,
+  };
+
+  const stableMemberRolesReturn = {
+    data: mockMemberRoles,
+    loading: false,
+    error: null,
+  };
+
+  mockUseQuery.mockImplementation((document) => {
+    if (document === ProjectMemberDocument) {
+      return stableProjectMemberReturn as any;
+    }
+
+    if (document === MemberRolesDocument) {
+      return stableMemberRolesReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+
+  mockUpdateProjectMemberFn = jest.fn().mockResolvedValue({
+    data: { key: 'value' }
+  });
+
+  mockRemoveProjectMemberFn = jest.fn().mockResolvedValue({
+    data: { removeProjectMember: { id: 123, name: 'Test Project Member' } }
+  });
+
+  mockUseMutation.mockImplementation((document) => {
+    if (document === UpdateProjectMemberDocument) {
+      return [mockUpdateProjectMemberFn, { loading: false, error: undefined }] as any;
+    }
+
+    if (document === RemoveProjectMemberDocument) {
+      return [mockRemoveProjectMemberFn, { loading: false, error: undefined }] as any;
+    }
+
+    return [jest.fn(), { loading: false, error: undefined }] as any;
+  });
+};
 
 describe("ProjectsProjectMembersEdit", () => {
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
+
+    // Set up Apollo Client mocks
+    setupMocks();
+
     const mockUseParams = useParams as jest.Mock;
-    // Mock the return value of useParams
     mockUseParams.mockReturnValue({ projectId: 1, memberId: 1 });
 
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     (useToast as jest.Mock).mockReturnValue(mockToast);
-
-    (useProjectMemberQuery as jest.Mock).mockReturnValue({
-      data: mockProjectMemberData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useMemberRolesQuery as jest.Mock).mockReturnValue({
-      data: mockMemberRoles,
-      loading: false,
-      error: null,
-    });
 
     (useProjectMemberData as jest.Mock).mockReturnValue({
       projectMemberData: {
@@ -94,79 +140,75 @@ describe("ProjectsProjectMembersEdit", () => {
     });
   });
 
-
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it('should render loading state', async () => {
-    (useMemberRolesQuery as jest.Mock).mockReturnValue({
-      data: null,
-      loading: true,
-      error: null,
+    // Override the mock for this specific test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === MemberRolesDocument) {
+        return {
+          data: null,
+          loading: true,
+          error: null,
+        } as any;
+      }
+      if (document === ProjectMemberDocument) {
+        return {
+          data: mockProjectMemberData,
+          loading: false,
+          error: null,
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
-    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
-      render(
-        <ProjectsProjectMembersEdit />
-      );
+      render(<ProjectsProjectMembersEdit />);
     });
 
     expect(screen.getByText('messaging.loading...')).toBeInTheDocument();
   });
 
   it('should render error state', async () => {
-    (useMemberRolesQuery as jest.Mock).mockReturnValue({
-      data: null,
-      loading: false,
-      error: true,
+    // Override the mock for this specific test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === MemberRolesDocument) {
+        return {
+          data: null,
+          loading: false,
+          error: true,
+        } as any;
+      }
+      if (document === ProjectMemberDocument) {
+        return {
+          data: mockProjectMemberData,
+          loading: false,
+          error: null,
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
-    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
-      render(
-        <ProjectsProjectMembersEdit />
-      );
+      render(<ProjectsProjectMembersEdit />);
     });
 
     expect(screen.getByText('messaging.error')).toBeInTheDocument();
   });
 
   it("should render correct fields", async () => {
-    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-
-    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
-      render(
-        <ProjectsProjectMembersEdit />
-      );
+      render(<ProjectsProjectMembersEdit />);
     });
 
     const heading = screen.getByRole('heading', { level: 1 });
@@ -184,7 +226,6 @@ describe("ProjectsProjectMembersEdit", () => {
     expect(screen.getByRole('textbox', { name: /orcid/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /buttons.saveChanges/i })).toBeInTheDocument();
 
-    // Check for checkbox group
     const checkboxGroup = screen.getByTestId('checkbox-group');
     expect(checkboxGroup).toBeInTheDocument();
     expect(screen.getByText('labels.definedRole')).toBeInTheDocument();
@@ -194,20 +235,10 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should handle form submission", async () => {
-    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: mockResponse }),
-      { loading: false, error: undefined },
-    ]);
-
-    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
+    mockUpdateProjectMemberFn.mockResolvedValueOnce({ data: mockResponse });
 
     await act(async () => {
-      render(
-        <ProjectsProjectMembersEdit />
-      );
+      render(<ProjectsProjectMembersEdit />);
     });
 
     const saveButton = screen.getByRole('button', { name: /buttons.saveChanges/i });
@@ -219,16 +250,6 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should display validation errors if givenName and surName are too short", async () => {
-    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: mockResponse }),
-      { loading: false, error: undefined },
-    ]);
-
-    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     (useProjectMemberData as jest.Mock).mockReturnValue({
       projectMemberData: {
         givenName: 'T',
@@ -258,9 +279,7 @@ describe("ProjectsProjectMembersEdit", () => {
     });
 
     await act(async () => {
-      render(
-        <ProjectsProjectMembersEdit />
-      );
+      render(<ProjectsProjectMembersEdit />);
     });
 
     const saveButton = screen.getByRole('button', { name: /buttons.saveChanges/i });
@@ -280,7 +299,7 @@ describe("ProjectsProjectMembersEdit", () => {
         givenName: 'Valid First Name',
         surName: 'Valid Last Name',
         affiliationId: 'test-affiliation',
-        email: 'invalid-email-format', // Invalid email format
+        email: 'invalid-email-format',
         orcid: '0000-0000-0000-0000',
       },
       checkboxRoles: ['1', '2'],
@@ -303,44 +322,27 @@ describe("ProjectsProjectMembersEdit", () => {
       queryError: null
     });
 
-    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: mockResponse }),
-      { loading: false, error: undefined },
-    ]);
-
-    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
       render(<ProjectsProjectMembersEdit />);
     });
 
-    // The email field should show as invalid due to real-time validation
-    // This happens immediately on render, without needing form submission
     const emailInput = screen.getByLabelText('form.labels.emailAddress');
-
     expect(emailInput).toHaveAttribute('aria-invalid', 'true');
-
-    // The error message should also be displayed
     expect(screen.getByText('form.errors.email')).toBeInTheDocument();
 
     const saveButton = screen.getByRole('button', { name: /buttons.saveChanges/i });
     fireEvent.click(saveButton);
 
     expect(screen.getByText('form.errors.email')).toBeInTheDocument();
-
   });
 
   it("should clear validation errors when user corrects the field values", async () => {
     const setProjectMemberDataMock = jest.fn();
 
-    // Start with invalid data
     (useProjectMemberData as jest.Mock).mockReturnValue({
       projectMemberData: {
-        givenName: 'A', // Invalid - too short
-        surName: 'B',   // Invalid - too short  
+        givenName: 'A',
+        surName: 'B',
         affiliationId: 'test-affiliation',
         email: 'test@example.com',
         orcid: '0000-0000-0000-0000',
@@ -365,55 +367,39 @@ describe("ProjectsProjectMembersEdit", () => {
       queryError: null
     });
 
-    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: mockResponse }),
-      { loading: false, error: undefined },
-    ]);
-
-    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
       render(<ProjectsProjectMembersEdit />);
     });
 
-    // First submit the form to trigger validation errors
     const saveButton = screen.getByRole('button', { name: /buttons.saveChanges/i });
 
     await act(async () => {
       fireEvent.click(saveButton);
     });
 
-    // Verify errors are shown
     await waitFor(() => {
       expect(screen.getByText('form.errors.firstName')).toBeInTheDocument();
       expect(screen.getByText('form.errors.lastName')).toBeInTheDocument();
     });
 
-    // Now fix the first name field
     const firstNameInput = screen.getByRole('textbox', { name: /firstName/i });
 
     await act(async () => {
       fireEvent.change(firstNameInput, { target: { value: 'Valid First Name' } });
     });
 
-    // Verify that setProjectMemberData was called to update the field
     expect(setProjectMemberDataMock).toHaveBeenCalledWith(
       expect.objectContaining({
         givenName: 'Valid First Name'
       })
     );
 
-    // Now fix the last name field
     const lastNameInput = screen.getByRole('textbox', { name: /lastName/i });
 
     await act(async () => {
       fireEvent.change(lastNameInput, { target: { value: 'Valid Last Name' } });
     });
 
-    // Verify that setProjectMemberData was called to update the field
     expect(setProjectMemberDataMock).toHaveBeenCalledWith(
       expect.objectContaining({
         surName: 'Valid Last Name'
@@ -422,20 +408,16 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should handle field level errors returned from submitting form", async () => {
-    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { updateProjectMember: { errors: { general: 'Error updating member' } } } }),
-      { loading: false, error: undefined },
-    ]);
-
-    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
+    mockUpdateProjectMemberFn.mockResolvedValueOnce({
+      data: {
+        updateProjectMember: {
+          errors: { general: 'Error updating member' }
+        }
+      }
+    });
 
     await act(async () => {
-      render(
-        <ProjectsProjectMembersEdit />
-      );
+      render(<ProjectsProjectMembersEdit />);
     });
 
     const saveButton = screen.getByRole('button', { name: /buttons.saveChanges/i });
@@ -445,19 +427,10 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should handle update member request errors", async () => {
-    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockRejectedValueOnce(new Error("Error removing member")),
-      { loading: false, error: undefined },
-    ]);
-    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
+    mockUpdateProjectMemberFn.mockRejectedValueOnce(new Error("Error removing member"));
 
     await act(async () => {
-      render(
-        <ProjectsProjectMembersEdit />
-      );
+      render(<ProjectsProjectMembersEdit />);
     });
 
     const saveButton = screen.getByRole('button', { name: /buttons.saveChanges/i });
@@ -476,35 +449,22 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should handle remove member", async () => {
-    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: mockResponse }),
-      { loading: false, error: undefined },
-    ]);
-
-    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
-      render(
-        <ProjectsProjectMembersEdit />
-      );
+      render(<ProjectsProjectMembersEdit />);
     });
 
     const removeButton = screen.getByRole('button', { name: 'buttons.removeMember' });
 
     await act(async () => {
       fireEvent.click(removeButton);
-    })
+    });
 
     await waitFor(() => {
-      // Modal should open
       expect(screen.getByRole('dialog')).toBeInTheDocument();
       const heading = screen.getByRole('heading', { level: 3 });
       expect(heading).toBeInTheDocument();
       expect(heading).toHaveTextContent('headings.removeProjectMember');
-      // Get buttons within the modal/dialog
+
       const dialog = screen.getByRole('dialog');
       const modalButtons = within(dialog).getAllByRole('button');
       expect(modalButtons).toHaveLength(2);
@@ -512,7 +472,6 @@ describe("ProjectsProjectMembersEdit", () => {
       expect(modalButtons[1]).toHaveTextContent('buttons.delete');
     });
 
-    // Click delete button
     const dialog = screen.getByRole('dialog');
     const deleteButton = within(dialog).getByRole('button', { name: 'buttons.delete' });
 
@@ -526,34 +485,20 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should handle cancel button in Remove Member modal", async () => {
-    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: mockResponse }),
-      { loading: false, error: undefined },
-    ]);
-
-    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
-      render(
-        <ProjectsProjectMembersEdit />
-      );
+      render(<ProjectsProjectMembersEdit />);
     });
 
     const removeButton = screen.getByRole('button', { name: 'buttons.removeMember' });
 
     await act(async () => {
       fireEvent.click(removeButton);
-    })
+    });
 
     await waitFor(() => {
-      // Modal should open
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
-    // Click delete button
     const dialog = screen.getByRole('dialog');
     const modalButtons = within(dialog).getAllByRole('button');
     expect(modalButtons).toHaveLength(2);
@@ -570,33 +515,28 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should handle field-level errors from remove member request", async () => {
-    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: mockResponse }),
-      { loading: false, error: undefined },
-    ]);
-    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { removeProjectMember: { errors: { general: 'Error removing member' } } } }),
-      { loading: false, error: undefined },
-    ]);
+    mockRemoveProjectMemberFn.mockResolvedValueOnce({
+      data: {
+        removeProjectMember: {
+          errors: { general: 'Error removing member' }
+        }
+      }
+    });
 
     await act(async () => {
-      render(
-        <ProjectsProjectMembersEdit />
-      );
+      render(<ProjectsProjectMembersEdit />);
     });
 
     const removeButton = screen.getByRole('button', { name: 'buttons.removeMember' });
 
     await act(async () => {
       fireEvent.click(removeButton);
-    })
+    });
 
     await waitFor(() => {
-      // Modal should open
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
-    // Click delete button
     const deleteButton = screen.getByRole('button', { name: 'buttons.delete' });
 
     await act(async () => {
@@ -607,33 +547,22 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should handle remove member request errors", async () => {
-    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: mockResponse }),
-      { loading: false, error: undefined },
-    ]);
-    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockRejectedValueOnce(new Error("Error removing member")),
-      { loading: false, error: undefined },
-    ]);
+    mockRemoveProjectMemberFn.mockRejectedValueOnce(new Error("Error removing member"));
 
     await act(async () => {
-      render(
-        <ProjectsProjectMembersEdit />
-      );
+      render(<ProjectsProjectMembersEdit />);
     });
 
     const removeButton = screen.getByRole('button', { name: 'buttons.removeMember' });
 
     await act(async () => {
       fireEvent.click(removeButton);
-    })
+    });
 
     await waitFor(() => {
-      // Modal should open
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
-    // Click delete button
     const deleteButton = screen.getByRole('button', { name: 'buttons.delete' });
 
     await act(async () => {
@@ -653,19 +582,8 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should handle checkbox change", async () => {
-    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: mockResponse }),
-      { loading: false, error: undefined },
-    ]);
-
-    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const setCheckboxRolesMock = jest.fn();
 
-    // Override the mock implementation for this specific test
     (useProjectMemberData as jest.Mock).mockReturnValue({
       projectMemberData: {
         givenName: 'Test',
@@ -694,7 +612,7 @@ describe("ProjectsProjectMembersEdit", () => {
       queryError: null
     });
 
-    render(<ProjectsProjectMembersEdit />); // Ensure the component is rendered first
+    render(<ProjectsProjectMembersEdit />);
 
     const checkboxes = screen.getAllByRole('checkbox');
     checkboxes.forEach(checkbox => {
@@ -705,19 +623,8 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should pass accessibility checks", async () => {
-    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
     await act(async () => {
-      const { container } = render(
-        <ProjectsProjectMembersEdit />
-      );
+      const { container } = render(<ProjectsProjectMembersEdit />);
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });

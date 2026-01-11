@@ -2,11 +2,10 @@ import React from 'react';
 import { act, fireEvent, render, screen, within, waitFor, cleanup } from '@/utils/test-utils';
 import { MockedResponse } from '@apollo/client/testing';
 import { MockedProvider } from '@apollo/client/testing/react';
-import { ApolloLink, InMemoryCache } from '@apollo/client';
+import { InMemoryCache } from '@apollo/client';
 
 import TemplateListPage from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { mockScrollIntoView } from '@/__mocks__/common';
 import {
   mocks,
   multipleItemsMock,

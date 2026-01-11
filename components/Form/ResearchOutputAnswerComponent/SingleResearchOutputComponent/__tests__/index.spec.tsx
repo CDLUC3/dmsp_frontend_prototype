@@ -6,68 +6,93 @@ import SingleResearchOutputComponent from '../index';
 import { ResearchOutputTable } from '@/app/types';
 import { DefaultResearchOutputTableQuestion } from '@dmptool/types';
 
-// Mock the GraphQL queries
-jest.mock('@/generated/graphql', () => ({
-  useRecommendedLicensesQuery: jest.fn(() => ({
-    data: {
-      recommendedLicenses: [
-        {
-          __typename: 'License',
-          name: 'CC0-1.0',
-          id: 54,
-          uri: 'https://spdx.org/licenses/CC0-1.0.json',
+// Mock Apollo Client's useQuery hook
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn((document) => {
+    // Mock RecommendedLicensesDocument query
+    if (document === require('@/generated/graphql').RecommendedLicensesDocument) {
+      return {
+        data: {
+          recommendedLicenses: [
+            {
+              __typename: 'License',
+              name: 'CC0-1.0',
+              id: 54,
+              uri: 'https://spdx.org/licenses/CC0-1.0.json',
+            },
+            {
+              __typename: 'License',
+              name: 'CC-BY-4.0',
+              id: 55,
+              uri: 'https://spdx.org/licenses/CC-BY-4.0.json',
+            },
+            {
+              __typename: 'License',
+              name: 'MIT',
+              id: 56,
+              uri: 'https://spdx.org/licenses/MIT.json',
+            },
+          ],
         },
-        {
-          __typename: 'License',
-          name: 'CC-BY-4.0',
-          id: 55,
-          uri: 'https://spdx.org/licenses/CC-BY-4.0.json',
+        loading: false,
+        error: undefined,
+      };
+    }
+
+    // Mock DefaultResearchOutputTypesDocument query
+    if (document === require('@/generated/graphql').DefaultResearchOutputTypesDocument) {
+      return {
+        data: {
+          defaultResearchOutputTypes: [
+            {
+              __typename: 'ResearchOutputType',
+              id: 1,
+              name: 'Audiovisual',
+              value: 'audiovisual',
+              description: 'A series of visual representations...',
+            },
+            {
+              __typename: 'ResearchOutputType',
+              id: 4,
+              name: 'Dataset',
+              value: 'dataset',
+              description: 'Data encoded in a defined structure.',
+            },
+            {
+              __typename: 'ResearchOutputType',
+              id: 12,
+              name: 'Software',
+              value: 'software',
+              description: 'A computer program...',
+            },
+            {
+              __typename: 'ResearchOutputType',
+              id: 14,
+              name: 'Text',
+              value: 'text',
+              description: 'A resource consisting primarily of words...',
+            },
+          ],
         },
-        {
-          __typename: 'License',
-          name: 'MIT',
-          id: 56,
-          uri: 'https://spdx.org/licenses/MIT.json',
-        },
-      ],
-    },
-  })),
-  useDefaultResearchOutputTypesQuery: jest.fn(() => ({
-    data: {
-      defaultResearchOutputTypes: [
-        {
-          __typename: 'ResearchOutputType',
-          id: 1,
-          name: 'Audiovisual',
-          value: 'audiovisual',
-          description: 'A series of visual representations...',
-        },
-        {
-          __typename: 'ResearchOutputType',
-          id: 4,
-          name: 'Dataset',
-          value: 'dataset',
-          description: 'Data encoded in a defined structure.',
-        },
-        {
-          __typename: 'ResearchOutputType',
-          id: 12,
-          name: 'Software',
-          value: 'software',
-          description: 'A computer program...',
-        },
-        {
-          __typename: 'ResearchOutputType',
-          id: 14,
-          name: 'Text',
-          value: 'text',
-          description: 'A resource consisting primarily of words...',
-        },
-      ],
-    },
-  })),
+        loading: false,
+        error: undefined,
+      };
+    }
+
+    // Default return for any other queries
+    return {
+      data: undefined,
+      loading: false,
+      error: undefined,
+    };
+  }),
 }));
 
+// Mock the generated GraphQL documents (these are imported by the component)
+jest.mock('@/generated/graphql', () => ({
+  RecommendedLicensesDocument: 'RecommendedLicensesDocument',
+  DefaultResearchOutputTypesDocument: 'DefaultResearchOutputTypesDocument',
+}));
 // Mock child components
 jest.mock('@/components/RepoSelectorForAnswer', () => {
   /* eslint-disable @typescript-eslint/no-explicit-any */

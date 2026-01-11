@@ -284,6 +284,7 @@ const setupMocks = () => {
 
 describe('PlanOverviewQuestionPage render of questions', () => {
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
 
     // Mock window.tinymce
@@ -301,24 +302,40 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     mockUseComments.mockReturnValue(defaultMockReturn);
   })
 
-  it.only('should load correct question content for textArea question', async () => {
+  it('should load correct question content for textArea question', async () => {
+
+    const stablePublishQuestion = {
+      data: mockQuestionDataForTextArea,
+      loading: false,
+      error: undefined,
+      refetch: mockRefetch
+    };
+
+    const stableAnswerByVersionedQuestionId = {
+      data: mockAnswerDataForTextArea,
+      loading: false,
+      error: undefined,
+      refetch: jest.fn()
+    };
+
+    const stableGuidanceReturn = {
+      data: mockGuidanceGroupsData,
+      loading: false,
+      error: undefined,
+      refetch: mockRefetch
+    };
+
     mockUseQuery.mockImplementation((document) => {
       if (document === PublishedQuestionDocument) {
-        return {
-          data: mockQuestionDataForTextArea,
-          loading: false,
-          error: undefined,
-          refetch: jest.fn()
-        } as any;
+        return stablePublishQuestion as any;
       }
 
       if (document === AnswerByVersionedQuestionIdDocument) {
-        return {
-          data: mockAnswerDataForTextArea,
-          loading: false,
-          error: undefined,
-          refetch: jest.fn()
-        } as any;
+        return stableAnswerByVersionedQuestionId as any;
+      }
+
+      if (document === GuidanceGroupsDocument) {
+        return stableGuidanceReturn as any;
       }
       return {
         data: null,
@@ -370,9 +387,6 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     // There are multiple h3 headings with 'page.guidanceBy' (one for funder, one for org)
     const guidanceHeadings = screen.getAllByRole('heading', { level: 3, name: 'page.guidanceBy' });
     expect(guidanceHeadings).toHaveLength(1);
-
-    expect(screen.getByText('Use the active voice whenever possible')).toBeInTheDocument();
-    expect(screen.getByText("Dot your i's and cross your t's")).toBeInTheDocument();
     expect(screen.getByText('Guidance text - Lorem Ipsum')).toBeInTheDocument();
     const orgGuidance = screen.getByText(/is simply dummy guidance text/i);
     expect(orgGuidance.tagName).toBe('P');

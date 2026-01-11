@@ -1,7 +1,16 @@
 import { renderHook, act } from '@testing-library/react';
 import { useResearchOutputTable } from '../useResearchOutputTable';
 import type { ResearchOutputTableQuestionType } from '@dmptool/types';
+import { useQuery } from '@apollo/client/react';
+import {
+  LicensesDocument,
+  DefaultResearchOutputTypesDocument,
+} from '@/generated/graphql';
 
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+}));
 
 // Mocks for next-intl and GraphQL hooks
 jest.mock('next-intl', () => ({
@@ -14,8 +23,11 @@ jest.mock('next-intl', () => ({
   },
 }));
 
-jest.mock('@/generated/graphql', () => ({
-  useLicensesQuery: () => ({
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+
+const setupMocks = () => {
+  const stableLicensesReturn = {
     data: {
       licenses: {
         items: [
@@ -24,22 +36,44 @@ jest.mock('@/generated/graphql', () => ({
         ],
       },
     },
-  }),
-  useDefaultResearchOutputTypesQuery: () => ({
+    loading: false,
+    error: null,
+  };
+
+  const stableDefaultResearchOutputTypesReturn = {
     data: {
       defaultResearchOutputTypes: [
         { name: 'Dataset', value: 'dataset', description: 'A dataset' },
         { name: 'Software', value: 'software', description: 'A software' },
       ],
     },
-  }),
-}));
+    loading: false,
+    error: null,
+  };
 
+  mockUseQuery.mockImplementation((document) => {
+
+    if (document === LicensesDocument) {
+      return stableLicensesReturn as any;
+    }
+
+    if (document === DefaultResearchOutputTypesDocument) {
+      return stableDefaultResearchOutputTypesReturn as any;
+    }
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+
+};
 describe('useResearchOutputTable', () => {
   let setHasUnsavedChanges: jest.Mock;
   let announce: jest.Mock;
 
   beforeEach(() => {
+    setupMocks();
     setHasUnsavedChanges = jest.fn();
     announce = jest.fn();
   });

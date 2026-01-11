@@ -4,11 +4,17 @@ import { act, fireEvent, render, screen } from '@/utils/test-utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { NumberRangeQuestionComponent } from '@/components/Form/QuestionComponents';
+import { start } from 'repl';
 
 expect.extend(toHaveNoViolations);
 
 
 describe('RadioButtonsQuestionComponent', () => {
+  let user: ReturnType<typeof userEvent.setup>;
+  beforeEach(() => {
+    user = userEvent.setup();
+  });
+
   const mockHandleNumberChange = jest.fn();
   const mockParsedQuestion: NumberRangeQuestionType = {
     type: "numberRange",
@@ -109,15 +115,12 @@ describe('RadioButtonsQuestionComponent', () => {
 
     const startInputIncreaseButton = increaseButton[0];
     const startInputDecreaseButton = decreaseButton[0];
+    await user.click(startInputIncreaseButton);
 
-    act(() => {
-      fireEvent.click(startInputIncreaseButton);
-    })
     expect(mockHandleNumberChange).toHaveBeenCalledWith('startNumber', 11);
 
-    act(() => {
-      fireEvent.click(startInputDecreaseButton);
-    })
+    await user.click(startInputDecreaseButton);
+
     expect(mockHandleNumberChange).toHaveBeenCalledWith('startNumber', 9);
   });
 
@@ -138,15 +141,11 @@ describe('RadioButtonsQuestionComponent', () => {
 
     const endInputIncreaseButton = increaseButton[1];
     const endInputDecreaseButton = decreaseButton[1];
+    await user.click(endInputIncreaseButton);
 
-    act(() => {
-      fireEvent.click(endInputIncreaseButton);
-    })
     expect(mockHandleNumberChange).toHaveBeenCalledWith('endNumber', 21);
 
-    act(() => {
-      fireEvent.click(endInputDecreaseButton);
-    })
+    await user.click(endInputDecreaseButton);
     expect(mockHandleNumberChange).toHaveBeenCalledWith('endNumber', 19);
   });
 
