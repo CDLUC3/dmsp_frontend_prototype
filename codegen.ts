@@ -9,16 +9,10 @@ const config: CodegenConfig = {
   documents: ['graphql/**/*.graphql'],
   ignoreNoDocuments: true,
   generates: {
-    './generated/graphql.tsx': {
-      plugins: [
-        'typescript',
-        'typescript-operations',
-        'typed-document-node'
-      ],
-      config: {
-        withHooks: false,
-        withComponent: false,
-        withHOC: false
+    './generated/': {
+      preset: 'client',
+      presetConfig: {
+        gqlTagName: 'gql',
       }
     }
   }
