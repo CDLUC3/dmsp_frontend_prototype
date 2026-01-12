@@ -3,7 +3,6 @@ import React from 'react';
 import { act, fireEvent, render, screen, within } from '@/utils/test-utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import * as apolloClientModule from '@/lib/graphql/client/apollo-client';
 import { useQuery } from '@apollo/client/react';
 import {
   TemplateDocument,
@@ -58,8 +57,6 @@ jest.mock('@/components/Form/TypeAheadWithOther', () => ({
     </div>
   ),
 }));
-
-jest.mock('@/lib/graphql/client/apollo-client');
 
 // Mock Apollo Client hooks
 jest.mock('@apollo/client/react', () => ({
@@ -218,8 +215,6 @@ describe("QuestionView", () => {
       init: jest.fn(),
       remove: jest.fn(),
     };
-
-    (apolloClientModule.createApolloClient as jest.Mock).mockImplementation(() => mockClient);
   });
 
   afterEach(() => {

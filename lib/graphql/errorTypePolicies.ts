@@ -29,8 +29,29 @@ const errorRead: FieldReadFunction = (existing, { canRead }) => {
 
 /**
  * Creates type policies that set merge: false for error fields
- * on all specified types. This prevents Apollo from trying to merge
+ * on all specified types and  to always replace with new data. This prevents Apollo from trying to merge
  * error objects which have inconsistent shapes.
+ * Apollo Client v4 made caching more aggressive, and changed some defaults
+ * around object merging. Without this type policy, Apollo tries to merge error objects from different queries. And when it does, 
+ * we get cache pollution and runtime errors.
+ * Example:
+  * // Step 1: Query returns Section with validation errors
+    const section1 = {
+    id: "123",
+    errors: [{ field: "title", message: "Required" }]
+  };
+
+  // Step 2: Mutation returns same Section with different error structure
+    const section2 = {
+    id: "123", 
+    errors: [{ code: "INVALID", details: {...} }]  // Different shape!
+  };
+  Apollo would try and merge these two error arrays, leading to a corrupted cache entry.
+  By setting merge: false, we ensure that the latest data always replaces the old data in the cache.
+  This keeps the cache consistent and avoids runtime errors due to unexpected data shapes.
+ *
+ * @param typeNames - Array of type names that have error fields
+ * @returns TypePolicies object for Apollo Client
  */
 export function createErrorTypePolicies(
   typeNames: readonly string[]

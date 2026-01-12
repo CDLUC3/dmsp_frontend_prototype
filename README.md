@@ -31,7 +31,7 @@ The app is a hybrid framework using both frontend and backend logic. The app inc
 
 ### Graphql Queries and Mutations
 This app is using graphql-codegen to generate types from graphql queries and mutations. Please place your queries in the `graphql` directory and name the file like `graphql/<name>.<query|mutation>.graphql` per the `codegen.ts` config file.
-This will generate the `generated/graphql.tsx` file, and you can use the generated functions or documents to make the graphql requests.
+This will generate the `generated/graphql.ts` file, and you can use the generated functions or documents to make the graphql requests.
 
 Once the schema has been added, you will need to run `npm run generate` this kicks off a script that builds out Typescript Types for the new schema and queries. The schema is dependent on the graphql server running at `dmsp_backend_prototype` in order to successfully generate.
 
@@ -231,13 +231,24 @@ docker run -p 3000:3000 dmsp_frontend_prototype:dmsp_frontend_prod
 |   |-- e2e
 |       |-- spec.cy.ts
 |-- generated
-|   |-- graphql.tsx
+|   |-- fragment-masking.ts
+|   |-- gql.ts
+|   |-- graphql.ts
+|   |-- index.ts
 |-- graphql
-|   |-- affiliations.query.graphql
+|   |-- mutations
+|       |-- affilations.mutations.graphql
+|   |-- queries
+|       |-- affiliations.query.graphql
 |-- lib
 |   |-- graphql
-|       |-- client
-|           |-- apollo-client.ts
+|       |-- apollo-wrapper.tsx
+|       |-- client.ts
+|       |-- apolloClient.ts
+|       |-- graphqlHelper.ts
+|       |-- errorTypePolicies.ts
+|   |-- server
+|       |-- auth.ts
 |-- public
 |   |-- images
 |       |-- dmptool_logo_u166.svg
@@ -305,17 +316,30 @@ export default defineConfig({
 * `GET /api/check-auth`: returns whether user is authenticated based on presence of auth token in cookie
 
 ## Working with GraphQL
-This application makes [GraphQL](https://graphql.org) calls to an [Apollo Server](https://www.apollographql.com/docs/apollo-server) backend application which provides access to data and also handles authentication and authorization functions.
+This application makes [GraphQL](https://graphql.org) calls to an [Apollo Server](https://www.apollographql.com/docs/apollo-server) backend, which provides access to data and handles authentication and authorization.
 
-For more information about the Apollo Server backend, please see [it's Github repo](https://github.com/CDLUC3/dmsp_backend_prototype).
+For more information about the Apollo Server backend, see [its Github repo](https://github.com/CDLUC3/dmsp_backend_prototype).
 
-GraphQL schemas are managed within the Apollo Server backend codebase and also within the `graphql` directory of this project. This directory includes all queries and mutations used by the application to interact with data within the backend.
+GraphQL schemas are managed in the Apollo Server backend and in the `graphql` directory of this project. This directory contains all queries and mutations used by the application to interact with backend data.
 
-When you add or alter these files, (or when the backend has an update) you will need to run `npm run generate` to compile all of the GraphQL source. This process generates the `generated/graphql.tsx` which contains wrappers that allow you to interact with the queries and mutations as if they were callable functions.
+When you add or update GraphQL files in the `graphql` directory (or when the backend schema changes), run `npm run generate` to regenerate the client code. With the [`@graphql-codegen/client-preset`](https://the-guild.dev/graphql/codegen/plugins/presets/preset-client) approach, this process generates several files in the `generated` directory:
 
-We use the `@apollo/client` package to help manage the connection with the Apollo Server system. The setup of the client can be found in `lib/graphql/apollo-wrapper.tsx`. We are using this in the client context instead of server side so that it is callable from the client.
+- `gql.ts`: Exports the `gql` tag for defining GraphQL operations, which is used to write queries and mutations in a type-safe way.
+- `graphql.ts`: Contains all generated document nodes (typed GraphQL documents) for queries, mutations, and fragments. These are used with Apollo Client hooks and methods.
+- `fragment-masking.ts`: Provides utilities for fragment masking, which helps ensure that only the fields selected in a fragment are accessible in your code. This improves type safety when working with GraphQL fragments.
+- `index.ts`: Re-exports the main generated modules for convenience, so you can import from a single entry point.
 
-The `lib/graphql/graphqlHelper.ts` file provides logic for handling retries and the processing of GraphQL errors thrown from the Apollo Server system.
+This app is currently using only the `graphql.ts` generated file by using the GraphQL Documents generated, wrapping them in `useQuery` and `useMutation` hooks from Apollo v4.
+
+```ts
+import { useAddAffiliationMutation } from '../generated/hooks';
+// or
+import { AddAffiliationDocument } from '../generated/graphql';
+```
+
+We use the `@apollo/client` package to manage the connection with Apollo Server. The client setup is in `lib/graphql/apollo-wrapper.tsx` and is configured for client-side usage.
+
+The `lib/graphql/graphqlHelper.ts` file provides logic for handling retries and processing GraphQL errors from Apollo Server.
 
 
 ## Contributing

@@ -198,8 +198,6 @@ jest.mock('next/navigation', () => ({
   useParams: jest.fn()
 }));
 
-jest.mock('@/lib/graphql/client/apollo-client');
-
 jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`,
 }));

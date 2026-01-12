@@ -8,6 +8,15 @@ dotenv.config({ path: './.env.local' });//
 
 const originalError = console.error;
 
+/**
+ * Apollo v4 uses AbortController more agressively for request cancellation, and
+ * these abort operations trigger DOMException errors during test cleanup. This
+ * happens commonly in tests when Components unmount before queries component,
+ * MockedProvider cleans up, or Tests finish while requests are in-flight.
+ * 
+ * Since these errors are expected and handled by Apollo Client internally, we
+ * suppress them in the global console.error to avoid noise in test output.
+ */
 beforeAll(() => {
   /* eslint-disable @typescript-eslint/no-explicit-any */
   console.error = (...args: any[]) => {
@@ -59,27 +68,6 @@ jest.mock('next-intl', () => {
     useTranslations: jest.fn(() => stableMockTranslate), // ← Return SAME function each time
   };
 });
-
-// jest.mock('next-intl', () => {
-//   // Enable the other parts of next-intl to not be mocked
-//   const originalModule = jest.requireActual('next-intl');
-
-//   return {
-//     ...originalModule,
-
-//     useTranslations: jest.fn(() => {
-//       const mockUseTranslations = (key: string) => key;
-//       /*eslint-disable-next-line @typescript-eslint/no-explicit-any*/
-//       mockUseTranslations.rich = (key: string, values?: Record<string, any>) => {
-//         if (values?.p) {
-//           return values.p(key);
-//         }
-//         return key;
-//       };
-//       return mockUseTranslations;
-//     }),
-//   };
-// });
 
 // Mock the clientLogger
 jest.mock('@/utils/clientLogger', () => jest.fn());
