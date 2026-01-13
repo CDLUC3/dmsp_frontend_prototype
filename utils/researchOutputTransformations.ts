@@ -15,8 +15,6 @@ import {
   RO_METADATA_STANDARD_SELECTOR_ID,
   RO_LICENSES_ID,
   RO_ACCESS_LEVELS_ID,
-  REPOSITORY_SEARCH_ID,
-  METADATA_STANDARD_SEARCH_ID
 } from '@/lib/constants';
 import { getDefaultAnswerForType } from '@/utils/researchOutputTable';
 import {

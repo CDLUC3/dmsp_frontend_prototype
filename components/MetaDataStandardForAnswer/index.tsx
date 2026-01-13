@@ -117,7 +117,7 @@ const MetaDataStandardForAnswer = ({
   });
 
   // Metadata standards lazy query
-  const [fetchMetaDataStandardsData, { data: metaDataStandardsData }] = useMetadataStandardsLazyQuery();
+  const [fetchMetaDataStandardsData] = useMetadataStandardsLazyQuery();
 
   // Fetch metadata standards based on search term criteria
   const fetchMetaDataStandards = async ({
@@ -549,7 +549,7 @@ const MetaDataStandardForAnswer = ({
                         <span className={styles.paginationInfo}>
                           {QuestionAdd('labels.displayPaginationCount', {
                             count: metaDataStandards.length,
-                            totalCount: totalCount
+                            totalCount
                           })}
                           {/* Displaying standards {metaDataStandards.length} of {totalCount} in total */}
                         </span>

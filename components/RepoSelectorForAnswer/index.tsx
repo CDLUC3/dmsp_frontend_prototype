@@ -170,7 +170,7 @@ const RepoSelectorForAnswer = ({
   });
 
   // Repositories lazy query
-  const [fetchRepositoriesData, { data: repositoriesData }] = useRepositoriesLazyQuery();
+  const [fetchRepositoriesData] = useRepositoriesLazyQuery();
 
   // Fetch repositories based on search term criteria
   const fetchRepositories = async ({
