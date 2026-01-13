@@ -4,8 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { useParams, useRouter } from 'next/navigation';
 import RepoSelectorForAnswer from '../index';
 import { useToast } from '@/context/ToastContext';
+import { useQuery, useLazyQuery } from '@apollo/client/react';
 import {
   useRepositoriesLazyQuery,
+  RepositoriesDocument,
   useRepositorySubjectAreasQuery,
   useRepositoriesByUrIsQuery
 } from '@/generated/graphql';
@@ -46,6 +48,12 @@ jest.mock('@/app/actions/addRepositoryAction', () => ({
   addRepositoryAction: jest.fn(),
 }));
 
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+  useLazyQuery: jest.fn(),
+}));
+
 jest.mock('@/utils/clientLogger', () => ({
   __esModule: true,
   default: jest.fn(),
@@ -56,13 +64,58 @@ jest.mock('@/utils/routes', () => ({
   routePath: jest.fn((path: string, params: any) => `/template/${params.templateId}/question/new`),
 }));
 
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+const mockUseLazyQuery = jest.mocked(useLazyQuery);
+const mockFetchRepositories = jest.fn().mockResolvedValue({
+  data: mockRepositoriesData
+});
+
+const setupMocks = () => {
+  const stableRepositoriesSubjectAreasReturn = {
+    data: mockSubjectAreasData,
+    loading: false,
+    error: null,
+  };
+
+  mockUseQuery.mockImplementation((document) => {
+    if (document === RepositorySubjectAreasDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return stableRepositoriesSubjectAreasReturn as any;
+    }
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+
+  // Lazy query mocks
+  const stableRepositoriesReturn = [
+    mockFetchRepositories,
+    { data: mockRepositoriesData, loading: false, error: null }
+  ]
+
+  mockUseLazyQuery.mockImplementation((document) => {
+    if (document === RepositoriesDocument) {
+      return stableRepositoriesReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+};
+
 describe('RepoSelectorForAnswer', () => {
   const mockOnRepositoriesChange = jest.fn();
   const mockAddToast = jest.fn();
   const mockPush = jest.fn();
-  const mockFetchRepositoriesData = jest.fn();
 
   beforeEach(() => {
+    setupMocks();
     jest.clearAllMocks();
     cleanup();
 
@@ -229,7 +282,7 @@ describe('RepoSelectorForAnswer', () => {
       fireEvent.click(applyButton);
 
       await waitFor(() => {
-        expect(mockFetchRepositoriesData).toHaveBeenCalledWith(
+        expect(mockFetchRepositories).toHaveBeenCalledWith(
           expect.objectContaining({
             variables: expect.objectContaining({
               input: expect.objectContaining({

@@ -3,24 +3,28 @@
 import React from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { routePath } from '@/utils/routes';
-
+import { useQuery } from '@apollo/client/react';
 import {
   Breadcrumb,
   Breadcrumbs,
   Button,
   Link,
 } from "react-aria-components";
+
+// GraphQL
+import { ProjectFundingsDocument } from '@/generated/graphql';
+
+// Components
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
   LayoutContainer,
 } from "@/components/Container";
-import { useProjectFundingsQuery } from '@/generated/graphql';
+
+// Utils and other
 import { useToast } from '@/context/ToastContext';
-
+import { routePath } from '@/utils/routes';
 import styles from './ProjectsProjectFunding.module.scss';
-
 
 
 const ProjectsProjectFunding = () => {
@@ -33,7 +37,7 @@ const ProjectsProjectFunding = () => {
   const t = useTranslations('ProjectsProjectFunding');
   const Global = useTranslations('Global');
 
-  const { data: funders } = useProjectFundingsQuery({
+  const { data: funders } = useQuery(ProjectFundingsDocument, {
     variables: {
       projectId: Number(projectId),
     },

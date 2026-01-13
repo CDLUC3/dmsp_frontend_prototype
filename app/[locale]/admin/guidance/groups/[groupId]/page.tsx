@@ -16,12 +16,14 @@ import {
 } from "react-aria-components";
 import { useParams, useRouter } from "next/navigation";
 
+import { useQuery } from '@apollo/client/react';
+
 // GraphQL
 import {
-  useMeQuery,
-  useGuidanceGroupQuery,
-  useGuidanceByGroupQuery,
-  useTagsQuery,
+  MeDocument,
+  GuidanceGroupDocument,
+  GuidanceByGroupDocument,
+  TagsDocument,
 } from '@/generated/graphql';
 import {
   addGuidanceTextAction,
@@ -106,13 +108,13 @@ const GuidanceGroupIndexPage: React.FC = () => {
   };
 
   // Query for all tags
-  const { data: tagsData, loading: tagsLoading } = useTagsQuery();
+  const { data: tagsData, loading: tagsLoading } = useQuery(TagsDocument);
 
   // Run me query to get user's name
-  const { data: me } = useMeQuery();
+  const { data: me } = useQuery(MeDocument);
 
   // Fetch guidance group data
-  const { data: guidanceGroupData } = useGuidanceGroupQuery({
+  const { data: guidanceGroupData } = useQuery(GuidanceGroupDocument, {
     variables: {
       guidanceGroupId: Number(groupId)
     },
@@ -120,7 +122,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
   });
 
   // Fetch Guidance Texts by Group Id
-  const { data: guidance, loading: guidanceLoading } = useGuidanceByGroupQuery({
+  const { data: guidance, loading: guidanceLoading } = useQuery(GuidanceByGroupDocument, {
     variables: {
       guidanceGroupId: Number(groupId)
     },

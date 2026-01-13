@@ -15,10 +15,10 @@ import {
   SearchField,
 } from "react-aria-components";
 
-
-// GraphQL queries and mutations
+// GraphQL
+import { useLazyQuery } from '@apollo/client/react';
 import {
-  useMetadataStandardsLazyQuery,
+  MetadataStandardsDocument,
 } from '@/generated/graphql';
 
 import {
@@ -103,7 +103,7 @@ const MetaDataStandardsSelector = ({
   const [metaDataStandards, setMetaDataStandards] = useState<any[]>([]);
 
   // Metadata standards lazy query
-  const [fetchMetaDataStandardsData, { data: metaDataStandardsData }] = useMetadataStandardsLazyQuery();
+  const [fetchMetaDataStandardsData, { data: metaDataStandardsData }] = useLazyQuery(MetadataStandardsDocument);
 
 
   // Fetch metadata standards based on search term criteria
@@ -130,7 +130,7 @@ const MetaDataStandardsSelector = ({
         },
         term: searchTerm,
       }
-    });
+    }).catch(() => { }); // The promise from fetchMetaDataStandardsData can be caught to prevent unhandled rejection warnings (i.e., AbortError from Apollo Client  )
   };
 
   // Handle pagination page click

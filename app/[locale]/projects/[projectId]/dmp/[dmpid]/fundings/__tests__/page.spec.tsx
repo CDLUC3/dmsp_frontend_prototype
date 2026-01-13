@@ -9,7 +9,7 @@ import {
 
 import '@testing-library/jest-dom';
 import { useParams, useRouter } from 'next/navigation';
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import {
   ProjectFundingsDocument,
   PlanFundingsDocument,
@@ -286,7 +286,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
 
   it('should render the radio group with funding options', async () => {
     render(
-      <MockedProvider mocks={MOCKS} addTypename={false}>
+      <MockedProvider mocks={MOCKS}>
         <ProjectsProjectPlanAdjustFunding />
       </MockedProvider>
     );
@@ -302,7 +302,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
 
   it('should render the note about changing the funding sources', () => {
     render(
-      <MockedProvider mocks={MOCKS} addTypename={false}>
+      <MockedProvider mocks={MOCKS}>
         <ProjectsProjectPlanAdjustFunding />
       </MockedProvider>
     );
@@ -312,7 +312,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
 
   it('should render the save button', () => {
     render(
-      <MockedProvider mocks={MOCKS} addTypename={false}>
+      <MockedProvider mocks={MOCKS}>
         <ProjectsProjectPlanAdjustFunding />
       </MockedProvider>
     );
@@ -322,7 +322,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
 
   it('should have the current funding choice selected', async () => {
     render(
-      <MockedProvider mocks={MOCKS} addTypename={false}>
+      <MockedProvider mocks={MOCKS}>
         <ProjectsProjectPlanAdjustFunding />
       </MockedProvider>
     );
@@ -340,7 +340,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
 
   it('should handle form submission', async () => {
     render(
-      <MockedProvider mocks={MOCKS} addTypename={false}>
+      <MockedProvider mocks={MOCKS}>
         <ProjectsProjectPlanAdjustFunding />
       </MockedProvider>
     );
@@ -367,7 +367,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
 
   it('should handle errors on form submission', async () => {
     render(
-      <MockedProvider mocks={MOCKS} addTypename={false}>
+      <MockedProvider mocks={MOCKS}>
         <ProjectsProjectPlanAdjustFunding />
       </MockedProvider>
     );
@@ -389,7 +389,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
 
   it('should handle network errors on form submission', async () => {
     render(
-      <MockedProvider mocks={MOCKS} addTypename={false}>
+      <MockedProvider mocks={MOCKS}>
         <ProjectsProjectPlanAdjustFunding />
       </MockedProvider>
     );
@@ -422,7 +422,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
 
   it('should render the link to add new funding', () => {
     render(
-      <MockedProvider mocks={MOCKS} addTypename={false}>
+      <MockedProvider mocks={MOCKS}>
         <ProjectsProjectPlanAdjustFunding />
       </MockedProvider>
     );
@@ -434,7 +434,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
 
   it('should pass accessibility tests', async () => {
     const { container } = render(
-      <MockedProvider mocks={MOCKS} addTypename={false}>
+      <MockedProvider mocks={MOCKS}>
         <ProjectsProjectPlanAdjustFunding />
       </MockedProvider>
     );

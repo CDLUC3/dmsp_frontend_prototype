@@ -5,7 +5,6 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 import TypeAheadInput from '..';
 import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
 
-jest.mock('@/lib/graphql/client/apollo-client');
 jest.mock('@/utils/clientLogger', () => ({
   __esModule: true,
   default: jest.fn(),

@@ -17,10 +17,10 @@ import {
   SearchField,
 } from "react-aria-components";
 
-
-// GraphQL queries and mutations
+// GraphQL
+import { useLazyQuery } from '@apollo/client/react';
 import {
-  useMetadataStandardsLazyQuery,
+  MetadataStandardsDocument,
   useMetadataStandardsByUrIsQuery
 } from '@/generated/graphql';
 

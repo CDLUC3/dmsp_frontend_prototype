@@ -3,9 +3,6 @@
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
-import { routePath } from '@/utils/routes';
-import { useProjectFundingsApiLazyQuery } from '@/generated/graphql';
-
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -16,6 +13,10 @@ import {
   Text
 } from "react-aria-components";
 
+// GraphQL
+import { useLazyQuery } from '@apollo/client/react';
+import { ProjectFundingsApiDocument } from '@/generated/graphql';
+
 // Components
 import PageHeader from "@/components/PageHeader";
 import {
@@ -24,11 +25,14 @@ import {
 } from "@/components/Container"
 import { RadioGroupComponent } from '@/components/Form';
 
+// Utils and other
+import { routePath } from '@/utils/routes';
+
 
 const ProjectsCreateProjectFunding = () => {
   const router = useRouter();
   const params = useParams();
-  const [fundingsApiQuery] = useProjectFundingsApiLazyQuery({});
+  const [fundingsApiQuery] = useLazyQuery(ProjectFundingsApiDocument, {});
 
   const { projectId } = params;
   const PROJECT_SEARCH_URL = routePath('projects.create.projects.search', {

@@ -15,13 +15,14 @@ import {
 } from '@dmptool/types';
 
 //GraphQL
+import { useQuery } from '@apollo/client/react';
 import {
   RepoPreference,
   ResearchOutputTable
 } from '@/app/types';
 import {
-  useRecommendedLicensesQuery,
-  useDefaultResearchOutputTypesQuery,
+  RecommendedLicensesDocument,
+  DefaultResearchOutputTypesDocument,
 } from '@/generated/graphql';
 
 //Components
@@ -101,11 +102,11 @@ const SingleResearchOutputComponent = ({
   const scrollToElement = useScrollToElement();
 
   // GraphQL Queries
-  const { data: recommendedLicensesData } = useRecommendedLicensesQuery({
+  const { data: recommendedLicensesData } = useQuery(RecommendedLicensesDocument, {
     variables: { recommended: true },
   });
 
-  const { data: defaultResearchOutputTypesData } = useDefaultResearchOutputTypesQuery();
+  const { data: defaultResearchOutputTypesData } = useQuery(DefaultResearchOutputTypesDocument);
 
   // Helper function to get translated label from column
   const getTranslatedLabel = (col: typeof columns[0]): string => {

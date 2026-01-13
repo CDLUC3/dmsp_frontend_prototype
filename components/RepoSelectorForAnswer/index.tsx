@@ -26,10 +26,12 @@ import ExpandButton from "@/components/ExpandButton";
 import Pagination from '@/components/Pagination';
 
 // GraphQL queries and mutations
+import { useQuery, useLazyQuery } from '@apollo/client/react';
 import {
   Repository,
   RepositoryType,
   useRepositoriesLazyQuery,
+  RepositoriesDocument,
   useRepositorySubjectAreasQuery,
   useRepositoriesByUrIsQuery,
 } from '@/generated/graphql';
@@ -154,7 +156,7 @@ const RepoSelectorForAnswer = ({
     , []);
 
   // Get Repository Subject Areas
-  const { data: subjectAreasData } = useRepositorySubjectAreasQuery();
+  const { data: subjectAreasData } = useQuery(RepositorySubjectAreasDocument);
 
   // Transform subject areas data for FormSelect - add empty option for deselection
   const subjectAreas = [
@@ -170,7 +172,7 @@ const RepoSelectorForAnswer = ({
   });
 
   // Repositories lazy query
-  const [fetchRepositoriesData] = useRepositoriesLazyQuery();
+  const [fetchRepositoriesData] = useLazyQuery(RepositoriesDocument);
 
   // Fetch repositories based on search term criteria
   const fetchRepositories = async ({

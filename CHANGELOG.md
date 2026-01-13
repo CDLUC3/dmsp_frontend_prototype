@@ -1,10 +1,21 @@
 ## Added
+- Added `errorTypePolicies` to use in the `apollo-wrapper.tsx` file, due to changes in Apollo's default caching and merge behavior. Setting "merge: false" always replaces new data, instead of trying to merge error objects [#1089]
 - Added Question Preview for `ResearchOutput` type [#1055]
 - Added new `ResearchOutputAnswerComponent`, `SingleResearchOutputComponent`, `RepoSelectorForAnswer` and `MetaDataStandardForAnswer` components for the rendering of `researchOutputTable` question type answer form [#787]
 - Added `utils/researchOutputTransformations.ts` to group utilities for `researchOutputTable` [#787]
 ### Updated
 - Updated `RepoSelectorForAnswer` and `MetaDataStandardForAnswer` so that the preferred selections display in the modal when first loaded [#1094]
 - Updated `ResearchOutputAnswerComponent` and `researchOutputTransformations.ts` so that we don't get the preferred repos and standards displaying as pre-selected in the Research Output Answer form [#1094]
+- Updated `@apollo/client` to `v4` which required updates to our `graphql-codegen` process and, therefore, almost all components and unit tests [#1089]
+  - Updated `codegen.ts` for new Client Preset approach [#1089]
+  - Updated all components to use the new Apollo Client v4 approach of using Documents and wrapping them in hooks, like `useQuery` and `useMutation` from `apollo/client/react` [#1089]
+  - Updated `lib/graphql/graphqlHelper.ts` to use new Apollo Client methods [#1089]
+  - Replaced use of `@apollo/experimental-nextjs-app-support` with `@apollo.client-integration-nextjs` [#1089]
+  - Installed `rxjs` peer dependency for Apollo Client v4 [#1089]
+  - Installed `@graphql-codegen/client-preset` and `@graphql-codegen/typed-document-node` which replaces no longer supported `@graphql-codegen/typescript-react-apollo` [#1089]
+  - Deleted `lib/graphql/server` files since they were old and not being used [#1089]
+  - Updated `lib/graphql/client` and `lib/graphql/apolloClient` with new methods for Apollo Client v4 [#1089]
+  - Updated `jest.setup.ts` to suppress `DOMException` errors in tests [#1089]
 - Updated `/login` page to disable `email` field when on second step of login [#997]
 - Updated "Share with people" link on `ProjectsProjectMember` component to go to `/collaboration` page [#845]
 - Updated `TemplateEditPage` component with the new `Unpublished changes` status [#875]
@@ -26,6 +37,10 @@
 - Fixed related works pagination.
 
 ### Chore
+- Updates required in conjunction with update of Apollo Client version [#1089]
+  - Updated Apollo Client from `3.13.8 to 4.0.11`
+  - Removed `@apollo/experimental-nextjs-app-support` to `@apollo/client-integration-nextjs@0.14.1`
+  - Removed `@graphql-codegen/typescript-react-apollo` and replaced with `@graphql-codegen/client-preset`
 - Removing `github/dependabot.yaml` file because we are opting to use `renovate` to notify us of dependency updates
 - Updated the following packages: `@types/react` to 18.3.27, `react` to 19.2.3, `react-dom` to 19.2.3, `node-fetch` to 3.3.2, `@types/node` to 24.10.4, `eslint` to 9.39.2, `eslint-plugin-unused-imports` to 4.3.0, `husky` to 9.1.7, `pino` to 9.14.0 and `prettier` to 3.7.4
 - Updated `qs` to 6.14.1 version due to vulnerability and updated dependency `cypress` to version 15.0.0

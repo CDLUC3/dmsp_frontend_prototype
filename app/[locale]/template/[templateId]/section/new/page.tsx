@@ -14,13 +14,14 @@ import {
 } from "react-aria-components";
 import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
+import { useMutation, useLazyQuery } from '@apollo/client/react';
 
 import {
   SectionErrors,
   VersionedSectionSearchResult,
   VersionedSectionSearchResults,
-  useAddSectionMutation,
-  usePublishedSectionsLazyQuery
+  AddSectionDocument,
+  PublishedSectionsDocument
 } from '@/generated/graphql';
 
 // Components
@@ -99,7 +100,7 @@ const SectionTypeSelectPage: React.FC = () => {
   const templateId = String(params.templateId); // From route /template/:templateId
 
   // Initialize user addSection mutation
-  const [addSectionMutation] = useAddSectionMutation();
+  const [addSectionMutation] = useMutation(AddSectionDocument);
 
   //Localization keys
   const AddNewSection = useTranslations('SectionTypeSelectPage');
@@ -107,8 +108,8 @@ const SectionTypeSelectPage: React.FC = () => {
   const Global = useTranslations('Global');
 
   // Separate lazy queries for published sections
-  const [fetchOrgSections, { data: orgSectionsData, loading: orgLoading }] = usePublishedSectionsLazyQuery();
-  const [fetchBestPracticeSections, { data: bestPracticeData, loading: bestPracticeLoading }] = usePublishedSectionsLazyQuery();
+  const [fetchOrgSections, { data: orgSectionsData, loading: orgLoading }] = useLazyQuery(PublishedSectionsDocument);
+  const [fetchBestPracticeSections, { data: bestPracticeData, loading: bestPracticeLoading }] = useLazyQuery(PublishedSectionsDocument);
 
   const resetSearch = useCallback(() => {
     setSearchTerm('');

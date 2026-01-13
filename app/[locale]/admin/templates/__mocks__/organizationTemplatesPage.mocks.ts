@@ -538,7 +538,16 @@ export const multipleItemsErrorMock = [
         },
       },
     },
-    error: new Error('Network error'),
+    result: {
+      errors: [
+        {
+          message: 'Network error',
+          locations: undefined,
+          path: undefined,
+          extensions: {}
+        }
+      ]
+    },
   },
 ];
 

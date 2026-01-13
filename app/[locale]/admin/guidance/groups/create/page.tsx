@@ -11,9 +11,11 @@ import {
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
+import { useQuery } from '@apollo/client/react';
+
 // GraphQL
 import {
-  useMeQuery,
+  MeDocument,
 } from '@/generated/graphql';
 import { addGuidanceGroupAction } from "./actions";
 
@@ -59,7 +61,7 @@ const GuidanceGroupCreatePage: React.FC = () => {
   const errorRef = useRef<HTMLDivElement | null>(null);
 
   // Run me query to get user's affiliationId
-  const { data: me, loading } = useMeQuery();
+  const { data: me, loading } = useQuery(MeDocument);
 
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [guidanceGroup, setGuidanceGroup] = useState<GuidanceGroupInterface>({

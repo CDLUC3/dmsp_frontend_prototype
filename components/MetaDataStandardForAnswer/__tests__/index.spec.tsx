@@ -5,6 +5,10 @@ import { NextIntlClientProvider } from 'next-intl';
 import MetaDataStandardForAnswer from '../index';
 import { MetaDataStandardInterface } from '@/app/types';
 import mockMetadataStandardsData from '../__mocks__/mockMetadataStandardsData.json';
+import { useLazyQuery } from '@apollo/client/react';
+import {
+  MetadataStandardsDocument,
+} from '@/generated/graphql';
 import mockPreferredMetadataStandardsData from '../__mocks__/mockPreferredMetadataStandardsData.json';
 import { useMetadataStandardsByUrIsQuery } from '@/generated/graphql';
 
@@ -18,15 +22,17 @@ jest.mock('next/navigation', () => ({
   })),
 }));
 
-// Mock the GraphQL query
-const mockFetchMetaDataStandards = jest.fn();
-const mockUseMetadataStandardsLazyQuery = jest.fn();
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useLazyQuery: jest.fn(),
+}));
+
+// Mock the generated GraphQL documents
 jest.mock('@/generated/graphql', () => ({
   useMetadataStandardsByUrIsQuery: jest.fn(),
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any*/
   useMetadataStandardsLazyQuery: (...args: any[]) => mockUseMetadataStandardsLazyQuery(...args),
 }));
-
 
 // Mock the server action
 const mockAddMetaDataStandardsAction = jest.fn();
@@ -170,23 +176,51 @@ const renderWithProviders = (component: React.ReactElement) => {
   );
 };
 
+// Cast with jest.mocked utility
+const mockUseLazyQuery = jest.mocked(useLazyQuery);
+
+let mockFetchMetaDataStandards: jest.Mock;
+
+const setupMocks = () => {
+  mockFetchMetaDataStandards = jest.fn().mockResolvedValue({
+    data: mockMetadataStandardsData,
+  });
+
+  const stableMetadataStandardsReturn = [
+    mockFetchMetaDataStandards,
+    {
+      data: mockMetadataStandardsData,
+      loading: false,
+      error: null,
+    }
+  ];
+
+  mockUseLazyQuery.mockImplementation((document) => {
+    if (document === MetadataStandardsDocument) {
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any*/
+      return stableMetadataStandardsReturn as any;
+    }
+
+    return [
+      jest.fn(),
+      {
+        data: null,
+        loading: false,
+        error: undefined
+      }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+    ] as any;
+  });
+};
+
 describe('MetaDataStandardForAnswer', () => {
   let mockOnMetaDataStandardsChange: jest.Mock;
   const user = userEvent.setup();
 
   beforeEach(() => {
+    setupMocks(); // Call setupMocks to initialize the mocks
+
     mockOnMetaDataStandardsChange = jest.fn();
-
-    // Set default mock return value for the lazy query hook
-    mockUseMetadataStandardsLazyQuery.mockReturnValue([
-      mockFetchMetaDataStandards,
-      { data: mockMetadataStandardsData },
-    ]);
-
-    // Mock the resolved value when the lazy query is called
-    mockFetchMetaDataStandards.mockResolvedValue({
-      data: mockMetadataStandardsData,
-    });
 
     mockAddMetaDataStandardsAction.mockResolvedValue({
       success: true,
@@ -392,26 +426,6 @@ describe('MetaDataStandardForAnswer', () => {
 
   describe('Select/Deselect Standards', () => {
     it('should select a metadata standard', async () => {
-
-      mockUseMetadataStandardsLazyQuery.mockReturnValue([
-        mockFetchMetaDataStandards,
-        {
-          data: {
-            metadataStandards: {
-              __typename: 'MetadataStandardSearchResults',
-              items: mockMetadataStandardsData.metadataStandards.items,
-              totalCount: 51,
-              hasNextPage: true,
-              hasPreviousPage: false,
-              currentOffset: 0,
-              limit: 5,
-              nextCursor: null,
-              availableSortFields: ['m.name', 'm.created'],
-            },
-          },
-        },
-      ]);
-
       renderWithProviders(
         <MetaDataStandardForAnswer
           value={[]}
@@ -453,25 +467,6 @@ describe('MetaDataStandardForAnswer', () => {
         },
       ];
 
-      mockUseMetadataStandardsLazyQuery.mockReturnValue([
-        mockFetchMetaDataStandards,
-        {
-          data: {
-            metadataStandards: {
-              __typename: 'MetadataStandardSearchResults',
-              items: mockMetadataStandardsData.metadataStandards.items,
-              totalCount: 51,
-              hasNextPage: true,
-              hasPreviousPage: false,
-              currentOffset: 0,
-              limit: 5,
-              nextCursor: null,
-              availableSortFields: ['m.name', 'm.created'],
-            },
-          },
-        },
-      ]);
-
       renderWithProviders(
         <MetaDataStandardForAnswer
           value={selectedStandards}
@@ -509,13 +504,13 @@ describe('MetaDataStandardForAnswer', () => {
     it('should remove single standard from selected list', async () => {
       const selectedStandards: MetaDataStandardInterface[] = [
         {
-          id: 'https://repositorio.unicamp.br/', // ← ID should equal URI
+          id: 'https://repositorio.unicamp.br/',
           name: 'Terminal RI Unicamp',
           uri: 'https://repositorio.unicamp.br/',
           description: 'Institutional Repository from Unicamp',
         },
         {
-          id: 'https://stac-extensions.github.io/version/v1.2.0/schema.json', // ← ID should equal URI
+          id: 'https://stac-extensions.github.io/version/v1.2.0/schema.json',
           name: 'STAC 1.2.0',
           uri: 'https://stac-extensions.github.io/version/v1.2.0/schema.json',
           description: 'STAC Versioning Indicators Extension',
@@ -533,7 +528,6 @@ describe('MetaDataStandardForAnswer', () => {
       expect(screen.getByText('STAC 1.2.0')).toBeInTheDocument();
 
       const removeButtons = screen.getAllByRole('button', { name: 'buttons.remove' });
-      // Click the first individual remove button (not "Remove All")
       await user.click(removeButtons[0]);
 
       await waitFor(() => {
@@ -598,12 +592,10 @@ describe('MetaDataStandardForAnswer', () => {
       const addButton = screen.getByTestId('open-standard-modal-btn');
       await user.click(addButton);
 
-      // Wait for the modal/dialog to be in the document
       await waitFor(() => {
         expect(screen.getByTestId('modal')).toBeInTheDocument();
       });
 
-      // Also wait for the heading to ensure modal content is rendered
       await waitFor(() => {
         expect(screen.getByText('researchOutput.metaDataStandards.headings.dialogHeading')).toBeInTheDocument();
       });
@@ -630,12 +622,10 @@ describe('MetaDataStandardForAnswer', () => {
       const addButton = screen.getByTestId('open-standard-modal-btn');
       await user.click(addButton);
 
-      // Wait for the modal/dialog to be in the document
       await waitFor(() => {
         expect(screen.getByTestId('modal')).toBeInTheDocument();
       });
 
-      // Also wait for the heading to ensure modal content is rendered
       await waitFor(() => {
         expect(screen.getByText('researchOutput.metaDataStandards.headings.dialogHeading')).toBeInTheDocument();
       });
@@ -695,12 +685,10 @@ describe('MetaDataStandardForAnswer', () => {
       const addButton = screen.getByTestId('open-standard-modal-btn');
       await user.click(addButton);
 
-      // Wait for the modal/dialog to be in the document
       await waitFor(() => {
         expect(screen.getByTestId('modal')).toBeInTheDocument();
       });
 
-      // Also wait for the heading to ensure modal content is rendered
       await waitFor(() => {
         expect(screen.getByText('researchOutput.metaDataStandards.headings.dialogHeading')).toBeInTheDocument();
       });
@@ -735,12 +723,10 @@ describe('MetaDataStandardForAnswer', () => {
       const addButton = screen.getByTestId('open-standard-modal-btn');
       await user.click(addButton);
 
-      // Wait for the modal/dialog to be in the document
       await waitFor(() => {
         expect(screen.getByTestId('modal')).toBeInTheDocument();
       });
 
-      // Also wait for the heading to ensure modal content is rendered
       await waitFor(() => {
         expect(screen.getByText('researchOutput.metaDataStandards.headings.dialogHeading')).toBeInTheDocument();
       });
@@ -754,7 +740,8 @@ describe('MetaDataStandardForAnswer', () => {
       await waitFor(() => {
         expect(screen.getByText('researchOutput.metaDataStandards.headings.addCustomHeading')).toBeInTheDocument();
       });
-      const cancelButton = screen.getByRole('button', { name: 'buttons.closeModal' });
+
+      const cancelButton = screen.getByRole('button', { name: 'buttons.cancel' });
       await user.click(cancelButton);
 
       await waitFor(() => {
@@ -765,25 +752,6 @@ describe('MetaDataStandardForAnswer', () => {
 
   describe('Pagination', () => {
     it('should handle page navigation', async () => {
-      mockUseMetadataStandardsLazyQuery.mockReturnValue([
-        mockFetchMetaDataStandards,
-        {
-          data: {
-            metadataStandards: {
-              __typename: 'MetadataStandardSearchResults',
-              items: mockMetadataStandardsData.metadataStandards.items,
-              totalCount: 51,
-              hasNextPage: true,
-              hasPreviousPage: false,
-              currentOffset: 0,
-              limit: 5,
-              nextCursor: null,
-              availableSortFields: ['m.name', 'm.created'],
-            },
-          },
-        },
-      ]);
-
       renderWithProviders(
         <MetaDataStandardForAnswer
           value={[]}

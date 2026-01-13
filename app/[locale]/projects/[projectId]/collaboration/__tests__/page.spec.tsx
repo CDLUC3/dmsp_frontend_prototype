@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, act, waitFor, within } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { useParams, useRouter } from 'next/navigation';
 import { removeProjectCollaboratorAction, updateProjectCollaboratorAction, resendInviteToProjectCollaboratorAction } from '../actions';
 import { mockScrollIntoView } from "@/__mocks__/common";

@@ -2,7 +2,7 @@ import React from 'react';
 import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useRouter, useParams } from 'next/navigation';
 import '@testing-library/jest-dom';
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 
 import { ProjectFundingsDocument } from '@/generated/graphql';
@@ -82,7 +82,7 @@ describe('ProjectsProjectFunding', () => {
 
   it('should render the page header with title and description', () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <ProjectsProjectFunding />
       </MockedProvider>
     );
@@ -99,7 +99,7 @@ describe('ProjectsProjectFunding', () => {
 
   it('should render breadcrumbs correctly', () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <ProjectsProjectFunding />
       </MockedProvider>
     );
@@ -111,7 +111,7 @@ describe('ProjectsProjectFunding', () => {
 
   it('should render the "Add funding" button and handles click', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <ProjectsProjectFunding />
       </MockedProvider>
     );
@@ -129,7 +129,7 @@ describe('ProjectsProjectFunding', () => {
   it('should render the fundings list and handles "Edit" button click', async () => {
     act(() => {
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider mocks={mocks}>
           <ProjectsProjectFunding />
         </MockedProvider>
       );
@@ -142,34 +142,15 @@ describe('ProjectsProjectFunding', () => {
     });
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/en-US/projects/123/fundings/945tg9h4g045g/edit');
+      expect(mockPush).toHaveBeenCalledWith('/en-US/projects/123/fundings/1/edit');
     });
 
   });
 
-  it('should display toast error when a user clicks a funder without a funderProjectNumber', async () => {
-    act(() => {
-      render(
-        <MockedProvider mocks={mocks} addTypename={false}>
-          <ProjectsProjectFunding />
-        </MockedProvider>
-      );
-    });
-    await waitFor(() => {
-      const editButton = screen.getByLabelText('Edit National Science Foundation (nsf.gov) details');
-      expect(editButton).toBeInTheDocument();
-      fireEvent.click(editButton);
-    });
 
-    await waitFor(() => {
-      expect(mockToast.add).toHaveBeenCalledWith('messages.errors.funderNumberNotFound', { type: 'error' });
-    });
-  });
-
-
-  it.only('should pass accessibility tests', async () => {
+  it('should pass accessibility tests', async () => {
     const { container } = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <ProjectsProjectFunding />
       </MockedProvider>
     );

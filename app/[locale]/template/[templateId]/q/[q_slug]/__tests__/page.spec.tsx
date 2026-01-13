@@ -1,10 +1,11 @@
 import React from "react";
 import { act, fireEvent, render, screen, waitFor, within } from '@/utils/test-utils';
 import { routePath } from '@/utils/routes';
+import { useQuery } from '@apollo/client/react';
 import {
-  useQuestionQuery,
-  useLicensesQuery,
-  useDefaultResearchOutputTypesQuery,
+  QuestionDocument,
+  LicensesDocument,
+  DefaultResearchOutputTypesDocument,
 } from '@/generated/graphql';
 
 import {
@@ -216,9 +217,59 @@ jest.mock('@/context/ToastContext', () => ({
     add: jest.fn(),
   })),
 }));
+
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+}));
+
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+
+const setupMocks = () => {
+  // Create stable references OUTSIDE mockImplementation
+  const stableQuestionReturn = {
+    data: mockQuestionData,
+    loading: false,
+    error: null,
+  };
+
+  const stableLicensesReturn = {
+    data: mockLicensesData,
+    loading: false,
+    error: null,
+  };
+
+  const stableDefaultResearchOutputTypesReturn = {
+    data: mockDefaultOutputTypesData,
+    loading: false,
+    error: null,
+  };
+
+  mockUseQuery.mockImplementation((document) => {
+    if (document === QuestionDocument) {
+      return stableQuestionReturn as any;
+    }
+
+    if (document === LicensesDocument) {
+      return stableLicensesReturn as any;
+    }
+
+    if (document === DefaultResearchOutputTypesDocument) {
+      return stableDefaultResearchOutputTypesReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+};
 describe("QuestionEditPage", () => {
   let mockRouter;
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
     const mockTemplateId = 123;
@@ -249,26 +300,6 @@ describe("QuestionEditPage", () => {
     // Mock the router
     mockRouter = { push: jest.fn() };
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
-
-    (useQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useToast as jest.Mock).mockReturnValue({ add: jest.fn() });
-
-    (useLicensesQuery as jest.Mock).mockReturnValue({
-      data: mockLicensesData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-      data: mockDefaultOutputTypesData,
-      loading: false,
-      error: undefined,
-    });
 
     (updateQuestionAction as jest.Mock).mockResolvedValue({
       success: true,
@@ -310,10 +341,21 @@ describe("QuestionEditPage", () => {
   });
 
   it("should render correct fields and content", async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+
+    const mockQuestionTextArea = {
       data: mockQuestionDataForTextArea,
       loading: false,
-      error: undefined,
+      error: undefined
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with text question type
@@ -377,7 +419,7 @@ describe("QuestionEditPage", () => {
   });
 
   it("should set question.required to \'true\' when user selects the \'yes\' radio button", async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: {
         question: {
           ...mockRadioQuestion.question,
@@ -386,6 +428,16 @@ describe("QuestionEditPage", () => {
       },
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
@@ -407,7 +459,6 @@ describe("QuestionEditPage", () => {
     render(
       <QuestionEdit />
     );
-
 
     await waitFor(() => {
       expect(screen.getByText('breadcrumbs.home')).toBeInTheDocument();
@@ -512,11 +563,22 @@ describe("QuestionEditPage", () => {
   })
 
   it('should call the updateQuestionAction when user clicks \'save\' button', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForTextField,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
+
     // Render with text question type
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
@@ -575,11 +637,22 @@ describe("QuestionEditPage", () => {
   })
 
   it('should not display the useSampleTextAsDefault checkbox if the questionTypeId is Radio Button field', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockRadioQuestion,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
+
     // Render with text question type
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
@@ -626,10 +699,20 @@ describe("QuestionEditPage", () => {
       } as unknown as ReturnType<typeof useSearchParams>;
     });
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForTextArea,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -660,10 +743,21 @@ describe("QuestionEditPage", () => {
       } as unknown as ReturnType<typeof useSearchParams>;
     });
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+
+    const mockQuestionTextArea = {
       data: mockQuestionDataForTextField,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -677,11 +771,20 @@ describe("QuestionEditPage", () => {
   })
 
   it("should call handleRangeLabelChange for dateRange question type", async () => {
-
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForDateRange,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with text question type
@@ -717,11 +820,20 @@ describe("QuestionEditPage", () => {
   });
 
   it("should call handleRangeLabelChange for number range question type", async () => {
-
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForNumberRange,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with text question type
@@ -757,11 +869,20 @@ describe("QuestionEditPage", () => {
   });
 
   it("should call handleTypeAheadSearchLabelChange for affiliationSearch question type", async () => {
-
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForTypeAheadSearch,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with text affiliation search type
@@ -799,10 +920,20 @@ describe("QuestionEditPage", () => {
 
   it("should call handleTypeAheadHelpTextChange for affiliationSearch question type", async () => {
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForTypeAheadSearch,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with text question type
@@ -839,10 +970,20 @@ describe("QuestionEditPage", () => {
 
   it("should display error if updateQuestionAction rejects", async () => {
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForNumberRange,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     (updateQuestionAction as jest.Mock).mockResolvedValue({
@@ -895,10 +1036,20 @@ describe("QuestionEditPage", () => {
       error: 'Mocked parse error',
     });
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForTextField,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with text question type
@@ -938,11 +1089,22 @@ describe("QuestionEditPage", () => {
   });
 
   it('should set question to filtered question when user passes in questionTypeIdQueryParam', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForDateRange,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
+
     // Render with text question type
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
@@ -987,10 +1149,20 @@ describe("QuestionEditPage", () => {
       error: 'Failed to parse during submit',
     });
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForDateRange,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with text question type
@@ -1022,10 +1194,20 @@ describe("QuestionEditPage", () => {
   });
 
   it('should call logECS if useQuestionQuery graphql query returns an error ', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: null,
       loading: false,
       error: { message: 'There was an error when calling useQuestionQuery' },
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with text question type
@@ -1174,10 +1356,20 @@ describe("QuestionEditPage", () => {
   ])("QuestionEditPage - $questionType", ({ questionType, mockData }) => {
 
     it(`should call updateQuestionAction with correct JSON for ${questionType}`, async () => {
-      (useQuestionQuery as jest.Mock).mockReturnValue({
+      const mockQuestionTextArea = {
         data: mockData,
         loading: false,
         error: undefined,
+      };
+      mockUseQuery.mockImplementation((document) => {
+        if (document === QuestionDocument) {
+          return mockQuestionTextArea as any;
+        }
+        return {
+          data: null,
+          loading: false,
+          error: undefined
+        };
       });
 
       (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
@@ -1250,24 +1442,6 @@ describe('QuestionEditPage Delete Functionality', () => {
     // Mock the router
     mockRouter = { push: jest.fn() };
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
-
-    (useQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useLicensesQuery as jest.Mock).mockReturnValue({
-      data: mockLicensesData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-      data: mockDefaultOutputTypesData,
-      loading: false,
-      error: undefined,
-    });
 
     (updateQuestionAction as jest.Mock).mockResolvedValue({
       success: true,
@@ -1468,24 +1642,6 @@ describe('Options questions', () => {
     mockRouter = { push: jest.fn() };
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useLicensesQuery as jest.Mock).mockReturnValue({
-      data: mockLicensesData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-      data: mockDefaultOutputTypesData,
-      loading: false,
-      error: undefined,
-    });
-
     (updateQuestionAction as jest.Mock).mockResolvedValue({
       success: true,
       data: {
@@ -1513,10 +1669,20 @@ describe('Options questions', () => {
   });
 
   it('should load Radio options', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockRadioQuestion,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with radio button question type
@@ -1558,24 +1724,43 @@ describe('Options questions', () => {
   })
 
   it('should add a new row when the add button is clicked', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const stableQuestionReturn = {
       data: mockRadioQuestion,
       loading: false,
-      error: undefined,
-    });
+      error: null,
+    };
 
-    (useLicensesQuery as jest.Mock).mockReturnValue({
+    const stableLicensesReturn = {
       data: mockLicensesData,
       loading: false,
-      error: undefined,
-    });
+      error: null,
+    };
 
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
+    const stableDefaultResearchOutputTypesReturn = {
       data: mockDefaultOutputTypesData,
       loading: false,
-      error: undefined,
-    });
+      error: null,
+    };
 
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return stableQuestionReturn as any;
+      }
+
+      if (document === LicensesDocument) {
+        return stableLicensesReturn as any;
+      }
+
+      if (document === DefaultResearchOutputTypesDocument) {
+        return stableDefaultResearchOutputTypesReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
 
     // Render with radio button question type
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
@@ -1639,10 +1824,20 @@ describe('Options questions', () => {
     // Mock addEventListener
     const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
     const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener');
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockRadioQuestion,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with radio button question type
@@ -1751,22 +1946,42 @@ describe("Research Output Question Type - Edit", () => {
       } as unknown as ReturnType<typeof useSearchParams>;
     });
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const stableQuestionReturn = {
       data: mockQuestionData,
       loading: false,
-      error: undefined,
-    });
+      error: null,
+    };
 
-    (useLicensesQuery as jest.Mock).mockReturnValue({
+    const stableLicensesReturn = {
       data: mockLicensesData,
       loading: false,
-      error: undefined,
-    });
+      error: null,
+    };
 
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
+    const stableDefaultResearchOutputTypesReturn = {
       data: mockDefaultOutputTypesData,
       loading: false,
-      error: undefined,
+      error: null,
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return stableQuestionReturn as any;
+      }
+
+      if (document === LicensesDocument) {
+        return stableLicensesReturn as any;
+      }
+
+      if (document === DefaultResearchOutputTypesDocument) {
+        return stableDefaultResearchOutputTypesReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     (updateQuestionAction as jest.Mock).mockResolvedValue({
@@ -1815,10 +2030,20 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should render research output fields when question JSON is researchOutputTable', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const mockQuestionTextArea = {
       data: { question: { id: 67, questionText: 'Research Output Table Question', json: researchOutputJson, displayOrder: 1, sectionId: 67, requirementText: '', guidanceText: '', sampleText: '', useSampleTextAsDefault: false, required: false } },
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -1841,10 +2066,20 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should show tooltip for required fields (Title and Output Type) on edit', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const mockQuestionTextArea = {
       data: { question: { id: 67, questionText: 'Research Output Table Question', json: researchOutputJson, displayOrder: 1, sectionId: 67, requirementText: '', guidanceText: '', sampleText: '', useSampleTextAsDefault: false, required: false } },
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -1861,10 +2096,20 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should toggle field customization panels when customize button is clicked (edit)', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const mockQuestionTextArea = {
       data: { question: { id: 67, questionText: 'Research Output Table Question', json: researchOutputJson, displayOrder: 1, sectionId: 67, requirementText: '', guidanceText: '', sampleText: '', useSampleTextAsDefault: false, required: false } },
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -1882,10 +2127,20 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should enable/disable standard fields when checkbox is toggled (edit)', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const mockQuestionTextArea = {
       data: { question: { id: 67, questionText: 'Research Output Table Question', json: researchOutputJson, displayOrder: 1, sectionId: 67, requirementText: '', guidanceText: '', sampleText: '', useSampleTextAsDefault: false, required: false } },
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => { render(<QuestionEdit />); });
@@ -1899,10 +2154,20 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should show data flags configuration when data flags field is customized (edit)', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const mockQuestionTextArea = {
       data: mockSelectedQuestion,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     render(<QuestionEdit />);
@@ -1931,11 +2196,22 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should handle repository configuration and repo selection system (edit)', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const mockQuestionTextArea = {
       data: { question: { id: 67, questionText: 'Research Output Table Question', json: researchOutputJson, displayOrder: 1, sectionId: 67, requirementText: '', guidanceText: '', sampleText: '', useSampleTextAsDefault: false, required: false } },
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
+
     await act(async () => { render(<QuestionEdit />); });
 
     const repoSelectorCheckbox = screen.getByLabelText('researchOutput.labels.repositories');
@@ -1948,14 +2224,45 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should auto-enable repository field when adding a repository while field is disabled (edit)', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const stableQuestionReturn = {
       data: { question: { id: 67, questionText: 'Research Output Table Question', json: researchOutputJson, displayOrder: 1, sectionId: 67, requirementText: '', guidanceText: '', sampleText: '', useSampleTextAsDefault: false, required: false } },
       loading: false,
       error: undefined,
-    });
+    };
 
-    (useLicensesQuery as jest.Mock).mockReturnValue({ data: { licenses: { items: [] } }, loading: false, error: undefined });
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({ data: { defaultResearchOutputTypes: [] }, loading: false, error: undefined });
+    const stableLicensesReturn = {
+      data: {
+        licenses: { items: [] }
+      },
+      loading: false,
+      error: null,
+    };
+
+    const stableDefaultResearchOutputTypesReturn = {
+      data: { defaultResearchOutputTypes: [] },
+      loading: false,
+      error: null,
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return stableQuestionReturn as any;
+      }
+
+      if (document === LicensesDocument) {
+        return stableLicensesReturn as any;
+      }
+
+      if (document === DefaultResearchOutputTypesDocument) {
+        return stableDefaultResearchOutputTypesReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
 
     render(<QuestionEdit />);
 
@@ -1976,14 +2283,45 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should handle metadata standards changes and auto-enable (edit)', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const stableQuestionReturn = {
       data: mockSelectedQuestion,
       loading: false,
       error: undefined,
-    });
+    };
 
-    (useLicensesQuery as jest.Mock).mockReturnValue({ data: { licenses: { items: [] } }, loading: false, error: undefined });
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({ data: { defaultResearchOutputTypes: [] }, loading: false, error: undefined });
+    const stableLicensesReturn = {
+      data: {
+        licenses: { items: [] }
+      },
+      loading: false,
+      error: null,
+    };
+
+    const stableDefaultResearchOutputTypesReturn = {
+      data: { defaultResearchOutputTypes: [] },
+      loading: false,
+      error: null,
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return stableQuestionReturn as any;
+      }
+
+      if (document === LicensesDocument) {
+        return stableLicensesReturn as any;
+      }
+
+      if (document === DefaultResearchOutputTypesDocument) {
+        return stableDefaultResearchOutputTypesReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
 
     render(<QuestionEdit />);
 
@@ -2002,10 +2340,20 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should handle license field interactions (edit)', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const mockQuestion = {
       data: { question: { id: 67, questionText: 'Research Output Table Question', json: researchOutputJson, displayOrder: 1, sectionId: 67, requirementText: '', guidanceText: '', sampleText: '', useSampleTextAsDefault: false, required: false } },
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestion as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => { render(<QuestionEdit />); });
@@ -2023,10 +2371,20 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should set hasUnsavedChanges when research output fields are modified (edit)', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const mockQuestion = {
       data: { question: { id: 67, questionText: 'Research Output Table Question', json: researchOutputJson, displayOrder: 1, sectionId: 67, requirementText: '', guidanceText: '', sampleText: '', useSampleTextAsDefault: false, required: false } },
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestion as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => { render(<QuestionEdit />); });
@@ -2059,10 +2417,20 @@ describe("Research Output Question Type - Edit", () => {
     });
 
     const nonResearchJson = JSON.stringify({ meta: { schemaVersion: '1.0' }, type: 'text', attributes: {} });
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const mockQuestion = {
       data: { question: { id: 67, questionText: 'Text Question', json: nonResearchJson, displayOrder: 1, sectionId: 67 } },
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestion as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => { render(<QuestionEdit />); });

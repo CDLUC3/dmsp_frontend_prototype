@@ -1,7 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import { useProjectMemberQuery } from '@/generated/graphql';
+
+// GraphQL
+import { useQuery } from '@apollo/client/react';
+import { ProjectMemberDocument } from '@/generated/graphql';
+
+// Utils and other
 import { ProjectMemberFormInterface } from '@/app/types';
 
 // Custom hook to fetch project Member data
@@ -18,7 +23,7 @@ export const useProjectMemberData = (projectMemberId: number) => {
   const [checkboxRoles, setCheckboxRoles] = useState<string[]>([]);
 
   // Query for the specified project member
-  const { data, loading, error: queryError } = useProjectMemberQuery({
+  const { data, loading, error: queryError } = useQuery(ProjectMemberDocument, {
     variables: {
       projectMemberId: Number(projectMemberId)
     },

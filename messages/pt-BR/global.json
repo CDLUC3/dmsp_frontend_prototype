@@ -113,7 +113,10 @@
         "surNameValidation": "O nome deve ter pelo menos 2 caracteres",
         "affiliationValidation": "O nome da instituição não pode ficar em branco e deve ter pelo menos 2 caracteres",
         "otherAffiliationValidation": "Outro nome de instituição não pode estar em branco e deve ter pelo menos 2 caracteres",
-        "errorUpdatingProfile": "Erro ao atualizar perfil"
+        "errorUpdatingProfile": "Erro ao atualizar perfil",
+        "errorSettingPrimaryEmail": "Erro ao definir o e-mail principal",
+        "errorAddingNewEmail": "Erro ao adicionar novo e-mail",
+        "errorDeletingEmail": "Erro ao excluir e-mail"
       }
     }
   },

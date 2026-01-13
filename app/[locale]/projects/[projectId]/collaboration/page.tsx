@@ -15,10 +15,11 @@ import {
 } from "react-aria-components";
 
 //GraphQL
+import { useQuery } from '@apollo/client/react';
 import {
   ProjectCollaborator,
   ProjectCollaboratorAccessLevel,
-  useProjectCollaboratorsQuery
+  ProjectCollaboratorsDocument
 } from '@/generated/graphql';
 
 import {
@@ -74,7 +75,7 @@ const ProjectsProjectCollaboration = () => {
   const [announcement, setAnnouncement] = useState('');
 
   // Get project collaborators
-  const { data, loading, error: queryError } = useProjectCollaboratorsQuery(
+  const { data, loading, error: queryError } = useQuery(ProjectCollaboratorsDocument,
     {
       variables: { projectId: Number(projectId) },
       skip: (!projectId), // prevents the query from running when no projectId

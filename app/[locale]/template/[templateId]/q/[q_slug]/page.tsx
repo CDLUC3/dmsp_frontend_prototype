@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useQuery } from '@apollo/client/react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -25,9 +26,9 @@ import {
   TextField
 } from "react-aria-components";
 
-// GraphQL queries and mutations
+// GraphQL
 import {
-  useQuestionQuery,
+  QuestionDocument,
 } from '@/generated/graphql';
 
 import {
@@ -176,13 +177,11 @@ const QuestionEdit = () => {
     data: selectedQuestion,
     loading,
     error: selectedQuestionQueryError
-  } = useQuestionQuery(
-    {
-      variables: {
-        questionId: Number(questionId)
-      }
-    },
-  );
+  } = useQuery(QuestionDocument, {
+    variables: {
+      questionId: Number(questionId)
+    }
+  });
 
   // Update rows state and question.json when options change
   const updateRows = (newRows: QuestionOptions[]) => {
@@ -401,6 +400,7 @@ const QuestionEdit = () => {
 
     if (response.redirect) {
       router.push(response.redirect);
+      return;
     }
 
     if (!response.success) {
