@@ -853,7 +853,7 @@ describe('MetaDataStandardForAnswer', () => {
   });
 
   describe('Selected Count Display', () => {
-    it('should display correct count for single standard', () => {
+    it('should display correct count for single standard', async () => {
       const selectedStandards: MetaDataStandardInterface[] = [
         {
           id: 28,
@@ -870,10 +870,12 @@ describe('MetaDataStandardForAnswer', () => {
         />
       );
 
-      expect(screen.getByText(/1 researchOutput.metaDataStandards.singleMetaData selected/i)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(/1 researchOutput.metaDataStandards.singleMetaData selected/i)).toBeInTheDocument();
+      })
     });
 
-    it('should display correct count for multiple standards', () => {
+    it('should display correct count for multiple standards', async () => {
       const selectedStandards: MetaDataStandardInterface[] = [
         {
           id: 28,
@@ -896,7 +898,9 @@ describe('MetaDataStandardForAnswer', () => {
         />
       );
 
-      expect(screen.getByText(/2 researchOutput.metaDataStandards.multipleMetaData selected/i)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(/2 researchOutput.metaDataStandards.multipleMetaData selected/i)).toBeInTheDocument();
+      });
     });
   });
 });
