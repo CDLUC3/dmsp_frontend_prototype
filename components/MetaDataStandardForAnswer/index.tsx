@@ -310,7 +310,7 @@ const MetaDataStandardForAnswer = ({
       setHasNextPage(false);
       setHasPreviousPage(false);
     }
-  }, [isModalOpen, preferredMetaDataURIs, preferredMetaDataStandardsData, showPreferredOnly]);
+  }, [isModalOpen, preferredMetaDataURIs, preferredMetaDataStandardsData]);
 
   useEffect(() => {
     if (!isModalOpen && preferredMetaDataURIs && preferredMetaDataURIs.length > 0) {
@@ -424,6 +424,7 @@ const MetaDataStandardForAnswer = ({
                                 onChange={(e) => handleSearchInput(e.target.value)}
                                 placeholder='e.g. DataCite, Dublin, Biological, etc.'
                               />
+
                             </SearchField>
                             {preferredMetaDataURIs && preferredMetaDataURIs.length > 0 && (
                               <div className={styles.checkboxWrapper}>
@@ -469,6 +470,7 @@ const MetaDataStandardForAnswer = ({
                               </div>
                             )}
 
+
                             <div className={styles.filterActions}>
                               <Button
                                 className="primary medium"
@@ -476,15 +478,16 @@ const MetaDataStandardForAnswer = ({
                                   handleSearch(searchTerm);
                                 }}
                               >
-                                {Global('buttons.applyFilter')}
+                                {preferredMetaDataURIs && preferredMetaDataURIs.length > 0 ? Global('buttons.applyFilter') : Global('buttons.search')}
                               </Button>
-                              <Link
-                                href="#"
+                              <Button
                                 onClick={() => setIsCustomFormOpen(!isCustomFormOpen)}
+                                className="secondary medium"
                               >
                                 {QuestionAdd('researchOutput.metaDataStandards.buttons.add')}
-                              </Link>
+                              </Button>
                             </div>
+
                           </div>
                         </div>
                       </div>

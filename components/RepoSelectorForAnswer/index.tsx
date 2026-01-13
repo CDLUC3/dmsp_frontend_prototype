@@ -400,7 +400,7 @@ const RepoSelectorForAnswer = ({
       setHasNextPage(false);
       setHasPreviousPage(false);
     }
-  }, [isModalOpen, preferredReposURIs, preferredRepositoriesData, showPreferredOnly]);
+  }, [isModalOpen, preferredReposURIs, preferredRepositoriesData]);
 
 
   useEffect(() => {

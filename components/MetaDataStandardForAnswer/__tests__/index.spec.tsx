@@ -202,7 +202,7 @@ describe('MetaDataStandardForAnswer', () => {
   });
 
   describe('Initial Render', () => {
-    it('should render with no selected standards', () => {
+    it('should render with no selected standards', async () => {
       renderWithProviders(
         <MetaDataStandardForAnswer
           value={[]}
@@ -211,11 +211,15 @@ describe('MetaDataStandardForAnswer', () => {
       );
 
       const span = screen.getByText(/0\s+researchOutput\.metaDataStandards\.multipleMetaData\s+selected/i);
-      expect(span).toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: /remove all/i })).not.toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(span).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /remove all/i })).not.toBeInTheDocument();
+      })
+
     });
 
-    it('should render with selected standards', () => {
+    it('should render with selected standards', async () => {
       const selectedStandards: MetaDataStandardInterface[] = [
         {
           id: 28,
@@ -233,12 +237,15 @@ describe('MetaDataStandardForAnswer', () => {
       );
 
       const span = screen.getByText(/1\s+researchOutput\.metaDataStandards\.singleMetaData\s+selected/i);
-      expect(span).toBeInTheDocument();
-      expect(screen.getByText('Terminal RI Unicamp')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'buttons.remove' })).toBeInTheDocument();
+      await waitFor(() => {
+        expect(span).toBeInTheDocument();
+        expect(screen.getByText('Terminal RI Unicamp')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'buttons.remove' })).toBeInTheDocument();
+      })
+
     });
 
-    it('should render add button', () => {
+    it('should render add button', async () => {
       renderWithProviders(
         <MetaDataStandardForAnswer
           value={[]}
@@ -246,7 +253,9 @@ describe('MetaDataStandardForAnswer', () => {
         />
       );
 
-      expect(screen.getByRole('button', { name: 'researchOutput.metaDataStandards.buttons.add' })).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'researchOutput.metaDataStandards.buttons.add' })).toBeInTheDocument();
+      })
     });
 
     it('should load metadata standards when modal opens', async () => {
@@ -339,8 +348,8 @@ describe('MetaDataStandardForAnswer', () => {
         />
       );
 
-      const addLink = screen.getByText('researchOutput.metaDataStandards.buttons.add');
-      await user.click(addLink);
+      const addButton = screen.getByRole('button', { name: 'researchOutput.metaDataStandards.buttons.add' });
+      await user.click(addButton);
 
       const searchInput = screen.getByLabelText('labels.searchTerm');
       await user.type(searchInput, 'Dublin');
@@ -362,7 +371,7 @@ describe('MetaDataStandardForAnswer', () => {
       const searchInput = screen.getByLabelText('labels.searchTerm');
       await user.type(searchInput, 'Dublin');
 
-      const applyButton = screen.getByRole('button', { name: 'buttons.applyFilter' });
+      const applyButton = screen.getByRole('button', { name: 'buttons.search' });
       await user.click(applyButton);
 
       await waitFor(() => {
