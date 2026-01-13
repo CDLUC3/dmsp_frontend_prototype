@@ -1,11 +1,18 @@
 import React from 'react';
-import { act, render, screen, fireEvent } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import NumberComponent from '../index';
 
 expect.extend(toHaveNoViolations);
 
 describe('NumberComponent', () => {
+  let user: ReturnType<typeof userEvent.setup>;
+
+  beforeEach(() => {
+    user = userEvent.setup();
+  });
+
   it('should render label and input with initial value', () => {
     render(
       <NumberComponent
@@ -17,7 +24,7 @@ describe('NumberComponent', () => {
     expect(screen.getByRole('textbox')).toHaveValue('5');
   });
 
-  it('should call onChange with incremented value when + button is clicked', () => {
+  it('should call onChange with incremented value when + button is clicked', async () => {
     const handleChange = jest.fn();
     render(
       <NumberComponent
@@ -27,11 +34,11 @@ describe('NumberComponent', () => {
       />
     );
     const incrementButton = screen.getByRole('button', { name: /increase/i });
-    fireEvent.click(incrementButton);
+    await user.click(incrementButton);
     expect(handleChange).toHaveBeenCalledWith(3);
   });
 
-  it('should call onChange with decremented value when - button is clicked', () => {
+  it('should call onChange with decremented value when - button is clicked', async () => {
     const handleChange = jest.fn();
     render(
       <NumberComponent
@@ -41,7 +48,7 @@ describe('NumberComponent', () => {
       />
     );
     const decrementButton = screen.getByRole('button', { name: /decrease/i });
-    fireEvent.click(decrementButton);
+    await user.click(decrementButton);
     expect(handleChange).toHaveBeenCalledWith(1);
   });
 
@@ -73,7 +80,7 @@ describe('NumberComponent', () => {
     expect(incrementButton).toBeDisabled();
   });
 
-  it('should not decrement below minValue', () => {
+  it('should not decrement below minValue', async () => {
     const handleChange = jest.fn();
     render(
       <NumberComponent
@@ -84,11 +91,11 @@ describe('NumberComponent', () => {
       />
     );
     const decrementButton = screen.getByRole('button', { name: /decrease/i });
-    fireEvent.click(decrementButton);
+    await user.click(decrementButton);
     expect(handleChange).not.toHaveBeenCalled();
   });
 
-  it('should not increment above maxValue', () => {
+  it('should not increment above maxValue', async () => {
     const handleChange = jest.fn();
     render(
       <NumberComponent
@@ -99,11 +106,11 @@ describe('NumberComponent', () => {
       />
     );
     const incrementButton = screen.getByRole('button', { name: /increase/i });
-    fireEvent.click(incrementButton);
+    await user.click(incrementButton);
     expect(handleChange).not.toHaveBeenCalled();
   });
 
-  it('should use step prop when incrementing and decrementing', () => {
+  it('should use step prop when incrementing and decrementing', async () => {
     const handleChange = jest.fn();
     render(
       <NumberComponent
@@ -115,9 +122,9 @@ describe('NumberComponent', () => {
     );
     const incrementButton = screen.getByRole('button', { name: /increase/i });
     const decrementButton = screen.getByRole('button', { name: /decrease/i });
-    fireEvent.click(incrementButton);
+    await user.click(incrementButton);
     expect(handleChange).toHaveBeenCalledWith(4);
-    fireEvent.click(decrementButton);
+    await user.click(decrementButton);
     expect(handleChange).toHaveBeenCalledWith(0);
   });
 

@@ -6,12 +6,13 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from "next-intl";
 import Image from 'next/image';
 
+// GraphQL
+import { useQuery } from '@apollo/client/react';
 import {
-  usePublishedQuestionsQuery,
-  usePublishedSectionQuery,
-  usePlanQuery,
+  PublishedQuestionsDocument,
+  PublishedSectionDocument,
+  PlanDocument,
 } from '@/generated/graphql';
-
 
 // Components
 import {
@@ -25,10 +26,11 @@ import ExpandableContentSection from '@/components/ExpandableContentSection';
 import PageHeader from "@/components/PageHeader";
 import SafeHtml from '@/components/SafeHtml';
 
-// Other
+// Utils and other
 import { stripHtml } from '@/utils/general';
 import { routePath } from '@/utils/routes';
 import styles from './PlanOverviewSectionPage.module.scss';
+
 interface VersionedQuestion {
   id: string;
   title: string;
@@ -50,17 +52,17 @@ const PlanOverviewSectionPage: React.FC = () => {
   // Validate that dmpId is a valid number
   const planId = parseInt(dmpId);
 
-  const { data: questionsData, loading: questionsLoading, error: questionsError } = usePublishedQuestionsQuery({
+  const { data: questionsData, loading: questionsLoading, error: questionsError } = useQuery(PublishedQuestionsDocument, {
     variables: { planId, versionedSectionId },
     skip: !versionedSectionId
   });
 
-  const { data: sectionData, loading: sectionLoading } = usePublishedSectionQuery({
+  const { data: sectionData, loading: sectionLoading } = useQuery(PublishedSectionDocument, {
     variables: { versionedSectionId },
     skip: !versionedSectionId
   });
 
-  const { data: planData, loading: planLoading } = usePlanQuery({
+  const { data: planData, loading: planLoading } = useQuery(PlanDocument, {
     variables: { planId },
     skip: !planId
   });

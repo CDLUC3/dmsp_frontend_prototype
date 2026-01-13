@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { ApolloError } from "@apollo/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
@@ -9,7 +8,12 @@ import { usePathname } from "@/i18n/routing";
 import { Breadcrumb, Breadcrumbs, Button, Form, ListBoxItem, Text } from "react-aria-components";
 
 // GraphQL queries and mutations
-import { useLanguagesQuery, useMeQuery, UserErrors, useUpdateUserProfileMutation } from "@/generated/graphql";
+import {
+  LanguagesDocument,
+  MeDocument,
+  UserErrors,
+  UpdateUserProfileDocument
+} from "@/generated/graphql";
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -30,6 +34,10 @@ import { refreshAuthTokens } from "@/utils/authHelper";
 import { useToast } from "@/context/ToastContext";
 import styles from "./profile.module.scss";
 import { routePath } from "@/utils/routes";
+
+// Apollo Client
+import { useQuery, useMutation } from '@apollo/client/react';
+
 
 const ProfilePage: React.FC = () => {
   const t = useTranslations("UserProfile");
@@ -79,11 +87,11 @@ const ProfilePage: React.FC = () => {
   };
 
   // Initialize user profile mutation
-  const [updateUserProfileMutation, { loading: updateUserProfileLoading }] = useUpdateUserProfileMutation();
+  const [updateUserProfileMutation, { loading: updateUserProfileLoading }] = useMutation(UpdateUserProfileDocument);
 
   // Run queries
-  const { data: languageData } = useLanguagesQuery();
-  const { data, loading: queryLoading, error: queryError, refetch } = useMeQuery();
+  const { data: languageData } = useQuery(LanguagesDocument,);
+  const { data, loading: queryLoading, error: queryError, refetch } = useQuery(MeDocument,);
 
   // Client-side validation of fields
   const validateField = (name: string, value: string) => {
@@ -149,16 +157,16 @@ const ProfilePage: React.FC = () => {
         await switchLanguage(formData.languageId, true);
       }
     } catch (error) {
-      if (error instanceof ApolloError) {
-        //
-        setIsEditing(false);
-      } else {
-        // Handle other types of errors
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          general: t("messages.errors.errorUpdatingProfile"),
-        }));
-      }
+      // Handle errors
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        general: t("messages.errors.errorUpdatingProfile"),
+      }));
+      logECS("error", "Error updating profile", {
+        errors: error,
+        url: { path: routePath("account.profile") },
+      });
+      setIsEditing(false);
     }
   };
 

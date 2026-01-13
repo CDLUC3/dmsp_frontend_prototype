@@ -113,7 +113,10 @@
         "surNameValidation": "Surname must be at least 2 characters",
         "affiliationValidation": "Institution name cannot be blank and must be at least 2 characters long",
         "otherAffiliationValidation": "Other institution name cannot be blank and must be at least 2 characters long",
-        "errorUpdatingProfile": "Error when updating profile"
+        "errorUpdatingProfile": "Error when updating profile",
+        "errorSettingPrimaryEmail": "Error when setting primary email",
+        "errorAddingNewEmail": "Error when adding new email",
+        "errorDeletingEmail": "Error when deleting email"
       }
     }
   },

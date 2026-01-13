@@ -37,7 +37,7 @@ const RelatedWorksPage = () => {
         actions={
           <>
             <Button
-              onPress={() => {}}
+              onPress={() => { }}
               className="primary"
             >
               {t("buttons.addRelatedWorkManually")}

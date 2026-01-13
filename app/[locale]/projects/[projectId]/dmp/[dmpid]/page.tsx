@@ -16,13 +16,21 @@ import {
   Radio,
   Text,
 } from "react-aria-components";
+
+// GraphQL
+import { useQuery } from '@apollo/client/react';
 import {
   PlanSectionProgress,
   PlanStatus,
   PlanVisibility,
-  usePlanQuery,
-  usePlanFeedbackStatusQuery,
+  PlanDocument,
+  PlanFeedbackStatusDocument,
 } from "@/generated/graphql";
+import {
+  publishPlanAction,
+  updatePlanStatusAction,
+  updatePlanTitleAction
+} from "./actions";
 
 //Components
 import { ContentContainer, LayoutWithPanel, SidebarPanel } from "@/components/Container";
@@ -32,11 +40,11 @@ import { FormSelect, RadioGroupComponent } from "@/components/Form";
 import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
 import OverviewSection from "@/components/OverviewSection";
 
+// Utils and other
 import { routePath } from "@/utils/routes";
 import { toTitleCase } from "@/utils/general";
 import { extractErrors } from "@/utils/errorHandler";
 import { useToast } from "@/context/ToastContext";
-import { publishPlanAction, updatePlanStatusAction, updatePlanTitleAction } from "./actions";
 import {
   PlanMember,
   PlanOverviewInterface,
@@ -170,7 +178,7 @@ const PlanOverviewPage: React.FC = () => {
     loading,
     error: queryError,
     refetch,
-  } = usePlanQuery({
+  } = useQuery(PlanDocument, {
     variables: { planId: Number(planId) },
     skip: isNaN(planId), // prevents the query from running when id is not a number
     notifyOnNetworkStatusChange: true,
@@ -180,7 +188,7 @@ const PlanOverviewPage: React.FC = () => {
     data: feedbackData,
     loading: feedbackLoading,
     error: feedbackError,
-  } = usePlanFeedbackStatusQuery({
+  } = useQuery(PlanFeedbackStatusDocument, {
     variables: { planId: Number(planId) },
     skip: isNaN(planId),
   });

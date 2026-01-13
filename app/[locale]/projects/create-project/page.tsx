@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useMutation } from '@apollo/client/react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -15,7 +16,7 @@ import {
 
 //GraphQL
 import {
-  useAddProjectMutation,
+  AddProjectDocument,
   ProjectErrors,
 } from '@/generated/graphql';
 
@@ -31,7 +32,7 @@ import {
 } from '@/components/Form';
 import ErrorMessages from '@/components/ErrorMessages';
 
-//Other
+// Utils and other
 import logECS from '@/utils/clientLogger';
 import { scrollToTop } from '@/utils/general';
 import { routePath } from '@/utils/routes';
@@ -72,7 +73,7 @@ const ProjectsCreateProject = () => {
   const Global = useTranslations('Global');
   const CreateProject = useTranslations('ProjectsCreateProject');
 
-  const [addProjectMutation] = useAddProjectMutation();
+  const [addProjectMutation] = useMutation(AddProjectDocument);
 
   // Update form data
   const handleUpdate = (name: string, value: string | string[]) => {
@@ -187,6 +188,8 @@ const ProjectsCreateProject = () => {
           }));
         }
       }).catch((error) => {
+        // Ignore AbortErrors from React Strict Mode or navigation
+        if (error.name === 'AbortError') return;
         logECS('error', 'createProject', {
           error,
           url: { path: routePath('projects.create') }

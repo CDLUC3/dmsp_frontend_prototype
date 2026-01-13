@@ -9,8 +9,19 @@ import {
   updatePlanStatusAction,
   updatePlanTitleAction
 } from '../actions';
-import { usePlanQuery, usePlanFeedbackStatusQuery } from '@/generated/graphql';
+import { useQuery } from '@apollo/client/react';
+import {
+  PlanDocument,
+  PlanFeedbackStatusDocument
+} from '@/generated/graphql';
 import { useToast } from '@/context/ToastContext';
+
+// Mock Apollo Client
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+}));
+
+const mockUseQuery = jest.mocked(useQuery);
 
 jest.mock('../actions/index', () => ({
   publishPlanAction: jest.fn(),
@@ -46,6 +57,7 @@ jest.mock('next-intl', () => ({
 
 // Mock the graphql hooks
 jest.mock("@/generated/graphql", () => ({
+  ...jest.requireActual("@/generated/graphql"),
   PlanStatus: {
     Archived: 'ARCHIVED',
     Complete: 'COMPLETE',
@@ -56,14 +68,6 @@ jest.mock("@/generated/graphql", () => ({
     Private: 'PRIVATE',
     Organizational: 'ORGANIZATIONAL',
   },
-  usePlanQuery: jest.fn(),
-
-  usePlanFeedbackStatusQuery: jest.fn().mockReturnValue({
-    data: { planFeedbackStatus: 'NONE' },
-    loading: false,
-    error: null,
-    refetch: jest.fn(),
-  }),
 }));
 
 import {
@@ -93,9 +97,43 @@ const mockToast = {
 
 expect.extend(toHaveNoViolations);
 
+const setupMocks = () => {
+  // Create references OUTSIDE mockImplementation to prevent maximum update depth exceeded error
+  const planQueryReturn = {
+    data: { plan: mockPlanData.plan },
+    loading: false,
+    error: null,
+    refetch: jest.fn(),
+  };
+
+  const feedbackQueryReturn = {
+    data: null,
+    loading: false,
+    error: undefined,
+  };
+
+  // Mock useQuery to return different data based on which document is queried
+  mockUseQuery.mockImplementation((document) => {
+    if (document === PlanDocument) {
+      return planQueryReturn;
+    }
+
+    if (document === PlanFeedbackStatusDocument) {
+      return feedbackQueryReturn;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined,
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+    } as any;
+  });
+};
 
 describe('PlanOverviewPage', () => {
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
 
@@ -107,13 +145,6 @@ describe('PlanOverviewPage', () => {
     (useToast as jest.Mock).mockReturnValue(mockToast);
 
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
-    // Mock the hook for data state
-    (usePlanQuery as jest.Mock).mockReturnValue({
-      data: { plan: mockPlanData.plan },
-      loading: false,
-      error: null,
-      refetch: jest.fn()
-    });
   })
 
   afterEach(() => {
@@ -121,10 +152,33 @@ describe('PlanOverviewPage', () => {
   });
 
   it('should render loading state', () => {
-    (usePlanQuery as jest.Mock).mockReturnValue({
-      data: null,
-      loading: true,
-      error: null,
+    // Override mock for this test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PlanDocument) {
+        return {
+          data: null,
+          loading: true,
+          error: undefined,
+          refetch: jest.fn(),
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      if (document === PlanFeedbackStatusDocument) {
+        return {
+          data: null,
+          loading: false,
+          error: undefined,
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: true,
+        error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
     });
 
     render(<PlanOverviewPage />);
@@ -132,13 +186,42 @@ describe('PlanOverviewPage', () => {
   });
 
   it('should render error state', () => {
-    (usePlanQuery as jest.Mock).mockReturnValue({
-      data: null,
-      loading: false,
-      error: { message: 'Error' },
+    // Create error object outside so it has stable reference
+    const mockError = { message: 'Error loading plan' };
+
+    // Override mock for this test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PlanDocument) {
+        return {
+          data: null,
+          loading: false,
+          error: mockError,
+          refetch: jest.fn(),
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      if (document === PlanFeedbackStatusDocument) {
+        return {
+          data: null,
+          loading: false,
+          error: undefined,
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
     });
+
     render(<PlanOverviewPage />);
-    expect(screen.getByText(/Error/i)).toBeInTheDocument();
+
+    // Wait for error to appear since it's set via useEffect
+    expect(screen.getByText(/Error loading plan/i)).toBeInTheDocument();
   });
 
   it('should render plan data', async () => {
@@ -187,11 +270,36 @@ describe('PlanOverviewPage', () => {
       status: null
     };
 
-    (usePlanQuery as jest.Mock).mockReturnValue({
+    // Create references OUTSIDE mockImplementation to prevent maximum update depth exceeded error
+    const planQueryReturn = {
       data: { plan: updatedMockPlanData },
       loading: false,
       error: null,
-      refetch: jest.fn()
+      refetch: jest.fn(),
+    };
+
+    const feedbackQueryReturn = {
+      data: null,
+      loading: false,
+      error: undefined,
+    };
+
+    // Override mock for this test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PlanDocument) {
+        return planQueryReturn;
+      }
+
+      if (document === PlanFeedbackStatusDocument) {
+        return feedbackQueryReturn;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
     });
 
     render(<PlanOverviewPage />);
@@ -234,12 +342,40 @@ describe('PlanOverviewPage', () => {
       registered: '2023-10-01T00:00:00Z',
     };
 
-    (usePlanQuery as jest.Mock).mockReturnValue({
+
+    // Create references OUTSIDE mockImplementation to prevent maximum update depth exceeded error
+    const planQueryReturn = {
       data: { plan: updatedMockPlanData },
       loading: false,
       error: null,
-      refetch: jest.fn()
+      refetch: jest.fn(),
+    };
+
+    const feedbackQueryReturn = {
+      data: null,
+      loading: false,
+      error: undefined,
+    };
+
+
+    // Override mock for this test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PlanDocument) {
+        return planQueryReturn;
+      }
+
+      if (document === PlanFeedbackStatusDocument) {
+        return feedbackQueryReturn;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
     });
+
 
     render(<PlanOverviewPage />);
 
@@ -250,11 +386,37 @@ describe('PlanOverviewPage', () => {
 
   it('should display plan status UNPUBLISHED if \'registered\' prop has a value of null', async () => {
 
-    (usePlanQuery as jest.Mock).mockReturnValue({
+    // Create references OUTSIDE mockImplementation to prevent maximum update depth exceeded error
+    const planQueryReturn = {
       data: { plan: mockPlanData.plan },
       loading: false,
       error: null,
-      refetch: jest.fn()
+      refetch: jest.fn(),
+    };
+
+    const feedbackQueryReturn = {
+      data: null,
+      loading: false,
+      error: undefined,
+    };
+
+
+    // Override mock for this test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PlanDocument) {
+        return planQueryReturn;
+      }
+
+      if (document === PlanFeedbackStatusDocument) {
+        return feedbackQueryReturn;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
     });
 
     render(<PlanOverviewPage />);
@@ -269,12 +431,40 @@ describe('PlanOverviewPage', () => {
       ...mockPlanData.plan,
       sections: [],
     };
-    (usePlanQuery as jest.Mock).mockReturnValue({
+
+    // Create references OUTSIDE mockImplementation to prevent maximum update depth exceeded error
+    const planQueryReturn = {
       data: { plan: mockPlanDataWithNoSections },
       loading: false,
       error: null,
-      refetch: jest.fn()
+      refetch: jest.fn(),
+    };
+
+    const feedbackQueryReturn = {
+      data: null,
+      loading: false,
+      error: undefined,
+    };
+
+
+    // Override mock for this test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PlanDocument) {
+        return planQueryReturn;
+      }
+
+      if (document === PlanFeedbackStatusDocument) {
+        return feedbackQueryReturn;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
     });
+
 
     render(<PlanOverviewPage />);
 
@@ -913,11 +1103,37 @@ describe('PlanOverviewPage', () => {
       status: null
     };
 
-    (usePlanQuery as jest.Mock).mockReturnValue({
+    // Create references OUTSIDE mockImplementation to prevent maximum update depth exceeded error
+    const planQueryReturn = {
       data: { plan: updatedMockPlanData },
       loading: false,
       error: null,
-      refetch: jest.fn()
+      refetch: jest.fn(),
+    };
+
+    const feedbackQueryReturn = {
+      data: null,
+      loading: false,
+      error: undefined,
+    };
+
+
+    // Override mock for this test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PlanDocument) {
+        return planQueryReturn;
+      }
+
+      if (document === PlanFeedbackStatusDocument) {
+        return feedbackQueryReturn;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
     });
 
     render(<PlanOverviewPage />);
@@ -940,11 +1156,37 @@ describe('PlanOverviewPage', () => {
       status: null
     };
 
-    (usePlanQuery as jest.Mock).mockReturnValue({
+    // Create references OUTSIDE mockImplementation to prevent maximum update depth exceeded error
+    const planQueryReturn = {
       data: { plan: updatedMockPlanData },
       loading: false,
       error: null,
-      refetch: jest.fn()
+      refetch: jest.fn(),
+    };
+
+    const feedbackQueryReturn = {
+      data: null,
+      loading: false,
+      error: undefined,
+    };
+
+
+    // Override mock for this test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PlanDocument) {
+        return planQueryReturn;
+      }
+
+      if (document === PlanFeedbackStatusDocument) {
+        return feedbackQueryReturn;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
     });
 
     render(<PlanOverviewPage />);
@@ -964,11 +1206,37 @@ describe('PlanOverviewPage', () => {
   });
 
   it("should display 'No feedback' when planFeedbackStatus is NONE", async () => {
-    (usePlanFeedbackStatusQuery as jest.Mock).mockReturnValue({
-      data: { planFeedbackStatus: 'NONE' },
+    // Create references OUTSIDE mockImplementation to prevent maximum update depth exceeded error
+    const planQueryReturn = {
+      data: { plan: mockPlanData },
       loading: false,
       error: null,
       refetch: jest.fn(),
+    };
+
+    const feedbackQueryReturn = {
+      data: { planFeedbackStatus: 'NONE' },
+      loading: false,
+      error: undefined,
+    };
+
+
+    // Override mock for this test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PlanDocument) {
+        return planQueryReturn;
+      }
+
+      if (document === PlanFeedbackStatusDocument) {
+        return feedbackQueryReturn;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
     });
 
     render(<PlanOverviewPage />);
@@ -981,11 +1249,38 @@ describe('PlanOverviewPage', () => {
   });
 
   it("should display 'Feedback requested' when planFeedbackStatus is REQUEST", async () => {
-    (usePlanFeedbackStatusQuery as jest.Mock).mockReturnValue({
-      data: { planFeedbackStatus: 'REQUEST' },
+
+    // Create references OUTSIDE mockImplementation to prevent maximum update depth exceeded error
+    const planQueryReturn = {
+      data: { plan: mockPlanData },
       loading: false,
       error: null,
       refetch: jest.fn(),
+    };
+
+    const feedbackQueryReturn = {
+      data: { planFeedbackStatus: 'REQUEST' },
+      loading: false,
+      error: undefined,
+    };
+
+
+    // Override mock for this test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PlanDocument) {
+        return planQueryReturn;
+      }
+
+      if (document === PlanFeedbackStatusDocument) {
+        return feedbackQueryReturn;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
     });
 
     render(<PlanOverviewPage />);
@@ -998,11 +1293,38 @@ describe('PlanOverviewPage', () => {
   });
 
   it("should display 'Feedback received' when planFeedbackStatus is COMPLETE", async () => {
-    (usePlanFeedbackStatusQuery as jest.Mock).mockReturnValue({
-      data: { planFeedbackStatus: 'COMPLETE' },
+
+    // Create references OUTSIDE mockImplementation to prevent maximum update depth exceeded error
+    const planQueryReturn = {
+      data: { plan: mockPlanData },
       loading: false,
       error: null,
       refetch: jest.fn(),
+    };
+
+    const feedbackQueryReturn = {
+      data: { planFeedbackStatus: 'COMPLETE' },
+      loading: false,
+      error: undefined,
+    };
+
+
+    // Override mock for this test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PlanDocument) {
+        return planQueryReturn;
+      }
+
+      if (document === PlanFeedbackStatusDocument) {
+        return feedbackQueryReturn;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
     });
 
     render(<PlanOverviewPage />);

@@ -10,7 +10,7 @@ module.exports = [
   {
     ignores: [
       "app/dmps/*",
-      "generated/graphql.tsx",
+      "generated/graphql.ts",
       "cypress.config.ts",
       "public/tinymce/*",
       "coverage/*",

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client/react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { CalendarDate, DateValue, parseDate } from "@internationalized/date";
@@ -18,8 +18,8 @@ import {
 //GraphQL
 import {
   ProjectErrors,
-  useProjectQuery,
-  useUpdateProjectMutation,
+  ProjectDocument,
+  UpdateProjectDocument,
 } from '@/generated/graphql';
 
 //Components
@@ -89,15 +89,13 @@ const ProjectsProjectDetail = () => {
   const Global = useTranslations('Global');
 
   // Initialize useUpdateProjectMutation
-  const [updateProjectMutation] = useUpdateProjectMutation();
+  const [updateProjectMutation] = useMutation(UpdateProjectDocument);
 
   // Get Project using projectId
-  const { data, loading, error: queryError, refetch } = useProjectQuery(
-    {
-      variables: { projectId: Number(projectId) },
-      notifyOnNetworkStatusChange: true
-    }
-  );
+  const { data, loading, error: queryError } = useQuery(ProjectDocument, {
+    variables: { projectId: Number(projectId) },
+    notifyOnNetworkStatusChange: true
+  });
 
   const clearAllFieldErrors = () => {
     //Remove all field errors
@@ -199,20 +197,12 @@ const ProjectsProjectDetail = () => {
 
       return [{}, true];
     } catch (error) {
-      if (error instanceof ApolloError) {
-        if (error.message.toLowerCase() === "unauthorized") {
-          // Need to refresh values if the refresh token was refreshed in the graphql error handler
-          refetch();
-        }
-        return [{}, false];
-      } else {
-        logECS('error', 'updateProjectMutation', {
-          error,
-          url: { path: `/projects/${projectId}/project` }
-        });
-        setErrors(prevErrors => [...prevErrors, "Error updating project"]);
-        return [{}, false];
-      }
+      logECS('error', 'updateProjectMutation', {
+        error,
+        url: { path: `/projects/${projectId}/project` }
+      });
+      setErrors(prevErrors => [...prevErrors, "Error updating project"]);
+      return [{}, false];
     }
   };
 

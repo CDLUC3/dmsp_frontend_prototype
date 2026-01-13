@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useTranslations } from "next-intl";
 import { CalendarDate, DateValue } from "@internationalized/date";
+import { CURRENT_SCHEMA_VERSION, QuestionTypeMap } from '@dmptool/types';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -20,20 +21,14 @@ import {
 } from "react-aria-components";
 
 // GraphQL 
+import { useQuery } from '@apollo/client/react';
 import {
-  useMeQuery,
-  usePlanQuery,
-  usePublishedQuestionQuery,
-  useAnswerByVersionedQuestionIdQuery,
-  useGuidanceGroupsQuery
+  MeDocument,
+  PlanDocument,
+  PublishedQuestionDocument,
+  AnswerByVersionedQuestionIdDocument,
+  GuidanceGroupsDocument
 } from '@/generated/graphql';
-
-import {
-  Question,
-  MergedComment,
-  ResearchOutputTable
-} from '@/app/types';
-
 import {
   addAnswerAction,
   updateAnswerAction,
@@ -58,7 +53,6 @@ import {
   DATE_RANGE_QUESTION_TYPE,
   NUMBER_RANGE_QUESTION_TYPE
 } from '@/lib/constants';
-import { CURRENT_SCHEMA_VERSION, QuestionTypeMap } from '@dmptool/types';
 
 // Components
 import {
@@ -77,14 +71,17 @@ import ExpandableContentSection from '@/components/ExpandableContentSection';
 import SafeHtml from '@/components/SafeHtml';
 import Loading from '@/components/Loading';
 
-// Context
+// Utils and other
 import { useToast } from '@/context/ToastContext';
-
-// Utils
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import { createEmptyResearchOutputRow } from '@/utils/researchOutputTransformations';
+import {
+  Question,
+  MergedComment,
+  ResearchOutputTable
+} from '@/app/types';
 
 //hooks
 import { useComments } from './hooks/useComments';
@@ -231,7 +228,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
     data: selectedQuestion,
     loading: versionedQuestionLoading,
     error: versionedQuestionError
-  } = usePublishedQuestionQuery(
+  } = useQuery(
+    PublishedQuestionDocument,
     {
       variables: {
         versionedQuestionId: Number(versionedQuestionId)
@@ -240,9 +238,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
   );
 
   // Run me query to get user's name
-  const { data: me } = useMeQuery();
+  const { data: me } = useQuery(MeDocument);
 
-  const { data: guidanceData } = useGuidanceGroupsQuery({
+  const { data: guidanceData } = useQuery(GuidanceGroupsDocument, {
     variables: {
       affiliationId: plan?.orgId || null
     },
@@ -250,7 +248,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
   });
 
   // Get Plan using planId
-  const { data: planData, loading: planQueryLoading, error: planQueryError } = usePlanQuery(
+  const { data: planData, loading: planQueryLoading, error: planQueryError } = useQuery(
+    PlanDocument,
     {
       variables: { planId: Number(dmpId) },
       notifyOnNetworkStatusChange: true
@@ -292,7 +291,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
   }, [guidanceData, currentSectionTagIds]);
 
   // Get answer data
-  const { data: answerData, loading: answerLoading, error: answerError } = useAnswerByVersionedQuestionIdQuery(
+  const { data: answerData, loading: answerLoading, error: answerError } = useQuery(
+    AnswerByVersionedQuestionIdDocument,
     {
       variables: {
         projectId: Number(projectId),

@@ -1,6 +1,6 @@
 import React from "react";
 import { act, fireEvent, render, screen, within, waitFor } from "@/utils/test-utils";
-import { MockedProvider } from "@apollo/client/testing";
+import { MockedProvider } from "@apollo/client/testing/react";
 import OrganizationTemplateListPage from "../page";
 import { axe, toHaveNoViolations } from "jest-axe";
 import { mockScrollIntoView } from "@/__mocks__/common";
@@ -364,30 +364,55 @@ describe("OrganizationTemplateListPage", () => {
   });
 
   it("should display error if loadMore fetch for search returns error", async () => {
-    await act(async () => {
-      render(
-        <MockedProvider mocks={multipleItemsErrorMock}>
-          <OrganizationTemplateListPage />
-        </MockedProvider>,
-      );
+    render(
+      <MockedProvider
+        mocks={multipleItemsErrorMock}
+        defaultOptions={{
+          watchQuery: { errorPolicy: 'all' },
+          query: { errorPolicy: 'all' },
+          mutate: { errorPolicy: 'all' },
+        }}
+      >
+        <OrganizationTemplateListPage />
+      </MockedProvider>,
+    );
+
+    // Wait for initial load to complete
+    await waitFor(() => {
+      expect(screen.getAllByTestId("template-list-item").length).toBeGreaterThan(0);
     });
 
     // Simulate search
-    await waitFor(() => {
-      const searchInput = screen.getByLabelText(/searchLabel/i);
+    const searchInput = screen.getByLabelText(/searchLabel/i);
+    await act(async () => {
       fireEvent.change(searchInput, { target: { value: "template" } });
-      const searchButton = screen.getByRole("button", { name: /search/i });
+    });
+
+    const searchButton = screen.getByRole("button", { name: /search/i });
+    await act(async () => {
       fireEvent.click(searchButton);
     });
 
-    // Wait for items to render, then click "Load more"
+    // Wait for search results
     await waitFor(() => {
       const templateItems = screen.getAllByTestId("template-list-item");
       expect(templateItems.length).toBeGreaterThan(0);
-      const loadMoreButton = screen.getByRole("button", { name: /loadMore/i });
+    });
+
+    // Click load more
+    const loadMoreButton = screen.getByRole("button", { name: /loadMore/i });
+    await act(async () => {
       fireEvent.click(loadMoreButton);
     });
 
-    expect(await screen.findByText("Network error")).toBeInTheDocument();
+    // Wait for loading to finish
+    await waitFor(
+      () => {
+        expect(screen.queryByText(/messaging.loading/i)).not.toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
+
+    expect(screen.queryByText(/Network error/i)).toBeInTheDocument();
   });
 });

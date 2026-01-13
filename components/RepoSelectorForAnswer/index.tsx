@@ -22,11 +22,12 @@ import ExpandButton from "@/components/ExpandButton";
 import Pagination from '@/components/Pagination';
 
 // GraphQL queries and mutations
+import { useQuery, useLazyQuery } from '@apollo/client/react';
 import {
   Repository,
   RepositoryType,
-  useRepositoriesLazyQuery,
-  useRepositorySubjectAreasQuery
+  RepositoriesDocument,
+  RepositorySubjectAreasDocument
 } from '@/generated/graphql';
 
 import {
@@ -143,7 +144,7 @@ const RepoSelectorForAnswer = ({
     , []);
 
   // Get Repository Subject Areas
-  const { data: subjectAreasData } = useRepositorySubjectAreasQuery();
+  const { data: subjectAreasData } = useQuery(RepositorySubjectAreasDocument);
 
   // Transform subject areas data for FormSelect - add empty option for deselection
   const subjectAreas = [
@@ -152,7 +153,7 @@ const RepoSelectorForAnswer = ({
   ];
 
   // Repositories lazy query
-  const [fetchRepositoriesData, { data: repositoriesData }] = useRepositoriesLazyQuery();
+  const [fetchRepositoriesData, { data: repositoriesData }] = useLazyQuery(RepositoriesDocument);
 
   // Fetch repositories based on search term criteria
   const fetchRepositories = async ({
@@ -168,21 +169,28 @@ const RepoSelectorForAnswer = ({
       offsetLimit = (page - 1) * LIMIT;
     }
 
-    await fetchRepositoriesData({
-      variables: {
-        input: {
-          paginationOptions: {
-            offset: offsetLimit,
-            limit: LIMIT,
-            type: "OFFSET",
-            sortDir: "DESC",
-          },
-          term: searchTerm,
-          repositoryType: repoType as RepositoryType || null,
-          keyword: subjectArea || null,
+    try {
+      await fetchRepositoriesData({
+        variables: {
+          input: {
+            paginationOptions: {
+              offset: offsetLimit,
+              limit: LIMIT,
+              type: "OFFSET",
+              sortDir: "DESC",
+            },
+            term: searchTerm,
+            repositoryType: repoType as RepositoryType || null,
+            keyword: subjectArea || null,
+          }
         }
+      });
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return;
       }
-    });
+      throw error;
+    }
   };
 
   // Handle pagination page click

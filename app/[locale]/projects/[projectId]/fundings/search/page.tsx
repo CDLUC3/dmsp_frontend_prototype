@@ -3,20 +3,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
-import { routePath } from '@/utils/routes';
-
-import {
-  AffiliationSearch,
-  FunderPopularityResult,
-  usePopularFundersLazyQuery,
-  useAddProjectFundingMutation,
-  ProjectFundingErrors,
-} from '@/generated/graphql';
-
-import { FunderSearchResults } from '@/app/types';
-
-import logECS from "@/utils/clientLogger";
-
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -24,6 +10,17 @@ import {
   Link,
 } from "react-aria-components";
 
+// GraphQL
+import { useMutation, useLazyQuery } from '@apollo/client/react';
+import {
+  AffiliationSearch,
+  FunderPopularityResult,
+  PopularFundersDocument,
+  AddProjectFundingDocument,
+  ProjectFundingErrors,
+} from '@/generated/graphql';
+
+// Components
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
@@ -31,8 +28,12 @@ import {
 } from "@/components/Container";
 import FunderSearch from '@/components/FunderSearch';
 import ErrorMessages from "@/components/ErrorMessages";
-import { useToast } from '@/context/ToastContext';
 
+// Utils and other
+import { routePath } from '@/utils/routes';
+import { FunderSearchResults } from '@/app/types';
+import logECS from "@/utils/clientLogger";
+import { useToast } from '@/context/ToastContext';
 import styles from './ProjectsProjectFundingSearch.module.scss';
 
 
@@ -49,23 +50,29 @@ const ProjectsProjectFundingSearch = () => {
   const [funders, setFunders] = useState<AffiliationSearch[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState<number>(0);
-  const [addProjectFunding] = useAddProjectFundingMutation({});
+  const [addProjectFunding] = useMutation(AddProjectFundingDocument);
   const [errors, setErrors] = useState<string[]>([]);
   const errorRef = useRef<HTMLDivElement>(null);
 
   const [popularFunders, setPopularFunders] = useState<FunderPopularityResult[]>([]);
-  const [popularFundersQuery] = usePopularFundersLazyQuery({});
+  const [popularFundersQuery] = useLazyQuery(PopularFundersDocument);
 
   useEffect(() => {
     // Manually calling the effect because the query specifies that some items
     // can be null, and we need to filter those potential null results out.
-    popularFundersQuery().then(({ data }) => {
-      if (data?.popularFunders && data.popularFunders.length > 0) {
-        const cleaned = data.popularFunders.filter((item) => item !== null)
-        setPopularFunders(cleaned);
-      }
-    });
-  }, []);
+    popularFundersQuery()
+      .then(({ data }) => {
+        if (data?.popularFunders && data.popularFunders.length > 0) {
+          const cleaned = data.popularFunders.filter((item) => item !== null)
+          setPopularFunders(cleaned);
+        }
+      })
+      .catch((err) => {
+        // Ignore AbortErrors from React Strict Mode or navigation
+        if (err.name === 'AbortError') return;
+        logECS('error', 'Error loading popular funders', { err });
+      });
+  }, [popularFundersQuery]);
 
 
   /**
@@ -125,6 +132,8 @@ const ProjectsProjectFundingSearch = () => {
         }
       })
       .catch((err) => {
+        // Ignore AbortErrors from React Strict Mode or navigation
+        if (err.name === 'AbortError') return;
         logECS(
           'error',
           'createProjectSearchFunder.addProjectFunding',

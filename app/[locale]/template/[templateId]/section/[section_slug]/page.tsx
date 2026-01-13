@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -24,12 +24,13 @@ import {
   Modal,
   ModalOverlay,
 } from "react-aria-components";
-// GraphQL queries and mutations
+
+// GraphQL
 import {
   SectionErrors,
-  useTagsQuery,
-  useUpdateSectionMutation,
-  useRemoveSectionMutation,
+  TagsDocument,
+  UpdateSectionDocument,
+  RemoveSectionDocument,
 } from '@/generated/graphql';
 
 //Components
@@ -39,12 +40,18 @@ import PageHeader from "@/components/PageHeader";
 import TinyMCEEditor from "@/components/TinyMCEEditor";
 import ErrorMessages from '@/components/ErrorMessages';
 import FormInput from '@/components/Form/FormInput';
+import Loading from '@/components/Loading';
+
 import {
   SectionFormErrorsInterface,
   SectionFormInterface,
   TagsInterface
 } from '@/app/types';
+
+// Hooks
 import { useSectionData } from "@/hooks/sectionData";
+
+// Utils and other
 import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
 import { scrollToTop } from '@/utils/general';
@@ -69,6 +76,8 @@ const SectionUpdatePage: React.FC = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   // Form state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  // To be able to show a loading state when redirecting after successful update because otherwise there is a bit of a stutter where the page reloads before redirecting
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   //For scrolling to top of page
   const topRef = useRef<HTMLDivElement | null>(null);
@@ -106,17 +115,17 @@ const SectionUpdatePage: React.FC = () => {
 
 
   // Initialize user addSection mutation
-  const [updateSectionMutation] = useUpdateSectionMutation();
+  const [updateSectionMutation] = useMutation(UpdateSectionDocument);
 
   // Initialize remove section mutation
-  const [removeSectionMutation] = useRemoveSectionMutation();
+  const [removeSectionMutation] = useMutation(RemoveSectionDocument);
 
   // State for delete confirmation modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Query for all tags
-  const { data: tagsData } = useTagsQuery();
+  const { data: tagsData } = useQuery(TagsDocument);
 
 
   const updateSectionContent = (key: string, value: string) => {
@@ -215,15 +224,8 @@ const SectionUpdatePage: React.FC = () => {
         error,
         url: { path: UPDATE_SECTION_URL }
       });
-      if (error instanceof ApolloError) {
-        return [{}, false];
-      } else {
-        setErrorMessages(prevErrors => [...prevErrors, SectionUpdatePage('messages.errorUpdatingSection')]);
-        return [{}, false];
-      }
-    } finally {
-      setIsSubmitting(false);
-      setHasUnsavedChanges(false);
+      setErrorMessages(prevErrors => [...prevErrors, SectionUpdatePage('messages.errorUpdatingSection')]);
+      return [{}, false];
     }
   };
 
@@ -236,7 +238,6 @@ const SectionUpdatePage: React.FC = () => {
           sectionId: Number(sectionId)
         }
       });
-
       // Show success message and redirect to template page
       toastState.add(SectionUpdatePage('messages.successDeletingSection'), { type: 'success' });
       router.push(TEMPLATE_URL);
@@ -300,11 +301,14 @@ const SectionUpdatePage: React.FC = () => {
         setErrorMessages([errors.general || SectionUpdatePage('messages.errorUpdatingSection')]);
 
       } else {
-        setIsSubmitting(false);
+        setHasUnsavedChanges(false);
         // Show success message and redirect back to Edit Templates page
         showSuccessToast();
+        setIsRedirecting(true); // Set redirecting state to true to display loading state
         router.push(TEMPLATE_URL);
       }
+    } else {
+      setIsSubmitting(false);
     }
   };
 
@@ -343,6 +347,9 @@ const SectionUpdatePage: React.FC = () => {
     return <div>Loading...</div>;
   }
 
+  if (isRedirecting) {
+    return <Loading />;
+  }
   return (
     <>
       <PageHeader

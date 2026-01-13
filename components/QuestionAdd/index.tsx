@@ -1,7 +1,6 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
@@ -23,10 +22,11 @@ import {
   TextField
 } from "react-aria-components";
 
-// GraphQL queries and mutations
+// GraphQL
+import { useMutation, useQuery } from '@apollo/client/react';
 import {
-  useAddQuestionMutation,
-  useQuestionsDisplayOrderQuery,
+  AddQuestionDocument,
+  QuestionsDisplayOrderDocument,
 } from '@/generated/graphql';
 
 import {
@@ -34,7 +34,6 @@ import {
   QuestionOptions,
   AnyParsedQuestion,
 } from '@/app/types';
-
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -69,6 +68,7 @@ import {
   isOptionsType,
   getOverrides,
 } from './hooks/useAddQuestion';
+import logECS from '@/utils/clientLogger';
 import styles from './questionAdd.module.scss';
 
 const defaultQuestion = {
@@ -129,10 +129,10 @@ const QuestionAdd = ({
   const QuestionAdd = useTranslations('QuestionAdd');
 
   // Initialize add and update question mutations
-  const [addQuestionMutation] = useAddQuestionMutation();
+  const [addQuestionMutation] = useMutation(AddQuestionDocument);
 
   // Query request for questions to calculate max displayOrder
-  const { data: questionDisplayOrders } = useQuestionsDisplayOrderQuery({
+  const { data: questionDisplayOrders } = useQuery(QuestionsDisplayOrderDocument, {
     variables: {
       sectionId: Number(sectionId)
     },
@@ -406,12 +406,14 @@ const QuestionAdd = ({
           router.push(routePath('template.show', { templateId }));
         }
       } catch (error) {
-        if (!(error instanceof ApolloError)) {
-          setErrors(prevErrors => [
-            ...prevErrors,
-            QuestionAdd('messages.errors.questionAddingError'),
-          ]);
-        }
+        // Handle errors
+        setErrors(prevErrors => [
+          ...prevErrors,
+          QuestionAdd('messages.errors.questionAddingError'),
+        ]);
+        logECS('error', 'Adding Question in QuestionAdd', {
+          error,
+        });
       }
     } else {
       const errorMessage = error ?? QuestionAdd('messages.errors.questionAddingError');

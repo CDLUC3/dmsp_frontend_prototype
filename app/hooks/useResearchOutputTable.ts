@@ -11,10 +11,13 @@ import {
   MetaDataStandardInterface,
 } from '@/app/types';
 
+// Apollo Client
+import { useQuery } from '@apollo/client/react';
+
 // GraphQL queries and mutations
 import {
-  useLicensesQuery,
-  useDefaultResearchOutputTypesQuery,
+  LicensesDocument,
+  DefaultResearchOutputTypesDocument,
 } from '@/generated/graphql';
 
 // Constants
@@ -63,7 +66,7 @@ const standardKeys = new Set([
 export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initialData }: { setHasUnsavedChanges: React.Dispatch<React.SetStateAction<boolean>>, announce: (message: string) => void, initialData?: AnyParsedQuestion }) => {
 
   // Query request for all licenses
-  const { data: licensesData } = useLicensesQuery({
+  const { data: licensesData } = useQuery(LicensesDocument, {
     variables: {
       paginationOptions: {// Not using pagination right now, but it's only way to get all licenses data
         type: "OFFSET",
@@ -73,7 +76,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
   });
 
   // Query request for default research output types
-  const { data: defaultResearchOutputTypesData } = useDefaultResearchOutputTypesQuery();
+  const { data: defaultResearchOutputTypesData } = useQuery(DefaultResearchOutputTypesDocument);
 
   // localization keys
   const QuestionAdd = useTranslations('QuestionAdd');

@@ -1,18 +1,17 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { CalendarDate, DateValue } from "@internationalized/date";
-
 import {
   Button,
 } from "react-aria-components";
 
 // GraphQL
+import { useQuery } from '@apollo/client/react';
 import {
-  useTemplateQuery,
+  TemplateDocument,
 } from '@/generated/graphql';
 
 import {
@@ -27,20 +26,17 @@ import {
   ContentContainer,
   ToolbarContainer,
 } from '@/components/Container';
-
 import {
   Card,
   CardBody,
   CardEyebrow,
   CardHeading,
 } from "@/components/Card/card";
-
 import {
   DateComponent,
   FormInput,
   NumberComponent,
 } from '@/components/Form';
-
 import {
   RadioButtonsQuestionComponent,
   CheckboxesQuestionComponent,
@@ -56,9 +52,9 @@ import TinyMCEEditor from '@/components/TinyMCEEditor';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 import ExpandableContentSection from '@/components/ExpandableContentSection';
 import { ResearchOutputAnswerComponent } from '@/components/Form';
-import { createEmptyResearchOutputRow } from '@/utils/researchOutputTransformations';
 
-// Utils
+// Utils and other
+import { createEmptyResearchOutputRow } from '@/utils/researchOutputTransformations';
 import { getCalendarDateValue } from "@/utils/dateUtils";
 import {
   BOOLEAN_QUESTION_TYPE,
@@ -109,7 +105,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   const trans = useTranslations('QuestionView');
 
   const { data: qtData } = { data: getQuestionTypes() };
-  const { data: templateData } = useTemplateQuery({
+  const { data: templateData } = useQuery(TemplateDocument, {
     variables: {
       templateId,
     },

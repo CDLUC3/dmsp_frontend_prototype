@@ -1,5 +1,5 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useProjectMemberForm } from '../useProjectMemberForm';
@@ -127,7 +127,6 @@ const createWrapper = (mocks: any[] = []) => {
   const Wrapper = ({ children }: WrapperProps) => (
     <MockedProvider
       mocks={mocks}
-      addTypename={false}
       defaultOptions={{
         watchQuery: { errorPolicy: 'ignore' },
         query: { errorPolicy: 'ignore' },

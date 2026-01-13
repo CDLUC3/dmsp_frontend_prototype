@@ -4,9 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { useParams, useRouter } from 'next/navigation';
 import RepoSelectorForAnswer from '../index';
 import { useToast } from '@/context/ToastContext';
+import { useQuery, useLazyQuery } from '@apollo/client/react';
 import {
-  useRepositoriesLazyQuery,
-  useRepositorySubjectAreasQuery,
+  RepositoriesDocument,
+  RepositorySubjectAreasDocument,
 } from '@/generated/graphql';
 import { addRepositoryAction } from '@/app/actions/addRepositoryAction';
 import mockRepositoriesData from '../__mocks__/mockRepositoriesData.json';
@@ -30,8 +31,6 @@ jest.mock('@/context/ToastContext', () => ({
 
 jest.mock('@/generated/graphql', () => ({
   ...jest.requireActual("@/generated/graphql"),
-  useRepositorySubjectAreasQuery: jest.fn(),
-  useRepositoriesLazyQuery: jest.fn(),
   RepositoryType: {
     INSTITUTIONAL: 'INSTITUTIONAL',
     DISCIPLINARY: 'DISCIPLINARY',
@@ -41,6 +40,12 @@ jest.mock('@/generated/graphql', () => ({
 
 jest.mock('@/app/actions/addRepositoryAction', () => ({
   addRepositoryAction: jest.fn(),
+}));
+
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+  useLazyQuery: jest.fn(),
 }));
 
 jest.mock('@/utils/clientLogger', () => ({
@@ -53,13 +58,58 @@ jest.mock('@/utils/routes', () => ({
   routePath: jest.fn((path: string, params: any) => `/template/${params.templateId}/question/new`),
 }));
 
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+const mockUseLazyQuery = jest.mocked(useLazyQuery);
+const mockFetchRepositories = jest.fn().mockResolvedValue({
+  data: mockRepositoriesData
+});
+
+const setupMocks = () => {
+  const stableRepositoriesSubjectAreasReturn = {
+    data: mockSubjectAreasData,
+    loading: false,
+    error: null,
+  };
+
+  mockUseQuery.mockImplementation((document) => {
+    if (document === RepositorySubjectAreasDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return stableRepositoriesSubjectAreasReturn as any;
+    }
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+
+  // Lazy query mocks
+  const stableRepositoriesReturn = [
+    mockFetchRepositories,
+    { data: mockRepositoriesData, loading: false, error: null }
+  ]
+
+  mockUseLazyQuery.mockImplementation((document) => {
+    if (document === RepositoriesDocument) {
+      return stableRepositoriesReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+};
+
 describe('RepoSelectorForAnswer', () => {
   const mockOnRepositoriesChange = jest.fn();
   const mockAddToast = jest.fn();
   const mockPush = jest.fn();
-  const mockFetchRepositoriesData = jest.fn();
 
   beforeEach(() => {
+    setupMocks();
     jest.clearAllMocks();
     cleanup();
 
@@ -69,13 +119,6 @@ describe('RepoSelectorForAnswer', () => {
     (useParams as jest.Mock).mockReturnValue({ templateId: '123' });
     (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
     (useToast as jest.Mock).mockReturnValue({ add: mockAddToast });
-    (useRepositorySubjectAreasQuery as jest.Mock).mockReturnValue({
-      data: mockSubjectAreasData,
-    });
-    (useRepositoriesLazyQuery as jest.Mock).mockReturnValue([
-      mockFetchRepositoriesData,
-      { data: mockRepositoriesData },
-    ]);
   });
 
   afterEach(() => {
@@ -103,7 +146,7 @@ describe('RepoSelectorForAnswer', () => {
     it('should fetch repositories on initial load', () => {
       render(<RepoSelectorForAnswer onRepositoriesChange={mockOnRepositoriesChange} />);
 
-      expect(mockFetchRepositoriesData).toHaveBeenCalledWith({
+      expect(mockFetchRepositories).toHaveBeenCalledWith({
         variables: {
           input: {
             paginationOptions: {
@@ -196,7 +239,7 @@ describe('RepoSelectorForAnswer', () => {
       fireEvent.click(applyButton);
 
       await waitFor(() => {
-        expect(mockFetchRepositoriesData).toHaveBeenCalledWith(
+        expect(mockFetchRepositories).toHaveBeenCalledWith(
           expect.objectContaining({
             variables: expect.objectContaining({
               input: expect.objectContaining({

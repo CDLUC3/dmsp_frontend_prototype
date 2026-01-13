@@ -3,9 +3,6 @@
 import React, { useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
-import { routePath } from '@/utils/routes';
-import { ApolloError } from '@apollo/client';
-
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -15,12 +12,14 @@ import {
   ListBoxItem,
 } from "react-aria-components";
 
+// GraphQL
+import { useMutation } from '@apollo/client/react';
 import {
   ProjectFundingStatus,
   AffiliationErrors,
   ProjectFundingErrors,
-  useAddAffiliationMutation,
-  useAddProjectFundingMutation,
+  AddAffiliationDocument,
+  AddProjectFundingDocument,
 } from '@/generated/graphql';
 
 // Components
@@ -30,6 +29,8 @@ import { FormInput, FormSelect } from "@/components/Form";
 import ErrorMessages from '@/components/ErrorMessages';
 import { TypeAheadWithOther, useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
 
+// Utils and other
+import { routePath } from '@/utils/routes';
 import { scrollToTop } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
@@ -69,8 +70,8 @@ const AddProjectFunderManually = () => {
   // For TypeAhead component
   const { suggestions, handleSearch } = useAffiliationSearch();
 
-  const [addAffiliation] = useAddAffiliationMutation();
-  const [addProjectFunding] = useAddProjectFundingMutation();
+  const [addAffiliation] = useMutation(AddAffiliationDocument);
+  const [addProjectFunding] = useMutation(AddProjectFundingDocument);
 
   const [fundingData, setFundingData] = useState<ProjectFundingInterface>({
     affiliationName: '',
@@ -228,23 +229,16 @@ const AddProjectFunderManually = () => {
           return; // stop if affiliation failed
         }
       } catch (err) {
-        if (err instanceof ApolloError) {
-          logECS("error", "addAffiliation", {
-            err,
-            url: { path: "/projects/[projectId]/fundings/add" },
-          });
-          setErrors(prev => [
-            ...prev,
-            err.message
-          ]);
-          return;
-        } else {
-          setErrors(prev => [
-            ...prev,
-            addFunding("messages.errors.projectFundingUpdateFailed"),
-          ]);
-          return;
-        }
+        const error = err as Error;
+        logECS("error", "addAffiliation", {
+          err: error,
+          url: { path: "/projects/[projectId]/fundings/add" },
+        });
+        setErrors(prev => [
+          ...prev,
+          error.message || addFunding("messages.errors.projectFundingUpdateFailed"),
+        ]);
+        return;
       }
     } else {
       // Otherwise just use the affiliationId of selecting existing affiliation
@@ -285,21 +279,15 @@ const AddProjectFunderManually = () => {
       router.push(routePath('projects.fundings.index', { projectId }));
 
     } catch (err) {
-      if (err instanceof ApolloError) {
-        logECS("error", "addProjectFunding", {
-          err,
-          url: { path: "/projects/[projectId]/fundings/add" },
-        });
-        setErrors(prev => [
-          ...prev,
-          err.message
-        ]);
-      } else {
-        setErrors(prev => [
-          ...prev,
-          addFunding("messages.errors.projectFundingUpdateFailed"),
-        ]);
-      }
+      const error = err as Error;
+      logECS("error", "addProjectFunding", {
+        err: error,
+        url: { path: "/projects/[projectId]/fundings/add" },
+      });
+      setErrors(prev => [
+        ...prev,
+        error.message || addFunding("messages.errors.projectFundingUpdateFailed"),
+      ]);
     }
   }
 

@@ -5,19 +5,20 @@ import { RelatedWorksList, RelatedWorksSortBy } from "../index";
 import "@testing-library/jest-dom";
 import { axe, toHaveNoViolations } from "jest-axe";
 import { NextIntlClientProvider } from "next-intl";
+import { useQuery } from '@apollo/client/react';
 import {
   RelatedWorkSearchResult,
   RelatedWorkSourceType,
   RelatedWorkStatus,
-  useRelatedWorksByPlanQuery,
+  RelatedWorksByPlanDocument,
   WorkType,
 } from "@/generated/graphql";
 
 expect.extend(toHaveNoViolations);
 
-jest.mock("@/generated/graphql", () => ({
-  ...jest.requireActual("@/generated/graphql"),
-  useRelatedWorksByPlanQuery: jest.fn(),
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
 }));
 
 export const MOCK_PENDING_WORKS: RelatedWorkSearchResult[] = [
@@ -524,6 +525,33 @@ export const MOCK_REJECTED_WORKS: RelatedWorkSearchResult[] = [
   },
 ];
 
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+
+const setupMocks = () => {
+  mockUseQuery.mockImplementation((document) => {
+    if (document === RelatedWorksByPlanDocument) {
+      return {
+        data: {
+          relatedWorksByPlan: {
+            items: MOCK_PENDING_WORKS,
+          },
+        },
+        loading: false,
+        error: undefined,
+        refetch: jest.fn()
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+};
+
 interface TestProvidersProps {
   children: React.ReactNode;
   defaultSortBy?: RelatedWorksSortBy;
@@ -545,20 +573,36 @@ export const TestProviders: React.FC<TestProvidersProps> = ({ children }) => {
 };
 
 describe("RelatedWorksList", () => {
+  beforeEach(() => {
+    setupMocks();
+  })
+
   it("should render two pending items", () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: MOCK_PENDING_WORKS,
-          totalCount: 2,
-          limit: 2,
-          currentOffset: 0,
-          hasNextPage: false,
-          hasPreviousPage: false,
-        },
-      },
-      loading: false,
-      error: null,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === RelatedWorksByPlanDocument) {
+        return {
+          data: {
+            relatedWorksByPlan: {
+              items: MOCK_PENDING_WORKS,
+              totalCount: 2,
+              limit: 2,
+              currentOffset: 0,
+              hasNextPage: false,
+              hasPreviousPage: false,
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     render(
@@ -575,19 +619,31 @@ describe("RelatedWorksList", () => {
   });
 
   it("should render two related items", async () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: MOCK_ACCEPTED_WORKS,
-          totalCount: 2,
-          limit: 2,
-          currentOffset: 0,
-          hasNextPage: false,
-          hasPreviousPage: false,
-        },
-      },
-      loading: false,
-      error: null,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === RelatedWorksByPlanDocument) {
+        return {
+          data: {
+            relatedWorksByPlan: {
+              items: MOCK_ACCEPTED_WORKS,
+              totalCount: 2,
+              limit: 2,
+              currentOffset: 0,
+              hasNextPage: false,
+              hasPreviousPage: false,
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     render(
@@ -603,19 +659,31 @@ describe("RelatedWorksList", () => {
   });
 
   it("should render one discarded item", async () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: MOCK_REJECTED_WORKS,
-          totalCount: 1,
-          limit: 1,
-          currentOffset: 0,
-          hasNextPage: false,
-          hasPreviousPage: false,
-        },
-      },
-      loading: false,
-      error: null,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === RelatedWorksByPlanDocument) {
+        return {
+          data: {
+            relatedWorksByPlan: {
+              items: MOCK_REJECTED_WORKS,
+              totalCount: 1,
+              limit: 1,
+              currentOffset: 0,
+              hasNextPage: false,
+              hasPreviousPage: false,
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     render(
@@ -631,19 +699,31 @@ describe("RelatedWorksList", () => {
   });
 
   it("should display confidence filter", async () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: [],
-          confidenceCounts: [
-            { typeId: "HIGH", count: 3 },
-            { typeId: "MEDIUM", count: 2 },
-            { typeId: "LOW", count: 1 },
-          ],
-        },
-      },
-      loading: false,
-      error: null,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === RelatedWorksByPlanDocument) {
+        return {
+          data: {
+            relatedWorksByPlan: {
+              items: [],
+              confidenceCounts: [
+                { typeId: "HIGH", count: 3 },
+                { typeId: "MEDIUM", count: 2 },
+                { typeId: "LOW", count: 1 },
+              ],
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     render(
@@ -673,19 +753,31 @@ describe("RelatedWorksList", () => {
   });
 
   it("should display work type filter", async () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: [],
-          workTypeCounts: [
-            { typeId: "DATASET", count: 5 },
-            { typeId: "ARTICLE", count: 20 },
-            { typeId: "DISSERTATION", count: 3 },
-          ],
-        },
-      },
-      loading: false,
-      error: null,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === RelatedWorksByPlanDocument) {
+        return {
+          data: {
+            relatedWorksByPlan: {
+              items: [],
+              workTypeCounts: [
+                { typeId: "DATASET", count: 5 },
+                { typeId: "ARTICLE", count: 20 },
+                { typeId: "DISSERTATION", count: 3 },
+              ],
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     render(
@@ -717,14 +809,26 @@ describe("RelatedWorksList", () => {
   });
 
   it("should display sort by filter: pending", async () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: [],
-        },
-      },
-      loading: false,
-      error: null,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === RelatedWorksByPlanDocument) {
+        return {
+          data: {
+            relatedWorksByPlan: {
+              items: [],
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Pending
@@ -759,14 +863,26 @@ describe("RelatedWorksList", () => {
   });
 
   it("should display sort by filter: accepted", async () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: [],
-        },
-      },
-      loading: false,
-      error: null,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === RelatedWorksByPlanDocument) {
+        return {
+          data: {
+            relatedWorksByPlan: {
+              items: [],
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     render(
@@ -800,14 +916,26 @@ describe("RelatedWorksList", () => {
   });
 
   it("should display sort by filter: rejected", async () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: [],
-        },
-      },
-      loading: false,
-      error: null,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === RelatedWorksByPlanDocument) {
+        return {
+          data: {
+            relatedWorksByPlan: {
+              items: [],
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     render(
@@ -841,16 +969,28 @@ describe("RelatedWorksList", () => {
   });
 
   it("should display no results message: no works", async () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: [],
-          totalCount: 0,
-          statusOnlyCount: 0,
-        },
-      },
-      loading: false,
-      error: null,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === RelatedWorksByPlanDocument) {
+        return {
+          data: {
+            relatedWorksByPlan: {
+              items: [],
+              totalCount: 0,
+              statusOnlyCount: 0,
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     const { container } = render(
@@ -871,16 +1011,28 @@ describe("RelatedWorksList", () => {
   });
 
   it("should display no results message: no filtered works", async () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: [],
-          totalCount: 0,
-          statusOnlyCount: 10,
-        },
-      },
-      loading: false,
-      error: null,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === RelatedWorksByPlanDocument) {
+        return {
+          data: {
+            relatedWorksByPlan: {
+              items: [],
+              totalCount: 0,
+              statusOnlyCount: 10,
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     const { container } = render(
@@ -901,19 +1053,31 @@ describe("RelatedWorksList", () => {
   });
 
   it("should highlight matches", async () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: MOCK_PENDING_WORKS,
-          totalCount: 2,
-          limit: 2,
-          currentOffset: 0,
-          hasNextPage: false,
-          hasPreviousPage: false,
-        },
-      },
-      loading: false,
-      error: null,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === RelatedWorksByPlanDocument) {
+        return {
+          data: {
+            relatedWorksByPlan: {
+              items: MOCK_PENDING_WORKS,
+              totalCount: 2,
+              limit: 2,
+              currentOffset: 0,
+              hasNextPage: false,
+              hasPreviousPage: false,
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     render(
@@ -951,20 +1115,32 @@ describe("RelatedWorksList", () => {
   });
 
   it("should pass axe accessibility test", async () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: MOCK_PENDING_WORKS,
-          totalCount: 2,
-          limit: 2,
-          currentOffset: 0,
-          hasNextPage: false,
-          hasPreviousPage: false,
-          statusOnlyCount: 2,
-        },
-      },
-      loading: false,
-      error: null,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === RelatedWorksByPlanDocument) {
+        return {
+          data: {
+            relatedWorksByPlan: {
+              items: MOCK_PENDING_WORKS,
+              totalCount: 2,
+              limit: 2,
+              currentOffset: 0,
+              hasNextPage: false,
+              hasPreviousPage: false,
+              statusOnlyCount: 2,
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     const { container } = render(
