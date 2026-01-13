@@ -56,7 +56,7 @@
     "zod": "4.1.13"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "6.1.0",
+    "@graphql-codegen/cli": "6.1.1",
     "@graphql-codegen/client-preset": "5.2.2",
     "@graphql-codegen/typed-document-node": "6.1.5",
     "@graphql-codegen/typescript": "5.0.7",
