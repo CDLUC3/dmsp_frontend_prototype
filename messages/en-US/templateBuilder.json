@@ -513,7 +513,9 @@
           "urlTitle": "Repository description",
           "dataAccessTitle": "Data access",
           "identifierTitle": "Persistent identifier"
-        }
+        },
+        "singleRepo": "Repository",
+        "multipleRepo": "Repositories"
       },
       "metaDataStandards": {
         "headings": {

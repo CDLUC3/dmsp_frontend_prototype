@@ -18,10 +18,10 @@ import {
 } from "react-aria-components";
 
 // GraphQL
-import { useLazyQuery } from '@apollo/client/react';
+import { useQuery, useLazyQuery } from '@apollo/client/react';
 import {
   MetadataStandardsDocument,
-  useMetadataStandardsByUrIsQuery
+  MetadataStandardsByUrIsDocument
 } from '@/generated/graphql';
 
 import {
@@ -109,14 +109,14 @@ const MetaDataStandardForAnswer = ({
   const [showPreferredOnly, setShowPreferredOnly] = useState(!!preferredMetaDataURIs && preferredMetaDataURIs.length > 0);
 
   // Get metadata standards by the preferred URIs to display initially on first load
-  const { data: preferredMetaDataStandardsData } = useMetadataStandardsByUrIsQuery({
+  const { data: preferredMetaDataStandardsData } = useQuery(MetadataStandardsByUrIsDocument, {
     variables: {
       uris: preferredMetaDataURIs || []
     },
   });
 
   // Metadata standards lazy query
-  const [fetchMetaDataStandardsData] = useMetadataStandardsLazyQuery();
+  const [fetchMetaDataStandardsData] = useLazyQuery(MetadataStandardsDocument);
 
   // Fetch metadata standards based on search term criteria
   const fetchMetaDataStandards = async ({

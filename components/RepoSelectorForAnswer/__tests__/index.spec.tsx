@@ -6,10 +6,9 @@ import RepoSelectorForAnswer from '../index';
 import { useToast } from '@/context/ToastContext';
 import { useQuery, useLazyQuery } from '@apollo/client/react';
 import {
-  useRepositoriesLazyQuery,
   RepositoriesDocument,
-  useRepositorySubjectAreasQuery,
-  useRepositoriesByUrIsQuery
+  RepositorySubjectAreasDocument,
+  RepositoriesByUrIsDocument
 } from '@/generated/graphql';
 import { addRepositoryAction } from '@/app/actions/addRepositoryAction';
 import mockRepositoriesData from '../__mocks__/mockRepositoriesData.json';
@@ -34,9 +33,6 @@ jest.mock('@/context/ToastContext', () => ({
 
 jest.mock('@/generated/graphql', () => ({
   ...jest.requireActual("@/generated/graphql"),
-  useRepositorySubjectAreasQuery: jest.fn(),
-  useRepositoriesLazyQuery: jest.fn(),
-  useRepositoriesByUrIsQuery: jest.fn(),
   RepositoryType: {
     INSTITUTIONAL: 'INSTITUTIONAL',
     DISCIPLINARY: 'DISCIPLINARY',
@@ -78,10 +74,21 @@ const setupMocks = () => {
     error: null,
   };
 
+  const stableRepositoriesURIsReturn = {
+    data: mockPreferredRepositoriesData,
+    loading: false,
+    error: null,
+  };
+
   mockUseQuery.mockImplementation((document) => {
     if (document === RepositorySubjectAreasDocument) {
       /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableRepositoriesSubjectAreasReturn as any;
+    }
+
+    if (document === RepositoriesByUrIsDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return stableRepositoriesURIsReturn as any;
     }
     return {
       data: null,
@@ -125,22 +132,6 @@ describe('RepoSelectorForAnswer', () => {
     (useParams as jest.Mock).mockReturnValue({ templateId: '123' });
     (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
     (useToast as jest.Mock).mockReturnValue({ add: mockAddToast });
-    (useRepositorySubjectAreasQuery as jest.Mock).mockReturnValue({
-      data: mockSubjectAreasData,
-    });
-
-    // ADD THIS: Make the mock function return a resolved promise with data
-    mockFetchRepositoriesData.mockResolvedValue({
-      data: mockRepositoriesData
-    });
-
-    (useRepositoriesLazyQuery as jest.Mock).mockReturnValue([
-      mockFetchRepositoriesData,
-      { data: mockRepositoriesData },
-    ]);
-    (useRepositoriesByUrIsQuery as jest.Mock).mockReturnValue({
-      data: mockPreferredRepositoriesData,
-    });
   });
 
   afterEach(() => {
@@ -179,7 +170,7 @@ describe('RepoSelectorForAnswer', () => {
       render(<RepoSelectorForAnswer onRepositoriesChange={mockOnRepositoriesChange} />);
 
       await waitFor(() => {
-        expect(mockFetchRepositoriesData).toHaveBeenCalledWith({
+        expect(mockFetchRepositories).toHaveBeenCalledWith({
           variables: {
             input: {
               paginationOptions: {

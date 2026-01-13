@@ -5,12 +5,12 @@ import { NextIntlClientProvider } from 'next-intl';
 import MetaDataStandardForAnswer from '../index';
 import { MetaDataStandardInterface } from '@/app/types';
 import mockMetadataStandardsData from '../__mocks__/mockMetadataStandardsData.json';
-import { useLazyQuery } from '@apollo/client/react';
+import { useQuery, useLazyQuery } from '@apollo/client/react';
 import {
   MetadataStandardsDocument,
 } from '@/generated/graphql';
 import mockPreferredMetadataStandardsData from '../__mocks__/mockPreferredMetadataStandardsData.json';
-import { useMetadataStandardsByUrIsQuery } from '@/generated/graphql';
+import { MetadataStandardsByUrIsDocument } from '@/generated/graphql';
 
 
 // Mock next/navigation
@@ -24,14 +24,8 @@ jest.mock('next/navigation', () => ({
 
 // Mock Apollo Client hooks
 jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
   useLazyQuery: jest.fn(),
-}));
-
-// Mock the generated GraphQL documents
-jest.mock('@/generated/graphql', () => ({
-  useMetadataStandardsByUrIsQuery: jest.fn(),
-  /* eslint-disable-next-line @typescript-eslint/no-explicit-any*/
-  useMetadataStandardsLazyQuery: (...args: any[]) => mockUseMetadataStandardsLazyQuery(...args),
 }));
 
 // Mock the server action
@@ -178,10 +172,31 @@ const renderWithProviders = (component: React.ReactElement) => {
 
 // Cast with jest.mocked utility
 const mockUseLazyQuery = jest.mocked(useLazyQuery);
+const mockUseQuery = jest.mocked(useQuery);
 
 let mockFetchMetaDataStandards: jest.Mock;
 
 const setupMocks = () => {
+  // Create stable references OUTSIDE mockImplementation
+  const stableMetaDataStandardURIsReturn = {
+    data: mockPreferredMetadataStandardsData,
+    loading: false,
+    error: null,
+  };
+
+  mockUseQuery.mockImplementation((document) => {
+    if (document === MetadataStandardsByUrIsDocument) {
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any*/
+      return stableMetaDataStandardURIsReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+
   mockFetchMetaDataStandards = jest.fn().mockResolvedValue({
     data: mockMetadataStandardsData,
   });
@@ -213,6 +228,8 @@ const setupMocks = () => {
   });
 };
 
+
+
 describe('MetaDataStandardForAnswer', () => {
   let mockOnMetaDataStandardsChange: jest.Mock;
   const user = userEvent.setup();
@@ -225,10 +242,6 @@ describe('MetaDataStandardForAnswer', () => {
     mockAddMetaDataStandardsAction.mockResolvedValue({
       success: true,
       data: { errors: null },
-    });
-
-    (useMetadataStandardsByUrIsQuery as jest.Mock).mockReturnValue({
-      data: mockPreferredMetadataStandardsData,
     });
 
     window.confirm = jest.fn(() => true);
@@ -785,7 +798,8 @@ describe('MetaDataStandardForAnswer', () => {
     });
 
     it('should display pagination info', async () => {
-      mockUseMetadataStandardsLazyQuery.mockReturnValue([
+
+      const stableMetadataStandardsReturn = [
         mockFetchMetaDataStandards,
         {
           data: {
@@ -801,8 +815,22 @@ describe('MetaDataStandardForAnswer', () => {
               availableSortFields: ['m.name', 'm.created'],
             },
           },
-        },
-      ]);
+          loading: false,
+          error: null,
+        }
+      ];
+
+      mockUseLazyQuery.mockImplementation((document) => {
+        if (document === MetadataStandardsDocument) {
+          return stableMetadataStandardsReturn as any;
+        }
+
+        return {
+          data: null,
+          loading: false,
+          error: undefined
+        };
+      });
 
       renderWithProviders(
         <MetaDataStandardForAnswer

@@ -30,10 +30,9 @@ import { useQuery, useLazyQuery } from '@apollo/client/react';
 import {
   Repository,
   RepositoryType,
-  useRepositoriesLazyQuery,
   RepositoriesDocument,
-  useRepositorySubjectAreasQuery,
-  useRepositoriesByUrIsQuery,
+  RepositorySubjectAreasDocument,
+  RepositoriesByUrIsDocument,
 } from '@/generated/graphql';
 
 import {
@@ -165,7 +164,7 @@ const RepoSelectorForAnswer = ({
   ];
 
   // Get repositories by the preferred URIs to display initially on first load
-  const { data: preferredRepositoriesData } = useRepositoriesByUrIsQuery({
+  const { data: preferredRepositoriesData } = useQuery(RepositoriesByUrIsDocument, {
     variables: {
       uris: preferredReposURIs || []
     },
@@ -426,6 +425,9 @@ const RepoSelectorForAnswer = ({
 
           <div className={styles.selectedItems}>
             <div className={styles.selectedItemsHeader}>
+              <span className={styles.selectedCount}>
+                {selectedCount} {selectedCount === 1 ? QuestionAdd('researchOutput.repoSelector.singleRepo') : QuestionAdd('researchOutput.repoSelector.multipleRepo')} selected
+              </span>
               {selectedCount > 0 && (
                 <Button
                   onClick={removeAllRepos}

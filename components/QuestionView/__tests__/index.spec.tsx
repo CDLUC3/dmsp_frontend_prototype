@@ -104,10 +104,6 @@ const mockTemplate = {
   ]
 };
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-const mockQuery = jest.fn();
-const mockClient = { query: mockQuery };
-
 // Cast with jest.mocked utility
 const mockUseQuery = jest.mocked(useQuery);
 
@@ -196,12 +192,15 @@ const setupMocks = () => {
 
   mockUseQuery.mockImplementation((document) => {
     if (document === TemplateDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableTemplateReturn as any;
     }
     if (document === RecommendedLicensesDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableRecommendedLicensesReturn as any;
     }
     if (document === DefaultResearchOutputTypesDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableDefaultResearchOutputTypesReturn as any;
     }
   });
