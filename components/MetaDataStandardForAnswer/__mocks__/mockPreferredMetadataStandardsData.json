@@ -1,0 +1,13 @@
+{
+  "metadataStandardsByURIs": [
+    {
+      "__typename": "MetadataStandard",
+      "id": 28,
+      "errors": null,
+      "name": "Terminal RI Unicamp",
+      "uri": "https://repositorio.unicamp.br/",
+      "description": "Institutional Repository from Unicamp",
+      "keywords": null
+    }
+  ]
+}

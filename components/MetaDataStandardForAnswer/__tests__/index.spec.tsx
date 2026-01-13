@@ -1,10 +1,13 @@
 import React from 'react';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor, within, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import MetaDataStandardForAnswer from '../index';
 import { MetaDataStandardInterface } from '@/app/types';
 import mockMetadataStandardsData from '../__mocks__/mockMetadataStandardsData.json';
+import mockPreferredMetadataStandardsData from '../__mocks__/mockPreferredMetadataStandardsData.json';
+import { useMetadataStandardsByUrIsQuery } from '@/generated/graphql';
+
 
 // Mock next/navigation
 const mockPush = jest.fn();
@@ -19,6 +22,7 @@ jest.mock('next/navigation', () => ({
 const mockFetchMetaDataStandards = jest.fn();
 const mockUseMetadataStandardsLazyQuery = jest.fn();
 jest.mock('@/generated/graphql', () => ({
+  useMetadataStandardsByUrIsQuery: jest.fn(),
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any*/
   useMetadataStandardsLazyQuery: (...args: any[]) => mockUseMetadataStandardsLazyQuery(...args),
 }));
@@ -150,6 +154,10 @@ const messages = {
     'researchOutput.metaDataStandards.messages.fillInAllFields': 'Please fill in all fields',
     'researchOutput.metaDataStandards.messages.addedSuccessfully': '{name} added successfully',
     'researchOutput.metaDataStandards.help.uri': 'Enter the URL for the metadata standard',
+    "labels.preferredRepositories": "Preferred repositories only",
+    "labels.preferredMetadataStandards": "Preferred metadata standards only",
+    "helpText.preferredRepositories": "These repositories were set by the template creator as preferred repositories to use.",
+    "helpText.preferredMetadataStandards": "These metadata standards were set by the template creator as preferred metadata standards to use."
   },
 };
 
@@ -183,6 +191,10 @@ describe('MetaDataStandardForAnswer', () => {
     mockAddMetaDataStandardsAction.mockResolvedValue({
       success: true,
       data: { errors: null },
+    });
+
+    (useMetadataStandardsByUrIsQuery as jest.Mock).mockReturnValue({
+      data: mockPreferredMetadataStandardsData,
     });
 
     window.confirm = jest.fn(() => true);
@@ -237,7 +249,7 @@ describe('MetaDataStandardForAnswer', () => {
       expect(screen.getByRole('button', { name: 'researchOutput.metaDataStandards.buttons.add' })).toBeInTheDocument();
     });
 
-    it('should fetch metadata standards on mount', async () => {
+    it('should load metadata standards when modal opens', async () => {
       renderWithProviders(
         <MetaDataStandardForAnswer
           value={[]}
@@ -245,18 +257,13 @@ describe('MetaDataStandardForAnswer', () => {
         />
       );
 
+      // Open the modal
+      const addButton = screen.getByTestId('open-standard-modal-btn');
+      await user.click(addButton);
+
+      // Wait for modal and standards to load
       await waitFor(() => {
-        expect(mockFetchMetaDataStandards).toHaveBeenCalledWith({
-          variables: {
-            paginationOptions: {
-              offset: 0,
-              limit: 5,
-              type: 'OFFSET',
-              sortDir: 'DESC',
-            },
-            term: '',
-          },
-        });
+        expect(screen.getByText('Terminal RI Unicamp')).toBeInTheDocument();
       });
     });
   });
@@ -270,12 +277,33 @@ describe('MetaDataStandardForAnswer', () => {
         />
       );
 
-      const addButton = screen.getByRole('button', { name: 'researchOutput.metaDataStandards.buttons.add' });
-      await user.click(addButton);
+      const addLink = screen.getByText('researchOutput.metaDataStandards.buttons.add');
+      await user.click(addLink);
 
       await waitFor(() => {
         expect(screen.getByText('researchOutput.metaDataStandards.headings.dialogHeading')).toBeInTheDocument();
       });
+    });
+
+    it('should display the preferred standards in the modal', async () => {
+      render(<MetaDataStandardForAnswer onMetaDataStandardsChange={mockOnMetaDataStandardsChange} preferredMetaDataURIs={["https://repositorio.unicamp.br/"]} />);
+
+      const addLink = screen.getByText('researchOutput.metaDataStandards.buttons.add');
+      fireEvent.click(addLink);
+
+      await waitFor(() => {
+        expect(screen.getByText('researchOutput.metaDataStandards.headings.dialogHeading')).toBeInTheDocument();
+      });
+
+      // Count the number of "buttons.select" to test # of preferred metadata standards that display
+      const moreInfoButtons = screen.getAllByText('buttons.select');
+      expect(moreInfoButtons).toHaveLength(1);
+      expect(screen.getByText('Terminal RI Unicamp')).toBeInTheDocument();
+
+      // Check that the preferredOnly checkbox is present and checked
+      const preferredOnlyCheckbox = screen.getByTestId('preferredOnlyCheckbox') as HTMLInputElement;
+      expect(preferredOnlyCheckbox).toBeInTheDocument();
+      expect(preferredOnlyCheckbox).toHaveAttribute('data-selected', 'true');
     });
 
     it('should close modal when close button is clicked', async () => {
@@ -286,8 +314,8 @@ describe('MetaDataStandardForAnswer', () => {
         />
       );
 
-      const addButton = screen.getByRole('button', { name: 'researchOutput.metaDataStandards.buttons.add' });
-      await user.click(addButton);
+      const addLink = screen.getByText('researchOutput.metaDataStandards.buttons.add');
+      await user.click(addLink);
 
       await waitFor(() => {
         expect(screen.getByText('researchOutput.metaDataStandards.headings.dialogHeading')).toBeInTheDocument();
@@ -311,8 +339,8 @@ describe('MetaDataStandardForAnswer', () => {
         />
       );
 
-      const addButton = screen.getByRole('button', { name: 'researchOutput.metaDataStandards.buttons.add' });
-      await user.click(addButton);
+      const addLink = screen.getByText('researchOutput.metaDataStandards.buttons.add');
+      await user.click(addLink);
 
       const searchInput = screen.getByLabelText('labels.searchTerm');
       await user.type(searchInput, 'Dublin');
@@ -328,8 +356,8 @@ describe('MetaDataStandardForAnswer', () => {
         />
       );
 
-      const addButton = screen.getByRole('button', { name: 'researchOutput.metaDataStandards.buttons.add' });
-      await user.click(addButton);
+      const addLink = screen.getByText('researchOutput.metaDataStandards.buttons.add');
+      await user.click(addLink);
 
       const searchInput = screen.getByLabelText('labels.searchTerm');
       await user.type(searchInput, 'Dublin');
@@ -382,8 +410,8 @@ describe('MetaDataStandardForAnswer', () => {
         />
       );
 
-      const addButton = screen.getByRole('button', { name: 'researchOutput.metaDataStandards.buttons.add' });
-      await user.click(addButton);
+      const addLink = screen.getByText('researchOutput.metaDataStandards.buttons.add');
+      await user.click(addLink);
 
       await waitFor(() => {
         expect(screen.getByText('Terminal RI Unicamp')).toBeInTheDocument();
@@ -442,8 +470,8 @@ describe('MetaDataStandardForAnswer', () => {
         />
       );
 
-      const addButton = screen.getByRole('button', { name: 'researchOutput.metaDataStandards.buttons.add' });
-      await user.click(addButton);
+      const addLink = screen.getByText('researchOutput.metaDataStandards.buttons.add');
+      await user.click(addLink);
 
       await waitFor(() => {
         const terminalRI = screen.getAllByText('Terminal RI Unicamp');
@@ -571,13 +599,11 @@ describe('MetaDataStandardForAnswer', () => {
         expect(screen.getByText('researchOutput.metaDataStandards.headings.dialogHeading')).toBeInTheDocument();
       });
 
-      // Wait for the button to be available
+      // Wait for the link to be available
       const modal = screen.getByTestId('modal');
-      const addButtonInModal = await waitFor(() =>
-        within(modal).getAllByRole('button', { name: 'researchOutput.metaDataStandards.buttons.add' })[0]
-      );
+      const addLinkInModal = await waitFor(() => within(modal).getByText('researchOutput.metaDataStandards.buttons.add'));
 
-      await user.click(addButtonInModal);
+      await user.click(addLinkInModal);
 
       await waitFor(() => {
         expect(screen.getByText('researchOutput.metaDataStandards.headings.addCustomHeading')).toBeInTheDocument();
@@ -605,13 +631,11 @@ describe('MetaDataStandardForAnswer', () => {
         expect(screen.getByText('researchOutput.metaDataStandards.headings.dialogHeading')).toBeInTheDocument();
       });
 
-      // Wait for the button to be available
+      // Wait for the link to be available
       const modal = screen.getByTestId('modal');
-      const addButtonInModal = await waitFor(() =>
-        within(modal).getAllByRole('button', { name: 'researchOutput.metaDataStandards.buttons.add' })[0]
-      );
+      const addLinkInModal = await waitFor(() => within(modal).getByText('researchOutput.metaDataStandards.buttons.add'));
 
-      await user.click(addButtonInModal);
+      await user.click(addLinkInModal);
       await waitFor(() => {
         expect(screen.getByText('researchOutput.metaDataStandards.headings.addCustomHeading')).toBeInTheDocument();
       });
@@ -672,13 +696,11 @@ describe('MetaDataStandardForAnswer', () => {
         expect(screen.getByText('researchOutput.metaDataStandards.headings.dialogHeading')).toBeInTheDocument();
       });
 
-      // Use within to scope to the modal, and wait for the button to be available
-      const modal = screen.getByTestId('modal');
-      const addButtonInModal = await waitFor(() =>
-        within(modal).getAllByRole('button', { name: 'researchOutput.metaDataStandards.buttons.add' })[0]
-      );
 
-      await user.click(addButtonInModal);
+      // Wait for the link to be available
+      const modal = screen.getByTestId('modal');
+      const addLinkInModal = await waitFor(() => within(modal).getByText('researchOutput.metaDataStandards.buttons.add'));
+      await user.click(addLinkInModal);
       await waitFor(() => {
         expect(screen.getByText('researchOutput.metaDataStandards.headings.addCustomHeading')).toBeInTheDocument();
       });
@@ -714,13 +736,12 @@ describe('MetaDataStandardForAnswer', () => {
         expect(screen.getByText('researchOutput.metaDataStandards.headings.dialogHeading')).toBeInTheDocument();
       });
 
-      // Use within to scope to the modal, and wait for the button to be available
-      const modal = screen.getByTestId('modal');
-      const addButtonInModal = await waitFor(() =>
-        within(modal).getAllByRole('button', { name: 'researchOutput.metaDataStandards.buttons.add' })[0]
-      );
 
-      await user.click(addButtonInModal);
+      // Wait for the link to be available
+      const modal = screen.getByTestId('modal');
+      const addLinkInModal = await waitFor(() => within(modal).getByText('researchOutput.metaDataStandards.buttons.add'));
+      await user.click(addLinkInModal);
+
       await waitFor(() => {
         expect(screen.getByText('researchOutput.metaDataStandards.headings.addCustomHeading')).toBeInTheDocument();
       });
@@ -794,7 +815,7 @@ describe('MetaDataStandardForAnswer', () => {
             metadataStandards: {
               __typename: 'MetadataStandardSearchResults',
               items: mockMetadataStandardsData.metadataStandards.items,
-              totalCount: 51,
+              totalCount: 1,
               hasNextPage: true,
               hasPreviousPage: false,
               currentOffset: 0,
@@ -817,7 +838,7 @@ describe('MetaDataStandardForAnswer', () => {
       await user.click(addButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/Displaying standards 5 of 51 in total/i)).toBeInTheDocument();
+        expect(screen.getByText('labels.displayPaginationCount')).toBeInTheDocument();
       });
     });
   });

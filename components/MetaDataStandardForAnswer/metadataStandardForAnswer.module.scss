@@ -345,7 +345,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 10px;
+  gap: 20px;
   flex-wrap: wrap;
 }
 
@@ -368,7 +368,7 @@
 }
 
 .searchRepos {
-  flex: 1;
+  flex: 0 0 auto;
   min-width: 250px;
   display: flex;
   flex-direction: column;
@@ -390,8 +390,54 @@
   }
 }
 
+.checkboxWrapper {
+  flex: 1;
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+  
+  // Add invisible label for alignment
+  &::before {
+    content: '\00a0'; // non-breaking space
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.5;
+    visibility: hidden;
+  }
+  
+  :global {
+    .react-aria-Checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      
+      .checkbox-wrapper {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px; // Space between text and icon
+        
+        > div {
+          white-space: nowrap; // Keep text on one line if desired
+        }
+        
+        .popover-btn {
+          flex-shrink: 0;
+        }
+      }
+    }
+  }
+}
+
 .filterActions {
   display: flex;
+  justify-content: space-between;
   gap: 10px;
   width: 100%;
 
@@ -401,7 +447,6 @@
 
   // For screens >= 640px
   @include r.device(sm) {
-    width: auto;
     margin-top: 26px; // Need this exact size to align with search field
   }
 

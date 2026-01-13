@@ -105,40 +105,6 @@ export const createEmptyResearchOutputRow = (
         const schemaVersion = col.content?.meta?.schemaVersion || CURRENT_SCHEMA_VERSION;
         const baseAnswer = getDefaultAnswerForType(col.content.type, schemaVersion);
 
-        // Handle repositorySearch with preferences
-        if (col.content.type === REPOSITORY_SEARCH_ID) {
-          const colRepoPreferences = 'preferences' in col && Array.isArray(col.preferences)
-            ? col.preferences as { label: string; value: string }[]
-            : undefined;
-          if (colRepoPreferences && colRepoPreferences.length > 0) {
-            return {
-              type: "repositorySearch" as const,
-              meta: baseAnswer.meta,
-              answer: colRepoPreferences.map((pref) => ({
-                repositoryId: pref.value,
-                repositoryName: pref.label
-              }))
-            };
-          }
-        }
-
-        // Handle metadataStandardSearch with preferences
-        if (col.content.type === METADATA_STANDARD_SEARCH_ID) {
-          const colStdPreferences = 'preferences' in col && Array.isArray(col.preferences)
-            ? col.preferences as { label: string; value: string }[]
-            : undefined;
-          if (colStdPreferences && colStdPreferences.length > 0) {
-            return {
-              type: "metadataStandardSearch" as const,
-              meta: baseAnswer.meta,
-              answer: colStdPreferences.map((pref) => ({
-                metadataStandardId: String(pref.value),
-                metadataStandardName: pref.label
-              }))
-            };
-          }
-        }
-
         return baseAnswer;
       }),
       getDefaultAnswerForType("date", CURRENT_SCHEMA_VERSION),

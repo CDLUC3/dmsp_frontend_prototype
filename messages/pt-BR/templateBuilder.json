@@ -381,7 +381,9 @@
       "customAccessLevelList": "Lista de níveis de acesso personalizado",
       "helpText": "Texto de Ajuda para {fieldName}",
       "mayContainSensitiveData": "Pode conter dados sensíveis?",
-      "mayContainPersonalData": "Pode conter informações pessoalmente identificáveis?"
+      "mayContainPersonalData": "Pode conter informações pessoalmente identificáveis?",
+      "preferredRepositories": "Apenas repositórios preferenciais",
+      "preferredMetadataStandards": "Apenas padrões de metadados preferenciais"
     },
     "buttons": {
       "addRow": "Adicionar linha",
@@ -397,7 +399,9 @@
       "requirementText": "Use isto para instruções específicas sobre o que os pesquisadores precisam incluir em sua resposta, tais como as propriedades dos seus dados que devem listar.",
       "guidanceText": "Permita que os pesquisadores saibam como fornecer melhor respostas aos requisitos, tais como políticas para considerar de sua organização ou quais fatores considerar.",
       "sampleText": "Os criadores de planos poderão copiar o texto da amostra para o campo como ponto de partida, para acelerar a entrada de conteúdo.",
-      "dataFlags": "Marque todas as afirmações que são verdadeiras sobre o conjunto de dados"
+      "dataFlags": "Marque todas as afirmações que são verdadeiras sobre o conjunto de dados",
+      "preferredRepositories": "Estes repositórios foram definidos pelo criador do modelo como repositórios preferenciais para uso.",
+      "preferredMetadataStandards": "Estes padrões de metadados foram definidos pelo criador do modelo como padrões de metadados preferenciais para uso."
     },
     "headings": {
       "bestPractice": "Melhores práticas pela Ferramenta DMP",

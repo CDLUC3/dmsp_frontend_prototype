@@ -602,30 +602,25 @@ const SingleResearchOutputComponent = ({
               ? value as RepoAnswer[]
               : [];
 
-            // Build a preferences lookup map for enriching answer data
-            const preferencesMap = new Map<string, RepoPreference>();
+            // Build a preferences array of URIs
+            let preferredRepoURIs: string[] = [];
             if (colRepoPreferences && Array.isArray(colRepoPreferences)) {
-              colRepoPreferences.forEach((pref) => {
-                const typedPref = pref as RepoPreference;
-                if (typedPref.value) {
-                  preferencesMap.set(typedPref.value, typedPref);
-                }
-              });
+              preferredRepoURIs = colRepoPreferences
+                .map((pref) => (pref as RepoPreference).value)
+                .filter((value): value is string => Boolean(value));
             }
-
+            
             const existingRepos = hasExplicitRepoAnswer
               ? (repoValue.length > 0
                 ? repoValue.map((repo) => {
-                  // Try to enrich from preferences if available
-                  const prefData = preferencesMap.get(repo.repositoryId);
                   return {
                     id: repo.repositoryId,
                     uri: repo.repositoryId,
                     name: repo.repositoryName,
-                    website: repo.repositoryWebsite || prefData?.website || '',
-                    description: repo.repositoryDescription || prefData?.description || '',
-                    keywords: repo.repositoryKeywords || prefData?.keywords || [],
-                    repositoryType: repo.repositoryType || prefData?.repositoryType || []
+                    website: repo.repositoryWebsite || '',
+                    description: repo.repositoryDescription || '',
+                    keywords: repo.repositoryKeywords || [],
+                    repositoryType: repo.repositoryType || []
                   };
                 })
                 : [])  // User explicitly removed all items - show empty
@@ -656,6 +651,7 @@ const SingleResearchOutputComponent = ({
 
                 <RepoSelectorForAnswer
                   value={existingRepos}
+                  preferredReposURIs={preferredRepoURIs}
                   onRepositoriesChange={(repos) => {
                     // Transform RepositoryInterface[] to the answer format
                     // Save all repository data to preserve it across selections
@@ -687,6 +683,13 @@ const SingleResearchOutputComponent = ({
               ? value as MetadataStdAnswer[]
               : [];
 
+            let preferredMetaDataURIs: string[] = [];
+            if (colStdPreferences && Array.isArray(colStdPreferences)) {
+              preferredMetaDataURIs = colStdPreferences
+                .map((pref) => (pref as RepoPreference).value)
+                .filter((value): value is string => Boolean(value));
+            }
+            
             const existingMetaDataStandards = hasExplicitStdAnswer
               ? (metadataValue.length > 0
                 ? metadataValue
@@ -722,6 +725,7 @@ const SingleResearchOutputComponent = ({
                 )}
                 <MetaDataStandardsForAnswer
                   value={existingMetaDataStandards}
+                  preferredMetaDataURIs={preferredMetaDataURIs}
                   onMetaDataStandardsChange={(stds) => {
                     // Transform to the answer format (assuming MetaDataStandardsForAnswer returns a similar interface)
                     const stdAnswers = stds.map(std => ({

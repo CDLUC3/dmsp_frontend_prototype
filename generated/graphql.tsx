@@ -2506,6 +2506,8 @@ export type Query = {
   metadataStandard?: Maybe<MetadataStandard>;
   /** Search for a metadata standard */
   metadataStandards?: Maybe<MetadataStandardSearchResults>;
+  /** return all metadata standards whose unique uri values are provided */
+  metadataStandardsByURIs?: Maybe<Array<MetadataStandard>>;
   /** Get all of the user's projects */
   myProjects?: Maybe<ProjectSearchResults>;
   /** Get the Templates that belong to the current user's affiliation (user must be an Admin) */
@@ -2568,6 +2570,8 @@ export type Query = {
   relatedWorksByProject?: Maybe<RelatedWorkSearchResults>;
   /** Search for a repository */
   repositories?: Maybe<RepositorySearchResults>;
+  /** return all repositories whose unique uri values are provided */
+  repositoriesByURIs?: Maybe<Array<Repository>>;
   /** Fetch a specific repository */
   repository?: Maybe<Repository>;
   /** return all distinct subject area keywords across all repositories */
@@ -2716,6 +2720,11 @@ export type QueryMetadataStandardsArgs = {
   paginationOptions?: InputMaybe<PaginationOptions>;
   researchDomainId?: InputMaybe<Scalars['Int']['input']>;
   term?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryMetadataStandardsByUrIsArgs = {
+  uris: Array<Scalars['String']['input']>;
 };
 
 
@@ -2873,6 +2882,11 @@ export type QueryRelatedWorksByProjectArgs = {
 
 export type QueryRepositoriesArgs = {
   input: RepositorySearchInput;
+};
+
+
+export type QueryRepositoriesByUrIsArgs = {
+  uris: Array<Scalars['String']['input']>;
 };
 
 
@@ -5080,6 +5094,13 @@ export type MetadataStandardsQueryVariables = Exact<{
 
 export type MetadataStandardsQuery = { __typename?: 'Query', metadataStandards?: { __typename?: 'MetadataStandardSearchResults', hasNextPage?: boolean | null, currentOffset?: number | null, hasPreviousPage?: boolean | null, limit?: number | null, nextCursor?: string | null, totalCount?: number | null, availableSortFields?: Array<string | null> | null, items?: Array<{ __typename?: 'MetadataStandard', id?: number | null, name: string, uri: string, description?: string | null, keywords?: Array<string> | null, errors?: { __typename?: 'MetadataStandardErrors', general?: string | null, description?: string | null, name?: string | null, uri?: string | null, keywords?: string | null, researchDomainIds?: string | null } | null } | null> | null } | null };
 
+export type MetadataStandardsByUrIsQueryVariables = Exact<{
+  uris: Array<Scalars['String']['input']> | Scalars['String']['input'];
+}>;
+
+
+export type MetadataStandardsByUrIsQuery = { __typename?: 'Query', metadataStandardsByURIs?: Array<{ __typename?: 'MetadataStandard', id?: number | null, name: string, uri: string, description?: string | null, keywords?: Array<string> | null, errors?: { __typename?: 'MetadataStandardErrors', general?: string | null, description?: string | null, name?: string | null, uri?: string | null, keywords?: string | null, researchDomainIds?: string | null } | null }> | null };
+
 export type PlanQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
 }>;
@@ -5200,6 +5221,13 @@ export type RepositorySubjectAreasQueryVariables = Exact<{ [key: string]: never;
 
 
 export type RepositorySubjectAreasQuery = { __typename?: 'Query', repositorySubjectAreas?: Array<string> | null };
+
+export type RepositoriesByUrIsQueryVariables = Exact<{
+  uris: Array<Scalars['String']['input']> | Scalars['String']['input'];
+}>;
+
+
+export type RepositoriesByUrIsQuery = { __typename?: 'Query', repositoriesByURIs?: Array<{ __typename?: 'Repository', keywords?: Array<string> | null, id?: number | null, name: string, description?: string | null, uri: string, website?: string | null, repositoryTypes?: Array<RepositoryType> | null, errors?: { __typename?: 'RepositoryErrors', general?: string | null, uri?: string | null } | null }> | null };
 
 export type TopLevelResearchDomainsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -8686,6 +8714,58 @@ export type MetadataStandardsQueryHookResult = ReturnType<typeof useMetadataStan
 export type MetadataStandardsLazyQueryHookResult = ReturnType<typeof useMetadataStandardsLazyQuery>;
 export type MetadataStandardsSuspenseQueryHookResult = ReturnType<typeof useMetadataStandardsSuspenseQuery>;
 export type MetadataStandardsQueryResult = Apollo.QueryResult<MetadataStandardsQuery, MetadataStandardsQueryVariables>;
+export const MetadataStandardsByUrIsDocument = gql`
+    query MetadataStandardsByURIs($uris: [String!]!) {
+  metadataStandardsByURIs(uris: $uris) {
+    id
+    errors {
+      general
+      description
+      name
+      uri
+      keywords
+      researchDomainIds
+    }
+    name
+    uri
+    description
+    keywords
+  }
+}
+    `;
+
+/**
+ * __useMetadataStandardsByUrIsQuery__
+ *
+ * To run a query within a React component, call `useMetadataStandardsByUrIsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMetadataStandardsByUrIsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMetadataStandardsByUrIsQuery({
+ *   variables: {
+ *      uris: // value for 'uris'
+ *   },
+ * });
+ */
+export function useMetadataStandardsByUrIsQuery(baseOptions: Apollo.QueryHookOptions<MetadataStandardsByUrIsQuery, MetadataStandardsByUrIsQueryVariables> & ({ variables: MetadataStandardsByUrIsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MetadataStandardsByUrIsQuery, MetadataStandardsByUrIsQueryVariables>(MetadataStandardsByUrIsDocument, options);
+      }
+export function useMetadataStandardsByUrIsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MetadataStandardsByUrIsQuery, MetadataStandardsByUrIsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MetadataStandardsByUrIsQuery, MetadataStandardsByUrIsQueryVariables>(MetadataStandardsByUrIsDocument, options);
+        }
+export function useMetadataStandardsByUrIsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MetadataStandardsByUrIsQuery, MetadataStandardsByUrIsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MetadataStandardsByUrIsQuery, MetadataStandardsByUrIsQueryVariables>(MetadataStandardsByUrIsDocument, options);
+        }
+export type MetadataStandardsByUrIsQueryHookResult = ReturnType<typeof useMetadataStandardsByUrIsQuery>;
+export type MetadataStandardsByUrIsLazyQueryHookResult = ReturnType<typeof useMetadataStandardsByUrIsLazyQuery>;
+export type MetadataStandardsByUrIsSuspenseQueryHookResult = ReturnType<typeof useMetadataStandardsByUrIsSuspenseQuery>;
+export type MetadataStandardsByUrIsQueryResult = Apollo.QueryResult<MetadataStandardsByUrIsQuery, MetadataStandardsByUrIsQueryVariables>;
 export const PlanDocument = gql`
     query Plan($planId: Int!) {
   plan(planId: $planId) {
@@ -9729,6 +9809,56 @@ export type RepositorySubjectAreasQueryHookResult = ReturnType<typeof useReposit
 export type RepositorySubjectAreasLazyQueryHookResult = ReturnType<typeof useRepositorySubjectAreasLazyQuery>;
 export type RepositorySubjectAreasSuspenseQueryHookResult = ReturnType<typeof useRepositorySubjectAreasSuspenseQuery>;
 export type RepositorySubjectAreasQueryResult = Apollo.QueryResult<RepositorySubjectAreasQuery, RepositorySubjectAreasQueryVariables>;
+export const RepositoriesByUrIsDocument = gql`
+    query RepositoriesByURIs($uris: [String!]!) {
+  repositoriesByURIs(uris: $uris) {
+    keywords
+    id
+    errors {
+      general
+      uri
+    }
+    name
+    description
+    uri
+    website
+    repositoryTypes
+  }
+}
+    `;
+
+/**
+ * __useRepositoriesByUrIsQuery__
+ *
+ * To run a query within a React component, call `useRepositoriesByUrIsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRepositoriesByUrIsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useRepositoriesByUrIsQuery({
+ *   variables: {
+ *      uris: // value for 'uris'
+ *   },
+ * });
+ */
+export function useRepositoriesByUrIsQuery(baseOptions: Apollo.QueryHookOptions<RepositoriesByUrIsQuery, RepositoriesByUrIsQueryVariables> & ({ variables: RepositoriesByUrIsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<RepositoriesByUrIsQuery, RepositoriesByUrIsQueryVariables>(RepositoriesByUrIsDocument, options);
+      }
+export function useRepositoriesByUrIsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RepositoriesByUrIsQuery, RepositoriesByUrIsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<RepositoriesByUrIsQuery, RepositoriesByUrIsQueryVariables>(RepositoriesByUrIsDocument, options);
+        }
+export function useRepositoriesByUrIsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<RepositoriesByUrIsQuery, RepositoriesByUrIsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<RepositoriesByUrIsQuery, RepositoriesByUrIsQueryVariables>(RepositoriesByUrIsDocument, options);
+        }
+export type RepositoriesByUrIsQueryHookResult = ReturnType<typeof useRepositoriesByUrIsQuery>;
+export type RepositoriesByUrIsLazyQueryHookResult = ReturnType<typeof useRepositoriesByUrIsLazyQuery>;
+export type RepositoriesByUrIsSuspenseQueryHookResult = ReturnType<typeof useRepositoriesByUrIsSuspenseQuery>;
+export type RepositoriesByUrIsQueryResult = Apollo.QueryResult<RepositoriesByUrIsQuery, RepositoriesByUrIsQueryVariables>;
 export const TopLevelResearchDomainsDocument = gql`
     query TopLevelResearchDomains {
   topLevelResearchDomains {

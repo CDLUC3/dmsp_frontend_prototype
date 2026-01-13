@@ -3,6 +3,8 @@
 - Added new `ResearchOutputAnswerComponent`, `SingleResearchOutputComponent`, `RepoSelectorForAnswer` and `MetaDataStandardForAnswer` components for the rendering of `researchOutputTable` question type answer form [#787]
 - Added `utils/researchOutputTransformations.ts` to group utilities for `researchOutputTable` [#787]
 ### Updated
+- Updated `RepoSelectorForAnswer` and `MetaDataStandardForAnswer` so that the preferred selections display in the modal when first loaded [#1094]
+- Updated `ResearchOutputAnswerComponent` and `researchOutputTransformations.ts` so that we don't get the preferred repos and standards displaying as pre-selected in the Research Output Answer form [#1094]
 - Updated `/login` page to disable `email` field when on second step of login [#997]
 - Updated "Share with people" link on `ProjectsProjectMember` component to go to `/collaboration` page [#845]
 - Updated `TemplateEditPage` component with the new `Unpublished changes` status [#875]

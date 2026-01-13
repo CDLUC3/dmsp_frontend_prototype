@@ -5,7 +5,11 @@ import { useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
 import {
   Button,
+  Checkbox,
   Dialog,
+  DialogTrigger,
+  OverlayArrow,
+  Popover,
   Heading,
   Input,
   Label,
@@ -26,7 +30,8 @@ import {
   Repository,
   RepositoryType,
   useRepositoriesLazyQuery,
-  useRepositorySubjectAreasQuery
+  useRepositorySubjectAreasQuery,
+  useRepositoriesByUrIsQuery,
 } from '@/generated/graphql';
 
 import {
@@ -35,6 +40,7 @@ import {
 
 // Components
 import ErrorMessages from '../ErrorMessages';
+import { DmpIcon } from "@/components/Icons";
 
 // Utilities/Other
 import { routePath } from "@/utils/routes";
@@ -80,11 +86,14 @@ function toSubjectAreaObject(str: string): { id: string; name: string } {
 /* Research Output question's Repository Selection System */
 const RepoSelectorForAnswer = ({
   value,
+  preferredReposURIs,
   onRepositoriesChange
 }: {
   value?: RepositoryInterface[];
+  preferredReposURIs?: string[];
   onRepositoriesChange?: (repos: RepositoryInterface[]) => void;
 }) => {
+
   const params = useParams();
   const router = useRouter();
   // Toast context for notifications
@@ -102,6 +111,8 @@ const RepoSelectorForAnswer = ({
   // Cache of complete repository data (from search results or custom additions)
   // This ensures we don't lose details when toggling selections
   const [completeRepoData, setCompleteRepoData] = useState<{ [uri: string]: RepositoryInterface }>({});
+  // State to show preferred repositories only. Set to true only if preferredReposURIs are provided.
+  const [showPreferredOnly, setShowPreferredOnly] = useState(!!preferredReposURIs && preferredReposURIs.length > 0);
 
   // Instead of useState for selectedRepos, use value prop:
   // Enrich with complete data from cache when available
@@ -151,6 +162,13 @@ const RepoSelectorForAnswer = ({
     ...(subjectAreasData?.repositorySubjectAreas?.map(area => toSubjectAreaObject(area)) || [])
   ];
 
+  // Get repositories by the preferred URIs to display initially on first load
+  const { data: preferredRepositoriesData } = useRepositoriesByUrIsQuery({
+    variables: {
+      uris: preferredReposURIs || []
+    },
+  });
+
   // Repositories lazy query
   const [fetchRepositoriesData, { data: repositoriesData }] = useRepositoriesLazyQuery();
 
@@ -168,7 +186,7 @@ const RepoSelectorForAnswer = ({
       offsetLimit = (page - 1) * LIMIT;
     }
 
-    await fetchRepositoriesData({
+    const { data } = await fetchRepositoriesData({
       variables: {
         input: {
           paginationOptions: {
@@ -183,6 +201,17 @@ const RepoSelectorForAnswer = ({
         }
       }
     });
+    // Process the data immediately after fetching
+    if (data?.repositories?.items) {
+      const validRepos = data.repositories.items.filter(item => item !== null);
+      setRepositories(validRepos);
+      setTotalCount(data.repositories.totalCount ?? 0);
+      setTotalPages(Math.ceil((data.repositories.totalCount ?? 0) / LIMIT));
+      setHasNextPage(data.repositories.hasNextPage ?? false);
+      setHasPreviousPage(data.repositories.hasPreviousPage ?? false);
+    } else {
+      setRepositories([]);
+    }
   };
 
   // Handle pagination page click
@@ -206,7 +235,32 @@ const RepoSelectorForAnswer = ({
     // Reset to first page on new search
     setCurrentPage(1);
 
-    await fetchRepositories({ searchTerm: term });
+    // If showing preferred only, filter the preferred repos locally
+    if (showPreferredOnly && preferredRepositoriesData?.repositoriesByURIs) {
+      const filtered = preferredRepositoriesData.repositoriesByURIs.filter(repo => {
+        const matchesSearch = !term ||
+          repo.name?.toLowerCase().includes(term.toLowerCase()) ||
+          repo.description?.toLowerCase().includes(term.toLowerCase()) ||
+          repo.keywords?.some(k => k.toLowerCase().includes(term.toLowerCase()));
+
+        const matchesSubject = !subjectArea ||
+          repo.keywords?.some(k => k.toLowerCase().includes(subjectArea.toLowerCase()));
+
+        const matchesType = !repoType ||
+          repo.repositoryTypes?.includes(repoType as RepositoryType);
+
+        return matchesSearch && matchesSubject && matchesType;
+      });
+
+      setRepositories(filtered);
+      setTotalCount(filtered.length);
+      setTotalPages(1);
+      setHasNextPage(false);
+      setHasPreviousPage(false);
+    } else {
+      // Fetch all repositories with filters from API
+      await fetchRepositories({ page: 1, searchTerm: term });
+    }
   }
 
   // Set selected subject area
@@ -332,40 +386,32 @@ const RepoSelectorForAnswer = ({
   }, [customForm, templateId, Global, router, QuestionAdd, toastState, selectedRepos]);
 
 
-  // Process repositoriesData changes
+
+  // Set initial preferred repositories when modal first opens
   useEffect(() => {
-    // If user navigates away while request is in flight, and the network response arrives,
-    // can't perform state update on unmounted component. So we track if component is mounted.
-    let isMounted = true; // Track if component is still mounted
+    if (isModalOpen &&
+      preferredReposURIs &&
+      preferredReposURIs.length > 0 &&
+      preferredRepositoriesData?.repositoriesByURIs &&
+      showPreferredOnly) {
+      setRepositories(preferredRepositoriesData.repositoriesByURIs);
+      setTotalCount(preferredRepositoriesData.repositoriesByURIs.length);
+      setTotalPages(1);
+      setHasNextPage(false);
+      setHasPreviousPage(false);
+    }
+  }, [isModalOpen, preferredReposURIs, preferredRepositoriesData, showPreferredOnly]);
 
-    const processRepoData = () => {
-      if (repositoriesData?.repositories?.items) {
-        if (isMounted) {
-          // Filter out null items
-          const validRepos = repositoriesData.repositories.items.filter(item => item !== null);
-          setRepositories(validRepos);
-          setTotalCount(repositoriesData.repositories.totalCount ?? 0);
-          setTotalPages(Math.ceil((repositoriesData.repositories.totalCount ?? 0) / LIMIT));
-          setHasNextPage(repositoriesData.repositories.hasNextPage ?? false);
-          setHasPreviousPage(repositoriesData.repositories.hasPreviousPage ?? false);
-        }
-      } else {
-        if (isMounted) {
-          setRepositories([]);
-        }
-      }
-    };
-    processRepoData();
-
-    return () => {
-      isMounted = false; // Mark as unmounted
-    };
-
-  }, [repositoriesData]);
 
   useEffect(() => {
-    // On initial load, fetch all repositories
-    fetchRepositories({ page: 1 });
+    if (!isModalOpen && preferredReposURIs && preferredReposURIs.length > 0) {
+      setShowPreferredOnly(true); // Reset to preferred-only when modal closes
+    }
+  }, [isModalOpen, preferredReposURIs]);
+
+  useEffect(() => {
+    // On initial page load, fetch all metadata standards
+    handleSearch('');
   }, []);
 
   const selectedCount = Object.keys(selectedRepos).length;
@@ -510,6 +556,49 @@ const RepoSelectorForAnswer = ({
                                 placeholder='e.g. DNA, titanium, FAIR, etc.'
                               />
                             </SearchField>
+                            {preferredReposURIs && preferredReposURIs.length > 0 && (
+                              <div className={styles.checkboxWrapper}>
+                                <Checkbox
+                                  value='preferredOnly'
+                                  key='preferredOnly'
+                                  id='id-preferredOnly'
+                                  isSelected={showPreferredOnly}
+                                  data-testid='preferredOnlyCheckbox'
+                                  onChange={(isSelected) => {
+                                    setShowPreferredOnly(isSelected);
+                                  }}
+                                  className={styles.checkbox}
+                                >
+                                  <div className="checkbox">
+                                    <svg viewBox="0 0 18 18" aria-hidden="true">
+                                      <polyline points="1 9 7 14 15 4" />
+                                    </svg>
+                                  </div>
+                                  <span className="checkbox-label" data-testid='checkboxLabel'>
+                                    <div className="checkbox-wrapper">
+                                      <div>{QuestionAdd('labels.preferredRepositories')}</div>
+                                      <DialogTrigger>
+                                        <Button className="popover-btn" aria-label="Click for more info">
+                                          <div className="icon info"><DmpIcon icon="info" /></div>
+                                        </Button>
+                                        <Popover>
+                                          <OverlayArrow>
+                                            <svg width={12} height={12} viewBox="0 0 12 12">
+                                              <path d="M0 0 L6 6 L12 0" />
+                                            </svg>
+                                          </OverlayArrow>
+                                          <Dialog>
+                                            <div className="flex-col">
+                                              {QuestionAdd('helpText.preferredRepositories')}
+                                            </div>
+                                          </Dialog>
+                                        </Popover>
+                                      </DialogTrigger>
+                                    </div>
+                                  </span>
+                                </Checkbox>
+                              </div>
+                            )}
 
                             <div className={styles.filterActions}>
                               <Button
@@ -520,12 +609,12 @@ const RepoSelectorForAnswer = ({
                               >
                                 {Global('buttons.applyFilter')}
                               </Button>
-                              <Button
+                              <Link
+                                href="#"
                                 onClick={() => setIsCustomFormOpen(!isCustomFormOpen)}
-                                className="secondary medium"
                               >
                                 {QuestionAdd('researchOutput.repoSelector.buttons.addCustomRepo')}
-                              </Button>
+                              </Link>
                             </div>
                           </div>
                         </div>

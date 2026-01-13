@@ -29,7 +29,7 @@ import mockQuestionDataForURL from '@/__mocks__/common/mockURLQuestion.json';
 import mockQuestionDataForNumber from '@/__mocks__/common/mockNumberQuestion.json';
 import mockQuestionDataForCurrency from '@/__mocks__/common/mockCurrencyQuestion.json';
 import mockSelectedQuestion from '../__mocks__/mockSelectedQuestion.json';
-import mockLicensesData from '../__mocks__/mockLicensesData.json';
+import mockLicensesData from '../__mocks__/mockLicensesList.json';
 import mockDefaultOutputTypesData from '../__mocks__/mockDefaultOutputTypes.json';
 import * as getParsedJSONModule from '@/components/hooks/getParsedQuestionJSON';
 import { AffiliationSearchQuestionType } from "@dmptool/types";

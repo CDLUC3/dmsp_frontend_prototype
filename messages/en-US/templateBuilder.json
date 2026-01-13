@@ -381,7 +381,10 @@
       "customAccessLevelList": "Custom access levels list",
       "helpText": "Help text for {fieldName}",
       "mayContainSensitiveData": "May contain sensitive data?",
-      "mayContainPersonalData": "May contain personally identifiable information?"
+      "mayContainPersonalData": "May contain personally identifiable information?",
+      "preferredRepositories": "Preferred repositories only",
+      "preferredMetadataStandards": "Preferred metadata standards only",
+      "displayPaginationCount": "Displaying standards {count} of {totalCount} in total"
     },
     "buttons": {
       "addRow": "Add Row",
@@ -397,7 +400,9 @@
       "requirementText": "Use this for specific instructions on what researchers are required to include in their answer, such as what properties of their data they should be listing.",
       "guidanceText": "Let researchers know how to best provide answers to the requirements, such as policies to consider from your organization or what factors to consider.",
       "sampleText": "Plan creators will be able to copy the sample text into the field as a starting point, to speed up content entry.",
-      "dataFlags": "Mark all of the statements that are true about the dataset"
+      "dataFlags": "Mark all of the statements that are true about the dataset",
+      "preferredRepositories": "These repositories were set by the template creator as preferred repositories to use.",
+      "preferredMetadataStandards": "These metadata standards were set by the template creator as preferred metadata standards to use."
     },
     "headings": {
       "bestPractice": "Best practice by DMP Tool",

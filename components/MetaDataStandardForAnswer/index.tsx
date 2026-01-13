@@ -5,7 +5,12 @@ import { useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
 import {
   Button,
+  Checkbox,
   Dialog,
+  DialogTrigger,
+  Link,
+  OverlayArrow,
+  Popover,
   Heading,
   Input,
   Label,
@@ -17,6 +22,7 @@ import {
 // GraphQL queries and mutations
 import {
   useMetadataStandardsLazyQuery,
+  useMetadataStandardsByUrIsQuery
 } from '@/generated/graphql';
 
 import {
@@ -35,6 +41,7 @@ import {
 import Pagination from '@/components/Pagination';
 import ErrorMessages from '../ErrorMessages';
 import { useToast } from '@/context/ToastContext';
+import { DmpIcon } from "@/components/Icons";
 
 import {
   MetaDataStandardInterface,
@@ -52,9 +59,11 @@ type AddMetaDataStandardsErrors = {
 
 const MetaDataStandardForAnswer = ({
   value = [],
+  preferredMetaDataURIs,
   onMetaDataStandardsChange
 }: {
   value?: MetaDataStandardInterface[];
+  preferredMetaDataURIs?: string[];
   onMetaDataStandardsChange: (standards: MetaDataStandardInterface[]) => void;
 }) => {
   // Derive selected standards from value prop
@@ -97,6 +106,15 @@ const MetaDataStandardForAnswer = ({
   // Filtered metadata standards state
   /*eslint-disable @typescript-eslint/no-explicit-any */
   const [metaDataStandards, setMetaDataStandards] = useState<any[]>([]);
+  // State to show preferred metadata standards only. Set to true only if preferredMetaDataURIs are provided.
+  const [showPreferredOnly, setShowPreferredOnly] = useState(!!preferredMetaDataURIs && preferredMetaDataURIs.length > 0);
+
+  // Get metadata standards by the preferred URIs to display initially on first load
+  const { data: preferredMetaDataStandardsData } = useMetadataStandardsByUrIsQuery({
+    variables: {
+      uris: preferredMetaDataURIs || []
+    },
+  });
 
   // Metadata standards lazy query
   const [fetchMetaDataStandardsData, { data: metaDataStandardsData }] = useMetadataStandardsLazyQuery();
@@ -115,7 +133,7 @@ const MetaDataStandardForAnswer = ({
       offsetLimit = (page - 1) * LIMIT;
     }
 
-    await fetchMetaDataStandardsData({
+    const { data } = await fetchMetaDataStandardsData({
       variables: {
         paginationOptions: {
           offset: offsetLimit,
@@ -126,6 +144,18 @@ const MetaDataStandardForAnswer = ({
         term: searchTerm,
       }
     });
+
+    // Process the data immediately after fetching
+    if (data?.metadataStandards?.items) {
+      const validRepos = data.metadataStandards.items.filter(item => item !== null);
+      setMetaDataStandards(validRepos);
+      setTotalCount(data.metadataStandards.totalCount ?? 0);
+      setTotalPages(Math.ceil((data.metadataStandards.totalCount ?? 0) / LIMIT));
+      setHasNextPage(data.metadataStandards.hasNextPage ?? false);
+      setHasPreviousPage(data.metadataStandards.hasPreviousPage ?? false);
+    } else {
+      setMetaDataStandards([]);
+    }
   };
 
   // Handle pagination page click
@@ -148,7 +178,26 @@ const MetaDataStandardForAnswer = ({
     // Reset to first page on new search
     setCurrentPage(1);
 
-    await fetchMetaDataStandards({ searchTerm: term });
+    // If showing preferred only, filter the preferred metadata standards locally
+    if (showPreferredOnly && preferredMetaDataStandardsData?.metadataStandardsByURIs) {
+      const filtered = preferredMetaDataStandardsData.metadataStandardsByURIs.filter(repo => {
+        const matchesSearch = !term ||
+          repo.name?.toLowerCase().includes(term.toLowerCase()) ||
+          repo.description?.toLowerCase().includes(term.toLowerCase()) ||
+          repo.keywords?.some(k => k.toLowerCase().includes(term.toLowerCase()));
+
+        return matchesSearch;
+      });
+
+      setMetaDataStandards(filtered);
+      setTotalCount(filtered.length);
+      setTotalPages(1);
+      setHasNextPage(false);
+      setHasPreviousPage(false);
+    } else {
+      // Fetch all repositories with filters from API
+      await fetchMetaDataStandards({ page: 1, searchTerm: term });
+    }
   }
 
   const toggleSelection = (std: MetaDataStandardInterface) => {
@@ -247,43 +296,33 @@ const MetaDataStandardForAnswer = ({
     }
   }, [customForm, templateId, Global, router]);
 
-  // Process repositoriesData changes
+
+  // Set initial metadata standards when modal opens
   useEffect(() => {
-    // If user navigates away while request is in flight, and the network response arrives,
-    // can't perform state update on unmounted component. So we track if component is mounted.
-    let isMounted = true; // Track if component is still mounted
-
-    const processMetaDataStandardsData = () => {
-      if (metaDataStandardsData?.metadataStandards?.items) {
-
-        if (isMounted) {
-          // Filter out null items
-          const validStandards = metaDataStandardsData.metadataStandards.items.filter(item => item !== null);
-          setMetaDataStandards(validStandards);
-          setTotalCount(metaDataStandardsData.metadataStandards.totalCount ?? 0);
-          setTotalPages(Math.ceil((metaDataStandardsData.metadataStandards.totalCount ?? 0) / LIMIT));
-          setHasNextPage(metaDataStandardsData.metadataStandards.hasNextPage ?? false);
-          setHasPreviousPage(metaDataStandardsData.metadataStandards.hasPreviousPage ?? false);
-        }
-      } else {
-        if (isMounted) {
-          setMetaDataStandards([]);
-        }
-      }
-    };
-    processMetaDataStandardsData();
-
-    return () => {
-      isMounted = false; // Mark as unmounted
-    };
-
-  }, [metaDataStandardsData]);
+    if (isModalOpen &&
+      preferredMetaDataURIs &&
+      preferredMetaDataURIs.length > 0 &&
+      preferredMetaDataStandardsData?.metadataStandardsByURIs &&
+      showPreferredOnly) {
+      setMetaDataStandards(preferredMetaDataStandardsData.metadataStandardsByURIs);
+      setTotalCount(preferredMetaDataStandardsData.metadataStandardsByURIs.length);
+      setTotalPages(1);
+      setHasNextPage(false);
+      setHasPreviousPage(false);
+    }
+  }, [isModalOpen, preferredMetaDataURIs, preferredMetaDataStandardsData, showPreferredOnly]);
 
   useEffect(() => {
-    // On initial load, fetch all metadata standards
-    fetchMetaDataStandards({ page: 1 });
+    if (!isModalOpen && preferredMetaDataURIs && preferredMetaDataURIs.length > 0) {
+      setShowPreferredOnly(true); // Reset to preferred-only when modal closes
+    }
+  }, [isModalOpen, preferredMetaDataURIs]);
+
+
+  useEffect(() => {
+    // On initial page load, fetch all metadata standards
+    handleSearch('');
   }, []);
-
 
   const selectedCount = Object.keys(selectedStandards).length;
   const selectedArray = Object.values(selectedStandards);
@@ -386,6 +425,49 @@ const MetaDataStandardForAnswer = ({
                                 placeholder='e.g. DataCite, Dublin, Biological, etc.'
                               />
                             </SearchField>
+                            {preferredMetaDataURIs && preferredMetaDataURIs.length > 0 && (
+                              <div className={styles.checkboxWrapper}>
+                                <Checkbox
+                                  value='preferredOnly'
+                                  key='preferredOnly'
+                                  id='id-preferredOnly'
+                                  isSelected={showPreferredOnly}
+                                  data-testid='preferredOnlyCheckbox'
+                                  onChange={(isSelected) => {
+                                    setShowPreferredOnly(isSelected);
+                                  }}
+                                  className={styles.checkbox}
+                                >
+                                  <div className="checkbox">
+                                    <svg viewBox="0 0 18 18" aria-hidden="true">
+                                      <polyline points="1 9 7 14 15 4" />
+                                    </svg>
+                                  </div>
+                                  <span className="checkbox-label" data-testid='checkboxLabel'>
+                                    <div className="checkbox-wrapper">
+                                      <div>{QuestionAdd('labels.preferredMetadataStandards')}</div>
+                                      <DialogTrigger>
+                                        <Button className="popover-btn" aria-label="Click for more info">
+                                          <div className="icon info"><DmpIcon icon="info" /></div>
+                                        </Button>
+                                        <Popover>
+                                          <OverlayArrow>
+                                            <svg width={12} height={12} viewBox="0 0 12 12">
+                                              <path d="M0 0 L6 6 L12 0" />
+                                            </svg>
+                                          </OverlayArrow>
+                                          <Dialog>
+                                            <div className="flex-col">
+                                              {QuestionAdd('helpText.preferredMetadataStandards')}
+                                            </div>
+                                          </Dialog>
+                                        </Popover>
+                                      </DialogTrigger>
+                                    </div>
+                                  </span>
+                                </Checkbox>
+                              </div>
+                            )}
 
                             <div className={styles.filterActions}>
                               <Button
@@ -396,12 +478,12 @@ const MetaDataStandardForAnswer = ({
                               >
                                 {Global('buttons.applyFilter')}
                               </Button>
-                              <Button
+                              <Link
+                                href="#"
                                 onClick={() => setIsCustomFormOpen(!isCustomFormOpen)}
-                                className="secondary medium"
                               >
                                 {QuestionAdd('researchOutput.metaDataStandards.buttons.add')}
-                              </Button>
+                              </Link>
                             </div>
                           </div>
                         </div>
@@ -465,7 +547,11 @@ const MetaDataStandardForAnswer = ({
                     <div className={styles.searchResults}>
                       <div className={styles.paginationWrapper}>
                         <span className={styles.paginationInfo}>
-                          Displaying standards {metaDataStandards.length} of {totalCount} in total
+                          {QuestionAdd('labels.displayPaginationCount', {
+                            count: metaDataStandards.length,
+                            totalCount: totalCount
+                          })}
+                          {/* Displaying standards {metaDataStandards.length} of {totalCount} in total */}
                         </span>
                         <Pagination
                           currentPage={currentPage}
