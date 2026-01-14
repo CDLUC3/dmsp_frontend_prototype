@@ -20,7 +20,8 @@
     "crowdin:download": "node scripts/load-env.js && crowdin download && npm run sanitize-translations",
     "trivy-high": "sh ./scripts/trivy-high.sh",
     "trivy-med": "sh ./scripts/trivy-med.sh",
-    "trivy-all": "npm run trivy-high && npm run trivy-med"
+    "trivy-all": "npm run trivy-high && npm run trivy-med",
+    "generate-sitemap": "node scripts/generate-sitemap.js"
   },
   "dependencies": {
     "@apollo/client": "4.0.11",
