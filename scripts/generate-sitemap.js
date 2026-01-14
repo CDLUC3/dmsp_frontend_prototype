@@ -57,28 +57,6 @@ function groupRoutes(routes) {
   return groups;
 }
 
-function buildRouteTree(routes) {
-  const tree = {};
-
-  for (const route of routes) {
-    const parts = route.split('/').filter(Boolean);
-    let current = tree;
-
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
-      if (!current[part]) {
-        current[part] = { _routes: [], _children: {} };
-      }
-      if (i === parts.length - 1) {
-        current[part]._routes.push(route);
-      }
-      current = current[part]._children;
-    }
-  }
-
-  return tree;
-}
-
 function generateMermaidMindmap(routes) {
   const groups = groupRoutes(routes);
   const sections = Object.keys(groups).filter(k => k !== 'root').sort();
@@ -169,11 +147,6 @@ function generateMermaidFlowchart(routes, title = 'Routes') {
   return mermaid;
 }
 
-function sanitizeForMermaid(text) {
-  // Escape special characters for Mermaid
-  return text.replace(/[()[\]{}]/g, '');
-}
-
 function generateGroupMarkdown(groupName, routes) {
   const capitalizedName = groupName.charAt(0).toUpperCase() + groupName.slice(1);
 
@@ -242,6 +215,7 @@ const routes = walk(APP_DIR);
 const groups = groupRoutes(routes);
 
 const docsDir = path.join(__dirname, '..', 'docs');
+
 const routesDir = path.join(docsDir, 'routes');
 
 // Create directories

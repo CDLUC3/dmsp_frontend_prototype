@@ -339,31 +339,48 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
   });
 
   it('should handle form submission', async () => {
-    render(
+    const { debug } = render(
       <MockedProvider mocks={MOCKS}>
         <ProjectsProjectPlanAdjustFunding />
-      </MockedProvider>
+      </MockedProvider >
     );
 
-    //MockedProvider is async, so need to wait for the data to be in
+    // Debug: uncomment to see what's rendered
+    // debug();
+
+    // Wait for BOTH queries to complete - component likely makes 2 queries on mount
+    // PlanFundingsDocument AND ProjectFundingsDocument
     await waitFor(() => {
-      expect(screen.getByRole('checkbox', { name: 'Project Funder A' })).toBeInTheDocument();
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument(); // Adjust to your loading indicator
     }, { timeout: 3000 });
 
+    // Alternative: wait for specific content to appear
+    const option = await screen.findByRole('checkbox', { name: 'Project Funder A' }, { timeout: 5000 });
+    expect(option).toBeInTheDocument();
+
+    fireEvent.click(option);
+
+    // Verify checkbox state changed
     await waitFor(() => {
-      const option = screen.getByRole('checkbox', { name: 'Project Funder A' });
-      expect(option).toBeInTheDocument();
-      fireEvent.click(option);
-    }, { timeout: 3000 });
+      expect(option).toBeChecked();
+    });
 
     const saveButton = screen.getByRole('button', { name: 'buttons.save' });
     fireEvent.click(saveButton);
 
+    // Wait for mutation to complete - split into separate waits
     await waitFor(() => {
-      expect(mockToast.add).toHaveBeenCalledWith('successfullyUpdated', { type: 'success' });
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123/dmp/456');
-    }, { timeout: 3000 });
-  });
+      expect(mockToast.add).toHaveBeenCalled();
+    }, { timeout: 5000 });
+
+    expect(mockToast.add).toHaveBeenCalledWith('successfullyUpdated', { type: 'success' });
+
+    await waitFor(() => {
+      expect(mockUseRouter().push).toHaveBeenCalled();
+    }, { timeout: 2000 });
+
+    expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123/dmp/456');
+  }, 10000); // Add test-level timeout
 
   it('should handle errors on form submission', async () => {
     render(

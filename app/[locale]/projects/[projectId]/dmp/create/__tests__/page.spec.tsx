@@ -900,7 +900,7 @@ describe('PlanCreate Component using base mock', () => {
     );
 
     // Wait for the funder checkboxes to load
-    // await screen.findByText('checkbox.filterByFunderLabel');
+    await screen.findByText('checkbox.filterByFunderLabel');
 
     await waitFor(() => {
       // We should have two checkboxes for project funders checked
