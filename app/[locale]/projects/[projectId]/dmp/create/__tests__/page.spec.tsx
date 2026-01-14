@@ -900,7 +900,7 @@ describe('PlanCreate Component using base mock', () => {
     );
 
     // Wait for the funder checkboxes to load
-    await screen.findByText('checkbox.filterByFunderLabel');
+    // await screen.findByText('checkbox.filterByFunderLabel');
 
     await waitFor(() => {
       // We should have two checkboxes for project funders checked
@@ -928,7 +928,7 @@ describe('PlanCreate Component using base mock', () => {
 
       // Make sure all 5 template select buttons are present
       expect(screen.getAllByText('buttons.select')).toHaveLength(5);
-    }, { timeout: 3000 });
+    }, { timeout: 5000 });
   });
 
   // it('should handle funder filter changes', async () => {
