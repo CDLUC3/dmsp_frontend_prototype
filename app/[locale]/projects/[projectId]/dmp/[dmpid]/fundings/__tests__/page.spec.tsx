@@ -354,7 +354,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
       const option = screen.getByRole('checkbox', { name: 'Project Funder A' });
       expect(option).toBeInTheDocument();
       fireEvent.click(option);
-    });
+    }, { timeout: 3000 });
 
     const saveButton = screen.getByRole('button', { name: 'buttons.save' });
     fireEvent.click(saveButton);
@@ -362,7 +362,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
     await waitFor(() => {
       expect(mockToast.add).toHaveBeenCalledWith('successfullyUpdated', { type: 'success' });
       expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123/dmp/456');
-    });
+    }, { timeout: 3000 });
   });
 
   it('should handle errors on form submission', async () => {

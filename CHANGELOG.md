@@ -35,6 +35,7 @@
 - Fixed related works pagination.
 
 ### Chore
+- Added `generate-sitemap.js` script to add sitemap files to the `docs` directory [#1074]
 - Updates required in conjunction with update of Apollo Client version [#1089]
   - Updated Apollo Client from `3.13.8 to 4.0.11`
   - Removed `@apollo/experimental-nextjs-app-support` to `@apollo/client-integration-nextjs@0.14.1`
