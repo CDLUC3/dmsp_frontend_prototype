@@ -1,6 +1,6 @@
 # Application Sitemap
 
-Generated on: 2026-01-14T18:17:09.040Z
+Generated on: 2026-01-14T18:43:12.163Z
 
 Total routes: 84
 

@@ -241,7 +241,7 @@ console.log('Generating sitemap...');
 const routes = walk(APP_DIR);
 const groups = groupRoutes(routes);
 
-const docsDir = path.join(__dirname, 'docs');
+const docsDir = path.join(__dirname, '..', 'docs');
 const routesDir = path.join(docsDir, 'routes');
 
 // Create directories

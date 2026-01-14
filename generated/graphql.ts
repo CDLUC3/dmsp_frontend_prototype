@@ -2509,6 +2509,8 @@ export type Query = {
   metadataStandard?: Maybe<MetadataStandard>;
   /** Search for a metadata standard */
   metadataStandards?: Maybe<MetadataStandardSearchResults>;
+  /** return all metadata standards whose unique uri values are provided */
+  metadataStandardsByURIs?: Maybe<Array<MetadataStandard>>;
   /** Get all of the user's projects */
   myProjects?: Maybe<ProjectSearchResults>;
   /** Get the Templates that belong to the current user's affiliation (user must be an Admin) */
@@ -2571,6 +2573,8 @@ export type Query = {
   relatedWorksByProject?: Maybe<RelatedWorkSearchResults>;
   /** Search for a repository */
   repositories?: Maybe<RepositorySearchResults>;
+  /** return all repositories whose unique uri values are provided */
+  repositoriesByURIs?: Maybe<Array<Repository>>;
   /** Fetch a specific repository */
   repository?: Maybe<Repository>;
   /** return all distinct subject area keywords across all repositories */
@@ -2719,6 +2723,11 @@ export type QueryMetadataStandardsArgs = {
   paginationOptions?: InputMaybe<PaginationOptions>;
   researchDomainId?: InputMaybe<Scalars['Int']['input']>;
   term?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryMetadataStandardsByUrIsArgs = {
+  uris: Array<Scalars['String']['input']>;
 };
 
 
@@ -2876,6 +2885,11 @@ export type QueryRelatedWorksByProjectArgs = {
 
 export type QueryRepositoriesArgs = {
   input: RepositorySearchInput;
+};
+
+
+export type QueryRepositoriesByUrIsArgs = {
+  uris: Array<Scalars['String']['input']>;
 };
 
 

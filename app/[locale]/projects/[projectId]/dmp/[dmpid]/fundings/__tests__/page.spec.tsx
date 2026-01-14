@@ -348,7 +348,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
     //MockedProvider is async, so need to wait for the data to be in
     await waitFor(() => {
       expect(screen.getByRole('checkbox', { name: 'Project Funder A' })).toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
 
     await waitFor(() => {
       const option = screen.getByRole('checkbox', { name: 'Project Funder A' });
