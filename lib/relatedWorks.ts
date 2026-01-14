@@ -1,4 +1,4 @@
-import {Author, WorkVersion} from "@/generated/graphql";
+import { Author } from "@/generated/graphql";
 
 
 export const formatAuthorNameAbrev = (author: Author): string | null => {

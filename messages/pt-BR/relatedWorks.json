@@ -45,9 +45,7 @@
     }
   },
   "RelatedWorksListItem": {
-    "header": {
-      "title": "Abrir a versão publicada deste serviço"
-    },
+    "title": "Abrir a versão publicada deste serviço",
     "buttons": {
       "expand": "Expanda",
       "collapse": "Recolher",
@@ -83,6 +81,11 @@
       "HIGH": "Alta",
       "MEDIUM": "Média",
       "LOW": "baixo"
+    },
+    "status": {
+      "PENDING": "Pendente",
+      "ACCEPTED": "Aceito",
+      "REJECTED": "Rejeitados"
     },
     "workType": {
       "ARTICLE": "artigo",
@@ -121,6 +124,34 @@
       "TEXT": "SMS",
       "TRADITIONAL_KNOWLEDGE": "Conhecimento Tradicional",
       "WORKFLOW": "Workflow"
+    }
+  },
+  "AddRelatedWorkPage": {
+    "title": "Add related work",
+    "description": "To manually add a related work to a plan, enter work's DOI below and click Lookup to find it. Click Accept to add the work to the plan. You can run multiple searches on this page to add more than one work.",
+    "searchLabel": "Digital Object Identifier (DOI)",
+    "searchDescription": "Enter the work's DOI in either short or URL form (e.g. <code>10.1000/182</code> or <code>https://doi.org/10.1000/182</code>), then click Lookup.",
+    "invalidDoi": "Please enter a valid DOI",
+    "buttons": {
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "accept": "Accept",
+      "reject": "Reject"
+    },
+    "fieldNames": {
+      "status": "Status",
+      "confidence": "Confidence",
+      "dateFound": "Date Found",
+      "dateReviewed": "Reviewed",
+      "type": "Type",
+      "source": "Source",
+      "doi": "DOI",
+      "title": "Title",
+      "abstract": "Abstract",
+      "awardIds": "Award IDs",
+      "authors": "Authors",
+      "institutions": "Institutions",
+      "funders": "Funders"
     }
   }
 }
