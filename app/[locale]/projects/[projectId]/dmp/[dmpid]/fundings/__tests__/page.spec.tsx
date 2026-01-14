@@ -345,24 +345,36 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
       </MockedProvider>
     );
 
-    //MockedProvider is async, so need to wait for the data to be in
+    // Wait for BOTH queries to complete - checkboxes AND initial selection
     await waitFor(() => {
-      expect(screen.getByRole('checkbox', { name: 'Project Funder A' })).toBeInTheDocument();
+      const funderA = screen.getByRole('checkbox', { name: 'Project Funder A' });
+      const funderB = screen.getByRole('checkbox', { name: 'Project Funder B' });
+      expect(funderA).toBeInTheDocument();
+      expect(funderA).not.toBeChecked(); // Verify initial state
+      expect(funderB).toBeChecked(); // Verify B is pre-selected
     });
 
+    // Click Funder A and wait for state to update
+    const funderA = screen.getByRole('checkbox', { name: 'Project Funder A' });
+    fireEvent.click(funderA);
+
+    // Verify the checkbox state changed before submitting
     await waitFor(() => {
-      const option = screen.getByRole('checkbox', { name: 'Project Funder A' });
-      expect(option).toBeInTheDocument();
-      fireEvent.click(option);
+      expect(funderA).toBeChecked();
     });
 
+    // Now submit the form
     const saveButton = screen.getByRole('button', { name: 'buttons.save' });
     fireEvent.click(saveButton);
 
-    await waitFor(() => {
-      expect(mockToast.add).toHaveBeenCalledWith('successfullyUpdated', { type: 'success' });
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123/dmp/456');
-    });
+    // Wait for the mutation to complete with a longer timeout
+    await waitFor(
+      () => {
+        expect(mockToast.add).toHaveBeenCalledWith('successfullyUpdated', { type: 'success' });
+        expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123/dmp/456');
+      },
+      { timeout: 3000 } // Increase timeout for slower CI environments
+    );
   });
 
   it('should handle errors on form submission', async () => {

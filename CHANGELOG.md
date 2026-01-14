@@ -1,4 +1,5 @@
 ## Added
+- Added new graphql queries `MetadataStandardsByURIs` and `RepositoriesByURIs` to get the preferred standards and repos for the Research Output Answer modals [#1094]
 - Added `errorTypePolicies` to use in the `apollo-wrapper.tsx` file, due to changes in Apollo's default caching and merge behavior. Setting "merge: false" always replaces new data, instead of trying to merge error objects [#1089]
 - Added Question Preview for `ResearchOutput` type [#1055]
 - Added new `ResearchOutputAnswerComponent`, `SingleResearchOutputComponent`, `RepoSelectorForAnswer` and `MetaDataStandardForAnswer` components for the rendering of `researchOutputTable` question type answer form [#787]
