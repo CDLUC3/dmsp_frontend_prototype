@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 
 import { Breadcrumb, Breadcrumbs, Button, Input, Label, Link, SearchField, Text } from "react-aria-components";
 
-import { RelatedWorkSearchResult, RelatedWorkStatus, useFindWorkByIdentifierQuery } from "@/generated/graphql";
+import { FindWorkByIdentifierDocument, RelatedWorkSearchResult, RelatedWorkStatus } from "@/generated/graphql";
 
 import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutContainer } from "@/components/Container";
@@ -18,6 +18,7 @@ import { formatSubtitle } from "@/lib/relatedWorks";
 import { doiToUrl, extractDoi } from "@/lib/identifierUtils";
 import { useFormatDate } from "@/hooks/useFormatDate";
 import { upsertRelatedWorkAction } from "@/app/[locale]/projects/[projectId]/dmp/[dmpid]/related-works/actions/upsertRelatedWorkAction";
+import { useQuery } from "@apollo/client/react";
 
 const MAX_AUTHOR_CHARS = 40;
 
@@ -38,7 +39,7 @@ const AddRelatedWorkPage = () => {
     data: searchResults,
     loading: isLoadingSearch,
     refetch: refetchSearch,
-  } = useFindWorkByIdentifierQuery({
+  } = useQuery(FindWorkByIdentifierDocument, {
     variables: {
       planId,
       doi,

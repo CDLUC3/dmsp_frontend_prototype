@@ -4,7 +4,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { axe, toHaveNoViolations } from "jest-axe";
 import AddRelatedWorkPage from "../page";
-import { RelatedWorkStatus, useFindWorkByIdentifierQuery } from "@/generated/graphql";
+import { FindWorkByIdentifierDocument, RelatedWorkSearchResult, RelatedWorkStatus } from "@/generated/graphql";
 import {
   MOCK_ACCEPTED_WORKS,
   MOCK_PENDING_WORKS,
@@ -13,6 +13,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { upsertRelatedWorkAction } from "@/app/[locale]/projects/[projectId]/dmp/[dmpid]/related-works/actions/upsertRelatedWorkAction";
+import { useQuery } from "@apollo/client/react";
 
 expect.extend(toHaveNoViolations);
 
@@ -24,9 +25,8 @@ jest.mock("next/navigation", () => ({
   })),
 }));
 
-jest.mock("@/generated/graphql", () => ({
-  ...jest.requireActual("@/generated/graphql"),
-  useFindWorkByIdentifierQuery: jest.fn(),
+jest.mock("@apollo/client/react", () => ({
+  useQuery: jest.fn(),
 }));
 
 jest.mock("@/app/[locale]/projects/[projectId]/dmp/[dmpid]/related-works/actions/upsertRelatedWorkAction", () => ({
@@ -34,6 +34,32 @@ jest.mock("@/app/[locale]/projects/[projectId]/dmp/[dmpid]/related-works/actions
 }));
 
 const mockUseRouter = useRouter as jest.Mock;
+
+const mockUseQuery = jest.mocked(useQuery);
+
+const setupMocks = (items: RelatedWorkSearchResult[], refetch = jest.fn()) => {
+  mockUseQuery.mockImplementation((document) => {
+    if (document === FindWorkByIdentifierDocument) {
+      return {
+        data: {
+          findWorkByIdentifier: {
+            items,
+          },
+        },
+        loading: false,
+        error: undefined,
+        refetch: refetch,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined,
+    };
+  });
+};
 
 describe("AddRelatedWorkPage", () => {
   beforeEach(() => {
@@ -48,28 +74,14 @@ describe("AddRelatedWorkPage", () => {
   });
 
   it("should render the page header with title and description", () => {
-    (useFindWorkByIdentifierQuery as jest.Mock).mockReturnValue({
-      data: {
-        findWorkByIdentifier: {
-          items: [],
-        },
-      },
-      loading: false,
-    });
+    setupMocks([]);
     render(<AddRelatedWorkPage />);
     expect(screen.getByRole("heading", { name: /title/i })).toBeInTheDocument();
     expect(screen.getByText("description")).toBeInTheDocument();
   });
 
   it("should render the search box and have lookup button", () => {
-    (useFindWorkByIdentifierQuery as jest.Mock).mockReturnValue({
-      data: {
-        findWorkByIdentifier: {
-          items: [],
-        },
-      },
-      loading: false,
-    });
+    setupMocks([]);
     render(<AddRelatedWorkPage />);
     expect(screen.getByText("searchLabel")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("10.1000/182")).toBeInTheDocument();
@@ -77,14 +89,7 @@ describe("AddRelatedWorkPage", () => {
   });
 
   it("should render the breadcrumb links", () => {
-    (useFindWorkByIdentifierQuery as jest.Mock).mockReturnValue({
-      data: {
-        findWorkByIdentifier: {
-          items: [],
-        },
-      },
-      loading: false,
-    });
+    setupMocks([]);
     render(<AddRelatedWorkPage />);
     expect(screen.getByText("breadcrumbs.home")).toBeInTheDocument();
     expect(screen.getByText("breadcrumbs.projects")).toBeInTheDocument();
@@ -94,15 +99,7 @@ describe("AddRelatedWorkPage", () => {
   });
 
   it("should display search results (pending)", () => {
-    (useFindWorkByIdentifierQuery as jest.Mock).mockReturnValue({
-      data: {
-        findWorkByIdentifier: {
-          items: [MOCK_PENDING_WORKS[0]],
-        },
-      },
-      loading: false,
-    });
-
+    setupMocks([MOCK_PENDING_WORKS[0]]);
     render(
       <NextIntlClientProvider
         locale={"en"}
@@ -119,14 +116,7 @@ describe("AddRelatedWorkPage", () => {
   });
 
   it("should display search results (accepted)", () => {
-    (useFindWorkByIdentifierQuery as jest.Mock).mockReturnValue({
-      data: {
-        findWorkByIdentifier: {
-          items: [MOCK_ACCEPTED_WORKS[0]],
-        },
-      },
-      loading: false,
-    });
+    setupMocks([MOCK_ACCEPTED_WORKS[0]]);
 
     render(
       <NextIntlClientProvider
@@ -144,14 +134,7 @@ describe("AddRelatedWorkPage", () => {
   });
 
   it("should display search results (rejected)", () => {
-    (useFindWorkByIdentifierQuery as jest.Mock).mockReturnValue({
-      data: {
-        findWorkByIdentifier: {
-          items: [MOCK_REJECTED_WORKS[0]],
-        },
-      },
-      loading: false,
-    });
+    setupMocks([MOCK_REJECTED_WORKS[0]]);
 
     render(
       <NextIntlClientProvider
@@ -172,14 +155,8 @@ describe("AddRelatedWorkPage", () => {
 
   it('should display "messaging.noItemsFound" when no results match', async () => {
     const user = userEvent.setup();
-    (useFindWorkByIdentifierQuery as jest.Mock).mockReturnValue({
-      data: {
-        findWorkByIdentifier: {
-          items: [],
-        },
-      },
-      loading: false,
-    });
+    setupMocks([]);
+
     render(<AddRelatedWorkPage />);
 
     const input = screen.getByRole("searchbox", { name: /searchLabel/i });
@@ -192,14 +169,7 @@ describe("AddRelatedWorkPage", () => {
 
   it('should display "invalidDoi" when invalid DOI entered', async () => {
     const user = userEvent.setup();
-    (useFindWorkByIdentifierQuery as jest.Mock).mockReturnValue({
-      data: {
-        findWorkByIdentifier: {
-          items: [],
-        },
-      },
-      loading: false,
-    });
+    setupMocks([]);
     render(<AddRelatedWorkPage />);
 
     const input = screen.getByRole("searchbox", { name: /searchLabel/i });
@@ -214,15 +184,7 @@ describe("AddRelatedWorkPage", () => {
     const user = userEvent.setup();
     const refetch = jest.fn().mockResolvedValue(undefined);
     (upsertRelatedWorkAction as jest.Mock).mockResolvedValue(undefined);
-    (useFindWorkByIdentifierQuery as jest.Mock).mockReturnValue({
-      data: {
-        findWorkByIdentifier: {
-          items: [MOCK_PENDING_WORKS[0]],
-        },
-      },
-      loading: false,
-      refetch,
-    });
+    setupMocks([MOCK_PENDING_WORKS[0]], refetch);
 
     render(
       <NextIntlClientProvider
@@ -254,15 +216,7 @@ describe("AddRelatedWorkPage", () => {
     const user = userEvent.setup();
     const refetch = jest.fn().mockResolvedValue(undefined);
     (upsertRelatedWorkAction as jest.Mock).mockResolvedValue(undefined);
-    (useFindWorkByIdentifierQuery as jest.Mock).mockReturnValue({
-      data: {
-        findWorkByIdentifier: {
-          items: [MOCK_ACCEPTED_WORKS[0]],
-        },
-      },
-      loading: false,
-      refetch,
-    });
+    setupMocks([MOCK_ACCEPTED_WORKS[0]], refetch);
 
     render(
       <NextIntlClientProvider
@@ -291,14 +245,7 @@ describe("AddRelatedWorkPage", () => {
   });
 
   it("should pass accessibility tests", async () => {
-    (useFindWorkByIdentifierQuery as jest.Mock).mockReturnValue({
-      data: {
-        findWorkByIdentifier: {
-          items: [],
-        },
-      },
-      loading: false,
-    });
+    setupMocks([]);
     const { container } = render(<AddRelatedWorkPage />);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
