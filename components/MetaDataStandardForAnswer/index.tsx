@@ -32,6 +32,7 @@ import {
 import { routePath } from "@/utils/routes";
 import { extractErrors } from "@/utils/errorHandler";
 import logECS from "@/utils/clientLogger";
+import { handleApolloError } from '@/utils/apolloErrorHandler';
 
 // Components
 import {
@@ -131,30 +132,33 @@ const MetaDataStandardForAnswer = ({
       setCurrentPage(page);
       offsetLimit = (page - 1) * LIMIT;
     }
+    try {
+      const { data } = await fetchMetaDataStandardsData({
+        variables: {
+          paginationOptions: {
+            offset: offsetLimit,
+            limit: LIMIT,
+            type: "OFFSET",
+            sortDir: "DESC",
+          },
+          term: searchTerm,
+        }
+      });
 
-    const { data } = await fetchMetaDataStandardsData({
-      variables: {
-        paginationOptions: {
-          offset: offsetLimit,
-          limit: LIMIT,
-          type: "OFFSET",
-          sortDir: "DESC",
-        },
-        term: searchTerm,
+      // Process the data immediately after fetching
+      if (data?.metadataStandards?.items) {
+        const validRepos = data.metadataStandards.items.filter(item => item !== null);
+        setMetaDataStandards(validRepos);
+        setTotalCount(data.metadataStandards.totalCount ?? 0);
+        setTotalPages(Math.ceil((data.metadataStandards.totalCount ?? 0) / LIMIT));
+        setHasNextPage(data.metadataStandards.hasNextPage ?? false);
+        setHasPreviousPage(data.metadataStandards.hasPreviousPage ?? false);
+      } else {
+        setMetaDataStandards([]);
       }
-    });
-
-    // Process the data immediately after fetching
-    if (data?.metadataStandards?.items) {
-      const validRepos = data.metadataStandards.items.filter(item => item !== null);
-      setMetaDataStandards(validRepos);
-      setTotalCount(data.metadataStandards.totalCount ?? 0);
-      setTotalPages(Math.ceil((data.metadataStandards.totalCount ?? 0) / LIMIT));
-      setHasNextPage(data.metadataStandards.hasNextPage ?? false);
-      setHasPreviousPage(data.metadataStandards.hasPreviousPage ?? false);
-    } else {
-      setMetaDataStandards([]);
-    }
+    } catch (error) {
+      handleApolloError(error, 'MetaDataStandardForAnswer.fetchMetaDataStandards');
+    };
   };
 
   // Handle pagination page click

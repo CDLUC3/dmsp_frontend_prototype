@@ -7,6 +7,9 @@ import { useTranslations } from 'next-intl';
 // GraphQL
 import { useLazyQuery } from '@apollo/client/react';
 
+// Utils
+import { handleApolloError } from '@/utils/apolloErrorHandler';
+
 
 type SearchState = {
   term: string;
@@ -53,7 +56,10 @@ export const useCollaboratorSearch = () => {
     }
 
     setSearchState((prev) => ({ ...prev, isSearching: true, errors: [], loading: true }));
-    await fetchCollaborator({ variables: { term: trimmed.toLowerCase() } }).catch(() => { });
+    await fetchCollaborator({ variables: { term: trimmed.toLowerCase() } })
+      .catch((err) => {
+        handleApolloError(err, 'useCollaboratorSearch.handleMemberSearch');
+      })
   };
 
   const clearSearch = () => {

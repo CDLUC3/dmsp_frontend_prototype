@@ -33,12 +33,12 @@ import {
 import ErrorMessages from '@/components/ErrorMessages';
 
 // Utils and other
-import logECS from '@/utils/clientLogger';
 import { scrollToTop } from '@/utils/general';
 import { routePath } from '@/utils/routes';
 import { useToast } from '@/context/ToastContext';
 import { checkErrors } from '@/utils/errorHandler';
 import styles from './projectsCreateProject.module.scss';
+import { handleApolloError } from '@/utils/apolloErrorHandler';
 
 
 interface CreateProjectInterface {
@@ -188,12 +188,7 @@ const ProjectsCreateProject = () => {
           }));
         }
       }).catch((error) => {
-        // Ignore AbortErrors from React Strict Mode or navigation
-        if (error.name === 'AbortError') return;
-        logECS('error', 'createProject', {
-          error,
-          url: { path: routePath('projects.create') }
-        });
+        handleApolloError(error, 'ProjectsCreateProject.handleFormSubmit');
         setErrors(prevErrors => [...prevErrors, CreateProject('messages.errors.createProjectError')]);
       });
     }

@@ -24,6 +24,7 @@ import {
 } from '@/components/Form';
 import ExpandButton from "@/components/ExpandButton";
 import Pagination from '@/components/Pagination';
+import { handleApolloError } from '@/utils/apolloErrorHandler';
 
 // GraphQL queries and mutations
 import { useQuery, useLazyQuery } from '@apollo/client/react';
@@ -187,31 +188,35 @@ const RepoSelectorForAnswer = ({
       offsetLimit = (page - 1) * LIMIT;
     }
 
-    const { data } = await fetchRepositoriesData({
-      variables: {
-        input: {
-          paginationOptions: {
-            offset: offsetLimit,
-            limit: LIMIT,
-            type: "OFFSET",
-            sortDir: "DESC",
-          },
-          term: searchTerm,
-          repositoryType: repoType as RepositoryType || null,
-          keyword: subjectArea || null,
+    try {
+      const { data } = await fetchRepositoriesData({
+        variables: {
+          input: {
+            paginationOptions: {
+              offset: offsetLimit,
+              limit: LIMIT,
+              type: "OFFSET",
+              sortDir: "DESC",
+            },
+            term: searchTerm,
+            repositoryType: repoType as RepositoryType || null,
+            keyword: subjectArea || null,
+          }
         }
+      });
+      // Process the data immediately after fetching
+      if (data?.repositories?.items) {
+        const validRepos = data.repositories.items.filter(item => item !== null);
+        setRepositories(validRepos);
+        setTotalCount(data.repositories.totalCount ?? 0);
+        setTotalPages(Math.ceil((data.repositories.totalCount ?? 0) / LIMIT));
+        setHasNextPage(data.repositories.hasNextPage ?? false);
+        setHasPreviousPage(data.repositories.hasPreviousPage ?? false);
+      } else {
+        setRepositories([]);
       }
-    });
-    // Process the data immediately after fetching
-    if (data?.repositories?.items) {
-      const validRepos = data.repositories.items.filter(item => item !== null);
-      setRepositories(validRepos);
-      setTotalCount(data.repositories.totalCount ?? 0);
-      setTotalPages(Math.ceil((data.repositories.totalCount ?? 0) / LIMIT));
-      setHasNextPage(data.repositories.hasNextPage ?? false);
-      setHasPreviousPage(data.repositories.hasPreviousPage ?? false);
-    } else {
-      setRepositories([]);
+    } catch (err) {
+      handleApolloError(err, 'repoSelectorForAnswer.fetchRepositories');
     }
   };
 

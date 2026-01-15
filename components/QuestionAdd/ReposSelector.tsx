@@ -44,6 +44,7 @@ import { routePath } from "@/utils/routes";
 import { extractErrors } from "@/utils/errorHandler";
 import { useToast } from "@/context/ToastContext";
 import logECS from "@/utils/clientLogger";
+import { handleApolloError } from '@/utils/apolloErrorHandler';
 import {
   RepositoryInterface,
   RepositoryFieldInterface
@@ -168,21 +169,25 @@ const RepositorySelectionSystem = ({
       offsetLimit = (page - 1) * LIMIT;
     }
 
-    await fetchRepositoriesData({
-      variables: {
-        input: {
-          paginationOptions: {
-            offset: offsetLimit,
-            limit: LIMIT,
-            type: "OFFSET",
-            sortDir: "DESC",
-          },
-          term: searchTerm,
-          repositoryType: repoType as RepositoryType || null,
-          keyword: subjectArea || null,
+    try {
+      await fetchRepositoriesData({
+        variables: {
+          input: {
+            paginationOptions: {
+              offset: offsetLimit,
+              limit: LIMIT,
+              type: "OFFSET",
+              sortDir: "DESC",
+            },
+            term: searchTerm,
+            repositoryType: repoType as RepositoryType || null,
+            keyword: subjectArea || null,
+          }
         }
-      }
-    }).catch(() => { }); // The promise from fetchRepositoriesData can be caught to prevent unhandled rejection warnings (i.e., AbortError from Apollo Client  )
+      })
+    } catch (err) {
+      handleApolloError(err, 'RepoSelector.fetchRepositories');
+    }
   };
 
 

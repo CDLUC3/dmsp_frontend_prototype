@@ -38,6 +38,7 @@ import {
 // Utils and other
 import { routePath } from '@/utils/routes';
 import logECS from '@/utils/clientLogger';
+import { handleApolloError } from '@/utils/apolloErrorHandler';
 import { CheckboxInterface } from '@/app/types';
 import { useToast } from '@/context/ToastContext';
 
@@ -98,7 +99,10 @@ const ProjectsProjectPlanAdjustFunding = () => {
         } else {
           setFundingChoices([]);
         }
-      }).catch(() => { }); // This is required to avoid unhandled promise rejection which displays Abort error in console
+      })
+        .catch((err) => {
+          handleApolloError(err, 'ProjectsProjectPlanAdjustFunding.fetchPlanFundings');
+        });
     }
   }, [dmpId]);
 
