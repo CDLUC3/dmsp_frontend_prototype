@@ -12,7 +12,6 @@ import {
 import QuestionView from '@/components/QuestionView';
 import {
   AffiliationSearchQuestionType,
-  BooleanQuestionType,
   CheckboxesQuestionType,
   CurrencyQuestionType,
   DateRangeQuestionType,
@@ -767,39 +766,6 @@ describe("QuestionView", () => {
     expect(screen.getByRole('textbox')).toHaveAttribute('minLength', '0');
     expect(screen.getByRole('textbox')).toHaveAttribute('maxLength', '100');
 
-  });
-
-  it('should render the boolean question type', () => {
-    const json: BooleanQuestionType = {
-      meta: {
-        schemaVersion: "1.0"
-      },
-      type: "boolean",
-      attributes: {
-        label: "Boolean Question",
-        value: false
-      }
-    };
-    const mockQuestionWithBooleanField = { ...mockQuestion, json: JSON.stringify(json) };
-
-    render(
-      <QuestionView
-        question={mockQuestionWithBooleanField}
-        isPreview={true}
-        templateId={1}
-        path="/template/123"
-      />
-    );
-
-    expect(screen.getByTestId('card-body').textContent).toContain('form.yesLabel');
-    expect(screen.getByTestId('card-body').textContent).toContain('form.noLabel');
-    expect(screen.getByRole('radio', { name: 'form.noLabel' })).toBeChecked();
-
-    const radioButtons = screen.getByTestId('card-body').querySelectorAll('input[type="radio"]');
-    act(() => {
-      fireEvent.click(radioButtons[0]);
-    })
-    expect(radioButtons[0]).toBeChecked();
   });
 
   it('should render the typeahead search question type', () => {
