@@ -30,7 +30,8 @@
   - Added a `ResearchOutputComponent` to consolidate the code for that question type [#869]
   - Added a new `useResearchOutputTable` hook to share functionality between `QuestionAdd` and `QuestionEdit` [#869]
   - Updated `Pagination` component so that navigation doesn't shift too much [#869]
-  
+### Remove
+- Removed `boolean` question type from the Add Question question types list [#990]
 ### Fixed
 - Fixed related works pagination.
 

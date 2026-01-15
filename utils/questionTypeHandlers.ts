@@ -36,7 +36,7 @@ type QuestionType = z.infer<typeof QuestionFormatsEnum>
 type ResearchOutputTableColumn = QuestionTypeMap["researchOutputTable"]["columns"][number];
 
 // List of question types to filter out from the available types
-const filteredOutQuestionTypes = ['licenseSearch', 'metadataStandardSearch', 'numberWithContext', 'repositorySearch', 'table'];
+const filteredOutQuestionTypes = ['licenseSearch', 'metadataStandardSearch', 'numberWithContext', 'repositorySearch', 'table', 'boolean'];
 
 export const QUESTION_TYPE_DEFAULTS = {
   affiliationSearch: DefaultAffiliationSearchQuestion,
