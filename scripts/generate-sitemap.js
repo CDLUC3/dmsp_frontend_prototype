@@ -61,8 +61,7 @@ function generateMermaidMindmap(routes) {
   const groups = groupRoutes(routes);
   const sections = Object.keys(groups).filter(k => k !== 'root').sort();
 
-  let mermaid = '<style>body.dark #editor .mermaid-chart svg { background-color: #2E3440; color: white; }</style>\n';
-  mermaid += '```mermaid\n%%{init: {\'theme\':\'neutral\'}}%%\nmindmap\n  root((App Routes))\n';
+  let mermaid = '```mermaid\n%%{init: {\'theme\':\'dark\'}}%%\nmindmap\n  root((App Routes))\n';
 
   // Add locale section
   mermaid += '    /:locale\n';
@@ -101,8 +100,7 @@ function generateMermaidFlowchart(routes, title = 'Routes') {
     }
   }
 
-  let mermaid = '<style>body.dark #editor .mermaid-chart svg { background-color: #2E3440; color: white; }</style>\n';
-  mermaid += '```mermaid\ngraph TD\n';
+  let mermaid = '```mermaid\ngraph TD\n';
   let nodeId = 0;
   const nodeMap = new Map();
 

@@ -1,14 +1,13 @@
 # Application Sitemap
 
-Generated on: 2026-01-15T03:48:30.809Z
+Generated on: 2026-01-15T03:51:01.226Z
 
 Total routes: 84
 
 ## Overview
 
-<style>body.dark #editor .mermaid-chart svg { background-color: #2E3440; color: white; }</style>
 ```mermaid
-%%{init: {'theme':'neutral'}}%%
+%%{init: {'theme':'dark'}}%%
 mindmap
   root((App Routes))
     /:locale
