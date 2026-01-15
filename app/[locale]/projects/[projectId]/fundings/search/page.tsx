@@ -35,6 +35,7 @@ import { FunderSearchResults } from '@/app/types';
 import logECS from "@/utils/clientLogger";
 import { useToast } from '@/context/ToastContext';
 import styles from './ProjectsProjectFundingSearch.module.scss';
+import { handleApolloError } from '@/utils/apolloErrorHandler';
 
 
 const ProjectsProjectFundingSearch = () => {
@@ -68,9 +69,7 @@ const ProjectsProjectFundingSearch = () => {
         }
       })
       .catch((err) => {
-        // Ignore AbortErrors from React Strict Mode or navigation
-        if (err.name === 'AbortError') return;
-        logECS('error', 'Error loading popular funders', { err });
+        handleApolloError(err, 'ProjectsProjectFundingSearch.popularFundersQuery');
       });
   }, [popularFundersQuery]);
 
@@ -132,13 +131,7 @@ const ProjectsProjectFundingSearch = () => {
         }
       })
       .catch((err) => {
-        // Ignore AbortErrors from React Strict Mode or navigation
-        if (err.name === 'AbortError') return;
-        logECS(
-          'error',
-          'createProjectSearchFunder.addProjectFunding',
-          { error: err.message }
-        );
+        handleApolloError(err, 'ProjectsProjectFundingSearch.addProjectFunding');
         setErrors([...errors, err.message])
       });
   };

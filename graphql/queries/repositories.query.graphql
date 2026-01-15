@@ -26,3 +26,19 @@ query Repositories($input: RepositorySearchInput!) {
 query RepositorySubjectAreas {
   repositorySubjectAreas
 }
+
+query RepositoriesByURIs($uris: [String!]!) {
+  repositoriesByURIs(uris: $uris) {
+    keywords
+    id
+    errors {
+      general
+      uri
+    }
+    name
+    description
+    uri
+    website
+    repositoryTypes
+  }
+}
