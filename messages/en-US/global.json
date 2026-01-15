@@ -755,6 +755,7 @@
       "add": "Add",
       "customize": "Customize",
       "applyFilter": "Apply filter(s)",
+      "applyFilterSingular": "Apply filter",
       "moreInfo": "More info",
       "lessInfo": "Less info",
       "createNewPlan": "Create New DMP"

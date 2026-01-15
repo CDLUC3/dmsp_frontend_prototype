@@ -679,7 +679,7 @@ describe("ProjectsProjectFundingSearch", () => {
     await waitFor(() => {
       expect(logECS).toHaveBeenCalledWith(
         'error',
-        'createProjectSearchFunder.addProjectFunding',
+        'ProjectsProjectFundingSearch.addProjectFunding',
         expect.objectContaining({
           error: expect.anything(),
         })

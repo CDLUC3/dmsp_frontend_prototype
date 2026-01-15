@@ -43,6 +43,7 @@ import {
 import { toSentenceCase } from '@/utils/general';
 import { useToast } from '@/context/ToastContext';
 import { useFormatDate } from '@/hooks/useFormatDate';
+import { handleApolloError } from '@/utils/apolloErrorHandler';
 
 // # of templates displayed
 const LIMIT = 5;
@@ -113,42 +114,46 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     page = 1,
     searchTerm = ''
   }: FetchTemplateByTypeParams) => {
-    if (templateType === 'published') {
-      let offsetLimit = 0;
-      if (page) {
-        setPublishedPagination(prev => ({ ...prev, currentPage: page }));
-        offsetLimit = (page - 1) * LIMIT;
-      }
-      await fetchPublishedTemplates({
-        variables: {
-          paginationOptions: {
-            offset: offsetLimit,
-            limit: LIMIT,
-            type: "OFFSET",
-            sortDir: "DESC",
-            bestPractice: false
-          },
-          term: searchTerm,
+    try {
+      if (templateType === 'published') {
+        let offsetLimit = 0;
+        if (page) {
+          setPublishedPagination(prev => ({ ...prev, currentPage: page }));
+          offsetLimit = (page - 1) * LIMIT;
         }
-      });
-    } else {
-      let offsetLimit = 0;
-      if (page) {
-        setMyTemplatesPagination(prev => ({ ...prev, currentPage: page }));
-        offsetLimit = (page - 1) * LIMIT;
-      }
-      await fetchMyTemplates({
-        variables: {
-          paginationOptions: {
-            offset: offsetLimit,
-            limit: LIMIT,
-            type: "OFFSET",
-            sortDir: "DESC",
-            bestPractice: true
-          },
-          term: searchTerm,
+        await fetchPublishedTemplates({
+          variables: {
+            paginationOptions: {
+              offset: offsetLimit,
+              limit: LIMIT,
+              type: "OFFSET",
+              sortDir: "DESC",
+              bestPractice: false
+            },
+            term: searchTerm,
+          }
+        });
+      } else {
+        let offsetLimit = 0;
+        if (page) {
+          setMyTemplatesPagination(prev => ({ ...prev, currentPage: page }));
+          offsetLimit = (page - 1) * LIMIT;
         }
-      });
+        await fetchMyTemplates({
+          variables: {
+            paginationOptions: {
+              offset: offsetLimit,
+              limit: LIMIT,
+              type: "OFFSET",
+              sortDir: "DESC",
+              bestPractice: true
+            },
+            term: searchTerm,
+          }
+        });
+      }
+    } catch (err) {
+      handleApolloError(err, 'TemplateSelectTemplatePage.fetchTemplatesByType');
     }
   };
 
@@ -175,10 +180,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         fetchTemplatesByType({ templateType: 'myTemplates', page: 1, searchTerm: '' })
       ]);
     } catch (error) {
-      // Ignore AbortError - it's expected when queries are cancelled
-      if (error instanceof Error && error.name !== 'AbortError') {
-        console.error('Error fetching templates:', error);
-      }
+      handleApolloError(error, 'TemplateSelectTemplatePage.resetSearch');
 
     }
   }
@@ -408,8 +410,8 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   // Fetch templates on initial load
   useEffect(() => {
     const load = async () => {
-      await fetchTemplatesByType({ templateType: 'published', page: 1 }).catch(() => { });
-      await fetchTemplatesByType({ templateType: 'myTemplates', page: 1 }).catch(() => { });
+      await fetchTemplatesByType({ templateType: 'published', page: 1 });
+      await fetchTemplatesByType({ templateType: 'myTemplates', page: 1 });
     };
     load();
   }, []);
