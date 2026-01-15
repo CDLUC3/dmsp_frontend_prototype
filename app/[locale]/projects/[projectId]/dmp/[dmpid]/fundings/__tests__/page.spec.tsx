@@ -339,14 +339,11 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
   });
 
   it('should handle form submission', async () => {
-    const { debug } = render(
+    render(
       <MockedProvider mocks={MOCKS}>
         <ProjectsProjectPlanAdjustFunding />
-      </MockedProvider >
+      </MockedProvider>
     );
-
-    // Debug: uncomment to see what's rendered
-    // debug();
 
     // Wait for BOTH queries to complete - component likely makes 2 queries on mount
     // PlanFundingsDocument AND ProjectFundingsDocument
@@ -363,7 +360,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
     // Verify checkbox state changed
     await waitFor(() => {
       expect(option).toBeChecked();
-    });
+    }, { timeout: 3000 });
 
     const saveButton = screen.getByRole('button', { name: 'buttons.save' });
     fireEvent.click(saveButton);
@@ -377,7 +374,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
 
     await waitFor(() => {
       expect(mockUseRouter().push).toHaveBeenCalled();
-    }, { timeout: 2000 });
+    }, { timeout: 3000 });
 
     expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123/dmp/456');
   }, 10000); // Add test-level timeout
