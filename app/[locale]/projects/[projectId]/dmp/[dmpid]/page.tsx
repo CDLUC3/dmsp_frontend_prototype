@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState, useRef, useMemo, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { useFormatter, useTranslations } from 'next-intl';
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useParams, useRouter} from "next/navigation";
+import {useFormatter, useTranslations} from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -18,13 +18,13 @@ import {
 } from "react-aria-components";
 
 // GraphQL
-import { useQuery } from '@apollo/client/react';
+import {useQuery} from '@apollo/client/react';
 import {
-  PlanSectionProgress,
-  PlanStatus,
-  PlanVisibility,
   PlanDocument,
   PlanFeedbackStatusDocument,
+  PlanSectionProgress,
+  PlanStatus,
+  PlanVisibility, RelatedWorksByPlanStatsDocument,
 } from "@/generated/graphql";
 import {
   publishPlanAction,
@@ -33,23 +33,24 @@ import {
 } from "./actions";
 
 //Components
-import { ContentContainer, LayoutWithPanel, SidebarPanel } from "@/components/Container";
+import {
+  ContentContainer,
+  LayoutWithPanel,
+  SidebarPanel
+} from "@/components/Container";
 import ErrorMessages from "@/components/ErrorMessages";
-import { DmpIcon } from "@/components/Icons";
-import { FormSelect, RadioGroupComponent } from "@/components/Form";
+import {DmpIcon} from "@/components/Icons";
+import {FormSelect, RadioGroupComponent} from "@/components/Form";
 import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
 import OverviewSection from "@/components/OverviewSection";
 
 // Utils and other
-import { routePath } from "@/utils/routes";
-import { toTitleCase } from "@/utils/general";
-import { extractErrors } from "@/utils/errorHandler";
-import { useToast } from "@/context/ToastContext";
-import {
-  PlanMember,
-  PlanOverviewInterface,
-} from "@/app/types";
-import { DOI_REGEX } from "@/lib/constants";
+import {routePath} from "@/utils/routes";
+import {toTitleCase} from "@/utils/general";
+import {extractErrors} from "@/utils/errorHandler";
+import {useToast} from "@/context/ToastContext";
+import {PlanMember, PlanOverviewInterface,} from "@/app/types";
+import {DOI_REGEX} from "@/lib/constants";
 import styles from "./PlanOverviewPage.module.scss";
 
 const PUBLISHED = "Published";
@@ -184,6 +185,15 @@ const PlanOverviewPage: React.FC = () => {
     notifyOnNetworkStatusChange: true,
   });
 
+  // Query data
+  const {
+    data: relatedWorksByPlanStats,
+  } = useQuery(RelatedWorksByPlanStatsDocument, {
+    variables: {
+      planId,
+    },
+  });
+
   const {
     data: feedbackData,
     loading: feedbackLoading,
@@ -210,9 +220,6 @@ const PlanOverviewPage: React.FC = () => {
   }), [projectId, planId]);
 
   const { FUNDINGS_URL, MEMBERS_URL, DOWNLOAD_URL, FEEDBACK_URL, CHANGE_PRIMARY_CONTACT_URL, RELATED_WORKS_URL } = urls;
-
-  //TODO: Get related works count from backend
-  const relatedWorksCount = 3;
 
   // Format the publish date - no memoization needed since date doesn't change after load
   const formattedPublishDate = formatPublishDate(planData?.templatePublished ?? null, formatter);
@@ -597,8 +604,11 @@ const PlanOverviewPage: React.FC = () => {
                 linkHref={RELATED_WORKS_URL}
                 linkText={t("relatedWorks.edit")}
                 linkAriaLabel={t("relatedWorks.edit")}
+                includeLink={!!planData.registered}
               >
-                <p>{t("relatedWorks.count", { count: relatedWorksCount })}</p>
+                {!planData.registered && <p>{t("relatedWorks.publish")}</p>}
+                {planData.registered && relatedWorksByPlanStats?.relatedWorksByPlanStats?.pendingCount != null && <p>{t("relatedWorks.pendingCount", { count: relatedWorksByPlanStats?.relatedWorksByPlanStats?.pendingCount })}</p>}
+                {planData.registered && relatedWorksByPlanStats?.relatedWorksByPlanStats?.acceptedCount != null && <p>{t("relatedWorks.acceptedCount", { count: relatedWorksByPlanStats?.relatedWorksByPlanStats?.acceptedCount })}</p>}
               </OverviewSection>
             </div>
 

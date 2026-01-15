@@ -124,3 +124,12 @@ query FindWorkByIdentifier($planId: Int!, $doi: String) {
     }
   }
 }
+
+query RelatedWorksByPlanStats($planId: Int!) {
+  relatedWorksByPlanStats(planId: $planId) {
+    acceptedCount
+    pendingCount
+    rejectedCount
+    totalCount
+  }
+}
