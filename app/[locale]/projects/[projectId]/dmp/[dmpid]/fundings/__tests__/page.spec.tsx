@@ -345,39 +345,52 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
       </MockedProvider>
     );
 
-    // Wait for BOTH queries to complete - component likely makes 2 queries on mount
-    // PlanFundingsDocument AND ProjectFundingsDocument
+    // Wait for initial data to load using findBy (has built-in waiting)
+    const projectFunderA = await screen.findByRole(
+      'checkbox',
+      { name: /Project Funder A/i }
+    );
+
+    // Verify Project Funder B is already checked (from initial query)
+    const projectFunderB = screen.getByRole(
+      'checkbox',
+      { name: /Project Funder B/i }
+    );
+    expect(projectFunderB).toBeChecked();
+
+    // Click Project Funder A
+    fireEvent.click(projectFunderA);
+
+    // Wait for checkbox to be checked
     await waitFor(() => {
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument(); // Adjust to your loading indicator
-    }, { timeout: 3000 });
+      expect(projectFunderA).toBeChecked();
+    });
 
-    // Alternative: wait for specific content to appear
-    const option = await screen.findByRole('checkbox', { name: 'Project Funder A' }, { timeout: 5000 });
-    expect(option).toBeInTheDocument();
-
-    fireEvent.click(option);
-
-    // Verify checkbox state changed
-    await waitFor(() => {
-      expect(option).toBeChecked();
-    }, { timeout: 3000 });
-
-    const saveButton = screen.getByRole('button', { name: 'buttons.save' });
+    // Submit form
+    const saveButton = screen.getByRole('button', { name: /save/i });
     fireEvent.click(saveButton);
 
-    // Wait for mutation to complete - split into separate waits
-    await waitFor(() => {
-      expect(mockToast.add).toHaveBeenCalled();
-    }, { timeout: 5000 });
+    // Wait for success toast - this confirms mutation completed
+    await waitFor(
+      () => {
+        expect(mockToast.add).toHaveBeenCalledWith(
+          'successfullyUpdated',
+          { type: 'success' }
+        );
+      },
+      { timeout: 3000 }
+    );
 
-    expect(mockToast.add).toHaveBeenCalledWith('successfullyUpdated', { type: 'success' });
-
-    await waitFor(() => {
-      expect(mockUseRouter().push).toHaveBeenCalled();
-    }, { timeout: 3000 });
-
-    expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123/dmp/456');
-  }, 10000); // Add test-level timeout
+    // Wait for navigation
+    await waitFor(
+      () => {
+        expect(mockUseRouter().push).toHaveBeenCalledWith(
+          '/en-US/projects/123/dmp/456'
+        );
+      },
+      { timeout: 2000 }
+    );
+  }, 15000);
 
   it('should handle errors on form submission', async () => {
     render(
