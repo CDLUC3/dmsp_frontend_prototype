@@ -1,13 +1,13 @@
 # Application Sitemap
 
-Generated on: 2026-01-15T03:29:09.807Z
+Generated on: 2026-01-15T03:36:25.722Z
 
 Total routes: 84
 
 ## Overview
 
 ```mermaid
-%%{init: {'theme':'neutral'}}%%
+%%{init: {'theme':'dark'}}%%
 mindmap
   root((App Routes))
     /:locale
