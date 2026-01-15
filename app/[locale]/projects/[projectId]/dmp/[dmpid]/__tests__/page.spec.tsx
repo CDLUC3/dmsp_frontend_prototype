@@ -12,7 +12,8 @@ import {
 import { useQuery } from '@apollo/client/react';
 import {
   PlanDocument,
-  PlanFeedbackStatusDocument, RelatedWorksByPlanStatsDocument
+  PlanFeedbackStatusDocument,
+  RelatedWorksByPlanStatsDocument,
 } from '@/generated/graphql';
 import { useToast } from '@/context/ToastContext';
 
@@ -250,9 +251,6 @@ describe('PlanOverviewPage', () => {
     expect(screen.getByText('members.edit')).toBeInTheDocument();
     expect(screen.getByText('relatedWorks.title')).toBeInTheDocument();
     expect(screen.getByText('relatedWorks.publish')).toBeInTheDocument();
-    // expect(screen.getByText('relatedWorks.pendingCount')).toBeInTheDocument();
-    // expect(screen.getByText('relatedWorks.acceptedCount')).toBeInTheDocument();
-    // expect(screen.getByRole('link', { name: 'relatedWorks.edit' })).toBeInTheDocument();
 
     // Check that sections rendered
     expect(screen.getByRole('heading', { name: 'Roles & Responsibilities' })).toBeInTheDocument();

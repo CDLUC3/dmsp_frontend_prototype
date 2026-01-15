@@ -1,8 +1,8 @@
 "use client";
 
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {useParams, useRouter} from "next/navigation";
-import {useFormatter, useTranslations} from 'next-intl';
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useFormatter, useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -18,13 +18,14 @@ import {
 } from "react-aria-components";
 
 // GraphQL
-import {useQuery} from '@apollo/client/react';
+import { useQuery } from '@apollo/client/react';
 import {
-  PlanDocument,
-  PlanFeedbackStatusDocument,
   PlanSectionProgress,
   PlanStatus,
-  PlanVisibility, RelatedWorksByPlanStatsDocument,
+  PlanVisibility,
+  PlanDocument,
+  PlanFeedbackStatusDocument,
+  RelatedWorksByPlanStatsDocument,
 } from "@/generated/graphql";
 import {
   publishPlanAction,
@@ -33,24 +34,23 @@ import {
 } from "./actions";
 
 //Components
-import {
-  ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel
-} from "@/components/Container";
+import { ContentContainer, LayoutWithPanel, SidebarPanel } from "@/components/Container";
 import ErrorMessages from "@/components/ErrorMessages";
-import {DmpIcon} from "@/components/Icons";
-import {FormSelect, RadioGroupComponent} from "@/components/Form";
+import { DmpIcon } from "@/components/Icons";
+import { FormSelect, RadioGroupComponent } from "@/components/Form";
 import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
 import OverviewSection from "@/components/OverviewSection";
 
 // Utils and other
-import {routePath} from "@/utils/routes";
-import {toTitleCase} from "@/utils/general";
-import {extractErrors} from "@/utils/errorHandler";
-import {useToast} from "@/context/ToastContext";
-import {PlanMember, PlanOverviewInterface,} from "@/app/types";
-import {DOI_REGEX} from "@/lib/constants";
+import { routePath } from "@/utils/routes";
+import { toTitleCase } from "@/utils/general";
+import { extractErrors } from "@/utils/errorHandler";
+import { useToast } from "@/context/ToastContext";
+import {
+  PlanMember,
+  PlanOverviewInterface,
+} from "@/app/types";
+import { DOI_REGEX } from "@/lib/constants";
 import styles from "./PlanOverviewPage.module.scss";
 
 const PUBLISHED = "Published";
