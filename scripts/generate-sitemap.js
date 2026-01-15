@@ -61,7 +61,7 @@ function generateMermaidMindmap(routes) {
   const groups = groupRoutes(routes);
   const sections = Object.keys(groups).filter(k => k !== 'root').sort();
 
-  let mermaid = '```mermaid\nmindmap\n  root((App Routes))\n';
+  let mermaid = '```mermaid\n%%{init: {\'theme\':\'base\'}}%%\nmindmap\n  root((App Routes))\n';
 
   // Add locale section
   mermaid += '    /:locale\n';
