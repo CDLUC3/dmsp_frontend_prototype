@@ -11,8 +11,8 @@ import { RelatedWorksByPlanDocument } from "@/generated/graphql";
 import {
   MOCK_ACCEPTED_WORKS,
   MOCK_PENDING_WORKS,
-  MOCK_REJECTED_WORKS,
-} from "@/components/RelatedWorksList/__tests__/index.spec";
+  MOCK_REJECTED_WORKS
+} from "@/app/[locale]/projects/[projectId]/dmp/[dmpid]/related-works/mockWorks";
 
 expect.extend(toHaveNoViolations);
 
@@ -87,14 +87,16 @@ describe("RelatedWorks", () => {
 
   it("should render the page header with correct title and description", () => {
     render(<RelatedWorksHarness />);
-    expect(screen.getByText("header.title")).toBeInTheDocument();
-    expect(screen.getByText("header.description")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: 'title' })).toBeInTheDocument();
+    expect(screen.getByText("description")).toBeInTheDocument();
   });
 
   it("should render the breadcrumb links", () => {
     render(<RelatedWorksHarness />);
-    expect(screen.getByText("Home")).toBeInTheDocument();
-    expect(screen.getByText("Projects")).toBeInTheDocument();
+    expect(screen.getByText("breadcrumbs.home")).toBeInTheDocument();
+    expect(screen.getByText("breadcrumbs.projects")).toBeInTheDocument();
+    expect(screen.getByText("breadcrumbs.projectOverview")).toBeInTheDocument();
+    expect(screen.getByText("breadcrumbs.planOverview")).toBeInTheDocument();
   });
 
   it("should render tabs", () => {
@@ -200,7 +202,7 @@ describe("RelatedWorks", () => {
     });
 
     render(<RelatedWorksHarness />);
-    const addButton = screen.getByRole("button", { name: "buttons.addRelatedWorkManually" });
+    const addButton = screen.getByRole("link", { name: "buttons.addRelatedWorkManually" });
     expect(addButton).toBeInTheDocument();
   });
 

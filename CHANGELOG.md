@@ -1,4 +1,5 @@
 ## Added
+- Added ability to manually add a related work via a DOI [#835]
 - Added a shared `utils/apolloErrorHandler.ts` file to handle `AbortError` related to the updated Apollo Client v4 [#1094]
 - Added new graphql queries `MetadataStandardsByURIs` and `RepositoriesByURIs` to get the preferred standards and repos for the Research Output Answer modals [#1094]
 - Added `errorTypePolicies` to use in the `apollo-wrapper.tsx` file, due to changes in Apollo's default caching and merge behavior. Setting "merge: false" always replaces new data, instead of trying to merge error objects [#1089]

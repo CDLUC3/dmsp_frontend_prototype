@@ -137,7 +137,7 @@ export type AddQuestionInput = {
   useSampleTextAsDefault?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type AddRelatedWorkInput = {
+export type AddRelatedWorkManualInput = {
   /** The abstract of the work */
   abstractText?: InputMaybe<Scalars['String']['input']>;
   /** The authors of the work */
@@ -1046,8 +1046,8 @@ export type Mutation = {
   addQuestion: Question;
   /** Create a new QuestionCondition associated with a question */
   addQuestionCondition: QuestionCondition;
-  /** Add a related work */
-  addRelatedWork?: Maybe<RelatedWorkSearchResult>;
+  /** Add a related work manually, by specifying all work details */
+  addRelatedWorkManual?: Maybe<RelatedWorkSearchResult>;
   /** Add a new Repository */
   addRepository?: Maybe<Repository>;
   /** Add a new research output type (name must be unique!) */
@@ -1206,6 +1206,8 @@ export type Mutation = {
   updateUserProfile?: Maybe<User>;
   /** Upload a plan */
   uploadPlan?: Maybe<Plan>;
+  /** Insert or update a related work, the work is looked up in OpenSearch and details added */
+  upsertRelatedWork?: Maybe<RelatedWorkSearchResult>;
 };
 
 
@@ -1324,8 +1326,8 @@ export type MutationAddQuestionConditionArgs = {
 };
 
 
-export type MutationAddRelatedWorkArgs = {
-  input: AddRelatedWorkInput;
+export type MutationAddRelatedWorkManualArgs = {
+  input: AddRelatedWorkManualInput;
 };
 
 
@@ -1760,6 +1762,50 @@ export type MutationUploadPlanArgs = {
   fileContent?: InputMaybe<Scalars['String']['input']>;
   fileName?: InputMaybe<Scalars['String']['input']>;
   projectId: Scalars['Int']['input'];
+};
+
+
+export type MutationUpsertRelatedWorkArgs = {
+  input: UpsertRelatedWorkInput;
+};
+
+/** Work metadata returned by the OpenSearch works-index */
+export type OpenSearchWork = {
+  __typename?: 'OpenSearchWork';
+  /** The abstract of the work */
+  abstractText?: Maybe<Scalars['String']['output']>;
+  /** The authors of the work */
+  authors: Array<Author>;
+  /** The awards that funded the work */
+  awards: Array<Award>;
+  /** The DOI of the work */
+  doi: Scalars['String']['output'];
+  /** The funders of the work */
+  funders: Array<Funder>;
+  /** A hash of the content of this version of a work */
+  hash: Scalars['MD5']['output'];
+  /** The unique institutions of the authors of the work */
+  institutions: Array<Institution>;
+  /** The date that the work was published YYYY-MM-DD */
+  publicationDate?: Maybe<Scalars['String']['output']>;
+  /** The venue where the work was published, e.g. IEEE Transactions on Software Engineering, Zenodo etc */
+  publicationVenue?: Maybe<Scalars['String']['output']>;
+  /** The source of the work */
+  source: OpenSearchWorkSource;
+  /** The title of the work */
+  title?: Maybe<Scalars['String']['output']>;
+  /** The date that the work was updated YYYY-MM-DD */
+  updatedDate?: Maybe<Scalars['String']['output']>;
+  /** The type of the work */
+  workType: WorkType;
+};
+
+export type OpenSearchWorkSource = {
+  __typename?: 'OpenSearchWorkSource';
+  /** The name of the source where the work was found */
+  name: Scalars['String']['output'];
+  /** The URL for the source of the work */
+  url?: Maybe<Scalars['String']['output']>;
 };
 
 export type PaginatedQueryResults = {
@@ -2483,6 +2529,8 @@ export type Query = {
   defaultResearchOutputTypes?: Maybe<Array<Maybe<ResearchOutputType>>>;
   /** Search for a User to add as a collaborator */
   findCollaborator?: Maybe<CollaboratorSearchResults>;
+  /** Find a work with an identifier */
+  findWorkByIdentifier?: Maybe<RelatedWorkSearchResults>;
   /** Get a specific Guidance item by ID */
   guidance?: Maybe<Guidance>;
   /** Get all Guidance items for a specific GuidanceGroup */
@@ -2670,6 +2718,13 @@ export type QueryChildResearchDomainsArgs = {
 export type QueryFindCollaboratorArgs = {
   options?: InputMaybe<PaginationOptions>;
   term: Scalars['String']['input'];
+};
+
+
+export type QueryFindWorkByIdentifierArgs = {
+  doi?: InputMaybe<Scalars['String']['input']>;
+  paginationOptions?: InputMaybe<PaginationOptions>;
+  planId: Scalars['Int']['input'];
 };
 
 
@@ -3115,7 +3170,7 @@ export type RelatedWorkSearchResult = {
   /** Details how relevant the title and abstract of the work were to the plan */
   contentMatch?: Maybe<ContentMatch>;
   /** The timestamp when the Object was created */
-  created: Scalars['String']['output'];
+  created?: Maybe<Scalars['String']['output']>;
   /** The user who created the Object. Null if the related work was automatically found */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** Details whether the work's DOI was found on a funder award page */
@@ -3123,23 +3178,23 @@ export type RelatedWorkSearchResult = {
   /** Details which funders matched from the work and the fields they matched on */
   funderMatches?: Maybe<Array<ItemMatch>>;
   /** The unique identifier for the Object */
-  id: Scalars['Int']['output'];
+  id?: Maybe<Scalars['Int']['output']>;
   /** Details which institutions matched from the work and the fields they matched on */
   institutionMatches?: Maybe<Array<ItemMatch>>;
   /** The timestamp when the Object was last modified */
-  modified: Scalars['String']['output'];
+  modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The unique identifier of the plan that this related work has been matched to */
-  planId: Scalars['Int']['output'];
+  planId?: Maybe<Scalars['Int']['output']>;
   /** The confidence score indicating how well the work matches the plan */
   score?: Maybe<Scalars['Float']['output']>;
   /** The maximum confidence score returned when this work was matched to the plan */
-  scoreMax: Scalars['Float']['output'];
+  scoreMax?: Maybe<Scalars['Float']['output']>;
   /** The normalised confidence score from 0.0-1.0 */
-  scoreNorm: Scalars['Float']['output'];
+  scoreNorm?: Maybe<Scalars['Float']['output']>;
   /** Whether the related work was automatically or manually added */
-  sourceType: RelatedWorkSourceType;
+  sourceType?: Maybe<RelatedWorkSourceType>;
   /** The status of the related work */
   status: RelatedWorkStatus;
   /** The version of the work that the plan was matched to */
@@ -3871,6 +3926,17 @@ export type UpdateUserProfileInput = {
   otherAffiliationName?: InputMaybe<Scalars['String']['input']>;
   /** The user's last/family name */
   surName: Scalars['String']['input'];
+};
+
+export type UpsertRelatedWorkInput = {
+  /** The Digital Object Identifier (DOI) of the work */
+  doi: Scalars['String']['input'];
+  /** A hash of the content of this version of a work */
+  hash: Scalars['MD5']['input'];
+  /** The unique identifier of the plan that this related work has been matched to */
+  planId?: InputMaybe<Scalars['Int']['input']>;
+  /** The status to give the related work */
+  status: RelatedWorkStatus;
 };
 
 /** A user of the DMPTool */
@@ -4861,7 +4927,14 @@ export type UpdateRelatedWorkStatusMutationVariables = Exact<{
 }>;
 
 
-export type UpdateRelatedWorkStatusMutation = { __typename?: 'Mutation', updateRelatedWorkStatus?: { __typename?: 'RelatedWorkSearchResult', id: number, status: RelatedWorkStatus } | null };
+export type UpdateRelatedWorkStatusMutation = { __typename?: 'Mutation', updateRelatedWorkStatus?: { __typename?: 'RelatedWorkSearchResult', id?: number | null, status: RelatedWorkStatus } | null };
+
+export type UpsertRelatedWorkMutationVariables = Exact<{
+  input: UpsertRelatedWorkInput;
+}>;
+
+
+export type UpsertRelatedWorkMutation = { __typename?: 'Mutation', upsertRelatedWork?: { __typename?: 'RelatedWorkSearchResult', id?: number | null, planId?: number | null, status: RelatedWorkStatus } | null };
 
 export type AddRepositoryMutationVariables = Exact<{
   input?: InputMaybe<AddRepositoryInput>;
@@ -5211,7 +5284,15 @@ export type RelatedWorksByPlanQueryVariables = Exact<{
 }>;
 
 
-export type RelatedWorksByPlanQuery = { __typename?: 'Query', relatedWorksByPlan?: { __typename?: 'RelatedWorkSearchResults', totalCount?: number | null, limit?: number | null, currentOffset?: number | null, hasNextPage?: boolean | null, hasPreviousPage?: boolean | null, availableSortFields?: Array<string | null> | null, statusOnlyCount?: number | null, items?: Array<{ __typename?: 'RelatedWorkSearchResult', id: number, scoreNorm: number, confidence?: RelatedWorkConfidence | null, status: RelatedWorkStatus, created: string, modified: string, workVersion: { __typename?: 'WorkVersion', id: number, hash: any, workType: WorkType, publicationDate?: string | null, title?: string | null, publicationVenue?: string | null, sourceName: string, sourceUrl?: string | null, work: { __typename?: 'Work', id: number, doi: string }, authors: Array<{ __typename?: 'Author', orcid?: string | null, firstInitial?: string | null, givenName?: string | null, middleInitials?: string | null, middleNames?: string | null, surname?: string | null, full?: string | null }>, institutions: Array<{ __typename?: 'Institution', name?: string | null, ror?: string | null }>, funders: Array<{ __typename?: 'Funder', name?: string | null, ror?: string | null }>, awards: Array<{ __typename?: 'Award', awardId?: string | null }> }, doiMatch?: { __typename?: 'DoiMatch', found: boolean, score: number, sources: Array<{ __typename?: 'DoiMatchSource', parentAwardId?: string | null, awardId: string, awardUrl: string }> } | null, contentMatch?: { __typename?: 'ContentMatch', score: number, titleHighlight?: string | null, abstractHighlights: Array<string> } | null, authorMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, institutionMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, funderMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, awardMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null } | null> | null, workTypeCounts?: Array<{ __typename?: 'TypeCount', typeId: string, count: number }> | null, confidenceCounts?: Array<{ __typename?: 'TypeCount', typeId: string, count: number }> | null } | null };
+export type RelatedWorksByPlanQuery = { __typename?: 'Query', relatedWorksByPlan?: { __typename?: 'RelatedWorkSearchResults', totalCount?: number | null, limit?: number | null, currentOffset?: number | null, hasNextPage?: boolean | null, hasPreviousPage?: boolean | null, availableSortFields?: Array<string | null> | null, statusOnlyCount?: number | null, items?: Array<{ __typename?: 'RelatedWorkSearchResult', id?: number | null, scoreNorm?: number | null, confidence?: RelatedWorkConfidence | null, status: RelatedWorkStatus, created?: string | null, modified?: string | null, workVersion: { __typename?: 'WorkVersion', id: number, hash: any, workType: WorkType, publicationDate?: string | null, title?: string | null, publicationVenue?: string | null, sourceName: string, sourceUrl?: string | null, work: { __typename?: 'Work', id: number, doi: string }, authors: Array<{ __typename?: 'Author', orcid?: string | null, firstInitial?: string | null, givenName?: string | null, middleInitials?: string | null, middleNames?: string | null, surname?: string | null, full?: string | null }>, institutions: Array<{ __typename?: 'Institution', name?: string | null, ror?: string | null }>, funders: Array<{ __typename?: 'Funder', name?: string | null, ror?: string | null }>, awards: Array<{ __typename?: 'Award', awardId?: string | null }> }, doiMatch?: { __typename?: 'DoiMatch', found: boolean, score: number, sources: Array<{ __typename?: 'DoiMatchSource', parentAwardId?: string | null, awardId: string, awardUrl: string }> } | null, contentMatch?: { __typename?: 'ContentMatch', score: number, titleHighlight?: string | null, abstractHighlights: Array<string> } | null, authorMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, institutionMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, funderMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, awardMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null } | null> | null, workTypeCounts?: Array<{ __typename?: 'TypeCount', typeId: string, count: number }> | null, confidenceCounts?: Array<{ __typename?: 'TypeCount', typeId: string, count: number }> | null } | null };
+
+export type FindWorkByIdentifierQueryVariables = Exact<{
+  planId: Scalars['Int']['input'];
+  doi?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type FindWorkByIdentifierQuery = { __typename?: 'Query', findWorkByIdentifier?: { __typename?: 'RelatedWorkSearchResults', items?: Array<{ __typename?: 'RelatedWorkSearchResult', id?: number | null, planId?: number | null, status: RelatedWorkStatus, sourceType?: RelatedWorkSourceType | null, modified?: string | null, workVersion: { __typename?: 'WorkVersion', title?: string | null, hash: any, workType: WorkType, publicationDate?: string | null, publicationVenue?: string | null, sourceName: string, sourceUrl?: string | null, work: { __typename?: 'Work', doi: string }, authors: Array<{ __typename?: 'Author', orcid?: string | null, firstInitial?: string | null, givenName?: string | null, surname?: string | null, full?: string | null }> } } | null> | null } | null };
 
 export type RepositoriesQueryVariables = Exact<{
   input: RepositorySearchInput;
@@ -5388,6 +5469,7 @@ export const UpdateQuestionDocument = {"kind":"Document","definitions":[{"kind":
 export const RemoveQuestionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveQuestion"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"questionId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"removeQuestion"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"questionId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"questionId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"guidanceText"}},{"kind":"Field","name":{"kind":"Name","value":"json"}},{"kind":"Field","name":{"kind":"Name","value":"questionText"}},{"kind":"Field","name":{"kind":"Name","value":"requirementText"}},{"kind":"Field","name":{"kind":"Name","value":"sampleText"}}]}}]}}]}}]} as unknown as DocumentNode<RemoveQuestionMutation, RemoveQuestionMutationVariables>;
 export const UpdateQuestionDisplayOrderDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateQuestionDisplayOrder"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"questionId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"newDisplayOrder"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateQuestionDisplayOrder"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"questionId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"questionId"}}},{"kind":"Argument","name":{"kind":"Name","value":"newDisplayOrder"},"value":{"kind":"Variable","name":{"kind":"Name","value":"newDisplayOrder"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"questions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"displayOrder"}},{"kind":"Field","name":{"kind":"Name","value":"questionText"}},{"kind":"Field","name":{"kind":"Name","value":"sampleText"}},{"kind":"Field","name":{"kind":"Name","value":"requirementText"}},{"kind":"Field","name":{"kind":"Name","value":"guidanceText"}},{"kind":"Field","name":{"kind":"Name","value":"sectionId"}},{"kind":"Field","name":{"kind":"Name","value":"templateId"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}}]}}]}}]}}]}}]} as unknown as DocumentNode<UpdateQuestionDisplayOrderMutation, UpdateQuestionDisplayOrderMutationVariables>;
 export const UpdateRelatedWorkStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateRelatedWorkStatus"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateRelatedWorkStatusInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateRelatedWorkStatus"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]} as unknown as DocumentNode<UpdateRelatedWorkStatusMutation, UpdateRelatedWorkStatusMutationVariables>;
+export const UpsertRelatedWorkDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpsertRelatedWork"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpsertRelatedWorkInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"upsertRelatedWork"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"planId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]} as unknown as DocumentNode<UpsertRelatedWorkMutation, UpsertRelatedWorkMutationVariables>;
 export const AddRepositoryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AddRepository"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"AddRepositoryInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"addRepository"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"repositoryTypes"}},{"kind":"Field","name":{"kind":"Name","value":"website"}}]}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"keywords"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}},{"kind":"Field","name":{"kind":"Name","value":"website"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]}}]} as unknown as DocumentNode<AddRepositoryMutation, AddRepositoryMutationVariables>;
 export const AddSectionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AddSection"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AddSectionInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"addSection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"tags"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"guidance"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"displayOrder"}}]}},{"kind":"Field","name":{"kind":"Name","value":"displayOrder"}},{"kind":"Field","name":{"kind":"Name","value":"introduction"}},{"kind":"Field","name":{"kind":"Name","value":"isDirty"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"questions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"templateId"}},{"kind":"Field","name":{"kind":"Name","value":"sectionId"}},{"kind":"Field","name":{"kind":"Name","value":"questionText"}},{"kind":"Field","name":{"kind":"Name","value":"displayOrder"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"requirements"}}]}}]}}]} as unknown as DocumentNode<AddSectionMutation, AddSectionMutationVariables>;
 export const UpdateSectionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateSection"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateSectionInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateSection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"introduction"}},{"kind":"Field","name":{"kind":"Name","value":"requirements"}},{"kind":"Field","name":{"kind":"Name","value":"guidance"}},{"kind":"Field","name":{"kind":"Name","value":"displayOrder"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"introduction"}},{"kind":"Field","name":{"kind":"Name","value":"requirements"}},{"kind":"Field","name":{"kind":"Name","value":"guidance"}}]}},{"kind":"Field","name":{"kind":"Name","value":"bestPractice"}},{"kind":"Field","name":{"kind":"Name","value":"tags"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateSectionMutation, UpdateSectionMutationVariables>;
@@ -5436,6 +5518,7 @@ export const QuestionDocument = {"kind":"Document","definitions":[{"kind":"Opera
 export const PublishedQuestionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PublishedQuestions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"planId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"versionedSectionId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"publishedQuestions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"planId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"planId"}}},{"kind":"Argument","name":{"kind":"Name","value":"versionedSectionId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"versionedSectionId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"questionText"}},{"kind":"Field","name":{"kind":"Name","value":"displayOrder"}},{"kind":"Field","name":{"kind":"Name","value":"guidanceText"}},{"kind":"Field","name":{"kind":"Name","value":"requirementText"}},{"kind":"Field","name":{"kind":"Name","value":"sampleText"}},{"kind":"Field","name":{"kind":"Name","value":"versionedSectionId"}},{"kind":"Field","name":{"kind":"Name","value":"versionedTemplateId"}},{"kind":"Field","name":{"kind":"Name","value":"hasAnswer"}}]}}]}}]} as unknown as DocumentNode<PublishedQuestionsQuery, PublishedQuestionsQueryVariables>;
 export const PublishedQuestionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PublishedQuestion"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"versionedQuestionId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"publishedQuestion"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"versionedQuestionId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"versionedQuestionId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"guidanceText"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"questionText"}},{"kind":"Field","name":{"kind":"Name","value":"requirementText"}},{"kind":"Field","name":{"kind":"Name","value":"sampleText"}},{"kind":"Field","name":{"kind":"Name","value":"displayOrder"}},{"kind":"Field","name":{"kind":"Name","value":"versionedSectionId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"displayOrder"}},{"kind":"Field","name":{"kind":"Name","value":"questionText"}},{"kind":"Field","name":{"kind":"Name","value":"json"}},{"kind":"Field","name":{"kind":"Name","value":"requirementText"}},{"kind":"Field","name":{"kind":"Name","value":"sampleText"}},{"kind":"Field","name":{"kind":"Name","value":"useSampleTextAsDefault"}},{"kind":"Field","name":{"kind":"Name","value":"versionedSectionId"}},{"kind":"Field","name":{"kind":"Name","value":"versionedTemplateId"}},{"kind":"Field","name":{"kind":"Name","value":"required"}}]}}]}}]} as unknown as DocumentNode<PublishedQuestionQuery, PublishedQuestionQueryVariables>;
 export const RelatedWorksByPlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"RelatedWorksByPlan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"planId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"paginationOptions"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationOptions"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filterOptions"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"RelatedWorksFilterOptions"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"relatedWorksByPlan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"planId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"planId"}}},{"kind":"Argument","name":{"kind":"Name","value":"paginationOptions"},"value":{"kind":"Variable","name":{"kind":"Name","value":"paginationOptions"}}},{"kind":"Argument","name":{"kind":"Name","value":"filterOptions"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filterOptions"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"workVersion"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"work"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"doi"}}]}},{"kind":"Field","name":{"kind":"Name","value":"hash"}},{"kind":"Field","name":{"kind":"Name","value":"workType"}},{"kind":"Field","name":{"kind":"Name","value":"publicationDate"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"authors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"orcid"}},{"kind":"Field","name":{"kind":"Name","value":"firstInitial"}},{"kind":"Field","name":{"kind":"Name","value":"givenName"}},{"kind":"Field","name":{"kind":"Name","value":"middleInitials"}},{"kind":"Field","name":{"kind":"Name","value":"middleNames"}},{"kind":"Field","name":{"kind":"Name","value":"surname"}},{"kind":"Field","name":{"kind":"Name","value":"full"}}]}},{"kind":"Field","name":{"kind":"Name","value":"institutions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"ror"}}]}},{"kind":"Field","name":{"kind":"Name","value":"funders"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"ror"}}]}},{"kind":"Field","name":{"kind":"Name","value":"awards"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"awardId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"publicationVenue"}},{"kind":"Field","name":{"kind":"Name","value":"sourceName"}},{"kind":"Field","name":{"kind":"Name","value":"sourceUrl"}}]}},{"kind":"Field","name":{"kind":"Name","value":"scoreNorm"}},{"kind":"Field","name":{"kind":"Name","value":"confidence"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"doiMatch"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"found"}},{"kind":"Field","name":{"kind":"Name","value":"score"}},{"kind":"Field","name":{"kind":"Name","value":"sources"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"parentAwardId"}},{"kind":"Field","name":{"kind":"Name","value":"awardId"}},{"kind":"Field","name":{"kind":"Name","value":"awardUrl"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"contentMatch"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"score"}},{"kind":"Field","name":{"kind":"Name","value":"titleHighlight"}},{"kind":"Field","name":{"kind":"Name","value":"abstractHighlights"}}]}},{"kind":"Field","name":{"kind":"Name","value":"authorMatches"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"index"}},{"kind":"Field","name":{"kind":"Name","value":"score"}},{"kind":"Field","name":{"kind":"Name","value":"fields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"institutionMatches"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"index"}},{"kind":"Field","name":{"kind":"Name","value":"score"}},{"kind":"Field","name":{"kind":"Name","value":"fields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"funderMatches"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"index"}},{"kind":"Field","name":{"kind":"Name","value":"score"}},{"kind":"Field","name":{"kind":"Name","value":"fields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"awardMatches"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"index"}},{"kind":"Field","name":{"kind":"Name","value":"score"}},{"kind":"Field","name":{"kind":"Name","value":"fields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"created"}},{"kind":"Field","name":{"kind":"Name","value":"modified"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalCount"}},{"kind":"Field","name":{"kind":"Name","value":"limit"}},{"kind":"Field","name":{"kind":"Name","value":"currentOffset"}},{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"hasPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"availableSortFields"}},{"kind":"Field","name":{"kind":"Name","value":"statusOnlyCount"}},{"kind":"Field","name":{"kind":"Name","value":"workTypeCounts"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"typeId"}},{"kind":"Field","name":{"kind":"Name","value":"count"}}]}},{"kind":"Field","name":{"kind":"Name","value":"confidenceCounts"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"typeId"}},{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}}]}}]} as unknown as DocumentNode<RelatedWorksByPlanQuery, RelatedWorksByPlanQueryVariables>;
+export const FindWorkByIdentifierDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindWorkByIdentifier"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"planId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"doi"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"findWorkByIdentifier"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"planId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"planId"}}},{"kind":"Argument","name":{"kind":"Name","value":"doi"},"value":{"kind":"Variable","name":{"kind":"Name","value":"doi"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"planId"}},{"kind":"Field","name":{"kind":"Name","value":"workVersion"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"work"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"doi"}}]}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"hash"}},{"kind":"Field","name":{"kind":"Name","value":"workType"}},{"kind":"Field","name":{"kind":"Name","value":"publicationDate"}},{"kind":"Field","name":{"kind":"Name","value":"publicationVenue"}},{"kind":"Field","name":{"kind":"Name","value":"authors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"orcid"}},{"kind":"Field","name":{"kind":"Name","value":"firstInitial"}},{"kind":"Field","name":{"kind":"Name","value":"givenName"}},{"kind":"Field","name":{"kind":"Name","value":"surname"}},{"kind":"Field","name":{"kind":"Name","value":"full"}}]}},{"kind":"Field","name":{"kind":"Name","value":"sourceName"}},{"kind":"Field","name":{"kind":"Name","value":"sourceUrl"}}]}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"sourceType"}},{"kind":"Field","name":{"kind":"Name","value":"modified"}}]}}]}}]}}]} as unknown as DocumentNode<FindWorkByIdentifierQuery, FindWorkByIdentifierQueryVariables>;
 export const RepositoriesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Repositories"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"RepositorySearchInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"repositories"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"hasPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"currentOffset"}},{"kind":"Field","name":{"kind":"Name","value":"availableSortFields"}},{"kind":"Field","name":{"kind":"Name","value":"totalCount"}},{"kind":"Field","name":{"kind":"Name","value":"nextCursor"}},{"kind":"Field","name":{"kind":"Name","value":"limit"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"keywords"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}}]}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}},{"kind":"Field","name":{"kind":"Name","value":"website"}},{"kind":"Field","name":{"kind":"Name","value":"repositoryTypes"}}]}}]}}]}}]} as unknown as DocumentNode<RepositoriesQuery, RepositoriesQueryVariables>;
 export const RepositorySubjectAreasDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"RepositorySubjectAreas"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"repositorySubjectAreas"}}]}}]} as unknown as DocumentNode<RepositorySubjectAreasQuery, RepositorySubjectAreasQueryVariables>;
 export const RepositoriesByUrIsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"RepositoriesByURIs"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"uris"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"repositoriesByURIs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"uris"},"value":{"kind":"Variable","name":{"kind":"Name","value":"uris"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"keywords"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}}]}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}},{"kind":"Field","name":{"kind":"Name","value":"website"}},{"kind":"Field","name":{"kind":"Name","value":"repositoryTypes"}}]}}]}}]} as unknown as DocumentNode<RepositoriesByUrIsQuery, RepositoriesByUrIsQueryVariables>;

@@ -700,7 +700,8 @@
       "editGroup": "Editar grupo",
       "createText": "Criar texto",
       "editText": "Editar Texto",
-      "group": "grupo"
+      "group": "grupo",
+      "relatedWorks": "Obras Relacionadas"
     },
     "form": {
       "yesLabel": "Sim",
