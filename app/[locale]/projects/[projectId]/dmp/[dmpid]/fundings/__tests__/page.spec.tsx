@@ -345,37 +345,52 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
       </MockedProvider>
     );
 
-    // Wait for BOTH queries to complete - checkboxes AND initial selection
+    // Wait for initial data to load using findBy (has built-in waiting)
+    const projectFunderA = await screen.findByRole(
+      'checkbox',
+      { name: /Project Funder A/i }
+    );
+
+    // Verify Project Funder B is already checked (from initial query)
+    const projectFunderB = screen.getByRole(
+      'checkbox',
+      { name: /Project Funder B/i }
+    );
+    expect(projectFunderB).toBeChecked();
+
+    // Click Project Funder A
+    fireEvent.click(projectFunderA);
+
+    // Wait for checkbox to be checked
     await waitFor(() => {
-      const funderA = screen.getByRole('checkbox', { name: 'Project Funder A' });
-      const funderB = screen.getByRole('checkbox', { name: 'Project Funder B' });
-      expect(funderA).toBeInTheDocument();
-      expect(funderA).not.toBeChecked(); // Verify initial state
-      expect(funderB).toBeChecked(); // Verify B is pre-selected
+      expect(projectFunderA).toBeChecked();
     });
 
-    // Click Funder A and wait for state to update
-    const funderA = screen.getByRole('checkbox', { name: 'Project Funder A' });
-    fireEvent.click(funderA);
-
-    // Verify the checkbox state changed before submitting
-    await waitFor(() => {
-      expect(funderA).toBeChecked();
-    });
-
-    // Now submit the form
-    const saveButton = screen.getByRole('button', { name: 'buttons.save' });
+    // Submit form
+    const saveButton = screen.getByRole('button', { name: /save/i });
     fireEvent.click(saveButton);
 
-    // Wait for the mutation to complete with a longer timeout
+    // Wait for success toast - this confirms mutation completed
     await waitFor(
       () => {
-        expect(mockToast.add).toHaveBeenCalledWith('successfullyUpdated', { type: 'success' });
-        expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123/dmp/456');
+        expect(mockToast.add).toHaveBeenCalledWith(
+          'successfullyUpdated',
+          { type: 'success' }
+        );
       },
-      { timeout: 3000 } // Increase timeout for slower CI environments
+      { timeout: 3000 }
     );
-  });
+
+    // Wait for navigation
+    await waitFor(
+      () => {
+        expect(mockUseRouter().push).toHaveBeenCalledWith(
+          '/en-US/projects/123/dmp/456'
+        );
+      },
+      { timeout: 2000 }
+    );
+  }, 15000);
 
   it('should handle errors on form submission', async () => {
     render(

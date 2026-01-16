@@ -103,6 +103,7 @@ const mockTemplate = {
   ]
 };
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Cast with jest.mocked utility
 const mockUseQuery = jest.mocked(useQuery);
 
