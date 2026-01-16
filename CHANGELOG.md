@@ -1,9 +1,14 @@
 ## Added
+- Added ability to manually add a related work via a DOI [#835]
+- Added a shared `utils/apolloErrorHandler.ts` file to handle `AbortError` related to the updated Apollo Client v4 [#1094]
+- Added new graphql queries `MetadataStandardsByURIs` and `RepositoriesByURIs` to get the preferred standards and repos for the Research Output Answer modals [#1094]
 - Added `errorTypePolicies` to use in the `apollo-wrapper.tsx` file, due to changes in Apollo's default caching and merge behavior. Setting "merge: false" always replaces new data, instead of trying to merge error objects [#1089]
 - Added Question Preview for `ResearchOutput` type [#1055]
 - Added new `ResearchOutputAnswerComponent`, `SingleResearchOutputComponent`, `RepoSelectorForAnswer` and `MetaDataStandardForAnswer` components for the rendering of `researchOutputTable` question type answer form [#787]
 - Added `utils/researchOutputTransformations.ts` to group utilities for `researchOutputTable` [#787]
 ### Updated
+- Updated `RepoSelectorForAnswer` and `MetaDataStandardForAnswer` so that the preferred selections display in the modal when first loaded [#1094]
+- Updated `ResearchOutputAnswerComponent` and `researchOutputTransformations.ts` so that we don't get the preferred repos and standards displaying as pre-selected in the Research Output Answer form [#1094]
 - Updated `@apollo/client` to `v4` which required updates to our `graphql-codegen` process and, therefore, almost all components and unit tests [#1089]
   - Updated `codegen.ts` for new Client Preset approach [#1089]
   - Updated all components to use the new Apollo Client v4 approach of using Documents and wrapping them in hooks, like `useQuery` and `useMutation` from `apollo/client/react` [#1089]
@@ -30,7 +35,8 @@
   - Added a `ResearchOutputComponent` to consolidate the code for that question type [#869]
   - Added a new `useResearchOutputTable` hook to share functionality between `QuestionAdd` and `QuestionEdit` [#869]
   - Updated `Pagination` component so that navigation doesn't shift too much [#869]
-  
+### Remove
+- Removed `boolean` question type from the Add Question question types list [#990]
 ### Fixed
 - Fixed related works pagination.
 

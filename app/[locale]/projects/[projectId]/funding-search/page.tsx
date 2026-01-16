@@ -33,7 +33,7 @@ import ErrorMessages from "@/components/ErrorMessages";
 // Utils and other
 import { FunderSearchResults } from '@/app/types';
 import { checkErrors } from '@/utils/errorHandler';
-import logECS from "@/utils/clientLogger";
+import { handleApolloError } from '@/utils/apolloErrorHandler';
 import styles from './ProjectsCreateProjectFundingSearch.module.scss';
 
 
@@ -66,13 +66,7 @@ const CreateProjectSearchFunder = () => {
         }
       })
       .catch((err) => {
-        // Ignore AbortErrors from React Strict Mode or navigation
-        if (err.name === 'AbortError') return;
-        logECS(
-          'error',
-          'createProjectSearchFunder.popularFundersQuery',
-          { error: err.message }
-        );
+        handleApolloError(err, 'createProjectSearchFunder.popularFundersQuery');
       });
   }, []);
 
@@ -105,13 +99,7 @@ const CreateProjectSearchFunder = () => {
         }
       })
       .catch((err) => {
-        // Ignore AbortErrors from React Strict Mode or navigation
-        if (err.name === 'AbortError') return;
-        logECS(
-          'error',
-          'createProjectSearchFunder.addProjectFunding',
-          { error: err.message }
-        );
+        handleApolloError(err, 'createProjectSearchFunder.popularFundersQuery');
         setErrors([...errors, err.message])
       });
   };

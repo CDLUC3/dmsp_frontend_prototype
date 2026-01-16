@@ -8,10 +8,12 @@ import { useQuery, useLazyQuery } from '@apollo/client/react';
 import {
   RepositoriesDocument,
   RepositorySubjectAreasDocument,
+  RepositoriesByUrIsDocument
 } from '@/generated/graphql';
 import { addRepositoryAction } from '@/app/actions/addRepositoryAction';
 import mockRepositoriesData from '../__mocks__/mockRepositoriesData.json';
 import mockSubjectAreasData from '../__mocks__/mockRepoSubjectAreasData.json';
+import mockPreferredRepositoriesData from '../__mocks__/mockPreferredRepositoriesData.json';
 import mockValue from '../__mocks__/mockValue.json';
 
 // Mocks
@@ -72,10 +74,21 @@ const setupMocks = () => {
     error: null,
   };
 
+  const stableRepositoriesURIsReturn = {
+    data: mockPreferredRepositoriesData,
+    loading: false,
+    error: null,
+  };
+
   mockUseQuery.mockImplementation((document) => {
     if (document === RepositorySubjectAreasDocument) {
       /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableRepositoriesSubjectAreasReturn as any;
+    }
+
+    if (document === RepositoriesByUrIsDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return stableRepositoriesURIsReturn as any;
     }
     return {
       data: null,
@@ -126,42 +139,54 @@ describe('RepoSelectorForAnswer', () => {
   })
 
   describe('Initial Rendering', () => {
-    it('should render the "Add Repository" button', () => {
+    it('should render the "Add Repository" button', async () => {
       render(<RepoSelectorForAnswer onRepositoriesChange={mockOnRepositoriesChange} />);
-      expect(screen.getByText('researchOutput.repoSelector.buttons.addRepo')).toBeInTheDocument();
+
+      // Wait for the initial data fetch to complete
+      await waitFor(() => {
+        expect(screen.getByText('researchOutput.repoSelector.buttons.addRepo')).toBeInTheDocument();
+
+      })
     });
 
-    it('should not display selected repositories initially when value is empty', () => {
+    it('should not display selected repositories initially when value is empty', async () => {
       render(<RepoSelectorForAnswer value={[]} onRepositoriesChange={mockOnRepositoriesChange} />);
-      expect(screen.queryByText('buttons.removeAll')).not.toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.queryByText('buttons.removeAll')).not.toBeInTheDocument();
+      })
     });
 
-    it('should display selected repositories when value prop is provided', () => {
+    it('should display selected repositories when value prop is provided', async () => {
       render(<RepoSelectorForAnswer value={mockValue} onRepositoriesChange={mockOnRepositoriesChange} />);
 
-      expect(screen.getByText('Zenodo')).toBeInTheDocument();
-      expect(screen.getByText('buttons.removeAll')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Zenodo')).toBeInTheDocument();
+        expect(screen.getByText('buttons.removeAll')).toBeInTheDocument();
+      })
     });
 
-    it('should fetch repositories on initial load', () => {
+    it('should fetch repositories on initial load', async () => {
       render(<RepoSelectorForAnswer onRepositoriesChange={mockOnRepositoriesChange} />);
 
-      expect(mockFetchRepositories).toHaveBeenCalledWith({
-        variables: {
-          input: {
-            paginationOptions: {
-              offset: 0,
-              limit: 5,
-              type: "OFFSET",
-              sortDir: "DESC",
-            },
-            term: '',
-            repositoryType: null,
-            keyword: null,
+      await waitFor(() => {
+        expect(mockFetchRepositories).toHaveBeenCalledWith({
+          variables: {
+            input: {
+              paginationOptions: {
+                offset: 0,
+                limit: 5,
+                type: "OFFSET",
+                sortDir: "DESC",
+              },
+              term: '',
+              repositoryType: null,
+              keyword: null,
+            }
           }
-        }
+        });
       });
-    });
+    })
   });
 
   describe('Modal Interaction', () => {
@@ -174,6 +199,27 @@ describe('RepoSelectorForAnswer', () => {
       await waitFor(() => {
         expect(screen.getByText('researchOutput.repoSelector.headings.repoSearch')).toBeInTheDocument();
       });
+    });
+
+    it('should display the preferred repositories in the modal', async () => {
+      render(<RepoSelectorForAnswer onRepositoriesChange={mockOnRepositoriesChange} preferredReposURIs={["https://www.re3data.org/repository/https://www.re3data.org/api/v1/repository/r3d100010468"]} />);
+
+      const addButton = screen.getByText('researchOutput.repoSelector.buttons.addRepo');
+      fireEvent.click(addButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('researchOutput.repoSelector.headings.repoSearch')).toBeInTheDocument();
+      });
+
+      // Count the number of "buttons.moreInfo" to test # of preferred repositories that display
+      const moreInfoButtons = screen.getAllByText('buttons.moreInfo');
+      expect(moreInfoButtons).toHaveLength(1);
+      expect(screen.getByText('Zenodo')).toBeInTheDocument();
+
+      // Check that the preferredOnly checkbox is present and checked
+      const preferredOnlyCheckbox = screen.getByTestId('preferredOnlyCheckbox') as HTMLInputElement;
+      expect(preferredOnlyCheckbox).toBeInTheDocument();
+      expect(preferredOnlyCheckbox).toHaveAttribute('data-selected', 'true');
     });
 
     it('should close modal when close button is clicked', async () => {
@@ -190,18 +236,6 @@ describe('RepoSelectorForAnswer', () => {
 
       await waitFor(() => {
         expect(screen.queryByText('researchOutput.repoSelector.headings.repoSearch')).not.toBeInTheDocument();
-      });
-    });
-
-    it('should display search results in modal', async () => {
-      render(<RepoSelectorForAnswer onRepositoriesChange={mockOnRepositoriesChange} />);
-
-      fireEvent.click(screen.getByText('researchOutput.repoSelector.buttons.addRepo'));
-
-      await waitFor(() => {
-        expect(screen.getByText('Zenodo')).toBeInTheDocument();
-        expect(screen.getByText('University of Opole Knowledge Base')).toBeInTheDocument();
-        expect(screen.getByText('University of Johannesburg Data Repository')).toBeInTheDocument();
       });
     });
   });
@@ -303,25 +337,31 @@ describe('RepoSelectorForAnswer', () => {
   });
 
   describe('Remove Functionality', () => {
-    it('should remove a single repository and show toast', () => {
+    it('should remove a single repository and show toast', async () => {
       render(<RepoSelectorForAnswer value={mockValue} onRepositoriesChange={mockOnRepositoriesChange} />);
 
       const removeButton = screen.getByText('buttons.remove');
       fireEvent.click(removeButton);
 
-      expect(mockOnRepositoriesChange).toHaveBeenCalledWith([]);
-      expect(mockAddToast).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(mockOnRepositoriesChange).toHaveBeenCalledWith([]);
+        expect(mockAddToast).toHaveBeenCalled();
+      })
+
     });
 
-    it('should remove all repositories with confirmation', () => {
+    it('should remove all repositories with confirmation', async () => {
 
       render(<RepoSelectorForAnswer value={mockValue} onRepositoriesChange={mockOnRepositoriesChange} />);
 
       const removeAllButton = screen.getByText('buttons.removeAll');
       fireEvent.click(removeAllButton);
 
-      expect(mockOnRepositoriesChange).toHaveBeenCalledWith([]);
-      expect(mockAddToast).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(mockOnRepositoriesChange).toHaveBeenCalledWith([]);
+        expect(mockAddToast).toHaveBeenCalled();
+      })
+
     });
   });
 

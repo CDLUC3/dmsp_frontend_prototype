@@ -44,6 +44,7 @@ import { useToast } from '@/context/ToastContext';
 import { useFormatDate } from '@/hooks/useFormatDate';
 import { TemplateItemProps } from '@/app/types';
 import { checkErrors } from '@/utils/errorHandler';
+import { handleApolloError } from '@/utils/apolloErrorHandler';
 import styles from './planCreate.module.scss';
 
 // # of templates displayed per page
@@ -142,11 +143,11 @@ const PlanCreate: React.FC = () => {
     if (bestPractice) { // If best practice is checked, then filter on that
       // Need to keep catch to avoid unhandled promise rejection - known limitation of Apollo Client 4 handling lazy queries
       // This silent catch is acceptable here because errors are handled in the useEffect monitoring publishedTemplatesError
-      fetchTemplates({ page: currentPage, bestPractice: true, selectedOwnerURIs: [], searchTerm: '' }).catch(() => { });
+      fetchTemplates({ page: currentPage, bestPractice: true, selectedOwnerURIs: [], searchTerm: '' });
     } else if (selectedFunders.length > 0) { // If funders are checked, then filter on those
-      fetchTemplates({ page: currentPage, selectedOwnerURIs: selectedFunders, searchTerm: '' }).catch(() => { });
+      fetchTemplates({ page: currentPage, selectedOwnerURIs: selectedFunders, searchTerm: '' });
     } else {
-      fetchTemplates({ page: currentPage, searchTerm: '' }).catch(() => { });
+      fetchTemplates({ page: currentPage, searchTerm: '' });
     }
   }, [bestPractice, selectedFunders, currentPage, searchTerm]);
 
@@ -203,19 +204,19 @@ const PlanCreate: React.FC = () => {
       setSelectedFunders([]);
       setSelectedBestPracticeItems([]);
       // Default to all templates when no criteria selected, or templates matching search term
-      await fetchTemplates({ page: currentPage, searchTerm }).catch(() => { });
+      await fetchTemplates({ page: currentPage, searchTerm });
 
     } else if (typ === 'funders') {
       // Always set selected filter items (whether empty or not)
       setSelectedFunders(value);
       setBestPractice(false);
       // Fetch templates for selected funders
-      await fetchTemplates({ selectedOwnerURIs: value, searchTerm }).catch(() => { });
+      await fetchTemplates({ selectedOwnerURIs: value, searchTerm });
     } else if (typ === 'bestPractice') {
       setSelectedBestPracticeItems(value);
       setBestPractice(true);
       // Fetch best practice templates
-      await fetchTemplates({ bestPractice: true, selectedOwnerURIs: [], searchTerm }).catch(() => { });
+      await fetchTemplates({ bestPractice: true, selectedOwnerURIs: [], searchTerm });
     }
   };
 
@@ -227,7 +228,7 @@ const PlanCreate: React.FC = () => {
       bestPractice,
       selectedOwnerURIs: selectedFunders,
       searchTerm
-    }).catch(() => { });
+    });
   };
 
   // Handle filtering when user clicks search button
@@ -241,11 +242,11 @@ const PlanCreate: React.FC = () => {
 
     // Fetch templates based on currently checked filters and search term
     if (bestPractice) {
-      await fetchTemplates({ searchTerm: term, bestPractice: true, selectedOwnerURIs: [] }).catch(() => { });
+      await fetchTemplates({ searchTerm: term, bestPractice: true, selectedOwnerURIs: [] });
     } else if (selectedFunders.length > 0) {
-      await fetchTemplates({ searchTerm: term, selectedOwnerURIs: selectedFunders }).catch(() => { });
+      await fetchTemplates({ searchTerm: term, selectedOwnerURIs: selectedFunders });
     } else {
-      await fetchTemplates({ searchTerm: term }).catch(() => { });
+      await fetchTemplates({ searchTerm: term });
     }
   };
 
@@ -347,19 +348,23 @@ const PlanCreate: React.FC = () => {
       offsetLimit = (page - 1) * LIMIT;
     }
 
-    await fetchPublishedTemplates({
-      variables: {
-        paginationOptions: {
-          offset: offsetLimit,
-          limit: LIMIT,
-          type: "OFFSET",
-          sortDir: "DESC",
-          selectOwnerURIs: selectedOwnerURIs,
-          bestPractice
-        },
-        term: searchTerm,
-      }
-    });
+    try {
+      await fetchPublishedTemplates({
+        variables: {
+          paginationOptions: {
+            offset: offsetLimit,
+            limit: LIMIT,
+            type: "OFFSET",
+            sortDir: "DESC",
+            selectOwnerURIs: selectedOwnerURIs,
+            bestPractice
+          },
+          term: searchTerm,
+        }
+      });
+    } catch (err) {
+      handleApolloError(err, 'PlanCreate.fetchTemplates');
+    }
   };
 
   // Process templates when publishedTemplates changes
@@ -521,13 +526,13 @@ const PlanCreate: React.FC = () => {
         if (!isCancelled) setFunders(initialFilterConfig.fundersData);
         if (!isCancelled) setSelectedFunders(initialFilterConfig.funderURIs);
         if (!isCancelled) setBestPractice(false);
-        await fetchTemplates({ selectedOwnerURIs: initialFilterConfig.funderURIs }).catch(() => { });
+        await fetchTemplates({ selectedOwnerURIs: initialFilterConfig.funderURIs });
       } else if (initialFilterConfig.type === 'bestPractice') {
         if (!isCancelled) setSelectedBestPracticeItems(["DMP Best Practice"]);
         if (!isCancelled) setBestPractice(true);
-        await fetchTemplates({ bestPractice: true }).catch(() => { });
+        await fetchTemplates({ bestPractice: true });
       } else {
-        await fetchTemplates({ page: currentPage }).catch(() => { });
+        await fetchTemplates({ page: currentPage });
       }
 
       if (!isCancelled) {
@@ -560,7 +565,7 @@ const PlanCreate: React.FC = () => {
   // trigger fetching all templates when searchTerm is manually cleared (place after all state/effect declarations)
   useEffect(() => {
     if (searchTerm === '') {
-      fetchTemplatesForCurrentFilters().catch(() => { });
+      fetchTemplatesForCurrentFilters();
     }
   }, [searchTerm]);
 

@@ -17,7 +17,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 
 import { routePath } from '@/utils/routes';
 import styles from './ProjectsProjectMembers.module.scss';
-import { orcidToUrl } from "@/lib/idToUrl";
+import { orcidToUrl } from "@/lib/identifierUtils";
 
 interface ProjectMemberInterface {
   id: number | null;
@@ -46,7 +46,7 @@ const ProjectsProjectMembers = () => {
   const { data, loading, error: queryError } = useQuery(ProjectMembersDocument,
     {
       variables: { projectId: Number(projectId) },
-      fetchPolicy: 'network-only',// So that when members are deleted the page refreshes 
+      fetchPolicy: 'network-only',// So that when members are deleted the page refreshes
       notifyOnNetworkStatusChange: true
     }
   );

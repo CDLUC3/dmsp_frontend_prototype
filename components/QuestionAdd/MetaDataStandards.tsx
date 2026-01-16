@@ -29,6 +29,7 @@ import {
 import { routePath } from "@/utils/routes";
 import { extractErrors } from "@/utils/errorHandler";
 import logECS from "@/utils/clientLogger";
+import { handleApolloError } from '@/utils/apolloErrorHandler';
 
 // Components
 import {
@@ -120,17 +121,21 @@ const MetaDataStandardsSelector = ({
       offsetLimit = (page - 1) * LIMIT;
     }
 
-    await fetchMetaDataStandardsData({
-      variables: {
-        paginationOptions: {
-          offset: offsetLimit,
-          limit: LIMIT,
-          type: "OFFSET",
-          sortDir: "DESC",
-        },
-        term: searchTerm,
-      }
-    }).catch(() => { }); // The promise from fetchMetaDataStandardsData can be caught to prevent unhandled rejection warnings (i.e., AbortError from Apollo Client  )
+    try {
+      await fetchMetaDataStandardsData({
+        variables: {
+          paginationOptions: {
+            offset: offsetLimit,
+            limit: LIMIT,
+            type: "OFFSET",
+            sortDir: "DESC",
+          },
+          term: searchTerm,
+        }
+      })
+    } catch (err) {
+      handleApolloError(err, 'MetaDataStandardsSelector.fetchMetaDataStandards');
+    };
   };
 
   // Handle pagination page click

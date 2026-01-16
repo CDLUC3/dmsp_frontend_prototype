@@ -50,7 +50,7 @@ import { addPlanMemberAction } from './actions/addPlanMemberAction';
 import { ProjectMembersInterface } from '@/app/types';
 import { routePath } from '@/utils/routes';
 import styles from './ProjectsProjectPlanAdjustMembers.module.scss';
-import { orcidToUrl } from "@/lib/idToUrl";
+import { orcidToUrl } from "@/lib/identifierUtils";
 
 interface PlanMemberDropdown {
   id: string;

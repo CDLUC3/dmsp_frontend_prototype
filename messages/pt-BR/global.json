@@ -700,7 +700,8 @@
       "editGroup": "Editar grupo",
       "createText": "Criar texto",
       "editText": "Editar Texto",
-      "group": "grupo"
+      "group": "grupo",
+      "relatedWorks": "Obras Relacionadas"
     },
     "form": {
       "yesLabel": "Sim",
@@ -755,6 +756,7 @@
       "add": "Adicionar",
       "customize": "Personalizar",
       "applyFilter": "Aplicar filtro(s)",
+      "applyFilterSingular": "Aplicar filtro",
       "moreInfo": "Mais informações",
       "lessInfo": "Menos informações",
       "createNewPlan": "Criar nova DMP"
