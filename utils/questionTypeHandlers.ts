@@ -8,27 +8,7 @@ import {
   QuestionFormatsEnum,
   QuestionFormatsUsage,
   QuestionFormatsUsageInterface,
-  DefaultAffiliationSearchQuestion,
-  DefaultBooleanQuestion,
-  DefaultCheckboxesQuestion,
-  DefaultCurrencyQuestion,
-  DefaultDateQuestion,
-  DefaultDateRangeQuestion,
-  DefaultEmailQuestion,
-  DefaultLicenseSearchQuestion,
-  DefaultMetadataStandardSearchQuestion,
-  DefaultMultiselectBoxQuestion,
-  DefaultNumberQuestion,
-  DefaultNumberRangeQuestion,
-  DefaultNumberWithContextQuestion,
-  DefaultRadioButtonsQuestion,
-  DefaultRepositorySearchQuestion,
-  DefaultResearchOutputTableQuestion,
-  DefaultSelectBoxQuestion,
-  DefaultTableQuestion,
-  DefaultTextQuestion,
-  DefaultTextAreaQuestion,
-  DefaultURLQuestion,
+  QuestionDefaultMap
 } from "@dmptool/types";
 
 type QuestionType = z.infer<typeof QuestionFormatsEnum>
@@ -38,41 +18,14 @@ type ResearchOutputTableColumn = QuestionTypeMap["researchOutputTable"]["columns
 // List of question types to filter out from the available types
 const filteredOutQuestionTypes = ['licenseSearch', 'metadataStandardSearch', 'numberWithContext', 'repositorySearch', 'table', 'boolean'];
 
-export const QUESTION_TYPE_DEFAULTS = {
-  affiliationSearch: DefaultAffiliationSearchQuestion,
-  boolean: DefaultBooleanQuestion,
-  checkBoxes: DefaultCheckboxesQuestion,
-  currency: DefaultCurrencyQuestion,
-  date: DefaultDateQuestion,
-  dateRange: DefaultDateRangeQuestion,
-  email: DefaultEmailQuestion,
-  licenseSearch: DefaultLicenseSearchQuestion,
-  metadataStandardSearch: DefaultMetadataStandardSearchQuestion,
-  multiselectBox: DefaultMultiselectBoxQuestion,
-  number: DefaultNumberQuestion,
-  numberRange: DefaultNumberRangeQuestion,
-  numberWithContext: DefaultNumberWithContextQuestion,
-  radioButtons: DefaultRadioButtonsQuestion,
-  repositorySearch: DefaultRepositorySearchQuestion,
-  researchOutputTable: DefaultResearchOutputTableQuestion,
-  selectBox: DefaultSelectBoxQuestion,
-  table: DefaultTableQuestion,
-  text: DefaultTextQuestion,
-  textArea: DefaultTextAreaQuestion,
-  url: DefaultURLQuestion,
-} as const;
-
-// Type helper to extract the types
-export type QuestionTypeDefaults = typeof QUESTION_TYPE_DEFAULTS;
-
 // Fetch the usage information and then Parse the Zod schema with no input to generate the
 // default JSON schemas
 export function getQuestionFormatInfo(name: string): QuestionFormatInterface | null {
   if (name in QuestionSchemaMap) {
     const usage: QuestionFormatsUsageInterface = QuestionFormatsUsage[name as QuestionType];
     const schema: z.ZodTypeAny = QuestionSchemaMap[name as QuestionType];
-    const base = (name in QUESTION_TYPE_DEFAULTS)
-      ? QUESTION_TYPE_DEFAULTS[name as keyof typeof QUESTION_TYPE_DEFAULTS]
+    const base = (name in QuestionDefaultMap)
+      ? QuestionDefaultMap[name as keyof typeof QuestionDefaultMap]
       : { type: name };
     const parsedSchema = schema.parse(base) as AnyQuestionType;
 
@@ -266,7 +219,7 @@ export const questionTypeHandlers: Record<string, QuestionTypeHandler> = {
       },
       options: input.options?.map(option => ({
         label: option.label ?? option.value,
-        checked: option.checked ?? option.selected ?? false,
+        selected: option.checked ?? option.selected ?? false,
         value: option.value,
       })) || [],
     };

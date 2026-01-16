@@ -8,11 +8,8 @@ import {
   DefaultRepositorySearchAnswer,
   DefaultMetadataStandardSearchAnswer,
   AnyTableColumnAnswerType,
+  DefaultResearchOutputAccessLevelColumn
 } from '@dmptool/types';
-
-import {
-  AccessLevelInterface,
-} from '@/app/types';
 
 export const getDefaultAnswerForType = (
   type: string,
@@ -45,9 +42,4 @@ export const getDefaultAnswerForType = (
 };
 
 // These match the schema defaults in ResearchOutputAccessLevelColumnSchema
-// TODO: Consider moving to backend
-export const defaultAccessLevels: AccessLevelInterface[] = [
-  { label: 'Unrestricted Access', value: 'open', description: 'Allows open access to all areas', selected: false },
-  { label: 'Controlled Access', value: 'restricted', description: 'Restricts access to certain areas', selected: false },
-  { label: 'Other', value: 'closed', description: 'Other type of access', selected: false },
-];
+export const defaultAccessLevels = DefaultResearchOutputAccessLevelColumn.content.options;

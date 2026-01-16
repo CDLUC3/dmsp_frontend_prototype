@@ -3,7 +3,8 @@ import {
   DefaultResearchOutputTableQuestion,
   ResearchOutputTableQuestionType,
   AnyTableColumnQuestionType,
-  RepositorySearchAnswerType
+  RepositorySearchAnswerType,
+  DefaultResearchOutputCustomColumn
 } from '@dmptool/types';
 import {
   RESEARCH_OUTPUT_QUESTION_TYPE,
@@ -103,7 +104,7 @@ export const createEmptyResearchOutputRow = (
         const schemaVersion = col.content?.meta?.schemaVersion || CURRENT_SCHEMA_VERSION;
         const baseAnswer = getDefaultAnswerForType(col.content.type, schemaVersion);
 
-        return baseAnswer;
+        return baseAnswer as any;
       }),
       getDefaultAnswerForType("date", CURRENT_SCHEMA_VERSION),
       getDefaultAnswerForType("numberWithContext", CURRENT_SCHEMA_VERSION)
@@ -209,7 +210,7 @@ const buildColumnFromDefault = (
  */
 export const stateToJSON = (
   standardFields: StandardField[],
-  additionalFields: AdditionalFieldsType[],
+  additionalFields: typeof DefaultResearchOutputCustomColumn[],
   defaultResearchOutputTypesData?: { defaultResearchOutputTypes?: ({ name: string; value?: string } | null)[] }
 ): AnyParsedQuestion => {
   // Use the flexible type for building

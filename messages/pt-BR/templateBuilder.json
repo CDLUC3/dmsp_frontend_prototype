@@ -435,6 +435,9 @@
         "repositoryRemoved": "Repositório removido."
       },
       "helpText": "O comprimento máximo é de 300 caracteres.",
+      "accessLevelDescriptionOPEN": "Permite acesso livre a todas as áreas.",
+      "accessLevelDescriptionRESTRICTED": "Restringe o acesso a certas áreas.",
+      "accessLevelDescriptionCLOSED": "Outro tipo de acesso.",
       "headings": {
         "enableStandardFields": "Ativar campos padrão",
         "additionalTextFields": "Text fields adicionais"

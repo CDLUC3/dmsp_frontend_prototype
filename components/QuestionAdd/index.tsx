@@ -63,7 +63,7 @@ import {
   TYPEAHEAD_QUESTION_TYPE,
   TEXT_AREA_QUESTION_TYPE,
   RESEARCH_OUTPUT_QUESTION_TYPE,
-  TEXT_FIELD_QUESTION_TYPE
+  QUESTION_TYPES_EXCLUDED_FROM_COMMENT_FIELD
 } from '@/lib/constants';
 import {
   isOptionsType,
@@ -81,8 +81,6 @@ const defaultQuestion = {
   showCommentField: false,
 };
 
-
-const questionTypesToExcludeCommentField = [TEXT_AREA_QUESTION_TYPE, TEXT_FIELD_QUESTION_TYPE, RESEARCH_OUTPUT_QUESTION_TYPE]
 const QuestionAdd = ({
   questionType,
   questionName,
@@ -124,7 +122,6 @@ const QuestionAdd = ({
   const [typeaheadHelpText, setTypeAheadHelpText] = useState<string>('');
   const [parsedQuestionJSON, setParsedQuestionJSON] = useState<AnyParsedQuestion>();
   const [dateRangeLabels, setDateRangeLabels] = useState<{ start: string; end: string }>({ start: '', end: '' });
-  const [showCommentCheckbox, setShowCommentCheckbox] = useState<boolean>(!questionTypesToExcludeCommentField.includes(questionType ?? ''));
 
   // Add state for live region announcements
   const [announcement, setAnnouncement] = useState('');
@@ -617,7 +614,7 @@ const QuestionAdd = ({
                   />
                 )}
 
-                {!questionTypesToExcludeCommentField.includes(questionType ?? '') && (
+                {!QUESTION_TYPES_EXCLUDED_FROM_COMMENT_FIELD.includes(questionType ?? '') && (
                   <Checkbox
                     onChange={() => handleInputChange('showCommentField', !question?.showCommentField)}
                     className={`${styles.commentCheckbox} react-aria-Checkbox`}

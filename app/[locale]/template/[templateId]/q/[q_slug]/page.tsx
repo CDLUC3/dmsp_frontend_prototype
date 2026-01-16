@@ -82,7 +82,8 @@ import {
   DATE_RANGE_QUESTION_TYPE,
   NUMBER_RANGE_QUESTION_TYPE,
   TEXT_AREA_QUESTION_TYPE,
-  RESEARCH_OUTPUT_QUESTION_TYPE
+  RESEARCH_OUTPUT_QUESTION_TYPE,
+  QUESTION_TYPES_EXCLUDED_FROM_COMMENT_FIELD,
 } from '@/lib/constants';
 import {
   isOptionsType,
@@ -215,6 +216,16 @@ const QuestionEdit = () => {
     }));
     setHasUnsavedChanges(true);
   };
+
+  // Update common input fields when any of them change
+  const handleInputChange = (field: keyof Question, value: string | boolean | undefined) => {
+    setQuestion((prev) => ({
+      ...prev,
+      [field]: value === undefined ? '' : value, // Default to empty string if value is undefined
+    }));
+    setHasUnsavedChanges(true);
+  };
+
 
   // Handle changes from RadioGroup
   const handleRadioChange = (value: string) => {
@@ -466,7 +477,11 @@ const QuestionEdit = () => {
         setParsedQuestionJSON(parsed);
 
         const isOptionsQuestion = isOptionsType(questionType);
-        setQuestion(q);
+        setQuestion({
+          ...q,
+          showCommentField: 'showCommentField' in parsed ? parsed.showCommentField : false // Default to false if not present
+        });
+
         setHasOptions(isOptionsQuestion);
 
         if (questionType === TYPEAHEAD_QUESTION_TYPE) {
@@ -711,6 +726,21 @@ const QuestionEdit = () => {
                     handleTypeAheadSearchLabelChange={handleTypeAheadSearchLabelChange}
                     handleTypeAheadHelpTextChange={handleTypeAheadHelpTextChange}
                   />
+                )}
+
+                {!QUESTION_TYPES_EXCLUDED_FROM_COMMENT_FIELD.includes(questionType ?? '') && (
+                  <Checkbox
+                    onChange={() => handleInputChange('showCommentField', !question?.showCommentField)}
+                    className={`${styles.commentCheckbox} react-aria-Checkbox`}
+                    isSelected={question?.showCommentField || false}
+                  >
+                    <div className="checkbox">
+                      <svg viewBox="0 0 18 18" aria-hidden="true">
+                        <polyline points="1 9 7 14 15 4" />
+                      </svg>
+                    </div>
+                    Display additional comment area
+                  </Checkbox>
                 )}
 
                 <FormTextArea

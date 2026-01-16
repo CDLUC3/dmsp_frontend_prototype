@@ -610,7 +610,7 @@ const SingleResearchOutputComponent = ({
                 .map((pref) => (pref as RepoPreference).value)
                 .filter((value): value is string => Boolean(value));
             }
-            
+
             const existingRepos = hasExplicitRepoAnswer
               ? (repoValue.length > 0
                 ? repoValue.map((repo) => {
@@ -690,7 +690,7 @@ const SingleResearchOutputComponent = ({
                 .map((pref) => (pref as RepoPreference).value)
                 .filter((value): value is string => Boolean(value));
             }
-            
+
             const existingMetaDataStandards = hasExplicitStdAnswer
               ? (metadataValue.length > 0
                 ? metadataValue

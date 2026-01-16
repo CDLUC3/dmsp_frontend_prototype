@@ -54,3 +54,13 @@
   gap: 1rem;
   margin-top: 1.5rem;
 }
+
+.commentCheckbox {
+  margin-bottom: var(--space-6);
+}
+
+.optionsWrapper {
+  border: 1px solid var(--border-color);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
