@@ -62,7 +62,8 @@ import {
   RANGE_QUESTION_TYPE,
   TYPEAHEAD_QUESTION_TYPE,
   TEXT_AREA_QUESTION_TYPE,
-  RESEARCH_OUTPUT_QUESTION_TYPE
+  RESEARCH_OUTPUT_QUESTION_TYPE,
+  TEXT_FIELD_QUESTION_TYPE
 } from '@/lib/constants';
 import {
   isOptionsType,
@@ -77,8 +78,11 @@ const defaultQuestion = {
   sampleText: '',
   useSampleTextAsDefault: false,
   required: false,
+  showCommentField: false,
 };
 
+
+const questionTypesToExcludeCommentField = [TEXT_AREA_QUESTION_TYPE, TEXT_FIELD_QUESTION_TYPE, RESEARCH_OUTPUT_QUESTION_TYPE]
 const QuestionAdd = ({
   questionType,
   questionName,
@@ -120,6 +124,7 @@ const QuestionAdd = ({
   const [typeaheadHelpText, setTypeAheadHelpText] = useState<string>('');
   const [parsedQuestionJSON, setParsedQuestionJSON] = useState<AnyParsedQuestion>();
   const [dateRangeLabels, setDateRangeLabels] = useState<{ start: string; end: string }>({ start: '', end: '' });
+  const [showCommentCheckbox, setShowCommentCheckbox] = useState<boolean>(!questionTypesToExcludeCommentField.includes(questionType ?? ''));
 
   // Add state for live region announcements
   const [announcement, setAnnouncement] = useState('');
@@ -360,10 +365,18 @@ const QuestionAdd = ({
       }
       return;
     }
-    return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+
+    const json = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
       parsed,
       userInput
     );
+
+    // Add showCommentField to the output if needed
+    if (json && typeof question.showCommentField === 'boolean') {
+      json.data.showCommentField = question.showCommentField;
+    }
+
+    return json;
   };
 
   // Function to add and save the new question
@@ -602,6 +615,21 @@ const QuestionAdd = ({
                     handleTypeAheadSearchLabelChange={handleTypeAheadSearchLabelChange}
                     handleTypeAheadHelpTextChange={handleTypeAheadHelpTextChange}
                   />
+                )}
+
+                {!questionTypesToExcludeCommentField.includes(questionType ?? '') && (
+                  <Checkbox
+                    onChange={() => handleInputChange('showCommentField', !question?.showCommentField)}
+                    className={`${styles.commentCheckbox} react-aria-Checkbox`}
+                    isSelected={question?.showCommentField || false}
+                  >
+                    <div className="checkbox">
+                      <svg viewBox="0 0 18 18" aria-hidden="true">
+                        <polyline points="1 9 7 14 15 4" />
+                      </svg>
+                    </div>
+                    Display additional comment area
+                  </Checkbox>
                 )}
 
                 <FormTextArea

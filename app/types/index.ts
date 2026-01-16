@@ -189,6 +189,7 @@ export interface Question {
   guidanceText?: string | null;
   sampleText?: string | null;
   useSampleTextAsDefault?: boolean | null;
+  showCommentField?: boolean | null;
   required?: boolean;
   templateId?: number | null;
   questionOptions?: QuestionOptions[] | null;
