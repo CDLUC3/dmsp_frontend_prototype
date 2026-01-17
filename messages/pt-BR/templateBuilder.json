@@ -383,7 +383,9 @@
       "mayContainSensitiveData": "Pode conter dados sensíveis?",
       "mayContainPersonalData": "Pode conter informações pessoalmente identificáveis?",
       "preferredRepositories": "Apenas repositórios preferenciais",
-      "preferredMetadataStandards": "Apenas padrões de metadados preferenciais"
+      "preferredMetadataStandards": "Apenas padrões de metadados preferenciais",
+      "displayPaginationCount": "Exibindo {count} padrões de um total de {totalCount}",
+      "displayAdditionalCommentField": "Exibir área adicional para comentários"
     },
     "buttons": {
       "addRow": "Adicionar linha",

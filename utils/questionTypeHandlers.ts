@@ -106,8 +106,7 @@ const createAndValidateQuestion = (
     return { success: true, data: jsonData };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const err = new z.ZodError([]);
-      const errorMessage = `Validation failed for ${type}: ${err.issues
+      const errorMessage = `Validation failed for ${type}: ${error.issues
         .map(e => `${e.path.join('.')}: ${e.message}`)
         .join(', ')}`;
       return { success: false, error: errorMessage };
@@ -602,12 +601,14 @@ export const questionTypeHandlers: Record<string, QuestionTypeHandler> = {
           hydratedContent.graphQL = (baseContent as { graphQL?: any }).graphQL ?? {};
         }
 
+        // Always hydrate attributes for all types
+        hydratedContent.attributes = {
+          ...(baseContent.attributes || {})
+        };
+
         // Add attributes.context for numberWithContext
         if (type === "numberWithContext") {
-          hydratedContent.attributes = {
-            ...(baseContent.attributes || {}),
-            context: baseContent.attributes?.context ?? []
-          };
+          hydratedContent.attributes.context = baseContent.attributes?.context ?? [];
         }
 
         // Build the result object with all column properties

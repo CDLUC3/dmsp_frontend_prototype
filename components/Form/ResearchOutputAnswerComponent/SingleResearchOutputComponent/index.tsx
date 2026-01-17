@@ -343,7 +343,7 @@ const SingleResearchOutputComponent = ({
             : "";
       }
 
-      updatedRow.columns[colIndex].answer = newValue;
+      updatedRow.columns[colIndex].answer = String(newValue);
       updatedRows[0] = updatedRow;
 
 
@@ -401,6 +401,7 @@ const SingleResearchOutputComponent = ({
                   label={translatedLabel}
                   name={name}
                   isRequired={col.required}
+                  defaultValue={col?.content?.attributes?.defaultValue || ''}
                   isInvalid={!!fieldError}
                   errorMessage={fieldError ?? ""}
                   helpMessage={col?.content?.attributes?.help || col?.help}

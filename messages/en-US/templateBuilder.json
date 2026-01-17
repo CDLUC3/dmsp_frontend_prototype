@@ -385,7 +385,8 @@
       "mayContainPersonalData": "May contain personally identifiable information?",
       "preferredRepositories": "Preferred repositories only",
       "preferredMetadataStandards": "Preferred metadata standards only",
-      "displayPaginationCount": "Displaying standards {count} of {totalCount} in total"
+      "displayPaginationCount": "Displaying standards {count} of {totalCount} in total",
+      "displayAdditionalCommentField": "Display additional comment area"
     },
     "buttons": {
       "addRow": "Add Row",

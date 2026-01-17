@@ -9,6 +9,7 @@ import {
   StandardField,
   RepositoryInterface,
   MetaDataStandardInterface,
+  AdditionalFieldsType
 } from '@/app/types';
 
 // Apollo Client
@@ -34,15 +35,6 @@ import {
 
 import { jsonToState, stateToJSON } from '@/utils/researchOutputTransformations';
 
-type AdditionalFieldsType = {
-  id: string;
-  label: string;
-  enabled: boolean;
-  defaultValue: string;
-  customLabel: string;
-  helpText: string;
-  maxLength: string;
-}
 const standardKeys = new Set([
   'researchOutput.title',
   'researchOutput.description',
@@ -198,7 +190,12 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
   // Hydrate state from initialData if provided
   const hydrated = initialData ? jsonToState(initialData, initialStandardFields) : null;
   const [standardFields, setStandardFields] = useState(hydrated?.standardFields || initialStandardFields);
-  const [additionalFields, setAdditionalFields] = useState<AdditionalFieldsType[]>(hydrated?.additionalFields || []);
+  const [additionalFields, setAdditionalFields] = useState<AdditionalFieldsType[]>(
+    ((hydrated?.additionalFields || []).map((field, idx) => ({
+      ...field,
+      id: (field as any).id ?? `custom_field_${Date.now()}_${idx}`,// Ensure each field has a unique ID for updates
+    })) as AdditionalFieldsType[])
+  );
   const [expandedFields, setExpandedFields] = useState<string[]>(hydrated?.expandedFields || ['title', 'outputType']);
   // State for managing custom output types
   const [newOutputType, setNewOutputType] = useState<OutputTypeInterface>({ type: '', description: '' });
@@ -230,7 +227,12 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
   const hydrateFromJSON = useCallback((parsed: AnyParsedQuestion) => {
     const hydrated = jsonToState(parsed, initialStandardFields);
     setStandardFields(hydrated.standardFields);
-    setAdditionalFields(hydrated.additionalFields);
+    setAdditionalFields(
+      (hydrated.additionalFields || []).map((field, idx) => ({
+        ...field,
+        id: (field as any).id ?? `custom_field_${Date.now()}_${idx}`,// Ensure each field has a unique ID for updates 
+      })) as AdditionalFieldsType[]
+    );
     setExpandedFields(hydrated.expandedFields);
   }, []);
 
@@ -329,7 +331,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
     const field = standardFields.find(f => f.id === fieldId) || additionalFields.find(f => f.id === fieldId);
     if (field) {
       const status = wasExpanded ? 'collapsed' : 'expanded';
-      announce(`${field.label} ${status}`);
+      announce(`${'label' in field ? field.label : field.heading} ${status}`);
     }
   };
 
@@ -490,15 +492,26 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
 
   const addAdditionalField = () => {
     const newId = `custom_field_${Date.now()}`;
-    const newField = {
+    const newField: AdditionalFieldsType = {
       id: newId,
-      label: 'Custom Field',
+      heading: 'Custom Field',
+      help: '',
       enabled: true,
-      defaultValue: '',
-      customLabel: '',
-      helpText: '',
-      maxLength: ''
+      required: false,
+      content: {
+        type: 'text',
+        meta: { schemaVersion: '1.0' },
+        attributes: {
+          label: 'Custom Field',
+          help: '',
+          maxLength: 500,
+          minLength: 0,
+          pattern: '^.+$',
+          defaultValue: ''
+        }
+      }
     };
+
 
     setAdditionalFields(prev => [...prev, newField]);
     setExpandedFields(prev => [...prev, newId]); // Auto-expand for editing
@@ -518,12 +531,54 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
   const handleUpdateAdditionalField = (fieldId: string, propertyName: string, value: unknown) => {
     setAdditionalFields(prev =>
       prev.map(field => {
-        return field.id === fieldId ? { ...field, [propertyName]: value } : field;
+        if (field.id !== fieldId) return field;
+
+        // Handle each property specifically
+        if (propertyName === 'customLabel') {
+          return { ...field, heading: value as string };
+        }
+        if (propertyName === 'helpText') {
+          return {
+            ...field,
+            content: {
+              ...field.content,
+              attributes: {
+                ...field.content.attributes,
+                help: value as string,
+              }
+            }
+          };
+        }
+        if (propertyName === 'maxLength') {
+          return {
+            ...field,
+            content: {
+              ...field.content,
+              attributes: {
+                ...field.content.attributes,
+                maxLength: value === '' ? undefined : Number(value),
+              }
+            }
+          };
+        }
+        if (propertyName === 'defaultValue') {
+          return {
+            ...field,
+            content: {
+              ...field.content,
+              attributes: {
+                ...field.content.attributes,
+                defaultValue: value as string,
+              }
+            }
+          };
+        }
+        // fallback for other properties
+        return { ...field, [propertyName]: value };
       })
     );
     setHasUnsavedChanges(true);
   };
-
 
 
   return {

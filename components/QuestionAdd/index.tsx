@@ -625,7 +625,7 @@ const QuestionAdd = ({
                         <polyline points="1 9 7 14 15 4" />
                       </svg>
                     </div>
-                    Display additional comment area
+                    {QuestionAdd('labels.displayAdditionalCommentField')}
                   </Checkbox>
                 )}
 

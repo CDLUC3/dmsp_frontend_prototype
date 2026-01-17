@@ -15,6 +15,7 @@ interface InputProps {
   label: string;
   placeholder?: string;
   description?: string;
+  defaultValue?: string;
   ariaDescribedBy?: string;
   ariaLabel?: string;
   value?: string | number;
@@ -41,6 +42,7 @@ const FormInput = React.forwardRef<HTMLInputElement, InputProps & React.InputHTM
   label,
   placeholder,
   description,
+  defaultValue,
   ariaDescribedBy,
   ariaLabel,
   value,
@@ -70,6 +72,7 @@ const FormInput = React.forwardRef<HTMLInputElement, InputProps & React.InputHTM
         type={type}
         className={`${className} react-aria-TextField ${isInvalid ? 'field-error' : ''}`}
         isRequired={isRequired}
+        defaultValue={defaultValue}
         isInvalid={isInvalid}
         data-testid="field-wrapper"
       >

@@ -524,8 +524,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             {question?.showCommentField && (
               <FormTextArea
                 name="comment"
-                label="Additional comments"
-                placeholder="Enter your comment"
+                label={Global('labels.additionalComments')}
+                placeholder={Global('placeholders.enterComment')}
                 value={commentValue}
                 onChange={setCommentValue}
               />

@@ -787,7 +787,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
           },
-          description: formData.commentValue
+          comment: formData.commentValue
         };
 
       case CHECKBOXES_QUESTION_TYPE:
@@ -797,7 +797,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
           },
-          description: formData.commentValue
+          comment: formData.commentValue
         };
 
       case SELECTBOX_QUESTION_TYPE:
@@ -807,7 +807,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
           },
-          description: formData.commentValue
+          comment: formData.commentValue
         };
 
       case MULTISELECTBOX_QUESTION_TYPE:
@@ -817,7 +817,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
           },
-          description: formData.commentValue
+          comment: formData.commentValue
         };
 
       case BOOLEAN_QUESTION_TYPE:
@@ -854,7 +854,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
           },
-          description: formData.commentValue
+          comment: formData.commentValue
         };
 
       case CURRENCY_QUESTION_TYPE:
@@ -864,7 +864,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
           },
-          description: formData.commentValue
+          comment: formData.commentValue
         };
 
       case DATE_QUESTION_TYPE:
@@ -874,7 +874,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
           },
-          description: formData.commentValue
+          comment: formData.commentValue
         };
 
       case RESEARCH_OUTPUT_QUESTION_TYPE:
@@ -910,7 +910,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
           },
-          description: formData.commentValue
+          comment: formData.commentValue
         };
 
       case NUMBER_RANGE_QUESTION_TYPE:
@@ -923,7 +923,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
           },
-          description: formData.commentValue
+          comment: formData.commentValue
         };
 
       case TYPEAHEAD_QUESTION_TYPE:
@@ -936,7 +936,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
           },
-          description: formData.commentValue
+          comment: formData.commentValue
         };
 
       default:
@@ -945,7 +945,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
           answer: formData.textAreaContent,
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
-          }
+          },
+          comment: formData.commentValue
         };
     }
   };
@@ -1189,10 +1190,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
       }
 
       // Also prefill comment field if it exists
-      if (parsed?.description !== undefined) {
+      if (parsed?.comment !== undefined) {
         setFormData(prev => ({
           ...prev,
-          commentValue: parsed.description
+          commentValue: parsed.comment
         }))
       }
     }
@@ -1282,7 +1283,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
   useEffect(() => {
     setErrors((prevErrors) => [...prevErrors, ...commentErrors]);
   }, [commentErrors])
-
 
   // Render the question using the useRenderQuestionField helper
   const questionField = useRenderQuestionField({
@@ -1498,8 +1498,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
                   {parsed && 'showCommentField' in parsed && parsed.showCommentField && (
                     <FormTextArea
                       name="comment"
-                      label="Additional comments"
-                      placeholder="Enter your comment"
+                      label={Global('labels.additionalComments')}
+                      placeholder={Global('placeholders.enterComment')}
                       value={formData.commentValue}
                       onChange={handleCommentValueChange}
                     />
