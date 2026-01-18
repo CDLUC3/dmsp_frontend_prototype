@@ -193,6 +193,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
   const [additionalFields, setAdditionalFields] = useState<AdditionalFieldsType[]>(
     ((hydrated?.additionalFields || []).map((field, idx) => ({
       ...field,
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       id: (field as any).id ?? `custom_field_${Date.now()}_${idx}`,// Ensure each field has a unique ID for updates
     })) as AdditionalFieldsType[])
   );
@@ -504,7 +505,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
         attributes: {
           label: 'Custom Field',
           help: '',
-          maxLength: 500,
+          maxLength: 120,
           minLength: 0,
           pattern: '^.+$',
           defaultValue: ''
@@ -529,13 +530,24 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
 
   // Handler for updating additional field properties
   const handleUpdateAdditionalField = (fieldId: string, propertyName: string, value: unknown) => {
+    console.log("FIELD ID:", fieldId, "PROPERTY:", propertyName, "VALUE:", value);
     setAdditionalFields(prev =>
       prev.map(field => {
         if (field.id !== fieldId) return field;
 
         // Handle each property specifically
         if (propertyName === 'customLabel') {
-          return { ...field, heading: value as string };
+          return {
+            ...field,
+            heading: value as string,
+            content: {
+              ...field.content,
+              attributes: {
+                ...field.content.attributes,
+                label: value as string,
+              }
+            }
+          };
         }
         if (propertyName === 'helpText') {
           return {

@@ -1,11 +1,25 @@
 [
   {
     "id": "coverage",
-    "label": "Coverage",
+    "heading": "Coverage",
+    "help": "Enter the spatial or temporal scope of the research output.",
     "enabled": true,
-    "defaultValue": "",
-    "customLabel": "",
-    "helpText": "",
-    "maxLength": ""
+    "required": false,
+    "content": {
+      "type": "text",
+      "meta": {
+        "schemaVersion": "1.0",
+        "title": null,
+        "usageDescription": null
+      },
+      "attributes": {
+        "label": "Coverage",
+        "help": "Enter the spatial or temporal scope of the research output.",
+        "maxLength": 500,
+        "minLength": 0,
+        "pattern": "^.+$",
+        "defaultValue": ""
+      }
+    }
   }
 ]

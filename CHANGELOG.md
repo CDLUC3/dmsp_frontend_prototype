@@ -13,7 +13,8 @@
   - Updated `CheckboxesQuestionComponent to use  `options.selected` instead of `options.checked` [#998]
   - Updated `InitialAccessLevel.tsx` component to use dynamic translations for info icons [#1082]
   - Updated `QuestionView` to display an “Additional comment” field in the question preview if the `showCommentField` checkbox is checked [#998]
-  - Updated `utils/questionTypeHandlers.ts` file to use `QuestionDefaultMap` from `@dmptool/types` instead of manually assembling QUESTION_TYPE_DEFAULTS [#1082]
+  - Updated `utils/questionTypeHandlers.ts` file to use `QuestionDefaultMap` from `@dmptool/types` instead of manually assembling QUESTION_TYPE_DEFAULTS 
+  [#1082]
   - Updated researchOutputTable.ts to use DefaultResearchOutputAccessLevelColumn instead of hard-coding definitions in defaultAccessLevels [#1082]
   - Updated utils/researchOutputTransformations.ts” to use DefaultResearchOutputCustomColumn in place of AdditionalFieldsType [#1082]
 - Updated `RepoSelectorForAnswer` and `MetaDataStandardForAnswer` so that the preferred selections display in the modal when first loaded [#1094]

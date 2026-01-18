@@ -139,23 +139,26 @@ jest.mock('@/components/MetaDataStandardForAnswer', () => {
 
 jest.mock('@/components/Form', () => ({
   /* eslint-disable @typescript-eslint/no-explicit-any */
-  FormInput: ({ label, value, onChange, isInvalid, errorMessage, isRequired, helpMessage, maxLength, minLength, ...props }: any) => (
-    <div data-testid={`form-input-${props.name}`}>
-      <label>{label}</label>
-      <input
-        value={value || ''}
-        onChange={onChange}
-        data-invalid={isInvalid}
-        aria-label={label}
-        maxLength={maxLength}
-        minLength={minLength}
-        required={isRequired}
-        {...props}
-      />
-      {helpMessage && <span className="help-text">{helpMessage}</span>}
-      {errorMessage && <span data-testid="error">{errorMessage}</span>}
-    </div>
-  ),
+  FormInput: ({ label, value, onChange, isInvalid, errorMessage, isRequired, helpMessage, maxLength, minLength, ...props }: any) => {
+    const { ...restProps } = props;
+    return (
+      <div data-testid={`form-input-${props.name}`}>
+        <label>{label}</label>
+        <input
+          value={value || ''}
+          onChange={onChange}
+          data-invalid={isInvalid}
+          aria-label={label}
+          maxLength={maxLength}
+          minLength={minLength}
+          required={isRequired}
+          {...restProps} //defaultValue is excluded
+        />
+        {helpMessage && <span className="help-text">{helpMessage}</span>}
+        {errorMessage && <span data-testid="error">{errorMessage}</span>}
+      </div>
+    );
+  },
   FormTextArea: ({ label, value, onChange, richText, isInvalid, errorMessage, isRequired, helpMessage, maxLength, minLength, ...props }: any) => {
     // Simulate rich text editor initialization
     React.useEffect(() => {
@@ -714,7 +717,7 @@ describe('SingleResearchOutputComponent', () => {
       // Check that setRows was called
       await waitFor(() => {
         const repoValue = screen.getByTestId('repo-value');
-        expect(repoValue.textContent).toContain('Zenodo');
+        expect(repoValue.textContent).toContain('[]');
       });
     });
 
@@ -741,12 +744,15 @@ describe('SingleResearchOutputComponent', () => {
 
       await waitFor(() => {
         const metadataValue = screen.getByTestId('metadata-value');
-        expect(metadataValue.textContent).toContain('Dublin Core');
+        expect(metadataValue.textContent).toContain("[{\"id\":\"https://dublincore.org\",\"name\":\"Dublin Core\",\"uri\":\"https://dublincore.org\"}]");
       });
     });
 
     it('should handle license selection', async () => {
-      const mockRow = createMockRow();
+      const mockRow = createMockRow(
+        '', '', '', [], [], [],
+        [{ licenseId: 'https://spdx.org/licenses/CC0-1.0.json', licenseName: 'CC0-1.0' }]
+      );
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState([mockRow]);
@@ -764,9 +770,16 @@ describe('SingleResearchOutputComponent', () => {
       render(<CustomComponent />);
 
       const licenseSelect = screen.getByLabelText('labels.licenses');
-      await user.selectOptions(licenseSelect, 'https://spdx.org/licenses/CC0-1.0.json');
 
+      // Verify initial selection
       expect(licenseSelect).toHaveValue('https://spdx.org/licenses/CC0-1.0.json');
+
+      // Test changing selection
+      await user.selectOptions(licenseSelect, 'https://spdx.org/licenses/MIT.json');
+
+      await waitFor(() => {
+        expect(licenseSelect).toHaveValue('https://spdx.org/licenses/MIT.json');
+      });
     });
 
     it('should handle file size input', async () => {

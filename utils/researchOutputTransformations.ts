@@ -95,11 +95,12 @@ export const createEmptyResearchOutputRow = (
         const baseAnswer = getDefaultAnswerForType(col.content.type, schemaVersion);
 
         // Type guard: only access defaultValue if it exists on this type
-        if ('defaultValue' in col.content?.attributes!) {
+        if (col.content?.attributes && 'defaultValue' in col.content.attributes) {
           const defaultValue = col.content?.attributes?.defaultValue;
           return { ...baseAnswer, answer: defaultValue ?? baseAnswer.answer };
         }
 
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         return baseAnswer as any;
       }),
       getDefaultAnswerForType("date", CURRENT_SCHEMA_VERSION),

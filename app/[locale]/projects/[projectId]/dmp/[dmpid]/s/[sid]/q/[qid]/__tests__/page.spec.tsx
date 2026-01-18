@@ -490,7 +490,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
       if (document === AnswerByVersionedQuestionIdDocument) {
         return {
-          data: mockAnswerDataForTextArea,
+          data: mockCheckboxAnswer,
           loading: false,
           error: undefined,
           refetch: jest.fn()
@@ -514,24 +514,16 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     // View sample text button should not display when the question is not a textArea question type
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'buttons.commentWithNumber' })).toBeInTheDocument();
-    const checkboxGroup = screen.getByTestId('checkbox-group');
-    expect(checkboxGroup).toBeInTheDocument();
-    const checkboxes = within(checkboxGroup).getAllByRole('checkbox');
-    const alexCheckbox = checkboxes.find(
-      (checkbox) => (checkbox as HTMLInputElement).value === 'Alex'
-    );
-    const barbaraCheckbox = checkboxes.find(
-      (checkbox) => (checkbox as HTMLInputElement).value === 'Barbara'
-    );
-    const charlieCheckbox = checkboxes.find(
-      (checkbox) => (checkbox as HTMLInputElement).value === 'Charlie'
-    );
 
-    expect(alexCheckbox).toBeInTheDocument();
-    expect(barbaraCheckbox).toBeInTheDocument();
-    expect(barbaraCheckbox).toHaveAttribute('checked');
-    expect(charlieCheckbox).toBeInTheDocument();
-    expect(charlieCheckbox).toHaveAttribute('checked');
+    const checkboxGroup = screen.getByTestId('checkbox-group');
+    const checkboxes = within(checkboxGroup).getAllByRole('checkbox');
+
+    const getCheckboxByValue = (value: string) =>
+      checkboxes.find((checkbox) => (checkbox as HTMLInputElement).value === value);
+
+    expect((getCheckboxByValue('Alex') as HTMLInputElement).checked).toBe(true);
+    expect((getCheckboxByValue('Barbara') as HTMLInputElement).checked).toBe(true);
+    expect((getCheckboxByValue('Charlie') as HTMLInputElement).checked).toBe(true);
   })
 
   it('should load correct question content for radioButton question', async () => {
@@ -1292,7 +1284,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 20,
-        json: "{\"type\":\"affiliationSearch\",\"answer\":{\"affiliationId\":\"https://ror.org/0168r3w48\",\"affiliationName\":\"UCOP\"},\"meta\":{\"schemaVersion\":\"1.0\"}}",
+        json: "{\"type\":\"affiliationSearch\",\"answer\":{\"affiliationId\":\"https://ror.org/0168r3w48\",\"affiliationName\":\"UCOP\"},\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}",
       });
     });
   })
@@ -1330,7 +1322,7 @@ describe('Call to updateAnswerAction', () => {
           general: null,
         },
         id: 27,
-        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"],\"meta\":{\"schemaVersion\":\"1.0\"}}",
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"],\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -1360,7 +1352,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 27,
-        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\"],\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\"],\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   });
@@ -1410,7 +1402,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 5,
-        json: "{\"type\":\"radioButtons\",\"answer\":\"No\",\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"radioButtons\",\"answer\":\"No\",\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   });
@@ -1515,7 +1507,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 16,
-        json: "{\"type\":\"dateRange\",\"answer\":{\"start\":\"2025-05-15\",\"end\":\"2025-07-05\"},\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"dateRange\",\"answer\":{\"start\":\"2025-05-15\",\"end\":\"2025-07-05\"},\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   })
@@ -1568,7 +1560,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 15,
-        json: "{\"type\":\"date\",\"answer\":\"2025-07-15\",\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"date\",\"answer\":\"2025-07-15\",\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   })
@@ -1846,7 +1838,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 11,
-        json: "{\"type\":\"currency\",\"answer\":15,\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"currency\",\"answer\":15,\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   })
@@ -1896,7 +1888,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 10,
-        json: "{\"type\":\"numberRange\",\"answer\":{\"start\":2,\"end\":10},\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"numberRange\",\"answer\":{\"start\":2,\"end\":10},\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   })
@@ -1945,7 +1937,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 9,
-        json: "{\"type\":\"number\",\"answer\":3,\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"number\",\"answer\":3,\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   })
@@ -1993,7 +1985,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 18,
-        json: "{\"type\":\"multiselectBox\",\"answer\":[\"Banana\",\"Pear\",\"Orange\",\"Apple\"],\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"multiselectBox\",\"answer\":[\"Banana\",\"Pear\",\"Orange\",\"Apple\"],\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   })
@@ -2044,7 +2036,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 30,
-        json: "{\"type\":\"selectBox\",\"answer\":\"California\",\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"selectBox\",\"answer\":\"California\",\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   })
@@ -2082,7 +2074,7 @@ describe('Call to updateAnswerAction', () => {
           general: null,
         },
         id: 27,
-        json: "{\"type\":\"textArea\",\"answer\":\"This is a test\",\"meta\":{\"schemaVersion\":\"1.0\"}}",
+        json: "{\"type\":\"textArea\",\"answer\":\"This is a test\",\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -2164,7 +2156,7 @@ describe('Call to updateAnswerAction', () => {
           versionedQuestionId: 'versionedQuestionId already exists'
         },
         id: 27,
-        json: "{\"type\":\"textArea\",\"answer\":\"This is a test\",\"meta\":{\"schemaVersion\":\"1.0\"}}",
+        json: "{\"type\":\"textArea\",\"answer\":\"This is a test\",\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -2250,7 +2242,7 @@ describe('Call to updateAnswerAction', () => {
           versionedQuestionId: 'versionedQuestionId already exists'
         },
         id: 27,
-        json: "{\"type\":\"textArea123\",\"answer\":\"This is a test\",\"meta\":{\"schemaVersion\":\"1.0\"}}",
+        json: "{\"type\":\"textArea123\",\"answer\":\"This is a test\",\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -2316,7 +2308,7 @@ describe('Call to addAnswerAction', () => {
           general: null,
         },
         id: 27,
-        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"],\"meta\":{\"schemaVersion\":\"1.0\"}}",
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"],\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -2348,7 +2340,7 @@ describe('Call to addAnswerAction', () => {
         planId: 1,
         versionedSectionId: 22,
         versionedQuestionId: 344,
-        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"],\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Alex\"],\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   });
@@ -2707,7 +2699,7 @@ describe('Prevent unload when user has unsaved changes', () => {
           general: null,
         },
         id: 27,
-        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}",
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"],\"comment\":\"\"}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -2908,7 +2900,7 @@ describe('Auto save', () => {
         data: {
           errors: { general: null },
           id: 25,
-          json: '{"type":"researchOutputTable","columnHeadings":["Title","Description","Anticipated Release Date","Anticipated file size"],"answer":[{"columns":[{"type":"text","answer":"My Dataset","meta":{"schemaVersion":"1.0"}},{"type":"textArea","answer":"Updated description","meta":{"schemaVersion":"1.0"}}]}]}',
+          json: '{"type":"researchOutputTable","columnHeadings":["Title","Description","Anticipated Release Date","Anticipated file size"],"answer":[{"columns":[{"type":"text","answer":"My Dataset","meta":{"schemaVersion":"1.0"}},{"type":"textArea","answer":"Updated description","meta":{"schemaVersion":"1.0"}}]}],\"comment\":\"\"}',
           modified: "1735000000000",
           versionedQuestion: {
             versionedSectionId: 22
@@ -2974,7 +2966,7 @@ describe('Auto save', () => {
         data: {
           errors: { general: null },
           id: 26,
-          json: '{"type":"researchOutputTable","columnHeadings":["Title","Description","Anticipated Release Date","Anticipated file size"],"answer":[]}',
+          json: '{"type":"researchOutputTable","columnHeadings":["Title","Description","Anticipated Release Date","Anticipated file size"],"answer":[],\"comment\":\"\"}',
           modified: "1735000000000",
           versionedQuestion: {
             versionedSectionId: 22

@@ -48,7 +48,7 @@ const setupMocks = (items: RelatedWorkSearchResult[], refetch = jest.fn()) => {
         },
         loading: false,
         error: undefined,
-        refetch: refetch,
+        refetch
         /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     }
