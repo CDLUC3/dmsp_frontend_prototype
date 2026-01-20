@@ -140,24 +140,30 @@ jest.mock('@/components/MetaDataStandardForAnswer', () => {
 jest.mock('@/components/Form', () => ({
   /* eslint-disable @typescript-eslint/no-explicit-any */
   FormInput: ({ label, value, onChange, isInvalid, errorMessage, isRequired, helpMessage, maxLength, minLength, ...props }: any) => {
-    const { ...restProps } = props;
+    const { defaultValue, ...restProps } = props;
+    // Use value if provided, otherwise use defaultValue
+    const inputValue = value !== undefined ? value : undefined;
+    const inputDefaultValue = value === undefined ? defaultValue : undefined;
+
     return (
       <div data-testid={`form-input-${props.name}`}>
         <label>{label}</label>
         <input
-          value={value || ''}
+          {...(inputValue !== undefined ? { value: inputValue } : {})}
+          {...(inputDefaultValue !== undefined ? { defaultValue: inputDefaultValue } : {})}
           onChange={onChange}
           data-invalid={isInvalid}
           aria-label={label}
           maxLength={maxLength}
           minLength={minLength}
           required={isRequired}
-          {...restProps} //defaultValue is excluded
+          {...restProps}
         />
         {helpMessage && <span className="help-text">{helpMessage}</span>}
         {errorMessage && <span data-testid="error">{errorMessage}</span>}
       </div>
     );
+
   },
   FormTextArea: ({ label, value, onChange, richText, isInvalid, errorMessage, isRequired, helpMessage, maxLength, minLength, ...props }: any) => {
     // Simulate rich text editor initialization
