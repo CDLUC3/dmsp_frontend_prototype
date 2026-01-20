@@ -115,7 +115,7 @@ describe("UpdatePasswordPage", () => {
     fireEvent.submit(form!);
 
     // Should log the form data (static implementation)
-    await waitFor(() => {
+    await waitFor(async () => {
       expect(consoleSpy).toHaveBeenCalledWith("Password update submitted:", expect.any(Object));
     });
 
