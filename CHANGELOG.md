@@ -41,6 +41,8 @@
 - Fixed related works pagination.
 
 ### Chore
+- Updated dependency versions
+  - Updated `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser` to `v6.21.0`, `typescript` to `v5.9.3`, `jsonwebtoken` to `v9.0.3`, `graphql` to `v16.12.0`, `@types/node` to `v24.10.9`, `dompurify` to `v3.3.1`, and `@graphql-codegen/cli` to `v6.1.1`
 - Updates required in conjunction with update of Apollo Client version [#1089]
   - Updated Apollo Client from `3.13.8 to 4.0.11`
   - Removed `@apollo/experimental-nextjs-app-support` to `@apollo/client-integration-nextjs@0.14.1`
