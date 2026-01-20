@@ -648,7 +648,7 @@ export const jsonToState = (
     return attr !== undefined && 'maxLength' in attr && typeof attr.maxLength === 'number';
   }
 
-  const hydratedAdditionalFields = customCols.map((col: any, idx: number) => ({
+  const hydratedAdditionalFields = customCols.map((col: typeof DefaultResearchOutputTableQuestion['columns'][number], idx: number) => ({
     id: col.heading?.toLowerCase().replace(/\s+/g, '_') || `custom_field_${idx}`,
     heading: col.heading || `Custom Field ${idx + 1}`,
     help: getHelpText(col.content?.attributes) || '',

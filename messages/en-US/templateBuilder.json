@@ -386,7 +386,10 @@
       "preferredRepositories": "Preferred repositories only",
       "preferredMetadataStandards": "Preferred metadata standards only",
       "displayPaginationCount": "Displaying standards {count} of {totalCount} in total",
-      "displayAdditionalCommentField": "Display additional comment area"
+      "displayAdditionalCommentField": "Display additional comment area",
+      "additionalCommentBox": "Additional comment box",
+      "showCommentField": "Show a comment field where plan writers can explain their answer",
+      "doNotShowCommentField": "Do not add a comment field"
     },
     "buttons": {
       "addRow": "Add Row",

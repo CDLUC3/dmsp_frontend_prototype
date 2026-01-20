@@ -615,18 +615,20 @@ const QuestionAdd = ({
                 )}
 
                 {!QUESTION_TYPES_EXCLUDED_FROM_COMMENT_FIELD.includes(questionType ?? '') && (
-                  <Checkbox
-                    onChange={() => handleInputChange('showCommentField', !question?.showCommentField)}
-                    className={`${styles.commentCheckbox} react-aria-Checkbox`}
-                    isSelected={question?.showCommentField || false}
+                  <RadioGroupComponent
+                    name="radioGroup"
+                    value={question?.showCommentField ? 'yes' : 'no'}
+                    radioGroupLabel={QuestionAdd('labels.additionalCommentBox')}
+                    onChange={(value) => handleInputChange('showCommentField', value === 'yes')}
                   >
-                    <div className="checkbox">
-                      <svg viewBox="0 0 18 18" aria-hidden="true">
-                        <polyline points="1 9 7 14 15 4" />
-                      </svg>
+                    <div>
+                      <Radio value="yes">{QuestionAdd('labels.showCommentField')}</Radio>
                     </div>
-                    {QuestionAdd('labels.displayAdditionalCommentField')}
-                  </Checkbox>
+
+                    <div>
+                      <Radio value="no">{QuestionAdd('labels.doNotShowCommentField')}</Radio>
+                    </div>
+                  </RadioGroupComponent>
                 )}
 
                 <FormTextArea
