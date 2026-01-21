@@ -899,36 +899,30 @@ describe('PlanCreate Component using base mock', () => {
       </MockedProvider>
     );
 
-    // Wait for the funder checkboxes to load
+    // Wait for initial load
     await screen.findByText('checkbox.filterByFunderLabel');
 
+    // Wait for checkboxes
+    await screen.findByRole('checkbox', { name: 'Affiliation 1 Name' });
+    await screen.findByRole('checkbox', { name: 'Affiliation 2 Name' });
+
+    // Wait for the correct number of templates to load
     await waitFor(() => {
-      // We should have two checkboxes for project funders checked
-      expect(screen.getByRole('checkbox', { name: 'Affiliation 1 Name' })).toBeInTheDocument();
-      expect(screen.getByRole('checkbox', { name: 'Affiliation 2 Name' })).toBeInTheDocument();
-    }, { timeout: 5000 });
+      expect(screen.getAllByTestId('template-metadata')).toHaveLength(5);
+    });
 
-    await waitFor(() => {
+    // NOW make individual assertions (outside waitFor)
+    const templateData = screen.getAllByTestId('template-metadata');
 
-      // Expected three funder templates to display by default
-      const funderTemplateResults = [0, 1, 2];
-      funderTemplateResults.forEach((i) => {
-        expect(screen.getByRole('heading', { level: 3, name: `Template ${i + 1} Name` })).toBeInTheDocument();
-        const templateData = screen.getAllByTestId('template-metadata');
-        const lastRevisedBy1 = within(templateData[i]).getByText(/lastRevisedBy.*John Doe/);
-        const publishStatus1 = within(templateData[i]).getByText('published');
-        const visibility1 = within(templateData[i]).getByText(/visibility.*Public/);
-        expect(lastRevisedBy1).toBeInTheDocument();
-        expect(publishStatus1).toBeInTheDocument();
-        expect(visibility1).toBeInTheDocument();
-      });
+    [0, 1, 2].forEach((i) => {
+      expect(screen.getByRole('heading', { level: 3, name: `Template ${i + 1} Name` })).toBeInTheDocument();
+      expect(within(templateData[i]).getByText(/lastRevisedBy.*John Doe/)).toBeInTheDocument();
+      expect(within(templateData[i]).getByText('published')).toBeInTheDocument();
+      expect(within(templateData[i]).getByText(/visibility.*Public/)).toBeInTheDocument();
+    });
 
-      // Should not show the best practice template on first load
-      expect(screen.queryByRole('heading', { level: 3, name: /labels.dmpBestPractice/i })).not.toBeInTheDocument();
-
-      // Make sure all 5 template select buttons are present
-      expect(screen.getAllByText('buttons.select')).toHaveLength(5);
-    }, { timeout: 5000 });
+    expect(screen.queryByRole('heading', { level: 3, name: /labels.dmpBestPractice/i })).not.toBeInTheDocument();
+    expect(screen.getAllByText('buttons.select')).toHaveLength(5);
   });
 
   // it('should handle funder filter changes', async () => {
