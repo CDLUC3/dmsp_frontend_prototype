@@ -25,6 +25,7 @@ import {
   PlanVisibility,
   PlanDocument,
   PlanFeedbackStatusDocument,
+  RelatedWorksByPlanStatsDocument,
 } from "@/generated/graphql";
 import {
   publishPlanAction,
@@ -184,6 +185,15 @@ const PlanOverviewPage: React.FC = () => {
     notifyOnNetworkStatusChange: true,
   });
 
+  // Query data
+  const {
+    data: relatedWorksByPlanStats,
+  } = useQuery(RelatedWorksByPlanStatsDocument, {
+    variables: {
+      planId,
+    },
+  });
+
   const {
     data: feedbackData,
     loading: feedbackLoading,
@@ -210,9 +220,6 @@ const PlanOverviewPage: React.FC = () => {
   }), [projectId, planId]);
 
   const { FUNDINGS_URL, MEMBERS_URL, DOWNLOAD_URL, FEEDBACK_URL, CHANGE_PRIMARY_CONTACT_URL, RELATED_WORKS_URL } = urls;
-
-  //TODO: Get related works count from backend
-  const relatedWorksCount = 3;
 
   // Format the publish date - no memoization needed since date doesn't change after load
   const formattedPublishDate = formatPublishDate(planData?.templatePublished ?? null, formatter);
@@ -597,8 +604,11 @@ const PlanOverviewPage: React.FC = () => {
                 linkHref={RELATED_WORKS_URL}
                 linkText={t("relatedWorks.edit")}
                 linkAriaLabel={t("relatedWorks.edit")}
+                includeLink={!!planData.registered}
               >
-                <p>{t("relatedWorks.count", { count: relatedWorksCount })}</p>
+                {!planData.registered && <p>{t("relatedWorks.publish")}</p>}
+                {planData.registered && relatedWorksByPlanStats?.relatedWorksByPlanStats?.pendingCount != null && <p>{t("relatedWorks.pendingCount", { count: relatedWorksByPlanStats?.relatedWorksByPlanStats?.pendingCount })}</p>}
+                {planData.registered && relatedWorksByPlanStats?.relatedWorksByPlanStats?.acceptedCount != null && <p>{t("relatedWorks.acceptedCount", { count: relatedWorksByPlanStats?.relatedWorksByPlanStats?.acceptedCount })}</p>}
               </OverviewSection>
             </div>
 

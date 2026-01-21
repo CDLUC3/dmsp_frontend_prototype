@@ -17,6 +17,8 @@ interface OverviewSectionProps {
   className?: string;
   /** The content to display under the heading */
   children: React.ReactNode;
+  /** Whether to include link or not */
+  includeLink?: boolean ;
 }
 
 const OverviewSection: React.FC<OverviewSectionProps> = ({
@@ -27,6 +29,7 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   linkAriaLabel,
   className = "",
   children,
+  includeLink = true,
 }) => {
   return (
     <section
@@ -42,13 +45,17 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
         </h2>
         <div className={styles.overviewSectionText}>{children}</div>
       </div>
-      <Link
-        href={linkHref}
-        aria-label={linkAriaLabel}
-        className={styles.overviewSectionLink}
-      >
-        {linkText}
-      </Link>
+      {
+        includeLink && (
+          <Link
+            href={linkHref}
+            aria-label={linkAriaLabel}
+            className={styles.overviewSectionLink}
+          >
+            {linkText}
+          </Link>
+        )
+      }
     </section>
   );
 };

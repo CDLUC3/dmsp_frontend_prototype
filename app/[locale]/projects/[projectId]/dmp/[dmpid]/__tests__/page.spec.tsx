@@ -12,7 +12,8 @@ import {
 import { useQuery } from '@apollo/client/react';
 import {
   PlanDocument,
-  PlanFeedbackStatusDocument
+  PlanFeedbackStatusDocument,
+  RelatedWorksByPlanStatsDocument,
 } from '@/generated/graphql';
 import { useToast } from '@/context/ToastContext';
 
@@ -112,6 +113,17 @@ const setupMocks = () => {
     error: undefined,
   };
 
+  const relatedWorksStatsQueryReturn = {
+    data: {
+      relatedWorksByPlanStats: {
+        pendingCount: 1,
+        acceptedCount: 10,
+      }
+    },
+    loading: false,
+    error: undefined,
+  };
+
   // Mock useQuery to return different data based on which document is queried
   mockUseQuery.mockImplementation((document) => {
     if (document === PlanDocument) {
@@ -120,6 +132,10 @@ const setupMocks = () => {
 
     if (document === PlanFeedbackStatusDocument) {
       return feedbackQueryReturn;
+    }
+
+    if (document === RelatedWorksByPlanStatsDocument) {
+      return relatedWorksStatsQueryReturn;
     }
 
     return {
@@ -234,8 +250,7 @@ describe('PlanOverviewPage', () => {
     expect(screen.getByText('members.info')).toBeInTheDocument();
     expect(screen.getByText('members.edit')).toBeInTheDocument();
     expect(screen.getByText('relatedWorks.title')).toBeInTheDocument();
-    expect(screen.getByText('relatedWorks.count')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'relatedWorks.edit' })).toBeInTheDocument();
+    expect(screen.getByText('relatedWorks.publish')).toBeInTheDocument();
 
     // Check that sections rendered
     expect(screen.getByRole('heading', { name: 'Roles & Responsibilities' })).toBeInTheDocument();
@@ -310,7 +325,7 @@ describe('PlanOverviewPage', () => {
     expect(screen.getByText('members.info')).toBeInTheDocument();
     expect(screen.getByText('members.edit')).toBeInTheDocument();
     expect(screen.getByText('relatedWorks.title')).toBeInTheDocument();
-    expect(screen.getByText('relatedWorks.count')).toBeInTheDocument();
+    expect(screen.getByText('relatedWorks.publish')).toBeInTheDocument();
 
     // Check that sections rendered
     expect(screen.getByRole('heading', { name: 'Roles & Responsibilities' })).toBeInTheDocument();
@@ -422,6 +437,111 @@ describe('PlanOverviewPage', () => {
     render(<PlanOverviewPage />);
     await waitFor(() => {
       expect(screen.getByText('Unpublished')).toBeInTheDocument();
+    });
+  });
+
+  it('should display related works counts if \'registered\' prop has a value', async () => {
+    const updatedMockPlanData = {
+      ...mockPlanData.plan,
+      registered: '2023-10-01T00:00:00Z',
+    };
+
+    const planQueryReturn = {
+      data: { plan: updatedMockPlanData },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    };
+
+    const relatedWorksStatsQueryReturn = {
+      data: {
+        relatedWorksByPlanStats: {
+          pendingCount: 1,
+          acceptedCount: 10,
+        }
+      },
+      loading: false,
+      error: undefined,
+    };
+
+    // Override mock for this test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PlanDocument) {
+        return planQueryReturn;
+      }
+
+      if (document === RelatedWorksByPlanStatsDocument) {
+        return relatedWorksStatsQueryReturn;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
+    });
+
+
+    render(<PlanOverviewPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('relatedWorks.pendingCount')).toBeInTheDocument();
+      expect(screen.getByText('relatedWorks.acceptedCount')).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'relatedWorks.edit' })).toBeInTheDocument();
+    });
+  });
+
+  it('should not display related works counts for UNPUBLISHED if \'registered\' prop has a value of null', async () => {
+    const updatedMockPlanData = {
+      ...mockPlanData.plan,
+      registered: '',
+    };
+
+    const planQueryReturn = {
+      data: { plan: updatedMockPlanData },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    };
+
+    const relatedWorksStatsQueryReturn = {
+      data: {
+        relatedWorksByPlanStats: {
+          pendingCount: 1,
+          acceptedCount: 10,
+        }
+      },
+      loading: false,
+      error: undefined,
+    };
+
+    // Override mock for this test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PlanDocument) {
+        return planQueryReturn;
+      }
+
+      if (document === RelatedWorksByPlanStatsDocument) {
+        return relatedWorksStatsQueryReturn;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
+    });
+
+
+    render(<PlanOverviewPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('relatedWorks.publish')).toBeInTheDocument();
+      expect(screen.queryByText('relatedWorks.pendingCount')).not.toBeInTheDocument();
+      expect(screen.queryByText('relatedWorks.acceptedCount')).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'relatedWorks.edit' })).not.toBeInTheDocument();
     });
   });
 
