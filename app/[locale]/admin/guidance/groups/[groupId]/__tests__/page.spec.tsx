@@ -357,6 +357,46 @@ describe("GuidanceGroupIndexPage", () => {
     });
   });
 
+  it('should preserve entered content for other tags when a new guidance is saved for a tag', async () => {
+    (addGuidanceTextAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: { id: 999, errors: null },
+      redirect: undefined,
+    });
+
+    render(
+      <MockedProvider mocks={mocks}>
+        <GuidanceGroupIndexPage />
+      </MockedProvider>,
+    );
+
+    await waitForElementToBeRemoved(() => screen.getByText('Global.messaging.loading'));
+
+    // Tag id 14 (Data description) has no guidance in mockGuidanceByGroupData
+    const editor = screen.getByTestId('editor-content-14');
+    expect(editor).toHaveValue(''); // starts empty
+
+    fireEvent.change(editor, { target: { value: 'New guidance for Data description' } });
+    expect(editor).toHaveValue('New guidance for Data description');
+
+    // Enter content into a different tag to verify it's preserved
+    const editorTag1 = screen.getByTestId('editor-content-1');
+    fireEvent.change(editorTag1, { target: { value: 'Updated guidance for Tag 1' } });
+    expect(editorTag1).toHaveValue('Updated guidance for Tag 1');
+
+    // Find save buttons; click the one corresponding to tag 14.
+    // We locate heading first then within its card look for button
+    const guidanceCard = editor.closest('div')?.parentElement; // textarea wrapper -> its parent is the card section
+    const saveBtn = within(guidanceCard as HTMLElement).getByRole('button', { name: 'Global.buttons.save' });
+    fireEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(addGuidanceTextAction).toHaveBeenCalledTimes(1);
+      expect(screen.getByText("New guidance for Data description")).toBeInTheDocument();
+      expect(screen.getByText("Updated guidance for Tag 1")).toBeInTheDocument();
+    });
+  });
+
   it('should redirect if addGuidanceTextAction response includes a redirect', async () => {
     (addGuidanceTextAction as jest.Mock).mockResolvedValue({
       success: true,
@@ -720,7 +760,7 @@ describe("GuidanceGroupIndexPage", () => {
     const unPublishBtn = inSidebar.getByRole("button", { name: "Global.buttons.unpublish" });
     fireEvent.click(unPublishBtn);
 
-    await waitFor(() => {
+    await waitFor(async () => {
       expect(screen.getByText('There was a general error')).toBeInTheDocument();
       //Check that error logged
       expect(logECS).toHaveBeenCalledWith(

@@ -430,29 +430,51 @@ const GuidanceGroupIndexPage: React.FC = () => {
   }, [guidance]);
 
   // Build the tag-guidance mapping whenever tags or guidance data changes
+  // while preserving any unsaved changes
   useEffect(() => {
     if (tagsData?.tags && guidanceTexts) {
       // Only include tags that have a valid numeric id to avoid runtime/type errors downstream
       const validTags = tagsData.tags.filter((tag) => typeof tag.id === 'number');
 
-      const tagGuidanceMap: TagGuidanceItem[] = validTags.map(tag => {
-        // Find the guidance that has this tag
-        const matchingGuidance = guidanceTexts.find(g => g.tagId === (tag.id as number));
+      setTagGuidanceList(prevList => {
+        const tagGuidanceMap: TagGuidanceItem[] = validTags.map(tag => {
+          // Find the guidance from the graphql query that has this tag
+          const matchingGuidance = guidanceTexts.find(g => g.tagId === (tag.id as number));
 
-        return {
-          tag: {
-            id: tag.id as number,
-            name: tag.name,
-            description: tag.description || undefined,
-          },
-          guidance: matchingGuidance || null,
-        };
+          // Check if there's an existing item in the previous list (could include unsaved guidance) for this tag
+          const existingItem = prevList.find(item => item.tag.id === tag.id);
+
+          // Determine which saved guidance to compare to for unsaved changes:
+          let guidanceToUse = matchingGuidance || null;
+
+          if (existingItem?.guidance) {
+            // Check if the content stored in state is unsaved (different from the saved version)
+            const isTempGuidance = existingItem.guidance.id.startsWith('temp-');
+
+            // Check if the content has been modified from the saved version
+            const hasUnsavedChanges = matchingGuidance &&
+              existingItem.guidance.guidanceText !== matchingGuidance.guidanceText;
+
+            // Preserve unsaved changes
+            if (isTempGuidance || hasUnsavedChanges) {
+              guidanceToUse = existingItem.guidance;
+            }
+          }
+
+          return {
+            tag: {
+              id: tag.id as number,
+              name: tag.name,
+              description: tag.description || undefined,
+            },
+            guidance: guidanceToUse,
+          };
+        });
+
+        return tagGuidanceMap;
       });
-
-      setTagGuidanceList(tagGuidanceMap);
     }
   }, [tagsData, guidanceTexts]);
-
 
   useEffect(() => {
     // Set Guidance Group data in state when fetched. We need this for publishing the group
