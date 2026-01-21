@@ -4,7 +4,7 @@ import React from "react";
 
 import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutContainer } from "@/components/Container";
-import { Breadcrumb, Breadcrumbs, Button, Link, Tab, TabList, TabPanel, Tabs } from "react-aria-components";
+import { Breadcrumb, Breadcrumbs, Link, Tab, TabList, TabPanel, Tabs } from "react-aria-components";
 import { useTranslations } from "next-intl";
 import styles from "./RelatedWorks.module.scss";
 import { RelatedWorksList } from "@/components/RelatedWorksList";

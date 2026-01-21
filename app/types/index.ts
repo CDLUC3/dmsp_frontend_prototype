@@ -1,6 +1,11 @@
 import { ReactNode } from "react";
 import { PlanSectionProgress, TemplateVisibility, PlanFeedback, ProjectFundingStatus } from "@/generated/graphql";
-import { AffiliationSearchQuestionType, AnyQuestionType } from '@dmptool/types';
+import {
+  AffiliationSearchQuestionType,
+  AnyQuestionType,
+  DefaultResearchOutputCustomColumn
+} from '@dmptool/types';
+
 import { CalendarDate } from "@internationalized/date";
 
 // Re-export types from questionAdd module
@@ -189,6 +194,7 @@ export interface Question {
   guidanceText?: string | null;
   sampleText?: string | null;
   useSampleTextAsDefault?: boolean | null;
+  showCommentField?: boolean | null;
   required?: boolean;
   templateId?: number | null;
   questionOptions?: QuestionOptions[] | null;
@@ -421,6 +427,9 @@ export interface addRepositoryActionResponse extends ActionResponse {
     };
   }
 };
+
+export type AdditionalFieldsType = typeof DefaultResearchOutputCustomColumn & { id: string };
+
 export interface updateQuestionActionResponse extends ActionResponse {
   data?: {
     id?: number | null;

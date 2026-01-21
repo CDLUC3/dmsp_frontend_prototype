@@ -62,7 +62,8 @@ import {
   RANGE_QUESTION_TYPE,
   TYPEAHEAD_QUESTION_TYPE,
   TEXT_AREA_QUESTION_TYPE,
-  RESEARCH_OUTPUT_QUESTION_TYPE
+  RESEARCH_OUTPUT_QUESTION_TYPE,
+  QUESTION_TYPES_EXCLUDED_FROM_COMMENT_FIELD
 } from '@/lib/constants';
 import {
   isOptionsType,
@@ -77,6 +78,7 @@ const defaultQuestion = {
   sampleText: '',
   useSampleTextAsDefault: false,
   required: false,
+  showCommentField: false,
 };
 
 const QuestionAdd = ({
@@ -360,10 +362,18 @@ const QuestionAdd = ({
       }
       return;
     }
-    return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+
+    const json = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
       parsed,
       userInput
     );
+
+    // Add showCommentField to the output if needed
+    if (json && typeof question.showCommentField === 'boolean') {
+      json.data.showCommentField = question.showCommentField;
+    }
+
+    return json;
   };
 
   // Function to add and save the new question
@@ -602,6 +612,23 @@ const QuestionAdd = ({
                     handleTypeAheadSearchLabelChange={handleTypeAheadSearchLabelChange}
                     handleTypeAheadHelpTextChange={handleTypeAheadHelpTextChange}
                   />
+                )}
+
+                {!QUESTION_TYPES_EXCLUDED_FROM_COMMENT_FIELD.includes(questionType ?? '') && (
+                  <RadioGroupComponent
+                    name="radioGroup"
+                    value={question?.showCommentField ? 'yes' : 'no'}
+                    radioGroupLabel={QuestionAdd('labels.additionalCommentBox')}
+                    onChange={(value) => handleInputChange('showCommentField', value === 'yes')}
+                  >
+                    <div>
+                      <Radio value="yes">{QuestionAdd('labels.showCommentField')}</Radio>
+                    </div>
+
+                    <div>
+                      <Radio value="no">{QuestionAdd('labels.doNotShowCommentField')}</Radio>
+                    </div>
+                  </RadioGroupComponent>
                 )}
 
                 <FormTextArea

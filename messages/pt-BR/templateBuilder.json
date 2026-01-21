@@ -383,7 +383,12 @@
       "mayContainSensitiveData": "Pode conter dados sensíveis?",
       "mayContainPersonalData": "Pode conter informações pessoalmente identificáveis?",
       "preferredRepositories": "Apenas repositórios preferenciais",
-      "preferredMetadataStandards": "Apenas padrões de metadados preferenciais"
+      "preferredMetadataStandards": "Apenas padrões de metadados preferenciais",
+      "displayPaginationCount": "Exibindo {count} padrões de um total de {totalCount}",
+      "displayAdditionalCommentField": "Exibir área adicional para comentários",
+      "additionalCommentBox": "Caixa de comentário adicional",
+      "showCommentField": "Exibir uma área de comentários onde os escritores do plano podem explicar sua resposta",
+      "doNotShowCommentField": "Não adicionar uma área de comentários"
     },
     "buttons": {
       "addRow": "Adicionar linha",
@@ -435,6 +440,9 @@
         "repositoryRemoved": "Repositório removido."
       },
       "helpText": "O comprimento máximo é de 300 caracteres.",
+      "accessLevelDescriptionOPEN": "Permite acesso livre a todas as áreas.",
+      "accessLevelDescriptionRESTRICTED": "Restringe o acesso a certas áreas.",
+      "accessLevelDescriptionCLOSED": "Outro tipo de acesso.",
       "headings": {
         "enableStandardFields": "Ativar campos padrão",
         "additionalTextFields": "Text fields adicionais"

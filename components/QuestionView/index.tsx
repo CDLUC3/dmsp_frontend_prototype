@@ -35,6 +35,7 @@ import {
 import {
   DateComponent,
   FormInput,
+  FormTextArea,
   NumberComponent,
 } from '@/components/Form';
 import {
@@ -141,6 +142,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     startNumber: 0,
     endNumber: 0,
   });
+  // For showCommentField handler
+  const [commentValue, setCommentValue] = useState<string>('');
 
   // Local state for research output table rows
   const [researchOutputRows, setResearchOutputRows] = useState<ResearchOutputTable[]>([]);
@@ -518,6 +521,15 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <CardHeading>{question?.questionText}</CardHeading>
           <CardBody data-testid="card-body">
             {renderQuestionField()}
+            {question?.showCommentField && (
+              <FormTextArea
+                name="comment"
+                label={Global('labels.additionalComments')}
+                placeholder={Global('placeholders.enterComment')}
+                value={commentValue}
+                onChange={setCommentValue}
+              />
+            )}
           </CardBody>
         </Card>
 

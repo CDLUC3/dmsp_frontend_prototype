@@ -253,6 +253,7 @@ const SingleResearchOutputComponent = ({
   // Handle cell change - change to any field in the answer row
   /*eslnt-disable @typescript-eslint/no-explicit-any */
   const handleCellChange = (colIndex: number, value: ValueType) => {
+
     // Clear error for this field
     clearFieldError(colIndex);
 
@@ -329,6 +330,25 @@ const SingleResearchOutputComponent = ({
         }
       }
 
+      // Add license handling
+      if (colType === LICENSE_SEARCH_ID && Array.isArray(value)) {
+        if (value.length === 0) {
+          newValue = [];
+        } else {
+          const isLicenseArray = typeof value[0] === 'object' &&
+            value[0] !== null &&
+            'licenseId' in value[0];
+
+          if (isLicenseArray) {
+            type LicenseItem = { licenseId: string; licenseName: string };
+            newValue = (value as LicenseItem[]).map((license) => ({
+              licenseId: license.licenseId,
+              licenseName: license.licenseName
+            }));
+          }
+        }
+      }
+
       // Handle byte size (file size with unit)
       if (
         colIndex === columns.length + 1 &&
@@ -343,13 +363,24 @@ const SingleResearchOutputComponent = ({
             : "";
       }
 
-      updatedRow.columns[colIndex].answer = newValue;
+      // Don't stringify complex types
+      if (colType === REPOSITORY_SEARCH_ID ||
+        colType === METADATA_STANDARD_SEARCH_ID ||
+        colType === LICENSE_SEARCH_ID) {
+        // Store complex types as-is
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        updatedRow.columns[colIndex].answer = newValue as any;
+      } else {
+        // Stringify simple types
+        updatedRow.columns[colIndex].answer = String(newValue);
+      }
       updatedRows[0] = updatedRow;
 
 
       return updatedRows;
     });
   };
+
 
   // Capture initial state when component mounts or rows first populate
   useEffect(() => {
@@ -401,6 +432,7 @@ const SingleResearchOutputComponent = ({
                   label={translatedLabel}
                   name={name}
                   isRequired={col.required}
+                  defaultValue={col?.content?.attributes?.defaultValue || ''}
                   isInvalid={!!fieldError}
                   errorMessage={fieldError ?? ""}
                   helpMessage={col?.content?.attributes?.help || col?.help}
@@ -610,7 +642,7 @@ const SingleResearchOutputComponent = ({
                 .map((pref) => (pref as RepoPreference).value)
                 .filter((value): value is string => Boolean(value));
             }
-            
+
             const existingRepos = hasExplicitRepoAnswer
               ? (repoValue.length > 0
                 ? repoValue.map((repo) => {
@@ -690,7 +722,7 @@ const SingleResearchOutputComponent = ({
                 .map((pref) => (pref as RepoPreference).value)
                 .filter((value): value is string => Boolean(value));
             }
-            
+
             const existingMetaDataStandards = hasExplicitStdAnswer
               ? (metadataValue.length > 0
                 ? metadataValue

@@ -70,6 +70,7 @@ import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionFiel
 import ExpandableContentSection from '@/components/ExpandableContentSection';
 import SafeHtml from '@/components/SafeHtml';
 import Loading from '@/components/Loading';
+import { FormTextArea } from '@/components/Form';
 
 // Utils and other
 import { useToast } from '@/context/ToastContext';
@@ -107,6 +108,7 @@ interface FormDataInterface {
   textValue: string | number | null;
   textAreaContent: string;
   yesNoValue: string;
+  commentValue: string;
 }
 
 type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
@@ -201,6 +203,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     selectedCheckboxValues: [],
     urlValue: null,
     yesNoValue: 'no',
+    commentValue: ''
   });
 
   // Separate state for researchOutputTable since it's such a large structure
@@ -507,6 +510,14 @@ const PlanOverviewQuestionPage: React.FC = () => {
     setHasUnsavedChanges(true);
   };
 
+  // Handle comment field change
+  const handleCommentValueChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      commentValue: value
+    }));
+    setHasUnsavedChanges(true);
+  };
 
   // Handler for MultiSelect changes
   const handleMultiSelectChange = (values: Set<string>) => {
@@ -775,7 +786,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
           answer: formData.selectedRadioValue,
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
-          }
+          },
+          comment: formData.commentValue
         };
 
       case CHECKBOXES_QUESTION_TYPE:
@@ -784,7 +796,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
           answer: formData.selectedCheckboxValues,
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
-          }
+          },
+          comment: formData.commentValue
         };
 
       case SELECTBOX_QUESTION_TYPE:
@@ -793,7 +806,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
           answer: formData.selectedSelectValue,
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
-          }
+          },
+          comment: formData.commentValue
         };
 
       case MULTISELECTBOX_QUESTION_TYPE:
@@ -802,7 +816,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
           answer: Array.from(formData.selectedMultiSelectValues),
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
-          }
+          },
+          comment: formData.commentValue
         };
 
       case BOOLEAN_QUESTION_TYPE:
@@ -838,7 +853,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
           answer: formData.numberValue,
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
-          }
+          },
+          comment: formData.commentValue
         };
 
       case CURRENCY_QUESTION_TYPE:
@@ -847,7 +863,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
           answer: formData.inputCurrencyValue,
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
-          }
+          },
+          comment: formData.commentValue
         };
 
       case DATE_QUESTION_TYPE:
@@ -856,7 +873,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
           answer: formData.dateValue?.toString(),
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
-          }
+          },
+          comment: formData.commentValue
         };
 
       case RESEARCH_OUTPUT_QUESTION_TYPE:
@@ -891,7 +909,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
           },
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
-          }
+          },
+          comment: formData.commentValue
         };
 
       case NUMBER_RANGE_QUESTION_TYPE:
@@ -903,7 +922,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
           },
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
-          }
+          },
+          comment: formData.commentValue
         };
 
       case TYPEAHEAD_QUESTION_TYPE:
@@ -915,7 +935,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
           },
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
-          }
+          },
+          comment: formData.commentValue
         };
 
       default:
@@ -924,7 +945,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
           answer: formData.textAreaContent,
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION
-          }
+          },
+          comment: formData.commentValue
         };
     }
   };
@@ -1161,8 +1183,18 @@ const PlanOverviewQuestionPage: React.FC = () => {
     const json = answerData?.answerByVersionedQuestionId?.json;
     if (json && questionType) {
       const parsed = JSON.parse(json);
+
+      // Prefill the main answer
       if (parsed?.answer !== undefined) {
         prefillAnswer(parsed.answer, questionType);
+      }
+
+      // Also prefill comment field if it exists
+      if (parsed?.comment !== undefined) {
+        setFormData(prev => ({
+          ...prev,
+          commentValue: parsed.comment
+        }))
       }
     }
 
@@ -1251,7 +1283,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
   useEffect(() => {
     setErrors((prevErrors) => [...prevErrors, ...commentErrors]);
   }, [commentErrors])
-
 
   // Render the question using the useRenderQuestionField helper
   const questionField = useRenderQuestionField({
@@ -1463,6 +1494,16 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
                   </div>
                   {parsed && questionField}
+                  {/** Add comment field if showCommentField is true in parsed question JSON */}
+                  {parsed && 'showCommentField' in parsed && parsed.showCommentField && (
+                    <FormTextArea
+                      name="comment"
+                      label={Global('labels.additionalComments')}
+                      placeholder={Global('placeholders.enterComment')}
+                      value={formData.commentValue}
+                      onChange={handleCommentValueChange}
+                    />
+                  )}
                 </div>
                 <div className="lastSaved mt-5"
                   aria-live="polite"

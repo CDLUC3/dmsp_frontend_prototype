@@ -788,7 +788,8 @@
       "fileSizeUnit": "Unidade de tamanho do arquivo",
       "selectAnItem": "Selecione um item",
       "mayContainSensitiveData": "Pode conter dados sensíveis?",
-      "mayContainPersonalData": "Pode conter informações pessoalmente identificáveis?"
+      "mayContainPersonalData": "Pode conter informações pessoalmente identificáveis?",
+      "additionalComments": "Comentários adicionais"
     },
     "helpText": {
       "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc.",
@@ -799,7 +800,8 @@
       "requiredFieldDescription": "Atenção aos usuários que isto é considerado uma questão necessária para este template DMP pela organização. Os usuários poderão optar por ignorar isso dentro da ferramenta e não será necessário responder antes de movê-la."
     },
     "placeholders": {
-      "funderSearch": "Insira o nome da pasta"
+      "funderSearch": "Insira o nome da pasta",
+      "enterComment": "Insira seu comentário"
     },
     "links": {
       "clearFilter": "limpar filtro",

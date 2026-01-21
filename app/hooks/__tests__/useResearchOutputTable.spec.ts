@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useResearchOutputTable } from '../useResearchOutputTable';
 import type { ResearchOutputTableQuestionType } from '@dmptool/types';
 import { useQuery } from '@apollo/client/react';
@@ -100,7 +100,8 @@ describe('useResearchOutputTable', () => {
     expect(result.current.additionalFields.length).toBe(0);
   });
 
-  it('should update additional field properties', () => {
+
+  it('should update additional field properties', async () => {
     const { result } = renderHook(() => useResearchOutputTable({ setHasUnsavedChanges, announce }));
     act(() => {
       result.current.addAdditionalField();
@@ -109,7 +110,9 @@ describe('useResearchOutputTable', () => {
     act(() => {
       result.current.handleUpdateAdditionalField(fieldId, 'customLabel', 'My Custom Label');
     });
-    expect(result.current.additionalFields[0].customLabel).toBe('My Custom Label');
+    await waitFor(() => {
+      expect(result.current.additionalFields[0].content.attributes.label).toBe('My Custom Label');
+    });
   });
 
   it('should handle standard field enable/disable', () => {

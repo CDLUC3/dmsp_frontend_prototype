@@ -451,11 +451,9 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
       </MockedProvider>
     );
 
-    await waitFor(() => {
-      expect(screen.getByText('fundingLabel')).toBeInTheDocument();
+    await waitFor(async () => {
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
-
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
   });
 });
