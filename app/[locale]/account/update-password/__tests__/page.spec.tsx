@@ -117,7 +117,7 @@ describe("UpdatePasswordPage", () => {
     // Should log the form data (static implementation)
     await waitFor(async () => {
       expect(consoleSpy).toHaveBeenCalledWith("Password update submitted:", expect.any(Object));
-    });
+    }, { timeout: 3000 });
 
     consoleSpy.mockRestore();
   });

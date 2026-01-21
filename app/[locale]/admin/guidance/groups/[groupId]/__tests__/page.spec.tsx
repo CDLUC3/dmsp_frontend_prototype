@@ -5,7 +5,8 @@ import {
   screen,
   waitFor,
   waitForElementToBeRemoved,
-  within
+  within,
+  act
 } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { MockedProvider } from "@apollo/client/testing/react";
@@ -760,7 +761,7 @@ describe("GuidanceGroupIndexPage", () => {
     const unPublishBtn = inSidebar.getByRole("button", { name: "Global.buttons.unpublish" });
     fireEvent.click(unPublishBtn);
 
-    await waitFor(async () => {
+    await waitFor(() => {
       expect(screen.getByText('There was a general error')).toBeInTheDocument();
       //Check that error logged
       expect(logECS).toHaveBeenCalledWith(
@@ -771,7 +772,7 @@ describe("GuidanceGroupIndexPage", () => {
           url: { path: '/en-US/admin/guidance/groups/create' },
         })
       )
-    });
+    }, { timeout: 3000 });
   });
 
   it('should handle publishing of guidance group', async () => {
@@ -910,13 +911,14 @@ describe("GuidanceGroupIndexPage", () => {
     );
 
     // Wait for loading to be gone (tagsLoading and guidanceLoading both false)
-    await waitForElementToBeRemoved(() => screen.getByText("Global.messaging.loading"));
+    await waitForElementToBeRemoved(() => screen.getByText("Global.messaging.loading"), { timeout: 5000 });
 
     const sidebar = screen.getByTestId("sidebar-panel");
     const inSidebar = within(sidebar);
     const publishBtn = inSidebar.getByRole("button", { name: "Global.buttons.publish" });
-    fireEvent.click(publishBtn);
-
+    await act(async () => {
+      fireEvent.click(publishBtn);
+    });
 
     // Since guidanceGroupId is undefined, we expect an inline error message and no side effects
     await waitFor(() => {

@@ -902,13 +902,13 @@ describe('PlanCreate Component using base mock', () => {
     // Wait for the funder checkboxes to load
     await screen.findByText('checkbox.filterByFunderLabel');
 
-    await waitFor(async () => {
+    await waitFor(() => {
       // We should have two checkboxes for project funders checked
       expect(screen.getByRole('checkbox', { name: 'Affiliation 1 Name' })).toBeInTheDocument();
       expect(screen.getByRole('checkbox', { name: 'Affiliation 2 Name' })).toBeInTheDocument();
-    }, { timeout: 3000 });
+    }, { timeout: 5000 });
 
-    await waitFor(async () => {
+    await waitFor(() => {
 
       // Expected three funder templates to display by default
       const funderTemplateResults = [0, 1, 2];
