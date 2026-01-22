@@ -49,6 +49,7 @@
 ### Remove
 - Removed `boolean` question type from the Add Question question types list [#990]
 ### Fixed
+- Fixed issue on Guidance Group creation, where saving content for one tag, wipes out the entered content (unsaved) for other tags [#6]
 - Fixed related works pagination.
 
 ### Chore
