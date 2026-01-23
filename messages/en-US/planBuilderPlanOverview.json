@@ -309,5 +309,16 @@
       "uploadExistingPlan": "Upload a plan created elsewhere",
       "startNewOrUploadExisting": "Would you like to create a new plan or upload an existing one?"
     }
+  },
+  "GuidancePanel": {
+    "bestPractice": "Best practice guidance",
+    "guidanceSourceSelection": "Select guidance source",
+    "removeGuidanceSource": "Remove guidance source",
+    "addGuidanceSource": "Add guidance source",
+    "addOrganization": "Customize best practice",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "more": "More",
+    "less": "Less"
   }
 }

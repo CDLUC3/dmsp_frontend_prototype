@@ -639,7 +639,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
           )}
         </ContentContainer>
         <SidebarPanel>
-          <div className={`statusPanelContent sidePanel`}>
+          <div className="status-panel-content side-panel">
             <div className="button-container withBorder  mb-5">
               {/*Unpublish Button*/}
               {(isUnpublishUnavailable) ? (
@@ -712,7 +712,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
                 </Button>
               )}
             </div>
-            <div className="sidePanelContent">
+            <div className="side-panel-content">
               <div className={`panelRow mb-5`}>
                 <div>
                   <h3>{t('status.publicationStatus')}</h3>

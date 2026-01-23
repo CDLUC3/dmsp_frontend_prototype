@@ -80,5 +80,15 @@ query PublishedQuestion($versionedQuestionId: Int!) {
     versionedSectionId
     versionedTemplateId
     required
+    ownerAffiliation {
+      acronyms
+      displayName
+      uri
+      name
+    }
+    sectionTags {
+      id
+      name
+    }
   }
 }

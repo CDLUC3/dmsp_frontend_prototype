@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useTranslations } from "next-intl";
@@ -71,6 +71,7 @@ import ExpandableContentSection from '@/components/ExpandableContentSection';
 import SafeHtml from '@/components/SafeHtml';
 import Loading from '@/components/Loading';
 import { FormTextArea } from '@/components/Form';
+import GuidancePanel from '@/components/GuidancePanel';
 
 // Utils and other
 import { useToast } from '@/context/ToastContext';
@@ -79,6 +80,7 @@ import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import { createEmptyResearchOutputRow } from '@/utils/researchOutputTransformations';
 import {
+  GuidanceItemInterface,
   Question,
   MergedComment,
   ResearchOutputTable
@@ -149,7 +151,6 @@ interface PlanData {
   planOwners: number[] | null;
 }
 
-
 const PlanOverviewQuestionPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
@@ -172,6 +173,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [questionType, setQuestionType] = useState<string>('');
   const [parsed, setParsed] = useState<AnyParsedQuestion>();
   const [answerId, setAnswerId] = useState<number | null>(null);
+  const [guidanceItems, setGuidanceItems] = useState<GuidanceItemInterface[]>([]);
+  const [sectionTags, setSectionTags] = useState<Record<number, string>>({});
 
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -243,9 +246,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Run me query to get user's name
   const { data: me } = useQuery(MeDocument);
 
+  // Get Guidance Groups for user's affiliation
   const { data: guidanceData } = useQuery(GuidanceGroupsDocument, {
     variables: {
-      affiliationId: plan?.orgId || null
+      affiliationId: me?.me?.affiliation?.uri || ''
     },
     skip: !me?.me?.affiliation?.uri // Prevent running until the me data exists
   });
@@ -259,40 +263,121 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   );
 
+  const handleAddGuidanceOrganization = () => {
+    // Open modal/dialog to select organization
+    console.log('Add guidance organization');
+  };
+
+  const handleRemoveGuidanceOrganization = (orgId: string) => {
+    // Call API to remove organization from user preferences
+    console.log('Remove guidance organization:', orgId);
+  };
+
   // Tags assigned to current section
   const currentSectionTagIds = React.useMemo(() => {
     const section = planData?.plan?.versionedSections?.find(s => s.versionedSectionId === Number(versionedSectionId));
-    return section?.tags?.map(t => t.id) ?? [];
+    const guidanceTagInfo = section?.tags?.map(t => {
+      return {
+        tagId: t.id,
+        tagName: t.name,
+        tagSlug: t.slug,
+        tagDescription: t.description
+      };
+    }
+    ) ?? [];
+    return guidanceTagInfo;
   }, [planData, versionedSectionId]);
 
+  // Guidance from user's affiliation that matches current section tags
+  const matchedGuidanceByOrg = React.useMemo<GuidanceItemInterface[]>(() => {
+    if (!guidanceData?.guidanceGroups || currentSectionTagIds.length === 0) {
+      return [] as GuidanceItemInterface[];
+    }
 
-  // Guidance texts that match current section tags (return objects so we have stable keys)
-  interface MatchedGuidance { id: number; guidanceText: string; }
-  const matchedGuidanceTexts = React.useMemo<MatchedGuidance[]>(() => {
-    if (!guidanceData?.guidanceGroups || currentSectionTagIds.length === 0) return [] as MatchedGuidance[];
-    const tagSet = new Set(currentSectionTagIds);
-    const seenIds = new Set<number>();
-    const seenTexts = new Set<string>();
-    const matches: MatchedGuidance[] = [];
+    const tagIdSet = new Set(currentSectionTagIds.map(t => t.tagId));
+
+    // Group all guidance by org URI first
+    const guidanceByOrg = new Map<string, {
+      orgName: string;
+      orgShortName: string;
+      itemsByTag: Map<number, {
+        title: string;
+        guidanceTexts: Array<{ id: number; text: string }>;
+      }>;
+    }>();
 
     guidanceData.guidanceGroups.forEach(group => {
+      const orgURI = group.affiliationId ?? '';
+
       group.guidance?.forEach(g => {
-        // New API: guidance has a single tagId instead of tags array
-        const hasMatch = typeof g?.tagId === 'number' && tagSet.has(g.tagId);
-        if (hasMatch && g.guidanceText && typeof g.id === 'number') {
-          // Skip items without valid numeric IDs and dedupe by id/text
-          if (!seenIds.has(g.id) && !seenTexts.has(g.guidanceText)) {
-            seenIds.add(g.id);
-            seenTexts.add(g.guidanceText);
-            matches.push({ id: g.id, guidanceText: g.guidanceText });
+        // Check if this guidance matches any of the section's tags
+        if (g?.tagId && tagIdSet.has(g.tagId) && g.guidanceText && g.id) {
+          // Find the tag name
+          const matchingTag = currentSectionTagIds.find(t => t.tagId === g.tagId);
+          if (!matchingTag) return;
+
+          // Initialize org entry if needed
+          if (!guidanceByOrg.has(orgURI)) {
+            guidanceByOrg.set(orgURI, {
+              orgName: me?.me?.affiliation?.name ?? group.name ?? '',
+              orgShortName: me?.me?.affiliation?.acronyms?.[0] ?? group.name ?? '',
+              itemsByTag: new Map()
+            });
           }
+
+          const orgEntry = guidanceByOrg.get(orgURI)!;
+
+          // Initialize tag entry if needed
+          if (!orgEntry.itemsByTag.has(g.tagId)) {
+            orgEntry.itemsByTag.set(g.tagId, {
+              title: matchingTag.tagName,
+              guidanceTexts: []
+            });
+          }
+
+          // Add this guidance text to the tag's collection
+          orgEntry.itemsByTag.get(g.tagId)!.guidanceTexts.push({
+            id: g.id,
+            text: g.guidanceText
+          });
         }
       });
     });
 
-    return matches;
-  }, [guidanceData, currentSectionTagIds]);
+    // Convert to final format
+    const orgGuidanceList: GuidanceItemInterface[] = [];
 
+    guidanceByOrg.forEach((orgData, orgURI) => {
+      const items: { id?: number; title?: string; guidanceText: string }[] = [];
+
+      orgData.itemsByTag.forEach((tagData) => {
+        // Combine all guidance texts for this tag with separators
+        const combinedGuidance = tagData.guidanceTexts
+          .map(g => g.text)
+          .join(''); // or use '<hr/>' for visual separation
+
+        items.push({
+          id: tagData.guidanceTexts[0]?.id, // Use first ID
+          title: tagData.title,
+          guidanceText: combinedGuidance
+        });
+      });
+
+      if (items.length > 0) {
+        orgGuidanceList.push({
+          orgURI,
+          orgName: orgData.orgName,
+          orgShortname: orgData.orgShortName,
+          items
+        });
+      }
+    });
+
+    return orgGuidanceList;
+  }, [guidanceData, currentSectionTagIds, me]);
+
+
+  console.log("***Matched Guidance by Org:", matchedGuidanceByOrg);
   // Get answer data
   const { data: answerData, loading: answerLoading, error: answerError } = useQuery(
     AnswerByVersionedQuestionIdDocument,
@@ -1124,6 +1209,35 @@ const PlanOverviewQuestionPage: React.FC = () => {
         setQuestionType(questionType);
         setParsed(parsed);
         setQuestion(cleanedQuestion);
+
+        // Combine question guidance with matched guidance from user's affiliation
+        const questionGuidance: GuidanceItemInterface = {
+          orgURI: cleanedQuestion.ownerAffiliation?.uri ?? '',
+          orgName: cleanedQuestion.ownerAffiliation?.name ?? '',
+          orgShortname: cleanedQuestion.ownerAffiliation?.acronyms?.[0] || '',
+          items: cleanedQuestion.guidanceText ? [
+            {
+              title: cleanedQuestion.ownerAffiliation?.name || '',
+              heading: '',
+              guidanceText: cleanedQuestion.guidanceText
+            }
+          ] : []
+        };
+
+        console.log("***Matched guidance by org", matchedGuidanceByOrg);
+        console.log("***Question guidance", questionGuidance);
+        // Set all guidance items at once
+        setGuidanceItems([questionGuidance, ...matchedGuidanceByOrg]);
+
+        // Set section tags in state
+        const sectionTagsMap = (cleanedQuestion.sectionTags ?? [])
+          .filter(tag => tag.id != null)
+          .reduce((acc, tag) => {
+            acc[tag.id!] = tag.name;
+            return acc;
+          }, {} as Record<number, string>);
+
+        setSectionTags(sectionTagsMap);
       } catch (error) {
         logECS('error', 'Parsing error', {
           error,
@@ -1132,7 +1246,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         setErrors(['Error parsing question data']);
       }
     }
-  }, [selectedQuestion]);
+  }, [selectedQuestion, matchedGuidanceByOrg]);
 
 
   // Set plan data in state
@@ -1514,6 +1628,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
 
               <section aria-label={"Guidance"} id="guidance">
+                <h2>Guidance from organizationGuidance</h2>
                 {/**Guidance from funder - if funder guidance exists, then display */}
                 {question?.guidanceText && (
                   <>
@@ -1522,24 +1637,23 @@ const PlanOverviewQuestionPage: React.FC = () => {
                   </>
                 )}
 
-                {/**Guidance from organization - if there is org guidance, then display */}
-                {matchedGuidanceTexts.length > 0 && (
+                {/**Guidance from organizations - if there is org guidance, then display */}
+                {guidanceItems.length > 0 && (
                   <>
-                    <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { name: planData?.plan?.versionedTemplate?.owner?.displayName ?? '' })}</h3>
-                    {/** Additional guidance matched by section tags */}
-                    {matchedGuidanceTexts.length > 0 && (
-                      <div className={styles.matchedGuidanceList} data-testid="matched-guidance">
-                        {matchedGuidanceTexts.map(g => (
-                          <React.Fragment key={g.id}>
-                            <SafeHtml html={g.guidanceText} />
-                          </React.Fragment>
-                        ))}
+                    {guidanceItems.map((org, index) => (
+                      <div key={`guidance-${index}`}>
+                        <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { name: org.orgName })}</h3>
+                        <div className={styles.matchedGuidanceList} data-testid={`matched-guidance-${org.orgURI}`}>
+                          {org.items.map((g, index) => (
+                            <div key={`guidance-item-${index}`} dangerouslySetInnerHTML={{ __html: g.guidanceText }} />
+                          ))}
+                        </div>
                       </div>
-                    )}
+                    ))}
                   </>
                 )}
-
               </section>
+
               <div className={styles.modalAction}>
                 <div>
                   <Button
@@ -1568,73 +1682,16 @@ const PlanOverviewQuestionPage: React.FC = () => {
         </ContentContainer >
 
         <SidebarPanel isOpen={isSideBarPanelOpen}>
-
-          <div className={styles.headerWithLogo}>
-            <h2 className="h4">{Global('bestPractice')}</h2>
-            <Image
-              className={styles.Logo}
-              src="/images/DMP-logo.svg"
-              width="140"
-              height="16"
-              alt="DMP Tool"
+          <div className="status-panel-content side-panel">
+            <h2 className="h4">Guidance</h2>
+            <GuidancePanel
+              guidanceItems={guidanceItems}
+              sectionTags={sectionTags}
+              onAddOrganization={handleAddGuidanceOrganization}
+              onRemoveOrganization={handleRemoveGuidanceOrganization}
             />
           </div>
-
-
-          <ExpandableContentSection
-            id="data-description"
-            heading={Global('dataDescription')}
-            expandLabel={Global('links.expand')}
-            summaryCharLimit={200}
-          >
-            <p>
-              Give a summary of the data you will collect or create, noting the content, coverage and data type, e.g., tabular data, survey data, experimental measurements, models, software, audiovisual data, physical samples, etc.
-            </p>
-            <p>
-              Consider how your data could complement and integrate with existing data, or whether there are any existing data or methods that you could reuse.
-            </p>
-            <p>
-              Indicate which data are of long-term value and should be shared and/or preserved.
-
-            </p>
-            <p>
-              If purchasing or reusing existing data, explain how issues such as copyright and IPR have been addressed. You should aim to minimize any restrictions on the reuse (and subsequent sharing) of third-party data.
-
-            </p>
-
-          </ExpandableContentSection>
-
-          <ExpandableContentSection
-            id="data-format"
-            heading={Global('dataFormat')}
-            expandLabel={Global('links.expand')}
-            summaryCharLimit={200}
-
-          >
-            <p>
-              Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
-            </p>
-
-          </ExpandableContentSection>
-
-          <ExpandableContentSection
-            id="data-volume"
-            heading={Global('dataVolume')}
-            expandLabel={Global('links.expand')}
-            summaryCharLimit={200}
-          >
-            <p>
-              Note what volume of data you will create in MB/GB/TB. Indicate the proportions of raw data, processed data, and other secondary outputs (e.g., reports).
-            </p>
-            <p>
-              Consider the implications of data volumes in terms of storage, access, and preservation. Do you need to include additional costs?
-            </p>
-            <p>
-              Consider whether the scale of the data will pose challenges when sharing or transferring data between sites; if so, how will you address these challenges?
-            </p>
-          </ExpandableContentSection>
         </SidebarPanel>
-
 
         {/** Sample text drawer. Only include for question types = Text Area */}
         {

@@ -67,3 +67,10 @@ export interface AddGuidanceResponse {
   errors?: string[];
   redirect?: string;
 }
+
+export interface GuidanceItemInterface {
+  orgURI: string;
+  orgName: string;
+  orgShortname?: string;
+  items: { id?: number; title?: string; guidanceText: string; }[];
+}

@@ -563,7 +563,7 @@ const TemplateEditPage: React.FC = () => {
           <AddSectionButton href={`/template/${templateId}/section/new`} />
         </div>
         <aside className="sidebar">
-          <div className="statusPanelContent sidePanel">
+          <div className="status-panel-content side-panel">
             <div className="buttonContainer withBorder mb-5">
               <Button
                 data-secondary
@@ -575,7 +575,7 @@ const TemplateEditPage: React.FC = () => {
               <Button onPress={() => handlePressPublishTemplate()}>{EditTemplate("button.publishTemplate")}</Button>
             </div>
 
-            <div className="sidePanelContent">
+            <div className="side-panel-content">
               <div className="panelRow mb-5">
                 <div>
                   <h3>{EditTemplate("button.previewTemplate")}</h3>
@@ -583,7 +583,7 @@ const TemplateEditPage: React.FC = () => {
                 <Link
                   href="#"
                   onPress={() => console.log("Preview")}
-                  className="sidePanelLink"
+                  className="side-panel-link"
                 >
                   {Global('buttons.preview')}
                 </Link>
@@ -598,7 +598,7 @@ const TemplateEditPage: React.FC = () => {
                   <Link
                     href="#"
                     onPress={() => setPublishModalOpen(true)}
-                    className="sidePanelLink"
+                    className="side-panel-link"
                   >
                     {EditTemplate("links.edit")}
                   </Link>
@@ -613,7 +613,7 @@ const TemplateEditPage: React.FC = () => {
                 <Link
                   href="#"
                   onPress={() => setPublishModalOpen(true)}
-                  className="sidePanelLink"
+                  className="side-panel-link"
                 >
                   {EditTemplate("links.edit")}
                 </Link>
@@ -626,7 +626,7 @@ const TemplateEditPage: React.FC = () => {
                 </div>
                 <Link
                   href={`/template/${templateId}/access`}
-                  className="sidePanelLink"
+                  className="side-panel-link"
                 >
                   {EditTemplate("links.manageAccess")}
                 </Link>
@@ -638,7 +638,7 @@ const TemplateEditPage: React.FC = () => {
                 </div>
                 <Link
                   href={`/template/${templateId}/history`}
-                  className="sidePanelLink"
+                  className="side-panel-link"
                 >
                   {EditTemplate("links.templateHistory")}
                 </Link>

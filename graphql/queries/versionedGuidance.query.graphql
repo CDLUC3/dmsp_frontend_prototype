@@ -1,0 +1,18 @@
+query BestPracticeGuidance($tagIds: [Int!]!) {
+  bestPracticeGuidance(tagIds: $tagIds) {
+    id
+    guidanceText
+    guidanceId
+    guidance {
+      guidanceText
+    }
+    tagId
+    errors {
+      guidanceId
+      general
+      guidanceText
+      versionedGuidanceGroupId
+      tagId
+    }
+  }
+}
