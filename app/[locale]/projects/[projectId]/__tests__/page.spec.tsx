@@ -1,10 +1,12 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { useParams } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useQuery } from '@apollo/client/react';
 import ProjectOverviewPage from '../page';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
+import { PlanDocument, ProjectDocument, RelatedWorksByProjectStatsDocument } from "@/generated/graphql";
+
 
 expect.extend(toHaveNoViolations);
 
@@ -181,6 +183,111 @@ describe('ProjectOverviewPage', () => {
     const loadingText = screen.getByText(/messaging.loading/i);
     expect(loadingText).toBeInTheDocument();
   })
+
+
+  it('should not display related works counts for UNPUBLISHED if \'hasPublishedPlan\' prop is false', async () => {
+    const updatedMockPlanData = {
+      ...mockProjectData,
+    };
+
+    const planQueryReturn = {
+      data: { plan: updatedMockPlanData },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    };
+
+    const relatedWorksStatsQueryReturn = {
+      data: {
+        relatedWorksByPlanStats: {
+          hasPublishedPlan: false,
+          pendingCount: 1,
+          acceptedCount: 10,
+        }
+      },
+      loading: false,
+      error: undefined,
+    };
+
+    // Override mock for this test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === ProjectDocument) {
+        return planQueryReturn;
+      }
+
+      if (document === RelatedWorksByProjectStatsDocument) {
+        return relatedWorksStatsQueryReturn;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
+    });
+
+
+    render(<ProjectOverviewPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('relatedWorks.publish')).toBeInTheDocument();
+      expect(screen.queryByText('relatedWorks.pendingCount')).not.toBeInTheDocument();
+      expect(screen.queryByText('relatedWorks.acceptedCount')).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'relatedWorks.edit' })).not.toBeInTheDocument();
+    });
+  });
+
+  it('should display related works counts if \'hasPublishedPlan\' prop has a value', async () => {
+    const updatedMockPlanData = {
+      ...mockProjectData,
+    };
+
+    const planQueryReturn = {
+      data: { plan: updatedMockPlanData },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    };
+
+    const relatedWorksStatsQueryReturn = {
+      data: {
+        relatedWorksByProjectStats: {
+          hasPublishedPlan: true,
+          pendingCount: 1,
+          acceptedCount: 10,
+        }
+      },
+      loading: false,
+      error: undefined,
+    };
+
+    // Override mock for this test
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PlanDocument) {
+        return planQueryReturn;
+      }
+
+      if (document === RelatedWorksByProjectStatsDocument) {
+        return relatedWorksStatsQueryReturn;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
+    });
+
+    render(<ProjectOverviewPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('relatedWorks.pendingCount')).toBeInTheDocument();
+      expect(screen.getByText('relatedWorks.acceptedCount')).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'relatedWorks.edit' })).toBeInTheDocument();
+    });
+  });
 
   it('should pass accessibility tests', async () => {
     const { container } = render(<ProjectOverviewPage />);

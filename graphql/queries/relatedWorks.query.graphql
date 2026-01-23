@@ -1,7 +1,10 @@
-query RelatedWorksByPlan($planId: Int!, $paginationOptions: PaginationOptions, $filterOptions: RelatedWorksFilterOptions) {
-  relatedWorksByPlan(planId: $planId, paginationOptions: $paginationOptions, filterOptions: $filterOptions) {
+query RelatedWorks($id: Int!, $idType: RelatedWorksIdentifierType!, $paginationOptions: PaginationOptions, $filterOptions: RelatedWorksFilterOptions) {
+  relatedWorks(id: $id, idType: $idType, paginationOptions: $paginationOptions, filterOptions: $filterOptions) {
     items {
       id
+      projectId
+      planId
+      planTitle
       workVersion {
         id
         work {
@@ -94,11 +97,12 @@ query RelatedWorksByPlan($planId: Int!, $paginationOptions: PaginationOptions, $
   }
 }
 
-query FindWorkByIdentifier($planId: Int!, $doi: String) {
+query FindWorkByIdentifier($planId: Int, $doi: String) {
   findWorkByIdentifier(planId: $planId, doi: $doi) {
     items {
       id
       planId
+      planTitle
       workVersion {
         work {
           doi
@@ -127,6 +131,17 @@ query FindWorkByIdentifier($planId: Int!, $doi: String) {
 
 query RelatedWorksByPlanStats($planId: Int!) {
   relatedWorksByPlanStats(planId: $planId) {
+    hasPublishedPlan
+    acceptedCount
+    pendingCount
+    rejectedCount
+    totalCount
+  }
+}
+
+query RelatedWorksByProjectStats($projectId: Int!) {
+  relatedWorksByProjectStats(projectId: $projectId) {
+    hasPublishedPlan
     acceptedCount
     pendingCount
     rejectedCount
