@@ -29,12 +29,10 @@ const mockUseQuery = jest.mocked(useQuery);
 const setupMocks = () => {
   const stableLicensesReturn = {
     data: {
-      licenses: {
-        items: [
-          { name: 'MIT', uri: 'mit-uri', recommended: true },
-          { name: 'GPL', uri: 'gpl-uri', recommended: false },
-        ],
-      },
+      licenses: [
+        { name: 'MIT', uri: 'mit-uri', recommended: true },
+        { name: 'GPL', uri: 'gpl-uri', recommended: false },
+      ],
     },
     loading: false,
     error: null,

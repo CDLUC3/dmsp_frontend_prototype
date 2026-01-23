@@ -59,12 +59,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
 
   // Query request for all licenses
   const { data: licensesData } = useQuery(LicensesDocument, {
-    variables: {
-      paginationOptions: {// Not using pagination right now, but it's only way to get all licenses data
-        type: "OFFSET",
-        limit: 500
-      }
-    }
+    variables: {}
   });
 
   // Query request for default research output types
@@ -231,7 +226,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
     setAdditionalFields(
       (hydrated.additionalFields || []).map((field, idx) => ({
         ...field,
-        id: (field as any).id ?? `custom_field_${Date.now()}_${idx}`,// Ensure each field has a unique ID for updates 
+        id: (field as any).id ?? `custom_field_${Date.now()}_${idx}`,// Ensure each field has a unique ID for updates
       })) as AdditionalFieldsType[]
     );
     setExpandedFields(hydrated.expandedFields);
@@ -363,7 +358,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
     const currentField = standardFields.find(f => f.id === 'licenses');
     if (currentField && currentField.licensesConfig) {
       // When switching to 'addToDefaults' mode, pre-populate with recommended licenses if customTypes is empty
-      const allLicenses = licensesData?.licenses?.items?.filter((license): license is NonNullable<typeof license> => license !== null) || [];
+      const allLicenses = licensesData?.licenses?.filter((license): license is NonNullable<typeof license> => license !== null) || [];
       const recommendedLicenses = allLicenses
         .filter(license => license.recommended)
         .map(license => ({ name: license.name, uri: license.uri }));
@@ -389,7 +384,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
       const currentField = standardFields.find(f => f.id === 'licenses');
       if (currentField && currentField.licensesConfig) {
         // newLicenseType contains the URI, find the full license object
-        const allLicenses = licensesData?.licenses?.items?.filter((license): license is NonNullable<typeof license> => license !== null) || [];
+        const allLicenses = licensesData?.licenses?.filter((license): license is NonNullable<typeof license> => license !== null) || [];
         const selectedLicense = allLicenses.find(license => license.uri === newLicenseType.trim());
 
         if (selectedLicense) {
