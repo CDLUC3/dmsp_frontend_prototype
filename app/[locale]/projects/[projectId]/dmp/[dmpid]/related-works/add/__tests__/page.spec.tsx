@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { axe, toHaveNoViolations } from "jest-axe";
-import AddRelatedWorkPage from "../page";
+import AddRelatedWorkPlanPage from "../page";
 import { FindWorkByIdentifierDocument, RelatedWorkSearchResult, RelatedWorkStatus } from "@/generated/graphql";
 import {
   MOCK_ACCEPTED_WORKS,
@@ -12,7 +12,7 @@ import {
 } from "@/app/[locale]/projects/[projectId]/dmp/[dmpid]/related-works/mockWorks";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
-import { upsertRelatedWorkAction } from "@/app/[locale]/projects/[projectId]/dmp/[dmpid]/related-works/actions/upsertRelatedWorkAction";
+import { upsertRelatedWorkAction } from "@/app/actions/upsertRelatedWorkAction";
 import { useQuery } from "@apollo/client/react";
 
 expect.extend(toHaveNoViolations);
@@ -29,7 +29,7 @@ jest.mock("@apollo/client/react", () => ({
   useQuery: jest.fn(),
 }));
 
-jest.mock("@/app/[locale]/projects/[projectId]/dmp/[dmpid]/related-works/actions/upsertRelatedWorkAction", () => ({
+jest.mock("@/app/actions/upsertRelatedWorkAction", () => ({
   upsertRelatedWorkAction: jest.fn(),
 }));
 
@@ -75,14 +75,14 @@ describe("AddRelatedWorkPage", () => {
 
   it("should render the page header with title and description", () => {
     setupMocks([]);
-    render(<AddRelatedWorkPage />);
+    render(<AddRelatedWorkPlanPage />);
     expect(screen.getByRole("heading", { name: /title/i })).toBeInTheDocument();
     expect(screen.getByText("description")).toBeInTheDocument();
   });
 
   it("should render the search box and have lookup button", () => {
     setupMocks([]);
-    render(<AddRelatedWorkPage />);
+    render(<AddRelatedWorkPlanPage />);
     expect(screen.getByText("searchLabel")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("10.1000/182")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "buttons.lookup" })).toBeInTheDocument();
@@ -90,7 +90,7 @@ describe("AddRelatedWorkPage", () => {
 
   it("should render the breadcrumb links", () => {
     setupMocks([]);
-    render(<AddRelatedWorkPage />);
+    render(<AddRelatedWorkPlanPage />);
     expect(screen.getByText("breadcrumbs.home")).toBeInTheDocument();
     expect(screen.getByText("breadcrumbs.projects")).toBeInTheDocument();
     expect(screen.getByText("breadcrumbs.projectOverview")).toBeInTheDocument();
@@ -106,7 +106,7 @@ describe("AddRelatedWorkPage", () => {
         timeZone={"UTC"}
         messages={{}}
       >
-        <AddRelatedWorkPage />
+        <AddRelatedWorkPlanPage />
       </NextIntlClientProvider>,
     );
 
@@ -124,7 +124,7 @@ describe("AddRelatedWorkPage", () => {
         timeZone={"UTC"}
         messages={{}}
       >
-        <AddRelatedWorkPage />
+        <AddRelatedWorkPlanPage />
       </NextIntlClientProvider>,
     );
 
@@ -142,7 +142,7 @@ describe("AddRelatedWorkPage", () => {
         timeZone={"UTC"}
         messages={{}}
       >
-        <AddRelatedWorkPage />
+        <AddRelatedWorkPlanPage />
       </NextIntlClientProvider>,
     );
 
@@ -157,7 +157,7 @@ describe("AddRelatedWorkPage", () => {
     const user = userEvent.setup();
     setupMocks([]);
 
-    render(<AddRelatedWorkPage />);
+    render(<AddRelatedWorkPlanPage />);
 
     const input = screen.getByRole("searchbox", { name: /searchLabel/i });
     await user.type(input, "10.1000/123");
@@ -170,7 +170,7 @@ describe("AddRelatedWorkPage", () => {
   it('should display "invalidDoi" when invalid DOI entered', async () => {
     const user = userEvent.setup();
     setupMocks([]);
-    render(<AddRelatedWorkPage />);
+    render(<AddRelatedWorkPlanPage />);
 
     const input = screen.getByRole("searchbox", { name: /searchLabel/i });
     await user.type(input, "123");
@@ -192,7 +192,7 @@ describe("AddRelatedWorkPage", () => {
         timeZone={"UTC"}
         messages={{}}
       >
-        <AddRelatedWorkPage />
+        <AddRelatedWorkPlanPage />
       </NextIntlClientProvider>,
     );
 
@@ -224,7 +224,7 @@ describe("AddRelatedWorkPage", () => {
         timeZone={"UTC"}
         messages={{}}
       >
-        <AddRelatedWorkPage />
+        <AddRelatedWorkPlanPage />
       </NextIntlClientProvider>,
     );
 
@@ -246,7 +246,7 @@ describe("AddRelatedWorkPage", () => {
 
   it("should pass accessibility tests", async () => {
     setupMocks([]);
-    const { container } = render(<AddRelatedWorkPage />);
+    const { container } = render(<AddRelatedWorkPlanPage />);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
