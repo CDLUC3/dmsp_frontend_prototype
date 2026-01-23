@@ -199,8 +199,6 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
     return sources;
   }, [guidanceItems, bestPracticeGuidanceData]);
 
-  console.log("*** Guidance Sources:", guidanceSources);
-
   // Calculate how many pills can fit in first row
   useEffect(() => {
     const calculateVisibleCount = () => {
@@ -215,7 +213,7 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
       let count = 0;
 
       // Measure each pill temporarily to see how many fit
-      pillsRef.current.forEach((pill, index) => {
+      pillsRef.current.forEach((pill) => {
         if (!pill) return;
         const pillWidth = pill.offsetWidth;
         if (totalWidth + pillWidth + (count > 0 ? gap : 0) <= availableWidth) {
@@ -274,9 +272,6 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
 
   // Show more button if there are more than 3 tabs
   const hasOverflow = guidanceSources.length > visibleCount;
-  // When collapsed: show only visibleCount pills (More button takes the spot of the next pill)
-  // When expanded: show all pills
-  const visibleSources = showAllTabs ? guidanceSources : guidanceSources.slice(0, visibleCount);
 
   return (
     <div className={styles.guidancePanel}>
@@ -390,8 +385,7 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
 };
 
 // Helper function to render content based on source type
-const renderGuidanceContentForSource = (source: GuidanceSource, Global: any) => {
-  console.log("*** Rendering guidance for source:", source);
+const renderGuidanceContentForSource = (source: GuidanceSource, Global: (key: string, values?: Record<string, string | number>) => string) => {
   switch (source.type) {
     case 'bestPractice':
       return (
@@ -414,17 +408,15 @@ const renderGuidanceContentForSource = (source: GuidanceSource, Global: any) => 
               const textContent = tempDiv.textContent || tempDiv.innerText || '';
               const needsExpansion = textContent.length > 100;
               return (
-                <>
-                  <ExpandableContentSection
-                    key={`guidance-${g.id}`}
-                    id={`guidance-${g.id}`}
-                    heading={g.title || ''}
-                    expandLabel={Global('links.expand')}
-                    summaryCharLimit={needsExpansion ? 100 : undefined}
-                  >
-                    {parse(g.guidanceText)}
-                  </ExpandableContentSection>
-                </>
+                <ExpandableContentSection
+                  key={`guidance-${g.id}`}
+                  id={`guidance-${g.id}`}
+                  heading={g.title || ''}
+                  expandLabel={Global('links.expand')}
+                  summaryCharLimit={needsExpansion ? 100 : undefined}
+                >
+                  {parse(g.guidanceText)}
+                </ExpandableContentSection>
               );
             })}
           </div>
@@ -444,17 +436,15 @@ const renderGuidanceContentForSource = (source: GuidanceSource, Global: any) => 
               const needsExpansion = textContent.length > 200;
 
               return (
-                <>
-                  <ExpandableContentSection
-                    key={`guidance-${g.id}`}
-                    id={`guidance-${g.id}`}
-                    heading={(source.label !== g.title) ? g.title : undefined}
-                    expandLabel={Global('links.expand')}
-                    summaryCharLimit={needsExpansion ? 200 : undefined}
-                  >
-                    <div dangerouslySetInnerHTML={{ __html: g.guidanceText }} />
-                  </ExpandableContentSection>
-                </>
+                <ExpandableContentSection
+                  key={`guidance-${g.id}`}
+                  id={`guidance-${g.id}`}
+                  heading={(source.label !== g.title) ? g.title : undefined}
+                  expandLabel={Global('links.expand')}
+                  summaryCharLimit={needsExpansion ? 200 : undefined}
+                >
+                  <div dangerouslySetInnerHTML={{ __html: g.guidanceText }} />
+                </ExpandableContentSection>
               );
             })}
           </div>

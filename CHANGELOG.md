@@ -1,4 +1,6 @@
 ## Added
+- Added new `GuidancePanel` component for the tabbed guidance in the right sidebar [#12]
+- Added `BestPracticeGuidance` query [#12]
 - Added ability to manually add a related work via a DOI [#835]
 - Added a shared `utils/apolloErrorHandler.ts` file to handle `AbortError` related to the updated Apollo Client v4 [#1094]
 - Added new graphql queries `MetadataStandardsByURIs` and `RepositoriesByURIs` to get the preferred standards and repos for the Research Output Answer modals [#1094]
@@ -7,6 +9,8 @@
 - Added new `ResearchOutputAnswerComponent`, `SingleResearchOutputComponent`, `RepoSelectorForAnswer` and `MetaDataStandardForAnswer` components for the rendering of `researchOutputTable` question type answer form [#787]
 - Added `utils/researchOutputTransformations.ts` to group utilities for `researchOutputTable` [#787]
 ### Updated
+- Updated `ExpandableContentSection` component to work with new `GuidancePanel` [#12]
+- Updated queries for`GuidanceGroups`, `Me` and `PublishedQuestion` queries [#12]
 - Updates related to updated version of @dmptool/types to v2.3.0 [#1082][#998]
   - Updated `PlanCreate` question component page to add a `textArea` comment field if `showCommentField` is true and added `description` to the answer JSON [#998]
   - Added `showCommentField` checkbox field to `QuestionAdd` and `QuestionEdit` components [#998]

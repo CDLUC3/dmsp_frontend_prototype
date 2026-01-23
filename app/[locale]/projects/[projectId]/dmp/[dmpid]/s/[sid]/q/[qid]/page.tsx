@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { useTranslations } from "next-intl";
 import { CalendarDate, DateValue } from "@internationalized/date";
 import { CURRENT_SCHEMA_VERSION, QuestionTypeMap } from '@dmptool/types';
@@ -67,7 +66,6 @@ import ErrorMessages from '@/components/ErrorMessages';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 import { DmpIcon } from "@/components/Icons";
 import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
-import ExpandableContentSection from '@/components/ExpandableContentSection';
 import SafeHtml from '@/components/SafeHtml';
 import Loading from '@/components/Loading';
 import { FormTextArea } from '@/components/Form';
@@ -302,7 +300,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       orgShortName: string;
       itemsByTag: Map<number, {
         title: string;
-        guidanceTexts: Array<{ id: number; text: string }>;
+        guidanceTexts: { id: number; text: string }[];
       }>;
     }>();
 
@@ -376,8 +374,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     return orgGuidanceList;
   }, [guidanceData, currentSectionTagIds, me]);
 
-
-  console.log("***Matched Guidance by Org:", matchedGuidanceByOrg);
   // Get answer data
   const { data: answerData, loading: answerLoading, error: answerError } = useQuery(
     AnswerByVersionedQuestionIdDocument,
@@ -1218,14 +1214,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
           items: cleanedQuestion.guidanceText ? [
             {
               title: cleanedQuestion.ownerAffiliation?.name || '',
-              heading: '',
               guidanceText: cleanedQuestion.guidanceText
             }
           ] : []
         };
 
-        console.log("***Matched guidance by org", matchedGuidanceByOrg);
-        console.log("***Question guidance", questionGuidance);
         // Set all guidance items at once
         setGuidanceItems([questionGuidance, ...matchedGuidanceByOrg]);
 
