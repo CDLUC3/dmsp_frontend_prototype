@@ -172,7 +172,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [parsed, setParsed] = useState<AnyParsedQuestion>();
   const [answerId, setAnswerId] = useState<number | null>(null);
   const [guidanceItems, setGuidanceItems] = useState<GuidanceItemInterface[]>([]);
-  const [sectionTags, setSectionTags] = useState<Record<number, string>>({});
 
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -271,7 +270,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     console.log('Remove guidance organization:', orgId);
   };
 
-  // Tags assigned to current section
+  // Get section tag info from plan data
   const currentSectionTagIds = React.useMemo(() => {
     const section = planData?.plan?.versionedSections?.find(s => s.versionedSectionId === Number(versionedSectionId));
     const guidanceTagInfo = section?.tags?.map(t => {
@@ -281,10 +280,20 @@ const PlanOverviewQuestionPage: React.FC = () => {
         tagSlug: t.slug,
         tagDescription: t.description
       };
-    }
-    ) ?? [];
+    }) ?? [];
     return guidanceTagInfo;
   }, [planData, versionedSectionId]);
+
+  // Derive the sectionTags map format needed by GuidancePanel
+  const sectionTagsMap = React.useMemo(() => {
+    return currentSectionTagIds.reduce((acc, tag) => {
+      if (tag.tagId != null) {
+        acc[tag.tagId] = tag.tagName;
+      }
+      return acc;
+    }, {} as Record<number, string>);
+  }, [currentSectionTagIds]);
+
 
   // Guidance from user's affiliation that matches current section tags
   const matchedGuidanceByOrg = React.useMemo<GuidanceItemInterface[]>(() => {
@@ -1219,18 +1228,27 @@ const PlanOverviewQuestionPage: React.FC = () => {
           ] : []
         };
 
-        // Set all guidance items at once
-        setGuidanceItems([questionGuidance, ...matchedGuidanceByOrg]);
+        // Consolidate guidance by orgURI
+        const guidanceMap = new Map<string, GuidanceItemInterface>();
 
-        // Set section tags in state
-        const sectionTagsMap = (cleanedQuestion.sectionTags ?? [])
-          .filter(tag => tag.id != null)
-          .reduce((acc, tag) => {
-            acc[tag.id!] = tag.name;
-            return acc;
-          }, {} as Record<number, string>);
+        // Add question guidance if it has items
+        if (questionGuidance.items.length > 0) {
+          guidanceMap.set(questionGuidance.orgURI, questionGuidance);
+        }
 
-        setSectionTags(sectionTagsMap);
+        // Add or merge matched guidance
+        matchedGuidanceByOrg.forEach(guidance => {
+          if (guidanceMap.has(guidance.orgURI)) {
+            // Merge items if orgURI already exists
+            const existing = guidanceMap.get(guidance.orgURI)!;
+            existing.items = [...existing.items, ...guidance.items];
+          } else {
+            guidanceMap.set(guidance.orgURI, guidance);
+          }
+        });
+
+        // Convert map back to array and set all guidance items in state
+        setGuidanceItems(Array.from(guidanceMap.values()));
       } catch (error) {
         logECS('error', 'Parsing error', {
           error,
@@ -1679,7 +1697,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
             <h2 className="h4">Guidance</h2>
             <GuidancePanel
               guidanceItems={guidanceItems}
-              sectionTags={sectionTags}
+              sectionTags={sectionTagsMap}
               onAddOrganization={handleAddGuidanceOrganization}
               onRemoveOrganization={handleRemoveGuidanceOrganization}
             />

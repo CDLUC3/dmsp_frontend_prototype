@@ -63,6 +63,8 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
   onSourceChange
 }) => {
 
+  console.log("***Guidance Items:", guidanceItems);
+  console.log("***Section Tags:", sectionTags);
   const Global = useTranslations('Global');
   const t = useTranslations('GuidancePanel');
 
@@ -443,7 +445,7 @@ const renderGuidanceContentForSource = (source: GuidanceSource, Global: (key: st
                   expandLabel={Global('links.expand')}
                   summaryCharLimit={needsExpansion ? 200 : undefined}
                 >
-                  <div dangerouslySetInnerHTML={{ __html: g.guidanceText }} />
+                  {parse(g.guidanceText)}
                 </ExpandableContentSection>
               );
             })}
