@@ -1,6 +1,7 @@
 ## Added
 - Added new `GuidancePanel` component for the tabbed guidance in the right sidebar [#12]
 - Added `BestPracticeGuidance` query [#12]
+- Added ability to show if there are pending related works and the number of accepted works [#981]
 - Added ability to manually add a related work via a DOI [#835]
 - Added a shared `utils/apolloErrorHandler.ts` file to handle `AbortError` related to the updated Apollo Client v4 [#1094]
 - Added new graphql queries `MetadataStandardsByURIs` and `RepositoriesByURIs` to get the preferred standards and repos for the Research Output Answer modals [#1094]
@@ -52,6 +53,7 @@
 ### Remove
 - Removed `boolean` question type from the Add Question question types list [#990]
 ### Fixed
+- Fixed issue on Guidance Group creation, where saving content for one tag, wipes out the entered content (unsaved) for other tags [#6]
 - Fixed related works pagination.
 
 ### Chore

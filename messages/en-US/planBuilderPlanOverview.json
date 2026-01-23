@@ -46,8 +46,10 @@
     },
     "relatedWorks": {
       "title": "Related works for this plan",
-      "count": "{count} works",
-      "edit": "Adjust for this plan"
+      "pendingCount": "{count} pending outputs",
+      "acceptedCount": "{count} accepted outputs",
+      "edit": "Adjust for this plan",
+      "publish": "Publish your plan to start adding related outputs to your DMP"
     },
     "question": {
       "answered": "Answered",
