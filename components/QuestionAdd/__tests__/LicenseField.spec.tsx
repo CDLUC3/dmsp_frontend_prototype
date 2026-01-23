@@ -427,7 +427,7 @@ describe('LicenseField', () => {
         });
 
         // Should display licenses marked as recommended in mock data
-        const recommendedLicenses = mockLicensesQuery.licenses?.items?.filter(
+        const recommendedLicenses = mockLicensesQuery.licenses?.filter(
           (license) => license?.recommended
         );
         expect(recommendedLicenses?.length).toBeGreaterThan(0);
