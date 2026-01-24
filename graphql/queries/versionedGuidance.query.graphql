@@ -16,3 +16,18 @@ query BestPracticeGuidance($tagIds: [Int!]!) {
     }
   }
 }
+
+query VersionedGuidance($affiliationId: String!, $tagIds: [Int!]!) {
+  versionedGuidance(affiliationId: $affiliationId, tagIds: $tagIds) {
+    tagId
+    id
+    guidanceText
+    errors {
+      general
+      guidanceId
+      guidanceText
+      tagId
+      versionedGuidanceGroupId
+    }
+  }
+}

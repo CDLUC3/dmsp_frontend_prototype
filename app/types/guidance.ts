@@ -74,3 +74,44 @@ export interface GuidanceItemInterface {
   orgShortname?: string;
   items: { id?: number; title?: string; guidanceText: string; }[];
 }
+export interface MatchedGuidance {
+  id?: number;
+  title?: string;
+  guidanceText: string;
+}
+
+export interface GuidanceSource {
+  id: string;
+  type: 'bestPractice' | 'funder' | 'organization';
+  label: string;
+  shortName?: string | null;
+  content?: string;
+  items?: MatchedGuidance[];
+  orgURI?: string;
+}
+
+export interface GuidancePanelProps {
+  // User's organization affiliation URI
+  userAffiliationId?: string;
+  // Template owner's affiliation URI
+  ownerAffiliationId?: string;
+  // Organization guidance
+  guidanceItems: GuidanceItemInterface[];
+  // Tags assigned to the current section
+  sectionTags: Record<number, string>;
+  // Callbacks
+  onAddOrganization?: () => void;
+  onRemoveOrganization?: (orgId: string) => void;
+}
+
+export interface VersionedGuidanceGroup {
+  guidanceText: string | null;
+  id: number | null;
+  tagId: number | null;
+  errors?: Record<string, string>;
+};
+
+export interface VersionedGuidanceQuery {
+  versionedGuidance: VersionedGuidanceGroup[];
+};
+

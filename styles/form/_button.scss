@@ -184,6 +184,17 @@
   &:disabled {
     color: var(--slate-400);
   }
+
+  // Use both :focus and :focus-visible
+  &[data-focus-visible],
+  &:focus-visible,
+  &:focus {  // Add this
+    outline: 2px solid var(--blue-900) !important;
+    outline-offset: 2px !important;
+    border-radius: 2px !important;
+    background: none !important;
+    color: var(--blue-900) !important;
+  }
 }
 
 

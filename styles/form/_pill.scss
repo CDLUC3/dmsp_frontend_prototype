@@ -135,3 +135,15 @@
   flex-wrap: wrap;
   align-items: center;
 }
+
+@mixin pill-customize {
+  background-color: var(--slate-200);
+  border: 2px solid var(--slate-900);
+  color: var(--slate-900);
+
+    &:hover:not(:disabled) {
+    background-color: var(--gray-100);
+    border-color: var(--slate-400);
+  }
+  
+}

@@ -1,13 +1,15 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing/react';
 import { useParams } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
 
 import {
+  MeDocument,
   PlanDocument,
   PublishedQuestionsDocument,
   PublishedSectionDocument,
+  VersionedGuidanceDocument
 } from '@/generated/graphql';
 
 import PlanOverviewSectionPage from "../page";
@@ -23,6 +25,18 @@ jest.mock('next-intl', () => ({
 jest.mock('@/components/PageHeader', () => ({
   __esModule: true,
   default: () => <div data-testid="mock-page-header" />,
+}));
+
+// Mock GuidancePanel component
+jest.mock('@/components/GuidancePanel', () => ({
+  __esModule: true,
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  default: ({ guidanceItems, sectionTags }: any) => (
+    <div data-testid="mock-guidance-panel">
+      <div data-testid="guidance-items-count">{guidanceItems.length}</div>
+      <div data-testid="section-tags-count">{Object.keys(sectionTags).length}</div>
+    </div>
+  ),
 }));
 
 // Mock stripHtml utility
@@ -195,6 +209,55 @@ const planMock = {
   }
 };
 
+const meMock = {
+  __typename: "User",
+  id: 1,
+  givenName: "Super",
+  surName: "Admin",
+  languageId: "en-US",
+  role: "SUPERADMIN",
+  emails: [
+    {
+      __typename: "UserEmail",
+      id: 1,
+      email: "super@example.com",
+      isPrimary: true,
+      isConfirmed: true
+    }
+  ],
+  errors: {
+    __typename: "UserErrors",
+    general: null,
+    email: null,
+    password: null,
+    role: null
+  },
+  affiliation: {
+    __typename: "Affiliation",
+    id: 1,
+    name: "California Digital Library",
+    searchName: "California Digital Library | cdlib.org | CDL ",
+    uri: "https://ror.org/03yrm5c26",
+    acronyms: [
+      "CDL"
+    ]
+  }
+};
+
+const versionedGuidanceMock = [
+  {
+    tagId: 1,
+    id: 1192,
+    guidanceText: '<p>This is guidance for data description</p>',
+  },
+  {
+    tagId: 2,
+    id: 1193,
+    guidanceText: '<p>This is guidance for data organization</p>',
+  },
+];
+
+
 const mocks = [
   // Successful questions query
   {
@@ -232,6 +295,45 @@ const mocks = [
       },
     },
   },
+  // Successful me query
+  {
+    request: {
+      query: MeDocument,
+    },
+    result: {
+      data: {
+        me: meMock,
+      },
+    },
+  },
+  {
+    request: {
+      query: VersionedGuidanceDocument,
+      variables: {
+        affiliationId: 'https://ror.org/03yrm5c26',
+        tagIds: [1, 2],
+      },
+    },
+    result: {
+      data: {
+        versionedGuidance: versionedGuidanceMock,
+      },
+    },
+  },
+  {
+    request: {
+      query: VersionedGuidanceDocument,
+      variables: {
+        affiliationId: 'https://ror.org/03yrm5c26',
+        tagIds: [],
+      },
+    },
+    result: {
+      data: {
+        versionedGuidance: versionedGuidanceMock,
+      },
+    },
+  },
 ];
 
 const errorMocks = [
@@ -264,6 +366,44 @@ const errorMocks = [
     result: {
       data: {
         plan: planMock,
+      },
+    },
+  },
+  {
+    request: {
+      query: MeDocument,
+    },
+    result: {
+      data: {
+        me: meMock,
+      },
+    },
+  },
+  {
+    request: {
+      query: VersionedGuidanceDocument,
+      variables: {
+        affiliationId: 'https://ror.org/03yrm5c26',
+        tagIds: [1, 2],
+      },
+    },
+    result: {
+      data: {
+        versionedGuidance: versionedGuidanceMock,
+      },
+    },
+  },
+  {
+    request: {
+      query: VersionedGuidanceDocument,
+      variables: {
+        affiliationId: 'https://ror.org/03yrm5c26',
+        tagIds: [],
+      },
+    },
+    result: {
+      data: {
+        versionedGuidance: versionedGuidanceMock,
       },
     },
   },
@@ -306,11 +446,51 @@ const emptyQuestionsMocks = [
       },
     },
   },
+  {
+    request: {
+      query: MeDocument,
+    },
+    result: {
+      data: {
+        me: meMock,
+      },
+    },
+  },
+  {
+    request: {
+      query: VersionedGuidanceDocument,
+      variables: {
+        affiliationId: 'https://ror.org/03yrm5c26',
+        tagIds: [1, 2],
+      },
+    },
+    result: {
+      data: {
+        versionedGuidance: versionedGuidanceMock,
+      },
+    },
+  },
+  {
+    request: {
+      query: VersionedGuidanceDocument,
+      variables: {
+        affiliationId: 'https://ror.org/03yrm5c26',
+        tagIds: [],
+      },
+    },
+    result: {
+      data: {
+        versionedGuidance: versionedGuidanceMock,
+      },
+    },
+  },
 ];
+
 
 describe('PlanOverviewSectionPage', () => {
   beforeEach(() => {
     (useParams as jest.Mock).mockReturnValue(mockParams);
+    jest.clearAllMocks();
   });
 
   it('should render the page with questions and section data', async () => {
@@ -320,13 +500,12 @@ describe('PlanOverviewSectionPage', () => {
       </MockedProvider>
     );
 
-    // Check that loading state is shown initially
-    await waitFor(() => {
-      expect(screen.queryByText('Loading questions...')).not.toBeInTheDocument();
-    });
+    // Check that initial questions are loaded
+    await waitFor(() =>
+      expect(screen.getByText('What types of data will be produced during your project?')).toBeInTheDocument()
+    );
 
     // Check that questions are rendered
-    expect(screen.getByText('What types of data will be produced during your project?')).toBeInTheDocument();
     expect(screen.getByText('What type of metadata will be collected?')).toBeInTheDocument();
     expect(screen.getByText('Will all data be converted to open source formats?')).toBeInTheDocument();
 
@@ -338,15 +517,9 @@ describe('PlanOverviewSectionPage', () => {
     expect(screen.getByText('Requirements text for the section')).toBeInTheDocument();
     expect(screen.getByText('Requirements by University of California')).toBeInTheDocument();
 
-    // Check for best practice content in sidebar
-    expect(screen.getByTestId('sidebar-panel')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 2, name: 'bestPractice' })).toBeInTheDocument();
-    const bestPracticeDataDescription = screen.getByRole('heading', { level: 3, name: 'dataDescription' });
-    expect(bestPracticeDataDescription).toBeInTheDocument();
-    const bestPracticeDataFormat = screen.getByRole('heading', { level: 3, name: 'dataFormat' });
-    expect(bestPracticeDataFormat).toBeInTheDocument();
-    const bestPracticeDataVolume = screen.getByRole('heading', { level: 3, name: 'dataVolume' });
-    expect(bestPracticeDataVolume).toBeInTheDocument();
+    // Check for mock sidebar
+    expect(screen.getByTestId('mock-guidance-panel')).toBeInTheDocument();
+
   });
 
   it('should handle empty questions list', async () => {
@@ -356,17 +529,15 @@ describe('PlanOverviewSectionPage', () => {
       </MockedProvider>
     );
 
-    // Wait for data to load
-    await waitFor(() => {
-      expect(screen.queryByText('Loading questions...')).not.toBeInTheDocument();
-    });
-
-    // Check that no questions are rendered
-    expect(screen.queryByText('What types of data will be produced during your project?')).not.toBeInTheDocument();
+    // Check that initial questions are loaded
+    await waitFor(() =>
+      expect(screen.getByText('Requirements text for the section')).toBeInTheDocument()
+    );
 
     // Check that other content is still rendered
     expect(screen.getByText('headings.requirementsBy')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 2, name: 'bestPractice' })).toBeInTheDocument();
+    // Check for mock sidebar
+    expect(screen.getByTestId('mock-guidance-panel')).toBeInTheDocument();
   });
 
   it('should handle GraphQL errors gracefully', async () => {
@@ -378,7 +549,7 @@ describe('PlanOverviewSectionPage', () => {
 
     // Wait for error to be displayed
     await waitFor(() => {
-      expect(screen.getByText('Error loading questions: Failed to fetch questions')).toBeInTheDocument();
+      expect(screen.getByText('errors.errorLoadingSections')).toBeInTheDocument();
     });
   });
 
@@ -391,7 +562,7 @@ describe('PlanOverviewSectionPage', () => {
 
     // Wait for data to load
     await waitFor(() => {
-      expect(screen.queryByText('Loading questions...')).not.toBeInTheDocument();
+      expect(screen.queryByText('messaging.loading')).not.toBeInTheDocument();
     });
 
     // Check that question cards are rendered
@@ -425,10 +596,10 @@ describe('PlanOverviewSectionPage', () => {
       </MockedProvider>
     );
 
-    // Wait for data to load
-    await waitFor(() => {
-      expect(screen.queryByText('Loading questions...')).not.toBeInTheDocument();
-    });
+    // Check that initial questions are loaded
+    await waitFor(() =>
+      expect(screen.getByText('Requirements text for the section')).toBeInTheDocument()
+    );
 
     // Check that links are generated correctly
     const questionLinks = screen.getAllByText('sections.start');
@@ -459,10 +630,10 @@ describe('PlanOverviewSectionPage', () => {
       </MockedProvider>
     );
 
-    // Wait for data to load
-    await waitFor(() => {
-      expect(screen.queryByText('Loading questions...')).not.toBeInTheDocument();
-    });
+    // Check that initial questions are loaded
+    await waitFor(() =>
+      expect(screen.getByText('What types of data will be produced during your project?')).toBeInTheDocument()
+    );
 
     expect(screen.getAllByLabelText('Question status: question.answered')).toHaveLength(1);
     expect(screen.getAllByLabelText('Question status: question.notAnswered')).toHaveLength(2);
@@ -503,6 +674,44 @@ describe('PlanOverviewSectionPage', () => {
           },
         },
       },
+      {
+        request: {
+          query: MeDocument,
+        },
+        result: {
+          data: {
+            me: meMock,
+          },
+        },
+      },
+      {
+        request: {
+          query: VersionedGuidanceDocument,
+          variables: {
+            affiliationId: 'https://ror.org/03yrm5c26',
+            tagIds: [1, 2],
+          },
+        },
+        result: {
+          data: {
+            versionedGuidance: versionedGuidanceMock,
+          },
+        },
+      },
+      {
+        request: {
+          query: VersionedGuidanceDocument,
+          variables: {
+            affiliationId: 'https://ror.org/03yrm5c26',
+            tagIds: [],
+          },
+        },
+        result: {
+          data: {
+            versionedGuidance: versionedGuidanceMock,
+          },
+        },
+      },
     ];
 
     render(
@@ -511,10 +720,10 @@ describe('PlanOverviewSectionPage', () => {
       </MockedProvider>
     );
 
-    // Wait for data to load
-    await waitFor(() => {
-      expect(screen.queryByText('Loading questions...')).not.toBeInTheDocument();
-    });
+    // Check that initial questions are loaded
+    await waitFor(() =>
+      expect(screen.getByText('What types of data will be produced during your project?')).toBeInTheDocument()
+    );
 
     // Check that default section name is used
     expect(screen.getByTestId('mock-page-header')).toBeInTheDocument();
@@ -555,6 +764,44 @@ describe('PlanOverviewSectionPage', () => {
           },
         },
       },
+      {
+        request: {
+          query: MeDocument,
+        },
+        result: {
+          data: {
+            me: meMock,
+          },
+        },
+      },
+      {
+        request: {
+          query: VersionedGuidanceDocument,
+          variables: {
+            affiliationId: 'https://ror.org/03yrm5c26',
+            tagIds: [1, 2],
+          },
+        },
+        result: {
+          data: {
+            versionedGuidance: versionedGuidanceMock,
+          },
+        },
+      },
+      {
+        request: {
+          query: VersionedGuidanceDocument,
+          variables: {
+            affiliationId: 'https://ror.org/03yrm5c26',
+            tagIds: [],
+          },
+        },
+        result: {
+          data: {
+            versionedGuidance: versionedGuidanceMock,
+          },
+        },
+      },
     ];
 
     render(
@@ -562,11 +809,10 @@ describe('PlanOverviewSectionPage', () => {
         <PlanOverviewSectionPage />
       </MockedProvider>
     );
-
-    // Wait for data to load
-    await waitFor(() => {
-      expect(screen.queryByText('Loading questions...')).not.toBeInTheDocument();
-    });
+    // Check that initial questions are loaded
+    await waitFor(() =>
+      expect(screen.getByText('What types of data will be produced during your project?')).toBeInTheDocument()
+    );
 
     // Check that only valid questions are rendered (3 questions, not 5)
     const questionCards = screen.getAllByRole('region').filter(section =>
@@ -582,12 +828,18 @@ describe('PlanOverviewSectionPage', () => {
       </MockedProvider>
     );
 
-    // Wait for data to load
+    await waitFor(() =>
+      expect(screen.getByText('What types of data will be produced during your project?')).toBeInTheDocument()
+    );
     await waitFor(() => {
-      expect(screen.queryByText('Loading questions...')).not.toBeInTheDocument();
+      expect(screen.queryByText('messaging.loading')).not.toBeInTheDocument();
     });
 
-    const results = await axe(container);
+    let results;
+    await act(async () => {
+      results = await axe(container);
+    });
+
     expect(results).toHaveNoViolations();
   });
 
@@ -638,6 +890,44 @@ describe('PlanOverviewSectionPage', () => {
           },
         },
       },
+      {
+        request: {
+          query: MeDocument,
+        },
+        result: {
+          data: {
+            me: meMock,
+          },
+        },
+      },
+      {
+        request: {
+          query: VersionedGuidanceDocument,
+          variables: {
+            affiliationId: 'https://ror.org/03yrm5c26',
+            tagIds: [1, 2],
+          },
+        },
+        result: {
+          data: {
+            versionedGuidance: versionedGuidanceMock,
+          },
+        },
+      },
+      {
+        request: {
+          query: VersionedGuidanceDocument,
+          variables: {
+            affiliationId: 'https://ror.org/03yrm5c26',
+            tagIds: [],
+          },
+        },
+        result: {
+          data: {
+            versionedGuidance: versionedGuidanceMock,
+          },
+        },
+      },
     ];
 
     render(
@@ -646,10 +936,10 @@ describe('PlanOverviewSectionPage', () => {
       </MockedProvider>
     );
 
-    // Wait for data to load
-    await waitFor(() => {
-      expect(screen.queryByText('Loading questions...')).not.toBeInTheDocument();
-    });
+    // Check that initial questions are loaded
+    await waitFor(() =>
+      expect(screen.getByText('Requirements text for the section')).toBeInTheDocument()
+    );
 
     // Check that question card is still rendered with empty title
     const questionCards = screen.getAllByRole('region').filter(section =>

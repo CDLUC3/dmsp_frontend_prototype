@@ -4,6 +4,12 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  opacity: 1;
+  transition: opacity 0.2s ease-in;
+
+  &.initializing {
+    opacity: 0;
+  }
 }
 
 .guidanceTabs {
@@ -11,6 +17,7 @@
   flex-direction: column;
   min-height: 0; // allows flex children to shrink properly
 }
+
 .tabListWrapper {
   display: flex;
   flex-direction: column;
@@ -82,9 +89,22 @@
   @include pill.pill-remove-button;
 }
 
-// .addPillButton {
-//   @include pill.pill-add-button;
-// }
+.pillVisible {
+  visibility: visible;
+  position: relative;
+  pointer-events: auto;
+}
+
+.pillHidden {
+  visibility: hidden;
+  position: absolute;
+  pointer-events: none;
+}
+
+.pillOffscreen {
+  top: 0;
+  left: -9999px;
+}
 
 .guidanceContent {
   flex: 1;
@@ -107,6 +127,17 @@
   gap: 1rem;
 }
 
+.buttonContainer {
+  display: flex;
+  justify-items: center;
+  align-items: center;
+  margin-top: var(--space-4);
+}
+
+.smallImage {
+  font-size: var(--fs-xsmall);
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -118,13 +149,3 @@
   }
 }
 
-.buttonContainer {
-  display: flex;
-  justify-items: center;
-  align-items: center;
-  margin-top: var(--space-4);
-}
-
-.smallImage {
-  font-size: var(--fs-xsmall);
-}

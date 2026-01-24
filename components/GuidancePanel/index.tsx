@@ -18,71 +18,75 @@ import {
   BestPracticeGuidanceDocument
 } from '@/generated/graphql';
 
+// Types
+import {
+  GuidanceSource,
+  GuidancePanelProps,
+  MatchedGuidance,
+} from '@/app/types';
+
 // Components
 import ExpandableContentSection from '@/components/ExpandableContentSection';
 import { DmpIcon } from "@/components/Icons";
-import { GuidanceItemInterface } from '@/app/types';
 import styles from './GuidancePanel.module.scss';
 
-interface MatchedGuidance {
-  id?: number;
-  title?: string;
-  guidanceText: string;
-}
-
-interface GuidanceSource {
-  id: string;
-  type: 'bestPractice' | 'funder' | 'organization';
-  label: string;
-  shortName?: string | null;
-  content?: string;
-  items?: MatchedGuidance[];
-  orgURI?: string;
-}
-
-interface GuidancePanelProps {
-  // Organization guidance
-  guidanceItems: GuidanceItemInterface[];
-  // Tags assigned to the current section
-  sectionTags: Record<number, string>;
-  // Callbacks
-  onAddOrganization?: () => void;
-  onRemoveOrganization?: (orgId: string) => void;
-
-  // Optional: control selected source externally
-  selectedSourceId?: string;
-  onSourceChange?: (sourceId: string) => void;
-}
+// Additional hard-coded guidance for demonstration purposes
+const additionalGuidance = [
+  {
+    orgURI: 'https://ror.org/01an7q238',
+    orgName: 'UC Berkeley',
+    orgShortname: 'UCB',
+    items: [
+      {
+        id: 1001,
+        title: "UC Berkeley",
+        guidanceText: `
+    <p><strong>UC Berkeley Data Management:</strong> All research data must be stored on approved institutional storage systems. Consider using bDrive or Research Data Management services.</p>
+    <p>Ensure compliance with UC Berkeley's data retention policies. Data should be retained for a minimum of 3 years after publication.</p>
+    <p>For sensitive data, consult with the Office of Research Compliance and ensure appropriate IRB approval is obtained.</p>
+  `.trim()
+      }
+    ]
+  },
+  {
+    orgURI: 'https://ror.org/021nxhr68',
+    orgName: 'National Science Foundation',
+    orgShortname: 'NSF',
+    items: [
+      {
+        id: 2001,
+        title: "National Science Foundation",
+        guidanceText: '<p><strong>NSF Requirements:</strong> Data sharing plans should describe how data will be shared and preserved, or explain why data sharing is not possible.</p><p>Data should be deposited in a recognized repository appropriate to your field of study. Consider using domain-specific repositories when available.</p>'
+      },
+    ]
+  },
+]
 
 const GuidancePanel: React.FC<GuidancePanelProps> = ({
+  userAffiliationId,
+  ownerAffiliationId,
   guidanceItems,
   sectionTags,
   onAddOrganization,
-  onRemoveOrganization,
-  selectedSourceId: controlledSelectedId,
-  onSourceChange
+  //onRemoveOrganization, - This will be used for future work on removing pills
 }) => {
 
-  console.log("***Guidance Items:", guidanceItems);
-  console.log("***Section Tags:", sectionTags);
   const Global = useTranslations('Global');
   const t = useTranslations('GuidancePanel');
 
   // Refs for measuring
   const containerRef = useRef<HTMLDivElement>(null);
   const pillsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const moreButtonRef = useRef<HTMLButtonElement>(null);
-
 
   // Internal state for uncontrolled usage
-  const [internalSelectedId, setInternalSelectedId] = useState<string>('bestPractice');
   const [showAllTabs, setShowAllTabs] = useState<boolean>(false);
   const [visibleCount, setVisibleCount] = useState<number>(3); // Default to 3
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
-
+  const [selectedGuidanceId, setSelectedGuidanceId] = useState<string>('bestPractice');
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
   // Query to get Best Practice guidance content
-  const { data: bestPracticeGuidanceData } = useQuery(
+  const { data: bestPracticeGuidanceData, loading: bestPracticeLoading } = useQuery(
     BestPracticeGuidanceDocument,
     {
       variables: {
@@ -92,18 +96,7 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
     }
   );
 
-  // Use controlled or uncontrolled state
-  const selectedGuidanceId = controlledSelectedId ?? internalSelectedId;
-  const setSelectedGuidanceId = (id: React.Key) => {
-    const idStr = String(id);
-    if (onSourceChange) {
-      onSourceChange(idStr);
-    } else {
-      setInternalSelectedId(idStr);
-    }
-  };
-
-  // Build guidance sources
+  // Build guidance sources for tabs
   const guidanceSources = useMemo<GuidanceSource[]>(() => {
     const sources: GuidanceSource[] = [];
 
@@ -120,14 +113,16 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
       }
     });
 
-    // Add single best practice source with all items
-    sources.push({
-      id: 'bestPractice',
-      type: 'bestPractice',
-      label: "DMP Tool",
-      shortName: 'DMP Tool',
-      items: bestPracticeItems
-    });
+    // Only add best practice source if it has items
+    if (bestPracticeItems.length > 0) {
+      sources.push({
+        id: 'bestPractice',
+        type: 'bestPractice',
+        label: "DMP Tool",
+        shortName: 'DMP Tool',
+        items: bestPracticeItems
+      });
+    }
 
     // Build organization guidance sources
     guidanceItems.forEach((org, index) => {
@@ -143,65 +138,24 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
       }
     });
 
-    const additionalGuidance = [
-      {
-        orgURI: 'https://ror.org/01an7q238',
-        orgName: 'UC Berkeley',
-        orgShortname: 'UCB',
-        items: [
-          {
-            id: 1001,
-            title: "UC Berkeley",
-            guidanceText: '<p><strong>UC Berkeley Data Management:</strong> All research data must be stored on approved institutional storage systems. Consider using bDrive or Research Data Management services.</p>'
-          },
-          {
-            id: 1002,
-            title: "UC Berkeley",
-            guidanceText: '<p>Ensure compliance with UC Berkeley\'s data retention policies. Data should be retained for a minimum of 3 years after publication.</p>'
-          },
-          {
-            id: 1003,
-            title: "UC Berkeley",
-            guidanceText: '<p>For sensitive data, consult with the Office of Research Compliance and ensure appropriate IRB approval is obtained.</p>'
-          }
-        ]
-      },
-      {
-        orgURI: 'https://ror.org/021nxhr62',
-        orgName: 'National Science Foundation',
-        orgShortname: 'NSF',
-        items: [
-          {
-            id: 2001,
-            title: "National Science Foundation",
-            guidanceText: '<p><strong>NSF Requirements:</strong> Data sharing plans should describe how data will be shared and preserved, or explain why data sharing is not possible.</p>'
-          },
-          {
-            id: 2002,
-            title: "National Science Foundation",
-            guidanceText: '<p>Data should be deposited in a recognized repository appropriate to your field of study. Consider using domain-specific repositories when available.</p>'
-          }
-        ]
-      },
-    ]
-
-    // additionalGuidance.forEach((org, index) => {
-    //   if (org.items.length > 0) {
-    //     sources.push({
-    //       id: `org-additional-${index}`,
-    //       type: 'organization',
-    //       label: org.orgName,
-    //       shortName: org.orgShortname || null,
-    //       items: org.items,
-    //       orgURI: org.orgURI
-    //     });
-    //   }
-    // });
-
+    // Additional guidance hard-coded just for demonstation purposes, since we cannot yet add additional orgs
+    additionalGuidance.forEach((org, index) => {
+      if (org.items.length > 0) {
+        sources.push({
+          id: `org-additional-${index}`,
+          type: 'organization',
+          label: org.orgName,
+          shortName: org.orgShortname || null,
+          items: org.items,
+          orgURI: org.orgURI
+        });
+      }
+    });
     return sources;
   }, [guidanceItems, bestPracticeGuidanceData]);
 
   // Calculate how many pills can fit in first row
+  // because we always want to show the "More" button in the first row if there are too many pills
   useEffect(() => {
     const calculateVisibleCount = () => {
       if (!containerRef.current || guidanceSources.length === 0) return;
@@ -241,24 +195,50 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
   }, [guidanceSources]);
 
 
-  // Ensure selected source exists
+  // Ensure selected tab is valid
   useEffect(() => {
     if (guidanceSources.length > 0 && !guidanceSources.find(s => s.id === selectedGuidanceId)) {
       setSelectedGuidanceId(guidanceSources[0].id);
     }
   }, [guidanceSources, selectedGuidanceId]);
 
-  const handleRemoveOrganization = (e: React.MouseEvent, sourceId: string, orgId?: string) => {
-    e.stopPropagation();
-    if (!orgId || !onRemoveOrganization) return;
-
-    // If removing the currently selected source, switch to best practice
-    if (selectedGuidanceId === sourceId) {
-      setSelectedGuidanceId('bestPractice');
+  // Auto-select tab based on user affiliation, with fallback to owner affiliation, and then best practice
+  useEffect(() => {
+    // Wait for GraphQL to finish loading before auto-selecting
+    if (bestPracticeLoading || isInitialized) {
+      return;
     }
 
-    onRemoveOrganization(orgId);
-  };
+    if (guidanceSources.length > 0) {
+      // Compute correct selection
+      let matchingSource = null;
+
+      // First priority: Try to match user's affiliation
+      if (userAffiliationId) {
+        matchingSource = guidanceSources.find(
+          source => source.type === 'organization' && source.orgURI === userAffiliationId
+        );
+      }
+
+      // Second priority: If no user match, try to match owner's affiliation
+      if (!matchingSource && ownerAffiliationId) {
+        matchingSource = guidanceSources.find(
+          source => source.type === 'organization' && source.orgURI === ownerAffiliationId
+        );
+      }
+
+      // Set the selected tab
+      if (matchingSource) {
+        setSelectedGuidanceId(matchingSource.id);
+      } else {
+        // No match found, fall back to bestPractice
+        setSelectedGuidanceId('bestPractice');
+      }
+
+      setIsInitialized(true);
+    }
+  }, [bestPracticeLoading, userAffiliationId, ownerAffiliationId, guidanceSources]);
+
 
   const toggleShowAllTabs = () => {
     setIsTransitioning(true);
@@ -272,39 +252,37 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
 
   };
 
-  // Show more button if there are more than 3 tabs
+  // Show "More" button if there are more than the calculated visible tabs that fit in one row
   const hasOverflow = guidanceSources.length > visibleCount;
 
   return (
-    <div className={styles.guidancePanel}>
+    <div className={`${styles.guidancePanel} ${!isInitialized ? styles.initializing : ''}`}>
       <Tabs
         selectedKey={selectedGuidanceId}
-        onSelectionChange={setSelectedGuidanceId}
+        onSelectionChange={(key) => setSelectedGuidanceId(String(key))}
         className={styles.guidanceTabs}
       >
         <div className={styles.tabListWrapper} ref={containerRef}>
           <div className={styles.tabsRow}>
-            <TabList aria-label={t('guidanceSourceSelection')} className={styles.pillsContainer}>
-              {/* Render all pills for measurement (hidden ones are positioned off-screen) */}
+            <TabList
+              aria-label={t('guidanceSourceSelection')}
+              className={styles.pillsContainer}
+            >
+              {/* Render all pills (hidden ones are positioned off-screen) */}
               {guidanceSources.map((source, index) => {
                 const isVisible = showAllTabs || index < visibleCount;
                 return (
                   <Tab
                     key={source.id}
                     id={source.id}
-                    className={`${styles.pill} ${isTransitioning ? styles.transitioning : ''}`}
-                    style={{
-                      visibility: isVisible ? 'visible' : 'hidden',
-                      position: isVisible ? 'relative' : 'absolute',
-                      pointerEvents: isVisible ? 'auto' : 'none',
-                      // Add explicit positioning for hidden pills
-                      ...((!isVisible && !showAllTabs) && {
-                        top: 0,
-                        left: '-9999px' // Move far off-screen
-                      })
-                    }}
-
+                    className={`
+                      ${styles.pill} 
+                      ${isTransitioning ? styles.transitioning : ''} 
+                      ${isVisible ? styles.pillVisible : styles.pillHidden}
+                      ${!isVisible && !showAllTabs ? styles.pillOffscreen : ''}
+                    `}
                   >
+
                     {({ isSelected, isFocusVisible }) => (
                       <div
                         ref={(el) => { pillsRef.current[index] = el; }}
@@ -326,11 +304,10 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
             {/* More button at end of first row */}
             {hasOverflow && !showAllTabs && (
               <Button
-                ref={moreButtonRef}
                 className="toggle"
                 onPress={toggleShowAllTabs}
                 aria-expanded={showAllTabs}
-                aria-label={t('showMore')}
+                aria-label={t('ariaLabels.showMoreGuidance')}
               >
                 {t('more')} <span aria-hidden="true">&#9660;</span>
               </Button>
@@ -344,7 +321,7 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
                 className="toggle"
                 onPress={toggleShowAllTabs}
                 aria-expanded={showAllTabs}
-                aria-label={t('showLess')}
+                aria-label={t('ariaLabels.showLessGuidance')}
               >
                 {t('less')} <span aria-hidden="true">&#9650;</span>
               </Button>
@@ -435,7 +412,7 @@ const renderGuidanceContentForSource = (source: GuidanceSource, Global: (key: st
               const tempDiv = document.createElement('div');
               tempDiv.innerHTML = g.guidanceText;
               const textContent = tempDiv.textContent || tempDiv.innerText || '';
-              const needsExpansion = textContent.length > 200;
+              const needsExpansion = textContent.length > 100;
 
               return (
                 <ExpandableContentSection
@@ -443,7 +420,7 @@ const renderGuidanceContentForSource = (source: GuidanceSource, Global: (key: st
                   id={`guidance-${g.id}`}
                   heading={(source.label !== g.title) ? g.title : undefined}
                   expandLabel={Global('links.expand')}
-                  summaryCharLimit={needsExpansion ? 200 : undefined}
+                  summaryCharLimit={needsExpansion ? 100 : undefined}
                 >
                   {parse(g.guidanceText)}
                 </ExpandableContentSection>

@@ -199,6 +199,12 @@ export interface Question {
   templateId?: number | null;
   questionOptions?: QuestionOptions[] | null;
   modified?: string | null;
+  ownerAffiliation?: {
+    acronyms?: string[] | null;
+    displayName: string;
+    uri: string;
+    name: string;
+  } | null;
 }
 
 export interface QuestionFormatInterface {

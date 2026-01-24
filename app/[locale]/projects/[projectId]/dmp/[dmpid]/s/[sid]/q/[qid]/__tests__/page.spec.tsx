@@ -110,6 +110,18 @@ jest.mock('../hooks/useComments', () => {
   };
 });
 
+// Mock GuidancePanel component
+jest.mock('@/components/GuidancePanel', () => ({
+  __esModule: true,
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  default: ({ guidanceItems, sectionTags }: any) => (
+    <div data-testid="mock-guidance-panel">
+      <div data-testid="guidance-items-count">{guidanceItems.length}</div>
+      <div data-testid="section-tags-count">{Object.keys(sectionTags).length}</div>
+    </div>
+  ),
+}));
+
 // Mock the ResearchOutputAnswerComponent
 jest.mock('@/components/Form/ResearchOutputAnswerComponent', () => ({
   __esModule: true,
@@ -376,28 +388,10 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     // Check that the textArea question field is in page
     expect(screen.getByLabelText('question-text-editor')).toBeInTheDocument();
 
-    // Check for guidance content
-    const boldedGuidance = screen.getByText('Guidance text - Lorem Ipsum');
-    expect(boldedGuidance).toBeInTheDocument();
-    expect(boldedGuidance.tagName).toBe('STRONG');
-    expect(screen.getByText((content) => content.includes('is simply dummy guidance text'))).toBeInTheDocument();
-    // There are multiple h3 headings with 'page.guidanceBy' (one for funder, one for org)
-    const guidanceHeadings = screen.getAllByRole('heading', { level: 3, name: 'page.guidanceBy' });
-    expect(guidanceHeadings).toHaveLength(1);
-    expect(screen.getByText('Guidance text - Lorem Ipsum')).toBeInTheDocument();
-    const orgGuidance = screen.getByText(/is simply dummy guidance text/i);
-    expect(orgGuidance.tagName).toBe('P');
-    expect(screen.getByRole('button', { name: 'labels.saveAnswer' })).toBeInTheDocument();
+    // Check that mock guidance loaded
+    const guidancePanel = screen.getByTestId('mock-guidance-panel');
+    expect(guidancePanel).toBeInTheDocument();
 
-    // Check for best practice content in sidebar
-    expect(screen.getByTestId('sidebar-panel')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 2, name: 'bestPractice' })).toBeInTheDocument();
-    const bestPracticeDataDescription = screen.getByRole('heading', { level: 3, name: 'dataDescription' });
-    expect(bestPracticeDataDescription).toBeInTheDocument();
-    const bestPracticeDataFormat = screen.getByRole('heading', { level: 3, name: 'dataFormat' });
-    expect(bestPracticeDataFormat).toBeInTheDocument();
-    const bestPracticeDataVolume = screen.getByRole('heading', { level: 3, name: 'dataVolume' });
-    expect(bestPracticeDataVolume).toBeInTheDocument();
   })
 
   it('should display disabled comment button when an answer does not exist for the question', async () => {

@@ -311,5 +311,20 @@
       "uploadExistingPlan": "Carregar um plano criado em outro lugar",
       "startNewOrUploadExisting": "Gostaria de criar um novo plano ou fazer upload de um existente?"
     }
+  },
+  "GuidancePanel": {
+    "bestPractice": "Orientações sobre melhores práticas",
+    "guidanceSourceSelection": "Selecionar fonte de orientação",
+    "removeGuidanceSource": "Remover fonte de orientação",
+    "addGuidanceSource": "Adicionar fonte de orientação",
+    "addOrganization": "Personalizar melhores práticas",
+    "showMore": "Mostrar mais",
+    "showLess": "Mostrar menos",
+    "more": "Mais",
+    "less": "Menos",
+    "ariaLabels": {
+      "showMoreGuidance": "Mostrar mais fontes de orientação",
+      "showLessGuidance": "Mostrar menos fontes de orientação"
+    }
   }
 }

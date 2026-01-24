@@ -26,7 +26,6 @@ import {
   PlanDocument,
   PublishedQuestionDocument,
   AnswerByVersionedQuestionIdDocument,
-  GuidanceGroupsDocument
 } from '@/generated/graphql';
 import {
   addAnswerAction,
@@ -81,14 +80,14 @@ import {
   GuidanceItemInterface,
   Question,
   MergedComment,
-  ResearchOutputTable
+  ResearchOutputTable,
 } from '@/app/types';
 
 //hooks
 import { useComments } from './hooks/useComments';
 import CommentsDrawer from './CommentsDrawer';
+import { useGuidanceData } from '@/app/hooks/useGuidanceData';
 import styles from './PlanOverviewQuestionPage.module.scss';
-
 
 interface FormDataInterface {
   affiliationData: { affiliationName: string; affiliationId: string };
@@ -112,7 +111,6 @@ interface FormDataInterface {
 }
 
 type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
-
 interface MutationErrorsInterface {
   acronyms: string | null;
   aliases: string | null;
@@ -223,6 +221,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Localization
   const Global = useTranslations('Global');
+  const Guidance = useTranslations('Guidance')
   const PlanOverview = useTranslations('PlanOverview');
   const t = useTranslations('PlanOverviewQuestionPage');
 
@@ -243,14 +242,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Run me query to get user's name
   const { data: me } = useQuery(MeDocument);
 
-  // Get Guidance Groups for user's affiliation
-  const { data: guidanceData } = useQuery(GuidanceGroupsDocument, {
-    variables: {
-      affiliationId: me?.me?.affiliation?.uri || ''
-    },
-    skip: !me?.me?.affiliation?.uri // Prevent running until the me data exists
-  });
-
   // Get Plan using planId
   const { data: planData, loading: planQueryLoading, error: planQueryError } = useQuery(
     PlanDocument,
@@ -260,128 +251,26 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   );
 
+  // Get section tag info from plan data and user affiliation
+  const { sectionTagsMap, matchedGuidanceByOrg } = useGuidanceData({
+    userAffiliationUri: me?.me?.affiliation?.uri,
+    userAffiliationName: me?.me?.affiliation?.name,
+    userAffiliationAcronyms: me?.me?.affiliation?.acronyms,
+    planData,
+    versionedSectionId
+  });
+
   const handleAddGuidanceOrganization = () => {
     // Open modal/dialog to select organization
+    // TODO: Implement organization selection and addition to guidance tabs
     console.log('Add guidance organization');
   };
 
   const handleRemoveGuidanceOrganization = (orgId: string) => {
     // Call API to remove organization from user preferences
+    // TODO: Implement organization removal from guidance tabs
     console.log('Remove guidance organization:', orgId);
   };
-
-  // Get section tag info from plan data
-  const currentSectionTagIds = React.useMemo(() => {
-    const section = planData?.plan?.versionedSections?.find(s => s.versionedSectionId === Number(versionedSectionId));
-    const guidanceTagInfo = section?.tags?.map(t => {
-      return {
-        tagId: t.id,
-        tagName: t.name,
-        tagSlug: t.slug,
-        tagDescription: t.description
-      };
-    }) ?? [];
-    return guidanceTagInfo;
-  }, [planData, versionedSectionId]);
-
-  // Derive the sectionTags map format needed by GuidancePanel
-  const sectionTagsMap = React.useMemo(() => {
-    return currentSectionTagIds.reduce((acc, tag) => {
-      if (tag.tagId != null) {
-        acc[tag.tagId] = tag.tagName;
-      }
-      return acc;
-    }, {} as Record<number, string>);
-  }, [currentSectionTagIds]);
-
-
-  // Guidance from user's affiliation that matches current section tags
-  const matchedGuidanceByOrg = React.useMemo<GuidanceItemInterface[]>(() => {
-    if (!guidanceData?.guidanceGroups || currentSectionTagIds.length === 0) {
-      return [] as GuidanceItemInterface[];
-    }
-
-    const tagIdSet = new Set(currentSectionTagIds.map(t => t.tagId));
-
-    // Group all guidance by org URI first
-    const guidanceByOrg = new Map<string, {
-      orgName: string;
-      orgShortName: string;
-      itemsByTag: Map<number, {
-        title: string;
-        guidanceTexts: { id: number; text: string }[];
-      }>;
-    }>();
-
-    guidanceData.guidanceGroups.forEach(group => {
-      const orgURI = group.affiliationId ?? '';
-
-      group.guidance?.forEach(g => {
-        // Check if this guidance matches any of the section's tags
-        if (g?.tagId && tagIdSet.has(g.tagId) && g.guidanceText && g.id) {
-          // Find the tag name
-          const matchingTag = currentSectionTagIds.find(t => t.tagId === g.tagId);
-          if (!matchingTag) return;
-
-          // Initialize org entry if needed
-          if (!guidanceByOrg.has(orgURI)) {
-            guidanceByOrg.set(orgURI, {
-              orgName: me?.me?.affiliation?.name ?? group.name ?? '',
-              orgShortName: me?.me?.affiliation?.acronyms?.[0] ?? group.name ?? '',
-              itemsByTag: new Map()
-            });
-          }
-
-          const orgEntry = guidanceByOrg.get(orgURI)!;
-
-          // Initialize tag entry if needed
-          if (!orgEntry.itemsByTag.has(g.tagId)) {
-            orgEntry.itemsByTag.set(g.tagId, {
-              title: matchingTag.tagName,
-              guidanceTexts: []
-            });
-          }
-
-          // Add this guidance text to the tag's collection
-          orgEntry.itemsByTag.get(g.tagId)!.guidanceTexts.push({
-            id: g.id,
-            text: g.guidanceText
-          });
-        }
-      });
-    });
-
-    // Convert to final format
-    const orgGuidanceList: GuidanceItemInterface[] = [];
-
-    guidanceByOrg.forEach((orgData, orgURI) => {
-      const items: { id?: number; title?: string; guidanceText: string }[] = [];
-
-      orgData.itemsByTag.forEach((tagData) => {
-        // Combine all guidance texts for this tag with separators
-        const combinedGuidance = tagData.guidanceTexts
-          .map(g => g.text)
-          .join(''); // or use '<hr/>' for visual separation
-
-        items.push({
-          id: tagData.guidanceTexts[0]?.id, // Use first ID
-          title: tagData.title,
-          guidanceText: combinedGuidance
-        });
-      });
-
-      if (items.length > 0) {
-        orgGuidanceList.push({
-          orgURI,
-          orgName: orgData.orgName,
-          orgShortname: orgData.orgShortName,
-          items
-        });
-      }
-    });
-
-    return orgGuidanceList;
-  }, [guidanceData, currentSectionTagIds, me]);
 
   // Get answer data
   const { data: answerData, loading: answerLoading, error: answerError } = useQuery(
@@ -1635,67 +1524,40 @@ const PlanOverviewQuestionPage: React.FC = () => {
                   role="status">
                   {getLastSavedText()}
                 </div>
+                <div className={styles.modalAction}>
+                  <div>
+                    <Button
+                      type="submit"
+                      data-secondary
+                      className="primary"
+                      aria-label={PlanOverview('labels.saveAnswer')}
+                      aria-disabled={isSubmitting}
+                    >
+                      {isSubmitting ? Global('buttons.saving') : Global('buttons.save')}
+                    </Button>
+                  </div>
+                  <div>
+                    <Button
+                      className="secondary"
+                      aria-label={PlanOverview('labels.returnToSection')}
+                      onPress={() => handleBackToSection()}
+                    >
+                      {PlanOverview('buttons.backToSection')}
+                    </Button>
+                  </div>
+
+                </div>
               </Card>
-
-
-              <section aria-label={"Guidance"} id="guidance">
-                <h2>Guidance from organizationGuidance</h2>
-                {/**Guidance from funder - if funder guidance exists, then display */}
-                {question?.guidanceText && (
-                  <>
-                    <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { name: plan?.funder ?? '' })}</h3>
-                    <SafeHtml html={question?.guidanceText} />
-                  </>
-                )}
-
-                {/**Guidance from organizations - if there is org guidance, then display */}
-                {guidanceItems.length > 0 && (
-                  <>
-                    {guidanceItems.map((org, index) => (
-                      <div key={`guidance-${index}`}>
-                        <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { name: org.orgName })}</h3>
-                        <div className={styles.matchedGuidanceList} data-testid={`matched-guidance-${org.orgURI}`}>
-                          {org.items.map((g, index) => (
-                            <div key={`guidance-item-${index}`} dangerouslySetInnerHTML={{ __html: g.guidanceText }} />
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </>
-                )}
-              </section>
-
-              <div className={styles.modalAction}>
-                <div>
-                  <Button
-                    type="submit"
-                    data-secondary
-                    className="primary"
-                    aria-label={PlanOverview('labels.saveAnswer')}
-                    aria-disabled={isSubmitting}
-                  >
-                    {isSubmitting ? Global('buttons.saving') : Global('buttons.save')}
-                  </Button>
-                </div>
-                <div>
-                  <Button
-                    className="secondary"
-                    aria-label={PlanOverview('labels.returnToSection')}
-                    onPress={() => handleBackToSection()}
-                  >
-                    {PlanOverview('buttons.backToSection')}
-                  </Button>
-                </div>
-
-              </div>
             </Form>
           </div>
         </ContentContainer >
 
         <SidebarPanel isOpen={isSideBarPanelOpen}>
           <div className="status-panel-content side-panel">
-            <h2 className="h4">Guidance</h2>
+            <h2 className="h4">{Guidance('title')}</h2>
             <GuidancePanel
+              userAffiliationId={me?.me?.affiliation?.uri}
+              ownerAffiliationId={question?.ownerAffiliation?.uri}
               guidanceItems={guidanceItems}
               sectionTags={sectionTagsMap}
               onAddOrganization={handleAddGuidanceOrganization}
