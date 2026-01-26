@@ -12,6 +12,8 @@
 ### Updated
 - Updated `ExpandableContentSection` component to work with new `GuidancePanel` [#12]
 - Updated queries for`GuidanceGroups`, `Me` and `PublishedQuestion` queries [#12]
+- Updated to `dmptool/types` version `3.1.0` and ran `npm run generate` to update the GraphQL types [#1129]
+- Updated code to use the new version of the `Licenses` query that returns all Licenses without Pagination or search term [#1129]
 - Updates related to updated version of @dmptool/types to v2.3.0 [#1082][#998]
   - Updated `PlanCreate` question component page to add a `textArea` comment field if `showCommentField` is true and added `description` to the answer JSON [#998]
   - Added `showCommentField` checkbox field to `QuestionAdd` and `QuestionEdit` components [#998]

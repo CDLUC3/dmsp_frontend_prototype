@@ -231,23 +231,33 @@ describe('GuidancePanel', () => {
       const user = userEvent.setup();
       renderComponent();
 
+      // Wait for component to fully initialize (GraphQL + auto-selection)
+      await waitFor(() => {
+        const guidancePanel = document.querySelector('.guidancePanel');
+        expect(guidancePanel).not.toHaveClass('initializing');
+      }, { timeout: 5000 });
+
+      // Wait for CDL tab to exist
       await waitFor(() => {
         expect(screen.getByRole('tab', { name: /CDL/i })).toBeInTheDocument();
-      });
+      }, { timeout: 3000 });
 
       // Click CDL tab
       const cdlTab = screen.getByRole('tab', { name: /CDL/i });
-      await user.click(cdlTab);
+
+      await act(async () => {
+        await user.click(cdlTab);
+      });
 
       // Wait for CDL tab to be selected
       await waitFor(() => {
         expect(cdlTab).toHaveAttribute('aria-selected', 'true');
-      });
+      }, { timeout: 3000 });
 
       // Now check for CDL content
       await waitFor(() => {
         expect(screen.getByRole('heading', { name: /California Digital Library/i })).toBeInTheDocument();
-      });
+      }, { timeout: 3000 });
     });
   });
 

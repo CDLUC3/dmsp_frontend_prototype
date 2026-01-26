@@ -891,26 +891,6 @@ export type LicenseErrors = {
   uri?: Maybe<Scalars['String']['output']>;
 };
 
-export type LicenseSearchResults = PaginatedQueryResults & {
-  __typename?: 'LicenseSearchResults';
-  /** The sortFields that are available for this query (for standard offset pagination only!) */
-  availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  /** The current offset of the results (for standard offset pagination) */
-  currentOffset?: Maybe<Scalars['Int']['output']>;
-  /** Whether or not there is a next page */
-  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
-  /** Whether or not there is a previous page */
-  hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
-  /** The TemplateSearchResults that match the search criteria */
-  items?: Maybe<Array<Maybe<License>>>;
-  /** The number of items returned */
-  limit?: Maybe<Scalars['Int']['output']>;
-  /** The cursor to use for the next page of results (for infinite scroll/load more) */
-  nextCursor?: Maybe<Scalars['String']['output']>;
-  /** The total number of possible items */
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
 export type MemberRole = {
   __typename?: 'MemberRole';
   /** The timestamp when the Object was created */
@@ -2543,8 +2523,8 @@ export type Query = {
   languages?: Maybe<Array<Maybe<Language>>>;
   /** Fetch a specific license */
   license?: Maybe<License>;
-  /** Search for a license */
-  licenses?: Maybe<LicenseSearchResults>;
+  /** Return all licenses */
+  licenses?: Maybe<Array<Maybe<License>>>;
   /** Returns the currently logged in user's information */
   me?: Maybe<User>;
   /** Get the member role by it's id */
@@ -2752,12 +2732,6 @@ export type QueryGuidanceGroupsArgs = {
 
 export type QueryLicenseArgs = {
   uri: Scalars['String']['input'];
-};
-
-
-export type QueryLicensesArgs = {
-  paginationOptions?: InputMaybe<PaginationOptions>;
-  term?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -5170,12 +5144,10 @@ export type RecommendedLicensesQueryVariables = Exact<{
 
 export type RecommendedLicensesQuery = { __typename?: 'Query', recommendedLicenses?: Array<{ __typename?: 'License', name: string, id?: number | null, uri: string } | null> | null };
 
-export type LicensesQueryVariables = Exact<{
-  paginationOptions?: InputMaybe<PaginationOptions>;
-}>;
+export type LicensesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type LicensesQuery = { __typename?: 'Query', licenses?: { __typename?: 'LicenseSearchResults', items?: Array<{ __typename?: 'License', id?: number | null, name: string, uri: string, recommended: boolean } | null> | null } | null };
+export type LicensesQuery = { __typename?: 'Query', licenses?: Array<{ __typename?: 'License', id?: number | null, name: string, uri: string, recommended: boolean } | null> | null };
 
 export type MemberRolesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -5542,7 +5514,7 @@ export const GuidanceGroupsDocument = {"kind":"Document","definitions":[{"kind":
 export const GuidanceGroupDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GuidanceGroup"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"guidanceGroupId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"guidanceGroup"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"guidanceGroupId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"guidanceGroupId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"bestPractice"}},{"kind":"Field","name":{"kind":"Name","value":"latestPublishedVersion"}},{"kind":"Field","name":{"kind":"Name","value":"latestPublishedDate"}},{"kind":"Field","name":{"kind":"Name","value":"isDirty"}},{"kind":"Field","name":{"kind":"Name","value":"guidance"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"guidanceText"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"tagId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"versionedGuidanceGroup"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"active"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"version"}}]}},{"kind":"Field","name":{"kind":"Name","value":"optionalSubset"}}]}}]}}]} as unknown as DocumentNode<GuidanceGroupQuery, GuidanceGroupQueryVariables>;
 export const LanguagesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Languages"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"languages"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"isDefault"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<LanguagesQuery, LanguagesQueryVariables>;
 export const RecommendedLicensesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"RecommendedLicenses"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"recommended"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"recommendedLicenses"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"recommended"},"value":{"kind":"Variable","name":{"kind":"Name","value":"recommended"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}}]}}]}}]} as unknown as DocumentNode<RecommendedLicensesQuery, RecommendedLicensesQueryVariables>;
-export const LicensesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Licenses"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"paginationOptions"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationOptions"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"licenses"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"paginationOptions"},"value":{"kind":"Variable","name":{"kind":"Name","value":"paginationOptions"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}},{"kind":"Field","name":{"kind":"Name","value":"recommended"}}]}}]}}]}}]} as unknown as DocumentNode<LicensesQuery, LicensesQueryVariables>;
+export const LicensesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Licenses"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"licenses"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}},{"kind":"Field","name":{"kind":"Name","value":"recommended"}}]}}]}}]} as unknown as DocumentNode<LicensesQuery, LicensesQueryVariables>;
 export const MemberRolesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"MemberRoles"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"memberRoles"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"displayOrder"}}]}}]}}]} as unknown as DocumentNode<MemberRolesQuery, MemberRolesQueryVariables>;
 export const MetadataStandardsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"MetadataStandards"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"term"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"researchDomainId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"paginationOptions"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationOptions"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"metadataStandards"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"term"},"value":{"kind":"Variable","name":{"kind":"Name","value":"term"}}},{"kind":"Argument","name":{"kind":"Name","value":"researchDomainId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"researchDomainId"}}},{"kind":"Argument","name":{"kind":"Name","value":"paginationOptions"},"value":{"kind":"Variable","name":{"kind":"Name","value":"paginationOptions"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"currentOffset"}},{"kind":"Field","name":{"kind":"Name","value":"hasPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"limit"}},{"kind":"Field","name":{"kind":"Name","value":"nextCursor"}},{"kind":"Field","name":{"kind":"Name","value":"totalCount"}},{"kind":"Field","name":{"kind":"Name","value":"availableSortFields"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}},{"kind":"Field","name":{"kind":"Name","value":"keywords"}},{"kind":"Field","name":{"kind":"Name","value":"researchDomainIds"}}]}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"keywords"}}]}}]}}]}}]} as unknown as DocumentNode<MetadataStandardsQuery, MetadataStandardsQueryVariables>;
 export const MetadataStandardsByUrIsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"MetadataStandardsByURIs"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"uris"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"metadataStandardsByURIs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"uris"},"value":{"kind":"Variable","name":{"kind":"Name","value":"uris"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}},{"kind":"Field","name":{"kind":"Name","value":"keywords"}},{"kind":"Field","name":{"kind":"Name","value":"researchDomainIds"}}]}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"keywords"}}]}}]}}]} as unknown as DocumentNode<MetadataStandardsByUrIsQuery, MetadataStandardsByUrIsQueryVariables>;

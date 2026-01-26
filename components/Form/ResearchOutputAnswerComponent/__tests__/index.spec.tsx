@@ -221,12 +221,12 @@ const mockColumns: typeof DefaultResearchOutputTableQuestion['columns'] = [
       type: 'licenseSearch',
       meta: { schemaVersion: '1.0' },
       graphQL: {
-        query: 'query Licenses($term: String){ license(term: $term) { items { id name uri } } }',
+        query: 'query Licenses{ licenses { id name uri } }',
         queryId: 'useLicensesQuery',
         variables: [],
         answerField: 'uri',
         displayFields: [],
-        responseField: 'licenses.items',
+        responseField: 'licenses',
       },
       attributes: {
         label: 'Licenses',

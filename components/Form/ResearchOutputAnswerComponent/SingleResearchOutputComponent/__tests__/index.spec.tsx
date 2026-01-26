@@ -420,7 +420,7 @@ const mockColumns: typeof DefaultResearchOutputTableQuestion['columns'] = [
         variables: [],
         answerField: 'uri',
         displayFields: [],
-        responseField: 'licenses.items',
+        responseField: 'licenses',
       },
       attributes: {
         labelTranslationKey: 'labels.licenses',
