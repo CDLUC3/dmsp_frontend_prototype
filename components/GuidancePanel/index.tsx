@@ -31,6 +31,7 @@ import { DmpIcon } from "@/components/Icons";
 import styles from './GuidancePanel.module.scss';
 
 // Additional hard-coded guidance for demonstration purposes
+// TODO: Remove when implementing next phase of work with the ability to add custom organizations
 const additionalGuidance = [
   {
     orgURI: 'https://ror.org/01an7q238',
@@ -197,6 +198,10 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
 
   // Ensure selected tab is valid
   useEffect(() => {
+    // Don't interfere with initialization logic
+    if (!isInitialized) {
+      return;
+    }
     if (guidanceSources.length > 0 && !guidanceSources.find(s => s.id === selectedGuidanceId)) {
       setSelectedGuidanceId(guidanceSources[0].id);
     }

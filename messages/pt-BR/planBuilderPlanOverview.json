@@ -326,5 +326,18 @@
       "showMoreGuidance": "Mostrar mais fontes de orientação",
       "showLessGuidance": "Mostrar menos fontes de orientação"
     }
+  },
+    "SectionPage": {
+    "errors": {
+      "errorLoadingSections": "Erro ao carregar as perguntas: {message}"
+    },
+    "navigation": {
+      "planNavigation": "Navegação do plano",
+      "planOverview": "Visão geral do plano"
+    },
+    "headings": {
+      "noQuestionsAvailable": "Nenhuma pergunta disponível"
+    },
+    "noQuestionsInSection": "Não há perguntas disponíveis nesta seção."
   }
 }
