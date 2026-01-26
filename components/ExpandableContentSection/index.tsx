@@ -64,7 +64,7 @@ export default function ExpandableContentSection({
     const processElement = (child: React.ReactNode): React.ReactNode | null => {
       if (!React.isValidElement(child)) return child;
 
-      const allowedTags = ['p', 'div', 'span', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong', 'em', 'a'];
+      const allowedTags = ['p', 'div', 'span', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong', 'em', 'a', 'b', 'i', 'br'];
       if (!allowedTags.includes(child.type as string)) return null;
 
       // Handle lists specially - process children individually

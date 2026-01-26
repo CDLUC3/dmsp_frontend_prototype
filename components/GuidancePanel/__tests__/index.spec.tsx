@@ -239,7 +239,12 @@ describe('GuidancePanel', () => {
       const cdlTab = screen.getByRole('tab', { name: /CDL/i });
       await user.click(cdlTab);
 
-      // Should show CDL content
+      // Wait for CDL tab to be selected
+      await waitFor(() => {
+        expect(cdlTab).toHaveAttribute('aria-selected', 'true');
+      });
+
+      // Now check for CDL content
       await waitFor(() => {
         expect(screen.getByRole('heading', { name: /California Digital Library/i })).toBeInTheDocument();
       });

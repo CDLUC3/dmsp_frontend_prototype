@@ -856,38 +856,44 @@ describe("GuidanceGroupIndexPage", () => {
   });
 
   it('should handle handlepublish when response is not successful', async () => {
-    (publishGuidanceGroupAction as jest.Mock).mockResolvedValue({
-      success: false,
-      errors: ['Some error occurred'],
-    });
-    render(
-      <MockedProvider mocks={inactiveGroupMocks}>
-        <GuidanceGroupIndexPage />
-      </MockedProvider>,
-    );
-
-    // Wait for loading to be gone (tagsLoading and guidanceLoading both false)
-    await waitForElementToBeRemoved(() => screen.getByText("Global.messaging.loading"));
-
-    const sidebar = screen.getByTestId("sidebar-panel");
-    const inSidebar = within(sidebar);
-    const publishBtn = inSidebar.getByRole("button", { name: "Global.buttons.publish" });
-    fireEvent.click(publishBtn);
-
-    // Since guidanceGroupId is undefined, we expect an inline error message and no side effects
-    await waitFor(() => {
-      expect(screen.getByText('Some error occurred')).toBeInTheDocument();
-      //Check that error logged
-      expect(logECS).toHaveBeenCalledWith(
-        'error',
-        'publishing Guidance Group',
-        expect.objectContaining({
-          errors: expect.anything(),
-          url: { path: '/en-US/admin/guidance/groups/create' },
-        })
-      )
-    });
+  (publishGuidanceGroupAction as jest.Mock).mockResolvedValue({
+    success: false,
+    errors: ['Some error occurred'],
   });
+  
+  render(
+    <MockedProvider mocks={inactiveGroupMocks}>
+      <GuidanceGroupIndexPage />
+    </MockedProvider>,
+  );
+
+  // Wait for loading to be gone (tagsLoading and guidanceLoading both false)
+  await waitForElementToBeRemoved(() => screen.getByText("Global.messaging.loading"));
+
+  const sidebar = screen.getByTestId("sidebar-panel");
+  const inSidebar = within(sidebar);
+  const publishBtn = inSidebar.getByRole("button", { name: "Global.buttons.publish" });
+  
+  // Use act to wrap the state update
+  await act(async () => {
+    fireEvent.click(publishBtn);
+  });
+
+  // Wait for the async action to complete and error to be displayed
+  await waitFor(() => {
+    expect(screen.getByText('Some error occurred')).toBeInTheDocument();
+  }, { timeout: 3000 });
+
+  // Check that error logged
+  expect(logECS).toHaveBeenCalledWith(
+    'error',
+    'publishing Guidance Group',
+    expect.objectContaining({
+      errors: expect.anything(),
+      url: { path: '/en-US/admin/guidance/groups/create' },
+    })
+  );
+});
 
   it('should display error if field-level errors returned from handlepublish', async () => {
     (publishGuidanceGroupAction as jest.Mock).mockResolvedValue({
