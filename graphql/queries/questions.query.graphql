@@ -86,9 +86,5 @@ query PublishedQuestion($versionedQuestionId: Int!) {
       uri
       name
     }
-    sectionTags {
-      id
-      name
-    }
   }
 }
