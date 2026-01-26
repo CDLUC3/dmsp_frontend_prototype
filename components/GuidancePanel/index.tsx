@@ -50,13 +50,13 @@ const additionalGuidance = [
   },
   {
     orgURI: 'https://ror.org/021nxhr68',
-    orgName: 'National Science Foundation',
-    orgShortname: 'NSF',
+    orgName: 'National Institute of Health',
+    orgShortname: 'NIH',
     items: [
       {
         id: 2001,
-        title: "National Science Foundation",
-        guidanceText: '<p><strong>NSF Requirements:</strong> Data sharing plans should describe how data will be shared and preserved, or explain why data sharing is not possible.</p><p>Data should be deposited in a recognized repository appropriate to your field of study. Consider using domain-specific repositories when available.</p>'
+        title: "National Institute of Health",
+        guidanceText: '<p>Data sharing plans should describe how data will be shared and preserved, or explain why data sharing is not possible.</p><p>Data should be deposited in a recognized repository appropriate to your field of study. Consider using domain-specific repositories when available.</p>'
       },
     ]
   },
