@@ -43,7 +43,7 @@
     "next": "15.5.9",
     "next-intl": "4.1.0",
     "node-fetch": "3.3.2",
-    "pino": "9.14.0",
+    "pino": "10.3.0",
     "prop-types": "15.8.1",
     "react": "19.2.3",
     "react-aria-components": "1.14.0",
