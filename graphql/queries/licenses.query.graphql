@@ -6,13 +6,11 @@ query RecommendedLicenses($recommended: Boolean!) {
   }
 }
 
-query Licenses($paginationOptions: PaginationOptions) {
-  licenses(paginationOptions: $paginationOptions) {
-    items {
-      id
-      name
-      uri
-      recommended
-    }
+query Licenses {
+  licenses {
+    id
+    name
+    uri
+    recommended
   }
 }
