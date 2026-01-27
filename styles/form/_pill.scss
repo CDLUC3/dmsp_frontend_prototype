@@ -1,0 +1,149 @@
+// styles/form/_pill.scss
+
+// Pill focus state
+@mixin pill-focus {
+  outline: 2px solid var(--blue-900);
+  outline-offset: 2px;
+}
+
+// Base pill styles
+@mixin pill-base {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 50px; // Full pill shape
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: 2px solid transparent;
+  white-space: nowrap;
+  
+  &:focus-visible {
+    @include pill-focus;
+  }
+}
+
+// Unselected pill state (like secondary button)
+@mixin pill-unselected {
+  @include pill-base;
+  background-color: var(--bg-white);
+  border-color: var(--slate-300);
+  color: var(--blue-900);
+  
+  &:hover:not(:disabled) {
+    background-color: var(--gray-100);
+    border-color: var(--slate-400);
+  }
+  
+  &:active:not(:disabled) {
+    background-color: var(--gray-200);
+    border-color: var(--slate-500);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// Selected pill state (like primary button)
+@mixin pill-selected {
+  @include pill-base;
+  background-color: var(--blue-900);
+  border-color: var(--blue-900);
+  color: var(--bg-white);
+  
+  &:hover:not(:disabled) {
+    background-color: var(--blue-500);
+    border-color: var(--blue-500);
+  }
+  
+  &:active:not(:disabled) {
+    background-color: var(--slate-700);
+    border-color: var(--slate-700);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// Add pill button (dashed border variant)
+@mixin pill-add-button {
+  @include pill-base;
+  background-color: transparent;
+  border: 2px dashed var(--slate-400);
+  color: var(--blue-900);
+  
+  &:hover:not(:disabled) {
+    background-color: var(--gray-100);
+    border-color: var(--blue-500);
+    color: var(--blue-500);
+  }
+  
+  &:active:not(:disabled) {
+    background-color: var(--gray-200);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+// Remove button inside pill
+@mixin pill-remove-button {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 4px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.15);
+  }
+  
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 1px;
+  }
+  
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+// Pill container/wrapper
+@mixin pill-container {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+@mixin pill-customize {
+  background-color: var(--slate-200);
+  border: 2px solid var(--slate-900);
+  color: var(--slate-900);
+
+    &:hover:not(:disabled) {
+    background-color: var(--gray-100);
+    border-color: var(--slate-400);
+  }
+  
+}

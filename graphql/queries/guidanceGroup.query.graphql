@@ -1,6 +1,7 @@
 query GuidanceGroups($affiliationId: String) {
   guidanceGroups(affiliationId: $affiliationId) {
     id
+    affiliationId
     name
     description
     latestPublishedVersion

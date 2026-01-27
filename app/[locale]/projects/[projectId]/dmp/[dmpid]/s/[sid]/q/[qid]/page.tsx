@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { useTranslations } from "next-intl";
 import { CalendarDate, DateValue } from "@internationalized/date";
 import { CURRENT_SCHEMA_VERSION, QuestionTypeMap } from '@dmptool/types';
@@ -27,7 +26,6 @@ import {
   PlanDocument,
   PublishedQuestionDocument,
   AnswerByVersionedQuestionIdDocument,
-  GuidanceGroupsDocument
 } from '@/generated/graphql';
 import {
   addAnswerAction,
@@ -67,10 +65,10 @@ import ErrorMessages from '@/components/ErrorMessages';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 import { DmpIcon } from "@/components/Icons";
 import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
-import ExpandableContentSection from '@/components/ExpandableContentSection';
 import SafeHtml from '@/components/SafeHtml';
 import Loading from '@/components/Loading';
 import { FormTextArea } from '@/components/Form';
+import GuidancePanel from '@/components/GuidancePanel';
 
 // Utils and other
 import { useToast } from '@/context/ToastContext';
@@ -79,16 +77,17 @@ import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import { createEmptyResearchOutputRow } from '@/utils/researchOutputTransformations';
 import {
+  GuidanceItemInterface,
   Question,
   MergedComment,
-  ResearchOutputTable
+  ResearchOutputTable,
 } from '@/app/types';
 
 //hooks
 import { useComments } from './hooks/useComments';
 import CommentsDrawer from './CommentsDrawer';
+import { useGuidanceData } from '@/app/hooks/useGuidanceData';
 import styles from './PlanOverviewQuestionPage.module.scss';
-
 
 interface FormDataInterface {
   affiliationData: { affiliationName: string; affiliationId: string };
@@ -112,7 +111,6 @@ interface FormDataInterface {
 }
 
 type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
-
 interface MutationErrorsInterface {
   acronyms: string | null;
   aliases: string | null;
@@ -149,7 +147,6 @@ interface PlanData {
   planOwners: number[] | null;
 }
 
-
 const PlanOverviewQuestionPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
@@ -172,6 +169,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [questionType, setQuestionType] = useState<string>('');
   const [parsed, setParsed] = useState<AnyParsedQuestion>();
   const [answerId, setAnswerId] = useState<number | null>(null);
+  const [guidanceItems, setGuidanceItems] = useState<GuidanceItemInterface[]>([]);
 
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -223,6 +221,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Localization
   const Global = useTranslations('Global');
+  const Guidance = useTranslations('Guidance')
   const PlanOverview = useTranslations('PlanOverview');
   const t = useTranslations('PlanOverviewQuestionPage');
 
@@ -243,13 +242,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Run me query to get user's name
   const { data: me } = useQuery(MeDocument);
 
-  const { data: guidanceData } = useQuery(GuidanceGroupsDocument, {
-    variables: {
-      affiliationId: plan?.orgId || null
-    },
-    skip: !me?.me?.affiliation?.uri // Prevent running until the me data exists
-  });
-
   // Get Plan using planId
   const { data: planData, loading: planQueryLoading, error: planQueryError } = useQuery(
     PlanDocument,
@@ -259,39 +251,26 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   );
 
-  // Tags assigned to current section
-  const currentSectionTagIds = React.useMemo(() => {
-    const section = planData?.plan?.versionedSections?.find(s => s.versionedSectionId === Number(versionedSectionId));
-    return section?.tags?.map(t => t.id) ?? [];
-  }, [planData, versionedSectionId]);
+  // Get section tag info from plan data and user affiliation
+  const { sectionTagsMap, matchedGuidanceByOrg } = useGuidanceData({
+    userAffiliationUri: me?.me?.affiliation?.uri,
+    userAffiliationName: me?.me?.affiliation?.name,
+    userAffiliationAcronyms: me?.me?.affiliation?.acronyms,
+    planData,
+    versionedSectionId
+  });
 
+  const handleAddGuidanceOrganization = () => {
+    // Open modal/dialog to select organization
+    // TODO: Implement organization selection and addition to guidance tabs
+    console.log('Add guidance organization');
+  };
 
-  // Guidance texts that match current section tags (return objects so we have stable keys)
-  interface MatchedGuidance { id: number; guidanceText: string; }
-  const matchedGuidanceTexts = React.useMemo<MatchedGuidance[]>(() => {
-    if (!guidanceData?.guidanceGroups || currentSectionTagIds.length === 0) return [] as MatchedGuidance[];
-    const tagSet = new Set(currentSectionTagIds);
-    const seenIds = new Set<number>();
-    const seenTexts = new Set<string>();
-    const matches: MatchedGuidance[] = [];
-
-    guidanceData.guidanceGroups.forEach(group => {
-      group.guidance?.forEach(g => {
-        // New API: guidance has a single tagId instead of tags array
-        const hasMatch = typeof g?.tagId === 'number' && tagSet.has(g.tagId);
-        if (hasMatch && g.guidanceText && typeof g.id === 'number') {
-          // Skip items without valid numeric IDs and dedupe by id/text
-          if (!seenIds.has(g.id) && !seenTexts.has(g.guidanceText)) {
-            seenIds.add(g.id);
-            seenTexts.add(g.guidanceText);
-            matches.push({ id: g.id, guidanceText: g.guidanceText });
-          }
-        }
-      });
-    });
-
-    return matches;
-  }, [guidanceData, currentSectionTagIds]);
+  const handleRemoveGuidanceOrganization = (orgId: string) => {
+    // Call API to remove organization from user preferences
+    // TODO: Implement organization removal from guidance tabs
+    console.log('Remove guidance organization:', orgId);
+  };
 
   // Get answer data
   const { data: answerData, loading: answerLoading, error: answerError } = useQuery(
@@ -1124,6 +1103,41 @@ const PlanOverviewQuestionPage: React.FC = () => {
         setQuestionType(questionType);
         setParsed(parsed);
         setQuestion(cleanedQuestion);
+
+        // Combine question guidance with matched guidance from user's affiliation
+        const questionGuidance: GuidanceItemInterface = {
+          orgURI: cleanedQuestion.ownerAffiliation?.uri ?? '',
+          orgName: cleanedQuestion.ownerAffiliation?.name ?? '',
+          orgShortname: cleanedQuestion.ownerAffiliation?.acronyms?.[0] || '',
+          items: cleanedQuestion.guidanceText ? [
+            {
+              title: cleanedQuestion.ownerAffiliation?.name || '',
+              guidanceText: cleanedQuestion.guidanceText
+            }
+          ] : []
+        };
+
+        // Consolidate guidance by orgURI
+        const guidanceMap = new Map<string, GuidanceItemInterface>();
+
+        // Add question guidance if it has items
+        if (questionGuidance.items.length > 0) {
+          guidanceMap.set(questionGuidance.orgURI, questionGuidance);
+        }
+
+        // Add or merge matched guidance
+        matchedGuidanceByOrg.forEach(guidance => {
+          if (guidanceMap.has(guidance.orgURI)) {
+            // Merge items if orgURI already exists
+            const existing = guidanceMap.get(guidance.orgURI)!;
+            existing.items = [...existing.items, ...guidance.items];
+          } else {
+            guidanceMap.set(guidance.orgURI, guidance);
+          }
+        });
+
+        // Convert map back to array and set all guidance items in state
+        setGuidanceItems(Array.from(guidanceMap.values()));
       } catch (error) {
         logECS('error', 'Parsing error', {
           error,
@@ -1132,7 +1146,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         setErrors(['Error parsing question data']);
       }
     }
-  }, [selectedQuestion]);
+  }, [selectedQuestion, matchedGuidanceByOrg]);
 
 
   // Set plan data in state
@@ -1510,131 +1524,47 @@ const PlanOverviewQuestionPage: React.FC = () => {
                   role="status">
                   {getLastSavedText()}
                 </div>
+                <div className={styles.modalAction}>
+                  <div>
+                    <Button
+                      type="submit"
+                      data-secondary
+                      className="primary"
+                      aria-label={PlanOverview('labels.saveAnswer')}
+                      aria-disabled={isSubmitting}
+                    >
+                      {isSubmitting ? Global('buttons.saving') : Global('buttons.save')}
+                    </Button>
+                  </div>
+                  <div>
+                    <Button
+                      className="secondary"
+                      aria-label={PlanOverview('labels.returnToSection')}
+                      onPress={() => handleBackToSection()}
+                    >
+                      {PlanOverview('buttons.backToSection')}
+                    </Button>
+                  </div>
+
+                </div>
               </Card>
-
-
-              <section aria-label={"Guidance"} id="guidance">
-                {/**Guidance from funder - if funder guidance exists, then display */}
-                {question?.guidanceText && (
-                  <>
-                    <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { name: plan?.funder ?? '' })}</h3>
-                    <SafeHtml html={question?.guidanceText} />
-                  </>
-                )}
-
-                {/**Guidance from organization - if there is org guidance, then display */}
-                {matchedGuidanceTexts.length > 0 && (
-                  <>
-                    <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { name: planData?.plan?.versionedTemplate?.owner?.displayName ?? '' })}</h3>
-                    {/** Additional guidance matched by section tags */}
-                    {matchedGuidanceTexts.length > 0 && (
-                      <div className={styles.matchedGuidanceList} data-testid="matched-guidance">
-                        {matchedGuidanceTexts.map(g => (
-                          <React.Fragment key={g.id}>
-                            <SafeHtml html={g.guidanceText} />
-                          </React.Fragment>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                )}
-
-              </section>
-              <div className={styles.modalAction}>
-                <div>
-                  <Button
-                    type="submit"
-                    data-secondary
-                    className="primary"
-                    aria-label={PlanOverview('labels.saveAnswer')}
-                    aria-disabled={isSubmitting}
-                  >
-                    {isSubmitting ? Global('buttons.saving') : Global('buttons.save')}
-                  </Button>
-                </div>
-                <div>
-                  <Button
-                    className="secondary"
-                    aria-label={PlanOverview('labels.returnToSection')}
-                    onPress={() => handleBackToSection()}
-                  >
-                    {PlanOverview('buttons.backToSection')}
-                  </Button>
-                </div>
-
-              </div>
             </Form>
           </div>
         </ContentContainer >
 
         <SidebarPanel isOpen={isSideBarPanelOpen}>
-
-          <div className={styles.headerWithLogo}>
-            <h2 className="h4">{Global('bestPractice')}</h2>
-            <Image
-              className={styles.Logo}
-              src="/images/DMP-logo.svg"
-              width="140"
-              height="16"
-              alt="DMP Tool"
+          <div className="status-panel-content side-panel">
+            <h2 className="h4">{Guidance('title')}</h2>
+            <GuidancePanel
+              userAffiliationId={me?.me?.affiliation?.uri}
+              ownerAffiliationId={question?.ownerAffiliation?.uri}
+              guidanceItems={guidanceItems}
+              sectionTags={sectionTagsMap}
+              onAddOrganization={handleAddGuidanceOrganization}
+              onRemoveOrganization={handleRemoveGuidanceOrganization}
             />
           </div>
-
-
-          <ExpandableContentSection
-            id="data-description"
-            heading={Global('dataDescription')}
-            expandLabel={Global('links.expand')}
-            summaryCharLimit={200}
-          >
-            <p>
-              Give a summary of the data you will collect or create, noting the content, coverage and data type, e.g., tabular data, survey data, experimental measurements, models, software, audiovisual data, physical samples, etc.
-            </p>
-            <p>
-              Consider how your data could complement and integrate with existing data, or whether there are any existing data or methods that you could reuse.
-            </p>
-            <p>
-              Indicate which data are of long-term value and should be shared and/or preserved.
-
-            </p>
-            <p>
-              If purchasing or reusing existing data, explain how issues such as copyright and IPR have been addressed. You should aim to minimize any restrictions on the reuse (and subsequent sharing) of third-party data.
-
-            </p>
-
-          </ExpandableContentSection>
-
-          <ExpandableContentSection
-            id="data-format"
-            heading={Global('dataFormat')}
-            expandLabel={Global('links.expand')}
-            summaryCharLimit={200}
-
-          >
-            <p>
-              Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
-            </p>
-
-          </ExpandableContentSection>
-
-          <ExpandableContentSection
-            id="data-volume"
-            heading={Global('dataVolume')}
-            expandLabel={Global('links.expand')}
-            summaryCharLimit={200}
-          >
-            <p>
-              Note what volume of data you will create in MB/GB/TB. Indicate the proportions of raw data, processed data, and other secondary outputs (e.g., reports).
-            </p>
-            <p>
-              Consider the implications of data volumes in terms of storage, access, and preservation. Do you need to include additional costs?
-            </p>
-            <p>
-              Consider whether the scale of the data will pose challenges when sharing or transferring data between sites; if so, how will you address these challenges?
-            </p>
-          </ExpandableContentSection>
         </SidebarPanel>
-
 
         {/** Sample text drawer. Only include for question types = Text Area */}
         {

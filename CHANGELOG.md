@@ -1,4 +1,6 @@
 ## Added
+- Added new `GuidancePanel` component for the tabbed guidance in the right sidebar [#12]
+- Added `BestPracticeGuidance` query [#12]
 - Added ability to show if there are pending related works and the number of accepted works [#981]
 - Added ability to manually add a related work via a DOI [#835]
 - Added a shared `utils/apolloErrorHandler.ts` file to handle `AbortError` related to the updated Apollo Client v4 [#1094]
@@ -8,6 +10,8 @@
 - Added new `ResearchOutputAnswerComponent`, `SingleResearchOutputComponent`, `RepoSelectorForAnswer` and `MetaDataStandardForAnswer` components for the rendering of `researchOutputTable` question type answer form [#787]
 - Added `utils/researchOutputTransformations.ts` to group utilities for `researchOutputTable` [#787]
 ### Updated
+- Updated `ExpandableContentSection` component to work with new `GuidancePanel` [#12]
+- Updated queries for`GuidanceGroups`, `Me` and `PublishedQuestion` queries [#12]
 - Updated to `dmptool/types` version `3.1.0` and ran `npm run generate` to update the GraphQL types [#1129]
 - Updated code to use the new version of the `Licenses` query that returns all Licenses without Pagination or search term [#1129]
 - Updates related to updated version of @dmptool/types to v2.3.0 [#1082][#998]

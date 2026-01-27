@@ -664,7 +664,7 @@ const PlanOverviewPage: React.FC = () => {
         </ContentContainer>
 
         <SidebarPanel>
-          <div className={`statusPanelContent sidePanel`}>
+          <div className="status-panel-content side-panel">
             <div className={`buttonContainer withBorder  mb-5`}>
               <Link
                 href={getNarrativeUrl(planData.dmpId)}
@@ -678,7 +678,7 @@ const PlanOverviewPage: React.FC = () => {
                 {Global("buttons.publish")}
               </Button>
             </div>
-            <div className="sidePanelContent">
+            <div className="side-panel-content">
               <div className={`panelRow mb-5`}>
                 <div>
                   <h3>{t("status.feedback.title")}</h3>
