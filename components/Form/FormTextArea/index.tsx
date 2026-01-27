@@ -60,10 +60,9 @@ const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
   const t = useTranslations('Global.labels');
   const sanitizeId = (id: string) => id.replace(/[^a-zA-Z0-9-_]/g, ''); // Remove invalid characters
 
-  // Generate unique IDs for accessibility. SanitizeId removes invalid characters that cannot be used with
+  // Generate unique ID for accessibility. SanitizeId removes invalid characters that cannot be used with
   // TinyMCEEEditor's use of querySelectorAll
   const inputId = sanitizeId(`${name}-input-${React.useId()}`);
-  const labelId = sanitizeId(`${name}-label-${React.useId()}`);
 
   // Internal handler for the standard TextArea
   // It extracts the value from the event and calls the unified onChange
@@ -87,7 +86,7 @@ const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
       isDisabled={disabled}
       data-testid="field-wrapper"
     >
-      <Label id={labelId} className={labelClasses}>
+      <Label htmlFor={inputId} className={labelClasses}>
         {label}{showRequired && <span className="is-required" aria-hidden="true"> ({t('required')})</span>}
       </Label>
 
@@ -105,7 +104,6 @@ const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
           <TinyMCEEditor
             content={value}
             setContent={handleEditorContentChange}
-            labelId={labelId}
             id={inputId}
           />
 

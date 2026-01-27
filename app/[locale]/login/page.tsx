@@ -139,7 +139,7 @@ const LoginPage: React.FC = () => {
           data-step={step}
         >
           <ErrorMessages errors={errors} ref={errorRef} />
-          {(step === "email" || "password") && (
+          {(step === "email" || step === "password") && (
             <TextField
               name="email"
               type="email"
@@ -147,9 +147,14 @@ const LoginPage: React.FC = () => {
               onChange={setEmail}
               value={email}
               isRequired
+              isReadOnly={step === "password"}
+              autoComplete={step === "password" ? "off" : "email"}
             >
               <Label>{t('emailAddress')}</Label>
-              <Input data-testid="emailInput" />
+              <Input
+                data-testid="emailInput"
+                className={step === "password" ? "disabled-look" : ""}
+              />
               {(step === "email") && (
                 <Text slot="description" className={styles.help}>
                   {t('singleSignOn')}

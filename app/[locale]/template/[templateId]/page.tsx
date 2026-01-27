@@ -436,6 +436,16 @@ const TemplateEditPage: React.FC = () => {
     setIsReordering(false);
   };
 
+  const getPublishStatusText = (isDirty: boolean, latestPublishDate: string | null | undefined) => {
+    if (isDirty && latestPublishDate) {
+      return Global("status.unpublishedChanges");
+    } else if (!latestPublishDate) {
+      return Global("status.draft");
+    } else {
+      return Global("status.published");
+    }
+  };
+
   // Need to set this info to update template title
   useEffect(() => {
     if (data?.template) {
@@ -572,11 +582,11 @@ const TemplateEditPage: React.FC = () => {
                   onPress={() => console.log("Preview")}
                   className="sidePanelLink"
                 >
-                  Preview
+                  {Global('buttons.preview')}
                 </Link>
               </div>
 
-              {template.isDirty && (
+              {(template.isDirty && !template.latestPublishDate) && (
                 <div className="panelRow mb-5">
                   <div>
                     <h3>{EditTemplate("button.publishTemplate")}</h3>
@@ -595,7 +605,7 @@ const TemplateEditPage: React.FC = () => {
               <div className="panelRow mb-5">
                 <div>
                   <h3>{EditTemplate("heading.visibilitySettings")}</h3>
-                  <p>{template.isDirty ? EditTemplate("notPublished") : EditTemplate("published")}</p>
+                  <p>{getPublishStatusText(template.isDirty, template?.latestPublishDate)}</p>
                 </div>
                 <Link
                   href="#"

@@ -2570,6 +2570,8 @@ export type Query = {
   repositories?: Maybe<RepositorySearchResults>;
   /** Fetch a specific repository */
   repository?: Maybe<Repository>;
+  /** return all distinct subject area keywords across all repositories */
+  repositorySubjectAreas?: Maybe<Array<Scalars['String']['output']>>;
   /** Get the research output type by it's id */
   researchOutputType?: Maybe<ResearchOutputType>;
   /** Get the research output type by it's name */
@@ -3243,10 +3245,12 @@ export type RepositoryErrors = {
 };
 
 export type RepositorySearchInput = {
+  /** The subject area keyword associated with the repository */
+  keyword?: InputMaybe<Scalars['String']['input']>;
   /** The pagination options */
   paginationOptions?: InputMaybe<PaginationOptions>;
   /** The repository category/type */
-  repositoryType?: InputMaybe<Scalars['String']['input']>;
+  repositoryType?: InputMaybe<RepositoryType>;
   /** The research domain associated with the repository */
   researchDomainId?: InputMaybe<Scalars['Int']['input']>;
   /** The search term */
@@ -3263,7 +3267,7 @@ export type RepositorySearchResults = PaginatedQueryResults & {
   hasNextPage?: Maybe<Scalars['Boolean']['output']>;
   /** Whether or not there is a previous page */
   hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
-  /** The TemplateSearchResults that match the search criteria */
+  /** The Repository search results that match the search criteria */
   items?: Maybe<Array<Maybe<Repository>>>;
   /** The number of items returned */
   limit?: Maybe<Scalars['Int']['output']>;
@@ -3278,8 +3282,16 @@ export enum RepositoryType {
   Disciplinary = 'DISCIPLINARY',
   /** A generalist repository (e.g. Zenodo, Dryad) */
   Generalist = 'GENERALIST',
+  /** A repository owned and managed by a government entity (e.g. NCBI, NASA) */
+  Governmental = 'GOVERNMENTAL',
   /** An institution specific repository (e.g. ASU Library Research Data Repository, etc.) */
-  Institutional = 'INSTITUTIONAL'
+  Institutional = 'INSTITUTIONAL',
+  /** A repository that accepts any type of dataset, from any discipline. Often used when no disciplinary repository exists. */
+  MultiDisciplinary = 'MULTI_DISCIPLINARY',
+  /** A repository that doesn't fit into any of the other categories */
+  Other = 'OTHER',
+  /** A repository created to support a specific project or initiative (e.g. Human Genome Project) */
+  ProjectRelated = 'PROJECT_RELATED'
 }
 
 /** An aread of research (e.g. Electrical Engineering, Cellular biology, etc.) */
@@ -4652,6 +4664,13 @@ export type UnpublishGuidanceGroupMutationVariables = Exact<{
 
 export type UnpublishGuidanceGroupMutation = { __typename?: 'Mutation', unpublishGuidanceGroup: { __typename?: 'GuidanceGroup', id?: number | null, name: string, errors?: { __typename?: 'GuidanceGroupErrors', affiliationId?: string | null, bestPractice?: string | null, description?: string | null, general?: string | null, name?: string | null } | null } };
 
+export type AddMetadataStandardInputMutationVariables = Exact<{
+  input: AddMetadataStandardInput;
+}>;
+
+
+export type AddMetadataStandardInputMutation = { __typename?: 'Mutation', addMetadataStandard?: { __typename?: 'MetadataStandard', id?: number | null, description?: string | null, keywords?: Array<string> | null, name: string, uri: string, errors?: { __typename?: 'MetadataStandardErrors', description?: string | null, general?: string | null, keywords?: string | null, name?: string | null, researchDomainIds?: string | null, uri?: string | null } | null } | null };
+
 export type AddPlanMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
   versionedTemplateId: Scalars['Int']['input'];
@@ -4810,7 +4829,7 @@ export type RemoveQuestionMutationVariables = Exact<{
 }>;
 
 
-export type RemoveQuestionMutation = { __typename?: 'Mutation', removeQuestion?: { __typename?: 'Question', id?: number | null } | null };
+export type RemoveQuestionMutation = { __typename?: 'Mutation', removeQuestion?: { __typename?: 'Question', id?: number | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, guidanceText?: string | null, json?: string | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null } | null } | null };
 
 export type UpdateQuestionDisplayOrderMutationVariables = Exact<{
   questionId: Scalars['Int']['input'];
@@ -4826,6 +4845,13 @@ export type UpdateRelatedWorkStatusMutationVariables = Exact<{
 
 
 export type UpdateRelatedWorkStatusMutation = { __typename?: 'Mutation', updateRelatedWorkStatus?: { __typename?: 'RelatedWorkSearchResult', id: number, status: RelatedWorkStatus } | null };
+
+export type AddRepositoryMutationVariables = Exact<{
+  input?: InputMaybe<AddRepositoryInput>;
+}>;
+
+
+export type AddRepositoryMutation = { __typename?: 'Mutation', addRepository?: { __typename?: 'Repository', id?: number | null, name: string, keywords?: Array<string> | null, uri: string, website?: string | null, description?: string | null, errors?: { __typename?: 'RepositoryErrors', general?: string | null, name?: string | null, description?: string | null, repositoryTypes?: string | null, website?: string | null } | null } | null };
 
 export type AddSectionMutationVariables = Exact<{
   input: AddSectionInput;
@@ -5026,10 +5052,33 @@ export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type LanguagesQuery = { __typename?: 'Query', languages?: Array<{ __typename?: 'Language', id: string, isDefault: boolean, name: string } | null> | null };
 
+export type RecommendedLicensesQueryVariables = Exact<{
+  recommended: Scalars['Boolean']['input'];
+}>;
+
+
+export type RecommendedLicensesQuery = { __typename?: 'Query', recommendedLicenses?: Array<{ __typename?: 'License', name: string, id?: number | null, uri: string } | null> | null };
+
+export type LicensesQueryVariables = Exact<{
+  paginationOptions?: InputMaybe<PaginationOptions>;
+}>;
+
+
+export type LicensesQuery = { __typename?: 'Query', licenses?: { __typename?: 'LicenseSearchResults', items?: Array<{ __typename?: 'License', id?: number | null, name: string, uri: string, recommended: boolean } | null> | null } | null };
+
 export type MemberRolesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MemberRolesQuery = { __typename?: 'Query', memberRoles?: Array<{ __typename?: 'MemberRole', id?: number | null, label: string, uri: string, description?: string | null, displayOrder: number } | null> | null };
+
+export type MetadataStandardsQueryVariables = Exact<{
+  term?: InputMaybe<Scalars['String']['input']>;
+  researchDomainId?: InputMaybe<Scalars['Int']['input']>;
+  paginationOptions?: InputMaybe<PaginationOptions>;
+}>;
+
+
+export type MetadataStandardsQuery = { __typename?: 'Query', metadataStandards?: { __typename?: 'MetadataStandardSearchResults', hasNextPage?: boolean | null, currentOffset?: number | null, hasPreviousPage?: boolean | null, limit?: number | null, nextCursor?: string | null, totalCount?: number | null, availableSortFields?: Array<string | null> | null, items?: Array<{ __typename?: 'MetadataStandard', id?: number | null, name: string, uri: string, description?: string | null, keywords?: Array<string> | null, errors?: { __typename?: 'MetadataStandardErrors', general?: string | null, description?: string | null, name?: string | null, uri?: string | null, keywords?: string | null, researchDomainIds?: string | null } | null } | null> | null } | null };
 
 export type PlanQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -5140,6 +5189,18 @@ export type RelatedWorksByPlanQueryVariables = Exact<{
 
 export type RelatedWorksByPlanQuery = { __typename?: 'Query', relatedWorksByPlan?: { __typename?: 'RelatedWorkSearchResults', totalCount?: number | null, limit?: number | null, currentOffset?: number | null, hasNextPage?: boolean | null, hasPreviousPage?: boolean | null, availableSortFields?: Array<string | null> | null, statusOnlyCount?: number | null, items?: Array<{ __typename?: 'RelatedWorkSearchResult', id: number, scoreNorm: number, confidence?: RelatedWorkConfidence | null, status: RelatedWorkStatus, created: string, modified: string, workVersion: { __typename?: 'WorkVersion', id: number, hash: any, workType: WorkType, publicationDate?: string | null, title?: string | null, publicationVenue?: string | null, sourceName: string, sourceUrl?: string | null, work: { __typename?: 'Work', id: number, doi: string }, authors: Array<{ __typename?: 'Author', orcid?: string | null, firstInitial?: string | null, givenName?: string | null, middleInitials?: string | null, middleNames?: string | null, surname?: string | null, full?: string | null }>, institutions: Array<{ __typename?: 'Institution', name?: string | null, ror?: string | null }>, funders: Array<{ __typename?: 'Funder', name?: string | null, ror?: string | null }>, awards: Array<{ __typename?: 'Award', awardId?: string | null }> }, doiMatch?: { __typename?: 'DoiMatch', found: boolean, score: number, sources: Array<{ __typename?: 'DoiMatchSource', parentAwardId?: string | null, awardId: string, awardUrl: string }> } | null, contentMatch?: { __typename?: 'ContentMatch', score: number, titleHighlight?: string | null, abstractHighlights: Array<string> } | null, authorMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, institutionMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, funderMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null, awardMatches?: Array<{ __typename?: 'ItemMatch', index: number, score: number, fields?: Array<string> | null }> | null } | null> | null, workTypeCounts?: Array<{ __typename?: 'TypeCount', typeId: string, count: number }> | null, confidenceCounts?: Array<{ __typename?: 'TypeCount', typeId: string, count: number }> | null } | null };
 
+export type RepositoriesQueryVariables = Exact<{
+  input: RepositorySearchInput;
+}>;
+
+
+export type RepositoriesQuery = { __typename?: 'Query', repositories?: { __typename?: 'RepositorySearchResults', hasPreviousPage?: boolean | null, hasNextPage?: boolean | null, currentOffset?: number | null, availableSortFields?: Array<string | null> | null, totalCount?: number | null, nextCursor?: string | null, limit?: number | null, items?: Array<{ __typename?: 'Repository', keywords?: Array<string> | null, id?: number | null, name: string, description?: string | null, uri: string, website?: string | null, repositoryTypes?: Array<RepositoryType> | null, errors?: { __typename?: 'RepositoryErrors', general?: string | null, uri?: string | null } | null } | null> | null } | null };
+
+export type RepositorySubjectAreasQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RepositorySubjectAreasQuery = { __typename?: 'Query', repositorySubjectAreas?: Array<string> | null };
+
 export type TopLevelResearchDomainsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -5151,6 +5212,11 @@ export type ChildResearchDomainsQueryVariables = Exact<{
 
 
 export type ChildResearchDomainsQuery = { __typename?: 'Query', childResearchDomains?: Array<{ __typename?: 'ResearchDomain', id?: number | null, name: string, description?: string | null } | null> | null };
+
+export type DefaultResearchOutputTypesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type DefaultResearchOutputTypesQuery = { __typename?: 'Query', defaultResearchOutputTypes?: Array<{ __typename?: 'ResearchOutputType', id?: number | null, name: string, value: string, description?: string | null, errors?: { __typename?: 'ResearchOutputTypeErrors', general?: string | null, name?: string | null, value?: string | null } | null } | null> | null };
 
 export type SectionVersionsQueryVariables = Exact<{
   sectionId: Scalars['Int']['input'];
@@ -6038,6 +6104,51 @@ export function useUnpublishGuidanceGroupMutation(baseOptions?: Apollo.MutationH
 export type UnpublishGuidanceGroupMutationHookResult = ReturnType<typeof useUnpublishGuidanceGroupMutation>;
 export type UnpublishGuidanceGroupMutationResult = Apollo.MutationResult<UnpublishGuidanceGroupMutation>;
 export type UnpublishGuidanceGroupMutationOptions = Apollo.BaseMutationOptions<UnpublishGuidanceGroupMutation, UnpublishGuidanceGroupMutationVariables>;
+export const AddMetadataStandardInputDocument = gql`
+    mutation AddMetadataStandardInput($input: AddMetadataStandardInput!) {
+  addMetadataStandard(input: $input) {
+    id
+    errors {
+      description
+      general
+      keywords
+      name
+      researchDomainIds
+      uri
+    }
+    description
+    keywords
+    name
+    uri
+  }
+}
+    `;
+export type AddMetadataStandardInputMutationFn = Apollo.MutationFunction<AddMetadataStandardInputMutation, AddMetadataStandardInputMutationVariables>;
+
+/**
+ * __useAddMetadataStandardInputMutation__
+ *
+ * To run a mutation, you first call `useAddMetadataStandardInputMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddMetadataStandardInputMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addMetadataStandardInputMutation, { data, loading, error }] = useAddMetadataStandardInputMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddMetadataStandardInputMutation(baseOptions?: Apollo.MutationHookOptions<AddMetadataStandardInputMutation, AddMetadataStandardInputMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddMetadataStandardInputMutation, AddMetadataStandardInputMutationVariables>(AddMetadataStandardInputDocument, options);
+      }
+export type AddMetadataStandardInputMutationHookResult = ReturnType<typeof useAddMetadataStandardInputMutation>;
+export type AddMetadataStandardInputMutationResult = Apollo.MutationResult<AddMetadataStandardInputMutation>;
+export type AddMetadataStandardInputMutationOptions = Apollo.BaseMutationOptions<AddMetadataStandardInputMutation, AddMetadataStandardInputMutationVariables>;
 export const AddPlanDocument = gql`
     mutation AddPlan($projectId: Int!, $versionedTemplateId: Int!) {
   addPlan(projectId: $projectId, versionedTemplateId: $versionedTemplateId) {
@@ -6887,6 +6998,14 @@ export const RemoveQuestionDocument = gql`
     mutation RemoveQuestion($questionId: Int!) {
   removeQuestion(questionId: $questionId) {
     id
+    errors {
+      general
+      guidanceText
+      json
+      questionText
+      requirementText
+      sampleText
+    }
   }
 }
     `;
@@ -6999,6 +7118,51 @@ export function useUpdateRelatedWorkStatusMutation(baseOptions?: Apollo.Mutation
 export type UpdateRelatedWorkStatusMutationHookResult = ReturnType<typeof useUpdateRelatedWorkStatusMutation>;
 export type UpdateRelatedWorkStatusMutationResult = Apollo.MutationResult<UpdateRelatedWorkStatusMutation>;
 export type UpdateRelatedWorkStatusMutationOptions = Apollo.BaseMutationOptions<UpdateRelatedWorkStatusMutation, UpdateRelatedWorkStatusMutationVariables>;
+export const AddRepositoryDocument = gql`
+    mutation AddRepository($input: AddRepositoryInput) {
+  addRepository(input: $input) {
+    id
+    errors {
+      general
+      name
+      description
+      repositoryTypes
+      website
+    }
+    name
+    keywords
+    uri
+    website
+    description
+  }
+}
+    `;
+export type AddRepositoryMutationFn = Apollo.MutationFunction<AddRepositoryMutation, AddRepositoryMutationVariables>;
+
+/**
+ * __useAddRepositoryMutation__
+ *
+ * To run a mutation, you first call `useAddRepositoryMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddRepositoryMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addRepositoryMutation, { data, loading, error }] = useAddRepositoryMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddRepositoryMutation(baseOptions?: Apollo.MutationHookOptions<AddRepositoryMutation, AddRepositoryMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddRepositoryMutation, AddRepositoryMutationVariables>(AddRepositoryDocument, options);
+      }
+export type AddRepositoryMutationHookResult = ReturnType<typeof useAddRepositoryMutation>;
+export type AddRepositoryMutationResult = Apollo.MutationResult<AddRepositoryMutation>;
+export type AddRepositoryMutationOptions = Apollo.BaseMutationOptions<AddRepositoryMutation, AddRepositoryMutationVariables>;
 export const AddSectionDocument = gql`
     mutation AddSection($input: AddSectionInput!) {
   addSection(input: $input) {
@@ -8325,6 +8489,93 @@ export type LanguagesQueryHookResult = ReturnType<typeof useLanguagesQuery>;
 export type LanguagesLazyQueryHookResult = ReturnType<typeof useLanguagesLazyQuery>;
 export type LanguagesSuspenseQueryHookResult = ReturnType<typeof useLanguagesSuspenseQuery>;
 export type LanguagesQueryResult = Apollo.QueryResult<LanguagesQuery, LanguagesQueryVariables>;
+export const RecommendedLicensesDocument = gql`
+    query RecommendedLicenses($recommended: Boolean!) {
+  recommendedLicenses(recommended: $recommended) {
+    name
+    id
+    uri
+  }
+}
+    `;
+
+/**
+ * __useRecommendedLicensesQuery__
+ *
+ * To run a query within a React component, call `useRecommendedLicensesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRecommendedLicensesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useRecommendedLicensesQuery({
+ *   variables: {
+ *      recommended: // value for 'recommended'
+ *   },
+ * });
+ */
+export function useRecommendedLicensesQuery(baseOptions: Apollo.QueryHookOptions<RecommendedLicensesQuery, RecommendedLicensesQueryVariables> & ({ variables: RecommendedLicensesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<RecommendedLicensesQuery, RecommendedLicensesQueryVariables>(RecommendedLicensesDocument, options);
+      }
+export function useRecommendedLicensesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RecommendedLicensesQuery, RecommendedLicensesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<RecommendedLicensesQuery, RecommendedLicensesQueryVariables>(RecommendedLicensesDocument, options);
+        }
+export function useRecommendedLicensesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<RecommendedLicensesQuery, RecommendedLicensesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<RecommendedLicensesQuery, RecommendedLicensesQueryVariables>(RecommendedLicensesDocument, options);
+        }
+export type RecommendedLicensesQueryHookResult = ReturnType<typeof useRecommendedLicensesQuery>;
+export type RecommendedLicensesLazyQueryHookResult = ReturnType<typeof useRecommendedLicensesLazyQuery>;
+export type RecommendedLicensesSuspenseQueryHookResult = ReturnType<typeof useRecommendedLicensesSuspenseQuery>;
+export type RecommendedLicensesQueryResult = Apollo.QueryResult<RecommendedLicensesQuery, RecommendedLicensesQueryVariables>;
+export const LicensesDocument = gql`
+    query Licenses($paginationOptions: PaginationOptions) {
+  licenses(paginationOptions: $paginationOptions) {
+    items {
+      id
+      name
+      uri
+      recommended
+    }
+  }
+}
+    `;
+
+/**
+ * __useLicensesQuery__
+ *
+ * To run a query within a React component, call `useLicensesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLicensesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLicensesQuery({
+ *   variables: {
+ *      paginationOptions: // value for 'paginationOptions'
+ *   },
+ * });
+ */
+export function useLicensesQuery(baseOptions?: Apollo.QueryHookOptions<LicensesQuery, LicensesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<LicensesQuery, LicensesQueryVariables>(LicensesDocument, options);
+      }
+export function useLicensesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<LicensesQuery, LicensesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<LicensesQuery, LicensesQueryVariables>(LicensesDocument, options);
+        }
+export function useLicensesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<LicensesQuery, LicensesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<LicensesQuery, LicensesQueryVariables>(LicensesDocument, options);
+        }
+export type LicensesQueryHookResult = ReturnType<typeof useLicensesQuery>;
+export type LicensesLazyQueryHookResult = ReturnType<typeof useLicensesLazyQuery>;
+export type LicensesSuspenseQueryHookResult = ReturnType<typeof useLicensesSuspenseQuery>;
+export type LicensesQueryResult = Apollo.QueryResult<LicensesQuery, LicensesQueryVariables>;
 export const MemberRolesDocument = gql`
     query MemberRoles {
   memberRoles {
@@ -8368,6 +8619,73 @@ export type MemberRolesQueryHookResult = ReturnType<typeof useMemberRolesQuery>;
 export type MemberRolesLazyQueryHookResult = ReturnType<typeof useMemberRolesLazyQuery>;
 export type MemberRolesSuspenseQueryHookResult = ReturnType<typeof useMemberRolesSuspenseQuery>;
 export type MemberRolesQueryResult = Apollo.QueryResult<MemberRolesQuery, MemberRolesQueryVariables>;
+export const MetadataStandardsDocument = gql`
+    query MetadataStandards($term: String, $researchDomainId: Int, $paginationOptions: PaginationOptions) {
+  metadataStandards(
+    term: $term
+    researchDomainId: $researchDomainId
+    paginationOptions: $paginationOptions
+  ) {
+    hasNextPage
+    currentOffset
+    hasPreviousPage
+    limit
+    nextCursor
+    totalCount
+    availableSortFields
+    items {
+      id
+      errors {
+        general
+        description
+        name
+        uri
+        keywords
+        researchDomainIds
+      }
+      name
+      uri
+      description
+      keywords
+    }
+  }
+}
+    `;
+
+/**
+ * __useMetadataStandardsQuery__
+ *
+ * To run a query within a React component, call `useMetadataStandardsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMetadataStandardsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMetadataStandardsQuery({
+ *   variables: {
+ *      term: // value for 'term'
+ *      researchDomainId: // value for 'researchDomainId'
+ *      paginationOptions: // value for 'paginationOptions'
+ *   },
+ * });
+ */
+export function useMetadataStandardsQuery(baseOptions?: Apollo.QueryHookOptions<MetadataStandardsQuery, MetadataStandardsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MetadataStandardsQuery, MetadataStandardsQueryVariables>(MetadataStandardsDocument, options);
+      }
+export function useMetadataStandardsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MetadataStandardsQuery, MetadataStandardsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MetadataStandardsQuery, MetadataStandardsQueryVariables>(MetadataStandardsDocument, options);
+        }
+export function useMetadataStandardsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MetadataStandardsQuery, MetadataStandardsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MetadataStandardsQuery, MetadataStandardsQueryVariables>(MetadataStandardsDocument, options);
+        }
+export type MetadataStandardsQueryHookResult = ReturnType<typeof useMetadataStandardsQuery>;
+export type MetadataStandardsLazyQueryHookResult = ReturnType<typeof useMetadataStandardsLazyQuery>;
+export type MetadataStandardsSuspenseQueryHookResult = ReturnType<typeof useMetadataStandardsSuspenseQuery>;
+export type MetadataStandardsQueryResult = Apollo.QueryResult<MetadataStandardsQuery, MetadataStandardsQueryVariables>;
 export const PlanDocument = gql`
     query Plan($planId: Int!) {
   plan(planId: $planId) {
@@ -9315,6 +9633,102 @@ export type RelatedWorksByPlanQueryHookResult = ReturnType<typeof useRelatedWork
 export type RelatedWorksByPlanLazyQueryHookResult = ReturnType<typeof useRelatedWorksByPlanLazyQuery>;
 export type RelatedWorksByPlanSuspenseQueryHookResult = ReturnType<typeof useRelatedWorksByPlanSuspenseQuery>;
 export type RelatedWorksByPlanQueryResult = Apollo.QueryResult<RelatedWorksByPlanQuery, RelatedWorksByPlanQueryVariables>;
+export const RepositoriesDocument = gql`
+    query Repositories($input: RepositorySearchInput!) {
+  repositories(input: $input) {
+    hasPreviousPage
+    hasNextPage
+    currentOffset
+    availableSortFields
+    totalCount
+    nextCursor
+    limit
+    items {
+      keywords
+      id
+      errors {
+        general
+        uri
+      }
+      name
+      description
+      uri
+      website
+      repositoryTypes
+    }
+  }
+}
+    `;
+
+/**
+ * __useRepositoriesQuery__
+ *
+ * To run a query within a React component, call `useRepositoriesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRepositoriesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useRepositoriesQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useRepositoriesQuery(baseOptions: Apollo.QueryHookOptions<RepositoriesQuery, RepositoriesQueryVariables> & ({ variables: RepositoriesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<RepositoriesQuery, RepositoriesQueryVariables>(RepositoriesDocument, options);
+      }
+export function useRepositoriesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RepositoriesQuery, RepositoriesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<RepositoriesQuery, RepositoriesQueryVariables>(RepositoriesDocument, options);
+        }
+export function useRepositoriesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<RepositoriesQuery, RepositoriesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<RepositoriesQuery, RepositoriesQueryVariables>(RepositoriesDocument, options);
+        }
+export type RepositoriesQueryHookResult = ReturnType<typeof useRepositoriesQuery>;
+export type RepositoriesLazyQueryHookResult = ReturnType<typeof useRepositoriesLazyQuery>;
+export type RepositoriesSuspenseQueryHookResult = ReturnType<typeof useRepositoriesSuspenseQuery>;
+export type RepositoriesQueryResult = Apollo.QueryResult<RepositoriesQuery, RepositoriesQueryVariables>;
+export const RepositorySubjectAreasDocument = gql`
+    query RepositorySubjectAreas {
+  repositorySubjectAreas
+}
+    `;
+
+/**
+ * __useRepositorySubjectAreasQuery__
+ *
+ * To run a query within a React component, call `useRepositorySubjectAreasQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRepositorySubjectAreasQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useRepositorySubjectAreasQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useRepositorySubjectAreasQuery(baseOptions?: Apollo.QueryHookOptions<RepositorySubjectAreasQuery, RepositorySubjectAreasQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<RepositorySubjectAreasQuery, RepositorySubjectAreasQueryVariables>(RepositorySubjectAreasDocument, options);
+      }
+export function useRepositorySubjectAreasLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RepositorySubjectAreasQuery, RepositorySubjectAreasQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<RepositorySubjectAreasQuery, RepositorySubjectAreasQueryVariables>(RepositorySubjectAreasDocument, options);
+        }
+export function useRepositorySubjectAreasSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<RepositorySubjectAreasQuery, RepositorySubjectAreasQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<RepositorySubjectAreasQuery, RepositorySubjectAreasQueryVariables>(RepositorySubjectAreasDocument, options);
+        }
+export type RepositorySubjectAreasQueryHookResult = ReturnType<typeof useRepositorySubjectAreasQuery>;
+export type RepositorySubjectAreasLazyQueryHookResult = ReturnType<typeof useRepositorySubjectAreasLazyQuery>;
+export type RepositorySubjectAreasSuspenseQueryHookResult = ReturnType<typeof useRepositorySubjectAreasSuspenseQuery>;
+export type RepositorySubjectAreasQueryResult = Apollo.QueryResult<RepositorySubjectAreasQuery, RepositorySubjectAreasQueryVariables>;
 export const TopLevelResearchDomainsDocument = gql`
     query TopLevelResearchDomains {
   topLevelResearchDomains {
@@ -9398,6 +9812,53 @@ export type ChildResearchDomainsQueryHookResult = ReturnType<typeof useChildRese
 export type ChildResearchDomainsLazyQueryHookResult = ReturnType<typeof useChildResearchDomainsLazyQuery>;
 export type ChildResearchDomainsSuspenseQueryHookResult = ReturnType<typeof useChildResearchDomainsSuspenseQuery>;
 export type ChildResearchDomainsQueryResult = Apollo.QueryResult<ChildResearchDomainsQuery, ChildResearchDomainsQueryVariables>;
+export const DefaultResearchOutputTypesDocument = gql`
+    query DefaultResearchOutputTypes {
+  defaultResearchOutputTypes {
+    id
+    name
+    value
+    errors {
+      general
+      name
+      value
+    }
+    description
+  }
+}
+    `;
+
+/**
+ * __useDefaultResearchOutputTypesQuery__
+ *
+ * To run a query within a React component, call `useDefaultResearchOutputTypesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useDefaultResearchOutputTypesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useDefaultResearchOutputTypesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useDefaultResearchOutputTypesQuery(baseOptions?: Apollo.QueryHookOptions<DefaultResearchOutputTypesQuery, DefaultResearchOutputTypesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<DefaultResearchOutputTypesQuery, DefaultResearchOutputTypesQueryVariables>(DefaultResearchOutputTypesDocument, options);
+      }
+export function useDefaultResearchOutputTypesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<DefaultResearchOutputTypesQuery, DefaultResearchOutputTypesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<DefaultResearchOutputTypesQuery, DefaultResearchOutputTypesQueryVariables>(DefaultResearchOutputTypesDocument, options);
+        }
+export function useDefaultResearchOutputTypesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<DefaultResearchOutputTypesQuery, DefaultResearchOutputTypesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<DefaultResearchOutputTypesQuery, DefaultResearchOutputTypesQueryVariables>(DefaultResearchOutputTypesDocument, options);
+        }
+export type DefaultResearchOutputTypesQueryHookResult = ReturnType<typeof useDefaultResearchOutputTypesQuery>;
+export type DefaultResearchOutputTypesLazyQueryHookResult = ReturnType<typeof useDefaultResearchOutputTypesLazyQuery>;
+export type DefaultResearchOutputTypesSuspenseQueryHookResult = ReturnType<typeof useDefaultResearchOutputTypesSuspenseQuery>;
+export type DefaultResearchOutputTypesQueryResult = Apollo.QueryResult<DefaultResearchOutputTypesQuery, DefaultResearchOutputTypesQueryVariables>;
 export const SectionVersionsDocument = gql`
     query SectionVersions($sectionId: Int!) {
   sectionVersions(sectionId: $sectionId) {

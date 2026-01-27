@@ -49,6 +49,9 @@ const ProjectsProjectMembers = () => {
     }
   );
 
+  // Routes
+  const collaborationRoute = routePath('projects.collaboration', { projectId });
+
   const handleAddMember = (): void => {
     // Handle adding new member
     router.push(routePath('projects.members.search', { projectId }));
@@ -58,11 +61,6 @@ const ProjectsProjectMembers = () => {
 
     // Handle editing member
     router.push(routePath('projects.members.edit', { projectId, memberId: String(memberId) }));
-  };
-
-  const handleShare = (): void => {
-    // Handle share
-    router.push(routePath('projects.share.index', { projectId }));
   };
 
   useEffect(() => {
@@ -184,13 +182,13 @@ const ProjectsProjectMembers = () => {
                 shareWithPeople: (chunks) => <Link href={`/projects/${projectId}/share`}>{chunks}</Link>
               })}
             </p>
-            <Button
-              onPress={handleShare}
-              className="secondary"
+            <Link
+              href={collaborationRoute}
+              className="button-link secondary"
               aria-label={ProjectMembers('buttons.shareWithPeople')}
             >
               {ProjectMembers('buttons.shareWithPeople')}
-            </Button>
+            </Link>
           </section>
         </ContentContainer>
       </LayoutContainer >
