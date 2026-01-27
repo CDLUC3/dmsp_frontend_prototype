@@ -768,6 +768,7 @@
       "startDate": "Start date",
       "endDate": "End date",
       "funderSearch": "Search by funder name",
+      "nameSearch": "Search by name",
       "requiredField": "Mark as required?",
       "previousPage": "Previous page",
       "nextPage": "Next page",
@@ -801,6 +802,7 @@
     },
     "placeholders": {
       "funderSearch": "Enter funder name...",
+      "nameSearch": "Enter name...",
       "enterComment": "Enter your comment"
     },
     "links": {

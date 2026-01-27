@@ -23,3 +23,19 @@ query AffiliationFunders($name: String!, $funderOnly: Boolean, $paginationOption
     }
   }
 }
+
+query ManagedAffiliationsWithGuidance($name: String, $paginationOptions: PaginationOptions) {
+  managedAffiliationsWithGuidance(name: $name, paginationOptions:$paginationOptions) {
+    items {
+      id
+      funder
+      displayName
+      uri
+    }
+    limit
+    totalCount
+    hasNextPage
+    hasPreviousPage
+    nextCursor
+  }
+}

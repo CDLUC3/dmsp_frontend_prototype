@@ -2,6 +2,9 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
+  Dialog,
+  Heading,
+  Modal,
   Tabs,
   TabList,
   Tab,
@@ -15,7 +18,9 @@ import { useTranslations } from "next-intl";
 // GraphQL
 import { useQuery } from '@apollo/client/react';
 import {
-  BestPracticeGuidanceDocument
+  AffiliationSearch,
+  BestPracticeGuidanceDocument,
+  FunderPopularityResult
 } from '@/generated/graphql';
 
 // Types
@@ -23,11 +28,13 @@ import {
   GuidanceSource,
   GuidancePanelProps,
   MatchedGuidance,
+  FunderSearchResults
 } from '@/app/types';
 
 // Components
 import ExpandableContentSection from '@/components/ExpandableContentSection';
 import { DmpIcon } from "@/components/Icons";
+import AffiliationSearchForGuidance from '../AffiliationSearchForGuidance';
 import styles from './GuidancePanel.module.scss';
 
 // Additional hard-coded guidance for demonstration purposes
@@ -69,15 +76,18 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
   guidanceItems,
   sectionTags,
   onAddOrganization,
-  //onRemoveOrganization, - This will be used for future work on removing pills
+  onRemoveOrganization,
 }) => {
 
   const Global = useTranslations('Global');
   const t = useTranslations('GuidancePanel');
+  const Org = useTranslations('FunderSearch');
 
   // Refs for measuring
   const containerRef = useRef<HTMLDivElement>(null);
   const pillsRef = useRef<(HTMLDivElement | null)[]>([]);
+  // Ref for scrolling down to first result
+  const resultsRef = useRef<HTMLElement>(null);
 
   // Internal state for uncontrolled usage
   const [showAllTabs, setShowAllTabs] = useState<boolean>(false);
@@ -85,6 +95,13 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const [selectedGuidanceId, setSelectedGuidanceId] = useState<string>('bestPractice');
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
+
+  // State for modal dialog
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [moreCounter, setMoreCounter] = useState<number>(0);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [funders, setFunders] = useState<AffiliationSearch[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
 
   // Query to get Best Practice guidance content
   const { data: bestPracticeGuidanceData, loading: bestPracticeLoading } = useQuery(
@@ -155,6 +172,81 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
     return sources;
   }, [guidanceItems, bestPracticeGuidanceData]);
 
+
+  const handleDialogCloseBtn = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleOpenDialog = () => {
+    setIsModalOpen(true);
+  }
+
+  const handleSelectFunder = (funder: AffiliationSearch | FunderPopularityResult) => {
+    if (!funder.uri) return;
+
+    // Trigger callback to add organization
+    if (onAddOrganization) {
+      onAddOrganization();
+    }
+
+    // Close modal
+    setIsModalOpen(false);
+  };
+
+  const toggleShowAllTabs = () => {
+    setIsTransitioning(true);
+
+    setShowAllTabs(!showAllTabs);
+
+    // Clear transition flag after animation completes
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 200); // Match your fadeIn animation duration
+
+  };
+
+  /**
+   * Checks if the useMore button should display or not.
+   */
+  const hasMore = () => {
+    if (!nextCursor) return false;
+    return (funders.length < totalCount);
+  }
+
+
+  function onResults(results: FunderSearchResults, isNew: boolean) {
+    let validResults: AffiliationSearch[];
+    if (results.items && results.items.length > 0) {
+      validResults = results.items.filter((r): r is AffiliationSearch => r !== null)
+    } else {
+      validResults = [];
+    }
+
+    if (isNew) {
+      setFunders(validResults);
+    } else {
+      setFunders(funders.concat(validResults));
+    }
+
+    setTotalCount(results.totalCount as number);
+
+    if (results.nextCursor) {
+      setNextCursor(results.nextCursor);
+    }
+  }
+
+
+  const handleRemoveOrganization = (e: React.MouseEvent, sourceId: string, orgId?: string) => {
+    e.stopPropagation();
+    if (!orgId || !onRemoveOrganization) return;
+
+    // If removing the currently selected source, switch to best practice
+    if (selectedGuidanceId === sourceId) {
+      setSelectedGuidanceId('bestPractice');
+    }
+
+    onRemoveOrganization(orgId);
+  };
   // Calculate how many pills can fit in first row
   // because we always want to show the "More" button in the first row if there are too many pills
   useEffect(() => {
@@ -244,18 +336,15 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
     }
   }, [bestPracticeLoading, userAffiliationId, ownerAffiliationId, guidanceSources]);
 
+  useEffect(() => {
+    if (isModalOpen && funders.length > 0 && resultsRef.current) {
+      resultsRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  }, [funders, isModalOpen]);
 
-  const toggleShowAllTabs = () => {
-    setIsTransitioning(true);
-
-    setShowAllTabs(!showAllTabs);
-
-    // Clear transition flag after animation completes
-    setTimeout(() => {
-      setIsTransitioning(false);
-    }, 200); // Match your fadeIn animation duration
-
-  };
 
   // Show "More" button if there are more than the calculated visible tabs that fit in one row
   const hasOverflow = guidanceSources.length > visibleCount;
@@ -333,7 +422,7 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
               {onAddOrganization && (
                 <Button
                   className="link"
-                  onPress={onAddOrganization}
+                  onPress={handleOpenDialog}
                   aria-label={t('addGuidanceSource')}
                 >
                   <DmpIcon icon="plus" />
@@ -348,7 +437,7 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
             <div className={`${styles.actionButtons} ${styles.singleRow}`}>
               <Button
                 className="link"
-                onPress={onAddOrganization}
+                onPress={handleOpenDialog}
                 aria-label={t('addGuidanceSource')}
               >
                 <span>{t('addOrganization')}</span>
@@ -364,6 +453,122 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
           </TabPanel>
         ))}
       </Tabs>
+
+      {/** Modal to add or remove guidance orgs */}
+      <Modal
+        isDismissable
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        data-testid="modal"
+      >
+        <Dialog>
+          <div className="close-action-container">
+            <Button
+              className="close-action"
+              aria-label={Global('buttons.close')}
+              onPress={handleDialogCloseBtn}
+              data-testid="close-action"
+            >
+              <DmpIcon icon="right-panel_close" />
+              {' '}{Global('buttons.close')}
+            </Button>
+          </div>
+          <div className={`${styles.publishModal} ${styles.dialogWrapper}`}>
+            <Heading slot="title">Customize best practice</Heading>
+            <Tabs
+              onSelectionChange={(key) => console.log("Changed tab to:", key)}
+              className={styles.guidanceTabs}
+            >
+              <div className={styles.tabListWrapper} ref={containerRef}>
+                <div className={styles.tabsRow}>
+                  <div><h3 className={styles.modalH3}>Currently displaying</h3></div>
+                  <TabList aria-label={t('guidanceSourceSelection')} className={styles.pillsContainer}>
+                    {/* Render all pills for measurement (hidden ones are positioned off-screen) */}
+                    {guidanceSources.map((source, index) => {
+                      const isVisible = showAllTabs || index < visibleCount;
+                      return (
+                        <Tab
+                          key={source.id}
+                          id={source.id}
+                          className={`
+                          ${styles.pill} 
+                          ${isTransitioning ? styles.transitioning : ''} 
+                          ${isVisible ? styles.pillVisible : styles.pillHidden}
+                          ${!isVisible && !showAllTabs ? styles.pillOffscreen : ''}
+                        `}
+                        >
+                          <div
+                            ref={(el) => { pillsRef.current[index] = el; }}
+                            className={`
+                                ${styles.pillCustomize}
+                        ${styles.pillInner} 
+                      `}
+                          >
+                            <span>{source.shortName}</span>
+                            <DmpIcon icon="cancel-reverse" />
+                          </div>
+                        </Tab>
+                      );
+                    })}
+                  </TabList>
+                </div>
+              </div>
+
+              <div><h3 className={styles.modalH3}>Add more</h3></div>
+              <AffiliationSearchForGuidance
+                onResults={onResults}
+                moreTrigger={moreCounter}
+              />
+              {funders.length > 0 && (
+                <section
+                  ref={resultsRef}
+                  aria-labelledby="funders-section"
+                >
+                  <p className={styles.resultsCount}>
+                    {Org('showCount', {
+                      count: funders.length,
+                      total: totalCount,
+                    })}
+                  </p>
+                  <div>
+                    {funders.map((funder, index) => (
+                      <div key={index} className={styles.fundingResultsList}>
+                        <div
+                          className={styles.fundingResultsListItem}
+                          role="group"
+                          aria-label={`${Org('funder')}: ${funder.displayName}`}
+                        >
+                          <p className="funder-name">{funder.displayName}</p>
+                          <Button
+                            className="secondary select-button"
+                            data-funder-uri={funder.uri}
+                            onPress={() => handleSelectFunder(funder)}
+                            aria-label={`${Global('buttons.select')} ${funder.displayName}`}
+                          >
+                            {Global('buttons.select')}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+
+                    {(hasMore()) && (
+                      <div className={styles.fundingResultsListMore}>
+                        <Button
+                          data-testid="load-more-btn"
+                          onPress={() => setMoreCounter(moreCounter + 1)}
+                          aria-label={Global('buttons.loadMore')}
+                        >
+                          {Global('buttons.loadMore')}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </section>
+              )}
+            </Tabs>
+          </div>
+        </Dialog>
+      </Modal>
     </div >
   );
 };
