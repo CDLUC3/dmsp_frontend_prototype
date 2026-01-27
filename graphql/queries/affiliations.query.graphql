@@ -31,6 +31,7 @@ query ManagedAffiliationsWithGuidance($name: String, $paginationOptions: Paginat
       funder
       displayName
       uri
+      acronyms
     }
     limit
     totalCount

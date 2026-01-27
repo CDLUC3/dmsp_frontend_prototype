@@ -6,12 +6,14 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from "next-intl";
 
 // GraphQL
-import { useQuery } from '@apollo/client/react';
+import { useQuery, useLazyQuery } from '@apollo/client/react';
 import {
+  AffiliationSearch,
   PublishedQuestionsDocument,
   PublishedSectionDocument,
   PlanDocument,
-  MeDocument
+  MeDocument,
+  VersionedGuidanceDocument
 } from '@/generated/graphql';
 
 // Components
@@ -56,6 +58,8 @@ const PlanOverviewSectionPage: React.FC = () => {
   // State for navigation visibility
   const [showNavigation, setShowNavigation] = useState(true);
   const [guidanceItems, setGuidanceItems] = useState<GuidanceItemInterface[]>([]);
+  const [addedOrganizations, setAddedOrganizations] = useState<AffiliationSearch[]>([]);
+  const [addedOrgsGuidance, setAddedOrgsGuidance] = useState<GuidanceItemInterface[]>([]);
 
   // Validate that dmpId is a valid number
   const planId = parseInt(dmpId);
@@ -68,15 +72,18 @@ const PlanOverviewSectionPage: React.FC = () => {
     skip: !versionedSectionId
   });
 
+  const { data: planData, loading: planLoading } = useQuery(PlanDocument, {
+    variables: { planId },
+    skip: !planId
+  });
+
   const { data: sectionData, loading: sectionLoading } = useQuery(PublishedSectionDocument, {
     variables: { versionedSectionId },
     skip: !versionedSectionId
   });
 
-  const { data: planData, loading: planLoading } = useQuery(PlanDocument, {
-    variables: { planId },
-    skip: !planId
-  });
+  // Lazy query to fetch guidance for added organizations
+  const [fetchOrgGuidance] = useLazyQuery(VersionedGuidanceDocument);
 
   // Use the guidance data hook to get section tags and matched guidance
   const { sectionTagsMap, matchedGuidanceByOrg } = useGuidanceData({
@@ -87,16 +94,97 @@ const PlanOverviewSectionPage: React.FC = () => {
     versionedSectionId: String(versionedSectionId)
   });
 
-  // Handlers for guidance panel
-  const handleAddGuidanceOrganization = () => {
-    console.log('Add guidance organization');
+  // Handler to add guidance organization
+  const handleAddGuidanceOrganization = async (funder: AffiliationSearch) => {
+    if (!funder.uri) return;
+
+    // Check if organization is already added
+    const isAlreadyAdded = addedOrganizations.some(org => org.uri === funder.uri);
+    if (isAlreadyAdded) {
+      console.log('Organization already added:', funder.displayName);
+      return;
+    }
+
+    try {
+      // Fetch guidance for this organization using the same query as useGuidanceData
+      // Extract tag IDs from sectionTagsMap (keys are the tag IDs)
+      const tagIds = Object.keys(sectionTagsMap).map(Number);
+
+      console.log("***Funder URI to fetch guidance for:", funder.uri);
+      console.log("***Tag IDs for guidance fetch:", tagIds);
+      const { data } = await fetchOrgGuidance({
+        variables: {
+          affiliationId: funder.uri,
+          tagIds: tagIds
+        }
+      });
+
+      console.log("**Fetched guidance data for added organization:", data);
+
+      // Add to added organizations
+      setAddedOrganizations(prev => [...prev, funder]);
+
+      // Format the guidance data the same way useGuidanceData does
+      if (data?.versionedGuidance && data.versionedGuidance.length > 0) {
+        // Group guidance by tagId and combine multiple texts for the same tag
+        const itemsByTag = new Map<number, string[]>();
+
+        data.versionedGuidance.forEach(g => {
+          if (g.guidanceText && g.tagId != null) {
+            if (!itemsByTag.has(g.tagId)) {
+              itemsByTag.set(g.tagId, []);
+            }
+            itemsByTag.get(g.tagId)!.push(g.guidanceText);
+          }
+        });
+
+        // Convert to items array
+        const items: { id?: number; title?: string; guidanceText: string }[] = [];
+
+        itemsByTag.forEach((texts, tagId) => {
+          // Get tag name from sectionTagsMap
+          const tagName = sectionTagsMap[tagId];
+          items.push({
+            id: tagId,
+            title: tagName,
+            guidanceText: texts.join('')
+          });
+        });
+
+        // Create guidance item for this organization
+        const orgGuidance: GuidanceItemInterface = {
+          orgURI: funder.uri,
+          orgName: funder.displayName || '',
+          orgShortname: funder.acronyms?.[0] || funder.displayName || '',
+          items
+        };
+
+        // Add to added orgs guidance
+        setAddedOrgsGuidance(prev => [...prev, orgGuidance]);
+      } else {
+        // No guidance found, but still add the organization with empty items
+        const orgGuidance: GuidanceItemInterface = {
+          orgURI: funder.uri,
+          orgName: funder.displayName || '',
+          orgShortname: funder.acronyms?.[0] || funder.displayName || '',
+          items: []
+        };
+
+        setAddedOrgsGuidance(prev => [...prev, orgGuidance]);
+      }
+    } catch (error) {
+      console.error('Error fetching guidance for organization:', error);
+    }
   };
 
   const handleRemoveGuidanceOrganization = (orgId: string) => {
-    console.log('Remove guidance organization:', orgId);
+    // Remove from added organizations
+    setAddedOrganizations(prev => prev.filter(org => org.uri !== orgId));
+    // Remove from added orgs guidance
+    setAddedOrgsGuidance(prev => prev.filter(guidance => guidance.orgURI !== orgId));
   };
 
-  // Combine section guidance with user's matched guidance
+  // Combine section guidance with user's matched guidance and added organizations
   useEffect(() => {
     if (sectionData?.publishedSection) {
       const section = sectionData.publishedSection;
@@ -133,9 +221,21 @@ const PlanOverviewSectionPage: React.FC = () => {
         }
       });
 
+      // Add or merge guidance from manually added organizations
+      addedOrgsGuidance.forEach(guidance => {
+        if (guidanceMap.has(guidance.orgURI)) {
+          // Merge items if orgURI already exists
+          const existing = guidanceMap.get(guidance.orgURI)!;
+          existing.items = [...existing.items, ...guidance.items];
+        } else {
+          guidanceMap.set(guidance.orgURI, guidance);
+        }
+      });
+
       setGuidanceItems(Array.from(guidanceMap.values()));
     }
-  }, [sectionData, matchedGuidanceByOrg]);
+  }, [sectionData, matchedGuidanceByOrg, addedOrgsGuidance, planData]);
+
 
   // Hide navigation when close to footer
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { TagsInterface } from "@/app/types";
-
+import { AffiliationSearch } from '@/generated/graphql';
 export enum GuidanceGroupStatus {
   DRAFT = 'draft',
   PUBLISHED = 'published',
@@ -100,7 +100,7 @@ export interface GuidancePanelProps {
   // Tags assigned to the current section
   sectionTags: Record<number, string>;
   // Callbacks
-  onAddOrganization?: () => void;
+  onAddOrganization?: (funder: AffiliationSearch) => void;
   onRemoveOrganization?: (orgId: string) => void;
 }
 

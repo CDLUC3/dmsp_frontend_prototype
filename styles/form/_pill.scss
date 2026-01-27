@@ -30,7 +30,7 @@
   @include pill-base;
   background-color: var(--slate-100);
   border-color: var(--slate-300);
-  color: var(--blue-900);
+  color: var(--text-black);
   
   &:hover:not(:disabled) {
     background-color: var(--slate-300);

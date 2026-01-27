@@ -181,12 +181,13 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
     setIsModalOpen(true);
   }
 
-  const handleSelectFunder = (funder: AffiliationSearch | FunderPopularityResult) => {
+  const handleSelectFunder = (funder: AffiliationSearch) => {
     if (!funder.uri) return;
 
+    console.log("***Selected Funder URI:", funder);
     // Trigger callback to add organization
     if (onAddOrganization) {
-      onAddOrganization();
+      onAddOrganization(funder);
     }
 
     // Close modal
