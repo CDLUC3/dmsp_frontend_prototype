@@ -1,6 +1,6 @@
 import React from 'react';
 import { act, render, screen, fireEvent, waitFor, within } from '@testing-library/react';
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/context/ToastContext';
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -176,7 +176,7 @@ describe('ProjectsCreateProject', () => {
   it('should render the ProjectsCreateProject component', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider mocks={mocks}>
           <ProjectsCreateProject />
         </MockedProvider>
       );
@@ -194,7 +194,7 @@ describe('ProjectsCreateProject', () => {
   it('should handle form submission with valid data', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider mocks={mocks}>
           <ProjectsCreateProject />
         </MockedProvider>
       );
@@ -213,7 +213,7 @@ describe('ProjectsCreateProject', () => {
   it('should handle valid non-test project', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider mocks={mocks}>
           <ProjectsCreateProject />
         </MockedProvider>
       );
@@ -237,7 +237,7 @@ describe('ProjectsCreateProject', () => {
   it('should handle showing field-level error when there is no title', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider mocks={mocks}>
           <ProjectsCreateProject />
         </MockedProvider>
       );
@@ -258,7 +258,7 @@ describe('ProjectsCreateProject', () => {
   it('should display field error messages', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider mocks={mocks}>
           <ProjectsCreateProject />
         </MockedProvider>
       );
@@ -276,7 +276,7 @@ describe('ProjectsCreateProject', () => {
   it('should display general error message instead of default', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider mocks={mocks}>
           <ProjectsCreateProject />
         </MockedProvider>
       );
@@ -294,7 +294,7 @@ describe('ProjectsCreateProject', () => {
   it('should catch general server exceptions', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider mocks={mocks}>
           <ProjectsCreateProject />
         </MockedProvider>
       );
@@ -312,7 +312,7 @@ describe('ProjectsCreateProject', () => {
 
   it('should pass axe accessibility test', async () => {
     const { container } = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <ProjectsCreateProject />
       </MockedProvider>
     );

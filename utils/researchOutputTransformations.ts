@@ -3,7 +3,8 @@ import {
   DefaultResearchOutputTableQuestion,
   ResearchOutputTableQuestionType,
   AnyTableColumnQuestionType,
-  RepositorySearchAnswerType
+  RepositorySearchAnswerType,
+  DefaultResearchOutputCustomColumn
 } from '@dmptool/types';
 import {
   RESEARCH_OUTPUT_QUESTION_TYPE,
@@ -15,8 +16,6 @@ import {
   RO_METADATA_STANDARD_SELECTOR_ID,
   RO_LICENSES_ID,
   RO_ACCESS_LEVELS_ID,
-  REPOSITORY_SEARCH_ID,
-  METADATA_STANDARD_SEARCH_ID
 } from '@/lib/constants';
 import { getDefaultAnswerForType } from '@/utils/researchOutputTable';
 import {
@@ -29,19 +28,9 @@ import {
   ResearchOutputTable
 } from '@/app/types';
 
-type AdditionalFieldsType = {
-  id: string;
-  label: string;
-  enabled: boolean;
-  defaultValue: string;
-  customLabel: string;
-  helpText: string;
-  maxLength: string;
-};
-
 type ResearchOutputState = {
   standardFields: StandardField[];
-  additionalFields: AdditionalFieldsType[];
+  additionalFields: typeof DefaultResearchOutputCustomColumn[];
   expandedFields: string[];
 };
 
@@ -105,41 +94,14 @@ export const createEmptyResearchOutputRow = (
         const schemaVersion = col.content?.meta?.schemaVersion || CURRENT_SCHEMA_VERSION;
         const baseAnswer = getDefaultAnswerForType(col.content.type, schemaVersion);
 
-        // Handle repositorySearch with preferences
-        if (col.content.type === REPOSITORY_SEARCH_ID) {
-          const colRepoPreferences = 'preferences' in col && Array.isArray(col.preferences)
-            ? col.preferences as { label: string; value: string }[]
-            : undefined;
-          if (colRepoPreferences && colRepoPreferences.length > 0) {
-            return {
-              type: "repositorySearch" as const,
-              meta: baseAnswer.meta,
-              answer: colRepoPreferences.map((pref) => ({
-                repositoryId: pref.value,
-                repositoryName: pref.label
-              }))
-            };
-          }
+        // Type guard: only access defaultValue if it exists on this type
+        if (col.content?.attributes && 'defaultValue' in col.content.attributes) {
+          const defaultValue = col.content?.attributes?.defaultValue;
+          return { ...baseAnswer, answer: defaultValue ?? baseAnswer.answer };
         }
 
-        // Handle metadataStandardSearch with preferences
-        if (col.content.type === METADATA_STANDARD_SEARCH_ID) {
-          const colStdPreferences = 'preferences' in col && Array.isArray(col.preferences)
-            ? col.preferences as { label: string; value: string }[]
-            : undefined;
-          if (colStdPreferences && colStdPreferences.length > 0) {
-            return {
-              type: "metadataStandardSearch" as const,
-              meta: baseAnswer.meta,
-              answer: colStdPreferences.map((pref) => ({
-                metadataStandardId: String(pref.value),
-                metadataStandardName: pref.label
-              }))
-            };
-          }
-        }
-
-        return baseAnswer;
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        return baseAnswer as any;
       }),
       getDefaultAnswerForType("date", CURRENT_SCHEMA_VERSION),
       getDefaultAnswerForType("numberWithContext", CURRENT_SCHEMA_VERSION)
@@ -245,7 +207,7 @@ const buildColumnFromDefault = (
  */
 export const stateToJSON = (
   standardFields: StandardField[],
-  additionalFields: AdditionalFieldsType[],
+  additionalFields: typeof DefaultResearchOutputCustomColumn[],
   defaultResearchOutputTypesData?: { defaultResearchOutputTypes?: ({ name: string; value?: string } | null)[] }
 ): AnyParsedQuestion => {
   // Use the flexible type for building
@@ -258,7 +220,7 @@ export const stateToJSON = (
       case RO_TITLE_ID:
         columns.push(buildColumnFromDefault('title', field, {
           attributes: {
-            maxLength: field.maxLength ? Number(field.maxLength) : 500,
+            maxLength: field.maxLength ? Number(field.maxLength) : 120,
           }
         }));
         break;
@@ -275,6 +237,7 @@ export const stateToJSON = (
           label: string;
           value: string;
           selected: boolean;
+          description?: string;
         }
         const outputTypeOptions: OutputTypeOption[] = [];
         if (field.outputTypeConfig?.mode === 'defaults' || !field.outputTypeConfig?.mode) {
@@ -285,7 +248,7 @@ export const stateToJSON = (
             outputTypeOptions.push({
               label: defaultType,
               value: backendType?.value || defaultType.toLowerCase().replace(/\s+/g, '-'),
-              selected: false
+              selected: false,
             });
           });
         }
@@ -294,7 +257,8 @@ export const stateToJSON = (
             outputTypeOptions.push({
               label: customType.type || '',
               value: customType.type?.toLowerCase().replace(/\s+/g, '-') || '',
-              selected: false
+              selected: false,
+              description: customType.description || ''
             });
           });
         }
@@ -466,23 +430,27 @@ export const stateToJSON = (
   // Add additional (custom) fields
   additionalFields.forEach(customField => {
     if (customField.enabled) {
-      const maxLength = customField.maxLength ? Number(customField.maxLength) : 500; // Default to 500 if not specified
+      // Access maxLength from content.attributes
+      const maxLength = customField.content?.attributes?.maxLength ?? 120;
+      const help = customField.content?.attributes?.help ?? '';
+      const defaultValue = customField.content?.attributes?.defaultValue;
 
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       const content: AnyTableColumnQuestionType = {
         type: 'text',
         meta: { schemaVersion: CURRENT_SCHEMA_VERSION },
         attributes: {
-          label: customField.customLabel || customField.label,
-          help: customField.helpText || '',
+          label: customField.content?.attributes?.label || customField.heading,  // Use heading as fallback
+          help,
           maxLength,
           minLength: 0,
-          pattern: '^.+$'
+          pattern: '^.+$',
+          ...(defaultValue !== undefined ? { defaultValue } : {}),
         }
       } as AnyTableColumnQuestionType;
 
       columns.push({
-        heading: customField.customLabel || customField.label,
+        heading: customField.heading,  // Use heading instead of customLabel/label
         required: false,
         enabled: true,
         content
@@ -536,8 +504,8 @@ export const jsonToState = (
   };
 
   // Helper to find a column by heading
-  const findColumn = (keys: string[]): FlexibleResearchOutputColumn | undefined =>
-    parsed.columns.find((col: FlexibleResearchOutputColumn) =>
+  const findColumn = (keys: string[]) =>
+    parsed.columns.find((col) =>
       col?.heading && keys.includes(col.heading)
     );
 
@@ -619,14 +587,14 @@ export const jsonToState = (
           // Check if there are custom options (mine mode)
           if (col.content && 'options' in col.content && Array.isArray(col.content.options) && col.content.options.length > 0) {
             // Type for select box options
-            type SelectOption = { label: string; value: string; selected: boolean };
+            type SelectOption = { label: string; value: string; selected: boolean; description?: string };
 
             updated.outputTypeConfig = {
               ...updated.outputTypeConfig,
               mode: 'mine',
               customTypes: (col.content.options as SelectOption[]).map(opt => ({
                 type: opt.label,
-                description: ''
+                description: opt.description || ''
               })),
               selectedDefaults: [],
             };
@@ -642,7 +610,7 @@ export const jsonToState = (
           updated.enabled = !!dataFlagsCol.enabled;
           updated.helpText = getHelpText(dataFlagsCol.content?.attributes);
           if (dataFlagsCol.content) {
-            updated.content = dataFlagsCol.content;
+            updated.content = dataFlagsCol.content as typeof updated.content;
           }
         }
         break;
@@ -667,7 +635,7 @@ export const jsonToState = (
   });
 
   // Hydrate additional fields (custom columns)
-  const customCols = parsed.columns.filter((col: FlexibleResearchOutputColumn) => {
+  const customCols = parsed.columns.filter((col) => {
     const isStandard = (col?.heading && standardKeys.has(col.heading));
     return !isStandard;
   });
@@ -680,21 +648,35 @@ export const jsonToState = (
     return attr !== undefined && 'maxLength' in attr && typeof attr.maxLength === 'number';
   }
 
-  const hydratedAdditionalFields = customCols.map((col: FlexibleResearchOutputColumn, idx: number) => ({
+  const hydratedAdditionalFields = customCols.map((col: typeof DefaultResearchOutputTableQuestion['columns'][number], idx: number) => ({
     id: col.heading?.toLowerCase().replace(/\s+/g, '_') || `custom_field_${idx}`,
-    label: col.heading || `Custom Field ${idx + 1}`,
+    heading: col.heading || `Custom Field ${idx + 1}`,
+    help: getHelpText(col.content?.attributes) || '',
     enabled: !!col.enabled,
-    defaultValue: hasDefaultValue(col.content?.attributes) ? col.content.attributes.defaultValue : '',
-    customLabel: col.heading || '',
-    helpText: getHelpText(col.content?.attributes),
-    maxLength: hasMaxLength(col.content?.attributes) ? String(col.content.attributes.maxLength) : '',
+    required: false,
+    content: {
+      type: 'text' as const,
+      meta: col.content?.meta || { schemaVersion: CURRENT_SCHEMA_VERSION },
+      attributes: {
+        label: col.content?.attributes?.label || col.heading || '',
+        help: getHelpText(col.content?.attributes) || '',
+        maxLength: hasMaxLength(col.content?.attributes)
+          ? col.content.attributes.maxLength
+          : 120,
+        minLength: 0,
+        pattern: '^.+$',
+        ...(hasDefaultValue(col.content?.attributes) && {
+          defaultValue: col.content.attributes.defaultValue
+        }),
+      }
+    }
   }));
 
   // Hydrate expanded fields
   const hydratedExpandedFields = [
     ...parsed.columns
-      .filter((col: FlexibleResearchOutputColumn) => col.enabled)
-      .map((col: FlexibleResearchOutputColumn) => {
+      .filter((col) => col.enabled)
+      .map((col) => {
         const key = col?.heading;
         switch (key) {
           case 'researchOutput.title': return 'title';

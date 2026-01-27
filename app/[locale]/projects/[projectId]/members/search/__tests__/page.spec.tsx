@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, within } from '@testing-library/react';
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import '@testing-library/jest-dom';
 import { useParams, useRouter } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';

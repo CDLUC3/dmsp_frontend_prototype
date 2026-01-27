@@ -2,15 +2,15 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Button, Form, } from "react-aria-components";
-import { ApolloError } from "@apollo/client";
+import { useMutation } from '@apollo/client/react';
 
 // Graphql mutations
 import {
   MeDocument,
-  useAddUserEmailMutation,
+  AddUserEmailDocument,
   UserEmailErrors,
-  useRemoveUserEmailMutation,
-  useSetPrimaryUserEmailMutation
+  RemoveUserEmailDocument,
+  SetPrimaryUserEmailDocument
 } from '@/generated/graphql';
 
 // Components
@@ -40,9 +40,9 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
   const [addAliasValue, setAddAliasValue] = useState<string>('');
 
   // Initialize graphql mutations for component
-  const [setPrimaryUserEmailMutation] = useSetPrimaryUserEmailMutation();
-  const [addUserEmailMutation] = useAddUserEmailMutation();
-  const [removeUserEmailMutation] = useRemoveUserEmailMutation();
+  const [setPrimaryUserEmailMutation] = useMutation(SetPrimaryUserEmailDocument);
+  const [addUserEmailMutation] = useMutation(AddUserEmailDocument);
+  const [removeUserEmailMutation] = useMutation(RemoveUserEmailDocument);
 
   const clearErrors = () => {
     setErrors({});
@@ -77,28 +77,15 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
         clearErrors();
       }
     } catch (err) {
-      if (err instanceof ApolloError) {
-        await setPrimaryUserEmailMutation({
-          variables: {
-            email: primaryEmail,
-          },
-          refetchQueries: [
-            {
-              query: GET_USER,
-            },
-          ],
-        });
-      } else {
-        // Display other errors
-        setErrors(prevErrors => ({
-          ...prevErrors,
-          general: 'Error when setting primary email'
-        }));
-        logECS('error', 'makePrimaryEmail', {
-          error: err,
-          url: { path: routePath('account.profile') }
-        });
-      }
+      // Display other errors
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        general: t('messages.errorSettingPrimaryEmail')
+      }));
+      logECS('error', 'makePrimaryEmail', {
+        error: err,
+        url: { path: routePath('account.profile') }
+      });
     }
   }
 
@@ -143,34 +130,15 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
       setAddAliasValue('');
       showSuccessToast();
     } catch (err) {
-      if (err instanceof ApolloError) {
-        /* We need to call this mutation again when there is an error and
-  refetch the user query in order for the page to reload with updated info. I tried just
-  calling 'refetch()' for the user query, but that didn't work. */
-        await addUserEmailMutation({
-          variables: {
-            email: addAliasValue,
-            isPrimary: false
-          },
-          refetchQueries: [
-            {
-              query: GET_USER,
-            },
-          ],
-        });
-        // Clear the add alias input field
-        setAddAliasValue('');
-      } else {
-        // Display other errors
-        setErrors(prevErrors => ({
-          ...prevErrors,
-          general: 'Error when adding new email'
-        }));
-        logECS('error', 'handleAddingAlias', {
-          error: err,
-          url: { path: routePath('account.profile') }
-        });
-      }
+      // Display other errors
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        general: t("messages.errorAddingNewEmail")
+      }));
+      logECS('error', 'handleAddingAlias', {
+        error: err,
+        url: { path: routePath('account.profile') }
+      });
     }
   }
 
@@ -195,33 +163,16 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
       }
       clearErrors();
     } catch (err) {
-      if (err instanceof ApolloError) {
-        /* We need to call this mutation again when there is an error and
-  refetch the user query in order for the page to reload with updated info. I tried just
-  calling 'refetch()' for the user query, but that didn't work. */
-        await removeUserEmailMutation({
-          variables: {
-            email: emailToDelete
-          },
-          refetchQueries: [
-            {
-              query: GET_USER,
-            },
-          ],
-        })
-      } else {
-        // Display other errors
-        setErrors(prevErrors => ({
-          ...prevErrors,
-          general: 'Error when deleting email'
-        }));
-        logECS('error', 'deleteEmail', {
-          error: err,
-          url: { path: routePath('account.profile') }
-        });
-      }
+      // Display other errors
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        general: t('messages.errorDeletingEmail')
+      }));
+      logECS('error', 'deleteEmail', {
+        error: err,
+        url: { path: routePath('account.profile') }
+      });
     }
-    ;
   }
 
   const handleAliasChange = (e: React.ChangeEvent<HTMLInputElement>) => {

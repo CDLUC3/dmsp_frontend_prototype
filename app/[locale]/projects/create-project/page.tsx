@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useMutation } from '@apollo/client/react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -15,7 +16,7 @@ import {
 
 //GraphQL
 import {
-  useAddProjectMutation,
+  AddProjectDocument,
   ProjectErrors,
 } from '@/generated/graphql';
 
@@ -31,13 +32,13 @@ import {
 } from '@/components/Form';
 import ErrorMessages from '@/components/ErrorMessages';
 
-//Other
-import logECS from '@/utils/clientLogger';
+// Utils and other
 import { scrollToTop } from '@/utils/general';
 import { routePath } from '@/utils/routes';
 import { useToast } from '@/context/ToastContext';
 import { checkErrors } from '@/utils/errorHandler';
 import styles from './projectsCreateProject.module.scss';
+import { handleApolloError } from '@/utils/apolloErrorHandler';
 
 
 interface CreateProjectInterface {
@@ -72,7 +73,7 @@ const ProjectsCreateProject = () => {
   const Global = useTranslations('Global');
   const CreateProject = useTranslations('ProjectsCreateProject');
 
-  const [addProjectMutation] = useAddProjectMutation();
+  const [addProjectMutation] = useMutation(AddProjectDocument);
 
   // Update form data
   const handleUpdate = (name: string, value: string | string[]) => {
@@ -187,10 +188,7 @@ const ProjectsCreateProject = () => {
           }));
         }
       }).catch((error) => {
-        logECS('error', 'createProject', {
-          error,
-          url: { path: routePath('projects.create') }
-        });
+        handleApolloError(error, 'ProjectsCreateProject.handleFormSubmit');
         setErrors(prevErrors => [...prevErrors, CreateProject('messages.errors.createProjectError')]);
       });
     }

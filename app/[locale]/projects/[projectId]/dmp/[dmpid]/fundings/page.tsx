@@ -3,18 +3,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter, useParams, usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-
-import {
-  PlanFunding,
-  usePlanFundingsLazyQuery,
-  useProjectFundingsQuery,
-  useUpdatePlanFundingMutation,
-  PlanFundingErrors,
-} from '@/generated/graphql';
-
-import { routePath } from '@/utils/routes';
-import logECS from '@/utils/clientLogger';
-
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -24,16 +12,35 @@ import {
   Link,
 } from "react-aria-components";
 
-import { CheckboxInterface } from '@/app/types';
-import { CheckboxGroupComponent } from '@/components/Form';
-import { useToast } from '@/context/ToastContext';
+// GraphQL
+import {
+  useQuery,
+  useLazyQuery,
+  useMutation
+} from '@apollo/client/react';
+import {
+  PlanFunding,
+  PlanFundingsDocument,
+  ProjectFundingsDocument,
+  UpdatePlanFundingDocument,
+  PlanFundingErrors,
+} from '@/generated/graphql';
 
+// Components
+import { CheckboxGroupComponent } from '@/components/Form';
 import PageHeader from "@/components/PageHeader";
 import ErrorMessages from "@/components/ErrorMessages";
 import {
   ContentContainer,
   LayoutContainer,
 } from "@/components/Container";
+
+// Utils and other
+import { routePath } from '@/utils/routes';
+import logECS from '@/utils/clientLogger';
+import { handleApolloError } from '@/utils/apolloErrorHandler';
+import { CheckboxInterface } from '@/app/types';
+import { useToast } from '@/context/ToastContext';
 
 
 const ProjectsProjectPlanAdjustFunding = () => {
@@ -43,11 +50,11 @@ const ProjectsProjectPlanAdjustFunding = () => {
 
   const [checkboxData, setCheckboxData] = useState<CheckboxInterface[]>([])
   const [fundingChoices, setFundingChoices] = useState<string[]>([]);
-  const [fetchPlanFundings, { }] = usePlanFundingsLazyQuery({});
+  const [fetchPlanFundings, { }] = useLazyQuery(PlanFundingsDocument, {});
 
   const [errors, setErrors] = useState<string[]>([]);
   const errorRef = useRef<HTMLDivElement>(null);
-  const [updatePlanFunding] = useUpdatePlanFundingMutation({});
+  const [updatePlanFunding] = useMutation(UpdatePlanFundingDocument, {});
 
   const toastState = useToast();
   const path = usePathname();
@@ -61,7 +68,7 @@ const ProjectsProjectPlanAdjustFunding = () => {
   // But a discussion is required as well.
   const { projectId, dmpid: dmpId } = params;
 
-  const { data: funders } = useProjectFundingsQuery({
+  const { data: funders } = useQuery(ProjectFundingsDocument, {
     variables: {
       projectId: Number(projectId),
     }
@@ -71,7 +78,6 @@ const ProjectsProjectPlanAdjustFunding = () => {
   const handleCheckboxChange = (values: string[]) => {
     setFundingChoices(values);
   };
-
 
   useEffect(() => {
     if (dmpId) {
@@ -93,7 +99,10 @@ const ProjectsProjectPlanAdjustFunding = () => {
         } else {
           setFundingChoices([]);
         }
-      });
+      })
+        .catch((err) => {
+          handleApolloError(err, 'ProjectsProjectPlanAdjustFunding.fetchPlanFundings');
+        });
     }
   }, [dmpId]);
 

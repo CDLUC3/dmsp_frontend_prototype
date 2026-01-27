@@ -85,6 +85,7 @@ const routes = {
   'projects.collaboration': '/projects/:projectId/collaboration',
   'projects.collaboration.invite': '/projects/:projectId/collaboration/invite',
   'projects.dmp.relatedWorks': '/projects/:projectId/dmp/:dmpId/related-works',
+  'projects.dmp.relatedWorks.add': '/projects/:projectId/dmp/:dmpId/related-works/add',
 
   // Template
   'template.index': '/template',

@@ -381,7 +381,14 @@
       "customAccessLevelList": "Lista de níveis de acesso personalizado",
       "helpText": "Texto de Ajuda para {fieldName}",
       "mayContainSensitiveData": "Pode conter dados sensíveis?",
-      "mayContainPersonalData": "Pode conter informações pessoalmente identificáveis?"
+      "mayContainPersonalData": "Pode conter informações pessoalmente identificáveis?",
+      "preferredRepositories": "Apenas repositórios preferenciais",
+      "preferredMetadataStandards": "Apenas padrões de metadados preferenciais",
+      "displayPaginationCount": "Exibindo {count} padrões de um total de {totalCount}",
+      "displayAdditionalCommentField": "Exibir área adicional para comentários",
+      "additionalCommentBox": "Caixa de comentário adicional",
+      "showCommentField": "Exibir uma área de comentários onde os escritores do plano podem explicar sua resposta",
+      "doNotShowCommentField": "Não adicionar uma área de comentários"
     },
     "buttons": {
       "addRow": "Adicionar linha",
@@ -397,7 +404,9 @@
       "requirementText": "Use isto para instruções específicas sobre o que os pesquisadores precisam incluir em sua resposta, tais como as propriedades dos seus dados que devem listar.",
       "guidanceText": "Permita que os pesquisadores saibam como fornecer melhor respostas aos requisitos, tais como políticas para considerar de sua organização ou quais fatores considerar.",
       "sampleText": "Os criadores de planos poderão copiar o texto da amostra para o campo como ponto de partida, para acelerar a entrada de conteúdo.",
-      "dataFlags": "Marque todas as afirmações que são verdadeiras sobre o conjunto de dados"
+      "dataFlags": "Marque todas as afirmações que são verdadeiras sobre o conjunto de dados",
+      "preferredRepositories": "Estes repositórios foram definidos pelo criador do modelo como repositórios preferenciais para uso.",
+      "preferredMetadataStandards": "Estes padrões de metadados foram definidos pelo criador do modelo como padrões de metadados preferenciais para uso."
     },
     "headings": {
       "bestPractice": "Melhores práticas pela Ferramenta DMP",
@@ -431,6 +440,9 @@
         "repositoryRemoved": "Repositório removido."
       },
       "helpText": "O comprimento máximo é de 300 caracteres.",
+      "accessLevelDescriptionOPEN": "Permite acesso livre a todas as áreas.",
+      "accessLevelDescriptionRESTRICTED": "Restringe o acesso a certas áreas.",
+      "accessLevelDescriptionCLOSED": "Outro tipo de acesso.",
       "headings": {
         "enableStandardFields": "Ativar campos padrão",
         "additionalTextFields": "Text fields adicionais"
@@ -506,7 +518,9 @@
           "urlTitle": "Descrição do repositório",
           "dataAccessTitle": "Acesso aos dados",
           "identifierTitle": "Persistent identifier"
-        }
+        },
+        "singleRepo": "Repositório",
+        "multipleRepo": "Repositórios"
       },
       "metaDataStandards": {
         "headings": {

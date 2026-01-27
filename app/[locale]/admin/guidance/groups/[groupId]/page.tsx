@@ -16,12 +16,14 @@ import {
 } from "react-aria-components";
 import { useParams, useRouter } from "next/navigation";
 
+import { useQuery } from '@apollo/client/react';
+
 // GraphQL
 import {
-  useMeQuery,
-  useGuidanceGroupQuery,
-  useGuidanceByGroupQuery,
-  useTagsQuery,
+  MeDocument,
+  GuidanceGroupDocument,
+  GuidanceByGroupDocument,
+  TagsDocument,
 } from '@/generated/graphql';
 import {
   addGuidanceTextAction,
@@ -106,13 +108,13 @@ const GuidanceGroupIndexPage: React.FC = () => {
   };
 
   // Query for all tags
-  const { data: tagsData, loading: tagsLoading } = useTagsQuery();
+  const { data: tagsData, loading: tagsLoading } = useQuery(TagsDocument);
 
   // Run me query to get user's name
-  const { data: me } = useMeQuery();
+  const { data: me } = useQuery(MeDocument);
 
   // Fetch guidance group data
-  const { data: guidanceGroupData } = useGuidanceGroupQuery({
+  const { data: guidanceGroupData } = useQuery(GuidanceGroupDocument, {
     variables: {
       guidanceGroupId: Number(groupId)
     },
@@ -120,7 +122,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
   });
 
   // Fetch Guidance Texts by Group Id
-  const { data: guidance, loading: guidanceLoading } = useGuidanceByGroupQuery({
+  const { data: guidance, loading: guidanceLoading } = useQuery(GuidanceByGroupDocument, {
     variables: {
       guidanceGroupId: Number(groupId)
     },
@@ -428,29 +430,51 @@ const GuidanceGroupIndexPage: React.FC = () => {
   }, [guidance]);
 
   // Build the tag-guidance mapping whenever tags or guidance data changes
+  // while preserving any unsaved changes
   useEffect(() => {
     if (tagsData?.tags && guidanceTexts) {
       // Only include tags that have a valid numeric id to avoid runtime/type errors downstream
       const validTags = tagsData.tags.filter((tag) => typeof tag.id === 'number');
 
-      const tagGuidanceMap: TagGuidanceItem[] = validTags.map(tag => {
-        // Find the guidance that has this tag
-        const matchingGuidance = guidanceTexts.find(g => g.tagId === (tag.id as number));
+      setTagGuidanceList(prevList => {
+        const tagGuidanceMap: TagGuidanceItem[] = validTags.map(tag => {
+          // Find the guidance from the graphql query that has this tag
+          const matchingGuidance = guidanceTexts.find(g => g.tagId === (tag.id as number));
 
-        return {
-          tag: {
-            id: tag.id as number,
-            name: tag.name,
-            description: tag.description || undefined,
-          },
-          guidance: matchingGuidance || null,
-        };
+          // Check if there's an existing item in the previous list (could include unsaved guidance) for this tag
+          const existingItem = prevList.find(item => item.tag.id === tag.id);
+
+          // Determine which saved guidance to compare to for unsaved changes:
+          let guidanceToUse = matchingGuidance || null;
+
+          if (existingItem?.guidance) {
+            // Check if the content stored in state is unsaved (different from the saved version)
+            const isTempGuidance = existingItem.guidance.id.startsWith('temp-');
+
+            // Check if the content has been modified from the saved version
+            const hasUnsavedChanges = matchingGuidance &&
+              existingItem.guidance.guidanceText !== matchingGuidance.guidanceText;
+
+            // Preserve unsaved changes
+            if (isTempGuidance || hasUnsavedChanges) {
+              guidanceToUse = existingItem.guidance;
+            }
+          }
+
+          return {
+            tag: {
+              id: tag.id as number,
+              name: tag.name,
+              description: tag.description || undefined,
+            },
+            guidance: guidanceToUse,
+          };
+        });
+
+        return tagGuidanceMap;
       });
-
-      setTagGuidanceList(tagGuidanceMap);
     }
   }, [tagsData, guidanceTexts]);
-
 
   useEffect(() => {
     // Set Guidance Group data in state when fetched. We need this for publishing the group
@@ -637,7 +661,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
           )}
         </ContentContainer>
         <SidebarPanel>
-          <div className={`statusPanelContent sidePanel`}>
+          <div className="status-panel-content side-panel">
             <div className="button-container withBorder  mb-5">
               {/*Unpublish Button*/}
               {(isUnpublishUnavailable) ? (
@@ -710,7 +734,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
                 </Button>
               )}
             </div>
-            <div className="sidePanelContent">
+            <div className="side-panel-content">
               <div className={`panelRow mb-5`}>
                 <div>
                   <h3>{t('status.publicationStatus')}</h3>

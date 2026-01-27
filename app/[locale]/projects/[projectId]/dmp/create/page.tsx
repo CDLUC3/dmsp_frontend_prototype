@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useMutation, useQuery, useLazyQuery } from '@apollo/client/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -26,13 +27,13 @@ import Pagination from '@/components/Pagination';
 
 // GraphQL
 import {
-  useAddPlanMutation,
+  AddPlanDocument,
   PlanErrors,
-  useMeQuery,
-  useAddPlanFundingMutation,
-  useProjectFundingsQuery,
-  usePublishedTemplatesMetaDataQuery,
-  usePublishedTemplatesLazyQuery,
+  MeDocument,
+  AddPlanFundingDocument,
+  ProjectFundingsDocument,
+  PublishedTemplatesMetaDataDocument,
+  PublishedTemplatesDocument,
 } from '@/generated/graphql';
 
 // Other
@@ -43,6 +44,7 @@ import { useToast } from '@/context/ToastContext';
 import { useFormatDate } from '@/hooks/useFormatDate';
 import { TemplateItemProps } from '@/app/types';
 import { checkErrors } from '@/utils/errorHandler';
+import { handleApolloError } from '@/utils/apolloErrorHandler';
 import styles from './planCreate.module.scss';
 
 // # of templates displayed per page
@@ -102,18 +104,18 @@ const PlanCreate: React.FC = () => {
 
 
   // Published templates lazy query
-  const [fetchPublishedTemplates, { data: publishedTemplates, loading, error: publishedTemplatesError }] = usePublishedTemplatesLazyQuery();
+  const [fetchPublishedTemplates, { data: publishedTemplates, loading, error: publishedTemplatesError }] = useLazyQuery(PublishedTemplatesDocument);
 
   // Get Project Funders data
-  const { data: projectFundings, loading: projectFundingsLoading, error: projectFundingsError } = useProjectFundingsQuery({
+  const { data: projectFundings, loading: projectFundingsLoading, error: projectFundingsError } = useQuery(ProjectFundingsDocument, {
     variables: { projectId: Number(projectId) },
   });
 
   // User's data for user's affiliation
-  const { data: userData, loading: userLoading, error: userError } = useMeQuery();
+  const { data: userData, loading: userLoading, error: userError } = useQuery(MeDocument);
 
   // Get meta data about the available published templates
-  const { data: templateMetaData, loading: templatesMetaDataLoading, error: templatesMetaDataError } = usePublishedTemplatesMetaDataQuery({
+  const { data: templateMetaData, loading: templatesMetaDataLoading, error: templatesMetaDataError } = useQuery(PublishedTemplatesMetaDataDocument, {
     variables: {
       paginationOptions: {
         offset: 0,
@@ -129,16 +131,18 @@ const PlanCreate: React.FC = () => {
 
 
   // Initialize the addPlan mutation
-  const [addPlanMutation] = useAddPlanMutation({
+  const [addPlanMutation] = useMutation(AddPlanDocument, {
     notifyOnNetworkStatusChange: true,
   });
 
   // Initialize the addPlanFunding mutation
-  const [addPlanFundingMutation] = useAddPlanFundingMutation({});
+  const [addPlanFundingMutation] = useMutation(AddPlanFundingDocument, {});
 
   const fetchTemplatesForCurrentFilters = useCallback(async () => {
     // After clearing, fetch templates for current filters
     if (bestPractice) { // If best practice is checked, then filter on that
+      // Need to keep catch to avoid unhandled promise rejection - known limitation of Apollo Client 4 handling lazy queries
+      // This silent catch is acceptable here because errors are handled in the useEffect monitoring publishedTemplatesError
       fetchTemplates({ page: currentPage, bestPractice: true, selectedOwnerURIs: [], searchTerm: '' });
     } else if (selectedFunders.length > 0) { // If funders are checked, then filter on those
       fetchTemplates({ page: currentPage, selectedOwnerURIs: selectedFunders, searchTerm: '' });
@@ -344,19 +348,23 @@ const PlanCreate: React.FC = () => {
       offsetLimit = (page - 1) * LIMIT;
     }
 
-    await fetchPublishedTemplates({
-      variables: {
-        paginationOptions: {
-          offset: offsetLimit,
-          limit: LIMIT,
-          type: "OFFSET",
-          sortDir: "DESC",
-          selectOwnerURIs: selectedOwnerURIs,
-          bestPractice
-        },
-        term: searchTerm,
-      }
-    });
+    try {
+      await fetchPublishedTemplates({
+        variables: {
+          paginationOptions: {
+            offset: offsetLimit,
+            limit: LIMIT,
+            type: "OFFSET",
+            sortDir: "DESC",
+            selectOwnerURIs: selectedOwnerURIs,
+            bestPractice
+          },
+          term: searchTerm,
+        }
+      });
+    } catch (err) {
+      handleApolloError(err, 'PlanCreate.fetchTemplates');
+    }
   };
 
   // Process templates when publishedTemplates changes
@@ -504,30 +512,26 @@ const PlanCreate: React.FC = () => {
   ]);
 
   // Only for initial data fetching
+  // In your PlanCreate component
   useEffect(() => {
-    // Don't run if no config or already applied
+    // CRITICAL: Don't run if no config or already applied
     if (!initialFilterConfig || initialSelectionApplied) return;
 
-    let isCancelled = false;
+    let isCancelled = false; // Add cancellation flag
 
     const applyInitialFilters = async () => {
-      if (isCancelled) return;
+      if (isCancelled) return; // Check before state updates
 
       if (initialFilterConfig.type === 'funders') {
-        // Apply funder filters
-        setFunders(initialFilterConfig.fundersData);
-        setSelectedFunders(initialFilterConfig.funderURIs);
-        setBestPractice(false);
+        if (!isCancelled) setFunders(initialFilterConfig.fundersData);
+        if (!isCancelled) setSelectedFunders(initialFilterConfig.funderURIs);
+        if (!isCancelled) setBestPractice(false);
         await fetchTemplates({ selectedOwnerURIs: initialFilterConfig.funderURIs });
-
       } else if (initialFilterConfig.type === 'bestPractice') {
-        // Apply best practice filter
-        setSelectedBestPracticeItems(["DMP Best Practice"]);
-        setBestPractice(true);
+        if (!isCancelled) setSelectedBestPracticeItems(["DMP Best Practice"]);
+        if (!isCancelled) setBestPractice(true);
         await fetchTemplates({ bestPractice: true });
-
       } else {
-        // Show all templates
         await fetchTemplates({ page: currentPage });
       }
 
@@ -539,7 +543,7 @@ const PlanCreate: React.FC = () => {
     applyInitialFilters();
 
     return () => {
-      isCancelled = true;
+      isCancelled = true; // Cleanup: prevent state updates after unmount
     };
   }, [initialFilterConfig, initialSelectionApplied]);
 

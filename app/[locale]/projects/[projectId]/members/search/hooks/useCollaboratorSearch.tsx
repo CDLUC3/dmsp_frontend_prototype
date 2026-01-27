@@ -1,8 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useFindCollaboratorLazyQuery, CollaboratorSearchResult } from '@/generated/graphql';
+import { FindCollaboratorDocument, CollaboratorSearchResult } from '@/generated/graphql';
 import { useTranslations } from 'next-intl';
+
+// GraphQL
+import { useLazyQuery } from '@apollo/client/react';
+
+// Utils
+import { handleApolloError } from '@/utils/apolloErrorHandler';
+
 
 type SearchState = {
   term: string;
@@ -22,7 +29,7 @@ export const useCollaboratorSearch = () => {
     loading: false,
   });
 
-  const [fetchCollaborator, { data, loading }] = useFindCollaboratorLazyQuery();
+  const [fetchCollaborator, { data, loading }] = useLazyQuery(FindCollaboratorDocument,);
 
   // Set search state on input change
   const handleSearchInput = (value: string) => {
@@ -49,7 +56,10 @@ export const useCollaboratorSearch = () => {
     }
 
     setSearchState((prev) => ({ ...prev, isSearching: true, errors: [], loading: true }));
-    await fetchCollaborator({ variables: { term: trimmed.toLowerCase() } });
+    await fetchCollaborator({ variables: { term: trimmed.toLowerCase() } })
+      .catch((err) => {
+        handleApolloError(err, 'useCollaboratorSearch.handleMemberSearch');
+      })
   };
 
   const clearSearch = () => {

@@ -4,9 +4,14 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
-import { PlanSearchResult, PlanSectionProgress, useProjectQuery } from "@/generated/graphql";
 
-import { routePath } from "@/utils/routes";
+// GraphQL
+import { useQuery } from '@apollo/client/react';
+import {
+  PlanSearchResult,
+  PlanSectionProgress,
+  ProjectDocument
+} from "@/generated/graphql";
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -14,6 +19,9 @@ import { Card } from "@/components/Card/card";
 import { ContentContainer, LayoutWithPanel, SidebarPanel } from "@/components/Container";
 import OverviewSection from "@/components/OverviewSection";
 import Loading from "@/components/Loading";
+
+// Utils and other
+import { routePath } from "@/utils/routes";
 
 interface FundingInterface {
   name: string;
@@ -62,7 +70,7 @@ const ProjectOverviewPage: React.FC = () => {
   const COLLABORATION_URL = routePath("projects.collaboration", { projectId });
 
   // Get Project using projectId
-  const { data, loading, error } = useProjectQuery({
+  const { data, loading, error } = useQuery(ProjectDocument, {
     variables: { projectId: Number(projectId) },
     notifyOnNetworkStatusChange: true,
   });
@@ -349,8 +357,8 @@ const ProjectOverviewPage: React.FC = () => {
         </ContentContainer>
 
         <SidebarPanel>
-          <div className={"sidePanel statusPanelContent"}>
-            <div className={"sidePanelContent"}>
+          <div className="side-panel status-panel-content">
+            <div className={"side-panel-content"}>
               <div className={`panelRow mb-5`}>
                 <div>
                   <h3>{ProjectOverview("status.collaboration.title")}</h3>
@@ -361,7 +369,7 @@ const ProjectOverviewPage: React.FC = () => {
                   </p>
                 </div>
                 <Link
-                  className={"sidePanelLink"}
+                  className="side-panel-link"
                   href={COLLABORATION_URL}
                   aria-label={Global("links.request")}
                 >
@@ -373,7 +381,7 @@ const ProjectOverviewPage: React.FC = () => {
                 <div>
                   <h3>{ProjectOverview('status.feedback.title')}</h3>
                 </div>
-                <Link className={"sidePanelLink"} href={FEEDBACK_URL} aria-label={Global('links.request')} >
+                <Link className={"side-panel-link"} href={FEEDBACK_URL} aria-label={Global('links.request')} >
                   {Global('links.request')}
                 </Link >
               </div >

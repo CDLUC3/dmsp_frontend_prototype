@@ -1,9 +1,8 @@
-// Create a new file: apolloClient.ts
-import {ApolloClient, NormalizedCacheObject} from '@apollo/client';
+import { ApolloClient } from '@apollo/client';
 
-let apolloClient: ApolloClient<NormalizedCacheObject> | null = null;
+let apolloClient: ApolloClient | null = null;
 
-export const setApolloClient = (client: ApolloClient<NormalizedCacheObject>) => {
+export const setApolloClient = (client: ApolloClient) => {
   apolloClient = client;
 };
 

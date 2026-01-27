@@ -5,9 +5,10 @@ import React from 'react';
 import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams } from "next/navigation";
+import { useQuery, useLazyQuery } from '@apollo/client/react';
 import {
-  useRepositoriesLazyQuery,
-  useRepositorySubjectAreasQuery
+  RepositoriesDocument,
+  RepositorySubjectAreasDocument
 } from '@/generated/graphql';
 import RepositorySelectionSystem from '../ReposSelector';
 import {
@@ -31,10 +32,10 @@ jest.mock('@/context/ToastContext', () => ({
   }),
 }));
 
-jest.mock("@/generated/graphql", () => ({
-  ...jest.requireActual("@/generated/graphql"),
-  useRepositoriesLazyQuery: jest.fn(),
-  useRepositorySubjectAreasQuery: jest.fn(),
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useLazyQuery: jest.fn(),
+  useQuery: jest.fn(),
 }));
 
 // Mock the addRepositoryAction
@@ -42,7 +43,10 @@ jest.mock('@/app/actions', () => ({
   addRepositoryAction: jest.fn(),
 }));
 
-const mockFetchRepositories = jest.fn();
+const mockFetchRepositories = jest.fn().mockResolvedValue({
+  data: mockRepositories
+});
+
 // ---- Test data ----
 const createMockField = (hasCustomRepos: boolean = true, customRepos: RepositoryInterface[] = []) => ({
   id: 'repoSelector',
@@ -62,22 +66,58 @@ const mockHandleToggle = jest.fn();
 const mockOnChange = jest.fn();
 const mockParams = useParams as jest.Mock;
 
+
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+const mockUseLazyQuery = jest.mocked(useLazyQuery);
+
+const setupMocks = () => {
+  // Query mocks
+  const stableRepositoriesSubjectAreasReturn = {
+    data: mockSubjectAreas,
+    loading: false,
+    error: null,
+  };
+
+  mockUseQuery.mockImplementation((document) => {
+    if (document === RepositorySubjectAreasDocument) {
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any*/
+      return stableRepositoriesSubjectAreasReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+
+  // Lazy Query mocks
+  const stableRepositoriesReturn = [
+    mockFetchRepositories,
+    { data: mockRepositories, loading: false, error: null }
+  ]
+
+  mockUseLazyQuery.mockImplementation((document) => {
+    if (document === RepositoriesDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return stableRepositoriesReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+};
 describe('RepositorySelectionSystem', () => {
   beforeEach(() => {
+    setupMocks();
     jest.clearAllMocks();
     mockParams.mockReturnValue({
       templateId: '1',
     });
-
-    // Return [fetchFunction, { data, loading, error }] for metadata standards query
-    (useRepositoriesLazyQuery as jest.Mock).mockReturnValue([
-      mockFetchRepositories,
-      { data: mockRepositories, loading: false, error: null }
-    ]);
-
-    (useRepositorySubjectAreasQuery as jest.Mock).mockReturnValue([
-      { data: mockSubjectAreas, loading: false, error: null }
-    ]);
 
     // Mock addRepositoryAction to return success with incrementing IDs
     let repoIdCounter = 100;

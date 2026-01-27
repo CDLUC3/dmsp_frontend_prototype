@@ -9,7 +9,7 @@ import {
 } from '@testing-library/react';
 
 import { useParams, useRouter } from 'next/navigation';
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import {
   AffiliationFundersDocument,
   PopularFundersDocument,
@@ -312,7 +312,7 @@ describe("ProjectsProjectFundingSearch", () => {
 
   it("should render the view", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <CreateProjectSearchFunder />
       </MockedProvider>
     );
@@ -323,7 +323,7 @@ describe("ProjectsProjectFundingSearch", () => {
 
   it("should show a short-list of Popular Funders", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <CreateProjectSearchFunder />
       </MockedProvider>
     );
@@ -336,7 +336,7 @@ describe("ProjectsProjectFundingSearch", () => {
 
   it("should neatly handle empty popular funder results", async () => {
     render(
-      <MockedProvider mocks={emptyPopularMock} addTypename={false}>
+      <MockedProvider mocks={emptyPopularMock}>
         <CreateProjectSearchFunder />
       </MockedProvider>
     );
@@ -348,7 +348,7 @@ describe("ProjectsProjectFundingSearch", () => {
 
   it("should render the search results", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <CreateProjectSearchFunder />
       </MockedProvider>
     );
@@ -384,7 +384,7 @@ describe("ProjectsProjectFundingSearch", () => {
 
   it("should cleanly handle empty results", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <CreateProjectSearchFunder />
       </MockedProvider>
     );
@@ -404,7 +404,7 @@ describe("ProjectsProjectFundingSearch", () => {
 
   it("should display \'Load More\' button when there are more results", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <CreateProjectSearchFunder />
       </MockedProvider>
     );
@@ -434,7 +434,7 @@ describe("ProjectsProjectFundingSearch", () => {
 
   it("should load more when clicking the button", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <CreateProjectSearchFunder />
       </MockedProvider>
     );
@@ -473,7 +473,7 @@ describe("ProjectsProjectFundingSearch", () => {
     (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <CreateProjectSearchFunder />
       </MockedProvider>
     );
@@ -508,7 +508,7 @@ describe("ProjectsProjectFundingSearch", () => {
     (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <CreateProjectSearchFunder />
       </MockedProvider>
     );
@@ -568,7 +568,7 @@ describe("ProjectsProjectFundingSearch", () => {
     ];
 
     render(
-      <MockedProvider mocks={mocksWithNullId} addTypename={false}>
+      <MockedProvider mocks={mocksWithNullId}>
         <CreateProjectSearchFunder />
       </MockedProvider>
     );
@@ -610,7 +610,7 @@ describe("ProjectsProjectFundingSearch", () => {
     (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <CreateProjectSearchFunder />
       </MockedProvider>
     );
@@ -643,7 +643,7 @@ describe("ProjectsProjectFundingSearch", () => {
 
   it("add project funder mutation should handle server error", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <CreateProjectSearchFunder />
       </MockedProvider>
     );
@@ -679,7 +679,7 @@ describe("ProjectsProjectFundingSearch", () => {
     await waitFor(() => {
       expect(logECS).toHaveBeenCalledWith(
         'error',
-        'createProjectSearchFunder.addProjectFunding',
+        'ProjectsProjectFundingSearch.addProjectFunding',
         expect.objectContaining({
           error: expect.anything(),
         })
@@ -693,7 +693,7 @@ describe("ProjectsProjectFundingSearch", () => {
     (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <CreateProjectSearchFunder />
       </MockedProvider>
     );
@@ -719,7 +719,7 @@ describe("ProjectsProjectFundingSearch", () => {
 
   it('should pass accessibility tests', async () => {
     const { container } = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <CreateProjectSearchFunder />
       </MockedProvider>
     );

@@ -113,7 +113,10 @@
         "surNameValidation": "Surname must be at least 2 characters",
         "affiliationValidation": "Institution name cannot be blank and must be at least 2 characters long",
         "otherAffiliationValidation": "Other institution name cannot be blank and must be at least 2 characters long",
-        "errorUpdatingProfile": "Error when updating profile"
+        "errorUpdatingProfile": "Error when updating profile",
+        "errorSettingPrimaryEmail": "Error when setting primary email",
+        "errorAddingNewEmail": "Error when adding new email",
+        "errorDeletingEmail": "Error when deleting email"
       }
     }
   },
@@ -697,7 +700,8 @@
       "editGroup": "Edit group",
       "createText": "Create Text",
       "editText": "Edit Text",
-      "group": "Group"
+      "group": "Group",
+      "relatedWorks": "Related works"
     },
     "form": {
       "yesLabel": "Yes",
@@ -752,6 +756,7 @@
       "add": "Add",
       "customize": "Customize",
       "applyFilter": "Apply filter(s)",
+      "applyFilterSingular": "Apply filter",
       "moreInfo": "More info",
       "lessInfo": "Less info",
       "createNewPlan": "Create New DMP"
@@ -783,7 +788,8 @@
       "fileSizeUnit": "File size unit",
       "selectAnItem": "Select an item",
       "mayContainSensitiveData": "May contain sensitive data?",
-      "mayContainPersonalData": "May contain personally identifiable information?"
+      "mayContainPersonalData": "May contain personally identifiable information?",
+      "additionalComments": "Additional comments"
     },
     "helpText": {
       "searchHelpText": "Search by research organization, field station or lab, template description, etc.",
@@ -794,7 +800,8 @@
       "requiredFieldDescription": "Warn users that this is considered a required question for this DMP template by the organization. Users will be able to choose to ignore this within the tool and will not be required to answer before moving it."
     },
     "placeholders": {
-      "funderSearch": "Enter funder name..."
+      "funderSearch": "Enter funder name...",
+      "enterComment": "Enter your comment"
     },
     "links": {
       "clearFilter": "clear filter",

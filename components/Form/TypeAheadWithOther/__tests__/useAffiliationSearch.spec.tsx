@@ -1,6 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
-import { useAffiliationsLazyQuery } from '@/generated/graphql';
+import { useLazyQuery } from '@apollo/client/react';
+import { AffiliationsDocument } from '@/generated/graphql';
 
 // Mock debounce to run immediately instead of waiting 300ms
 jest.mock('@/hooks/debounce', () => ({
@@ -8,16 +9,43 @@ jest.mock('@/hooks/debounce', () => ({
   debounce: (fn: any) => fn,
 }));
 
-jest.mock('@/generated/graphql', () => ({
-  useAffiliationsLazyQuery: jest.fn(),
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useLazyQuery: jest.fn(),
 }));
 
-describe('useAffiliationSearch', () => {
-  let mockFetchAffiliations: jest.Mock;
+// Cast with jest.mocked utility
+const mockUseLazyQuery = jest.mocked(useLazyQuery);
+const mockFetchAffiliations = jest.fn();
 
+
+const setupMocks = () => {
+  // Lazy query mocks
+  const stableAffiliationsReturn = [
+    mockFetchAffiliations,
+    {
+      data: {},
+      loading: false,
+      error: null
+    }
+  ];
+
+  mockUseLazyQuery.mockImplementation((document) => {
+    if (document === AffiliationsDocument) {
+      return stableAffiliationsReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+};
+
+describe('useAffiliationSearch', () => {
   beforeEach(() => {
-    mockFetchAffiliations = jest.fn();
-    (useAffiliationsLazyQuery as jest.Mock).mockReturnValue([mockFetchAffiliations]);
+    setupMocks();
   });
 
   it('should clear suggestions when term is empty', async () => {
@@ -41,6 +69,26 @@ describe('useAffiliationSearch', () => {
           ],
         },
       },
+    });
+    const stableAffiliationsReturn = [
+      mockFetchAffiliations,
+      {
+        data: {},
+        loading: false,
+        error: null
+      }
+    ];
+
+    mockUseLazyQuery.mockImplementation((document) => {
+      if (document === AffiliationsDocument) {
+        return stableAffiliationsReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     const { result } = renderHook(() => useAffiliationSearch());
@@ -70,6 +118,27 @@ describe('useAffiliationSearch', () => {
       },
     });
 
+    const stableAffiliationsReturn = [
+      mockFetchAffiliations,
+      {
+        data: {},
+        loading: false,
+        error: null
+      }
+    ];
+
+    mockUseLazyQuery.mockImplementation((document) => {
+      if (document === AffiliationsDocument) {
+        return stableAffiliationsReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
+
     const { result } = renderHook(() => useAffiliationSearch());
 
     await act(async () => {
@@ -88,6 +157,27 @@ describe('useAffiliationSearch', () => {
   it('should not update suggestions if data has no items', async () => {
     mockFetchAffiliations.mockResolvedValueOnce({
       data: { affiliations: { items: [] } },
+    });
+
+    const stableAffiliationsReturn = [
+      mockFetchAffiliations,
+      {
+        data: {},
+        loading: false,
+        error: null
+      }
+    ];
+
+    mockUseLazyQuery.mockImplementation((document) => {
+      if (document === AffiliationsDocument) {
+        return stableAffiliationsReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     const { result } = renderHook(() => useAffiliationSearch());

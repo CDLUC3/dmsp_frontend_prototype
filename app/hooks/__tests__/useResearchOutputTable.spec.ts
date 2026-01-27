@@ -1,7 +1,16 @@
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useResearchOutputTable } from '../useResearchOutputTable';
 import type { ResearchOutputTableQuestionType } from '@dmptool/types';
+import { useQuery } from '@apollo/client/react';
+import {
+  LicensesDocument,
+  DefaultResearchOutputTypesDocument,
+} from '@/generated/graphql';
 
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+}));
 
 // Mocks for next-intl and GraphQL hooks
 jest.mock('next-intl', () => ({
@@ -14,32 +23,55 @@ jest.mock('next-intl', () => ({
   },
 }));
 
-jest.mock('@/generated/graphql', () => ({
-  useLicensesQuery: () => ({
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+
+const setupMocks = () => {
+  const stableLicensesReturn = {
     data: {
-      licenses: {
-        items: [
-          { name: 'MIT', uri: 'mit-uri', recommended: true },
-          { name: 'GPL', uri: 'gpl-uri', recommended: false },
-        ],
-      },
+      licenses: [
+        { name: 'MIT', uri: 'mit-uri', recommended: true },
+        { name: 'GPL', uri: 'gpl-uri', recommended: false },
+      ],
     },
-  }),
-  useDefaultResearchOutputTypesQuery: () => ({
+    loading: false,
+    error: null,
+  };
+
+  const stableDefaultResearchOutputTypesReturn = {
     data: {
       defaultResearchOutputTypes: [
         { name: 'Dataset', value: 'dataset', description: 'A dataset' },
         { name: 'Software', value: 'software', description: 'A software' },
       ],
     },
-  }),
-}));
+    loading: false,
+    error: null,
+  };
 
+  mockUseQuery.mockImplementation((document) => {
+
+    if (document === LicensesDocument) {
+      return stableLicensesReturn as any;
+    }
+
+    if (document === DefaultResearchOutputTypesDocument) {
+      return stableDefaultResearchOutputTypesReturn as any;
+    }
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+
+};
 describe('useResearchOutputTable', () => {
   let setHasUnsavedChanges: jest.Mock;
   let announce: jest.Mock;
 
   beforeEach(() => {
+    setupMocks();
     setHasUnsavedChanges = jest.fn();
     announce = jest.fn();
   });
@@ -66,7 +98,8 @@ describe('useResearchOutputTable', () => {
     expect(result.current.additionalFields.length).toBe(0);
   });
 
-  it('should update additional field properties', () => {
+
+  it('should update additional field properties', async () => {
     const { result } = renderHook(() => useResearchOutputTable({ setHasUnsavedChanges, announce }));
     act(() => {
       result.current.addAdditionalField();
@@ -75,7 +108,9 @@ describe('useResearchOutputTable', () => {
     act(() => {
       result.current.handleUpdateAdditionalField(fieldId, 'customLabel', 'My Custom Label');
     });
-    expect(result.current.additionalFields[0].customLabel).toBe('My Custom Label');
+    await waitFor(() => {
+      expect(result.current.additionalFields[0].content.attributes.label).toBe('My Custom Label');
+    });
   });
 
   it('should handle standard field enable/disable', () => {

@@ -15,19 +15,15 @@ import {
   Modal,
   SearchField,
 } from "react-aria-components";
-import {
-  FormInput,
-  FormSelect,
-} from '@/components/Form';
-import ExpandButton from "@/components/ExpandButton";
-import Pagination from '@/components/Pagination';
 
-// GraphQL queries and mutations
+// GraphQL
+import { useQuery, useLazyQuery } from '@apollo/client/react';
+
 import {
   Repository,
   RepositoryType,
-  useRepositoriesLazyQuery,
-  useRepositorySubjectAreasQuery
+  RepositoriesDocument,
+  RepositorySubjectAreasDocument
 } from '@/generated/graphql';
 
 import {
@@ -35,6 +31,12 @@ import {
 } from "@/app/actions";
 
 // Components
+import {
+  FormInput,
+  FormSelect,
+} from '@/components/Form';
+import ExpandButton from "@/components/ExpandButton";
+import Pagination from '@/components/Pagination';
 import ErrorMessages from '../ErrorMessages';
 
 // Utilities/Other
@@ -42,6 +44,7 @@ import { routePath } from "@/utils/routes";
 import { extractErrors } from "@/utils/errorHandler";
 import { useToast } from "@/context/ToastContext";
 import logECS from "@/utils/clientLogger";
+import { handleApolloError } from '@/utils/apolloErrorHandler';
 import {
   RepositoryInterface,
   RepositoryFieldInterface
@@ -141,7 +144,7 @@ const RepositorySelectionSystem = ({
     , []);
 
   // Get Repository Subject Areas - for future dynamic subject area fetching
-  const { data: subjectAreasData } = useRepositorySubjectAreasQuery();
+  const { data: subjectAreasData } = useQuery(RepositorySubjectAreasDocument);
 
   // Transform subject areas data for FormSelect - add empty option for deselection
   const subjectAreas = [
@@ -150,7 +153,7 @@ const RepositorySelectionSystem = ({
   ];
 
   // Repositories lazy query
-  const [fetchRepositoriesData, { data: repositoriesData }] = useRepositoriesLazyQuery();
+  const [fetchRepositoriesData, { data: repositoriesData }] = useLazyQuery(RepositoriesDocument);
 
   // Fetch repositories based on search term criteria
   const fetchRepositories = async ({
@@ -166,21 +169,25 @@ const RepositorySelectionSystem = ({
       offsetLimit = (page - 1) * LIMIT;
     }
 
-    await fetchRepositoriesData({
-      variables: {
-        input: {
-          paginationOptions: {
-            offset: offsetLimit,
-            limit: LIMIT,
-            type: "OFFSET",
-            sortDir: "DESC",
-          },
-          term: searchTerm,
-          repositoryType: repoType as RepositoryType || null,
-          keyword: subjectArea || null,
+    try {
+      await fetchRepositoriesData({
+        variables: {
+          input: {
+            paginationOptions: {
+              offset: offsetLimit,
+              limit: LIMIT,
+              type: "OFFSET",
+              sortDir: "DESC",
+            },
+            term: searchTerm,
+            repositoryType: repoType as RepositoryType || null,
+            keyword: subjectArea || null,
+          }
         }
-      }
-    });
+      })
+    } catch (err) {
+      handleApolloError(err, 'RepoSelector.fetchRepositories');
+    }
   };
 
 

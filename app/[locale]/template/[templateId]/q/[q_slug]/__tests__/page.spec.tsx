@@ -1,10 +1,11 @@
 import React from "react";
 import { act, fireEvent, render, screen, waitFor, within } from '@/utils/test-utils';
 import { routePath } from '@/utils/routes';
+import { useQuery } from '@apollo/client/react';
 import {
-  useQuestionQuery,
-  useLicensesQuery,
-  useDefaultResearchOutputTypesQuery,
+  QuestionDocument,
+  LicensesDocument,
+  DefaultResearchOutputTypesDocument,
 } from '@/generated/graphql';
 
 import {
@@ -29,12 +30,12 @@ import mockQuestionDataForURL from '@/__mocks__/common/mockURLQuestion.json';
 import mockQuestionDataForNumber from '@/__mocks__/common/mockNumberQuestion.json';
 import mockQuestionDataForCurrency from '@/__mocks__/common/mockCurrencyQuestion.json';
 import mockSelectedQuestion from '../__mocks__/mockSelectedQuestion.json';
-import mockLicensesData from '../__mocks__/mockLicensesData.json';
+import mockLicensesData from '../__mocks__/mockLicensesList.json';
 import mockDefaultOutputTypesData from '../__mocks__/mockDefaultOutputTypes.json';
 import * as getParsedJSONModule from '@/components/hooks/getParsedQuestionJSON';
 import { AffiliationSearchQuestionType } from "@dmptool/types";
 
-const RESEARCH_OUTPUT_TABLE_JSON = "{\"meta\":{\"title\":\"Research Output Table\",\"schemaVersion\":\"1.0\",\"usageDescription\":\"A table for collecting structured research output data\"},\"type\":\"researchOutputTable\",\"columns\":[{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"text\",\"attributes\":{\"help\":\"\",\"maxLength\":500}},\"enabled\":true,\"heading\":\"Title\",\"required\":false},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"textArea\",\"attributes\":{\"help\":\"My description help text \",\"labelTranslationKey\":\"researchOutput.description.heading\"}},\"enabled\":true,\"heading\":\"Description\",\"required\":false},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"selectBox\",\"options\":[],\"attributes\":{\"help\":\"\",\"multiple\":false,\"labelTranslationKey\":\"researchOutput.accessLevel.heading\"}},\"enabled\":true,\"heading\":\"Output Type\",\"required\":false},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"checkBoxes\",\"options\":[{\"label\":\"May contain sensitive data?\",\"value\":\"sensitive\"}],\"attributes\":{\"help\":\"\",\"labelTranslationKey\":\"researchOutput.dataFlags.heading\"}},\"enabled\":true,\"heading\":\"Sensitive Data\",\"required\":false},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"checkBoxes\",\"options\":[{\"label\":\"May contain personally identifiable information?\",\"value\":\"personal\"}],\"attributes\":{\"help\":\"\",\"labelTranslationKey\":\"researchOutput.dataFlags.heading\"}},\"enabled\":true,\"heading\":\"Personal Data\",\"required\":false},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"repositorySearch\",\"graphQL\":{\"query\":\"query Repositories($term: String, $keywords: [String!], $repositoryType: String, $paginationOptions: PaginationOptions){ repositories(term: $term, keywords: $keywords, repositoryType: $repositoryType, paginationOptions: $paginationOptions) { totalCount currentOffset limit hasNextPage hasPreviousPage availableSortFields items { id name uri description website keywords repositoryTypes } } }\",\"queryId\":\"useRepositoriesQuery\",\"variables\":[{\"name\":\"term\",\"type\":\"string\",\"label\":\"Search for a repository\",\"minLength\":3},{\"name\":\"keywords\",\"type\":\"string\",\"label\":\"Subject Areas\",\"minLength\":3},{\"name\":\"repositoryType\",\"type\":\"string\",\"label\":\"Repository type\",\"minLength\":3},{\"name\":\"paginationOptions\",\"type\":\"paginationOptions\",\"label\":\"Pagination Options\"}],\"answerField\":\"uri\",\"displayFields\":[{\"label\":\"Name\",\"propertyName\":\"name\"},{\"label\":\"Description\",\"propertyName\":\"description\"},{\"label\":\"Website\",\"propertyName\":\"website\"},{\"label\":\"Subject Areas\",\"propertyName\":\"keywords\"}],\"responseField\":\"repositories.items\"},\"attributes\":{\"help\":\"My repositories help text\",\"label\":\"Repositories\"}},\"enabled\":true,\"heading\":\"Repositories\",\"required\":false,\"attributes\":{\"help\":\"Select repositor(ies) you would prefer users to deposit in\",\"labelTranslationKey\":\"researchOutput.repository.heading\"},\"preferences\":[{\"label\":\"Zenodo\",\"value\":\"https://www.re3data.org/repository/https://www.re3data.org/api/v1/repository/r3d100010468\"},{\"label\":\"University of Opole Knowledge Base\",\"value\":\"https://www.re3data.org/repository/r3d100014686\"}]},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"metadataStandardSearch\",\"graphQL\":{\"query\":\"query MetadataStandards($term: String, $keywords: [String!], $paginationOptions: PaginationOptions){ metadataStandards(term: $term, keywords: $keywords, paginationOptions: $paginationOptions) { totalCount currentOffset limit hasNextPage hasPreviousPage availableSortFields items { id name uri description keywords } } }\",\"queryId\":\"useMetadataStandardsQuery\",\"variables\":[{\"name\":\"term\",\"type\":\"string\",\"label\":\"Search for a metadata standard\",\"minLength\":3},{\"name\":\"keywords\",\"type\":\"string\",\"label\":\"Subject Areas\",\"minLength\":3},{\"name\":\"paginationOptions\",\"type\":\"paginationOptions\",\"label\":\"Pagination Options\"}],\"answerField\":\"uri\",\"displayFields\":[{\"label\":\"Name\",\"propertyName\":\"name\"},{\"label\":\"Description\",\"propertyName\":\"description\"},{\"label\":\"Website\",\"propertyName\":\"website\"},{\"label\":\"Subject Areas\",\"propertyName\":\"keywords\"}],\"responseField\":\"metadataStandards.items\"},\"attributes\":{\"help\":\"My metadata standards help text\",\"label\":\"Metadata Standards\"}},\"enabled\":true,\"heading\":\"Metadata Standards\",\"required\":false,\"attributes\":{\"help\":\"Select metadata standard(s) you would prefer users to use\",\"labelTranslationKey\":\"researchOutput.metadataStandard.heading\"},\"preferences\":[{\"label\":\"Terminal RI Unicamp\",\"value\":\"https://repositorio.unicamp.br/\"},{\"label\":\"STAC 1.2.0\",\"value\":\"https://stac-extensions.github.io/version/v1.2.0/schema.json\"},{\"label\":\"Sintomas osteomusculares\",\"value\":\"https://prpi.usp.br/gestao-de-dados-cientificos/?codmnu=9979\"}]},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"licenseSearch\",\"graphQL\":{\"query\":\"query Licenses($term: String, $paginationOptions: PaginationOptions){ license(term: $term, paginationOptions: $paginationOptions) { totalCount currentOffset limit hasNextPage hasPreviousPage availableSortFields items { id name uri description } } }\",\"variables\":[{\"name\":\"term\",\"type\":\"string\",\"label\":\"Search for a license\",\"minLength\":3},{\"name\":\"paginationOptions\",\"type\":\"paginationOptions\",\"label\":\"Pagination Options\"}],\"answerField\":\"uri\",\"displayFields\":[{\"label\":\"Name\",\"propertyName\":\"name\"},{\"label\":\"Description\",\"propertyName\":\"description\"},{\"label\":\"Recommended\",\"propertyName\":\"recommended\"}],\"responseField\":\"licenses.items\"},\"attributes\":{\"help\":\"My licenses help text\",\"label\":\"Licenses\"}},\"enabled\":true,\"heading\":\"Licenses\",\"required\":false,\"attributes\":{\"help\":\"Select license(s) you would prefer users to apply to the research output\",\"labelTranslationKey\":\"researchOutput.license.heading\"},\"preferences\":[{\"label\":\"CC-BY-4.0\",\"value\":\"https://spdx.org/licenses/CC-BY-4.0.json\"},{\"label\":\"CC0-1.0\",\"value\":\"https://spdx.org/licenses/CC0-1.0.json\"},{\"label\":\"any-OSI-perl-modules\",\"value\":\"https://spdx.org/licenses/any-OSI-perl-modules.json\"}]},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"selectBox\",\"options\":[],\"attributes\":{\"help\":\"My initial access levels help text\",\"multiple\":false,\"labelTranslationKey\":\"researchOutput.accessLevel.heading\"}},\"enabled\":true,\"heading\":\"Initial Access Levels\",\"required\":false},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"text\",\"attributes\":{\"help\":\"\",\"maxLength\":255}},\"enabled\":true,\"heading\":\"Coverage\",\"required\":false},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"text\",\"attributes\":{\"help\":\"My custom field help text\",\"maxLength\":150,\"defaultValue\":\"My custom field default value\"}},\"enabled\":true,\"heading\":\"My custom field label\",\"required\":false}],\"attributes\":{\"help\":\"\",\"label\":\"\",\"canAddRows\":true,\"initialRows\":1,\"canRemoveRows\":true,\"labelTranslationKey\":\"\"}}";
+const RESEARCH_OUTPUT_TABLE_JSON = "{\"meta\":{\"title\":\"Research Output Table\",\"schemaVersion\":\"1.0\",\"usageDescription\":\"A table for collecting structured research output data\"},\"type\":\"researchOutputTable\",\"columns\":[{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"text\",\"attributes\":{\"help\":\"\",\"maxLength\":500}},\"enabled\":true,\"heading\":\"Title\",\"required\":false},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"textArea\",\"attributes\":{\"help\":\"My description help text \",\"labelTranslationKey\":\"researchOutput.description.heading\"}},\"enabled\":true,\"heading\":\"Description\",\"required\":false},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"selectBox\",\"options\":[],\"attributes\":{\"help\":\"\",\"multiple\":false,\"labelTranslationKey\":\"researchOutput.accessLevel.heading\"}},\"enabled\":true,\"heading\":\"Output Type\",\"required\":false},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"checkBoxes\",\"options\":[{\"label\":\"May contain sensitive data?\",\"value\":\"sensitive\"}],\"attributes\":{\"help\":\"\",\"labelTranslationKey\":\"researchOutput.dataFlags.heading\"}},\"enabled\":true,\"heading\":\"Sensitive Data\",\"required\":false},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"checkBoxes\",\"options\":[{\"label\":\"May contain personally identifiable information?\",\"value\":\"personal\"}],\"attributes\":{\"help\":\"\",\"labelTranslationKey\":\"researchOutput.dataFlags.heading\"}},\"enabled\":true,\"heading\":\"Personal Data\",\"required\":false},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"repositorySearch\",\"graphQL\":{\"query\":\"query Repositories($term: String, $keywords: [String!], $repositoryType: String, $paginationOptions: PaginationOptions){ repositories(term: $term, keywords: $keywords, repositoryType: $repositoryType, paginationOptions: $paginationOptions) { totalCount currentOffset limit hasNextPage hasPreviousPage availableSortFields items { id name uri description website keywords repositoryTypes } } }\",\"queryId\":\"useRepositoriesQuery\",\"variables\":[{\"name\":\"term\",\"type\":\"string\",\"label\":\"Search for a repository\",\"minLength\":3},{\"name\":\"keywords\",\"type\":\"string\",\"label\":\"Subject Areas\",\"minLength\":3},{\"name\":\"repositoryType\",\"type\":\"string\",\"label\":\"Repository type\",\"minLength\":3},{\"name\":\"paginationOptions\",\"type\":\"paginationOptions\",\"label\":\"Pagination Options\"}],\"answerField\":\"uri\",\"displayFields\":[{\"label\":\"Name\",\"propertyName\":\"name\"},{\"label\":\"Description\",\"propertyName\":\"description\"},{\"label\":\"Website\",\"propertyName\":\"website\"},{\"label\":\"Subject Areas\",\"propertyName\":\"keywords\"}],\"responseField\":\"repositories.items\"},\"attributes\":{\"help\":\"My repositories help text\",\"label\":\"Repositories\"}},\"enabled\":true,\"heading\":\"Repositories\",\"required\":false,\"attributes\":{\"help\":\"Select repositor(ies) you would prefer users to deposit in\",\"labelTranslationKey\":\"researchOutput.repository.heading\"},\"preferences\":[{\"label\":\"Zenodo\",\"value\":\"https://www.re3data.org/repository/https://www.re3data.org/api/v1/repository/r3d100010468\"},{\"label\":\"University of Opole Knowledge Base\",\"value\":\"https://www.re3data.org/repository/r3d100014686\"}]},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"metadataStandardSearch\",\"graphQL\":{\"query\":\"query MetadataStandards($term: String, $keywords: [String!], $paginationOptions: PaginationOptions){ metadataStandards(term: $term, keywords: $keywords, paginationOptions: $paginationOptions) { totalCount currentOffset limit hasNextPage hasPreviousPage availableSortFields items { id name uri description keywords } } }\",\"queryId\":\"useMetadataStandardsQuery\",\"variables\":[{\"name\":\"term\",\"type\":\"string\",\"label\":\"Search for a metadata standard\",\"minLength\":3},{\"name\":\"keywords\",\"type\":\"string\",\"label\":\"Subject Areas\",\"minLength\":3},{\"name\":\"paginationOptions\",\"type\":\"paginationOptions\",\"label\":\"Pagination Options\"}],\"answerField\":\"uri\",\"displayFields\":[{\"label\":\"Name\",\"propertyName\":\"name\"},{\"label\":\"Description\",\"propertyName\":\"description\"},{\"label\":\"Website\",\"propertyName\":\"website\"},{\"label\":\"Subject Areas\",\"propertyName\":\"keywords\"}],\"responseField\":\"metadataStandards.items\"},\"attributes\":{\"help\":\"My metadata standards help text\",\"label\":\"Metadata Standards\"}},\"enabled\":true,\"heading\":\"Metadata Standards\",\"required\":false,\"attributes\":{\"help\":\"Select metadata standard(s) you would prefer users to use\",\"labelTranslationKey\":\"researchOutput.metadataStandard.heading\"},\"preferences\":[{\"label\":\"Terminal RI Unicamp\",\"value\":\"https://repositorio.unicamp.br/\"},{\"label\":\"STAC 1.2.0\",\"value\":\"https://stac-extensions.github.io/version/v1.2.0/schema.json\"},{\"label\":\"Sintomas osteomusculares\",\"value\":\"https://prpi.usp.br/gestao-de-dados-cientificos/?codmnu=9979\"}]},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"licenseSearch\",\"graphQL\":{\"query\":\"query Licenses{ licenses { id name uri description } }\",\"variables\":[],\"answerField\":\"uri\",\"displayFields\":[{\"label\":\"Name\",\"propertyName\":\"name\"},{\"label\":\"Description\",\"propertyName\":\"description\"},{\"label\":\"Recommended\",\"propertyName\":\"recommended\"}],\"responseField\":\"licenses\"},\"attributes\":{\"help\":\"My licenses help text\",\"label\":\"Licenses\"}},\"enabled\":true,\"heading\":\"Licenses\",\"required\":false,\"attributes\":{\"help\":\"Select license(s) you would prefer users to apply to the research output\",\"labelTranslationKey\":\"researchOutput.license.heading\"},\"preferences\":[{\"label\":\"CC-BY-4.0\",\"value\":\"https://spdx.org/licenses/CC-BY-4.0.json\"},{\"label\":\"CC0-1.0\",\"value\":\"https://spdx.org/licenses/CC0-1.0.json\"},{\"label\":\"any-OSI-perl-modules\",\"value\":\"https://spdx.org/licenses/any-OSI-perl-modules.json\"}]},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"selectBox\",\"options\":[],\"attributes\":{\"help\":\"My initial access levels help text\",\"multiple\":false,\"labelTranslationKey\":\"researchOutput.accessLevel.heading\"}},\"enabled\":true,\"heading\":\"Initial Access Levels\",\"required\":false},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"text\",\"attributes\":{\"help\":\"\",\"maxLength\":255}},\"enabled\":true,\"heading\":\"Coverage\",\"required\":false},{\"meta\":{\"schemaVersion\":\"1.0\"},\"content\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"text\",\"attributes\":{\"help\":\"My custom field help text\",\"maxLength\":150,\"defaultValue\":\"My custom field default value\"}},\"enabled\":true,\"heading\":\"My custom field label\",\"required\":false}],\"attributes\":{\"help\":\"\",\"label\":\"\",\"canAddRows\":true,\"initialRows\":1,\"canRemoveRows\":true,\"labelTranslationKey\":\"\"}}";
 
 beforeEach(() => {
   // Cannot get the escaping to work in the mock JSON file, so doing it programmatically here
@@ -216,9 +217,59 @@ jest.mock('@/context/ToastContext', () => ({
     add: jest.fn(),
   })),
 }));
+
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+}));
+
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+
+const setupMocks = () => {
+  // Create stable references OUTSIDE mockImplementation
+  const stableQuestionReturn = {
+    data: mockQuestionData,
+    loading: false,
+    error: null,
+  };
+
+  const stableLicensesReturn = {
+    data: mockLicensesData,
+    loading: false,
+    error: null,
+  };
+
+  const stableDefaultResearchOutputTypesReturn = {
+    data: mockDefaultOutputTypesData,
+    loading: false,
+    error: null,
+  };
+
+  mockUseQuery.mockImplementation((document) => {
+    if (document === QuestionDocument) {
+      return stableQuestionReturn as any;
+    }
+
+    if (document === LicensesDocument) {
+      return stableLicensesReturn as any;
+    }
+
+    if (document === DefaultResearchOutputTypesDocument) {
+      return stableDefaultResearchOutputTypesReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+};
 describe("QuestionEditPage", () => {
   let mockRouter;
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
     const mockTemplateId = 123;
@@ -249,26 +300,6 @@ describe("QuestionEditPage", () => {
     // Mock the router
     mockRouter = { push: jest.fn() };
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
-
-    (useQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useToast as jest.Mock).mockReturnValue({ add: jest.fn() });
-
-    (useLicensesQuery as jest.Mock).mockReturnValue({
-      data: mockLicensesData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-      data: mockDefaultOutputTypesData,
-      loading: false,
-      error: undefined,
-    });
 
     (updateQuestionAction as jest.Mock).mockResolvedValue({
       success: true,
@@ -310,10 +341,21 @@ describe("QuestionEditPage", () => {
   });
 
   it("should render correct fields and content", async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+
+    const mockQuestionTextArea = {
       data: mockQuestionDataForTextArea,
       loading: false,
-      error: undefined,
+      error: undefined
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with text question type
@@ -377,7 +419,7 @@ describe("QuestionEditPage", () => {
   });
 
   it("should set question.required to \'true\' when user selects the \'yes\' radio button", async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: {
         question: {
           ...mockRadioQuestion.question,
@@ -386,6 +428,16 @@ describe("QuestionEditPage", () => {
       },
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
@@ -407,7 +459,6 @@ describe("QuestionEditPage", () => {
     render(
       <QuestionEdit />
     );
-
 
     await waitFor(() => {
       expect(screen.getByText('breadcrumbs.home')).toBeInTheDocument();
@@ -512,11 +563,22 @@ describe("QuestionEditPage", () => {
   })
 
   it('should call the updateQuestionAction when user clicks \'save\' button', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForTextField,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
+
     // Render with text question type
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
@@ -575,11 +637,22 @@ describe("QuestionEditPage", () => {
   })
 
   it('should not display the useSampleTextAsDefault checkbox if the questionTypeId is Radio Button field', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockRadioQuestion,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
+
     // Render with text question type
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
@@ -626,10 +699,20 @@ describe("QuestionEditPage", () => {
       } as unknown as ReturnType<typeof useSearchParams>;
     });
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForTextArea,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -660,10 +743,21 @@ describe("QuestionEditPage", () => {
       } as unknown as ReturnType<typeof useSearchParams>;
     });
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+
+    const mockQuestionTextArea = {
       data: mockQuestionDataForTextField,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -677,11 +771,20 @@ describe("QuestionEditPage", () => {
   })
 
   it("should call handleRangeLabelChange for dateRange question type", async () => {
-
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForDateRange,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with text question type
@@ -717,11 +820,20 @@ describe("QuestionEditPage", () => {
   });
 
   it("should call handleRangeLabelChange for number range question type", async () => {
-
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForNumberRange,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with text question type
@@ -757,11 +869,20 @@ describe("QuestionEditPage", () => {
   });
 
   it("should call handleTypeAheadSearchLabelChange for affiliationSearch question type", async () => {
-
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForTypeAheadSearch,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with text affiliation search type
@@ -799,10 +920,20 @@ describe("QuestionEditPage", () => {
 
   it("should call handleTypeAheadHelpTextChange for affiliationSearch question type", async () => {
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForTypeAheadSearch,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with text question type
@@ -839,10 +970,20 @@ describe("QuestionEditPage", () => {
 
   it("should display error if updateQuestionAction rejects", async () => {
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForNumberRange,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     (updateQuestionAction as jest.Mock).mockResolvedValue({
@@ -895,10 +1036,20 @@ describe("QuestionEditPage", () => {
       error: 'Mocked parse error',
     });
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForTextField,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with text question type
@@ -938,11 +1089,22 @@ describe("QuestionEditPage", () => {
   });
 
   it('should set question to filtered question when user passes in questionTypeIdQueryParam', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForDateRange,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
+
     // Render with text question type
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
@@ -987,10 +1149,20 @@ describe("QuestionEditPage", () => {
       error: 'Failed to parse during submit',
     });
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockQuestionDataForDateRange,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with text question type
@@ -1022,10 +1194,20 @@ describe("QuestionEditPage", () => {
   });
 
   it('should call logECS if useQuestionQuery graphql query returns an error ', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: null,
       loading: false,
       error: { message: 'There was an error when calling useQuestionQuery' },
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with text question type
@@ -1174,10 +1356,20 @@ describe("QuestionEditPage", () => {
   ])("QuestionEditPage - $questionType", ({ questionType, mockData }) => {
 
     it(`should call updateQuestionAction with correct JSON for ${questionType}`, async () => {
-      (useQuestionQuery as jest.Mock).mockReturnValue({
+      const mockQuestionTextArea = {
         data: mockData,
         loading: false,
         error: undefined,
+      };
+      mockUseQuery.mockImplementation((document) => {
+        if (document === QuestionDocument) {
+          return mockQuestionTextArea as any;
+        }
+        return {
+          data: null,
+          loading: false,
+          error: undefined
+        };
       });
 
       (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
@@ -1250,24 +1442,6 @@ describe('QuestionEditPage Delete Functionality', () => {
     // Mock the router
     mockRouter = { push: jest.fn() };
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
-
-    (useQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useLicensesQuery as jest.Mock).mockReturnValue({
-      data: mockLicensesData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-      data: mockDefaultOutputTypesData,
-      loading: false,
-      error: undefined,
-    });
 
     (updateQuestionAction as jest.Mock).mockResolvedValue({
       success: true,
@@ -1468,24 +1642,6 @@ describe('Options questions', () => {
     mockRouter = { push: jest.fn() };
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useLicensesQuery as jest.Mock).mockReturnValue({
-      data: mockLicensesData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
-      data: mockDefaultOutputTypesData,
-      loading: false,
-      error: undefined,
-    });
-
     (updateQuestionAction as jest.Mock).mockResolvedValue({
       success: true,
       data: {
@@ -1513,10 +1669,20 @@ describe('Options questions', () => {
   });
 
   it('should load Radio options', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockRadioQuestion,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with radio button question type
@@ -1558,24 +1724,43 @@ describe('Options questions', () => {
   })
 
   it('should add a new row when the add button is clicked', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const stableQuestionReturn = {
       data: mockRadioQuestion,
       loading: false,
-      error: undefined,
-    });
+      error: null,
+    };
 
-    (useLicensesQuery as jest.Mock).mockReturnValue({
+    const stableLicensesReturn = {
       data: mockLicensesData,
       loading: false,
-      error: undefined,
-    });
+      error: null,
+    };
 
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
+    const stableDefaultResearchOutputTypesReturn = {
       data: mockDefaultOutputTypesData,
       loading: false,
-      error: undefined,
-    });
+      error: null,
+    };
 
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return stableQuestionReturn as any;
+      }
+
+      if (document === LicensesDocument) {
+        return stableLicensesReturn as any;
+      }
+
+      if (document === DefaultResearchOutputTypesDocument) {
+        return stableDefaultResearchOutputTypesReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
 
     // Render with radio button question type
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
@@ -1639,10 +1824,20 @@ describe('Options questions', () => {
     // Mock addEventListener
     const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
     const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener');
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const mockQuestionTextArea = {
       data: mockRadioQuestion,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     // Render with radio button question type
@@ -1751,22 +1946,42 @@ describe("Research Output Question Type - Edit", () => {
       } as unknown as ReturnType<typeof useSearchParams>;
     });
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const stableQuestionReturn = {
       data: mockQuestionData,
       loading: false,
-      error: undefined,
-    });
+      error: null,
+    };
 
-    (useLicensesQuery as jest.Mock).mockReturnValue({
+    const stableLicensesReturn = {
       data: mockLicensesData,
       loading: false,
-      error: undefined,
-    });
+      error: null,
+    };
 
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({
+    const stableDefaultResearchOutputTypesReturn = {
       data: mockDefaultOutputTypesData,
       loading: false,
-      error: undefined,
+      error: null,
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return stableQuestionReturn as any;
+      }
+
+      if (document === LicensesDocument) {
+        return stableLicensesReturn as any;
+      }
+
+      if (document === DefaultResearchOutputTypesDocument) {
+        return stableDefaultResearchOutputTypesReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     (updateQuestionAction as jest.Mock).mockResolvedValue({
@@ -1815,10 +2030,20 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should render research output fields when question JSON is researchOutputTable', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const mockQuestionTextArea = {
       data: { question: { id: 67, questionText: 'Research Output Table Question', json: researchOutputJson, displayOrder: 1, sectionId: 67, requirementText: '', guidanceText: '', sampleText: '', useSampleTextAsDefault: false, required: false } },
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -1841,10 +2066,20 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should show tooltip for required fields (Title and Output Type) on edit', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const mockQuestionTextArea = {
       data: { question: { id: 67, questionText: 'Research Output Table Question', json: researchOutputJson, displayOrder: 1, sectionId: 67, requirementText: '', guidanceText: '', sampleText: '', useSampleTextAsDefault: false, required: false } },
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -1861,10 +2096,20 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should toggle field customization panels when customize button is clicked (edit)', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const mockQuestionTextArea = {
       data: { question: { id: 67, questionText: 'Research Output Table Question', json: researchOutputJson, displayOrder: 1, sectionId: 67, requirementText: '', guidanceText: '', sampleText: '', useSampleTextAsDefault: false, required: false } },
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => {
@@ -1882,10 +2127,20 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should enable/disable standard fields when checkbox is toggled (edit)', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const mockQuestionTextArea = {
       data: { question: { id: 67, questionText: 'Research Output Table Question', json: researchOutputJson, displayOrder: 1, sectionId: 67, requirementText: '', guidanceText: '', sampleText: '', useSampleTextAsDefault: false, required: false } },
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => { render(<QuestionEdit />); });
@@ -1899,10 +2154,20 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should show data flags configuration when data flags field is customized (edit)', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const mockQuestionTextArea = {
       data: mockSelectedQuestion,
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     render(<QuestionEdit />);
@@ -1931,11 +2196,22 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should handle repository configuration and repo selection system (edit)', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const mockQuestionTextArea = {
       data: { question: { id: 67, questionText: 'Research Output Table Question', json: researchOutputJson, displayOrder: 1, sectionId: 67, requirementText: '', guidanceText: '', sampleText: '', useSampleTextAsDefault: false, required: false } },
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestionTextArea as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
+
     await act(async () => { render(<QuestionEdit />); });
 
     const repoSelectorCheckbox = screen.getByLabelText('researchOutput.labels.repositories');
@@ -1948,14 +2224,45 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should auto-enable repository field when adding a repository while field is disabled (edit)', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const stableQuestionReturn = {
       data: { question: { id: 67, questionText: 'Research Output Table Question', json: researchOutputJson, displayOrder: 1, sectionId: 67, requirementText: '', guidanceText: '', sampleText: '', useSampleTextAsDefault: false, required: false } },
       loading: false,
       error: undefined,
-    });
+    };
 
-    (useLicensesQuery as jest.Mock).mockReturnValue({ data: { licenses: { items: [] } }, loading: false, error: undefined });
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({ data: { defaultResearchOutputTypes: [] }, loading: false, error: undefined });
+    const stableLicensesReturn = {
+      data: {
+        licenses: { items: [] }
+      },
+      loading: false,
+      error: null,
+    };
+
+    const stableDefaultResearchOutputTypesReturn = {
+      data: { defaultResearchOutputTypes: [] },
+      loading: false,
+      error: null,
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return stableQuestionReturn as any;
+      }
+
+      if (document === LicensesDocument) {
+        return stableLicensesReturn as any;
+      }
+
+      if (document === DefaultResearchOutputTypesDocument) {
+        return stableDefaultResearchOutputTypesReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
 
     render(<QuestionEdit />);
 
@@ -1976,14 +2283,45 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should handle metadata standards changes and auto-enable (edit)', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    const stableQuestionReturn = {
       data: mockSelectedQuestion,
       loading: false,
       error: undefined,
-    });
+    };
 
-    (useLicensesQuery as jest.Mock).mockReturnValue({ data: { licenses: { items: [] } }, loading: false, error: undefined });
-    (useDefaultResearchOutputTypesQuery as jest.Mock).mockReturnValue({ data: { defaultResearchOutputTypes: [] }, loading: false, error: undefined });
+    const stableLicensesReturn = {
+      data: {
+        licenses: { items: [] }
+      },
+      loading: false,
+      error: null,
+    };
+
+    const stableDefaultResearchOutputTypesReturn = {
+      data: { defaultResearchOutputTypes: [] },
+      loading: false,
+      error: null,
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return stableQuestionReturn as any;
+      }
+
+      if (document === LicensesDocument) {
+        return stableLicensesReturn as any;
+      }
+
+      if (document === DefaultResearchOutputTypesDocument) {
+        return stableDefaultResearchOutputTypesReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
 
     render(<QuestionEdit />);
 
@@ -2002,10 +2340,20 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should handle license field interactions (edit)', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const mockQuestion = {
       data: { question: { id: 67, questionText: 'Research Output Table Question', json: researchOutputJson, displayOrder: 1, sectionId: 67, requirementText: '', guidanceText: '', sampleText: '', useSampleTextAsDefault: false, required: false } },
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestion as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => { render(<QuestionEdit />); });
@@ -2023,10 +2371,20 @@ describe("Research Output Question Type - Edit", () => {
   });
 
   it('should set hasUnsavedChanges when research output fields are modified (edit)', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const mockQuestion = {
       data: { question: { id: 67, questionText: 'Research Output Table Question', json: researchOutputJson, displayOrder: 1, sectionId: 67, requirementText: '', guidanceText: '', sampleText: '', useSampleTextAsDefault: false, required: false } },
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestion as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => { render(<QuestionEdit />); });
@@ -2059,10 +2417,20 @@ describe("Research Output Question Type - Edit", () => {
     });
 
     const nonResearchJson = JSON.stringify({ meta: { schemaVersion: '1.0' }, type: 'text', attributes: {} });
-    (useQuestionQuery as jest.Mock).mockReturnValueOnce({
+    const mockQuestion = {
       data: { question: { id: 67, questionText: 'Text Question', json: nonResearchJson, displayOrder: 1, sectionId: 67 } },
       loading: false,
       error: undefined,
+    };
+    mockUseQuery.mockImplementation((document) => {
+      if (document === QuestionDocument) {
+        return mockQuestion as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
 
     await act(async () => { render(<QuestionEdit />); });

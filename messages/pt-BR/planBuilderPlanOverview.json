@@ -46,8 +46,10 @@
     },
     "relatedWorks": {
       "title": "Trabalhos relacionados para este plano",
-      "count": "{count} funciona",
-      "edit": "Ajustar para este plano"
+      "pendingCount": "{count} pending outputs",
+      "acceptedCount": "{count} accepted outputs",
+      "edit": "Ajustar para este plano",
+      "publish": "Publish your plan to start adding related outputs to your DMP"
     },
     "question": {
       "answered": "Respondido",
@@ -309,5 +311,33 @@
       "uploadExistingPlan": "Carregar um plano criado em outro lugar",
       "startNewOrUploadExisting": "Gostaria de criar um novo plano ou fazer upload de um existente?"
     }
+  },
+  "GuidancePanel": {
+    "bestPractice": "Orientações sobre melhores práticas",
+    "guidanceSourceSelection": "Selecionar fonte de orientação",
+    "removeGuidanceSource": "Remover fonte de orientação",
+    "addGuidanceSource": "Adicionar fonte de orientação",
+    "addOrganization": "Personalizar melhores práticas",
+    "showMore": "Mostrar mais",
+    "showLess": "Mostrar menos",
+    "more": "Mais",
+    "less": "Menos",
+    "ariaLabels": {
+      "showMoreGuidance": "Mostrar mais fontes de orientação",
+      "showLessGuidance": "Mostrar menos fontes de orientação"
+    }
+  },
+    "SectionPage": {
+    "errors": {
+      "errorLoadingSections": "Erro ao carregar as perguntas: {message}"
+    },
+    "navigation": {
+      "planNavigation": "Navegação do plano",
+      "planOverview": "Visão geral do plano"
+    },
+    "headings": {
+      "noQuestionsAvailable": "Nenhuma pergunta disponível"
+    },
+    "noQuestionsInSection": "Não há perguntas disponíveis nesta seção."
   }
 }

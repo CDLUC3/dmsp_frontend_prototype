@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
+import { useQuery } from '@apollo/client/react';
 
 import {
-  useSectionQuery,
+  SectionDocument,
   Question,
 } from '@/generated/graphql';
 import { useToast } from '@/context/ToastContext';
@@ -34,7 +35,7 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
   const t = useTranslations('Sections');
   const Global = useTranslations('Global');
 
-  const { data, loading, error, refetch } = useSectionQuery({
+  const { data, loading, error, refetch } = useQuery(SectionDocument, {
     variables: { sectionId: Number(sectionId) },
     fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,

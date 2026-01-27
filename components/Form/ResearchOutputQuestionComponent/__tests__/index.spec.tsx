@@ -7,9 +7,23 @@ import {
   StandardField,
   AccessLevelInterface,
   OutputTypeInterface,
+  AdditionalFieldsType
 } from '@/app/types';
 import mockStandardFields from '../__mocks__/mockStandardFields.json';
-import mockAdditionalFields from '../__mocks__/mockAdditionalFields.json';
+import rawAdditionalFields from '../__mocks__/mockAdditionalFields.json';
+
+const mockAdditionalFields: AdditionalFieldsType[] = rawAdditionalFields.map(field => ({
+  ...field,
+  content: {
+    ...field.content,
+    type: field.content.type as "text", // Typecast to literal
+    meta: {
+      ...field.content.meta,
+      title: field.content.meta.title ?? undefined,
+      usageDescription: field.content.meta.usageDescription ?? undefined
+    }
+  }
+}));
 
 // Mock the child components that use Apollo Client
 jest.mock('@/components/QuestionAdd/MetaDataStandards', () => ({
@@ -252,7 +266,7 @@ describe('ResearchOutputComponent', () => {
       expect(mockOnUpdate).toHaveBeenCalledWith('dataFlags', 'content',
         expect.objectContaining({
           options: expect.arrayContaining([
-            expect.objectContaining({ value: 'sensitive', checked: true })
+            expect.objectContaining({ value: 'sensitive', selected: true })
           ])
         })
       );
@@ -433,9 +447,9 @@ describe('ResearchOutputComponent', () => {
 
       // Find the max length input
       const maxLengthInput = screen.getByLabelText('researchOutput.additionalFields.maxLength.label');
-      fireEvent.change(maxLengthInput, { target: { value: '500' } });
+      fireEvent.change(maxLengthInput, { target: { value: '120' } });
 
-      expect(mockOnUpdate).toHaveBeenCalledWith('coverage', 'maxLength', '500');
+      expect(mockOnUpdate).toHaveBeenCalledWith('coverage', 'maxLength', '120');
     });
 
     it('should call onUpdateAdditionalField when default value is changed', () => {

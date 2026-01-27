@@ -21,14 +21,17 @@ import {
   TextField,
 } from "react-aria-components";
 
+// GraphQL
+import { useQuery, useMutation } from '@apollo/client/react';
 import {
   Section,
   TemplateVersionType,
   TemplateVisibility,
-  useArchiveTemplateMutation,
-  useCreateTemplateVersionMutation,
-  useTemplateQuery,
+  ArchiveTemplateDocument,
+  CreateTemplateVersionDocument,
+  TemplateDocument,
 } from "@/generated/graphql";
+import { updateTemplateAction, updateSectionDisplayOrderAction } from "./actions";
 
 // Components
 import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
@@ -36,12 +39,14 @@ import AddSectionButton from "@/components/AddSectionButton";
 import ErrorMessages from "@/components/ErrorMessages";
 import SectionEditContainer from "@/components/SectionEditContainer";
 
+// Hooks
 import { useFormatDate } from "@/hooks/useFormatDate";
+
+// Utils and other
 import logECS from "@/utils/clientLogger";
 import { useToast } from "@/context/ToastContext";
 import { routePath } from "@/utils/routes";
 import { extractErrors } from "@/utils/errorHandler";
-import { updateTemplateAction, updateSectionDisplayOrderAction } from "./actions";
 import styles from "./templateEditPage.module.scss";
 interface TemplateInfoInterface {
   templateId: number | null;
@@ -92,8 +97,8 @@ const TemplateEditPage: React.FC = () => {
   const errorRef = useRef<HTMLDivElement | null>(null);
 
   // Initialize publish mutation
-  const [createTemplateVersionMutation] = useCreateTemplateVersionMutation();
-  const [archiveTemplateMutation] = useArchiveTemplateMutation();
+  const [createTemplateVersionMutation] = useMutation(CreateTemplateVersionDocument);
+  const [archiveTemplateMutation] = useMutation(ArchiveTemplateDocument);
 
   // Run template query to get all templates under the given templateIdx
   const {
@@ -101,10 +106,8 @@ const TemplateEditPage: React.FC = () => {
     loading,
     error: templateQueryErrors,
     refetch,
-  } = useTemplateQuery({
+  } = useQuery(TemplateDocument, {
     variables: { templateId: Number(templateId) },
-    notifyOnNetworkStatusChange: true,
-    fetchPolicy: "network-only", // Fetch latest data instead of cache so we get the latest sections and questions after adding new ones
   });
 
   const sortSections = (sections: Section[]) => {
@@ -560,7 +563,7 @@ const TemplateEditPage: React.FC = () => {
           <AddSectionButton href={`/template/${templateId}/section/new`} />
         </div>
         <aside className="sidebar">
-          <div className="statusPanelContent sidePanel">
+          <div className="status-panel-content side-panel">
             <div className="buttonContainer withBorder mb-5">
               <Button
                 data-secondary
@@ -572,7 +575,7 @@ const TemplateEditPage: React.FC = () => {
               <Button onPress={() => handlePressPublishTemplate()}>{EditTemplate("button.publishTemplate")}</Button>
             </div>
 
-            <div className="sidePanelContent">
+            <div className="side-panel-content">
               <div className="panelRow mb-5">
                 <div>
                   <h3>{EditTemplate("button.previewTemplate")}</h3>
@@ -580,7 +583,7 @@ const TemplateEditPage: React.FC = () => {
                 <Link
                   href="#"
                   onPress={() => console.log("Preview")}
-                  className="sidePanelLink"
+                  className="side-panel-link"
                 >
                   {Global('buttons.preview')}
                 </Link>
@@ -595,7 +598,7 @@ const TemplateEditPage: React.FC = () => {
                   <Link
                     href="#"
                     onPress={() => setPublishModalOpen(true)}
-                    className="sidePanelLink"
+                    className="side-panel-link"
                   >
                     {EditTemplate("links.edit")}
                   </Link>
@@ -610,7 +613,7 @@ const TemplateEditPage: React.FC = () => {
                 <Link
                   href="#"
                   onPress={() => setPublishModalOpen(true)}
-                  className="sidePanelLink"
+                  className="side-panel-link"
                 >
                   {EditTemplate("links.edit")}
                 </Link>
@@ -623,7 +626,7 @@ const TemplateEditPage: React.FC = () => {
                 </div>
                 <Link
                   href={`/template/${templateId}/access`}
-                  className="sidePanelLink"
+                  className="side-panel-link"
                 >
                   {EditTemplate("links.manageAccess")}
                 </Link>
@@ -635,7 +638,7 @@ const TemplateEditPage: React.FC = () => {
                 </div>
                 <Link
                   href={`/template/${templateId}/history`}
-                  className="sidePanelLink"
+                  className="side-panel-link"
                 >
                   {EditTemplate("links.templateHistory")}
                 </Link>

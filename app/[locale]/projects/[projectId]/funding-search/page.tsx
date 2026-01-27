@@ -3,19 +3,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
+import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { routePath } from '@/utils/routes';
-
-import {
-  AffiliationSearch,
-  FunderPopularityResult,
-  usePopularFundersLazyQuery,
-  useAddProjectFundingMutation,
-  ProjectFundingErrors,
-} from '@/generated/graphql';
-import { FunderSearchResults } from '@/app/types';
-import { checkErrors } from '@/utils/errorHandler';
-import logECS from "@/utils/clientLogger";
-
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -23,6 +12,16 @@ import {
   Link,
 } from "react-aria-components";
 
+// GraphQL
+import {
+  AffiliationSearch,
+  FunderPopularityResult,
+  PopularFundersDocument,
+  AddProjectFundingDocument,
+  ProjectFundingErrors,
+} from '@/generated/graphql';
+
+// Components
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
@@ -31,6 +30,10 @@ import {
 import FunderSearch from '@/components/FunderSearch';
 import ErrorMessages from "@/components/ErrorMessages";
 
+// Utils and other
+import { FunderSearchResults } from '@/app/types';
+import { checkErrors } from '@/utils/errorHandler';
+import { handleApolloError } from '@/utils/apolloErrorHandler';
 import styles from './ProjectsCreateProjectFundingSearch.module.scss';
 
 
@@ -45,22 +48,26 @@ const CreateProjectSearchFunder = () => {
   const [funders, setFunders] = useState<AffiliationSearch[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState<number>(0);
-  const [addProjectFunding] = useAddProjectFundingMutation({});
+  const [addProjectFunding] = useMutation(AddProjectFundingDocument, {});
   const [errors, setErrors] = useState<string[]>([]);
   const errorRef = useRef<HTMLDivElement>(null);
 
   const [popularFunders, setPopularFunders] = useState<FunderPopularityResult[]>([]);
-  const [popularFundersQuery] = usePopularFundersLazyQuery({});
+  const [popularFundersQuery] = useLazyQuery(PopularFundersDocument, {});
 
   useEffect(() => {
     // Manually calling the effect because the query specifies that some items
     // can be null, and we need to filter those potential null results out.
-    popularFundersQuery().then(({ data }) => {
-      if (data?.popularFunders && data.popularFunders.length > 0) {
-        const cleaned = data.popularFunders.filter((item) => item !== null)
-        setPopularFunders(cleaned);
-      }
-    });
+    popularFundersQuery()
+      .then(({ data }) => {
+        if (data?.popularFunders && data.popularFunders.length > 0) {
+          const cleaned = data.popularFunders.filter((item) => item !== null)
+          setPopularFunders(cleaned);
+        }
+      })
+      .catch((err) => {
+        handleApolloError(err, 'createProjectSearchFunder.popularFundersQuery');
+      });
   }, []);
 
   async function handleSelectFunder(funder: AffiliationSearch | FunderPopularityResult) {
@@ -92,11 +99,7 @@ const CreateProjectSearchFunder = () => {
         }
       })
       .catch((err) => {
-        logECS(
-          'error',
-          'createProjectSearchFunder.addProjectFunding',
-          { error: err.message }
-        );
+        handleApolloError(err, 'createProjectSearchFunder.popularFundersQuery');
         setErrors([...errors, err.message])
       });
   };
