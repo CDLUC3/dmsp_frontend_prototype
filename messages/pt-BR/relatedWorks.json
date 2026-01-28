@@ -18,6 +18,7 @@
       "planId": "Select Plan",
       "filterByConfidence": "Filtro por confiança",
       "filterByType": "Filtrar por Tipo",
+      "filterByTypePlaceholder": "All Types",
       "highlightMatches": "Destacar Partidas",
       "sort": "Ordenar",
       "reset": "Reset",
@@ -166,7 +167,7 @@
       "dateReviewed": "Reviewed"
     },
     "RelatedWorksSelect": {
-      "planSelectPlaceholder": "Select Plan"
+      "planSelectPlaceholder": "All Plans"
     }
   }
 }

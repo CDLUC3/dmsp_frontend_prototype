@@ -18,6 +18,7 @@
       "planId": "Select Plan",
       "filterByConfidence": "Filter by Confidence",
       "filterByType": "Filter by Type",
+      "filterByTypePlaceholder": "All Types",
       "highlightMatches": "Highlight Matches",
       "sort": "Sort",
       "reset": "Reset",
@@ -167,6 +168,6 @@
     }
   },
   "RelatedWorksSelect": {
-    "planSelectPlaceholder": "Select Plan"
+    "planSelectPlaceholder": "All Plans"
   }
 }

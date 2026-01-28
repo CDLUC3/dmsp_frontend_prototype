@@ -32,7 +32,7 @@ export const ProjectPlanSelect = ({ projectId, selectedKey, setSelectedKey }: Pr
   });
   let projectItems: Item<number>[] = [];
   if (data != null) {
-    projectItems = (data?.project?.plans ?? []).map((item) => ({ id: item.id!, label: item.templateTitle! }));
+    projectItems = (data?.project?.plans ?? []).filter((item) => item.registered != null).map((item) => ({ id: item.id!, label: item.title! }));
   }
 
   return (

@@ -231,7 +231,7 @@ export const RelatedWorksList = ({
           <span className={styles.filterLabel}>{t("filters.filterByType")}</span>
           <div className={styles.spacer}>
             <RelatedWorksSelect<string>
-              placeholder={t("filters.filterByType")}
+              placeholder={t("filters.filterByTypePlaceholder")}
               selectedKey={workType}
               setSelectedKey={setWorkType}
               items={typeItems}

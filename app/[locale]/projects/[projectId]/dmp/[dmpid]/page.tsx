@@ -605,7 +605,7 @@ const PlanOverviewPage: React.FC = () => {
                 linkHref={RELATED_WORKS_URL}
                 linkText={t("relatedWorks.edit")}
                 linkAriaLabel={t("relatedWorks.edit")}
-                includeLink={!!planData.registered}
+                includeLink={!!rwPlanStats?.hasPublishedPlan}
               >
                 {!rwPlanStats?.hasPublishedPlan && <p>{t("relatedWorks.publish")}</p>}
                 {rwPlanStats?.hasPublishedPlan && rwPlanStats?.pendingCount != null && <p>{t("relatedWorks.pendingCount", { count: rwPlanStats?.pendingCount })}</p>}
