@@ -35,6 +35,7 @@ const mockUseRouter = useRouter as jest.Mock;
 
 const mockUseQuery = jest.mocked(useQuery);
 
+/*eslint-disable @typescript-eslint/no-explicit-any */
 const setupMocks = (items: RelatedWorkSearchResult[], project: null | any, refetch = jest.fn()) => {
   mockUseQuery.mockImplementation((document) => {
     if (document === ProjectDocument) {

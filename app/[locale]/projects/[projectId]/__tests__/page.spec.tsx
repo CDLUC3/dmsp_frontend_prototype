@@ -1,14 +1,11 @@
 import React from 'react';
-import {render, screen, waitFor} from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { useParams } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useQuery } from '@apollo/client/react';
 import ProjectOverviewPage from '../page';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
-import {
-  PlanDocument, ProjectDocument,
-  RelatedWorksByProjectStatsDocument,
-} from "@/generated/graphql";
+import { PlanDocument, ProjectDocument, RelatedWorksByProjectStatsDocument } from "@/generated/graphql";
 
 
 expect.extend(toHaveNoViolations);
