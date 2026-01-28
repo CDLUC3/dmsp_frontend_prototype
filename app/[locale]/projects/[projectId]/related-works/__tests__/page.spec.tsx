@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { useParams, useRouter } from "next/navigation";
 import { axe, toHaveNoViolations } from "jest-axe";
-import RelatedWorksPlanPage from "../page";
+import RelatedWorksProjectPage from "../page";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { useQuery } from '@apollo/client/react';
@@ -67,12 +67,12 @@ function RelatedWorksHarness() {
       timeZone={"UTC"}
       messages={{}}
     >
-      <RelatedWorksPlanPage />
+      <RelatedWorksProjectPage />
     </NextIntlClientProvider>
   );
 }
 
-describe("RelatedWorksPlanPage", () => {
+describe("RelatedWorksProjectPage", () => {
   beforeEach(() => {
     setupMocks();
     window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
@@ -96,7 +96,6 @@ describe("RelatedWorksPlanPage", () => {
     expect(screen.getByText("breadcrumbs.home")).toBeInTheDocument();
     expect(screen.getByText("breadcrumbs.projects")).toBeInTheDocument();
     expect(screen.getByText("breadcrumbs.projectOverview")).toBeInTheDocument();
-    expect(screen.getByText("breadcrumbs.planOverview")).toBeInTheDocument();
   });
 
   it("should render tabs", () => {
