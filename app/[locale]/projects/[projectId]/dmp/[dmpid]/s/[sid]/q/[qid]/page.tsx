@@ -169,7 +169,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [questionType, setQuestionType] = useState<string>('');
   const [parsed, setParsed] = useState<AnyParsedQuestion>();
   const [answerId, setAnswerId] = useState<number | null>(null);
-  const [guidanceItems, setGuidanceItems] = useState<GuidanceItemInterface[]>([]);
 
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -252,13 +251,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
   );
 
   // Get section tag info from plan data and user affiliation
-  const { sectionTagsMap, matchedGuidanceByOrg } = useGuidanceData({
-    userAffiliationUri: me?.me?.affiliation?.uri,
-    userAffiliationName: me?.me?.affiliation?.name,
-    userAffiliationAcronyms: me?.me?.affiliation?.acronyms,
-    planData,
-    versionedSectionId
+  const { sectionTagsMap, guidanceItems } = useGuidanceData({
+    planId: parseInt(dmpId),
+    versionedSectionId: Number(versionedSectionId),
+    versionedQuestionId: Number(versionedQuestionId)
   });
+
 
   const handleAddGuidanceOrganization = () => {
     // Open modal/dialog to select organization
@@ -1103,41 +1101,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
         setQuestionType(questionType);
         setParsed(parsed);
         setQuestion(cleanedQuestion);
-
-        // Combine question guidance with matched guidance from user's affiliation
-        const questionGuidance: GuidanceItemInterface = {
-          orgURI: cleanedQuestion.ownerAffiliation?.uri ?? '',
-          orgName: cleanedQuestion.ownerAffiliation?.name ?? '',
-          orgShortname: cleanedQuestion.ownerAffiliation?.acronyms?.[0] || '',
-          items: cleanedQuestion.guidanceText ? [
-            {
-              title: cleanedQuestion.ownerAffiliation?.name || '',
-              guidanceText: cleanedQuestion.guidanceText
-            }
-          ] : []
-        };
-
-        // Consolidate guidance by orgURI
-        const guidanceMap = new Map<string, GuidanceItemInterface>();
-
-        // Add question guidance if it has items
-        if (questionGuidance.items.length > 0) {
-          guidanceMap.set(questionGuidance.orgURI, questionGuidance);
-        }
-
-        // Add or merge matched guidance
-        matchedGuidanceByOrg.forEach(guidance => {
-          if (guidanceMap.has(guidance.orgURI)) {
-            // Merge items if orgURI already exists
-            const existing = guidanceMap.get(guidance.orgURI)!;
-            existing.items = [...existing.items, ...guidance.items];
-          } else {
-            guidanceMap.set(guidance.orgURI, guidance);
-          }
-        });
-
-        // Convert map back to array and set all guidance items in state
-        setGuidanceItems(Array.from(guidanceMap.values()));
       } catch (error) {
         logECS('error', 'Parsing error', {
           error,
@@ -1146,7 +1109,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         setErrors(['Error parsing question data']);
       }
     }
-  }, [selectedQuestion, matchedGuidanceByOrg]);
+  }, [selectedQuestion]);
 
 
   // Set plan data in state

@@ -1,5 +1,6 @@
 import { TagsInterface } from "@/app/types";
-import { AffiliationSearch } from '@/generated/graphql';
+import { AffiliationSearch, GuidanceSourceType } from "@/generated/graphql";
+
 export enum GuidanceGroupStatus {
   DRAFT = 'draft',
   PUBLISHED = 'published',
@@ -73,6 +74,7 @@ export interface GuidanceItemInterface {
   orgName: string;
   orgShortname?: string;
   items: { id?: number; title?: string; guidanceText: string; }[];
+  type: GuidanceSourceType
 }
 export interface MatchedGuidance {
   id?: number;

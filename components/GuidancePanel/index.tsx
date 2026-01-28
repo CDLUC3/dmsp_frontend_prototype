@@ -20,7 +20,7 @@ import { useQuery } from '@apollo/client/react';
 import {
   AffiliationSearch,
   BestPracticeGuidanceDocument,
-  FunderPopularityResult
+  GuidanceSourceType
 } from '@/generated/graphql';
 
 // Types
@@ -114,49 +114,41 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
     }
   );
 
-  // Build guidance sources for tabs
+  // Remove the separate BestPracticeGuidanceDocument query
+  // Instead, get it from guidanceItems prop which now includes all sources
   const guidanceSources = useMemo<GuidanceSource[]>(() => {
     const sources: GuidanceSource[] = [];
 
-    // Build best practice guidance items
-    const bestPracticeItems: MatchedGuidance[] = [];
+    // Find best practice from the guidance items passed in
+    const bestPracticeSource = guidanceItems.find(item => item.type === GuidanceSourceType.BestPractice);
 
-    bestPracticeGuidanceData?.bestPracticeGuidance.forEach((bp) => {
-      if (bp.guidanceText && bp.id != null && Object.keys(sectionTags).map(Number).includes(bp.tagId)) {
-        bestPracticeItems.push({
-          id: bp.id,
-          title: sectionTags[bp.tagId],
-          guidanceText: bp.guidanceText
-        });
-      }
-    });
-
-    // Only add best practice source if it has items
-    if (bestPracticeItems.length > 0) {
+    if (bestPracticeSource) {
       sources.push({
         id: 'bestPractice',
         type: 'bestPractice',
         label: "DMP Tool",
         shortName: 'DMP Tool',
-        items: bestPracticeItems
+        items: bestPracticeSource.items
       });
     }
 
-    // Build organization guidance sources
-    guidanceItems.forEach((org, index) => {
-      if (org.items.length > 0) {
-        sources.push({
-          id: `org-${index}`,
-          type: 'organization',
-          label: org.orgName,
-          shortName: org.orgShortname || null,
-          items: org.items || [],
-          orgURI: org.orgURI
-        });
-      }
-    });
+    // Add organization guidance sources
+    guidanceItems
+      .filter(item => item.type !== GuidanceSourceType.BestPractice)
+      .forEach((org, index) => {
+        if (org.items.length > 0) {
+          sources.push({
+            id: `org-${index}`,
+            type: 'organization',
+            label: org.orgName,
+            shortName: org.orgShortname || null,
+            items: org.items || [],
+            orgURI: org.orgURI
+          });
+        }
+      });
 
-    // Additional guidance hard-coded just for demonstation purposes, since we cannot yet add additional orgs
+    // Keep additional guidance for demo purposes if needed
     additionalGuidance.forEach((org, index) => {
       if (org.items.length > 0) {
         sources.push({
@@ -169,9 +161,9 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
         });
       }
     });
-    return sources;
-  }, [guidanceItems, bestPracticeGuidanceData]);
 
+    return sources;
+  }, [guidanceItems]);
 
   const handleDialogCloseBtn = () => {
     setIsModalOpen(false);
@@ -248,6 +240,7 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
 
     onRemoveOrganization(orgId);
   };
+
   // Calculate how many pills can fit in first row
   // because we always want to show the "More" button in the first row if there are too many pills
   useEffect(() => {

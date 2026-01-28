@@ -25,3 +25,20 @@ query Guidance($guidanceId: Int!) {
     tagId
   }
 }
+
+
+query GuidanceSourcesForPlan($planId: Int!, $versionedSectionId: Int, $versionedQuestionId: Int) {
+  guidanceSourcesForPlan(planId: $planId, versionedSectionId: $versionedSectionId, versionedQuestionId: $versionedQuestionId) {
+    id
+    type
+    label
+    shortName
+    orgURI
+    hasGuidance
+    items {
+      id
+      title
+      guidanceText
+    }
+  }
+}
