@@ -29,7 +29,7 @@ export const useGuidanceData = ({
         versionedSectionId: versionedSectionId ? Number(versionedSectionId) : undefined,
         versionedQuestionId: versionedQuestionId ? Number(versionedQuestionId) : undefined
       },
-      skip: !planId
+      skip: !planId,
     }
   );
 
@@ -66,7 +66,9 @@ export const useGuidanceData = ({
         guidanceText: item.guidanceText
       }))
     }));
+
   }, [guidanceData]);
+
 
   return {
     sectionTagsMap,

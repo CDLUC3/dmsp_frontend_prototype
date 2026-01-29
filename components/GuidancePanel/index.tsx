@@ -176,7 +176,6 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
   const handleSelectFunder = (funder: AffiliationSearch) => {
     if (!funder.uri) return;
 
-    console.log("***Selected Funder URI:", funder);
     // Trigger callback to add organization
     if (onAddOrganization) {
       onAddOrganization(funder);
@@ -228,9 +227,7 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
     }
   }
 
-
   const handleRemoveOrganization = (e: React.MouseEvent, sourceId: string, orgId?: string) => {
-    e.stopPropagation();
     if (!orgId || !onRemoveOrganization) return;
 
     // If removing the currently selected source, switch to best practice
@@ -238,7 +235,13 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
       setSelectedGuidanceId('bestPractice');
     }
 
-    onRemoveOrganization(orgId);
+    if (onRemoveOrganization) {
+      onRemoveOrganization(orgId);
+    }
+
+
+    // Close modal
+    setIsModalOpen(false);
   };
 
   // Calculate how many pills can fit in first row
@@ -476,35 +479,27 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
               <div className={styles.tabListWrapper} ref={containerRef}>
                 <div className={styles.tabsRow}>
                   <div><h3 className={styles.modalH3}>Currently displaying</h3></div>
-                  <TabList aria-label={t('guidanceSourceSelection')} className={styles.pillsContainer}>
-                    {/* Render all pills for measurement (hidden ones are positioned off-screen) */}
-                    {guidanceSources.map((source, index) => {
-                      const isVisible = showAllTabs || index < visibleCount;
-                      return (
-                        <Tab
+                  <div className={styles.pillsContainer}>
+                    {guidanceSources
+                      .filter(source => source.type !== 'bestPractice') // Don't show remove option for best practice
+                      .map((source, index) => (
+                        <div
                           key={source.id}
-                          id={source.id}
-                          className={`
-                          ${styles.pill} 
-                          ${isTransitioning ? styles.transitioning : ''} 
-                          ${isVisible ? styles.pillVisible : styles.pillHidden}
-                          ${!isVisible && !showAllTabs ? styles.pillOffscreen : ''}
-                        `}
+                          className={`${styles.pill} ${styles.pillVisible}`}
                         >
-                          <div
-                            ref={(el) => { pillsRef.current[index] = el; }}
-                            className={`
-                                ${styles.pillCustomize}
-                        ${styles.pillInner} 
-                      `}
-                          >
+                          <div className={`${styles.pillCustomize} ${styles.pillInner}`}>
                             <span>{source.shortName}</span>
-                            <DmpIcon icon="cancel-reverse" />
+                            <Button
+                              className={"unstyled"}
+                              onPress={(e) => handleRemoveOrganization(e as any, source.id, source.orgURI)}
+                              aria-label={`Remove ${source.label}`}
+                            >
+                              <DmpIcon icon="cancel-reverse" />
+                            </Button>
                           </div>
-                        </Tab>
-                      );
-                    })}
-                  </TabList>
+                        </div>
+                      ))}
+                  </div>
                 </div>
               </div>
 

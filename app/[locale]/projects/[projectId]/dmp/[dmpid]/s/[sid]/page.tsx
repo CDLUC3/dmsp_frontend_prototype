@@ -6,15 +6,13 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from "next-intl";
 
 // GraphQL
-import { useQuery, useLazyQuery, useMutation } from '@apollo/client/react';
+import { useQuery, useMutation } from '@apollo/client/react';
 import {
   AffiliationSearch,
   PublishedQuestionsDocument,
   PublishedSectionDocument,
   PlanDocument,
   MeDocument,
-  VersionedGuidanceDocument,
-  GuidanceSourceType,
   AddPlanGuidanceDocument,
   RemovePlanGuidanceDocument,
   GuidanceSourcesForPlanDocument
@@ -36,7 +34,6 @@ import Loading from '@/components/Loading';
 // Utils and other
 import { stripHtml } from '@/utils/general';
 import { routePath } from '@/utils/routes';
-import { GuidanceItemInterface } from '@/app/types';
 
 import styles from './PlanOverviewSectionPage.module.scss';
 import { useGuidanceData } from '@/app/hooks/useGuidanceData';
@@ -109,11 +106,8 @@ const PlanOverviewSectionPage: React.FC = () => {
     ]
   });
 
-  // Lazy query to fetch guidance for added organizations
-  const [fetchOrgGuidance] = useLazyQuery(VersionedGuidanceDocument);
-
   // Use the guidance data hook to get section tags and matched guidance
-  const { sectionTagsMap, guidanceItems, guidanceLoading } = useGuidanceData({
+  const { sectionTagsMap, guidanceItems } = useGuidanceData({
     planId: parseInt(dmpId),
     versionedSectionId: versionedSectionId
   });

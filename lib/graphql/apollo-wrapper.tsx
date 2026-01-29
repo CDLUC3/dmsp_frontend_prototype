@@ -3,6 +3,7 @@
 import { ApolloLink, HttpLink } from "@apollo/client";
 import { authLink, errorLink, retryLink } from "@/lib/graphql/graphqlHelper";
 import { errorTypePolicies } from '@/lib/graphql/errorTypePolicies';
+import { guidanceTypePolicies } from '@/lib/graphql/guidanceTypePolicies';
 
 //From https://github.com/apollographql/apollo-client-nextjs
 import {
@@ -22,6 +23,7 @@ function makeClient() {
     cache: new InMemoryCache({
       typePolicies: {
         ...errorTypePolicies, // This is to prevent Apollo cache merge issues with error fields
+        ...guidanceTypePolicies // Custom type policies for guidance types
       }
     }),
     link: ApolloLink.from([
