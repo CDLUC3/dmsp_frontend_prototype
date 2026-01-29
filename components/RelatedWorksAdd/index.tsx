@@ -1,6 +1,6 @@
 import styles from "./RelatedWorksAdd.module.scss";
 
-import React, { useState } from "react";
+import React, {useRef, useState} from "react";
 import { useTranslations } from "next-intl";
 
 import { Button, Input, Label, SearchField, Text } from "react-aria-components";
@@ -16,8 +16,9 @@ import { formatSubtitle } from "@/lib/relatedWorks";
 import { doiToUrl, extractDoi } from "@/lib/identifierUtils";
 import { useFormatDate } from "@/hooks/useFormatDate";
 import { upsertRelatedWorkAction } from "@/app/actions/upsertRelatedWorkAction";
-import { useQuery } from "@apollo/client/react";
+import { useLazyQuery } from "@apollo/client/react";
 import { ProjectPlanSelect } from "@/components/RelatedWorksSelect";
+import ErrorMessages from "@/components/ErrorMessages";
 
 const MAX_AUTHOR_CHARS = 40;
 
@@ -36,17 +37,17 @@ export const RelatedWorksAdd = ({ identifierType, identifier }: RelatedWorksAddP
   const [planId, setPlanId] = useState<number | null>(
     identifierType === RelatedWorksIdentifierType.PlanId ? identifier : null,
   );
+  const [errors, setErrors] = useState<string[]>([]);
+  const errorRef = useRef<HTMLDivElement>(null);
 
   // Query data
-  const {
+  const [findWorkByIdentifier, {
     data: searchResults,
     loading: isLoadingSearch,
     refetch: refetchSearch,
-  } = useQuery(FindWorkByIdentifierDocument, {
-    variables: {
-      planId,
-      doi,
-    },
+  }] = useLazyQuery(FindWorkByIdentifierDocument, {
+    fetchPolicy: "network-only",
+    errorPolicy: "all",
   });
 
   const displayDOISearch =
@@ -98,10 +99,34 @@ export const RelatedWorksAdd = ({ identifierType, identifier }: RelatedWorksAddP
             />
             <Button
               aria-label={Global("buttons.lookup")}
-              onPress={() => {
-                const doi = extractDoi(searchTerm);
-                setDoi(doi);
+              onPress={async () => {
+                const extractedDoi = extractDoi(searchTerm);
+
+                if(!extractedDoi) {
+                  setDoi(doi);
+                  setIsSearching(false);
+                  return;
+                }
+
+                setDoi(extractedDoi);
                 setIsSearching(true);
+
+                const response = await findWorkByIdentifier({
+                  variables: { planId, doi: extractedDoi }
+                });
+
+                type GraphQLErrorItem = {
+                  message: string;
+                  extensions?: {
+                    details?: string;
+                  };
+                };
+                type GraphQLErrors = {
+                  errors: GraphQLErrorItem[];
+                };
+
+                const errors = (response?.error as unknown as GraphQLErrors)?.errors?.map((e: GraphQLErrorItem) => e?.extensions?.details ?? e.message) ?? [];
+                setErrors(errors);
               }}
             >
               {Global("buttons.lookup")}
@@ -151,6 +176,8 @@ export const RelatedWorksAdd = ({ identifierType, identifier }: RelatedWorksAddP
                 />
               );
             })}
+
+        <ErrorMessages errors={errors} ref={errorRef} />
       </section>
     </>
   );

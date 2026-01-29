@@ -188,6 +188,7 @@ const PlanOverviewPage: React.FC = () => {
   // Query data
   const {
     data: relatedWorksByPlanStats,
+    refetch: relatedWorksByProjectStatsRefetch,
   } = useQuery(RelatedWorksByPlanStatsDocument, {
     variables: {
       planId,
@@ -352,8 +353,11 @@ const PlanOverviewPage: React.FC = () => {
       }
       //Need to refetch plan data to refresh the info that was changed
       await refetch();
+
+      // Need to refetch related works project stats data
+      await relatedWorksByProjectStatsRefetch();
     }
-  }, [publishPlan, Global, t, toastState, refetch]);
+  }, [publishPlan, Global, t, toastState, refetch, relatedWorksByProjectStatsRefetch]);
 
   // Call Server Action updatePlanTitleAction to run the updatePlanTitleMutation
   const updateTitle = useCallback(async (title: string) => {
