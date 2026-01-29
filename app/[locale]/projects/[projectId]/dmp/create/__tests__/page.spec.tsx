@@ -901,9 +901,6 @@ describe('PlanCreate Component using base mock', () => {
 
     // Wait for initial load
     await screen.findByRole('checkbox', { name: 'Affiliation 1 Name' });
-    // Wait for checkboxes
-    await screen.findByRole('checkbox', { name: 'Affiliation 1 Name' });
-    await screen.findByRole('checkbox', { name: 'Affiliation 2 Name' });
 
     // Wait for the correct number of templates to load
     await waitFor(() => {
