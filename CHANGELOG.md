@@ -6,6 +6,7 @@
 
 ## Chore
 - Updated version of `next` to `v16.1.5` due to vulnerability and `next-intl` to `4.8.0` due to dependency
+- Updated version of `@dmptool/types` to `v3.1.1` because it has a fix for the 'fs' errors
 ==========================================================================================
 ## All changes above the line happened after the merge to the main branch on Jan 27, 2026
 ==========================================================================================
