@@ -246,7 +246,7 @@
   min-width: 200px;
 }
 
-.filterGroup :global(.react-aria-Select) {  // ✅ Use parent selector
+.filterGroup :global(.react-aria-Select) {
   margin-bottom: var(--space-2);
 }
 
