@@ -231,12 +231,10 @@
 .filterGroup {
   flex: 1;
   min-width: 200px;
+}
 
-    :global {
-    .react-aria-Select {
-      margin-bottom: var(--space-2);
-    }
-  }
+.filterGroup :global(.react-aria-Select) { 
+  margin-bottom: var(--space-2);
 }
 
 .applyFilterBtn {
@@ -336,22 +334,18 @@
   flex-wrap: wrap;
 }
 
-.formSelect {
-  :global {
-    .react-aria-Label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 600;
-      font-size: var(--fs-small);
-      line-height: 1.5;
-    }
+.formSelect :global(.react-aria-Label) {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
 
-    .react-aria-SelectValue[data-placeholder] {
-      border-radius: 4px;
-      font-size: var(--fs-small);
-      font-style:normal;
-    }
-  }
+.formSelect :global(.react-aria-SelectValue[data-placeholder]) {
+  border-radius: 4px;
+  font-size: var(--fs-small);
+  font-style: normal;
 }
 
 .searchRepos {
