@@ -657,6 +657,10 @@
         "guidanceGroupUpdated": "Guidance group {groupName} successfully updated",
         "guidanceTextAdded": "Guidance text successfully added to {tagName}. The change(s) need to be published to take effect.",
         "guidanceTextUpdated": "Guidance text for {tagName} successfully updated. The change(s) need to be published to take effect."
+      },
+      "errors": {
+        "unableToAddOrganization": "Unable to add organization",
+        "unableToRemoveOrganization": "Unable to remove organization"
       }
     },
     "labels": {

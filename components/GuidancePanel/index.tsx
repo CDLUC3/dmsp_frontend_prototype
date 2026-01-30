@@ -16,10 +16,8 @@ import parse from 'html-react-parser';
 import { useTranslations } from "next-intl";
 
 // GraphQL
-import { useQuery } from '@apollo/client/react';
 import {
   AffiliationSearch,
-  BestPracticeGuidanceDocument,
   GuidanceSourceType
 } from '@/generated/graphql';
 
@@ -27,13 +25,13 @@ import {
 import {
   GuidanceSource,
   GuidancePanelProps,
-  MatchedGuidance,
   FunderSearchResults
 } from '@/app/types';
 
 // Components
 import ExpandableContentSection from '@/components/ExpandableContentSection';
 import { DmpIcon } from "@/components/Icons";
+import ErrorMessages from '@/components/ErrorMessages';
 import AffiliationSearchForGuidance from '../AffiliationSearchForGuidance';
 import styles from './GuidancePanel.module.scss';
 
@@ -74,11 +72,11 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
   userAffiliationId,
   ownerAffiliationId,
   guidanceItems,
-  sectionTags,
+  guidanceError,
+  onClearError,
   onAddOrganization,
   onRemoveOrganization,
 }) => {
-
   const Global = useTranslations('Global');
   const t = useTranslations('GuidancePanel');
   const Org = useTranslations('FunderSearch');
@@ -88,6 +86,10 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
   const pillsRef = useRef<(HTMLDivElement | null)[]>([]);
   // Ref for scrolling down to first result
   const resultsRef = useRef<HTMLElement>(null);
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
+  // Track previous guidanceSources
+  const prevGuidanceSourcesRef = useRef<GuidanceSource[]>([]);
 
   // Internal state for uncontrolled usage
   const [showAllTabs, setShowAllTabs] = useState<boolean>(false);
@@ -102,17 +104,10 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
   const [totalCount, setTotalCount] = useState<number>(0);
   const [funders, setFunders] = useState<AffiliationSearch[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
-
-  // Query to get Best Practice guidance content
-  const { data: bestPracticeGuidanceData, loading: bestPracticeLoading } = useQuery(
-    BestPracticeGuidanceDocument,
-    {
-      variables: {
-        tagIds: Object.keys(sectionTags).map(Number)// Extract tag IDs from sectionTags and convert to numbers
-      },
-      notifyOnNetworkStatusChange: true
-    }
-  );
+  // Track whether search was performed
+  const [searchPerformed, setSearchPerformed] = useState<boolean>(false);
+  // Track the search value
+  const [searchValue, setSearchValue] = useState<string>('');
 
   // Remove the separate BestPracticeGuidanceDocument query
   // Instead, get it from guidanceItems prop which now includes all sources
@@ -180,9 +175,6 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
     if (onAddOrganization) {
       onAddOrganization(funder);
     }
-
-    // Close modal
-    setIsModalOpen(false);
   };
 
   const toggleShowAllTabs = () => {
@@ -216,6 +208,7 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
 
     if (isNew) {
       setFunders(validResults);
+      setSearchPerformed(true);
     } else {
       setFunders(funders.concat(validResults));
     }
@@ -227,21 +220,16 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
     }
   }
 
-  const handleRemoveOrganization = (e: React.MouseEvent, sourceId: string, orgId?: string) => {
+  const handleRemoveOrganization = (sourceId: string, orgId?: string) => {
     if (!orgId || !onRemoveOrganization) return;
-
-    // If removing the currently selected source, switch to best practice
-    if (selectedGuidanceId === sourceId) {
-      setSelectedGuidanceId('bestPractice');
-    }
 
     if (onRemoveOrganization) {
       onRemoveOrganization(orgId);
     }
+  };
 
-
-    // Close modal
-    setIsModalOpen(false);
+  const handleSearchChange = (value: string) => {
+    setSearchValue(value);
   };
 
   // Calculate how many pills can fit in first row
@@ -291,20 +279,59 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
     if (!isInitialized) {
       return;
     }
+
+    // Check if currently selected tab still exists
     if (guidanceSources.length > 0 && !guidanceSources.find(s => s.id === selectedGuidanceId)) {
-      setSelectedGuidanceId(guidanceSources[0].id);
+      // Currently selected tab was removed, need to select a new one
+      let matchingSource = null;
+
+      // First priority: Try to match user's affiliation
+      if (userAffiliationId) {
+        matchingSource = guidanceSources.find(
+          source => source.type === 'organization' && source.orgURI === userAffiliationId
+        );
+      }
+
+      // Second priority: If no user match, try to match owner's affiliation
+      if (!matchingSource && ownerAffiliationId) {
+        matchingSource = guidanceSources.find(
+          source => source.type === 'organization' && source.orgURI === ownerAffiliationId
+        );
+      }
+
+      // Third priority: Fall back to bestPractice
+      if (!matchingSource) {
+        matchingSource = guidanceSources[0]; // bestPractice should be first
+      }
+
+      if (matchingSource) {
+        setSelectedGuidanceId(matchingSource.id);
+      }
     }
-  }, [guidanceSources, selectedGuidanceId]);
+  }, [guidanceSources, selectedGuidanceId, isInitialized, userAffiliationId, ownerAffiliationId]);
 
   // Auto-select tab based on user affiliation, with fallback to owner affiliation, and then best practice
   useEffect(() => {
-    // Wait for GraphQL to finish loading before auto-selecting
-    if (bestPracticeLoading || isInitialized) {
+    if (guidanceSources.length === 0) {
       return;
     }
 
-    if (guidanceSources.length > 0) {
-      // Compute correct selection
+    // Check if user's affiliation was just added
+    const userAffiliationJustAdded = userAffiliationId &&
+      !prevGuidanceSourcesRef.current.some(s => s.orgURI === userAffiliationId) &&
+      guidanceSources.some(s => s.type === 'organization' && s.orgURI === userAffiliationId);
+
+    // Check if owner's affiliation was just added
+    const ownerAffiliationJustAdded = ownerAffiliationId &&
+      !prevGuidanceSourcesRef.current.some(s => s.orgURI === ownerAffiliationId) &&
+      guidanceSources.some(s => s.type === 'organization' && s.orgURI === ownerAffiliationId);
+
+
+    // Only auto-select if:
+    // 1. Not yet initialized (first load), OR
+    // 2. User's affiliation was just added back
+    // 3. Owner's affiliation was just added back (and no user affiliation)
+    if (!isInitialized || userAffiliationJustAdded || (!userAffiliationId && ownerAffiliationJustAdded)) {
       let matchingSource = null;
 
       // First priority: Try to match user's affiliation
@@ -324,14 +351,19 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
       // Set the selected tab
       if (matchingSource) {
         setSelectedGuidanceId(matchingSource.id);
-      } else {
-        // No match found, fall back to bestPractice
+      } else if (!isInitialized) {
+        // Only fall back to bestPractice on initial load
         setSelectedGuidanceId('bestPractice');
       }
 
-      setIsInitialized(true);
+      if (!isInitialized) {
+        setIsInitialized(true);
+      }
     }
-  }, [bestPracticeLoading, userAffiliationId, ownerAffiliationId, guidanceSources]);
+
+    // Update the ref with current sources for next comparison
+    prevGuidanceSourcesRef.current = guidanceSources;
+  }, [guidanceSources, userAffiliationId, ownerAffiliationId, isInitialized]);
 
   useEffect(() => {
     if (isModalOpen && funders.length > 0 && resultsRef.current) {
@@ -342,6 +374,26 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
     }
   }, [funders, isModalOpen]);
 
+  // When modal closes reset funders and searchPerformed
+  useEffect(() => {
+    if (!isModalOpen) {
+      setFunders([]);
+      setSearchValue('');
+      setSearchPerformed(false); // Important: prevents "no results" message from showing on reopen
+
+      // Clear any errors when modal closes
+      if (onClearError) {
+        onClearError();
+      }
+    }
+  }, [isModalOpen]);
+
+
+  useEffect(() => {
+    if (searchValue === '') {
+      setSearchPerformed(false);
+    }
+  }, [searchValue]);
 
   // Show "More" button if there are more than the calculated visible tabs that fit in one row
   const hasOverflow = guidanceSources.length > visibleCount;
@@ -470,28 +522,41 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
               {' '}{Global('buttons.close')}
             </Button>
           </div>
+          {guidanceError && (
+            <ErrorMessages
+              errors={[guidanceError]}
+              ref={errorRef}
+            />
+          )}
           <div className={`${styles.publishModal} ${styles.dialogWrapper}`}>
-            <Heading slot="title">Customize best practice</Heading>
+            <Heading slot="title">{t('headings.customizeBestPractice')}</Heading>
             <Tabs
-              onSelectionChange={(key) => console.log("Changed tab to:", key)}
               className={styles.guidanceTabs}
             >
-              <div className={styles.tabListWrapper} ref={containerRef}>
-                <div className={styles.tabsRow}>
-                  <div><h3 className={styles.modalH3}>Currently displaying</h3></div>
+              <div className={styles.tabListWrapper}>
+                <div className={`${styles.tabsRow} ${styles.modalTabsRow}`}>
+                  <div><h3 className={styles.modalH3}>{t('headings.currentlyDisplaying')}</h3></div>
                   <div className={styles.pillsContainer}>
                     {guidanceSources
                       .filter(source => source.type !== 'bestPractice') // Don't show remove option for best practice
-                      .map((source, index) => (
+                      .map((source) => (
                         <div
                           key={source.id}
                           className={`${styles.pill} ${styles.pillVisible}`}
+                          onClick={() => handleRemoveOrganization(source.id, source.orgURI)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              handleRemoveOrganization(source.id, source.orgURI);
+                            }
+                          }}
                         >
+
                           <div className={`${styles.pillCustomize} ${styles.pillInner}`}>
                             <span>{source.shortName}</span>
                             <Button
                               className={"unstyled"}
-                              onPress={(e) => handleRemoveOrganization(e as any, source.id, source.orgURI)}
                               aria-label={`Remove ${source.label}`}
                             >
                               <DmpIcon icon="cancel-reverse" />
@@ -503,11 +568,20 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
                 </div>
               </div>
 
-              <div><h3 className={styles.modalH3}>Add more</h3></div>
+              <div><h3 className={styles.modalH3}>{t('headings.addMore')}</h3></div>
               <AffiliationSearchForGuidance
                 onResults={onResults}
                 moreTrigger={moreCounter}
+                onSearchChange={handleSearchChange}
               />
+
+              {searchPerformed && funders.length === 0 && (
+                <section>
+                  <p className={styles.resultsCount}>
+                    {Org('noResults')}
+                  </p>
+                </section>
+              )}
               {funders.length > 0 && (
                 <section
                   ref={resultsRef}

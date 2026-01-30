@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 import { useQuery } from '@apollo/client/react';
 import {
   GuidanceSourcesForPlanDocument,
-  GuidanceSourceType
 } from '@/generated/graphql';
 import { GuidanceItemInterface } from '@/app/types';
 
@@ -14,6 +13,10 @@ interface UseGuidanceDataProps {
   versionedQuestionId?: number;
 }
 
+/**
+ * Hook for fetching guidance data only.
+ * Mutations are handled in parent components to avoid circular dependencies.
+ */
 export const useGuidanceData = ({
   planId,
   versionedSectionId,
@@ -21,7 +24,7 @@ export const useGuidanceData = ({
 }: UseGuidanceDataProps) => {
 
   // Fetch all guidance sources from backend (includes matched guidance and tags)
-  const { data: guidanceData, loading: guidanceLoading } = useQuery(
+  const { data: guidanceData, loading: guidanceLoading, refetch } = useQuery(
     GuidanceSourcesForPlanDocument,
     {
       variables: {
@@ -30,6 +33,7 @@ export const useGuidanceData = ({
         versionedQuestionId: versionedQuestionId ? Number(versionedQuestionId) : undefined
       },
       skip: !planId,
+      notifyOnNetworkStatusChange: true,
     }
   );
 
@@ -48,7 +52,6 @@ export const useGuidanceData = ({
     return tagsMap;
   }, [guidanceData]);
 
-
   // Transform guidance sources to component format
   const guidanceItems = useMemo<GuidanceItemInterface[]>(() => {
     if (!guidanceData?.guidanceSourcesForPlan) {
@@ -59,7 +62,7 @@ export const useGuidanceData = ({
       orgURI: source.orgURI,
       orgName: source.label,
       orgShortname: source.shortName,
-      type: source.type, // Add the type from backend
+      type: source.type,
       items: source.items.map(item => ({
         id: item.id ?? undefined,
         title: item.title ?? undefined,
@@ -69,10 +72,10 @@ export const useGuidanceData = ({
 
   }, [guidanceData]);
 
-
   return {
     sectionTagsMap,
     guidanceItems,
-    guidanceLoading
+    guidanceLoading,
+    refetchGuidance: refetch, // Expose refetch for manual refresh after mutations
   };
 };

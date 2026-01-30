@@ -77,7 +77,6 @@ import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import { createEmptyResearchOutputRow } from '@/utils/researchOutputTransformations';
 import {
-  GuidanceItemInterface,
   Question,
   MergedComment,
   ResearchOutputTable,
@@ -87,6 +86,7 @@ import {
 import { useComments } from './hooks/useComments';
 import CommentsDrawer from './CommentsDrawer';
 import { useGuidanceData } from '@/app/hooks/useGuidanceData';
+import { useGuidanceMutations } from "@/app/hooks/useGuidanceMutations";
 import styles from './PlanOverviewQuestionPage.module.scss';
 
 interface FormDataInterface {
@@ -161,7 +161,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Ref for scrolling to bottom of comments
   const commentsEndRef = useRef<HTMLDivElement | null>(null);
-
 
   // VersionedQuestion, plan and versionedSection states
   const [question, setQuestion] = useState<Question>();
@@ -251,24 +250,26 @@ const PlanOverviewQuestionPage: React.FC = () => {
   );
 
   // Get section tag info from plan data and user affiliation
-  const { sectionTagsMap, guidanceItems } = useGuidanceData({
+  const {
+    sectionTagsMap,
+    guidanceItems,
+  } = useGuidanceData({
     planId: parseInt(dmpId),
     versionedSectionId: Number(versionedSectionId),
     versionedQuestionId: Number(versionedQuestionId)
   });
 
-
-  const handleAddGuidanceOrganization = () => {
-    // Open modal/dialog to select organization
-    // TODO: Implement organization selection and addition to guidance tabs
-    console.log('Add guidance organization');
-  };
-
-  const handleRemoveGuidanceOrganization = (orgId: string) => {
-    // Call API to remove organization from user preferences
-    // TODO: Implement organization removal from guidance tabs
-    console.log('Remove guidance organization:', orgId);
-  };
+  // Use guidance mutations hook (mutations only, no data)
+  const {
+    addGuidanceOrganization,
+    removeGuidanceOrganization,
+    clearError,
+    guidanceError,
+  } = useGuidanceMutations({
+    planId: parseInt(dmpId),
+    versionedSectionId: Number(versionedSectionId),
+    versionedQuestionId: Number(versionedQuestionId),
+  });
 
   // Get answer data
   const { data: answerData, loading: answerLoading, error: answerError } = useQuery(
@@ -326,7 +327,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       const successMessage = t('messages.success.saved');
       toastState.add(successMessage, { type: 'success', timeout: 3000 });
     }
-
   }
 
   /*Handling Drawer Panels*/
@@ -1523,8 +1523,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
               ownerAffiliationId={question?.ownerAffiliation?.uri}
               guidanceItems={guidanceItems}
               sectionTags={sectionTagsMap}
-              onAddOrganization={handleAddGuidanceOrganization}
-              onRemoveOrganization={handleRemoveGuidanceOrganization}
+              guidanceError={guidanceError}
+              onClearError={clearError}
+              onAddOrganization={addGuidanceOrganization}
+              onRemoveOrganization={removeGuidanceOrganization}
             />
           </div>
         </SidebarPanel>

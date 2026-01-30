@@ -9,9 +9,17 @@ import {
   PlanDocument,
   PublishedQuestionsDocument,
   PublishedSectionDocument,
-  VersionedGuidanceDocument
+  VersionedGuidanceDocument,
+  GuidanceSourcesForPlanDocument
 } from '@/generated/graphql';
 
+// Mocks
+import versionedQuestionMock from '../__mocks__/versionedQuestionMock';
+import versionedSectionMock from '../__mocks__/versionedSectionMock';
+import planMock from '../__mocks__/planMock';
+import meMock from '../__mocks__/meMock';
+import guidanceSourcesForPlanMock from '../__mocks__/guidanceSourcesForPlanMock';
+import versionedGuidanceMock from '../__mocks__/versionedGuidanceMock';
 import PlanOverviewSectionPage from "../page";
 
 expect.extend(toHaveNoViolations);
@@ -56,208 +64,6 @@ const mockParams = {
   sid: '456',
 };
 
-const versionedQuestionsMock = [
-  {
-    id: 1,
-    questionText: 'What types of data will be produced during your project?',
-    displayOrder: 1,
-    guidanceText: 'Guidance for question 1',
-    requirementText: 'Requirement for question 1',
-    sampleText: 'Sample for question 1',
-    versionedSectionId: 456,
-    versionedTemplateId: 789,
-    hasAnswer: false,
-  },
-  {
-    id: 2,
-    questionText: 'What type of metadata will be collected?',
-    displayOrder: 2,
-    guidanceText: 'Guidance for question 2',
-    requirementText: 'Requirement for question 2',
-    sampleText: 'Sample for question 2',
-    versionedSectionId: 456,
-    versionedTemplateId: 789,
-    hasAnswer: true,
-  },
-  {
-    id: 3,
-    questionText: 'Will all data be converted to open source formats?',
-    displayOrder: 3,
-    guidanceText: 'Guidance for question 3',
-    requirementText: 'Requirement for question 3',
-    sampleText: 'Sample for question 3',
-    versionedSectionId: 456,
-    versionedTemplateId: 789,
-    hasAnswer: false,
-  },
-];
-
-const versionedSectionMock = {
-  id: 456,
-  name: 'Data and Metadata Formats',
-  introduction: 'Introduction text for the section',
-  requirements: 'Requirements text for the section',
-  guidance: 'Guidance text for the section',
-  displayOrder: 1,
-  bestPractice: 'Best practice text',
-  tags: {
-    id: 1,
-    description: 'one',
-    name: 'one',
-    slug: 'one'
-  },
-  versionedQuestions: {
-    errors: {
-      general: null,
-      versionedTemplateId: null,
-      versionedSectionId: null,
-      questionText: null,
-      displayOrder: null
-    },
-    displayOrder: 1,
-    guidanceText: 'Guidance',
-    id: 1,
-    questionText: 'This is the question',
-    versionedSectionId: 456,
-    versionedTemplateId: 789
-  },
-  errors: {
-    general: null,
-    name: null,
-    displayOrder: null
-  },
-  versionedTemplate: {
-    id: 789,
-    bestPractice: false,
-    languageId: 'en-US',
-    name: "My template",
-    visibility: "PUBLIC"
-  }
-};
-
-const planMock = {
-  id: 456,
-  title: "Text Project",
-  versionedTemplate: {
-    template: {
-      id: 789,
-      name: 'Test Template',
-    },
-    name: 'Test Template',
-    owner: {
-      uri: 'https://example.com/owner',
-      displayName: 'Test Owner',
-    },
-    version: 1,
-    created: '2024-01-01',
-  },
-  fundings: {
-    id: 1,
-    projectFunding: {
-      affiliation: {
-        displayName: 'National Science Foundation (nsf.gov)'
-      }
-    }
-  },
-  visibility: 'PUBLIC',
-  status: 'ACTIVE',
-  project: {
-    fundings: [
-      {
-        affiliation: {
-          displayName: 'National Science Foundation',
-          name: "NSF"
-        },
-        funderOpportunityNumber: '123'
-      }
-    ],
-    title: 'Test Project',
-    collaborators: {
-      accessLevel: 'OWN',
-      user: {
-        id: 1
-      },
-    }
-  },
-  members: [],
-  versionedSections: [
-    {
-      versionedSectionId: 456,
-      title: 'Data and Metadata Formats',
-      totalQuestions: 3,
-      answeredQuestions: 2,
-      displayOrder: 1,
-      tags: [
-        { id: 1, name: 'Data description', slug: 'data-description', description: 'Data description tag' },
-        { id: 2, name: 'Data organization & documentation', slug: 'data-organization-documentation', description: 'Data organization & documentation tag' }
-      ]
-    },
-  ],
-  created: '2024-01-01',
-  createdById: 1,
-  modified: '2024-01-01',
-  dmpId: 'doi-456',
-  registered: true,
-  feedback: {
-    id: 789,
-    completed: null
-  },
-  progress: {
-    answeredQuestions: 0,
-    percentComplete: 0,
-    totalQuestions: 16
-  }
-};
-
-const meMock = {
-  __typename: "User",
-  id: 1,
-  givenName: "Super",
-  surName: "Admin",
-  languageId: "en-US",
-  role: "SUPERADMIN",
-  emails: [
-    {
-      __typename: "UserEmail",
-      id: 1,
-      email: "super@example.com",
-      isPrimary: true,
-      isConfirmed: true
-    }
-  ],
-  errors: {
-    __typename: "UserErrors",
-    general: null,
-    email: null,
-    password: null,
-    role: null
-  },
-  affiliation: {
-    __typename: "Affiliation",
-    id: 1,
-    name: "California Digital Library",
-    searchName: "California Digital Library | cdlib.org | CDL ",
-    uri: "https://ror.org/03yrm5c26",
-    acronyms: [
-      "CDL"
-    ]
-  }
-};
-
-const versionedGuidanceMock = [
-  {
-    tagId: 1,
-    id: 1192,
-    guidanceText: '<p>This is guidance for data description</p>',
-  },
-  {
-    tagId: 2,
-    id: 1193,
-    guidanceText: '<p>This is guidance for data organization</p>',
-  },
-];
-
-
 const mocks = [
   // Successful questions query
   {
@@ -267,7 +73,7 @@ const mocks = [
     },
     result: {
       data: {
-        publishedQuestions: versionedQuestionsMock,
+        publishedQuestions: versionedQuestionMock,
       },
     },
   },
@@ -331,6 +137,20 @@ const mocks = [
     result: {
       data: {
         versionedGuidance: versionedGuidanceMock,
+      },
+    },
+  },
+  {
+    request: {
+      query: GuidanceSourcesForPlanDocument,
+      variables: {
+        planId: 456,
+        versionedSectionId: 456,
+      },
+    },
+    result: {
+      data: {
+        guidanceSourcesForPlan: guidanceSourcesForPlanMock,
       },
     },
   },
@@ -404,6 +224,20 @@ const errorMocks = [
     result: {
       data: {
         versionedGuidance: versionedGuidanceMock,
+      },
+    },
+  },
+  {
+    request: {
+      query: GuidanceSourcesForPlanDocument,
+      variables: {
+        planId: 456,
+        versionedSectionId: 456,
+      },
+    },
+    result: {
+      data: {
+        guidanceSourcesForPlan: guidanceSourcesForPlanMock,
       },
     },
   },
@@ -481,6 +315,20 @@ const emptyQuestionsMocks = [
     result: {
       data: {
         versionedGuidance: versionedGuidanceMock,
+      },
+    },
+  },
+  {
+    request: {
+      query: GuidanceSourcesForPlanDocument,
+      variables: {
+        planId: 456,
+        versionedSectionId: 456,
+      },
+    },
+    result: {
+      data: {
+        guidanceSourcesForPlan: guidanceSourcesForPlanMock,
       },
     },
   },
@@ -640,79 +488,20 @@ describe('PlanOverviewSectionPage', () => {
   });
 
   it('should handle missing section data gracefully', async () => {
-    const missingSectionMocks = [
-      {
-        request: {
-          query: PublishedQuestionsDocument,
-          variables: { planId: 456, versionedSectionId: 456 },
-        },
-        result: {
-          data: {
-            publishedQuestions: versionedQuestionsMock,
-          },
-        },
-      },
-      {
-        request: {
-          query: PublishedSectionDocument,
-          variables: { versionedSectionId: 456 },
-        },
-        result: {
-          data: {
-            publishedSection: null,
-          },
-        },
-      },
-      {
-        request: {
-          query: PlanDocument,
-          variables: { planId: 456 },
-        },
-        result: {
-          data: {
-            plan: planMock,
-          },
-        },
-      },
-      {
-        request: {
-          query: MeDocument,
-        },
-        result: {
-          data: {
-            me: meMock,
-          },
-        },
-      },
-      {
-        request: {
-          query: VersionedGuidanceDocument,
-          variables: {
-            affiliationId: 'https://ror.org/03yrm5c26',
-            tagIds: [1, 2],
-          },
-        },
-        result: {
-          data: {
-            versionedGuidance: versionedGuidanceMock,
-          },
-        },
-      },
-      {
-        request: {
-          query: VersionedGuidanceDocument,
-          variables: {
-            affiliationId: 'https://ror.org/03yrm5c26',
-            tagIds: [],
-          },
-        },
-        result: {
-          data: {
-            versionedGuidance: versionedGuidanceMock,
-          },
-        },
-      },
-    ];
+    // Clone the base mocks and override the PublishedSectionDocument result
+    const missingSectionMocks = mocks.map(mock => {
+      if (
+        mock.request.query === PublishedSectionDocument &&
+        mock.request.variables?.versionedSectionId === 456
+      ) {
+        return {
+          ...mock,
+          result: { data: { publishedSection: null } },
+        };
+      }
+      return mock;
+    });
+
 
     render(
       <MockedProvider mocks={missingSectionMocks}>
@@ -730,79 +519,23 @@ describe('PlanOverviewSectionPage', () => {
   });
 
   it('should handle null questions gracefully', async () => {
-    const nullQuestionsMocks = [
-      {
-        request: {
-          query: PublishedQuestionsDocument,
-          variables: { planId: 456, versionedSectionId: 456 },
-        },
-        result: {
-          data: {
-            publishedQuestions: [null, ...versionedQuestionsMock, null],
+    const nullQuestionsMocks = mocks.map(mock => {
+      if (
+        mock.request.query === PublishedQuestionsDocument &&
+        mock.request.variables?.planId === 456 &&
+        mock.request.variables?.versionedSectionId === 456
+      ) {
+        return {
+          ...mock,
+          result: {
+            data: {
+              publishedQuestions: [null, ...versionedQuestionMock, null],
+            },
           },
-        },
-      },
-      {
-        request: {
-          query: PublishedSectionDocument,
-          variables: { versionedSectionId: 456 },
-        },
-        result: {
-          data: {
-            publishedSection: versionedSectionMock,
-          },
-        },
-      },
-      {
-        request: {
-          query: PlanDocument,
-          variables: { planId: 456 },
-        },
-        result: {
-          data: {
-            plan: planMock,
-          },
-        },
-      },
-      {
-        request: {
-          query: MeDocument,
-        },
-        result: {
-          data: {
-            me: meMock,
-          },
-        },
-      },
-      {
-        request: {
-          query: VersionedGuidanceDocument,
-          variables: {
-            affiliationId: 'https://ror.org/03yrm5c26',
-            tagIds: [1, 2],
-          },
-        },
-        result: {
-          data: {
-            versionedGuidance: versionedGuidanceMock,
-          },
-        },
-      },
-      {
-        request: {
-          query: VersionedGuidanceDocument,
-          variables: {
-            affiliationId: 'https://ror.org/03yrm5c26',
-            tagIds: [],
-          },
-        },
-        result: {
-          data: {
-            versionedGuidance: versionedGuidanceMock,
-          },
-        },
-      },
-    ];
+        };
+      }
+      return mock;
+    });
 
     render(
       <MockedProvider mocks={nullQuestionsMocks}>
@@ -844,91 +577,35 @@ describe('PlanOverviewSectionPage', () => {
   });
 
   it('should handle missing question text gracefully', async () => {
-    const incompleteMocks = [
-      {
-        request: {
-          query: PublishedQuestionsDocument,
-          variables: { planId: 456, versionedSectionId: 456 },
-        },
-        result: {
-          data: {
-            publishedQuestions: [
-              {
-                id: 1,
-                questionText: null,
-                displayOrder: 1,
-                guidanceText: 'Guidance for question 1',
-                requirementText: 'Requirement for question 1',
-                sampleText: 'Sample for question 1',
-                versionedSectionId: 456,
-                versionedTemplateId: 789,
-                hasAnswer: false,
-              },
-            ],
+    const incompleteMocks = mocks.map(mock => {
+      if (
+        mock.request.query === PublishedQuestionsDocument &&
+        mock.request.variables?.planId === 456 &&
+        mock.request.variables?.versionedSectionId === 456
+      ) {
+        return {
+          ...mock,
+          result: {
+            data: {
+              publishedQuestions: [
+                {
+                  id: 1,
+                  questionText: null,
+                  displayOrder: 1,
+                  guidanceText: 'Guidance for question 1',
+                  requirementText: 'Requirement for question 1',
+                  sampleText: 'Sample for question 1',
+                  versionedSectionId: 456,
+                  versionedTemplateId: 789,
+                  hasAnswer: false,
+                },
+              ],
+            },
           },
-        },
-      },
-      {
-        request: {
-          query: PublishedSectionDocument,
-          variables: { versionedSectionId: 456 },
-        },
-        result: {
-          data: {
-            publishedSection: versionedSectionMock,
-          },
-        },
-      },
-      {
-        request: {
-          query: PlanDocument,
-          variables: { planId: 456 },
-        },
-        result: {
-          data: {
-            plan: planMock,
-          },
-        },
-      },
-      {
-        request: {
-          query: MeDocument,
-        },
-        result: {
-          data: {
-            me: meMock,
-          },
-        },
-      },
-      {
-        request: {
-          query: VersionedGuidanceDocument,
-          variables: {
-            affiliationId: 'https://ror.org/03yrm5c26',
-            tagIds: [1, 2],
-          },
-        },
-        result: {
-          data: {
-            versionedGuidance: versionedGuidanceMock,
-          },
-        },
-      },
-      {
-        request: {
-          query: VersionedGuidanceDocument,
-          variables: {
-            affiliationId: 'https://ror.org/03yrm5c26',
-            tagIds: [],
-          },
-        },
-        result: {
-          data: {
-            versionedGuidance: versionedGuidanceMock,
-          },
-        },
-      },
-    ];
+        };
+      }
+      return mock;
+    });
 
     render(
       <MockedProvider mocks={incompleteMocks}>

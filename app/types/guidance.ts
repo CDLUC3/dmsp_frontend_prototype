@@ -101,7 +101,10 @@ export interface GuidancePanelProps {
   guidanceItems: GuidanceItemInterface[];
   // Tags assigned to the current section
   sectionTags: Record<number, string>;
+  // Guidance errors
+  guidanceError?: string | null;
   // Callbacks
+  onClearError?: () => void;
   onAddOrganization?: (funder: AffiliationSearch) => void;
   onRemoveOrganization?: (orgId: string) => void;
 }

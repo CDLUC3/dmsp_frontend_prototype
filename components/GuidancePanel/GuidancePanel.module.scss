@@ -34,6 +34,11 @@
   flex-wrap: wrap;
 }
 
+.modalTabsRow {
+  flex-direction: column;
+  align-items: start;
+}
+
 .pillsContainer {
   display: flex;
   gap: 8px;
@@ -70,6 +75,14 @@
   // Smooth transition when toggling visibility
   &.transitioning {
     transition: opacity 0.15s ease-out;
+  }
+
+  // When measuring, always show and position normally for accurate width
+  &.measuring {
+    visibility: visible !important;
+    position: relative !important;
+    left: auto !important;
+    pointer-events: auto !important;
   }
 }
 

@@ -6,16 +6,12 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from "next-intl";
 
 // GraphQL
-import { useQuery, useMutation } from '@apollo/client/react';
+import { useQuery } from '@apollo/client/react';
 import {
-  AffiliationSearch,
   PublishedQuestionsDocument,
   PublishedSectionDocument,
   PlanDocument,
   MeDocument,
-  AddPlanGuidanceDocument,
-  RemovePlanGuidanceDocument,
-  GuidanceSourcesForPlanDocument
 } from '@/generated/graphql';
 
 // Components
@@ -34,9 +30,9 @@ import Loading from '@/components/Loading';
 // Utils and other
 import { stripHtml } from '@/utils/general';
 import { routePath } from '@/utils/routes';
-
 import styles from './PlanOverviewSectionPage.module.scss';
 import { useGuidanceData } from '@/app/hooks/useGuidanceData';
+import { useGuidanceMutations } from "@/app/hooks/useGuidanceMutations";
 
 interface VersionedQuestion {
   id: string;
@@ -81,73 +77,26 @@ const PlanOverviewSectionPage: React.FC = () => {
     skip: !versionedSectionId
   });
 
-  // Mutations for adding/removing guidance
-  const [addPlanGuidance] = useMutation(AddPlanGuidanceDocument, {
-    refetchQueries: [
-      {
-        query: GuidanceSourcesForPlanDocument,
-        variables: {
-          planId: parseInt(dmpId),
-          versionedSectionId: versionedSectionId
-        }
-      }
-    ]
-  });
-
-  const [removePlanGuidance] = useMutation(RemovePlanGuidanceDocument, {
-    refetchQueries: [
-      {
-        query: GuidanceSourcesForPlanDocument,
-        variables: {
-          planId: parseInt(dmpId),
-          versionedSectionId: versionedSectionId
-        }
-      }
-    ]
-  });
-
   // Use the guidance data hook to get section tags and matched guidance
-  const { sectionTagsMap, guidanceItems } = useGuidanceData({
+  // as well as handlers for adding/removing guidance organizations
+  const {
+    sectionTagsMap,
+    guidanceItems,
+  } = useGuidanceData({
     planId: parseInt(dmpId),
-    versionedSectionId: versionedSectionId
+    versionedSectionId
   });
 
-  // Handler to add guidance organization
-  const handleAddGuidanceOrganization = async (affiliation: AffiliationSearch) => {
-    if (!affiliation.uri) {
-      console.error('No URI for affiliation');
-      return;
-    }
-
-    try {
-      await addPlanGuidance({
-        variables: {
-          planId: parseInt(dmpId),
-          affiliationId: affiliation.uri
-        }
-      });
-
-      console.log('Successfully added guidance organization:', affiliation.displayName);
-    } catch (error) {
-      console.error('Error adding guidance organization:', error);
-    }
-  };
-
-  // Handler to remove guidance organization
-  const handleRemoveGuidanceOrganization = async (affiliationUri: string) => {
-    try {
-      await removePlanGuidance({
-        variables: {
-          planId: parseInt(dmpId),
-          affiliationId: affiliationUri
-        }
-      });
-
-      console.log('Successfully removed guidance organization');
-    } catch (error) {
-      console.error('Error removing guidance organization:', error);
-    }
-  };
+  // Use guidance mutations hook (mutations only, no data)
+  const {
+    addGuidanceOrganization,
+    removeGuidanceOrganization,
+    clearError,
+    guidanceError,
+  } = useGuidanceMutations({
+    planId: parseInt(dmpId),
+    versionedSectionId
+  });
 
   // Hide navigation when close to footer
   useEffect(() => {
@@ -365,8 +314,10 @@ const PlanOverviewSectionPage: React.FC = () => {
               ownerAffiliationId={planData?.plan?.versionedTemplate?.owner?.uri}
               guidanceItems={guidanceItems}
               sectionTags={sectionTagsMap}
-              onAddOrganization={handleAddGuidanceOrganization}
-              onRemoveOrganization={handleRemoveGuidanceOrganization}
+              guidanceError={guidanceError}
+              onAddOrganization={addGuidanceOrganization}
+              onRemoveOrganization={removeGuidanceOrganization}
+              onClearError={clearError}
             />
           </div>
         </SidebarPanel>

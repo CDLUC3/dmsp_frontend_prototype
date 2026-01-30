@@ -325,6 +325,11 @@
     "ariaLabels": {
       "showMoreGuidance": "Show more guidance sources",
       "showLessGuidance": "Show less guidance sources"
+    },
+    "headings": {
+      "addMore": "Add more",
+      "customizeBestPractice": "Customize Best Practice",
+      "currentlyDisplaying": "Currently displaying"
     }
   },
   "SectionPage": {

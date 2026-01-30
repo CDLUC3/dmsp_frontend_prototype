@@ -27,12 +27,16 @@ interface AffiliationSearchForGuidanceProps extends React.HTMLAttributes<HTMLDiv
 
   // Specifies result limit to paginate by
   limit?: number,
+
+  // Callback when search term changes
+  onSearchChange?(value: string): void;
 }
 
 const AffiliationSearchForGuidance = ({
   limit = 5,
   onResults,
   moreTrigger,
+  onSearchChange,
 }: AffiliationSearchForGuidanceProps) => {
 
   const trans = useTranslations('Global');
@@ -41,6 +45,13 @@ const AffiliationSearchForGuidance = ({
   const [fetchManagedAffiliations, { data }] = useLazyQuery(ManagedAffiliationsWithGuidanceDocument, {});
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [newSearch, setNewSearch] = useState<boolean>(true);
+
+  const handleInputChange = (value: string) => {
+    setSearchTerm(value);
+    if (onSearchChange) {
+      onSearchChange(value);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,7 +108,7 @@ const AffiliationSearchForGuidance = ({
             <Input
               aria-describedby="search-help"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => handleInputChange(e.target.value)}
               placeholder={trans('placeholders.nameSearch')}
             />
             <Button data-testid="search-btn" type={"submit"}>
