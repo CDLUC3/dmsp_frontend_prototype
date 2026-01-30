@@ -13,13 +13,12 @@ import { routePath } from "@/utils/index";
 import { useParams } from "next/navigation";
 import RelatedWorksAdd from "@/components/RelatedWorksAdd";
 
-const AddRelatedWorkPlanPage = () => {
+const AddRelatedWorkProjectPage = () => {
   const params = useParams();
   const projectId = parseInt(String(params.projectId));
-  const planId = parseInt(String(params.dmpid));
 
   const Global = useTranslations("Global");
-  const t = useTranslations("AddRelatedWorkPlanPage");
+  const t = useTranslations("AddRelatedWorkProjectPage");
 
   return (
     <>
@@ -39,12 +38,7 @@ const AddRelatedWorkPlanPage = () => {
               <Link href={routePath("projects.show", { projectId })}>{Global("breadcrumbs.projectOverview")}</Link>
             </Breadcrumb>
             <Breadcrumb>
-              <Link href={routePath("projects.dmp.show", { projectId, dmpId: planId })}>
-                {Global("breadcrumbs.planOverview")}
-              </Link>
-            </Breadcrumb>
-            <Breadcrumb>
-              <Link href={routePath("projects.dmp.related-works", { projectId, dmpId: planId })}>
+              <Link href={routePath("projects.related-works.index", { projectId })}>
                 {Global("breadcrumbs.relatedWorks")}
               </Link>
             </Breadcrumb>
@@ -56,8 +50,8 @@ const AddRelatedWorkPlanPage = () => {
       <LayoutContainer>
         <ContentContainer>
           <RelatedWorksAdd
-            identifier={planId}
-            identifierType={RelatedWorksIdentifierType.PlanId}
+            identifier={projectId}
+            identifierType={RelatedWorksIdentifierType.ProjectId}
           />
         </ContentContainer>
       </LayoutContainer>
@@ -65,4 +59,4 @@ const AddRelatedWorkPlanPage = () => {
   );
 };
 
-export default AddRelatedWorkPlanPage;
+export default AddRelatedWorkProjectPage;

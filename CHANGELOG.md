@@ -1,4 +1,5 @@
 ## Added
+- Added related works project overview page [#700]
 - Added new `GuidancePanel` component for the tabbed guidance in the right sidebar [#12]
 - Added `BestPracticeGuidance` query [#12]
 - Added ability to show if there are pending related works and the number of accepted works [#981]

@@ -3,13 +3,9 @@ import { useRouter } from "next/navigation";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { axe, toHaveNoViolations } from "jest-axe";
-import AddRelatedWorkPlanPage from "../page";
-import {
-  FindWorkByIdentifierDocument,
-  ProjectDocument,
-  RelatedWorkSearchResult
-} from "@/generated/graphql";
-import {useLazyQuery, useQuery} from "@apollo/client/react";
+import AddRelatedWorkProjectPage from "../page";
+import { FindWorkByIdentifierDocument, ProjectDocument, RelatedWorkSearchResult } from "@/generated/graphql";
+import { useLazyQuery, useQuery } from "@apollo/client/react";
 
 expect.extend(toHaveNoViolations);
 
@@ -31,7 +27,6 @@ jest.mock("@/app/actions/upsertRelatedWorkAction", () => ({
 }));
 
 const mockUseRouter = useRouter as jest.Mock;
-
 
 const mockUseLazyQuery = jest.mocked(useLazyQuery);
 const mockUseQuery = jest.mocked(useQuery);
@@ -111,24 +106,23 @@ describe("AddRelatedWorkPage", () => {
 
   it("should render the page header with title and description", () => {
     setupMocks([], null);
-    render(<AddRelatedWorkPlanPage />);
+    render(<AddRelatedWorkProjectPage />);
     expect(screen.getByRole("heading", { name: /title/i })).toBeInTheDocument();
     expect(screen.getByText("description")).toBeInTheDocument();
   });
 
   it("should render the breadcrumb links", () => {
     setupMocks([], null);
-    render(<AddRelatedWorkPlanPage />);
+    render(<AddRelatedWorkProjectPage />);
     expect(screen.getByText("breadcrumbs.home")).toBeInTheDocument();
     expect(screen.getByText("breadcrumbs.projects")).toBeInTheDocument();
     expect(screen.getByText("breadcrumbs.projectOverview")).toBeInTheDocument();
-    expect(screen.getByText("breadcrumbs.planOverview")).toBeInTheDocument();
     expect(screen.getByText("breadcrumbs.relatedWorks")).toBeInTheDocument();
   });
 
   it("should pass accessibility tests", async () => {
-    setupMocks([], null);
-    const { container } = render(<AddRelatedWorkPlanPage />);
+    setupMocks([], { plans: [{ id: 1, title: "Plan 1", registered: 1234 }] });
+    const { container } = render(<AddRelatedWorkProjectPage />);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

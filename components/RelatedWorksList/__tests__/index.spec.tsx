@@ -1,14 +1,15 @@
 import React from "react";
-import { act, render, screen, within } from "@testing-library/react";
+import {act, render, screen, within} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { RelatedWorksList, RelatedWorksSortBy } from "../index";
+import {RelatedWorksList, RelatedWorksSortBy} from "../index";
 import "@testing-library/jest-dom";
-import { axe, toHaveNoViolations } from "jest-axe";
-import { NextIntlClientProvider } from "next-intl";
-import { useQuery } from '@apollo/client/react';
+import {axe, toHaveNoViolations} from "jest-axe";
+import {NextIntlClientProvider} from "next-intl";
+import {useQuery} from '@apollo/client/react';
 import {
+  RelatedWorksDocument,
+  RelatedWorksIdentifierType,
   RelatedWorkStatus,
-  RelatedWorksByPlanDocument,
 } from "@/generated/graphql";
 import {
   MOCK_ACCEPTED_WORKS,
@@ -29,10 +30,10 @@ const mockUseQuery = jest.mocked(useQuery);
 
 const setupMocks = () => {
   mockUseQuery.mockImplementation((document) => {
-    if (document === RelatedWorksByPlanDocument) {
+    if (document === RelatedWorksDocument) {
       return {
         data: {
-          relatedWorksByPlan: {
+          relatedWorks: {
             items: MOCK_PENDING_WORKS,
           },
         },
@@ -78,10 +79,10 @@ describe("RelatedWorksList", () => {
 
   it("should render two pending items", () => {
     mockUseQuery.mockImplementation((document) => {
-      if (document === RelatedWorksByPlanDocument) {
+      if (document === RelatedWorksDocument) {
         return {
           data: {
-            relatedWorksByPlan: {
+            relatedWorks: {
               items: MOCK_PENDING_WORKS,
               totalCount: 2,
               limit: 2,
@@ -107,7 +108,8 @@ describe("RelatedWorksList", () => {
     render(
       <TestProviders>
         <RelatedWorksList
-          planId={1}
+          identifierType={RelatedWorksIdentifierType.PlanId}
+          identifier={1}
           status={RelatedWorkStatus.Pending}
         />
       </TestProviders>,
@@ -119,10 +121,10 @@ describe("RelatedWorksList", () => {
 
   it("should render two related items", async () => {
     mockUseQuery.mockImplementation((document) => {
-      if (document === RelatedWorksByPlanDocument) {
+      if (document === RelatedWorksDocument) {
         return {
           data: {
-            relatedWorksByPlan: {
+            relatedWorks: {
               items: MOCK_ACCEPTED_WORKS,
               totalCount: 2,
               limit: 2,
@@ -148,7 +150,8 @@ describe("RelatedWorksList", () => {
     render(
       <TestProviders>
         <RelatedWorksList
-          planId={1}
+          identifierType={RelatedWorksIdentifierType.PlanId}
+          identifier={1}
           status={RelatedWorkStatus.Accepted}
         />
       </TestProviders>,
@@ -159,10 +162,10 @@ describe("RelatedWorksList", () => {
 
   it("should render one discarded item", async () => {
     mockUseQuery.mockImplementation((document) => {
-      if (document === RelatedWorksByPlanDocument) {
+      if (document === RelatedWorksDocument) {
         return {
           data: {
-            relatedWorksByPlan: {
+            relatedWorks: {
               items: MOCK_REJECTED_WORKS,
               totalCount: 1,
               limit: 1,
@@ -188,7 +191,8 @@ describe("RelatedWorksList", () => {
     render(
       <TestProviders>
         <RelatedWorksList
-          planId={1}
+          identifierType={RelatedWorksIdentifierType.PlanId}
+          identifier={1}
           status={RelatedWorkStatus.Rejected}
         />
       </TestProviders>,
@@ -199,10 +203,10 @@ describe("RelatedWorksList", () => {
 
   it("should display confidence filter", async () => {
     mockUseQuery.mockImplementation((document) => {
-      if (document === RelatedWorksByPlanDocument) {
+      if (document === RelatedWorksDocument) {
         return {
           data: {
-            relatedWorksByPlan: {
+            relatedWorks: {
               items: [],
               confidenceCounts: [
                 { typeId: "HIGH", count: 3 },
@@ -228,7 +232,8 @@ describe("RelatedWorksList", () => {
     render(
       <TestProviders>
         <RelatedWorksList
-          planId={1}
+          identifierType={RelatedWorksIdentifierType.PlanId}
+          identifier={1}
           status={RelatedWorkStatus.Pending}
         />
       </TestProviders>,
@@ -253,10 +258,10 @@ describe("RelatedWorksList", () => {
 
   it("should display work type filter", async () => {
     mockUseQuery.mockImplementation((document) => {
-      if (document === RelatedWorksByPlanDocument) {
+      if (document === RelatedWorksDocument) {
         return {
           data: {
-            relatedWorksByPlan: {
+            relatedWorks: {
               items: [],
               workTypeCounts: [
                 { typeId: "DATASET", count: 5 },
@@ -282,14 +287,15 @@ describe("RelatedWorksList", () => {
     render(
       <TestProviders>
         <RelatedWorksList
-          planId={1}
+          identifierType={RelatedWorksIdentifierType.PlanId}
+          identifier={1}
           status={RelatedWorkStatus.Pending}
         />
       </TestProviders>,
     );
 
     // Get filter by type and click it to open it
-    const button = screen.getByRole("button", { name: "filters.filterByType filters.filterByType" });
+    const button = screen.getByRole("button", { name: "filters.filterByTypePlaceholder filters.filterByTypePlaceholder" });
     await userEvent.click(button);
 
     // Get option text
@@ -300,7 +306,7 @@ describe("RelatedWorksList", () => {
     // Check values
     expect(optionTexts).toHaveLength(4);
     expect(optionTexts).toEqual([
-      "filters.filterByType",
+      "filters.filterByTypePlaceholder",
       "workType.ARTICLE (20)",
       "workType.DATASET (5)",
       "workType.DISSERTATION (3)",
@@ -309,10 +315,10 @@ describe("RelatedWorksList", () => {
 
   it("should display sort by filter: pending", async () => {
     mockUseQuery.mockImplementation((document) => {
-      if (document === RelatedWorksByPlanDocument) {
+      if (document === RelatedWorksDocument) {
         return {
           data: {
-            relatedWorksByPlan: {
+            relatedWorks: {
               items: [],
             },
           },
@@ -334,7 +340,8 @@ describe("RelatedWorksList", () => {
     render(
       <TestProviders>
         <RelatedWorksList
-          planId={1}
+          identifierType={RelatedWorksIdentifierType.PlanId}
+          identifier={1}
           status={RelatedWorkStatus.Pending}
         />
       </TestProviders>,
@@ -363,10 +370,10 @@ describe("RelatedWorksList", () => {
 
   it("should display sort by filter: accepted", async () => {
     mockUseQuery.mockImplementation((document) => {
-      if (document === RelatedWorksByPlanDocument) {
+      if (document === RelatedWorksDocument) {
         return {
           data: {
-            relatedWorksByPlan: {
+            relatedWorks: {
               items: [],
             },
           },
@@ -387,7 +394,8 @@ describe("RelatedWorksList", () => {
     render(
       <TestProviders>
         <RelatedWorksList
-          planId={1}
+          identifierType={RelatedWorksIdentifierType.PlanId}
+          identifier={1}
           status={RelatedWorkStatus.Accepted}
         />
       </TestProviders>,
@@ -416,10 +424,10 @@ describe("RelatedWorksList", () => {
 
   it("should display sort by filter: rejected", async () => {
     mockUseQuery.mockImplementation((document) => {
-      if (document === RelatedWorksByPlanDocument) {
+      if (document === RelatedWorksDocument) {
         return {
           data: {
-            relatedWorksByPlan: {
+            relatedWorks: {
               items: [],
             },
           },
@@ -440,7 +448,8 @@ describe("RelatedWorksList", () => {
     render(
       <TestProviders>
         <RelatedWorksList
-          planId={1}
+          identifierType={RelatedWorksIdentifierType.PlanId}
+          identifier={1}
           status={RelatedWorkStatus.Rejected}
         />
       </TestProviders>,
@@ -469,10 +478,10 @@ describe("RelatedWorksList", () => {
 
   it("should display no results message: no works", async () => {
     mockUseQuery.mockImplementation((document) => {
-      if (document === RelatedWorksByPlanDocument) {
+      if (document === RelatedWorksDocument) {
         return {
           data: {
-            relatedWorksByPlan: {
+            relatedWorks: {
               items: [],
               totalCount: 0,
               statusOnlyCount: 0,
@@ -495,7 +504,8 @@ describe("RelatedWorksList", () => {
     const { container } = render(
       <TestProviders>
         <RelatedWorksList
-          planId={1}
+          identifierType={RelatedWorksIdentifierType.PlanId}
+          identifier={1}
           status={RelatedWorkStatus.Pending}
         />
       </TestProviders>,
@@ -511,10 +521,10 @@ describe("RelatedWorksList", () => {
 
   it("should display no results message: no filtered works", async () => {
     mockUseQuery.mockImplementation((document) => {
-      if (document === RelatedWorksByPlanDocument) {
+      if (document === RelatedWorksDocument) {
         return {
           data: {
-            relatedWorksByPlan: {
+            relatedWorks: {
               items: [],
               totalCount: 0,
               statusOnlyCount: 10,
@@ -537,7 +547,8 @@ describe("RelatedWorksList", () => {
     const { container } = render(
       <TestProviders>
         <RelatedWorksList
-          planId={1}
+          identifierType={RelatedWorksIdentifierType.PlanId}
+          identifier={1}
           status={RelatedWorkStatus.Pending}
         />
       </TestProviders>,
@@ -553,10 +564,10 @@ describe("RelatedWorksList", () => {
 
   it("should highlight matches", async () => {
     mockUseQuery.mockImplementation((document) => {
-      if (document === RelatedWorksByPlanDocument) {
+      if (document === RelatedWorksDocument) {
         return {
           data: {
-            relatedWorksByPlan: {
+            relatedWorks: {
               items: MOCK_PENDING_WORKS,
               totalCount: 2,
               limit: 2,
@@ -582,7 +593,8 @@ describe("RelatedWorksList", () => {
     render(
       <TestProviders>
         <RelatedWorksList
-          planId={1}
+          identifierType={RelatedWorksIdentifierType.PlanId}
+          identifier={1}
           status={RelatedWorkStatus.Pending}
         />
       </TestProviders>,
@@ -615,10 +627,10 @@ describe("RelatedWorksList", () => {
 
   it("should pass axe accessibility test", async () => {
     mockUseQuery.mockImplementation((document) => {
-      if (document === RelatedWorksByPlanDocument) {
+      if (document === RelatedWorksDocument) {
         return {
           data: {
-            relatedWorksByPlan: {
+            relatedWorks: {
               items: MOCK_PENDING_WORKS,
               totalCount: 2,
               limit: 2,
@@ -645,7 +657,8 @@ describe("RelatedWorksList", () => {
     const { container } = render(
       <TestProviders>
         <RelatedWorksList
-          planId={1}
+          identifierType={RelatedWorksIdentifierType.PlanId}
+          identifier={1}
           status={RelatedWorkStatus.Pending}
         />
       </TestProviders>,

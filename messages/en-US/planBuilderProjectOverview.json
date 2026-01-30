@@ -62,6 +62,13 @@
         "description": "",
         "link_text": "Request"
       }
+    },
+    "relatedWorks": {
+      "title": "Published research outputs for this project",
+      "pendingCount": "{count} pending outputs",
+      "acceptedCount": "{count} accepted outputs",
+      "edit": "Adjust for this project",
+      "publish": "Publish a plan to start adding published outputs to your project"
     }
   },
   "ProjectsListPage": {
