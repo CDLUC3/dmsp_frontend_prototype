@@ -917,7 +917,7 @@ describe("GuidanceGroupIndexPage", () => {
     );
 
     // Wait for loading to be gone (tagsLoading and guidanceLoading both false)
-    await waitForElementToBeRemoved(() => screen.getByText("Global.messaging.loading"), { timeout: 5000 });
+    await waitForElementToBeRemoved(() => screen.getByText("Global.messaging.loading"));
 
     const sidebar = screen.getByTestId("sidebar-panel");
     const inSidebar = within(sidebar);

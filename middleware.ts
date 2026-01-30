@@ -117,38 +117,44 @@ export async function middleware(request: NextRequest) {
     if (!accessToken && !refreshToken) {
       return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
     }
-  }
 
-  //Refresh tokens if necessary
-  if (!accessToken && refreshToken) {
-    try {
-      const refreshResult = await refreshAuthTokens(cookieHeader);
+    //Refresh tokens if necessary
+    if (!accessToken && refreshToken) {
+      try {
+        const refreshResult = await refreshAuthTokens(cookieHeader);
 
-      if (refreshResult?.response) {
-        const backendResponse = refreshResult.response;
-        // We need to redirect to the same URL to ensure cookies are set properly in browser
-        const newResponse = NextResponse.redirect(request.url);
+        if (refreshResult?.response) {
+          const backendResponse = refreshResult.response;
+          // We need to redirect to the same URL to ensure cookies are set properly in browser
+          const newResponse = NextResponse.redirect(request.url);
 
-        // Copy Set-Cookie headers from backend response to NextResponse
-        backendResponse.headers.forEach((value, key) => {
-          if (key.toLowerCase() === 'set-cookie') {
-            newResponse.headers.append('set-cookie', value);
-          }
+          // Copy Set-Cookie headers from backend response to NextResponse
+          backendResponse.headers.forEach((value, key) => {
+            if (key.toLowerCase() === 'set-cookie') {
+              newResponse.headers.append('set-cookie', value);
+            }
+          });
+
+          return newResponse;
+        }
+
+        // If refresh helper tells us to redirect, do it now
+        if (refreshResult?.shouldRedirect) {
+          const redirectResponse = NextResponse.redirect(new URL(`/${locale}/login`, request.url));
+          // Clear the expired refresh token so subsequent requests don't keep trying to refresh
+          redirectResponse.cookies.set('dmspr', '', { maxAge: 0 });
+          return redirectResponse;
+        }
+      } catch (error) {
+        logECS('error', 'refreshing', {
+          error,
+          url: { path: 'middleware' }
         });
-
-        return newResponse;
+        const redirectResponse = NextResponse.redirect(new URL(`/${locale}/login`, request.url));
+        // Clear the expired refresh token so subsequent requests don't keep trying to refresh
+        redirectResponse.cookies.set('dmspr', '', { maxAge: 0 });
+        return redirectResponse;
       }
-
-      // If refresh helper tells us to redirect, do it now
-      if (refreshResult?.shouldRedirect) {
-        return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
-      }
-    } catch (error) {
-      logECS('error', 'refreshing', {
-        error,
-        url: { path: 'middleware' }
-      });
-      return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
     }
   }
 

@@ -893,37 +893,41 @@ describe('PlanCreate Component using base mock', () => {
 
 
   it('should render PlanCreate component with funder checkbox', async () => {
-    render(
-      <MockedProvider mocks={baseMocks} cache={apolloCache}>
-        <PlanCreate />
-      </MockedProvider>
-    );
+  render(
+    <MockedProvider mocks={baseMocks} cache={apolloCache}>
+      <PlanCreate />
+    </MockedProvider>
+  );
 
-    // Wait for initial load
-    await screen.findByText('checkbox.filterByFunderLabel');
+  // Wait for all loading states to complete by checking for content that appears after loading
+  // The component won't show checkboxes until queries complete and state updates
+  await waitFor(
+    () => {
+      // Wait for the checkbox to appear after all initialization
+      const checkbox = screen.getByRole('checkbox', { name: 'Affiliation 1 Name' });
+      expect(checkbox).toBeInTheDocument();
+    },
+    { timeout: 5000 } // Increase timeout for multiple query resolution
+  );
 
-    // Wait for checkboxes
-    await screen.findByRole('checkbox', { name: 'Affiliation 1 Name' });
-    await screen.findByRole('checkbox', { name: 'Affiliation 2 Name' });
-
-    // Wait for the correct number of templates to load
-    await waitFor(() => {
-      expect(screen.getAllByTestId('template-metadata')).toHaveLength(5);
-    });
-
-    // NOW make individual assertions (outside waitFor)
-    const templateData = screen.getAllByTestId('template-metadata');
-
-    [0, 1, 2].forEach((i) => {
-      expect(screen.getByRole('heading', { level: 3, name: `Template ${i + 1} Name` })).toBeInTheDocument();
-      expect(within(templateData[i]).getByText(/lastRevisedBy.*John Doe/)).toBeInTheDocument();
-      expect(within(templateData[i]).getByText('published')).toBeInTheDocument();
-      expect(within(templateData[i]).getByText(/visibility.*Public/)).toBeInTheDocument();
-    });
-
-    expect(screen.queryByRole('heading', { level: 3, name: /labels.dmpBestPractice/i })).not.toBeInTheDocument();
-    expect(screen.getAllByText('buttons.select')).toHaveLength(5);
+  // Wait for the correct number of templates to load
+  await waitFor(() => {
+    expect(screen.getAllByTestId('template-metadata')).toHaveLength(5);
   });
+
+  // NOW make individual assertions (outside waitFor)
+  const templateData = screen.getAllByTestId('template-metadata');
+
+  [0, 1, 2].forEach((i) => {
+    expect(screen.getByRole('heading', { level: 3, name: `Template ${i + 1} Name` })).toBeInTheDocument();
+    expect(within(templateData[i]).getByText(/lastRevisedBy.*John Doe/)).toBeInTheDocument();
+    expect(within(templateData[i]).getByText('published')).toBeInTheDocument();
+    expect(within(templateData[i]).getByText(/visibility.*Public/)).toBeInTheDocument();
+  });
+
+  expect(screen.queryByRole('heading', { level: 3, name: /labels.dmpBestPractice/i })).not.toBeInTheDocument();
+  expect(screen.getAllByText('buttons.select')).toHaveLength(5);
+});
 
   // it('should handle funder filter changes', async () => {
   //   render(

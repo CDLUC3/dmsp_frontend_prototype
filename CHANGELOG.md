@@ -1,4 +1,16 @@
 ## Added
+
+
+## Updated
+
+
+## Chore
+- Updated version of `next` to `v16.1.5` due to vulnerability and `next-intl` to `4.8.0` due to dependency
+- Updated version of `@dmptool/types` to `v3.1.1` because it has a fix for the 'fs' errors
+==========================================================================================
+## All changes above the line happened after the merge to the main branch on Jan 27, 2026
+==========================================================================================
+## Added
 - Added new `GuidancePanel` component for the tabbed guidance in the right sidebar [#12]
 - Added `BestPracticeGuidance` query [#12]
 - Added ability to show if there are pending related works and the number of accepted works [#981]
@@ -55,6 +67,7 @@
 ### Remove
 - Removed `boolean` question type from the Add Question question types list [#990]
 ### Fixed
+- Fixed issue with `/login` page not loading when `dmspr` refresh token expires [#35]
 - Fixed issue on Guidance Group creation, where saving content for one tag, wipes out the entered content (unsaved) for other tags [#6]
 - Fixed related works pagination.
 
