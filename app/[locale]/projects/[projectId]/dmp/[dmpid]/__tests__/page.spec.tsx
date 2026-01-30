@@ -122,6 +122,7 @@ const setupMocks = () => {
     },
     loading: false,
     error: undefined,
+    refetch: jest.fn(),
   };
 
   // Mock useQuery to return different data based on which document is queried

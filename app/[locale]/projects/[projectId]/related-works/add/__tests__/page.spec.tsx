@@ -1,15 +1,11 @@
 import React from "react";
 import { useRouter } from "next/navigation";
-import {render, screen, waitFor, within} from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { axe, toHaveNoViolations } from "jest-axe";
 import AddRelatedWorkProjectPage from "../page";
-import {
-  FindWorkByIdentifierDocument,
-  ProjectDocument,
-  RelatedWorkSearchResult,
-} from "@/generated/graphql";
-import { useQuery } from "@apollo/client/react";
+import { FindWorkByIdentifierDocument, ProjectDocument, RelatedWorkSearchResult } from "@/generated/graphql";
+import { useLazyQuery, useQuery } from "@apollo/client/react";
 
 expect.extend(toHaveNoViolations);
 
@@ -23,6 +19,7 @@ jest.mock("next/navigation", () => ({
 
 jest.mock("@apollo/client/react", () => ({
   useQuery: jest.fn(),
+  useLazyQuery: jest.fn(),
 }));
 
 jest.mock("@/app/actions/upsertRelatedWorkAction", () => ({
@@ -31,10 +28,35 @@ jest.mock("@/app/actions/upsertRelatedWorkAction", () => ({
 
 const mockUseRouter = useRouter as jest.Mock;
 
+const mockUseLazyQuery = jest.mocked(useLazyQuery);
 const mockUseQuery = jest.mocked(useQuery);
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-const setupMocks = (items: RelatedWorkSearchResult[], project: null | any, refetch = jest.fn()) => {
+/*eslint-disable @typescript-eslint/no-explicit-any */
+export const setupMocks = (items: RelatedWorkSearchResult[], project: null | any, refetch = jest.fn()) => {
+  mockUseLazyQuery.mockImplementation((document) => {
+    if (document === FindWorkByIdentifierDocument) {
+      return [
+        jest.fn().mockResolvedValue({
+          data: {
+            findWorkByIdentifier: { items },
+          },
+        }),
+        {
+          data: { findWorkByIdentifier: { items } },
+          loading: false,
+          error: undefined,
+          refetch,
+        },
+      ] as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined,
+    };
+  });
+
   mockUseQuery.mockImplementation((document) => {
     if (document === ProjectDocument) {
       return {
@@ -43,7 +65,7 @@ const setupMocks = (items: RelatedWorkSearchResult[], project: null | any, refet
         },
         loading: false,
         error: undefined,
-        refetch
+        refetch,
         /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     }
@@ -57,7 +79,7 @@ const setupMocks = (items: RelatedWorkSearchResult[], project: null | any, refet
         },
         loading: false,
         error: undefined,
-        refetch
+        refetch,
         /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     }
@@ -99,7 +121,7 @@ describe("AddRelatedWorkPage", () => {
   });
 
   it("should pass accessibility tests", async () => {
-    setupMocks([], { plans: [{id: 1, title: "Plan 1", registered: 1234}]});
+    setupMocks([], { plans: [{ id: 1, title: "Plan 1", registered: 1234 }] });
     const { container } = render(<AddRelatedWorkProjectPage />);
     const results = await axe(container);
     expect(results).toHaveNoViolations();

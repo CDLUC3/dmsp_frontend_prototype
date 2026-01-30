@@ -33,7 +33,7 @@ export const RelatedWorksAdd = ({ identifierType, identifier }: RelatedWorksAddP
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [doi, setDoi] = useState<string | null>(null);
-  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [lookupClicked, setLookupClicked] = useState<boolean>(false);
   const [planId, setPlanId] = useState<number | null>(
     identifierType === RelatedWorksIdentifierType.PlanId ? identifier : null,
   );
@@ -101,15 +101,12 @@ export const RelatedWorksAdd = ({ identifierType, identifier }: RelatedWorksAddP
               aria-label={Global("buttons.lookup")}
               onPress={async () => {
                 const extractedDoi = extractDoi(searchTerm);
+                setDoi(extractedDoi);
+                setLookupClicked(true);
 
                 if(!extractedDoi) {
-                  setDoi(doi);
-                  setIsSearching(false);
                   return;
                 }
-
-                setDoi(extractedDoi);
-                setIsSearching(true);
 
                 const response = await findWorkByIdentifier({
                   variables: { planId, doi: extractedDoi }
@@ -145,7 +142,7 @@ export const RelatedWorksAdd = ({ identifierType, identifier }: RelatedWorksAddP
       </section>
 
       <section>
-        {doi === null && isSearching && (
+        {doi === null && lookupClicked && (
           <div>
             <p>{t("invalidDoi")}</p>
           </div>
@@ -155,7 +152,7 @@ export const RelatedWorksAdd = ({ identifierType, identifier }: RelatedWorksAddP
           searchResults &&
           searchResults.findWorkByIdentifier?.items?.length === 0 &&
           !isLoadingSearch &&
-          isSearching && (
+          lookupClicked && (
             <div>
               <p>{Global("messaging.noItemsFound")}</p>
             </div>

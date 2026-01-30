@@ -18,13 +18,14 @@ import {
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { upsertRelatedWorkAction } from "@/app/actions/upsertRelatedWorkAction";
-import { useQuery } from "@apollo/client/react";
+import { useQuery, useLazyQuery } from "@apollo/client/react";
 import RelatedWorksAdd from "@/components/RelatedWorksAdd";
 
 expect.extend(toHaveNoViolations);
 
 jest.mock("@apollo/client/react", () => ({
   useQuery: jest.fn(),
+  useLazyQuery: jest.fn(),
 }));
 
 jest.mock("@/app/actions/upsertRelatedWorkAction", () => ({
@@ -33,10 +34,35 @@ jest.mock("@/app/actions/upsertRelatedWorkAction", () => ({
 
 const mockUseRouter = useRouter as jest.Mock;
 
+const mockUseLazyQuery = jest.mocked(useLazyQuery);
 const mockUseQuery = jest.mocked(useQuery);
 
 /*eslint-disable @typescript-eslint/no-explicit-any */
-const setupMocks = (items: RelatedWorkSearchResult[], project: null | any, refetch = jest.fn()) => {
+export const setupMocks = (items: RelatedWorkSearchResult[], project: null | any, refetch = jest.fn()) => {
+  mockUseLazyQuery.mockImplementation((document) => {
+    if (document === FindWorkByIdentifierDocument) {
+      return [
+        jest.fn().mockResolvedValue({
+          data: {
+            findWorkByIdentifier: { items },
+          },
+        }),
+        {
+          data: { findWorkByIdentifier: { items } },
+          loading: false,
+          error: undefined,
+          refetch,
+        },
+      ] as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined,
+    };
+  });
+
   mockUseQuery.mockImplementation((document) => {
     if (document === ProjectDocument) {
       return {
