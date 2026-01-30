@@ -11,7 +11,7 @@
   gap: 8px;
   text-decoration: underline;
   color: var(--text-color) !important;
-  font-size: var(-fs-small);
+  font-size: var(--fs-small);
   padding: var(--brand-space3) var(--brand-space4);
   transition: all 0.2s ease;
 }
