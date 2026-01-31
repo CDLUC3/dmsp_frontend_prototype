@@ -130,9 +130,6 @@ describe('GuidancePanel', () => {
 
       // Should also show CDL tab
       expect(screen.getByRole('tab', { name: /CDL/i })).toBeInTheDocument();
-      // Should also show hardcoded additional guidance tabs
-      expect(screen.getByRole('tab', { name: /UCB/i })).toBeInTheDocument();
-      expect(screen.getByRole('tab', { name: /NIH/i })).toBeInTheDocument();
     });
 
 
@@ -152,9 +149,6 @@ describe('GuidancePanel', () => {
         expect(screen.getByRole('tablist')).toBeInTheDocument();
       });
 
-      // Should show only hardcoded additional guidance tabs
-      expect(screen.getByRole('tab', { name: /UCB/i })).toBeInTheDocument();
-      expect(screen.getByRole('tab', { name: /NIH/i })).toBeInTheDocument();
       expect(screen.queryByRole('tab', { name: /DMP Tool/i })).not.toBeInTheDocument();
       expect(screen.queryByRole('tab', { name: /CDL/i })).not.toBeInTheDocument();
     });

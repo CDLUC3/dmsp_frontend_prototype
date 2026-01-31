@@ -35,39 +35,6 @@ import ErrorMessages from '@/components/ErrorMessages';
 import AffiliationSearchForGuidance from '../AffiliationSearchForGuidance';
 import styles from './GuidancePanel.module.scss';
 
-// Additional hard-coded guidance for demonstration purposes
-// TODO: Remove when implementing next phase of work with the ability to add custom organizations
-const additionalGuidance = [
-  {
-    orgURI: 'https://ror.org/01an7q238',
-    orgName: 'UC Berkeley',
-    orgShortname: 'UCB',
-    items: [
-      {
-        id: 1001,
-        title: "UC Berkeley",
-        guidanceText: `
-    <p><strong>UC Berkeley Data Management:</strong> All research data must be stored on approved institutional storage systems. Consider using bDrive or Research Data Management services.</p>
-    <p>Ensure compliance with UC Berkeley's data retention policies. Data should be retained for a minimum of 3 years after publication.</p>
-    <p>For sensitive data, consult with the Office of Research Compliance and ensure appropriate IRB approval is obtained.</p>
-  `.trim()
-      }
-    ]
-  },
-  {
-    orgURI: 'https://ror.org/021nxhr68',
-    orgName: 'National Institute of Health',
-    orgShortname: 'NIH',
-    items: [
-      {
-        id: 2001,
-        title: "National Institute of Health",
-        guidanceText: '<p>Data sharing plans should describe how data will be shared and preserved, or explain why data sharing is not possible.</p><p>Data should be deposited in a recognized repository appropriate to your field of study. Consider using domain-specific repositories when available.</p>'
-      },
-    ]
-  },
-]
-
 const GuidancePanel: React.FC<GuidancePanelProps> = ({
   userAffiliationId,
   ownerAffiliationId,
@@ -142,21 +109,6 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
           });
         }
       });
-
-    // Keep additional guidance for demo purposes if needed
-    additionalGuidance.forEach((org, index) => {
-      if (org.items.length > 0) {
-        sources.push({
-          id: `org-additional-${index}`,
-          type: 'organization',
-          label: org.orgName,
-          shortName: org.orgShortname || null,
-          items: org.items,
-          orgURI: org.orgURI
-        });
-      }
-    });
-
     return sources;
   }, [guidanceItems]);
 
