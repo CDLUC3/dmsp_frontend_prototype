@@ -128,6 +128,7 @@
 .headerWithLogo {
   display: flex;
   align-items: center;
+  margin-right: var(--space-4);
 }
 
 .logo {
@@ -178,7 +179,7 @@
 
 .fundingResultsListMore {
   display: flex;
-  margin-top: 2rem;
+  margin-top: var(--space-8);
   justify-content: center;
 }
 

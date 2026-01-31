@@ -391,8 +391,8 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
 
   useEffect(() => {
     if (searchValue === '') {
-      console.log("***Search Value cleared, resetting searchPerformed***");
       setSearchPerformed(false);
+      setFunders([]);
     }
   }, [searchValue]);
 
@@ -644,12 +644,11 @@ const renderGuidanceContentForSource = (source: GuidanceSource, Global: (key: st
       return (
         <>
           <div className={styles.headerWithLogo}>
-            <h2 className="h4">{Global('bestPractice')}</h2>
+            <h2 className={`h4 ${styles.headerWithLogo}`}>{Global('bestPractice')}</h2>
             <Image
-              className={styles.Logo}
-              src="/images/DMP-logo.svg"
-              width="140"
-              height="16"
+              src="/images/dmplogo.svg"
+              width={114}
+              height={16}
               alt="DMP Tool"
             />
           </div>
