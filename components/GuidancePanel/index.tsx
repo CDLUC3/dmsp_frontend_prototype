@@ -401,6 +401,18 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
 
   return (
     <div className={`${styles.guidancePanel} ${!isInitialized ? styles.initializing : ''}`}>
+      {guidanceSources.length === 0 && onAddOrganization && (
+        <div className={`${styles.actionButtons} ${styles.emptyState}`}>
+          <Button
+            className="link"
+            onPress={handleOpenDialog}
+            aria-label={t('addGuidanceSource')}
+          >
+            <DmpIcon icon="plus" />
+            <span>{t('addOrganization')}</span>
+          </Button>
+        </div>
+      )}
       <Tabs
         selectedKey={selectedGuidanceId}
         onSelectionChange={(key) => setSelectedGuidanceId(String(key))}
@@ -680,6 +692,9 @@ const renderGuidanceContentForSource = (source: GuidanceSource, Global: (key: st
         <>
           <div className={styles.matchedGuidanceList}>
             <h2 className="h4">{source.label}</h2>
+            {source.items?.length === 0 && (
+              <p>{Global('noGuidanceAvailable')}</p>
+            )}
             {source.items?.map(g => {
               // Extract text from HTML to check if we need expandable section
               const tempDiv = document.createElement('div');

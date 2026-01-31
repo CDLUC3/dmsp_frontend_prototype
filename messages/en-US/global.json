@@ -723,6 +723,7 @@
     "dataFormat": "Data format",
     "dataVolume": "Data volume",
     "opensInNewTab": "Opens in a new tab",
+    "noGuidanceAvailable": "The selected organization has no guidance for this question",
     "buttons": {
       "search": "Search",
       "lookup": "Lookup",

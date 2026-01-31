@@ -723,6 +723,7 @@
     "dataFormat": "Formato de dados:",
     "dataVolume": "Volume dos dados",
     "opensInNewTab": "Abrir em uma nova aba",
+    "noGuidanceAvailable": "A organização selecionada não tem orientação para esta pergunta",
     "buttons": {
       "search": "Buscar",
       "lookup": "Procurar",
