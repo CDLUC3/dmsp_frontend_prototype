@@ -391,6 +391,7 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
 
   useEffect(() => {
     if (searchValue === '') {
+      console.log("***Search Value cleared, resetting searchPerformed***");
       setSearchPerformed(false);
     }
   }, [searchValue]);
@@ -582,7 +583,7 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
                   </p>
                 </section>
               )}
-              {funders.length > 0 && (
+              {(funders.length > 0 && searchValue) && (
                 <section
                   ref={resultsRef}
                   aria-labelledby="funders-section"
