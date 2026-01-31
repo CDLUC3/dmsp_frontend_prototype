@@ -3,109 +3,79 @@
 import { useMemo } from 'react';
 import { useQuery } from '@apollo/client/react';
 import {
-  VersionedGuidanceDocument,
-  PlanQuery
+  GuidanceSourcesForPlanDocument,
 } from '@/generated/graphql';
-import { GuidanceItemInterface, VersionedGuidanceQuery } from '@/app/types';
+import { GuidanceItemInterface } from '@/app/types';
 
 interface UseGuidanceDataProps {
-  userAffiliationUri?: string;
-  userAffiliationName?: string;
-  userAffiliationAcronyms?: string[] | null;
-  planData: PlanQuery | undefined;
-  versionedSectionId: string;
+  planId: number;
+  versionedSectionId?: number;
+  versionedQuestionId?: number;
 }
 
+/**
+ * Hook for fetching guidance data only.
+ * Mutations are handled in parent components to avoid circular dependencies.
+ */
 export const useGuidanceData = ({
-  userAffiliationUri,
-  userAffiliationName,
-  userAffiliationAcronyms,
-  planData,
-  versionedSectionId
+  planId,
+  versionedSectionId,
+  versionedQuestionId
 }: UseGuidanceDataProps) => {
 
-  // Get section tag info from plan data
-  const currentSectionTagIds = useMemo(() => {
-    const section = planData?.plan?.versionedSections?.find(s => s.versionedSectionId === Number(versionedSectionId)
-    );
-    const guidanceTagInfo = section?.tags?.map(t => ({
-      tagId: t.id,
-      tagName: t.name,
-      tagSlug: t.slug,
-      tagDescription: t.description
-    })) ?? [];
-    return guidanceTagInfo;
-  }, [planData, versionedSectionId]);
-
-  // Get Guidance Groups for user's affiliation
-  const { data: guidanceData, loading: guidanceLoading } = useQuery<VersionedGuidanceQuery>(
-    VersionedGuidanceDocument,
+  // Fetch all guidance sources from backend (includes matched guidance and tags)
+  const { data: guidanceData, loading: guidanceLoading, refetch } = useQuery(
+    GuidanceSourcesForPlanDocument,
     {
       variables: {
-        affiliationId: userAffiliationUri || '',
-        tagIds: currentSectionTagIds.map(t => t.tagId).filter((id): id is number => id != null)
+        planId,
+        versionedSectionId: versionedSectionId ? Number(versionedSectionId) : undefined,
+        versionedQuestionId: versionedQuestionId ? Number(versionedQuestionId) : undefined
       },
-      skip: !userAffiliationUri
+      skip: !planId,
+      notifyOnNetworkStatusChange: true,
     }
   );
 
-  // Derive the sectionTags map format needed by GuidancePanel
-  const sectionTagsMap: Record<number, string> = useMemo(() => {
-    return currentSectionTagIds.reduce((acc: Record<number, string>, tag) => {
-      if (tag.tagId != null) {
-        acc[tag.tagId] = tag.tagName;
-      }
-      return acc;
-    }, {}); // No type assertion needed here
-  }, [currentSectionTagIds]);
+  // Extract section tags from guidance items (backend already matched them)
+  const sectionTagsMap = useMemo<Record<number, string>>(() => {
+    const tagsMap: Record<number, string> = {};
 
-  // Guidance from user's affiliation that matches current section tags
-  const matchedGuidanceByOrg = useMemo<GuidanceItemInterface[]>(() => {
-    if (!guidanceData?.versionedGuidance || guidanceData.versionedGuidance.length === 0) {
-      return [];
-    }
-
-    if (!userAffiliationUri || !userAffiliationName) {
-      return [];
-    }
-
-    // Group guidance by tagId and combine multiple texts for the same tag
-    const itemsByTag = new Map<number, string[]>();
-
-    guidanceData.versionedGuidance.forEach(g => {
-      if (g.guidanceText && g.tagId != null) {
-        if (!itemsByTag.has(g.tagId)) {
-          itemsByTag.set(g.tagId, []);
+    guidanceData?.guidanceSourcesForPlan?.forEach(source => {
+      source.items?.forEach(item => {
+        if (item.id != null && item.title) {
+          tagsMap[item.id] = item.title;
         }
-        itemsByTag.get(g.tagId)!.push(g.guidanceText);
-      }
-    });
-
-    // Convert to items array
-    const items: { id?: number; title?: string; guidanceText: string }[] = [];
-
-    itemsByTag.forEach((texts, tagId) => {
-      const matchingTag = currentSectionTagIds.find(t => t.tagId === tagId);
-      items.push({
-        id: tagId,
-        title: matchingTag?.tagName,
-        guidanceText: texts.join('')
       });
     });
 
-    // Return single organization with all consolidated guidance
-    return [{
-      orgURI: userAffiliationUri,
-      orgName: userAffiliationName,
-      orgShortname: userAffiliationAcronyms?.[0] ?? userAffiliationName,
-      items
-    }];
-  }, [guidanceData, currentSectionTagIds, userAffiliationUri, userAffiliationName, userAffiliationAcronyms]);
+    return tagsMap;
+  }, [guidanceData]);
+
+  // Transform guidance sources to component format
+  const guidanceItems = useMemo<GuidanceItemInterface[]>(() => {
+    if (!guidanceData?.guidanceSourcesForPlan) {
+      return [];
+    }
+
+    return guidanceData.guidanceSourcesForPlan.map(source => ({
+      orgURI: source.orgURI,
+      orgName: source.label,
+      orgShortname: source.shortName,
+      type: source.type,
+      items: source.items.map(item => ({
+        id: item.id ?? undefined,
+        title: item.title ?? undefined,
+        guidanceText: item.guidanceText
+      }))
+    }));
+
+  }, [guidanceData]);
 
   return {
     sectionTagsMap,
-    matchedGuidanceByOrg,
+    guidanceItems,
     guidanceLoading,
-    currentSectionTagIds
+    refetchGuidance: refetch, // Expose refetch for manual refresh after mutations
   };
 };

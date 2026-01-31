@@ -1,4 +1,5 @@
 import { TagsInterface } from "@/app/types";
+import { AffiliationSearch, GuidanceSourceType } from "@/generated/graphql";
 
 export enum GuidanceGroupStatus {
   DRAFT = 'draft',
@@ -73,6 +74,7 @@ export interface GuidanceItemInterface {
   orgName: string;
   orgShortname?: string;
   items: { id?: number; title?: string; guidanceText: string; }[];
+  type: GuidanceSourceType
 }
 export interface MatchedGuidance {
   id?: number;
@@ -99,8 +101,11 @@ export interface GuidancePanelProps {
   guidanceItems: GuidanceItemInterface[];
   // Tags assigned to the current section
   sectionTags: Record<number, string>;
+  // Guidance errors
+  guidanceError?: string | null;
   // Callbacks
-  onAddOrganization?: () => void;
+  onClearError?: () => void;
+  onAddOrganization?: (funder: AffiliationSearch) => void;
   onRemoveOrganization?: (orgId: string) => void;
 }
 

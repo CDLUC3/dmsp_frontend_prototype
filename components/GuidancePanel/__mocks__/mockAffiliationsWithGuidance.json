@@ -1,0 +1,22 @@
+{
+  "managedAffiliationsWithGuidance": {
+    "__typename": "AffiliationSearchResults",
+    "items": [
+      {
+        "__typename": "AffiliationSearch",
+        "id": 1,
+        "funder": false,
+        "displayName": "California Digital Library (cdlib.org)",
+        "uri": "https://ror.org/03yrm5c26",
+        "acronyms": [
+          "CDL"
+        ]
+      }
+    ],
+    "limit": 5,
+    "totalCount": 1,
+    "hasNextPage": false,
+    "hasPreviousPage": null,
+    "nextCursor": null
+  }
+}

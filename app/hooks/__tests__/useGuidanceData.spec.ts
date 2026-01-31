@@ -1,106 +1,104 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { useGuidanceData } from '../useGuidanceData';
 import { useQuery } from '@apollo/client/react';
-import {
-  VersionedGuidanceDocument,
-  PlanQuery,
-  PlanVisibility,
-  PlanStatus
-} from '@/generated/graphql';
-import { VersionedGuidanceGroup } from '@/app/types';
+import { GuidanceSourcesForPlanDocument, GuidanceSourceType } from '@/generated/graphql';
 
 // Mock Apollo Client hooks
 jest.mock('@apollo/client/react', () => ({
   useQuery: jest.fn(),
 }));
 
-// Mock next-intl
-jest.mock('next-intl', () => ({
-  useTranslations: jest.fn(() => (key: string) => key),
-}));
-
 const mockUseQuery = jest.mocked(useQuery);
+const mockRefetch = jest.fn();
 
-const createMockPlanData = (versionedSectionId: number): PlanQuery => ({
-  __typename: 'Query',
-  plan: {
-    __typename: 'Plan',
-    id: 1,
-    visibility: 'PRIVATE' as PlanVisibility,
-    status: 'ACTIVE' as PlanStatus,
-    created: '2024-01-01T00:00:00Z',
-    createdById: 1,
-    modified: '2024-01-01T00:00:00Z',
-    dmpId: 'test-dmp-123',
-    registered: null,
-    title: 'Test Plan',
-    versionedTemplate: null,
-    fundings: null,
-    project: null,
-    members: null,
-    versionedSections: [
-      {
-        __typename: 'PlanSectionProgress',
-        answeredQuestions: 0,
-        displayOrder: 1,
-        versionedSectionId,
-        title: 'Test Section',
-        totalQuestions: 5,
-        tags: [
-          {
-            __typename: 'Tag',
-            name: 'Storage & security',
-            slug: 'storage-security',
-            id: 1,
-            description: 'Storage and security guidance',
-          },
-          {
-            __typename: 'Tag',
-            name: 'Data Collection',
-            slug: 'data-collection',
-            id: 3,
-            description: 'Data collection guidance',
-          },
-        ],
-      },
-    ],
-    progress: null,
-    feedback: null,
-  },
-});
-
-const mockGuidanceData: VersionedGuidanceGroup[] = [
-  {
-    tagId: 1,
-    id: 1192,
-    guidanceText: '<p>This is guidance for storage & security</p>',
-    errors: {},
-  },
-  {
-    tagId: 1,
-    id: 1201,
-    guidanceText: '<p>This is more guidance for storage & security</p>',
-    errors: {},
-  },
-  {
-    tagId: 3,
-    id: 1200,
-    guidanceText: '<p>This is guidance for data collection</p>',
-    errors: {},
-  },
-];
-
-const setupMocks = (guidanceData: VersionedGuidanceGroup[] = mockGuidanceData, loading = false) => {
-  const stableGuidanceReturn = {
-    data: {
-      versionedGuidance: guidanceData,
+const mockGuidanceSourcesData = {
+  guidanceSourcesForPlan: [
+    {
+      orgURI: null,
+      label: 'DMP Tool',
+      shortName: 'DMP Tool',
+      type: GuidanceSourceType.BestPractice,
+      items: [
+        {
+          id: 1,
+          title: 'Storage & security',
+          guidanceText: '<p>This is best practice guidance for storage & security</p>',
+        },
+        {
+          id: 3,
+          title: 'Data Collection',
+          guidanceText: '<p>This is best practice guidance for data collection</p>',
+        },
+      ],
     },
+    {
+      orgURI: 'https://ror.org/03yrm5c26',
+      label: 'California Digital Library',
+      shortName: 'CDL',
+      type: GuidanceSourceType.UserAffiliation,
+      items: [
+        {
+          id: 1,
+          title: 'Storage & security',
+          guidanceText: '<p>This is CDL guidance for storage & security</p>',
+        },
+        {
+          id: 3,
+          title: 'Data Collection',
+          guidanceText: '<p>This is CDL guidance for data collection</p>',
+        },
+      ],
+    },
+    {
+      orgURI: 'https://ror.org/04xm1d337',
+      label: 'National Science Foundation',
+      shortName: 'NSF',
+      type: GuidanceSourceType.TemplateOwner,
+      items: [
+        {
+          id: 1,
+          title: 'Storage & security',
+          guidanceText: '<p>This is NSF guidance for storage & security</p>',
+        },
+      ],
+    },
+  ],
+};
+
+type GuidanceItem = {
+  id: number | null | undefined;
+  title: string | null | undefined;
+  guidanceText: string;
+};
+
+type GuidanceSource = {
+  orgURI: string | null;
+  label: string;
+  shortName: string;
+  type: GuidanceSourceType;
+  items: GuidanceItem[];
+};
+
+type MockGuidanceDataVariant =
+  | { guidanceSourcesForPlan: GuidanceSource[] }
+  | { guidanceSourcesForPlan: null }
+  | null
+  | undefined;
+
+const setupMocks = (
+  guidanceData: MockGuidanceDataVariant = mockGuidanceSourcesData,
+  loading = false,
+  error = null
+) => {
+  const stableGuidanceReturn = {
+    data: guidanceData,
     loading,
-    error: null,
+    error,
+    refetch: mockRefetch,
   };
 
   mockUseQuery.mockImplementation((document) => {
-    if (document === VersionedGuidanceDocument) {
+    if (document === GuidanceSourcesForPlanDocument) {
       /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableGuidanceReturn as any;
     }
@@ -108,17 +106,15 @@ const setupMocks = (guidanceData: VersionedGuidanceGroup[] = mockGuidanceData, l
       data: null,
       loading: false,
       error: undefined,
+      refetch: jest.fn(),
     };
   });
 };
 
 describe('useGuidanceData', () => {
   const defaultProps = {
-    userAffiliationUri: 'https://ror.org/03yrm5c26',
-    userAffiliationName: 'California Digital Library',
-    userAffiliationAcronyms: ['CDL'],
-    planData: createMockPlanData(123),
-    versionedSectionId: '123',
+    planId: 123,
+    versionedSectionId: 456,
   };
 
   beforeEach(() => {
@@ -131,31 +127,12 @@ describe('useGuidanceData', () => {
       const { result } = renderHook(() => useGuidanceData(defaultProps));
 
       expect(result.current.sectionTagsMap).toBeDefined();
-      expect(result.current.matchedGuidanceByOrg).toBeDefined();
+      expect(result.current.guidanceItems).toBeDefined();
       expect(result.current.guidanceLoading).toBeDefined();
-      expect(result.current.currentSectionTagIds).toBeDefined();
+      expect(result.current.refetchGuidance).toBeDefined();
     });
 
-    it('should extract section tags from plan data', () => {
-      setupMocks();
-      const { result } = renderHook(() => useGuidanceData(defaultProps));
-
-      expect(result.current.currentSectionTagIds).toHaveLength(2);
-      expect(result.current.currentSectionTagIds[0]).toEqual({
-        tagId: 1,
-        tagName: 'Storage & security',
-        tagSlug: 'storage-security',
-        tagDescription: 'Storage and security guidance',
-      });
-      expect(result.current.currentSectionTagIds[1]).toEqual({
-        tagId: 3,
-        tagName: 'Data Collection',
-        tagSlug: 'data-collection',
-        tagDescription: 'Data collection guidance',
-      });
-    });
-
-    it('should create sectionTagsMap from section tags', () => {
+    it('should create sectionTagsMap from guidance data', () => {
       setupMocks();
       const { result } = renderHook(() => useGuidanceData(defaultProps));
 
@@ -164,10 +141,8 @@ describe('useGuidanceData', () => {
         3: 'Data Collection',
       });
     });
-  });
 
-  describe('Guidance data processing', () => {
-    it('should fetch and process guidance data', async () => {
+    it('should transform guidance sources to component format', async () => {
       setupMocks();
       const { result } = renderHook(() => useGuidanceData(defaultProps));
 
@@ -175,16 +150,37 @@ describe('useGuidanceData', () => {
         expect(result.current.guidanceLoading).toBe(false);
       });
 
-      expect(result.current.matchedGuidanceByOrg).toHaveLength(1);
-      expect(result.current.matchedGuidanceByOrg[0]).toMatchObject({
+      expect(result.current.guidanceItems).toHaveLength(3);
+
+      // Check best practice source
+      expect(result.current.guidanceItems[0]).toMatchObject({
+        orgURI: null,
+        orgName: 'DMP Tool',
+        orgShortname: 'DMP Tool',
+        type: GuidanceSourceType.BestPractice,
+      });
+      expect(result.current.guidanceItems[0].items).toHaveLength(2);
+
+      // Check CDL source
+      expect(result.current.guidanceItems[1]).toMatchObject({
         orgURI: 'https://ror.org/03yrm5c26',
         orgName: 'California Digital Library',
         orgShortname: 'CDL',
+        type: GuidanceSourceType.UserAffiliation,
       });
-      expect(result.current.matchedGuidanceByOrg[0].items).toHaveLength(2);
+      expect(result.current.guidanceItems[1].items).toHaveLength(2);
+
+      // Check NSF source
+      expect(result.current.guidanceItems[2]).toMatchObject({
+        orgURI: 'https://ror.org/04xm1d337',
+        orgName: 'National Science Foundation',
+        orgShortname: 'NSF',
+        type: GuidanceSourceType.TemplateOwner,
+      });
+      expect(result.current.guidanceItems[2].items).toHaveLength(1);
     });
 
-    it('should combine multiple guidance texts for the same tag', async () => {
+    it('should map guidance items correctly', async () => {
       setupMocks();
       const { result } = renderHook(() => useGuidanceData(defaultProps));
 
@@ -192,116 +188,303 @@ describe('useGuidanceData', () => {
         expect(result.current.guidanceLoading).toBe(false);
       });
 
-      const storageItem = result.current.matchedGuidanceByOrg[0].items.find(
-        (item) => item.id === 1
-      );
+      const bestPracticeItems = result.current.guidanceItems[0].items;
 
-      expect(storageItem?.guidanceText).toBe(
-        '<p>This is guidance for storage & security</p><p>This is more guidance for storage & security</p>'
-      );
+      expect(bestPracticeItems[0]).toEqual({
+        id: 1,
+        title: 'Storage & security',
+        guidanceText: '<p>This is best practice guidance for storage & security</p>',
+      });
+
+      expect(bestPracticeItems[1]).toEqual({
+        id: 3,
+        title: 'Data Collection',
+        guidanceText: '<p>This is best practice guidance for data collection</p>',
+      });
     });
 
-    it('should use organization shortname from acronyms', async () => {
+    it('should expose refetch function', () => {
       setupMocks();
       const { result } = renderHook(() => useGuidanceData(defaultProps));
 
-      await waitFor(() => {
-        expect(result.current.guidanceLoading).toBe(false);
-      });
+      expect(result.current.refetchGuidance).toBe(mockRefetch);
 
-      expect(result.current.matchedGuidanceByOrg[0].orgShortname).toBe('CDL');
+      result.current.refetchGuidance();
+
+      expect(mockRefetch).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Query variables', () => {
+    it('should pass planId and versionedSectionId to query', () => {
+      setupMocks();
+      renderHook(() =>
+        useGuidanceData({
+          planId: 123,
+          versionedSectionId: 456,
+        })
+      );
+
+      expect(mockUseQuery).toHaveBeenCalledWith(
+        GuidanceSourcesForPlanDocument,
+        expect.objectContaining({
+          variables: {
+            planId: 123,
+            versionedSectionId: 456,
+            versionedQuestionId: undefined,
+          },
+        })
+      );
     });
 
-    it('should fallback to org name when no acronyms provided', async () => {
+    it('should pass versionedQuestionId when provided', () => {
       setupMocks();
-      const props = {
-        ...defaultProps,
-        userAffiliationAcronyms: null,
-      };
+      renderHook(() =>
+        useGuidanceData({
+          planId: 123,
+          versionedQuestionId: 789,
+        })
+      );
 
-      const { result } = renderHook(() => useGuidanceData(props));
+      expect(mockUseQuery).toHaveBeenCalledWith(
+        GuidanceSourcesForPlanDocument,
+        expect.objectContaining({
+          variables: {
+            planId: 123,
+            versionedSectionId: undefined,
+            versionedQuestionId: 789,
+          },
+        })
+      );
+    });
 
-      await waitFor(() => {
-        expect(result.current.guidanceLoading).toBe(false);
-      });
+    it('should skip query when planId is falsy', () => {
+      setupMocks();
+      renderHook(() =>
+        useGuidanceData({
+          planId: 0,
+          versionedSectionId: 456,
+        })
+      );
 
-      expect(result.current.matchedGuidanceByOrg[0].orgShortname).toBe(
-        'California Digital Library'
+      expect(mockUseQuery).toHaveBeenCalledWith(
+        GuidanceSourcesForPlanDocument,
+        expect.objectContaining({
+          skip: true,
+        })
+      );
+    });
+
+    it('should not skip query when planId is provided', () => {
+      setupMocks();
+      renderHook(() =>
+        useGuidanceData({
+          planId: 123,
+          versionedSectionId: 456,
+        })
+      );
+
+      expect(mockUseQuery).toHaveBeenCalledWith(
+        GuidanceSourcesForPlanDocument,
+        expect.objectContaining({
+          skip: false,
+        })
       );
     });
   });
 
   describe('Edge cases', () => {
     it('should return empty array when no guidance data exists', async () => {
-      setupMocks([]);
+      setupMocks({ guidanceSourcesForPlan: [] });
       const { result } = renderHook(() => useGuidanceData(defaultProps));
 
       await waitFor(() => {
         expect(result.current.guidanceLoading).toBe(false);
       });
 
-      expect(result.current.matchedGuidanceByOrg).toEqual([]);
+      expect(result.current.guidanceItems).toEqual([]);
+      expect(result.current.sectionTagsMap).toEqual({});
     });
 
-    it('should return empty array when userAffiliationUri is not provided', () => {
-      setupMocks();
-      const props = {
-        ...defaultProps,
-        userAffiliationUri: undefined,
-      };
-
-      const { result } = renderHook(() => useGuidanceData(props));
-
-      expect(result.current.matchedGuidanceByOrg).toEqual([]);
-    });
-
-    it('should return empty array when userAffiliationName is not provided', async () => {
-      setupMocks();
-      const props = {
-        ...defaultProps,
-        userAffiliationName: undefined,
-      };
-
-      const { result } = renderHook(() => useGuidanceData(props));
+    it('should return empty array when guidanceSourcesForPlan is null', async () => {
+      setupMocks({ guidanceSourcesForPlan: null });
+      const { result } = renderHook(() => useGuidanceData(defaultProps));
 
       await waitFor(() => {
         expect(result.current.guidanceLoading).toBe(false);
       });
 
-      expect(result.current.matchedGuidanceByOrg).toEqual([]);
+      expect(result.current.guidanceItems).toEqual([]);
     });
 
-    it('should handle section not found in plan data', () => {
-      setupMocks();
-      const props = {
-        ...defaultProps,
-        versionedSectionId: '999',
-      };
+    it('should return empty array when data is null', async () => {
+      setupMocks(null);
+      const { result } = renderHook(() => useGuidanceData(defaultProps));
 
-      const { result } = renderHook(() => useGuidanceData(props));
+      await waitFor(() => {
+        expect(result.current.guidanceLoading).toBe(false);
+      });
 
-      expect(result.current.currentSectionTagIds).toEqual([]);
-      expect(result.current.sectionTagsMap).toEqual({});
-    });
-
-    it('should handle undefined plan data', () => {
-      setupMocks();
-      const props = {
-        ...defaultProps,
-        planData: undefined,
-      };
-
-      const { result } = renderHook(() => useGuidanceData(props));
-
-      expect(result.current.currentSectionTagIds).toEqual([]);
+      expect(result.current.guidanceItems).toEqual([]);
       expect(result.current.sectionTagsMap).toEqual({});
     });
 
     it('should handle loading state', () => {
-      setupMocks(mockGuidanceData, true);
+      setupMocks(mockGuidanceSourcesData, true);
       const { result } = renderHook(() => useGuidanceData(defaultProps));
 
       expect(result.current.guidanceLoading).toBe(true);
+    });
+
+    it('should handle items with null or undefined id', async () => {
+      const dataWithNullIds = {
+        guidanceSourcesForPlan: [
+          {
+            orgURI: null,
+            label: 'Test Org',
+            shortName: 'TO',
+            type: GuidanceSourceType.BestPractice,
+            items: [
+              {
+                id: null,
+                title: 'Test Title',
+                guidanceText: '<p>Test guidance</p>',
+              },
+              {
+                id: undefined,
+                title: null,
+                guidanceText: '<p>Another test</p>',
+              },
+            ],
+          },
+        ],
+      };
+
+      setupMocks(dataWithNullIds);
+      const { result } = renderHook(() => useGuidanceData(defaultProps));
+
+      await waitFor(() => {
+        expect(result.current.guidanceLoading).toBe(false);
+      });
+
+      expect(result.current.guidanceItems[0].items).toEqual([
+        {
+          id: undefined,
+          title: 'Test Title',
+          guidanceText: '<p>Test guidance</p>',
+        },
+        {
+          id: undefined,
+          title: undefined,
+          guidanceText: '<p>Another test</p>',
+        },
+      ]);
+
+      // Should not include items with null/undefined ids in sectionTagsMap
+      expect(result.current.sectionTagsMap).toEqual({});
+    });
+
+    it('should handle empty items array', async () => {
+      const dataWithEmptyItems = {
+        guidanceSourcesForPlan: [
+          {
+            orgURI: 'https://ror.org/test',
+            label: 'Test Org',
+            shortName: 'TO',
+            type: GuidanceSourceType.BestPractice,
+            items: [],
+          },
+        ],
+      };
+
+      setupMocks(dataWithEmptyItems);
+      const { result } = renderHook(() => useGuidanceData(defaultProps));
+
+      await waitFor(() => {
+        expect(result.current.guidanceLoading).toBe(false);
+      });
+
+      expect(result.current.guidanceItems).toHaveLength(1);
+      expect(result.current.guidanceItems[0].items).toEqual([]);
+    });
+  });
+
+  describe('Multiple sources', () => {
+    it('should handle multiple guidance sources', async () => {
+      setupMocks();
+      const { result } = renderHook(() => useGuidanceData(defaultProps));
+
+      await waitFor(() => {
+        expect(result.current.guidanceLoading).toBe(false);
+      });
+
+      expect(result.current.guidanceItems).toHaveLength(3);
+      expect(result.current.guidanceItems.map((item) => item.orgName)).toEqual([
+        'DMP Tool',
+        'California Digital Library',
+        'National Science Foundation',
+      ]);
+    });
+
+    it('should include all items from all sources in sectionTagsMap', () => {
+      setupMocks();
+      const { result } = renderHook(() => useGuidanceData(defaultProps));
+
+      // Should have all unique tag IDs from all sources
+      expect(Object.keys(result.current.sectionTagsMap).length).toBe(2);
+      expect(result.current.sectionTagsMap[1]).toBe('Storage & security');
+      expect(result.current.sectionTagsMap[3]).toBe('Data Collection');
+    });
+  });
+
+  describe('Hook stability', () => {
+    it('should return stable references when data does not change', () => {
+      setupMocks();
+      const { result, rerender } = renderHook(() => useGuidanceData(defaultProps));
+
+      const firstGuidanceItems = result.current.guidanceItems;
+      const firstSectionTagsMap = result.current.sectionTagsMap;
+
+      rerender();
+
+      expect(result.current.guidanceItems).toBe(firstGuidanceItems);
+      expect(result.current.sectionTagsMap).toBe(firstSectionTagsMap);
+    });
+
+    it('should update when guidance data changes', async () => {
+      setupMocks();
+      const { result, rerender } = renderHook(() => useGuidanceData(defaultProps));
+
+      const firstGuidanceItems = result.current.guidanceItems;
+
+      // Update mock with different data
+      const newData = {
+        guidanceSourcesForPlan: [
+          {
+            orgURI: null,
+            label: 'New Org',
+            shortName: 'NO',
+            type: GuidanceSourceType.BestPractice,
+            items: [
+              {
+                id: 999,
+                title: 'New Guidance',
+                guidanceText: '<p>New guidance text</p>',
+              },
+            ],
+          },
+        ],
+      };
+      setupMocks(newData);
+
+      rerender();
+
+      await waitFor(() => {
+        expect(result.current.guidanceItems).not.toBe(firstGuidanceItems);
+      });
+
+      expect(result.current.guidanceItems).toHaveLength(1);
+      expect(result.current.guidanceItems[0].orgName).toBe('New Org');
     });
   });
 });
