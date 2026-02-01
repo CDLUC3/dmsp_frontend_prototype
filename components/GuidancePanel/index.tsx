@@ -475,26 +475,29 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
         onOpenChange={setIsModalOpen}
         data-testid="modal"
       >
-        <Dialog>
-          <div className="close-action-container">
-            <Button
-              className="close-action"
-              aria-label={Global('buttons.close')}
-              onPress={handleDialogCloseBtn}
-              data-testid="close-action"
-            >
-              <DmpIcon icon="right-panel_close" />
-              {' '}{Global('buttons.close')}
-            </Button>
+        <Dialog className={styles.guidanceDialog}>
+          <div className={styles.modalHeader}>
+            <div className={styles.modalHeaderTop}>
+              <Heading slot="title">{t('headings.customizeBestPractice')}</Heading>
+              <Button
+                className="close-action"
+                aria-label={Global('buttons.close')}
+                onPress={handleDialogCloseBtn}
+                data-testid="close-action"
+              >
+                <DmpIcon icon="right-panel_close" />
+                {' '}{Global('buttons.close')}
+              </Button>
+            </div>
+            {guidanceError && (
+              <ErrorMessages
+                errors={[guidanceError]}
+                ref={errorRef}
+              />
+            )}
           </div>
-          {guidanceError && (
-            <ErrorMessages
-              errors={[guidanceError]}
-              ref={errorRef}
-            />
-          )}
-          <div className={`${styles.publishModal} ${styles.dialogWrapper}`}>
-            <Heading slot="title">{t('headings.customizeBestPractice')}</Heading>
+          <div className={styles.modalScrollableContent}>
+            <div className={`${styles.publishModal} ${styles.dialogWrapper} ${styles.modalContent}`}>
             <Tabs
               className={styles.guidanceTabs}
             >
@@ -594,6 +597,7 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
                 </section>
               )}
             </Tabs>
+            </div>
           </div>
         </Dialog>
       </Modal>
