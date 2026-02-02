@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AffiliationSearchForGuidance from '../index';
@@ -55,6 +54,7 @@ describe('AffiliationSearchForGuidance', () => {
     onResults: jest.fn(),
     moreTrigger: 0,
     limit: 5,
+    versionedTemplateId: 1
   };
 
   beforeEach(() => {
@@ -165,6 +165,7 @@ describe('AffiliationSearchForGuidance', () => {
             limit: 5,
           },
           name: 'california', // Should be lowercased
+          versionedTemplateId: 1
         },
       });
     });
@@ -186,6 +187,7 @@ describe('AffiliationSearchForGuidance', () => {
             limit: 5,
           },
           name: 'uppercase test',
+          versionedTemplateId: 1
         },
       });
     });
@@ -227,6 +229,7 @@ describe('AffiliationSearchForGuidance', () => {
             limit: 5,
           },
           name: 'test',
+          versionedTemplateId: 1
         },
       });
     });
@@ -248,6 +251,7 @@ describe('AffiliationSearchForGuidance', () => {
             limit: 10,
           },
           name: 'test',
+          versionedTemplateId: 1
         },
       });
     });
@@ -354,6 +358,7 @@ describe('AffiliationSearchForGuidance', () => {
             limit: 5,
           },
           name: 'california',
+          versionedTemplateId: 1
         },
       });
     });
@@ -470,6 +475,7 @@ describe('AffiliationSearchForGuidance', () => {
               limit: 5,
             },
             name: 'test',
+            versionedTemplateId: 1
           },
         });
       });
@@ -527,6 +533,7 @@ describe('AffiliationSearchForGuidance', () => {
             limit: 5,
           },
           name: 'test & co. (2024)',
+          versionedTemplateId: 1
         },
       });
     });
@@ -549,6 +556,7 @@ describe('AffiliationSearchForGuidance', () => {
             limit: 5,
           },
           name: longSearchTerm.toLowerCase(),
+          versionedTemplateId: 1
         },
       });
     });

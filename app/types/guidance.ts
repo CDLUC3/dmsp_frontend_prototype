@@ -97,6 +97,8 @@ export interface GuidancePanelProps {
   userAffiliationId?: string;
   // Template owner's affiliation URI
   ownerAffiliationId?: string;
+  // Versioned template ID for filtering guidance
+  versionedTemplateId: number;
   // Organization guidance
   guidanceItems: GuidanceItemInterface[];
   // Tags assigned to the current section

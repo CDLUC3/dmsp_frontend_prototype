@@ -77,6 +77,9 @@ const PlanOverviewSectionPage: React.FC = () => {
     skip: !versionedSectionId
   });
 
+  // versionedTemplateId for guidance filtering
+  const versionedTemplateId = planData?.plan?.versionedTemplate?.id;
+
   // Use the guidance data hook to get section tags and matched guidance
   // as well as handlers for adding/removing guidance organizations
   const {
@@ -312,6 +315,7 @@ const PlanOverviewSectionPage: React.FC = () => {
             <GuidancePanel
               userAffiliationId={me?.me?.affiliation?.uri}
               ownerAffiliationId={planData?.plan?.versionedTemplate?.owner?.uri}
+              versionedTemplateId={versionedTemplateId!}
               guidanceItems={guidanceItems}
               sectionTags={sectionTagsMap}
               guidanceError={guidanceError}

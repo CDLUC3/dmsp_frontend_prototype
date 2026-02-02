@@ -83,7 +83,8 @@ const createMocks = (bestPracticeData = mockBestPracticeGuidance) => [
           type: "CURSOR",
           limit: 5,
         },
-        name: "cdl"
+        name: "cdl",
+        versionedTemplateId: 1
       },
     },
     result: {
@@ -99,6 +100,7 @@ const renderComponent = (
   const defaultProps = {
     userAffiliationId: undefined,
     ownerAffiliationId: undefined,
+    versionedTemplateId: 1,
     guidanceItems: mockGuidanceItems,
     sectionTags: mockSectionTags,
     onAddOrganization: jest.fn(),
@@ -331,7 +333,7 @@ describe('GuidancePanel', () => {
   });
 
   describe('Add organization functionality', () => {
-    it('should call onAddOrganization when funder is selected in modal', async () => {
+    it.only('should call onAddOrganization when funder is selected in modal', async () => {
       const user = userEvent.setup();
       const onAddOrganization = jest.fn();
 

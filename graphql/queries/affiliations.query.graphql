@@ -24,8 +24,8 @@ query AffiliationFunders($name: String!, $funderOnly: Boolean, $paginationOption
   }
 }
 
-query ManagedAffiliationsWithGuidance($name: String, $paginationOptions: PaginationOptions) {
-  managedAffiliationsWithGuidance(name: $name, paginationOptions:$paginationOptions) {
+query ManagedAffiliationsWithGuidance($name: String, $versionedTemplateId: Int!, $paginationOptions: PaginationOptions) {
+  managedAffiliationsWithGuidance(name: $name, versionedTemplateId: $versionedTemplateId, paginationOptions:$paginationOptions) {
     items {
       id
       funder

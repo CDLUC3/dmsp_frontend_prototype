@@ -28,6 +28,9 @@ interface AffiliationSearchForGuidanceProps extends React.HTMLAttributes<HTMLDiv
   // Specifies result limit to paginate by
   limit?: number,
 
+  // versionedTemplateId for filtering guidance
+  versionedTemplateId: number;
+
   // Callback when search term changes
   onSearchChange?(value: string): void;
 }
@@ -36,6 +39,7 @@ const AffiliationSearchForGuidance = ({
   limit = 5,
   onResults,
   moreTrigger,
+  versionedTemplateId,
   onSearchChange,
 }: AffiliationSearchForGuidanceProps) => {
 
@@ -68,6 +72,7 @@ const AffiliationSearchForGuidance = ({
           limit,
         },
         name: searchTerm.toLowerCase(),
+        versionedTemplateId
       },
     });
   };
@@ -90,6 +95,7 @@ const AffiliationSearchForGuidance = ({
             limit,
           },
           name: searchTerm.toLowerCase(),
+          versionedTemplateId
         },
       });
       setMoreCounter(moreTrigger);

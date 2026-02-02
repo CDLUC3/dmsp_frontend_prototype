@@ -38,6 +38,7 @@ import styles from './GuidancePanel.module.scss';
 const GuidancePanel: React.FC<GuidancePanelProps> = ({
   userAffiliationId,
   ownerAffiliationId,
+  versionedTemplateId,
   guidanceItems,
   guidanceError,
   onClearError,
@@ -540,6 +541,7 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
               <AffiliationSearchForGuidance
                 onResults={onResults}
                 moreTrigger={moreCounter}
+                versionedTemplateId={versionedTemplateId}
                 onSearchChange={handleSearchChange}
               />
 

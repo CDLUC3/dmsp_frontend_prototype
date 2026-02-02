@@ -249,6 +249,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   );
 
+  // versionedTemplateId for guidance filtering
+  const versionedTemplateId = planData?.plan?.versionedTemplate?.id;
+
   // Get section tag info from plan data and user affiliation
   const {
     sectionTagsMap,
@@ -1521,6 +1524,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
             <GuidancePanel
               userAffiliationId={me?.me?.affiliation?.uri}
               ownerAffiliationId={question?.ownerAffiliation?.uri}
+              versionedTemplateId={versionedTemplateId!}
               guidanceItems={guidanceItems}
               sectionTags={sectionTagsMap}
               guidanceError={guidanceError}
