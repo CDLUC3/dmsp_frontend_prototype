@@ -1,20 +1,24 @@
 {
-  "RelatedWorksPage": {
-    "title": "Related Works",
-    "description": "Match related works to your research project.",
+  "RelatedWorksPlanPage": {
+    "title": "Published Research Outputs",
+    "description": "Match published research outputs to your research project.",
     "buttons": {
-      "addRelatedWorkManually": "Add Related Work"
-    },
-    "tabs": {
-      "pending": "Pending",
-      "accepted": "Accepted",
-      "rejected": "Rejected"
+      "addRelatedWorkManually": "Add Published Research Output"
+    }
+  },
+  "RelatedWorksProjectPage": {
+    "title": "Published Research Outputs",
+    "description": "Match published research outputs to your research project.",
+    "buttons": {
+      "addRelatedWorkManually": "Add Published Research Output"
     }
   },
   "RelatedWorksList": {
     "filters": {
+      "planId": "Select Plan",
       "filterByConfidence": "Filter by Confidence",
       "filterByType": "Filter by Type",
+      "filterByTypePlaceholder": "All Types",
       "highlightMatches": "Highlight Matches",
       "sort": "Sort",
       "reset": "Reset",
@@ -31,21 +35,21 @@
     },
     "messages": {
       "PENDING": {
-        "noResults": "No pending works found.\n You have no pending works to review.",
-        "noFilteredResults": "No pending works match your current filters."
+        "noResults": "No pending outputs found.\n You have no pending outputs to review.",
+        "noFilteredResults": "No pending outputs match your current filters."
       },
       "ACCEPTED": {
-        "noResults": "No accepted works found.\nYou haven’t marked any works as related yet. Check the Pending tab to get started.",
-        "noFilteredResults": "No related works match your current filters."
+        "noResults": "No published outputs found.\nYou haven’t marked any outputs as published yet. Check the Pending tab to get started.",
+        "noFilteredResults": "No published outputs match your current filters."
       },
       "REJECTED": {
-        "noResults": "No rejected works found.\nYou haven’t rejected any works.",
-        "noFilteredResults": "No rejected works match your current filters."
+        "noResults": "No rejected outputs found.\nYou haven’t rejected any outputs.",
+        "noFilteredResults": "No rejected outputs match your current filters."
       }
     }
   },
   "RelatedWorksListItem": {
-    "title": "Open the published version of this work",
+    "title": "Open the published version of this output",
     "buttons": {
       "expand": "Expand",
       "collapse": "Collapse",
@@ -53,6 +57,7 @@
       "reject": "Reject"
     },
     "fieldNames": {
+      "planTitle": "Plan",
       "confidence": "Confidence",
       "dateFound": "Date Found",
       "dateReviewed": "Reviewed",
@@ -67,11 +72,11 @@
       "funders": "Funders"
     },
     "instructions": {
-      "review": "Review the information about this potentially related work below, and then accept it as related or reject it as unrelated.",
+      "review": "Review the information about this candidate published research output below, and then accept it as published or reject it as unrelated.",
       "actions": {
-        "PENDING": "If you reject this related work, you can recover it later from the Rejected tab.",
-        "ACCEPTED": "If you reject this related work, you can recover it later from the Rejected tab.",
-        "REJECTED": "You can recover this related work by accepting it, you will then see it in the Accepted tab."
+        "PENDING": "If you reject this output, you can recover it later from the Rejected tab.",
+        "ACCEPTED": "If you reject this output, you can recover it later from the Rejected tab.",
+        "REJECTED": "You can recover this output by accepting it, you will then see it in the Accepted tab."
       }
     }
   },
@@ -84,7 +89,7 @@
     },
     "status": {
       "PENDING": "Pending",
-      "ACCEPTED": "Accepted",
+      "ACCEPTED": "Published",
       "REJECTED": "Rejected"
     },
     "workType": {
@@ -126,11 +131,27 @@
       "WORKFLOW": "Workflow"
     }
   },
-  "AddRelatedWorkPage": {
-    "title": "Add related work",
-    "description": "To manually add a related work to a plan, enter work's DOI below and click Lookup to find it. Click Accept to add the work to the plan. You can run multiple searches on this page to add more than one work.",
+  "RelatedWorksTabs": {
+    "tabs": {
+      "pending": "Pending",
+      "accepted": "Published",
+      "rejected": "Rejected"
+    }
+  },
+  "AddRelatedWorkProjectPage": {
+    "title": "Add Published Research Output",
+    "description": "To manually add a published research output to a project, select a plan, then enter output's DOI below and click Lookup to find it. Click Accept to add the output to the project. You can run multiple searches on this page to add more than one output."
+  },
+  "AddRelatedWorkPlanPage": {
+    "title": "Add Published Research Output",
+    "description": "To manually add a published research output to a plan, enter output's DOI below and click Lookup to find it. Click Accept to add the output to the plan. You can run multiple searches on this page to add more than one output."
+  },
+  "RelatedWorksAdd": {
+    "title": "Add Published Research Output",
     "searchLabel": "Digital Object Identifier (DOI)",
-    "searchDescription": "Enter the work's DOI in either short or URL form (e.g. <code>10.1000/182</code> or <code>https://doi.org/10.1000/182</code>), then click Lookup.",
+    "planSelectLabel": "Select Plan",
+    "planSelectDescription": "Select a plan to add a published research output.",
+    "searchDescription": "Enter the output's DOI in either short or URL form (e.g. <code>10.1000/182</code> or <code>https://doi.org/10.1000/182</code>), then click Lookup.",
     "invalidDoi": "Please enter a valid DOI",
     "buttons": {
       "expand": "Expand",
@@ -139,19 +160,14 @@
       "reject": "Reject"
     },
     "fieldNames": {
+      "planTitle": "Plan",
       "status": "Status",
-      "confidence": "Confidence",
-      "dateFound": "Date Found",
-      "dateReviewed": "Reviewed",
       "type": "Type",
       "source": "Source",
-      "doi": "DOI",
-      "title": "Title",
-      "abstract": "Abstract",
-      "awardIds": "Award IDs",
-      "authors": "Authors",
-      "institutions": "Institutions",
-      "funders": "Funders"
+      "dateReviewed": "Reviewed"
     }
+  },
+  "RelatedWorksSelect": {
+    "planSelectPlaceholder": "All Plans"
   }
 }

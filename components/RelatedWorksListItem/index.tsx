@@ -1,24 +1,29 @@
-import React, { useState } from "react";
-import { useFormatter, useTranslations } from "next-intl";
-import { Button } from "react-aria-components";
+import React, {useState} from "react";
+import {useFormatter, useTranslations} from "next-intl";
+import {Button} from "react-aria-components";
 import styles from "./RelatedWorksListItem.module.scss";
 import DOMPurify from "dompurify";
 import ExpandButton from "@/components/ExpandButton";
-import { doiToUrl, orcidToUrl, rorToUrl } from "@/lib/identifierUtils";
+import {doiToUrl, orcidToUrl, rorToUrl} from "@/lib/identifierUtils";
 import ExpandableNameList from "@/components/ExpandableNameList";
-import { RelatedWorkSearchResult, RelatedWorkStatus } from "@/generated/graphql";
-import { formatAuthorNameFirstLast, formatSubtitle } from "@/lib/relatedWorks";
+import {
+  RelatedWorkSearchResult,
+  RelatedWorksIdentifierType,
+  RelatedWorkStatus
+} from "@/generated/graphql";
+import {formatAuthorNameFirstLast, formatSubtitle} from "@/lib/relatedWorks";
 
 const MAX_ITEMS = 10;
 const MAX_AUTHOR_CHARS = 40;
 
 interface RelatedWorksListItemProps {
+  identifierType: RelatedWorksIdentifierType;
   relatedWork: RelatedWorkSearchResult;
   highlightMatches: boolean;
   updateRelatedWorkStatus: (relatedWorkId: number, status: RelatedWorkStatus) => Promise<void>;
 }
 
-function RelatedWorksListItem({ relatedWork, highlightMatches, updateRelatedWorkStatus }: RelatedWorksListItemProps) {
+function RelatedWorksListItem({ identifierType, relatedWork, highlightMatches, updateRelatedWorkStatus }: RelatedWorksListItemProps) {
   const t = useTranslations("RelatedWorksListItem");
   const dataTypes = useTranslations("RelatedWorksDataTypes");
 
@@ -92,6 +97,14 @@ function RelatedWorksListItem({ relatedWork, highlightMatches, updateRelatedWork
 
         <div className={styles.overviewFooter}>
           <div className={styles.overviewMetadata}>
+            {
+              identifierType === RelatedWorksIdentifierType.ProjectId && (
+                <span data-testid="planTitle">
+                {t("fieldNames.planTitle")}: {relatedWork.planTitle}
+              </span>
+              )
+            }
+
             {relatedWork.status === RelatedWorkStatus.Pending && (
               <span data-testid="dateFound">
                 {t("fieldNames.dateFound")}: {dateFound}

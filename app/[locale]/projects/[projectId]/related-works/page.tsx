@@ -6,20 +6,18 @@ import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutContainer } from "@/components/Container";
 import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
 import { useTranslations } from "next-intl";
-import styles from "./RelatedWorksPlanPage.module.scss";
+import styles from "./RelatedWorksProjectPage.module.scss";
 import { RelatedWorksIdentifierType } from "@/generated/graphql";
 import { useParams } from "next/navigation";
 import { routePath } from "@/utils/routes";
 import { RelatedWorksTabs } from "@/components/RelatedWorksTabs";
 
-const RelatedWorksPlanPage = () => {
+const RelatedWorksProjectPage = () => {
   const Global = useTranslations("Global");
-  const t = useTranslations("RelatedWorksPlanPage");
+  const t = useTranslations("RelatedWorksProjectPage");
 
-  // Get planId (dmpId) from route /projects/:projectId/dmp/:dmpId
   const params = useParams();
   const projectId = parseInt(String(params.projectId));
-  const planId = parseInt(String(params.dmpid));
 
   return (
     <>
@@ -38,18 +36,13 @@ const RelatedWorksPlanPage = () => {
             <Breadcrumb>
               <Link href={routePath("projects.show", { projectId })}>{Global("breadcrumbs.projectOverview")}</Link>
             </Breadcrumb>
-            <Breadcrumb>
-              <Link href={routePath("projects.dmp.show", { projectId, dmpId: planId })}>
-                {Global("breadcrumbs.planOverview")}
-              </Link>
-            </Breadcrumb>
             <Breadcrumb>{t("title")}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={
           <>
             <Link
-              href={routePath("projects.dmp.related-works.add", { projectId, dmpId: planId })}
+              href={routePath("projects.related-works.add", { projectId })}
               className="button-link button--primary"
             >
               {t("buttons.addRelatedWorkManually")}
@@ -60,8 +53,8 @@ const RelatedWorksPlanPage = () => {
       <LayoutContainer>
         <ContentContainer className={`layout-content-container-full ${styles.tabWrapper}`}>
           <RelatedWorksTabs
-            identifierType={RelatedWorksIdentifierType.PlanId}
-            identifier={planId}
+            identifierType={RelatedWorksIdentifierType.ProjectId}
+            identifier={projectId}
           />
         </ContentContainer>
       </LayoutContainer>
@@ -69,4 +62,4 @@ const RelatedWorksPlanPage = () => {
   );
 };
 
-export default RelatedWorksPlanPage;
+export default RelatedWorksProjectPage;

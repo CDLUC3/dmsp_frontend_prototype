@@ -122,6 +122,7 @@ const setupMocks = () => {
     },
     loading: false,
     error: undefined,
+    refetch: jest.fn(),
   };
 
   // Mock useQuery to return different data based on which document is queried
@@ -440,10 +441,9 @@ describe('PlanOverviewPage', () => {
     });
   });
 
-  it('should display related works counts if \'registered\' prop has a value', async () => {
+  it('should display related works counts if \'hasPublishedPlan\' prop has a value', async () => {
     const updatedMockPlanData = {
       ...mockPlanData.plan,
-      registered: '2023-10-01T00:00:00Z',
     };
 
     const planQueryReturn = {
@@ -456,6 +456,7 @@ describe('PlanOverviewPage', () => {
     const relatedWorksStatsQueryReturn = {
       data: {
         relatedWorksByPlanStats: {
+          hasPublishedPlan: true,
           pendingCount: 1,
           acceptedCount: 10,
         }
@@ -492,10 +493,9 @@ describe('PlanOverviewPage', () => {
     });
   });
 
-  it('should not display related works counts for UNPUBLISHED if \'registered\' prop has a value of null', async () => {
+  it('should not display related works counts for UNPUBLISHED if \'hasPublishedPlan\' prop is false', async () => {
     const updatedMockPlanData = {
       ...mockPlanData.plan,
-      registered: '',
     };
 
     const planQueryReturn = {
@@ -508,6 +508,7 @@ describe('PlanOverviewPage', () => {
     const relatedWorksStatsQueryReturn = {
       data: {
         relatedWorksByPlanStats: {
+          hasPublishedPlan: false,
           pendingCount: 1,
           acceptedCount: 10,
         }

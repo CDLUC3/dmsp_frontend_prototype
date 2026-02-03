@@ -10,7 +10,8 @@ import { useQuery } from '@apollo/client/react';
 import {
   PlanSearchResult,
   PlanSectionProgress,
-  ProjectDocument
+  ProjectDocument,
+  RelatedWorksByProjectStatsDocument,
 } from "@/generated/graphql";
 
 // Components
@@ -106,6 +107,16 @@ const ProjectOverviewPage: React.FC = () => {
     // Create a new array with the spread operator before sorting
     return [...sections].sort((a, b) => a.displayOrder - b.displayOrder);
   };
+
+  // Query data
+  const {
+    data: relatedWorksByProjectStats,
+  } = useQuery(RelatedWorksByProjectStatsDocument, {
+    variables: {
+      projectId: Number(projectId),
+    },
+  });
+  const rwProjectStats = relatedWorksByProjectStats?.relatedWorksByProjectStats;
 
   useEffect(() => {
     // When data from backend changes, set project data in state
@@ -240,6 +251,19 @@ const ProjectOverviewPage: React.FC = () => {
                   </span>
                 ))}
               </p>
+            </OverviewSection>
+
+            <OverviewSection
+              heading={ProjectOverview("relatedWorks.title")}
+              headingId="related-works-title"
+              linkHref={routePath("projects.related-works.index", { projectId })}
+              linkText={ProjectOverview("relatedWorks.edit")}
+              linkAriaLabel={ProjectOverview("relatedWorks.edit")}
+              includeLink={!!rwProjectStats?.hasPublishedPlan}
+            >
+              {!rwProjectStats?.hasPublishedPlan && <p>{ProjectOverview("relatedWorks.publish")}</p>}
+              {rwProjectStats?.hasPublishedPlan && rwProjectStats?.pendingCount != null && <p>{ProjectOverview("relatedWorks.pendingCount", { count: rwProjectStats?.pendingCount })}</p>}
+              {rwProjectStats?.hasPublishedPlan && rwProjectStats?.acceptedCount != null && <p>{ProjectOverview("relatedWorks.acceptedCount", { count: rwProjectStats?.acceptedCount })}</p>}
             </OverviewSection>
           </div>
 
