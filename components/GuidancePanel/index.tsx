@@ -77,8 +77,7 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
   // Track the search value
   const [searchValue, setSearchValue] = useState<string>('');
 
-  // Remove the separate BestPracticeGuidanceDocument query
-  // Instead, get it from guidanceItems prop which now includes all sources
+  // Get guidanceItems prop which includes all sources (best practice + orgs)
   const guidanceSources = useMemo<GuidanceSource[]>(() => {
     const sources: GuidanceSource[] = [];
 
@@ -499,106 +498,106 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
           </div>
           <div className={styles.modalScrollableContent}>
             <div className={`${styles.publishModal} ${styles.dialogWrapper} ${styles.modalContent}`}>
-            <Tabs
-              className={styles.guidanceTabs}
-            >
-              <div className={styles.tabListWrapper}>
-                <div className={`${styles.tabsRow} ${styles.modalTabsRow}`}>
-                  <div><h3 className={styles.modalH3}>{t('headings.currentlyDisplaying')}</h3></div>
-                  <div className={styles.pillsContainer}>
-                    {guidanceSources
-                      .filter(source => source.type !== 'bestPractice') // Don't show remove option for best practice
-                      .map((source) => (
-                        <div
-                          key={source.id}
-                          className={`${styles.pill} ${styles.pillVisible}`}
-                          onClick={() => handleRemoveOrganization(source.id, source.orgURI)}
-                          role="button"
-                          tabIndex={0}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === " ") {
-                              handleRemoveOrganization(source.id, source.orgURI);
-                            }
-                          }}
-                        >
+              <Tabs
+                className={styles.guidanceTabs}
+              >
+                <div className={styles.tabListWrapper}>
+                  <div className={`${styles.tabsRow} ${styles.modalTabsRow}`}>
+                    <div><h3 className={styles.modalH3}>{t('headings.currentlyDisplaying')}</h3></div>
+                    <div className={styles.pillsContainer}>
+                      {guidanceSources
+                        .filter(source => source.type !== 'bestPractice') // Don't show remove option for best practice
+                        .map((source) => (
+                          <div
+                            key={source.id}
+                            className={`${styles.pill} ${styles.pillVisible}`}
+                            onClick={() => handleRemoveOrganization(source.id, source.orgURI)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                handleRemoveOrganization(source.id, source.orgURI);
+                              }
+                            }}
+                          >
 
-                          <div className={`${styles.pillCustomize} ${styles.pillInner}`}>
-                            <span>{source.shortName}</span>
+                            <div className={`${styles.pillCustomize} ${styles.pillInner}`}>
+                              <span>{source.shortName}</span>
+                              <Button
+                                className={"unstyled"}
+                                aria-label={`Remove ${source.label}`}
+                              >
+                                <DmpIcon icon="cancel-reverse" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div><h3 className={styles.modalH3}>{t('headings.addMore')}</h3></div>
+                <AffiliationSearchForGuidance
+                  onResults={onResults}
+                  moreTrigger={moreCounter}
+                  versionedTemplateId={versionedTemplateId}
+                  onSearchChange={handleSearchChange}
+                />
+
+                {searchPerformed && funders.length === 0 && (
+                  <section>
+                    <p className={styles.resultsCount}>
+                      {Org('noResults')}
+                    </p>
+                  </section>
+                )}
+                {(funders.length > 0 && searchValue) && (
+                  <section
+                    ref={resultsRef}
+                    aria-labelledby="funders-section"
+                  >
+                    <p className={styles.resultsCount}>
+                      {Org('showCount', {
+                        count: funders.length,
+                        total: totalCount,
+                      })}
+                    </p>
+                    <div>
+                      {funders.map((funder, index) => (
+                        <div key={index} className={styles.fundingResultsList}>
+                          <div
+                            className={styles.fundingResultsListItem}
+                            role="group"
+                            aria-label={`${Org('funder')}: ${funder.displayName}`}
+                          >
+                            <p className="funder-name">{funder.displayName}</p>
                             <Button
-                              className={"unstyled"}
-                              aria-label={`Remove ${source.label}`}
+                              className="secondary select-button"
+                              data-funder-uri={funder.uri}
+                              onPress={() => handleSelectFunder(funder)}
+                              aria-label={`${Global('buttons.select')} ${funder.displayName}`}
                             >
-                              <DmpIcon icon="cancel-reverse" />
+                              {Global('buttons.select')}
                             </Button>
                           </div>
                         </div>
                       ))}
-                  </div>
-                </div>
-              </div>
 
-              <div><h3 className={styles.modalH3}>{t('headings.addMore')}</h3></div>
-              <AffiliationSearchForGuidance
-                onResults={onResults}
-                moreTrigger={moreCounter}
-                versionedTemplateId={versionedTemplateId}
-                onSearchChange={handleSearchChange}
-              />
-
-              {searchPerformed && funders.length === 0 && (
-                <section>
-                  <p className={styles.resultsCount}>
-                    {Org('noResults')}
-                  </p>
-                </section>
-              )}
-              {(funders.length > 0 && searchValue) && (
-                <section
-                  ref={resultsRef}
-                  aria-labelledby="funders-section"
-                >
-                  <p className={styles.resultsCount}>
-                    {Org('showCount', {
-                      count: funders.length,
-                      total: totalCount,
-                    })}
-                  </p>
-                  <div>
-                    {funders.map((funder, index) => (
-                      <div key={index} className={styles.fundingResultsList}>
-                        <div
-                          className={styles.fundingResultsListItem}
-                          role="group"
-                          aria-label={`${Org('funder')}: ${funder.displayName}`}
-                        >
-                          <p className="funder-name">{funder.displayName}</p>
+                      {(hasMore()) && (
+                        <div className={styles.fundingResultsListMore}>
                           <Button
-                            className="secondary select-button"
-                            data-funder-uri={funder.uri}
-                            onPress={() => handleSelectFunder(funder)}
-                            aria-label={`${Global('buttons.select')} ${funder.displayName}`}
+                            data-testid="load-more-btn"
+                            onPress={() => setMoreCounter(moreCounter + 1)}
+                            aria-label={Global('buttons.loadMore')}
                           >
-                            {Global('buttons.select')}
+                            {Global('buttons.loadMore')}
                           </Button>
                         </div>
-                      </div>
-                    ))}
-
-                    {(hasMore()) && (
-                      <div className={styles.fundingResultsListMore}>
-                        <Button
-                          data-testid="load-more-btn"
-                          onPress={() => setMoreCounter(moreCounter + 1)}
-                          aria-label={Global('buttons.loadMore')}
-                        >
-                          {Global('buttons.loadMore')}
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </section>
-              )}
-            </Tabs>
+                      )}
+                    </div>
+                  </section>
+                )}
+              </Tabs>
             </div>
           </div>
         </Dialog>
