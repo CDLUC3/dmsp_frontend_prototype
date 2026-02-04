@@ -39,6 +39,7 @@ describe("ProjectPlanSelect", () => {
           },
           loading: false,
           error: undefined,
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         } as any;
       }
       return { data: null, loading: false, error: undefined };
