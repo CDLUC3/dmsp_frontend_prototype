@@ -63,10 +63,12 @@ query Project($projectId: Int!) {
         title
         totalQuestions
       }
+      title
       templateTitle
       id
       funding
       dmpId
+      registered
       modified
       created
     }

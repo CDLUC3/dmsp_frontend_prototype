@@ -1,11 +1,17 @@
 import React from "react";
-import { act, render, screen, waitFor } from "@testing-library/react";
+import {act, render, screen, waitFor} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import RelatedWorksListItem from "../index";
 import "@testing-library/jest-dom";
-import { axe, toHaveNoViolations } from "jest-axe";
-import { NextIntlClientProvider } from "next-intl";
-import { RelatedWorkSearchResult, RelatedWorkSourceType, RelatedWorkStatus, WorkType } from "@/generated/graphql";
+import {axe, toHaveNoViolations} from "jest-axe";
+import {NextIntlClientProvider} from "next-intl";
+import {
+  RelatedWorkSearchResult,
+  RelatedWorksIdentifierType,
+  RelatedWorkSourceType,
+  RelatedWorkStatus,
+  WorkType
+} from "@/generated/graphql";
 
 expect.extend(toHaveNoViolations);
 
@@ -75,6 +81,7 @@ function RelatedWorksListItemHarness({ updateRelatedWorkStatus = jest.fn() }: { 
       messages={{}}
     >
       <RelatedWorksListItem
+        identifierType={RelatedWorksIdentifierType.PlanId}
         relatedWork={RELATED_WORK}
         highlightMatches={false}
         updateRelatedWorkStatus={updateRelatedWorkStatus}
