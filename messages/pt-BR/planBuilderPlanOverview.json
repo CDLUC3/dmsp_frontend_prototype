@@ -325,9 +325,14 @@
     "ariaLabels": {
       "showMoreGuidance": "Mostrar mais fontes de orientação",
       "showLessGuidance": "Mostrar menos fontes de orientação"
+    },
+    "headings": {
+      "addMore": "Adicione mais",
+      "customizeBestPractice": "Personalize as melhores práticas",
+      "currentlyDisplaying": "Atualmente exibindo"
     }
   },
-    "SectionPage": {
+  "SectionPage": {
     "errors": {
       "errorLoadingSections": "Erro ao carregar as perguntas: {message}"
     },

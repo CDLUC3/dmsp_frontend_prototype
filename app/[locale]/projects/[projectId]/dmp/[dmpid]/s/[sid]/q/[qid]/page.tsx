@@ -77,7 +77,6 @@ import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import { createEmptyResearchOutputRow } from '@/utils/researchOutputTransformations';
 import {
-  GuidanceItemInterface,
   Question,
   MergedComment,
   ResearchOutputTable,
@@ -87,6 +86,7 @@ import {
 import { useComments } from './hooks/useComments';
 import CommentsDrawer from './CommentsDrawer';
 import { useGuidanceData } from '@/app/hooks/useGuidanceData';
+import { useGuidanceMutations } from "@/app/hooks/useGuidanceMutations";
 import styles from './PlanOverviewQuestionPage.module.scss';
 
 interface FormDataInterface {
@@ -162,14 +162,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Ref for scrolling to bottom of comments
   const commentsEndRef = useRef<HTMLDivElement | null>(null);
 
-
   // VersionedQuestion, plan and versionedSection states
   const [question, setQuestion] = useState<Question>();
   const [plan, setPlan] = useState<PlanData>();
   const [questionType, setQuestionType] = useState<string>('');
   const [parsed, setParsed] = useState<AnyParsedQuestion>();
   const [answerId, setAnswerId] = useState<number | null>(null);
-  const [guidanceItems, setGuidanceItems] = useState<GuidanceItemInterface[]>([]);
 
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -251,26 +249,30 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   );
 
+  // versionedTemplateId for guidance filtering
+  const versionedTemplateId = planData?.plan?.versionedTemplate?.id;
+
   // Get section tag info from plan data and user affiliation
-  const { sectionTagsMap, matchedGuidanceByOrg } = useGuidanceData({
-    userAffiliationUri: me?.me?.affiliation?.uri,
-    userAffiliationName: me?.me?.affiliation?.name,
-    userAffiliationAcronyms: me?.me?.affiliation?.acronyms,
-    planData,
-    versionedSectionId
+  const {
+    sectionTagsMap,
+    guidanceItems,
+  } = useGuidanceData({
+    planId: parseInt(dmpId),
+    versionedSectionId: Number(versionedSectionId),
+    versionedQuestionId: Number(versionedQuestionId)
   });
 
-  const handleAddGuidanceOrganization = () => {
-    // Open modal/dialog to select organization
-    // TODO: Implement organization selection and addition to guidance tabs
-    console.log('Add guidance organization');
-  };
-
-  const handleRemoveGuidanceOrganization = (orgId: string) => {
-    // Call API to remove organization from user preferences
-    // TODO: Implement organization removal from guidance tabs
-    console.log('Remove guidance organization:', orgId);
-  };
+  // Use guidance mutations hook (mutations only, no data)
+  const {
+    addGuidanceOrganization,
+    removeGuidanceOrganization,
+    clearError,
+    guidanceError,
+  } = useGuidanceMutations({
+    planId: parseInt(dmpId),
+    versionedSectionId: Number(versionedSectionId),
+    versionedQuestionId: Number(versionedQuestionId),
+  });
 
   // Get answer data
   const { data: answerData, loading: answerLoading, error: answerError } = useQuery(
@@ -328,7 +330,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       const successMessage = t('messages.success.saved');
       toastState.add(successMessage, { type: 'success', timeout: 3000 });
     }
-
   }
 
   /*Handling Drawer Panels*/
@@ -1103,41 +1104,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
         setQuestionType(questionType);
         setParsed(parsed);
         setQuestion(cleanedQuestion);
-
-        // Combine question guidance with matched guidance from user's affiliation
-        const questionGuidance: GuidanceItemInterface = {
-          orgURI: cleanedQuestion.ownerAffiliation?.uri ?? '',
-          orgName: cleanedQuestion.ownerAffiliation?.name ?? '',
-          orgShortname: cleanedQuestion.ownerAffiliation?.acronyms?.[0] || '',
-          items: cleanedQuestion.guidanceText ? [
-            {
-              title: cleanedQuestion.ownerAffiliation?.name || '',
-              guidanceText: cleanedQuestion.guidanceText
-            }
-          ] : []
-        };
-
-        // Consolidate guidance by orgURI
-        const guidanceMap = new Map<string, GuidanceItemInterface>();
-
-        // Add question guidance if it has items
-        if (questionGuidance.items.length > 0) {
-          guidanceMap.set(questionGuidance.orgURI, questionGuidance);
-        }
-
-        // Add or merge matched guidance
-        matchedGuidanceByOrg.forEach(guidance => {
-          if (guidanceMap.has(guidance.orgURI)) {
-            // Merge items if orgURI already exists
-            const existing = guidanceMap.get(guidance.orgURI)!;
-            existing.items = [...existing.items, ...guidance.items];
-          } else {
-            guidanceMap.set(guidance.orgURI, guidance);
-          }
-        });
-
-        // Convert map back to array and set all guidance items in state
-        setGuidanceItems(Array.from(guidanceMap.values()));
       } catch (error) {
         logECS('error', 'Parsing error', {
           error,
@@ -1146,7 +1112,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         setErrors(['Error parsing question data']);
       }
     }
-  }, [selectedQuestion, matchedGuidanceByOrg]);
+  }, [selectedQuestion]);
 
 
   // Set plan data in state
@@ -1558,10 +1524,13 @@ const PlanOverviewQuestionPage: React.FC = () => {
             <GuidancePanel
               userAffiliationId={me?.me?.affiliation?.uri}
               ownerAffiliationId={question?.ownerAffiliation?.uri}
+              versionedTemplateId={versionedTemplateId!}
               guidanceItems={guidanceItems}
               sectionTags={sectionTagsMap}
-              onAddOrganization={handleAddGuidanceOrganization}
-              onRemoveOrganization={handleRemoveGuidanceOrganization}
+              guidanceError={guidanceError}
+              onClearError={clearError}
+              onAddOrganization={addGuidanceOrganization}
+              onRemoveOrganization={removeGuidanceOrganization}
             />
           </div>
         </SidebarPanel>

@@ -1,6 +1,5 @@
 import { useQuery } from "@apollo/client/react";
 import { ProjectDocument } from "@/generated/graphql";
-import React from "react";
 import styles from "@/components/RelatedWorksList/RelatedWorksList.module.scss";
 import type { Key } from "react-aria-components";
 import {
@@ -26,7 +25,7 @@ export interface ProjectPlanSelectProps {
 export const ProjectPlanSelect = ({ projectId, selectedKey, setSelectedKey }: ProjectPlanSelectProps) => {
   const t = useTranslations("RelatedWorksSelect");
 
-  const { data, loading, error } = useQuery(ProjectDocument, {
+  const { data } = useQuery(ProjectDocument, {
     variables: { projectId },
     fetchPolicy: "cache-and-network",
   });
