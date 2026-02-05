@@ -17,6 +17,14 @@
     "additionalInfo": "Informações adicionais vão aqui...",
     "templateList": "Lista de templates"
   },
+  "CustomizableTemplates": {
+    "title": "Modelos personalizáveis",
+    "description": "Selecione um modelo que você pode personalizar com orientações ou perguntas adicionais.",
+    "templateStatus": {
+      "hasChanged": "O modelo do financiador foi alterado.",
+      "notCustomized": "ão personalizado"
+    }
+  },
   "EditTemplates": {
     "title": "Editar modelo",
     "templateTitleLabel": "Título do modelo",

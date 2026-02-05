@@ -211,11 +211,11 @@ const TemplateListCustomizationsPage: React.FC = () => {
 
       const transformedTemplates = await Promise.all(
         items.map(async (template: TemplateSearchResultInterface | null) => {
-        const statusForTemplate = template?.isDirty && template?.latestPublishDate
-        ? Global('status.unpublishedChanges')
-        : !template?.latestPublishDate
-          ? Customizable('templateStatus.notCustomized')
-          : t('status.published');
+          const statusForTemplate = template?.isDirty && template?.latestPublishDate
+            ? Global('status.unpublishedChanges')
+            : !template?.latestPublishDate
+              ? Customizable('templateStatus.notCustomized')
+              : t('status.published');
           return {
             id: template?.id,
             title: template?.name || "",
@@ -292,22 +292,15 @@ const TemplateListCustomizationsPage: React.FC = () => {
     <>
       <PageHeader
         title={Customizable('title')}
-        description={t('description')}
+        description={Customizable('description')}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('template.index')}>{Global('breadcrumbs.templates')}</Link></Breadcrumb>
-            <Breadcrumb>{t('title')}</Breadcrumb>
+            <Breadcrumb>{Customizable('title')}</Breadcrumb>
           </Breadcrumbs>
         }
-        actions={
-          <>
-            <Link href={TEMPLATE_CREATE_URL}
-              className="button-link button--primary">{t('actionCreate')}</Link>
-          </>
-        }
-        className="page-template-list"
       />
       <ErrorMessages errors={errors} ref={errorRef} />
 

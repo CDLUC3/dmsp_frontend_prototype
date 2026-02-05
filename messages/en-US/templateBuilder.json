@@ -19,6 +19,7 @@
   },
   "CustomizableTemplates": {
     "title": "Customizable templates",
+    "description": "Select a template that you can customize with additional guidance or questions.",
     "templateStatus": {
       "hasChanged": "Funder template has changed",
       "notCustomized": "Not customized"
