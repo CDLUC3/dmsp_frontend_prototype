@@ -94,3 +94,22 @@ query TemplateCollaborators($templateId: Int!) {
     }
   }
 }
+
+query CustomizableTemplates($term: String, $paginationOptions: PaginationOptions) {
+  customizableTemplates(term: $term, paginationOptions: $paginationOptions){
+    items {
+      id
+      description
+      name
+      isDirty
+      latestPublishDate
+      latestPublishVersion
+      latestPublishVisibility
+      modifiedByName
+      modified
+    }
+    nextCursor
+    totalCount
+    limit
+  }
+}

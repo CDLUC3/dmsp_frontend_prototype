@@ -17,6 +17,13 @@
     "additionalInfo": "Additional information goes here...",
     "templateList": "List of templates"
   },
+  "CustomizableTemplates": {
+    "title": "Customizable templates",
+    "templateStatus": {
+      "hasChanged": "Funder template has changed",
+      "notCustomized": "Not customized"
+    }
+  },
   "EditTemplates": {
     "title": "Edit template",
     "templateTitleLabel": "Template title",

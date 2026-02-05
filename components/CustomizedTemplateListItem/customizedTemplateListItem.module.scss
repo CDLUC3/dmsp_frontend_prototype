@@ -1,0 +1,141 @@
+@use '@/styles/responsive.scss' as r;
+
+
+.templateItem {
+  margin-bottom: var(--space-4);
+  border-radius: var(--card-border-radius);
+  background: var(--bg-white);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--card-border);
+}
+
+.templateItemWrapper {
+  padding: 1.25rem var(--space-5);
+}
+
+
+.TemplateItemInner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: flex-start;
+
+  @include r.device(sm) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+}
+
+.TemplateItemContent {
+  flex: 1;
+}
+
+.funder {
+  color: var(--text-color);
+  font-size: var(--fs-sm);
+  margin-bottom: var(--space-2);
+  font-weight: var(--fw-medium);
+  color: var(--blue-900);
+}
+
+.TemplateItemHeading {
+  padding: 0;
+  margin: 0 0 var(--space-2);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  color: var(--heading-color);
+  line-height: var(--lh-tight);
+}
+
+.description {
+  margin-top: var(--space-1);
+  margin-bottom: var(--space-4);
+  color: var(--text-color);
+  font-size: var(--fs-small);
+  line-height: var(--lh-normal);
+}
+
+.metadata {
+  color: var(--text-color-base);
+  font-size: var(--fs-small);
+  line-height: var(--lh-normal);
+
+  span {
+    display: block;
+    margin-bottom: var(--space-1);
+  }
+
+  .separator:before {
+    content: "";
+  }
+
+  @include r.device(sm) {
+    span {
+      display: inline-block;
+      margin-bottom: 0;
+    }
+
+    .separator:before {
+      content: "•";
+      margin: 0 var(--space-2);
+    }
+  }
+}
+
+.guidance {
+  display: flex;
+  align-items: left;
+  justify-content: left;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5);
+  background-color: var(--blue-100);
+  border-radius: var(--border-radius-md);
+  color: var(--heading-color);
+  font-size: var(--fs-small);
+  font-weight: var(--fw-normal);
+}
+
+.updateLink {
+  color: var(--link-color) !important;
+  text-decoration: underline;
+  font-size: var(--fs-base);
+  line-height: var(--lh-normal);
+  font-family: var(--font-family-body);
+  font-weight: var(--fw-medium);
+
+  &:hover {
+    color: var(--link-hover-color) !important;
+  }
+
+  &:focus {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.titleLink {
+  color: var(--link-color) !important;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--link-hover-color) !important;
+    text-decoration: underline;
+  }
+
+  &:focus {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// Button styling for the select button
+.TemplateItemActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  @include r.device(sm) {
+    flex-shrink: 0;
+  }
+}
