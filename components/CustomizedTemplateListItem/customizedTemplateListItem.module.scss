@@ -139,3 +139,26 @@
     flex-shrink: 0;
   }
 }
+
+.publishStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.unpublishedChangesIcon {
+  padding-top: 2px;
+}
+
+
+  .warning {
+    svg {
+      fill: var(--red-400);
+      width: 20px;
+      height: 20px;
+
+      &:hover {
+        fill: var(--blue-900);
+      }
+    }
+  }

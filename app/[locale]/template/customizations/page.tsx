@@ -214,7 +214,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
         const statusForTemplate = template?.isDirty && template?.latestPublishDate
         ? Global('status.unpublishedChanges')
         : !template?.latestPublishDate
-          ? t('status.draft')
+          ? Customizable('templateStatus.notCustomized')
           : t('status.published');
           return {
             id: template?.id,
@@ -223,7 +223,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
             funder: template?.ownerDisplayName,
             lastUpdated: (template?.modified) ? formatDate(template?.modified) : null,
             lastRevisedBy: template?.modifiedByName,
-            publishStatus: (template?.isDirty) ? Global('notPublished') : Global('published'),
+            publishStatus: statusForTemplate,
             publishDate: (template?.latestPublishDate) ? formatDate(template?.latestPublishDate) : null,
             defaultExpanded: false,
             latestPublishVisibility: toSentenceCase(template?.latestPublishVisibility ? template?.latestPublishVisibility?.toString() : '')

@@ -1,8 +1,8 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { DmpIcon } from "@/components/Icons";
 import styles from "./customizedTemplateListItem.module.scss";
 import { useToast } from "@/context/ToastContext";
-import { toTitleCase } from "@/utils/general";
 interface TemplateSelectListItemProps {
   item: {
     id?: number | null;
@@ -73,21 +73,13 @@ function TemplateSelectListItem({ item }: TemplateSelectListItemProps) {
                 {Global("lastUpdated")}: {item.lastUpdated}
               </span>
               {item.publishStatus && item.publishStatus.length > 0 && (
-                <span className={styles.separator}>
-                  {item.publishStatus}
-                  {item?.publishDate ? ` (${item.publishDate})` : ""}
-                </span>
+                <div className={styles.publishStatus}>
+                  <span className={styles.separator}>
+                    {item.publishStatus}
+                  </span>
+                  <span className={`${styles.unpublishedChangesIcon} ${styles.warning} icon `}> <DmpIcon icon="edit-square" /></span>
+                </div>
               )}
-
-              {item.latestPublishVisibility ? (
-                <span className="ms-2">
-                  {Global("visibility")}: {toTitleCase(item.latestPublishVisibility)}
-                </span>
-              ) : item.visibility ? (
-                <span className={styles.separator}>
-                  {Global("visibility")}: {toTitleCase(item.visibility)}
-                </span>
-              ) : null}
             </div>
           </div>
 
@@ -105,7 +97,7 @@ function TemplateSelectListItem({ item }: TemplateSelectListItemProps) {
 
         </div>
       </div>
-    </div>
+    </div >
   );
 }
 
