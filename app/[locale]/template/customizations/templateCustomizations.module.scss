@@ -1,3 +1,5 @@
+@use '@/styles/responsive' as r;
+
 .searchMatchText {
   font-size: var(--fs-small);
   margin-top: var(--space-2);
@@ -12,5 +14,11 @@
   color:var(--link-color);
   &:hover {
     text-decoration: underline;
+  }
+}
+
+.templateCards {
+    @include r.device(lg) {
+    max-width: 75%;
   }
 }

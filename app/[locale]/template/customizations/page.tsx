@@ -219,7 +219,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
           return {
             id: template?.id,
             title: template?.name || "",
-            link: routePath('template.show', { templateId: Number(template?.id) }),
+            link: routePath('template.customize', { templateId: Number(template?.id) }),
             funder: template?.ownerDisplayName,
             lastUpdated: (template?.modified) ? formatDate(template?.modified) : null,
             lastRevisedBy: template?.modifiedByName,
@@ -331,7 +331,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
             <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}> {Global('links.clearFilter')}</Button>
           )}
           {isSearchFetch && searchResults.length > 0 ? (
-            <div className="template-list" role="list" aria-label={t('templateList')}>
+            <div className={`${styles.templateCards} template-list`} role="list" aria-label={t('templateList')}>
               {searchResults.map((template, index) => (
                 <div
                   key={`${template.id}-${index}`}
