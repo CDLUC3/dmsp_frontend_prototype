@@ -212,7 +212,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
       const transformedTemplates = await Promise.all(
         items.map(async (template: TemplateSearchResultInterface | null) => {
           const statusForTemplate = template?.isDirty && template?.latestPublishDate
-            ? Global('status.unpublishedChanges')
+            ? Customizable('templateStatus.hasChanged')
             : !template?.latestPublishDate
               ? Customizable('templateStatus.notCustomized')
               : t('status.published');

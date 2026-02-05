@@ -24,12 +24,10 @@ interface TemplateSelectListItemProps {
 }
 
 function TemplateSelectListItem({ item }: TemplateSelectListItemProps) {
-  const toastState = useToast();
 
   //Localization keys
-  const SelectListItem = useTranslations("TemplateSelectListItem");
   const Global = useTranslations("Global");
-
+  const Customizable = useTranslations('CustomizableTemplates');
   // Create unique IDs for ARIA relationships
   const headingId = `${item.title.toLowerCase().replace(/\s+/g, "-")}-heading`;
 
@@ -77,7 +75,13 @@ function TemplateSelectListItem({ item }: TemplateSelectListItemProps) {
                   <span className={styles.separator}>
                     {item.publishStatus}
                   </span>
-                  <span className={`${styles.unpublishedChangesIcon} ${styles.warning} icon `}> <DmpIcon icon="edit-square" /></span>
+                  <span className={`${styles.unpublishedChangesIcon} ${styles.warning} icon `}>
+                    {item.publishStatus === Customizable('templateStatus.hasChanged') ? (
+                      <DmpIcon icon="warning" />
+                    ) : item.publishStatus === Global('status.unpublishedChanges') ? (
+                      <DmpIcon icon="edit-square" />
+                    ) : null}
+                  </span>
                 </div>
               )}
             </div>
