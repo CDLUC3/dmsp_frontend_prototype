@@ -1,4 +1,8 @@
 ## Added
+- Added new `useGuidanceMutation` hook for adding and removing guidance from right sidebar [#15]
+- Added new queries `GuidanceSourcesForPlan`, `AddPlanGuidance`, `RemovePlanGuidance` and `ManagedAffiliationsWithGuidance` [#15]
+- Added new component `AffiliationSearchForGuidance` to be used for the custom guidance search modal [#15]
+- Added a new type policy `guidanceTypePolicies` for Apollo Client [#15]
 - Added related works project overview page [#700]
 
 ## Updated
@@ -23,6 +27,11 @@
 - Added new `ResearchOutputAnswerComponent`, `SingleResearchOutputComponent`, `RepoSelectorForAnswer` and `MetaDataStandardForAnswer` components for the rendering of `researchOutputTable` question type answer form [#787]
 - Added `utils/researchOutputTransformations.ts` to group utilities for `researchOutputTable` [#787]
 ### Updated
+- Updated `PlanOverviewSectionPage` and `PlanOverviewQuestionPage` to use the new `useGuidanceMutations` hook to add and remove guidance from the sidebar [#15]
+- Updated existing `useGuidanceData` to use the new `GuidanceSourcesForPlanDocument` query [#15]
+- Updated the `GuidancePanel` with the new `Modal` for searching for managed affiliations [#15]
+- Added new icon for a `cancel-reverse` that inverts the typical `cancel` icon color [#15]
+- Added a shared `unstyled` button [#15]
 - Updated `ExpandableContentSection` component to work with new `GuidancePanel` [#12]
 - Updated queries for`GuidanceGroups`, `Me` and `PublishedQuestion` queries [#12]
 - Updated to `dmptool/types` version `3.1.0` and ran `npm run generate` to update the GraphQL types [#1129]
@@ -68,7 +77,6 @@
 ### Remove
 - Removed `boolean` question type from the Add Question question types list [#990]
 ### Fixed
-- Fixed issue with `/login` page not loading when `dmspr` refresh token expires [#35]
 - Fixed issue on Guidance Group creation, where saving content for one tag, wipes out the entered content (unsaved) for other tags [#6]
 - Fixed related works pagination.
 

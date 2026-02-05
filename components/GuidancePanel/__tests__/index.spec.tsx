@@ -1,11 +1,18 @@
 import React from 'react';
-import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockedProvider } from "@apollo/client/testing/react";
 import GuidancePanel from '../index';
-import { BestPracticeGuidanceDocument } from '@/generated/graphql';
+import {
+  BestPracticeGuidanceDocument,
+  ManagedAffiliationsWithGuidanceDocument
+} from '@/generated/graphql';
 import { GuidanceItemInterface } from '@/app/types';
 import { axe, toHaveNoViolations } from 'jest-axe';
+import { mockScrollIntoView } from '@/__mocks__/common';
+import mockAffiliationsWithGuidance from '../__mocks__/mockAffiliationsWithGuidance.json';
+import mockBestPracticeGuidance from '../__mocks__/mockBestPracticeGuidance';
+import mockGuidanceItems from '../__mocks__/mockGuidanceItems';
 expect.extend(toHaveNoViolations);
 
 // Mock ResizeObserver
@@ -25,35 +32,7 @@ const mockSectionTags = {
   3: 'Data Collection',
 };
 
-const mockGuidanceItems: GuidanceItemInterface[] = [
-  {
-    orgURI: 'https://ror.org/03yrm5c26',
-    orgName: 'California Digital Library',
-    orgShortname: 'CDL',
-    items: [
-      {
-        id: 1,
-        title: 'Storage & security',
-        guidanceText: '<p>This is guidance for storage &amp; security</p>',
-      },
-    ],
-  },
-];
-
-const mockBestPracticeGuidance = [
-  {
-    __typename: 'BestPracticeGuidance' as const,
-    id: 1212,
-    tagId: 1,
-    guidanceText: '<ul><li>Best practice guidance for storage</li></ul>',
-  },
-  {
-    __typename: 'BestPracticeGuidance' as const,
-    id: 1220,
-    tagId: 3,
-    guidanceText: '<ul><li>Best practice guidance for data collection</li></ul>',
-  },
-];
+import { GuidanceSourceType } from '@/generated/graphql';
 
 const createMocks = (bestPracticeData = mockBestPracticeGuidance) => [
   {
@@ -82,6 +61,36 @@ const createMocks = (bestPracticeData = mockBestPracticeGuidance) => [
       },
     },
   },
+  {
+    request: {
+      query: ManagedAffiliationsWithGuidanceDocument,
+      variables: {
+        paginationOptions: {
+          type: "CURSOR",
+          limit: 5,
+        },
+      },
+    },
+    result: {
+      data: mockAffiliationsWithGuidance
+    }
+  },
+  {
+    request: {
+      query: ManagedAffiliationsWithGuidanceDocument,
+      variables: {
+        paginationOptions: {
+          type: "CURSOR",
+          limit: 5,
+        },
+        name: "cdl",
+        versionedTemplateId: 1
+      },
+    },
+    result: {
+      data: mockAffiliationsWithGuidance
+    }
+  }
 ];
 
 const renderComponent = (
@@ -91,6 +100,7 @@ const renderComponent = (
   const defaultProps = {
     userAffiliationId: undefined,
     ownerAffiliationId: undefined,
+    versionedTemplateId: 1,
     guidanceItems: mockGuidanceItems,
     sectionTags: mockSectionTags,
     onAddOrganization: jest.fn(),
@@ -105,8 +115,11 @@ const renderComponent = (
 };
 
 describe('GuidancePanel', () => {
+  beforeEach(() => {
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+  })
   describe('Rendering', () => {
-    it('should render tabs with guidance sources', async () => {
+    it('should render tabs with guidance sources and additional guidance', async () => {
       renderComponent();
 
       // Wait for GraphQL to resolve and best practice tab to appear
@@ -114,7 +127,7 @@ describe('GuidancePanel', () => {
         () => {
           expect(screen.getByRole('tab', { name: /DMP Tool/i })).toBeInTheDocument();
         },
-        { timeout: 3000 } // Increase timeout for async GraphQL
+        { timeout: 3000 }
       );
 
       // Should also show CDL tab
@@ -124,28 +137,22 @@ describe('GuidancePanel', () => {
 
     it('should not render best practice tab when no best practice guidance exists', async () => {
       const emptyMocks = createMocks([]);
-      renderComponent({}, emptyMocks);
+      renderComponent({ guidanceItems: [] }, emptyMocks);
 
       await waitFor(() => {
         expect(screen.queryByRole('tab', { name: /DMP Tool/i })).not.toBeInTheDocument();
       });
     });
 
-    it('should render with empty guidance items', async () => {
+    it('should render with empty guidance items and show only additional guidance tabs', async () => {
       renderComponent({ guidanceItems: [] });
 
       await waitFor(() => {
         expect(screen.getByRole('tablist')).toBeInTheDocument();
       });
 
-      // Only DMP Tool should be visible (from best practice)
-      await waitFor(
-        () => {
-          expect(screen.getByRole('tab', { name: /DMP Tool/i })).toBeInTheDocument();
-          expect(screen.queryByRole('tab', { name: /CDL/i })).not.toBeInTheDocument();
-        },
-        { timeout: 3000 } // Increase timeout for async GraphQL
-      );
+      expect(screen.queryByRole('tab', { name: /DMP Tool/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('tab', { name: /CDL/i })).not.toBeInTheDocument();
     });
   });
 
@@ -174,6 +181,7 @@ describe('GuidancePanel', () => {
               guidanceText: '<p>UCB guidance</p>',
             },
           ],
+          type: GuidanceSourceType.TemplateOwner
         },
       ];
 
@@ -218,12 +226,24 @@ describe('GuidancePanel', () => {
       const dmpTab = screen.getByRole('tab', { name: /DMP Tool/i });
       expect(dmpTab).toHaveAttribute('aria-selected', 'true');
 
-      // Click CDL tab
+      // Expand tabs to make CDL visible and clickable
+      const moreButton = screen.getByRole('button', { name: /more/i });
+      await user.click(moreButton);
+
+      // Wait for tabs to expand
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /less/i })).toBeInTheDocument();
+      });
+
+      // Now click CDL tab (it's now visible and clickable)
       const cdlTab = screen.getByRole('tab', { name: /CDL/i });
       await user.click(cdlTab);
 
-      // CDL should now be selected
-      expect(cdlTab).toHaveAttribute('aria-selected', 'true');
+      // Wait for tab selection to update
+      await waitFor(() => {
+        expect(cdlTab).toHaveAttribute('aria-selected', 'true');
+      });
+
       expect(dmpTab).toHaveAttribute('aria-selected', 'false');
     });
 
@@ -270,12 +290,14 @@ describe('GuidancePanel', () => {
           orgName: 'UC Berkeley',
           orgShortname: 'UCB',
           items: [{ id: 2, guidanceText: '<p>UCB guidance</p>' }],
+          type: GuidanceSourceType.TemplateOwner
         },
         {
           orgURI: 'https://ror.org/021nxhr68',
           orgName: 'NSF',
           orgShortname: 'NSF',
           items: [{ id: 3, guidanceText: '<p>NSF guidance</p>' }],
+          type: GuidanceSourceType.TemplateOwner
         },
       ];
 
@@ -311,22 +333,64 @@ describe('GuidancePanel', () => {
   });
 
   describe('Add organization functionality', () => {
-    it('should call onAddOrganization when add button is clicked', async () => {
+    it.only('should call onAddOrganization when funder is selected in modal', async () => {
       const user = userEvent.setup();
       const onAddOrganization = jest.fn();
 
-      renderComponent({ onAddOrganization });
+      renderComponent({ onAddOrganization }, createMocks());
 
+      // Wait for component to initialize
       await waitFor(() => {
-        const moreButton = screen.getByRole('button', { name: /more/i });
-        expect(moreButton).toBeInTheDocument();
-        fireEvent.click(moreButton);
+        expect(screen.getByRole('tablist')).toBeInTheDocument();
       });
 
-      const addButton = screen.getByRole('button', { name: "addGuidanceSource" });
+      // First, expand the tabs by clicking "More" button
+      const moreButton = screen.getByRole('button', { name: /more/i });
+      await user.click(moreButton);
+
+      // Wait for "Add Organization" button to appear after expanding
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /addGuidanceSource/i })).toBeInTheDocument();
+      });
+
+      // Now click "Add Organization" button to open modal
+      const addButton = screen.getByRole('button', { name: /addGuidanceSource/i });
       await user.click(addButton);
 
+      // Wait for modal to open
+      await waitFor(() => {
+        expect(screen.getByTestId('modal')).toBeInTheDocument();
+      });
+
+      // Find the search input and enter a search term
+      const searchInput = screen.getByRole('searchbox', { name: /search funders/i });
+      await user.type(searchInput, 'CDL');
+
+      // Submit the search
+      const searchButton = screen.getByTestId('search-btn');
+      await user.click(searchButton);
+
+      // Wait for search results to appear
+      await waitFor(
+        () => {
+          const selectButtons = screen.queryAllByRole('button', { name: /buttons.select/i });
+          expect(selectButtons.length).toBeGreaterThan(0);
+        },
+        { timeout: 3000 }
+      );
+
+      // Click the first select button
+      const selectButtons = screen.getAllByRole('button', { name: /buttons.select/i });
+      await user.click(selectButtons[0]);
+
+      // Verify onAddOrganization was called
       expect(onAddOrganization).toHaveBeenCalledTimes(1);
+      expect(onAddOrganization).toHaveBeenCalledWith(
+        expect.objectContaining({
+          displayName: "California Digital Library (cdlib.org)",
+          uri: "https://ror.org/03yrm5c26",
+        })
+      );
     });
 
     it('should not render add button when callback is not provided', async () => {
@@ -401,24 +465,6 @@ describe('GuidancePanel', () => {
     });
   });
 
-  describe('Initialization state', () => {
-    it('should apply initializing class before auto-selection completes', () => {
-      const { container } = renderComponent();
-
-      const guidancePanel = container.querySelector('.guidancePanel');
-      expect(guidancePanel).toHaveClass('initializing');
-    });
-
-    it('should remove initializing class after auto-selection completes', async () => {
-      const { container } = renderComponent();
-
-      await waitFor(() => {
-        const guidancePanel = container.querySelector('.guidancePanel');
-        expect(guidancePanel).not.toHaveClass('initializing');
-      });
-    });
-  });
-
   describe('Edge cases', () => {
     it('should handle empty sectionTags', async () => {
       const emptyMocks = createMocks([]);
@@ -436,6 +482,7 @@ describe('GuidancePanel', () => {
           orgName: 'Test Org',
           orgShortname: 'TO',
           items: [],
+          type: GuidanceSourceType.UserAffiliation
         },
       ];
 

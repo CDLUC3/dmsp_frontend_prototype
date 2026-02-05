@@ -3,13 +3,16 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import userEvent from '@testing-library/user-event';
 import { useParams, useRouter } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { useQuery } from '@apollo/client/react';
+import { useQuery, useMutation } from '@apollo/client/react';
 import {
   AnswerByVersionedQuestionIdDocument,
   PublishedQuestionDocument,
   PlanDocument,
   MeDocument,
-  GuidanceGroupsDocument
+  GuidanceGroupsDocument,
+  GuidanceSourcesForPlanDocument,
+  AddPlanGuidanceDocument,
+  RemovePlanGuidanceDocument
 } from '@/generated/graphql';
 import {
   addAnswerAction,
@@ -57,6 +60,7 @@ import mockAnswerDataForTextArea from '@/__mocks__/common/mockAnswerDataForTextA
 import mockCheckboxAnswer from '../__mocks__/mockCheckboxAnswer.json';
 import mockOtherAnswerData from '../__mocks__/mockOtherAnswerData.json'
 import mockAnswerDataForResearchOutput from '../__mocks__/mockROAnswer.json';
+import mockGuidanceSourcesForPlanMock from '../../../__mocks__/guidanceSourcesForPlanMock';
 
 import { mockScrollIntoView } from "@/__mocks__/common";
 import PlanOverviewQuestionPage from "../page";
@@ -159,7 +163,6 @@ beforeEach(() => {
   }
 `;
 
-
   const json: AffiliationSearchQuestionType = {
     type: 'affiliationSearch',
     attributes: {
@@ -196,6 +199,7 @@ expect.extend(toHaveNoViolations);
 // Mock Apollo Client hooks
 jest.mock('@apollo/client/react', () => ({
   useQuery: jest.fn(),
+  useMutation: jest.fn(),
 }));
 
 
@@ -225,7 +229,11 @@ const mockUseParams = useParams as jest.Mock;
 
 // Cast with jest.mocked utility
 const mockUseQuery = jest.mocked(useQuery);
+const mockUseMutation = jest.mocked(useMutation);
 const mockRefetch = jest.fn();
+
+let mockAddPlanGuidanceFn: jest.Mock;
+let mockRemovePlanGuidanceFn: jest.Mock;
 
 const setupMocks = () => {
   // Create stable references OUTSIDE mockImplementation
@@ -262,6 +270,12 @@ const setupMocks = () => {
     refetch: mockRefetch
   };
 
+  const stableGuidanceSourcesForPlanReturn = {
+    data: mockGuidanceSourcesForPlanMock,
+    loading: false,
+    error: undefined
+  };
+
   mockUseQuery.mockImplementation((document) => {
     if (document === AnswerByVersionedQuestionIdDocument) {
       return stableAnswerByVersionedQuestionIdReturn as any;
@@ -283,13 +297,38 @@ const setupMocks = () => {
       return stableGuidanceReturn as any;
     }
 
+    if (document === GuidanceSourcesForPlanDocument) {
+      return stableGuidanceSourcesForPlanReturn as any;
+    }
+
     return {
       data: null,
       loading: false,
       error: undefined
     };
   });
+
+  mockAddPlanGuidanceFn = jest.fn().mockResolvedValue({
+    data: { key: 'value' }
+  });
+
+  mockRemovePlanGuidanceFn = jest.fn().mockResolvedValue({
+    data: { key: 'value' }
+  });
+
+  mockUseMutation.mockImplementation((document) => {
+    if (document === AddPlanGuidanceDocument) {
+      return [mockAddPlanGuidanceFn, { loading: false, error: undefined }] as any;
+    }
+
+    if (document === RemovePlanGuidanceDocument) {
+      return [mockRemovePlanGuidanceFn, { loading: false, error: undefined }] as any;
+    }
+
+    return [jest.fn(), { loading: false, error: undefined }] as any;
+  });
 };
+
 
 describe('PlanOverviewQuestionPage render of questions', () => {
   beforeEach(() => {
@@ -391,7 +430,6 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     // Check that mock guidance loaded
     const guidancePanel = screen.getByTestId('mock-guidance-panel');
     expect(guidancePanel).toBeInTheDocument();
-
   })
 
   it('should display disabled comment button when an answer does not exist for the question', async () => {

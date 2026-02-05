@@ -657,6 +657,10 @@
         "guidanceGroupUpdated": "Guidance group {groupName} successfully updated",
         "guidanceTextAdded": "Guidance text successfully added to {tagName}. The change(s) need to be published to take effect.",
         "guidanceTextUpdated": "Guidance text for {tagName} successfully updated. The change(s) need to be published to take effect."
+      },
+      "errors": {
+        "unableToAddOrganization": "Unable to add organization",
+        "unableToRemoveOrganization": "Unable to remove organization"
       }
     },
     "labels": {
@@ -719,6 +723,7 @@
     "dataFormat": "Data format",
     "dataVolume": "Data volume",
     "opensInNewTab": "Opens in a new tab",
+    "noGuidanceAvailable": "The selected organization has no guidance for this question",
     "buttons": {
       "search": "Search",
       "lookup": "Lookup",
@@ -768,6 +773,7 @@
       "startDate": "Start date",
       "endDate": "End date",
       "funderSearch": "Search by funder name",
+      "nameSearch": "Search by name",
       "requiredField": "Mark as required?",
       "previousPage": "Previous page",
       "nextPage": "Next page",
@@ -801,6 +807,7 @@
     },
     "placeholders": {
       "funderSearch": "Enter funder name...",
+      "nameSearch": "Enter name...",
       "enterComment": "Enter your comment"
     },
     "links": {

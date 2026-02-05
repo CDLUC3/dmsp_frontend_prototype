@@ -433,3 +433,19 @@ button.medium {
     }
   }
 }
+
+// Unstyled button: removes all default button styles so icons are not affected
+.unstyled,
+button.unstyled,
+.react-aria-Button.unstyled {
+  all: unset;
+  background: none !important;
+  color: inherit !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  font: inherit !important;
+  cursor: pointer;
+  line-height: inherit;
+  display: inline;
+}
