@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { middleware } from '../middleware';
+import { proxy } from '../proxy';
 import { verifyJwtToken } from '@/lib/server/auth';
 import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
 
@@ -51,7 +51,7 @@ jest.mock('@/utils/authHelper', () => ({
 (verifyJwtToken as jest.Mock).mockResolvedValue({ languageId: 'en-US' });
 (getAuthTokenServer as jest.Mock).mockResolvedValue('mock-token');
 
-describe('middleware', () => {
+describe('proxy', () => {
   let request: NextRequest;
   let response: NextResponse;
 
@@ -92,7 +92,7 @@ describe('middleware', () => {
     (getAuthTokenServer as jest.Mock).mockResolvedValue('mock-token');
     (verifyJwtToken as jest.Mock).mockResolvedValue({ languageId: 'pt-BR' });
 
-    await middleware(request);
+    await proxy(request);
 
     const expectedUrl = new URL("http://localhost/pt-BR/");
     expect(NextResponse.redirect).toHaveBeenCalledWith(expectedUrl);
@@ -102,7 +102,7 @@ describe('middleware', () => {
     request.nextUrl.pathname = '/dmps/';
     request.cookies.get = jest.fn().mockReturnValue(undefined); // No tokens
 
-    const result = await middleware(request);
+    const result = await proxy(request);
 
     expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/pt-BR/login', request.url));
     expect(result).toBe(NextResponse.redirect(new URL('/login', request.url)));
@@ -111,7 +111,7 @@ describe('middleware', () => {
   it('should set custom header for /dmps path', async () => {
     request.nextUrl.pathname = '/en-US/dmps';
 
-    const result = await middleware(request);
+    const result = await proxy(request);
 
     expect(NextResponse.next).toHaveBeenCalled();
     expect(response.headers.set).toHaveBeenCalledWith('x-url', request.nextUrl.href);
@@ -125,7 +125,7 @@ describe('middleware', () => {
       return undefined;
     });
 
-    const result = await middleware(request);
+    const result = await proxy(request);
 
     expect(NextResponse.next).toHaveBeenCalled();
     expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -139,7 +139,7 @@ describe('middleware', () => {
     // Mock console.error to avoid cluttering test output
     jest.spyOn(console, 'error').mockImplementation(() => { });
 
-    await middleware(request);
+    await proxy(request);
 
     const expectedUrl = new URL("http://localhost/en-US/");
     expect(NextResponse.redirect).toHaveBeenCalledWith(expectedUrl);
