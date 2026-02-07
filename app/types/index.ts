@@ -165,6 +165,14 @@ export interface SectionFormInterface {
   sectionTags?: TagsInterface[];
 }
 
+export interface CustomSectionInterface {
+  customSectionRequirements: string;
+  customSectionGuidance: string;
+  displayOrder?: number;
+  bestPractice?: boolean;
+  sectionTags?: TagsInterface[];
+}
+
 export interface SectionFormErrorsInterface {
   sectionName: string;
   sectionIntroduction: string;

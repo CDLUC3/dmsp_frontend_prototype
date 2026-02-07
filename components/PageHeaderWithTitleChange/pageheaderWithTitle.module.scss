@@ -1,11 +1,11 @@
 @use '@/styles/responsive.scss' as r;
 
-.template-editor-header {
+.templateEditorHeader {
   // This is to match the left padding for content container
   padding: 0 var(--brand-space2);
 }
 
-.pageheader-container {
+.pageheaderContainer {
   padding: 0;
   margin-top: 1rem;
   margin-bottom: 2rem;
@@ -16,7 +16,7 @@
     align-items: flex-start;
   }
   
-  .pageheader-title-container {
+  .pageheaderTitleContainer {
     display: flex;
     align-items: baseline;
     // Mobile default (outside of any device mixin)
@@ -28,34 +28,34 @@
       gap: var(--brand-space2);
     }
   
-    .pageheader-title {
+    .pageheaderTitle {
       margin-bottom: 0;
     }
 
-    .link {
+    button {
       font-size: var(--fs-small);
       color: var(--gray-600);
       font-weight:300;
     }
   }
   
-  .pageheader-title {
+  .pageheaderTitle {
     margin-top: 0;
     margin-bottom: 1rem;
     font-weight: var(--fw-bold);
   }
   
-  .pageheader-intro {
+  .pageheaderIntro {
     font-size: 1rem;
   }
   
-  .heading-buttons-actions {
+  .headingButtonsActions {
     display: flex;
     align-items: center;
     gap: 0.25rem;
   }
 
-  .title-form-container {
+  .titleFormContainer {
     width: 100%;
   }
 }
@@ -63,11 +63,12 @@
 
 
 // Form styles
-.pageheader-title-form{
+.pageheaderTitleForm{
   // Make the form a flex container
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
+  max-width: 66%;
   
   // Mobile first approach - column layout by default
   flex-direction: column;
@@ -76,12 +77,13 @@
     flex-direction: row;
   }
   
-  .react-aria-TextField {
-    margin-bottom: 0;
+  .react-aria-TextField,
+  [data-testid="field-wrapper"] {
+    margin-bottom: 0 !important; // To override default
   }
 
   // Custom input class
-  .titleChange-input {
+  .titleChangeInput {
     margin-bottom: 0;
     max-width: 100%;
     white-space: nowrap;        /* Prevents text from wrapping */
@@ -107,7 +109,7 @@
   }
   
   // Button container for the two buttons
-  .button-container {
+  .buttonContainer {
     display: flex;
     gap: 8px; // Space between buttons
     align-items: flex-start;
@@ -123,8 +125,8 @@
   }
   
   // Make the intro paragraph take full width
-  .pageheader-intro {
+  .pageheaderIntro {
     flex-basis: 100%;
-    margin-top: 16px;
+    margin-top: 0;
   }
 }

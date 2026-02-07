@@ -16,6 +16,7 @@ interface SectionHeaderEditProps {
   onMoveDown?: (() => void) | undefined;
   sectionAuthorType?: "funder" | "organization" | null;
   checklist?: SectionChecklist;
+  customizable?: boolean; // New prop to indicate if this is in a customizable context
 }
 
 const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
@@ -26,6 +27,7 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
   onMoveDown,
   sectionAuthorType,
   checklist,
+  customizable = false,
 }) => {
   const Sections = useTranslations("Sections");
   const UpArrowIcon = () => (
@@ -118,30 +120,33 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
           href={editUrl}
           className={styles.editButton}
         >
-          {Sections("links.editSection")}
+          {customizable ? Sections("links.customize") : Sections("links.editSection")}
         </a>
 
-        <div className={styles.orderButtons}>
-          {onMoveUp && (
-            <Button
-              className={`${styles.btnDefault} ${styles.orderButton}`}
-              onPress={onMoveUp}
-              aria-label={Sections("buttons.moveUp", { title })}
-            >
-              <UpArrowIcon />
-            </Button>
-          )}
+        {/** Only display order buttons if this is not for customized templates */}
+        {!customizable && (
+          <div className={styles.orderButtons}>
+            {onMoveUp && (
+              <Button
+                className={`${styles.btnDefault} ${styles.orderButton}`}
+                onPress={onMoveUp}
+                aria-label={Sections("buttons.moveUp", { title })}
+              >
+                <UpArrowIcon />
+              </Button>
+            )}
 
-          {onMoveDown && (
-            <Button
-              className={`${styles.btnDefault} ${styles.orderButton}`}
-              onPress={onMoveDown}
-              aria-label={Sections("buttons.moveDown", { title })}
-            >
-              <DownArrowIcon />
-            </Button>
-          )}
-        </div>
+            {onMoveDown && (
+              <Button
+                className={`${styles.btnDefault} ${styles.orderButton}`}
+                onPress={onMoveDown}
+                aria-label={Sections("buttons.moveDown", { title })}
+              >
+                <DownArrowIcon />
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

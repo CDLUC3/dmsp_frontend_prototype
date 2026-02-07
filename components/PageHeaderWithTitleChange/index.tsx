@@ -8,7 +8,7 @@ import {
 } from "react-aria-components";
 import { useTranslations } from 'next-intl';
 import { FormInput } from '@/components/Form';
-import './pageheaderWithTitle.scss';
+import styles from './pageheaderWithTitle.module.scss';
 
 interface PageHeaderProps {
   /** The main title of the page */
@@ -77,7 +77,7 @@ const PageHeaderWithTitleChange: React.FC<PageHeaderProps> = ({
   }, [title]);
 
   return (
-    <div className={`template-editor-header ${className}`.trim()}>
+    <div className={`${styles.templateEditorHeader} ${className}`.trim()}>
       {/* Breadcrumbs slot */}
       {breadcrumbs && (
         <div className="mb-4">
@@ -90,25 +90,25 @@ const PageHeaderWithTitleChange: React.FC<PageHeaderProps> = ({
         <BackButton />
       )}
 
-      <div className="pageheader-container">
+      <div className={styles.pageheaderContainer}>
         {/* Title and description section */}
-        <div className="title-form-container">
-          <Form onSubmit={handleFormSubmit} className="pageheader-title-form">
+        <div className={styles.titleFormContainer}>
+          <Form onSubmit={handleFormSubmit} className={styles.pageheaderTitleForm}>
             {isEditing ? (
               <FormInput
                 name={title}
                 type="text"
                 label={labelText}
                 value={newTitle}
-                inputClasses="titleChange-input"
+                inputClasses={styles.titleChangeInput}
                 placeholder={placeholder ?? Global('editTitle')}
                 onChange={handleChange}
               />
             ) : (
-              <div className="pageheader-title-container">
-                <h1 className="pageheader-title">{title}</h1>
+              <div className={styles.pageheaderTitleContainer}>
+                <h1 className={styles.pageheaderTitle}>{title}</h1>
                 <Button
-                  className='link'
+                  className="link"
                   onPress={handleEdit}
                 >
                   {linkText ?? Global('links.editTitle')}
@@ -116,12 +116,12 @@ const PageHeaderWithTitleChange: React.FC<PageHeaderProps> = ({
               </div>
             )}
             {isEditing && (
-              <div className="button-container">
+              <div className={styles.buttonContainer}>
                 <Button type="submit" className="secondary" onPress={() => setIsEditing(false)}>{Global('buttons.cancel')}</Button>
                 <Button type="submit" className="primary" data-testid="save-button">{Global('buttons.save')}</Button>
               </div>
             )}
-            <p className="pageheader-intro">
+            <p className={styles.pageheaderIntro}>
               {description}
               {descriptionAppend && <>{' '}{descriptionAppend}</>}
             </p>
@@ -130,7 +130,7 @@ const PageHeaderWithTitleChange: React.FC<PageHeaderProps> = ({
 
         {/* Actions slot - can contain one or multiple buttons */}
         {actions && (
-          <div className="heading-buttons-actions">
+          <div className={styles.headingButtonsActions}>
             {actions}
           </div>
         )}

@@ -23,6 +23,7 @@ interface QuestionEditCardProps {
   handleDisplayOrderChange: (questionId: number, questionDisplayOrder: number) => void;
   questionAuthorType?: "funder" | "organization" | null;
   checklist?: QuestionChecklist;
+  customizable?: boolean; // New prop to indicate if this is in a customizable template
 }
 
 const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
@@ -34,6 +35,7 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
   handleDisplayOrderChange,
   questionAuthorType,
   checklist,
+  customizable = false,
 }) => {
   const questionText = stripHtml(text);
   const questionId = Number(id);
@@ -59,12 +61,10 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
 
   // Determine link text based on questionAuthorType
   const getLinkText = () => {
-    switch (questionAuthorType) {
-      case "funder":
-        return EditQuestion("links.customizeQuestion");
-      default:
-        return EditQuestion("links.editQuestion");
+    if (customizable) {
+      return EditQuestion("links.customizeQuestion");
     }
+    return EditQuestion("links.editQuestion");
   };
 
   const UpArrowIcon = () => (
@@ -190,22 +190,25 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
         >
           {getLinkText()}
         </Link>
-        <div className={styles.orderButtons}>
-          <Button
-            className={`${styles.btnDefault} ${styles.orderButton}`}
-            aria-label={EditQuestion("buttons.moveUp", { name: text })}
-            onPress={() => handleDisplayOrderChange(questionId, questionDisplayOrder - 1)}
-          >
-            <UpArrowIcon />
-          </Button>
-          <Button
-            className={`${styles.btnDefault} ${styles.orderButton}`}
-            aria-label={EditQuestion("buttons.moveDown", { name: text })}
-            onPress={() => handleDisplayOrderChange(questionId, questionDisplayOrder + 1)}
-          >
-            <DownArrowIcon />
-          </Button>
-        </div>
+        {!customizable && (
+          <div className={styles.orderButtons}>
+            <Button
+              className={`${styles.btnDefault} ${styles.orderButton}`}
+              aria-label={EditQuestion("buttons.moveUp", { name: text })}
+              onPress={() => handleDisplayOrderChange(questionId, questionDisplayOrder - 1)}
+            >
+              <UpArrowIcon />
+            </Button>
+            <Button
+              className={`${styles.btnDefault} ${styles.orderButton}`}
+              aria-label={EditQuestion("buttons.moveDown", { name: text })}
+              onPress={() => handleDisplayOrderChange(questionId, questionDisplayOrder + 1)}
+            >
+              <DownArrowIcon />
+            </Button>
+          </div>
+        )}
+
       </div>
     </div>
   );

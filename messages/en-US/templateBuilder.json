@@ -65,6 +65,12 @@
       "successfullyUpdatedTitle": "Successfully updated the template title"
     }
   },
+  "CustomizeTemplate": {
+    "title": "Customize template",
+    "buttons": {
+      "publishCustomization": "Publish customization"
+    }
+  },
   "PublishTemplate": {
     "heading": {
       "publish": "Publish",
@@ -127,7 +133,8 @@
     },
     "links": {
       "editSection": "Edit section",
-      "addSection": "Add section"
+      "addSection": "Add section",
+      "customize": "Customize"
     },
     "buttons": {
       "moveUp": "Move section up {title}",

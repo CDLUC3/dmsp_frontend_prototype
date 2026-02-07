@@ -17,6 +17,7 @@ interface SectionEditContainerProps {
   sectionId: number;
   templateId: string | number;
   displayOrder: number;
+  customizable?: boolean; // New prop to indicate if this is in a customizable template
   setErrorMessages: React.Dispatch<React.SetStateAction<string[]>>;
   onMoveUp: (() => void) | undefined;
   onMoveDown: (() => void) | undefined;
@@ -26,6 +27,7 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
   sectionId,
   templateId,
   displayOrder,
+  customizable = false,
   setErrorMessages,
   onMoveUp,
   onMoveDown
@@ -225,7 +227,8 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
           key={section.id}
           sectionNumber={displayOrder}
           title={section.name}
-          editUrl={`/template/${templateId}/section/${section.id}`}
+          editUrl={customizable ? `/template/${templateId}/section/${section.id}/customize` : `/template/${templateId}/section/${section.id}`}
+          customizable={customizable}
           onMoveUp={onMoveUp}
           onMoveDown={onMoveDown}
         />
@@ -236,14 +239,19 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
             key={question.id}
             id={question.id ? question.id.toString() : ''}
             text={question.questionText || ''}
-            link={`/template/${templateId}/q/${question.id}`}
+            link={customizable ? `/template/${templateId}/q/${question.id}/customize` : `/template/${templateId}/q/${question.id}`}
             displayOrder={Number(question.displayOrder)}
             handleDisplayOrderChange={handleDisplayOrderChange}
+            customizable={customizable}
           />
         </div>
       ))}
       <div role="listitem">
-        <AddQuestionButton href={`/template/${templateId}/q/new?section_id=${section.id}`} />
+        {customizable ? (
+          <AddQuestionButton href={`/template/${templateId}/q/new/customize?section_id=${section.id}`} />
+        ) : (
+          <AddQuestionButton href={`/template/${templateId}/q/new?section_id=${section.id}`} />
+        )}
       </div>
       <div aria-live="polite" aria-atomic="true" className="hidden-accessibly">
         {announcement}

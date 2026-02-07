@@ -1,9 +1,8 @@
-import React from "react";
 import { act, fireEvent, render, screen } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useQueryStep } from '@/app/[locale]/template/[templateId]/q/new/utils';
-import QuestionTypeSelectPage from "../page";
+import QuestionTypeSelectPage from "../index";
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);

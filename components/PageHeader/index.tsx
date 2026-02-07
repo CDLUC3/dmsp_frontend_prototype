@@ -2,12 +2,14 @@
 
 import React, { ReactNode, useEffect } from 'react';
 import BackButton from "@/components/BackButton";
-import './pageheader.scss';
+import styles from './pageheader.module.scss';
 import { stripHtml } from "@/utils/general";
 
 interface PageHeaderProps {
   /** The main title of the page */
   title: string;
+  /** The subtitle of the page, if provided */
+  subtitle?: string;
   /** Optional description text below the title */
   description?: string;
   /** Whether to show the back button - defaults to true */
@@ -22,6 +24,7 @@ interface PageHeaderProps {
 
 const PageHeader: React.FC<PageHeaderProps> = ({
   title,
+  subtitle,
   description,
   showBackButton = true,
   breadcrumbs,
@@ -44,7 +47,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
 
   return (
-    <div className={`template-editor-header ${className}`.trim()}>
+    <div className={`${styles.templateEditorHeader} ${className}`.trim()}>
       {/* Breadcrumbs slot */}
       {breadcrumbs && (
         <div className="mb-4">
@@ -57,12 +60,17 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         <BackButton />
       )}
 
-      <div className="pageheader-container">
+      <div className={styles.pageheaderContainer}>
         {/* Title and description section */}
         <div className="">
-          <h1 className="pageheader-title">{plainTitle}</h1>
+          <h1 className={styles.pageheaderTitle}>{plainTitle}</h1>
+          {subtitle && (
+            <h2 className={styles.pageheaderSubtitle}>
+              {subtitle}
+            </h2>
+          )}
           {description && (
-            <p className="pageheader-intro">
+            <p className={styles.pageheaderIntro}>
               {description}
             </p>
           )}
@@ -70,7 +78,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
         {/* Actions slot - can contain one or multiple buttons */}
         {actions && (
-          <div className="heading-buttons-actions">
+          <div className={styles.headingButtonsActions}>
             {actions}
           </div>
         )}

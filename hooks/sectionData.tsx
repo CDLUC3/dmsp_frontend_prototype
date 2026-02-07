@@ -7,7 +7,11 @@ import { useQuery } from '@apollo/client/react';
 import { SectionDocument, } from '@/generated/graphql';
 
 // Utils and other
-import { SectionFormInterface, TagsInterface } from '@/app/types';
+import {
+  CustomSectionInterface,
+  SectionFormInterface,
+  TagsInterface
+} from '@/app/types';
 import { stripHtmlTags } from '@/utils/general';
 
 export const useSectionData = (sectionId: number) => {
@@ -20,6 +24,11 @@ export const useSectionData = (sectionId: number) => {
     displayOrder: undefined,
     bestPractice: undefined
   });
+
+  const [customSectionData, setCustomSectionData] = useState<CustomSectionInterface>({
+    customSectionGuidance: '',
+    customSectionRequirements: ''
+  })
 
   // Keep track of which checkboxes have been selected
   const [selectedTags, setSelectedTags] = useState<TagsInterface[]>([]);
@@ -63,10 +72,12 @@ export const useSectionData = (sectionId: number) => {
 
 
   return {
+    customSectionData,
     sectionData,
     selectedTags,
     checkboxTags,
     loading,
+    setCustomSectionData,
     setSectionData,
     setSelectedTags,
     data

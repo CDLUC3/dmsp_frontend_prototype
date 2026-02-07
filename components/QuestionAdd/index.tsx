@@ -85,12 +85,15 @@ const QuestionAdd = ({
   questionType,
   questionName,
   questionJSON,
-  sectionId }:
+  sectionId,
+  mode = 'regular',
+}:
   {
     questionType?: string | null,
     questionName?: string | null,
     questionJSON: string,
-    sectionId?: string
+    sectionId?: string,
+    mode: 'regular' | 'customize'
   }) => {
 
   const params = useParams();
@@ -100,7 +103,15 @@ const QuestionAdd = ({
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
-  const step1Url = routePath('template.q.new', { templateId }, { section_id: sectionId, step: 1 })
+
+  // The page to redirect to when a user clicks "Back" from their browser or tries to access the page without selecting a question type first. 
+  // Depending on the mode, users will either be redirected to the regular question type selection page or the customize question type selection page
+  const step1Url = routePath(
+    mode === 'customize' ? 'template.q.custom.new' : 'template.q.new',
+    { templateId },
+    { section_id: sectionId, step: 1 }
+  );
+
   // Track whether there are unsaved changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   // Form state
