@@ -1,7 +1,11 @@
 import React from "react";
 import { useTranslations } from "next-intl";
+import classNames from "classnames";
 import styles from "./SectionHeaderEdit.module.scss";
-import { Button } from "react-aria-components";
+import {
+  Button,
+  Link
+} from "react-aria-components";
 
 interface SectionChecklist {
   requirements: boolean;
@@ -116,12 +120,12 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
         )}
       </div>
       <div className={styles.buttonGroup}>
-        <a
+        <Link
           href={editUrl}
-          className={styles.editButton}
+          className={classNames(styles.editButton, { [styles.customizeButton]: customizable })}
         >
           {customizable ? Sections("links.customize") : Sections("links.editSection")}
-        </a>
+        </Link>
 
         {/** Only display order buttons if this is not for customized templates */}
         {!customizable && (

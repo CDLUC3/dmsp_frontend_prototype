@@ -175,3 +175,8 @@
     line-height: var(--lh-normal);
   }
 }
+
+.customizedQuestion {
+  background: var(--purple-50);
+  border-left: 10px solid var(--purple-600);
+}

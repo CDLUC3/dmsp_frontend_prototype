@@ -47,6 +47,121 @@ import { useToast } from "@/context/ToastContext";
 import { routePath } from "@/utils/routes";
 import styles from "./customizeTemplate.module.scss";
 
+// Type definitions for customized template data
+type CustomQuestion = {
+  displayOrder: number;
+  guidanceText: string;
+  id: number;
+  questionText: string;
+  sectionId: number;
+  templateId: number;
+  isCustomized?: boolean;
+};
+
+type CustomSection = {
+  id: number;
+  name: string;
+  bestPractice: boolean;
+  displayOrder: number;
+  isDirty: boolean;
+  questions: CustomQuestion[];
+};
+
+type CustomizedTemplateData = {
+  id: number;
+  name: string;
+  description: string | null;
+  latestPublishVersion: string;
+  latestPublishDate: string;
+  created: string;
+  sections: CustomSection[];
+  owner: {
+    displayName: string;
+    id: number;
+  };
+  latestPublishVisibility: string;
+  bestPractice: boolean;
+  isDirty: boolean;
+};
+
+const customizedTemplate: CustomizedTemplateData = {
+  id: 394,
+  name: "Test Template 1",
+  description: null,
+  latestPublishVersion: "v1",
+  latestPublishDate: "1770574508000",
+  created: "2026-02-08 18:14:11",
+  latestPublishVisibility: "PUBLIC",
+  bestPractice: false,
+  isDirty: false,
+  sections: [
+    {
+      id: 1814,
+      name: "Section One",
+      bestPractice: false,
+      displayOrder: 1,
+      isDirty: false,
+      questions: [
+        {
+          displayOrder: 2,
+          guidanceText: "<p>Specify library name and type</p>",
+          id: 3687,
+          questionText: "Customized: Will you submit the data to the library?",
+          sectionId: 1814,
+          templateId: 394
+        }
+      ]
+    }
+  ],
+  owner: {
+    displayName: "California Digital Library (cdlib.org)",
+    id: 1
+  }
+};
+
+const mergeCustomizedTemplate = (
+  originalSections: Section[],
+  customizedTemplate: CustomizedTemplateData | null
+): Section[] => {
+  if (!customizedTemplate || !customizedTemplate.sections) {
+    return originalSections;
+  }
+
+  // Create a map of customized sections by sectionId
+  const customizedSectionsMap = new Map(
+    customizedTemplate.sections.map((section) => [section?.id, section])
+  );
+
+  return originalSections.map((originalSection) => {
+    const customizedSection = customizedSectionsMap.get(originalSection.id!);
+
+    if (!customizedSection) {
+      return originalSection;
+    }
+
+    // Merge questions: add custom questions to existing ones
+    const originalQuestions = originalSection.questions || [];
+    const customQuestions = customizedSection.questions || [];
+
+    // Mark custom questions to distinguish them
+    const markedCustomQuestions = customQuestions.map((q) => ({
+      ...q,
+      isCustomized: true, // Add a flag to identify custom questions
+    }));
+
+    // Combine and sort by displayOrder
+    const mergedQuestions = [...originalQuestions, ...markedCustomQuestions].sort(
+      (a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)
+    );
+
+    return {
+      ...originalSection,
+      questions: mergedQuestions,
+      // Optionally mark the section as having customizations
+      hasCustomizations: customQuestions.length > 0,
+    } as Section;
+  });
+};
 const TemplateCustomizePage: React.FC = () => {
   const formatDate = useFormatDate();
 
@@ -93,7 +208,6 @@ const TemplateCustomizePage: React.FC = () => {
   } = useQuery(TemplateDocument, {
     variables: { templateId: Number(templateId) },
   });
-
   const sortSections = (sections: Section[]) => {
     // Create a new array with the spread operator before sorting
     return [...sections].sort((a, b) => a.displayOrder! - b.displayOrder!);
@@ -344,7 +458,11 @@ const TemplateCustomizePage: React.FC = () => {
   useEffect(() => {
     if (data?.template?.sections) {
       const sorted = sortSections(data.template.sections.filter((section): section is Section => section !== null));
-      setLocalSections(sorted);
+
+      // Merge with customized template data
+      const mergedSections = mergeCustomizedTemplate(sorted, customizedTemplate);
+      setLocalSections(mergedSections);
+
     }
   }, [data]);
 
@@ -370,7 +488,10 @@ const TemplateCustomizePage: React.FC = () => {
     localSections.length > 0
       ? localSections
       : template.sections
-        ? sortSections(template.sections.filter((section): section is Section => section !== null))
+        ? mergeCustomizedTemplate(
+          sortSections(template.sections.filter((section): section is Section => section !== null)),
+          customizedTemplate
+        )
         : [];
 
   const description =
@@ -413,7 +534,7 @@ const TemplateCustomizePage: React.FC = () => {
                 .map((section) => (
                   <SectionEditContainer
                     key={section.id}
-                    sectionId={section.id as number}
+                    section={section}
                     displayOrder={section.displayOrder!}
                     templateId={templateId}
                     setErrorMessages={setErrorMessages}

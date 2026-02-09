@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useQuery } from '@apollo/client/react';
 
 import {
-  SectionDocument,
   Question,
+  Section,
 } from '@/generated/graphql';
 import { useToast } from '@/context/ToastContext';
 import SectionHeaderEdit from '@/components/SectionHeaderEdit';
@@ -14,7 +13,7 @@ import AddQuestionButton from '@/components/AddQuestionButton';
 import { updateQuestionDisplayOrderAction } from './actions';
 
 interface SectionEditContainerProps {
-  sectionId: number;
+  section: Section;
   templateId: string | number;
   displayOrder: number;
   customizable?: boolean; // New prop to indicate if this is in a customizable template
@@ -23,8 +22,16 @@ interface SectionEditContainerProps {
   onMoveDown: (() => void) | undefined;
 }
 
+type ExtendedQuestion = Question & {
+  isCustomized?: boolean;
+  customData?: {
+    questionText?: string;
+    guidanceText?: string;
+  };
+};
+
 const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
-  sectionId,
+  section,
   templateId,
   displayOrder,
   customizable = false,
@@ -37,33 +44,37 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
   const t = useTranslations('Sections');
   const Global = useTranslations('Global');
 
-  const { data, loading, error, refetch } = useQuery(SectionDocument, {
-    variables: { sectionId: Number(sectionId) },
-    fetchPolicy: 'network-only',
-    notifyOnNetworkStatusChange: true,
-  });
-
   // Local state for optimistic updates
-  const [localQuestions, setLocalQuestions] = useState<Question[]>([]);
+  const [localQuestions, setLocalQuestions] = useState<ExtendedQuestion[]>([]);
   const [isReordering, setIsReordering] = useState(false);
 
   // Added for accessibility
   const [announcement, setAnnouncement] = useState('');
 
-  // Memoize the sorted questions to prevent unnecessary re-renders
-  const sortedQuestionsFromData = useMemo(() => {
-    if (!data?.section?.questions) return [];
-    return [...data.section.questions].sort((a, b) => a.displayOrder! - b.displayOrder!);
-  }, [data?.section?.questions]);
+  // Memoize the sorted questions from passed section data
+  const sortedQuestionsFromSection = useMemo(() => {
+    if (!section?.questions) return [];
+    return [...section.questions].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+  }, [section?.questions]);
 
-  // Update local questions when data changes
+  // Update local questions when section data changes
   useEffect(() => {
-    if (sortedQuestionsFromData.length > 0) {
-      setLocalQuestions(sortedQuestionsFromData);
+    if (sortedQuestionsFromSection.length > 0) {
+      // Map questions to ExtendedQuestion type with isCustomized flag
+      const extendedQuestions: ExtendedQuestion[] = sortedQuestionsFromSection.map(q => ({
+        ...q,
+        // Check if this question has the isCustomized flag from merging
+        isCustomized: (q as any).isCustomized || false,
+        customData: (q as any).isCustomized ? {
+          questionText: q.questionText || undefined,
+          guidanceText: (q as any).guidanceText || undefined,
+        } : undefined
+      }));
+      setLocalQuestions(extendedQuestions);
     }
-  }, [sortedQuestionsFromData]);
+  }, [sortedQuestionsFromSection]);
 
-  const sortQuestions = (questions: Question[]) => {
+  const sortQuestions = (questions: ExtendedQuestion[]) => {
     return [...questions].sort((a, b) => (a.displayOrder!) - (b.displayOrder!));
   };
 
@@ -151,34 +162,40 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
   }
 
   const handleDisplayOrderChange = async (questionId: number, newDisplayOrder: number) => {
-    // Remove all current errors
     setErrorMessages([]);
+    console.log("Handle display order", { questionId, newDisplayOrder });
 
-    if (isReordering) return; // Prevent concurrent operations
+    if (isReordering) return;
 
     const { isValid, message } = validateQuestionMove(questionId, newDisplayOrder);
     if (!isValid && message) {
-      // Deliver toast error messages
       toastState.add(message, { type: 'error' });
       return;
     }
 
-    // First, optimistically update the UI immediately for smoother reshuffling
     updateLocalQuestionOrder(questionId, newDisplayOrder);
     setIsReordering(true);
 
     try {
-      const result = await updateDisplayOrder(
-        questionId,
-        newDisplayOrder
-      );
+      const result = await updateDisplayOrder(questionId, newDisplayOrder);
 
       if (!result.success) {
-        // Revert optimistic update on failure
-        await refetch();
-        const errors = result.errors;
+        // On failure, revert by resetting from section prop
+        if (section?.questions) {
+          const resetQuestions = [...section.questions]
+            .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+            .map(q => ({
+              ...q,
+              isCustomized: (q as any).isCustomized || false,
+              customData: (q as any).isCustomized ? {
+                questionText: q.questionText || undefined,
+                guidanceText: (q as any).guidanceText || undefined,
+              } : undefined
+            }));
+          setLocalQuestions(resetQuestions);
+        }
 
-        //Check if errors is an array or an object
+        const errors = result.errors;
         if (Array.isArray(errors)) {
           if (setErrorMessages) {
             setErrorMessages(errors.length > 0 ? errors : [Global('messaging.somethingWentWrong')])
@@ -186,16 +203,20 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
         }
       } else if (result.data?.errors?.general) {
         // Revert on server errors
-        await refetch();
+        if (section?.questions) {
+          const resetQuestions = [...section.questions]
+            .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+            .map(q => ({
+              ...q,
+              isCustomized: (q as any).isCustomized || false,
+            }));
+          setLocalQuestions(resetQuestions);
+        }
         setErrorMessages(prev => [...prev, result.data?.errors?.general || t('messages.errors.updateQuestionOrder')]);
       }
 
-      // Scroll user to the reordered section
       const focusedElement = document.activeElement;
-
-      // Check if an element is actually focused
       if (focusedElement) {
-        // Scroll the focused element into view
         focusedElement.scrollIntoView({
           behavior: 'smooth',
           block: 'center',
@@ -203,22 +224,26 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
         });
       }
 
-      // After successful update
       const message = t('messages.questionMoved', { displayOrder: newDisplayOrder })
       setAnnouncement(message);
     } catch {
-      // Revert optimistic update on network error
-      await refetch();
+      // Revert on error
+      if (section?.questions) {
+        const resetQuestions = [...section.questions]
+          .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+          .map(q => ({
+            ...q,
+            isCustomized: (q as any).isCustomized || false,
+          }));
+        setLocalQuestions(resetQuestions);
+      }
       setErrorMessages(prev => [...prev, t('messages.errors.updateQuestionOrder')]);
     } finally {
       setIsReordering(false);
     }
   }
 
-  if (loading) return <div>Loading section...</div>;
-  if (error || !data?.section) return <div>{t('messages.errors.failedToLoadSection')}</div>;
-
-  const section = data.section!;
+  if (!section) return <div>{t('messages.errors.failedToLoadSection')}</div>;
 
   return (
     <div role="list" aria-label="Questions list" style={{ marginBottom: '40px' }}>
@@ -233,7 +258,7 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
           onMoveDown={onMoveDown}
         />
       </div>
-      {localQuestions.map((question: Question) => (
+      {localQuestions.map((question: ExtendedQuestion) => (
         <div key={question.id} role="listitem">
           <QuestionEditCard
             key={question.id}
@@ -242,7 +267,10 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
             link={customizable ? `/template/${templateId}/q/${question.id}/customize` : `/template/${templateId}/q/${question.id}`}
             displayOrder={Number(question.displayOrder)}
             handleDisplayOrderChange={handleDisplayOrderChange}
+            questionAuthorType={question?.isCustomized ? "organization" : "funder"}
             customizable={customizable}
+            isCustomized={question?.isCustomized}
+            customData={question?.customData}
           />
         </div>
       ))}

@@ -24,6 +24,11 @@ interface QuestionEditCardProps {
   questionAuthorType?: "funder" | "organization" | null;
   checklist?: QuestionChecklist;
   customizable?: boolean; // New prop to indicate if this is in a customizable template
+  isCustomized?: boolean; // New prop to indicate if this question has been customized
+  customData?: {
+    questionText?: string;
+    guidanceText?: string;
+  }; // Optional prop for customized question data
 }
 
 const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
@@ -36,13 +41,21 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
   questionAuthorType,
   checklist,
   customizable = false,
+  isCustomized = false,
+  customData
 }) => {
-  const questionText = stripHtml(text);
+  // Use customized text if available, otherwise use original
+  const displayText = isCustomized && customData?.questionText
+    ? customData.questionText
+    : text;
+
+  const questionText = stripHtml(displayText);
   const questionId = Number(id);
   const questionDisplayOrder = Number(displayOrder);
 
   // Localization
   const EditQuestion = useTranslations("EditQuestion");
+  const Global = useTranslations("Global");
 
   // Determine eyebrow heading based on questionAuthorType
   const getEyebrowText = () => {
@@ -56,16 +69,33 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
     }
   };
 
+  // Determine card styling class
+  const getCardClassName = () => {
+    const classes = [styles.questionEditCard];
+
+    if (isCustomized) {
+      classes.push(styles.customizedQuestion);
+    } else if (isOrganizationQuestion) {
+      classes.push(styles.organizationQuestion);
+    }
+
+    return classes.join(' ');
+  };
+
   // Determine if this is an organization question for styling
   const isOrganizationQuestion = questionAuthorType === "organization";
 
   // Determine link text based on questionAuthorType
   const getLinkText = () => {
+    if (isCustomized) {
+      return Global("buttons.edit");
+    }
     if (customizable) {
       return EditQuestion("links.customizeQuestion");
     }
     return EditQuestion("links.editQuestion");
   };
+
 
   const UpArrowIcon = () => (
     <svg
@@ -105,7 +135,7 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
 
   return (
     <div
-      className={`${styles.questionEditCard} ${isOrganizationQuestion ? styles.organizationQuestion : ""}`}
+      className={getCardClassName()}
       key={id}
       data-testid="question-edit-card"
     >
@@ -113,12 +143,14 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
         className={styles.questionEditCard__content}
         aria-labelledby={`question-${id}`}
       >
-        <p
-          className={styles.questionEditCard__label}
-          id={`question-label-${id}`}
-        >
-          {getEyebrowText()}
-        </p>
+        <div className={styles.questionEditCard__header}>
+          <p
+            className={styles.questionEditCard__label}
+            id={`question-label-${id}`}
+          >
+            {getEyebrowText()}
+          </p>
+        </div>
         <div
           className={styles.questionEditCard__name}
           id={`question-${id}`}
@@ -190,7 +222,7 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
         >
           {getLinkText()}
         </Link>
-        {!customizable && (
+        {(!customizable || isCustomized) && (
           <div className={styles.orderButtons}>
             <Button
               className={`${styles.btnDefault} ${styles.orderButton}`}

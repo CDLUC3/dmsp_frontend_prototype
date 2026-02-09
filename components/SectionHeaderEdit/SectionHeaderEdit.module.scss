@@ -89,6 +89,10 @@
   }
 }
 
+.customizeButton {
+  padding-right: var(--space-6); // extra padding to align "customize" link with those in cards
+}
+
 .orderButton {
   padding: var(--space-1);
   color: var(--gray-600);

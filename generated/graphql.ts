@@ -610,6 +610,58 @@ export type ContentMatch = {
   titleHighlight?: Maybe<Scalars['String']['output']>;
 };
 
+export type CustomizableTemplateSearchResult = {
+  __typename?: 'CustomizableTemplateSearchResult';
+  /** Template affiliation uri */
+  affiliationId: Scalars['String']['output'];
+  /** Template affiliation name */
+  affiliationName: Scalars['String']['output'];
+  /** The description of the published template */
+  description?: Maybe<Scalars['String']['output']>;
+  /** Whether the customization has unpublished changes (if applicable) */
+  isDirty?: Maybe<Scalars['Boolean']['output']>;
+  /** The timestamp when the customization was last modified (if applicable) */
+  lastCustomized?: Maybe<Scalars['String']['output']>;
+  /** The id of the user who customized the template (if applicable) */
+  lastCustomizedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the user who last modified the customization (if applicable) */
+  lastCustomizedByName?: Maybe<Scalars['String']['output']>;
+  /** The status of the customization with regard to the published template (if applicable) */
+  migrationStatus?: Maybe<TemplateCustomizationMigrationStatus>;
+  /** The name of the published template */
+  name: Scalars['String']['output'];
+  /** The status of the customization (if applicable) */
+  status?: Maybe<TemplateCustomizationStatus>;
+  /** The id of the template customization (undefined means the template has not been customized yet) */
+  templateCustomizationId?: Maybe<Scalars['Int']['output']>;
+  /** The timestamp when the published template was last modified */
+  templateModified: Scalars['String']['output'];
+  /** The version number of the published template */
+  version: Scalars['String']['output'];
+  /** The id of the published template */
+  versionedTemplateId: Scalars['Int']['output'];
+};
+
+export type CustomizableTemplateSearchResults = PaginatedQueryResults & {
+  __typename?: 'CustomizableTemplateSearchResults';
+  /** The sortFields that are available for this query (for standard offset pagination only!) */
+  availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The current offset of the results (for standard offset pagination) */
+  currentOffset?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not there is a next page */
+  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
+  /** Whether or not there is a previous page */
+  hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
+  /** The CustomizableTemplateSearchResult that match the search criteria */
+  items?: Maybe<Array<Maybe<CustomizableTemplateSearchResult>>>;
+  /** The number of items returned */
+  limit?: Maybe<Scalars['Int']['output']>;
+  /** The cursor to use for the next page of results (for infinite scroll/load more) */
+  nextCursor?: Maybe<Scalars['String']['output']>;
+  /** The total number of possible items */
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 export type DoiMatch = {
   __typename?: 'DoiMatch';
   /** Indicates whether the work's DOI was found on a funder award page associated with the plan */
@@ -846,15 +898,6 @@ export enum GuidanceSourceType {
   /** Guidance from user-selected organizations */
   UserSelected = 'USER_SELECTED'
 }
-
-/** Output type for the initializePlanVersion mutation */
-export type InitializePlanVersionOutput = {
-  __typename?: 'InitializePlanVersionOutput';
-  /** The number of PlanVersion records that were created */
-  count: Scalars['Int']['output'];
-  /** The ids of the Plans that were processed */
-  planIds?: Maybe<Array<Scalars['Int']['output']>>;
-};
 
 /** An institution of an author of a work */
 export type Institution = {
@@ -1168,8 +1211,8 @@ export type Mutation = {
   setPrimaryUserEmail?: Maybe<Array<Maybe<UserEmail>>>;
   /** Set the user's ORCID */
   setUserOrcid?: Maybe<User>;
-  /** Initialize an PLanVersion record in the DynamoDB for all Plans that do not have one */
-  superInitializePlanVersions: InitializePlanVersionOutput;
+  /** Initialize a PLanVersion record in the DynamoDB for all Plans that do not have one */
+  superSyncPlanMaDMP: Scalars['Boolean']['output'];
   /** Unpublish a GuidanceGroup (sets active flag to false on current version) */
   unpublishGuidanceGroup: GuidanceGroup;
   /** Update an Affiliation */
@@ -1611,6 +1654,11 @@ export type MutationSetPrimaryUserEmailArgs = {
 
 export type MutationSetUserOrcidArgs = {
   orcid: Scalars['String']['input'];
+};
+
+
+export type MutationSuperSyncPlanMaDmpArgs = {
+  planId: Scalars['Int']['input'];
 };
 
 
@@ -2604,6 +2652,8 @@ export type Query = {
   bestPracticeSections?: Maybe<Array<Maybe<VersionedSection>>>;
   /** Get all of the research domains related to the specified top level domain (more nuanced ones) */
   childResearchDomains?: Maybe<Array<Maybe<ResearchDomain>>>;
+  /** Get all of the customizable templates for the current user's affiliation (user must be an Admin) */
+  customizableTemplates?: Maybe<CustomizableTemplateSearchResults>;
   /** Get all of the research output types */
   defaultResearchOutputTypes?: Maybe<Array<Maybe<ResearchOutputType>>>;
   /** Search for a User to add as a collaborator */
@@ -2724,8 +2774,6 @@ export type Query = {
   sectionVersions?: Maybe<Array<Maybe<VersionedSection>>>;
   /** Get the Sections that belong to the associated templateId */
   sections?: Maybe<Array<Maybe<Section>>>;
-  /** Fetch the DynamoDB PlanVersion record for a specific plan and version timestamp (leave blank for the latest) */
-  superInspectPlanVersion?: Maybe<Scalars['String']['output']>;
   /** Get all available tags to display */
   tags: Array<Tag>;
   tagsBySectionId?: Maybe<Array<Maybe<Tag>>>;
@@ -2797,6 +2845,14 @@ export type QueryBestPracticeGuidanceArgs = {
 
 export type QueryChildResearchDomainsArgs = {
   parentResearchDomainId: Scalars['Int']['input'];
+};
+
+
+export type QueryCustomizableTemplatesArgs = {
+  migrationStatus?: InputMaybe<Scalars['String']['input']>;
+  paginationOptions?: InputMaybe<PaginationOptions>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  term?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -3077,12 +3133,6 @@ export type QuerySectionVersionsArgs = {
 
 export type QuerySectionsArgs = {
   templateId: Scalars['Int']['input'];
-};
-
-
-export type QuerySuperInspectPlanVersionArgs = {
-  modified?: InputMaybe<Scalars['String']['input']>;
-  planId: Scalars['Int']['input'];
 };
 
 
@@ -3763,6 +3813,26 @@ export type TemplateCollaboratorErrors = {
   templateId?: Maybe<Scalars['String']['output']>;
   userId?: Maybe<Scalars['String']['output']>;
 };
+
+/** The status of a Template Customization with regard to the funder template */
+export enum TemplateCustomizationMigrationStatus {
+  /** The customization is tracking the published version of the funder template */
+  Ok = 'OK',
+  /** The customization is tracking a funder template that is no longer published */
+  Orphaned = 'ORPHANED',
+  /** The customization is tracking an unpublished version of the funder template */
+  Stale = 'STALE'
+}
+
+/** The status of a Template Customization */
+export enum TemplateCustomizationStatus {
+  /** The customization has been archived */
+  Archived = 'ARCHIVED',
+  /** The customization is not currently published */
+  Draft = 'DRAFT',
+  /** The customization is published and can be used by researchers */
+  Published = 'PUBLISHED'
+}
 
 /** A collection of errors related to the Template */
 export type TemplateErrors = {

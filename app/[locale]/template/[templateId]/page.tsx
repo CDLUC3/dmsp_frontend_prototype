@@ -110,6 +110,7 @@ const TemplateEditPage: React.FC = () => {
     variables: { templateId: Number(templateId) },
   });
 
+  console.log("Template Edit Page data:", data);
   const sortSections = (sections: Section[]) => {
     // Create a new array with the spread operator before sorting
     return [...sections].sort((a, b) => a.displayOrder! - b.displayOrder!);
@@ -489,6 +490,7 @@ const TemplateEditPage: React.FC = () => {
         ? sortSections(template.sections.filter((section): section is Section => section !== null))
         : [];
 
+  console.log("Sections to render:", sectionsToRender);
   const description =
     `by ${template?.owner?.displayName}` +
     (template?.latestPublishVersion ? ` - ${Global("version")}: ${template.latestPublishVersion}` : "") +
@@ -542,7 +544,7 @@ const TemplateEditPage: React.FC = () => {
                 .map((section) => (
                   <SectionEditContainer
                     key={section.id}
-                    sectionId={section.id as number}
+                    section={section}
                     displayOrder={section.displayOrder!}
                     templateId={templateId}
                     setErrorMessages={setErrorMessages}
