@@ -1,5 +1,11 @@
 import { ReactNode } from "react";
-import { PlanSectionProgress, TemplateVisibility, PlanFeedback, ProjectFundingStatus } from "@/generated/graphql";
+import {
+  PlanSectionProgress,
+  TemplateVisibility,
+  PlanFeedback,
+  ProjectFundingStatus,
+  TemplateCustomizationMigrationStatus
+} from "@/generated/graphql";
 import {
   AffiliationSearchQuestionType,
   AnyQuestionType,
@@ -39,6 +45,10 @@ export interface ProfileDataInterface {
 export interface PaginatedTemplateSearchResultsInterface {
   items: TemplateSearchResultInterface[] | null;
 }
+
+export interface PaginatedCustomizedTemplateSearchResultsInterface {
+  items: CustomizedTemplatesSearchResultInterface[] | null;
+}
 export interface TemplateSearchResultInterface {
   id?: number | null;
   name?: string | null;
@@ -54,7 +64,20 @@ export interface TemplateSearchResultInterface {
   ownerDisplayName?: string | null;
 }
 
-
+export interface CustomizedTemplatesSearchResultInterface {
+  description: string;
+  name: string;
+  isDirty: boolean;
+  lastCustomized: string;
+  lastCustomizedById: number;
+  lastCustomizedByName: string;
+  migrationStatus: TemplateCustomizationMigrationStatus;
+  templateCustomizationId: number;
+  versionedTemplateId: number;
+  affiliationName: string;
+  affiliationId: string;
+  templateModified: string;
+}
 export interface TemplateInterface {
   name: string;
   description?: string | null;
@@ -87,6 +110,18 @@ export interface TemplateItemProps {
   publishDate?: string | null;
   bestPractices?: boolean;
   latestPublishVisibility?: string | null;
+}
+
+export interface CustomizedTemplatesProps {
+  id?: number;
+  title: string;
+  link: string;
+  funder?: string;
+  lastCustomized: string | null;
+  lastCustomizedByName?: string;
+  customizationStatus: string;
+  defaultExpanded: boolean;
+  templateModified: string | null;
 }
 
 export interface PaginatedVersionedTemplateSearchResultsInterface {

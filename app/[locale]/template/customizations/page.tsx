@@ -29,18 +29,16 @@ import { useScrollToTop } from '@/hooks/scrollToTop';
 import { useFormatDate } from '@/hooks/useFormatDate';
 
 // Utils and other
-import { toSentenceCase } from '@/utils/general';
 import { logECS, routePath } from '@/utils/index';
 import {
-  TemplateSearchResultInterface,
-  TemplateItemProps,
-  PaginatedTemplateSearchResultsInterface
+  CustomizedTemplatesProps,
+  PaginatedCustomizedTemplateSearchResultsInterface,
+  CustomizedTemplatesSearchResultInterface
 } from '@/app/types';
 import styles from './templateCustomizations.module.scss';
 
 // # of templates displayed per section type
 const LIMIT = 5;
-
 
 const TemplateListCustomizationsPage: React.FC = () => {
   const formatDate = useFormatDate();
@@ -55,7 +53,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
   const [nextCursor, setNextCursor] = useState<string | null>(null);
 
   const [totalCount, setTotalCount] = useState<number | null>(0);
-  const [searchResults, setSearchResults] = useState<TemplateItemProps[]>([]);
+  const [searchResults, setSearchResults] = useState<CustomizedTemplatesProps[]>([]);
   const [isSearchFetch, setIsSearchFetch] = useState(false);
   const [firstNewIndex, setFirstNewIndex] = useState<number | null>(null);
   const [isSearching, setIsSearching] = useState(false);
@@ -65,7 +63,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
   const [searchTotalCount, setSearchTotalCount] = useState<number | null>(0);
 
 
-  const [templates, setTemplates] = useState<(TemplateItemProps)[]>([]);
+  const [customizedTemplates, setCustomizedTemplates] = useState<(CustomizedTemplatesProps)[]>([]);
 
   // For translations
   const t = useTranslations('OrganizationTemplates');
@@ -73,11 +71,41 @@ const TemplateListCustomizationsPage: React.FC = () => {
   const Global = useTranslations('Global');
   const SelectTemplate = useTranslations('TemplateSelectTemplatePage');
 
-  // Set URLs
-  const TEMPLATE_CREATE_URL = routePath('template.create');
-
   // Lazy query for organization templates
   const [fetchCustomizableTemplates, { data: customizableTemplatesData, loading, error: queryError }] = useLazyQuery<CustomizableTemplatesQuery>(CustomizableTemplatesDocument);
+
+  const getCustomization = (template: CustomizedTemplatesSearchResultInterface): string => {
+    /* 
+    - If there is not templateCustomizationId - The Funder template has not been customized
+    - If the migrationStatus = "OK" and the isDirtyFlag = false - The customization is Published
+    - If the migrationStatus = "OK" and the isDirtyFlag = true - The customization has unpublished changes
+    - If the migrationStatus = "STALE" 0 the funder as pulbished a new version and the customization is out of date
+    - If the migrationStatus = "ORPHANED" - the funder has archived the template so the customization is no longer relevant
+    */
+
+    // Not customized (no customization ID)
+    if (!template?.templateCustomizationId) {
+      return Customizable('templateStatus.notCustomized');
+    }
+
+    // Out of date (funder has changes)
+    if (template.migrationStatus === 'STALE') {
+      return Customizable('templateStatus.hasChanged');
+    }
+
+    // Unpublished changes (OK but dirty)
+    if (template.migrationStatus === 'OK' && template.isDirty === true) {
+      return Customizable('templateStatus.unPublished');
+    }
+
+    // Published (OK and not dirty)
+    if (template.migrationStatus === 'OK' && template.isDirty === false) {
+      return Customizable('templateStatus.published');
+    }
+
+    // Fallback
+    return Customizable('templateStatus.notCustomizable');
+  }
 
   // zero out search and filters
   const resetSearch = async () => {
@@ -89,12 +117,13 @@ const TemplateListCustomizationsPage: React.FC = () => {
     setIsSearchFetch(false);
 
     //Reset templates
-    setTemplates([]);
+    setCustomizedTemplates([]);
     setNextCursor(null); // Reset cursor
     setTotalCount(0);
     await fetchCustomizableTemplates({
       variables: {
         paginationOptions: {
+          type: "CURSOR",
           limit: LIMIT,
         },
       },
@@ -156,7 +185,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
 
   const handleLoadMore = async () => {
     if (!nextCursor) return;
-    setFirstNewIndex(templates.length);
+    setFirstNewIndex(customizedTemplates.length);
     await fetchCustomizableTemplates({
       variables: {
         paginationOptions: {
@@ -201,32 +230,28 @@ const TemplateListCustomizationsPage: React.FC = () => {
 
       return () => clearTimeout(timeoutId);
     }
-  }, [templates, searchResults, firstNewIndex]);
+  }, [customizedTemplates, searchResults, firstNewIndex]);
 
   useEffect(() => {
     if (!customizableTemplatesData || !customizableTemplatesData.customizableTemplates) return;
-    // Transform templates into format expected by TemplateSelectListItem component
-    const processTemplates = async (templates: PaginatedTemplateSearchResultsInterface | null) => {
+    // Transform customized templates into format expected by TemplateSelectListItem component
+    const processTemplates = async (templates: PaginatedCustomizedTemplateSearchResultsInterface | null) => {
       const items = templates?.items ?? [];
 
       const transformedTemplates = await Promise.all(
-        items.map(async (template: TemplateSearchResultInterface | null) => {
-          const statusForTemplate = template?.isDirty && template?.latestPublishDate
-            ? Customizable('templateStatus.hasChanged')
-            : !template?.latestPublishDate
-              ? Customizable('templateStatus.notCustomized')
-              : t('status.published');
+        items.map(async (template: CustomizedTemplatesSearchResultInterface | null) => {
+
+          const statusForCustomization = getCustomization(template as CustomizedTemplatesSearchResultInterface);
           return {
-            id: template?.id,
+            id: template?.templateCustomizationId,
             title: template?.name || "",
-            link: routePath('template.customize', { templateId: Number(template?.id) }),
-            funder: template?.ownerDisplayName,
-            lastUpdated: (template?.modified) ? formatDate(template?.modified) : null,
-            lastRevisedBy: template?.modifiedByName,
-            publishStatus: statusForTemplate,
-            publishDate: (template?.latestPublishDate) ? formatDate(template?.latestPublishDate) : null,
+            link: routePath('template.customize', { templateId: Number(template?.versionedTemplateId) }),
+            funder: template?.affiliationName,
+            lastCustomized: (template?.lastCustomized) ? formatDate(template?.lastCustomized) : null,
+            lastCustomizedByName: template?.lastCustomizedByName,
+            customizationStatus: statusForCustomization,
             defaultExpanded: false,
-            latestPublishVisibility: toSentenceCase(template?.latestPublishVisibility ? template?.latestPublishVisibility?.toString() : '')
+            templateModified: template?.templateModified ? formatDate(template?.templateModified) : null,
           }
         }));
 
@@ -244,12 +269,12 @@ const TemplateListCustomizationsPage: React.FC = () => {
         setIsSearching(false); // Re-enable search button
       } else {
         // Handle regular pagination - backend returns only new items for cursor pagination
-        if (items.length === 0) {
+        if (customizedTemplates.length === 0) {
           // First load - set all results
-          setTemplates(transformedTemplates);
+          setCustomizedTemplates(transformedTemplates);
         } else {
           // Subsequent loads - append new items (backend sends only new items)
-          setTemplates(prev => [...prev, ...transformedTemplates]);
+          setCustomizedTemplates(prev => [...prev, ...transformedTemplates]);
         }
 
         setNextCursor(customizableTemplatesData?.customizableTemplates?.nextCursor ?? null);
@@ -259,7 +284,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
 
     processTemplates({
       ...customizableTemplatesData.customizableTemplates,
-      items: (customizableTemplatesData.customizableTemplates.items ?? []).filter((item): item is TemplateSearchResultInterface => item !== null),
+      items: (customizableTemplatesData.customizableTemplates.items ?? []).filter((item): item is CustomizedTemplatesSearchResultInterface => item !== null),
     });
 
   }, [customizableTemplatesData, isSearchFetch]);
@@ -269,6 +294,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
     fetchCustomizableTemplates({
       variables: {
         paginationOptions: {
+          type: "CURSOR",
           limit: LIMIT,
         },
       },
@@ -368,7 +394,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
                   <p>{Global('messaging.noItemsFound')}</p>
                 ) : (
                   <>
-                    {templates.map((template, index) => (
+                    {customizedTemplates.map((template, index) => (
                       <div
                         key={`${template.id}-${index}`}
                         data-index={index}
@@ -388,7 +414,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
                           {Global('buttons.loadMore')}
                         </Button>
                         <div className={styles.remainingText}>
-                          {Global('messaging.numDisplaying', { num: templates.length, total: totalCount || '' })}
+                          {Global('messaging.numDisplaying', { num: customizedTemplates.length, total: totalCount || '' })}
                         </div>
                         {isSearchFetch && (
                           <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}> {Global('links.clearFilter')}</Button>

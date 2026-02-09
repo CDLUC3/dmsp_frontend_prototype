@@ -22,7 +22,14 @@
     "description": "Select a template that you can customize with additional guidance or questions.",
     "templateStatus": {
       "hasChanged": "Funder template has changed",
-      "notCustomized": "Not customized"
+      "notCustomized": "Not customized",
+      "published": "Published",
+      "unPublished": "Unpublished",
+      "notCustomizable": "Not customizable",
+      "lastCustomized": "Last customized date",
+      "lastCustomizedBy": "Last customized by",
+      "customizationStatus": "Customization status",
+      "templateLastUpdated": "Template last updated"
     }
   },
   "EditTemplates": {

@@ -2,28 +2,13 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { DmpIcon } from "@/components/Icons";
 import styles from "./customizedTemplateListItem.module.scss";
-import { useToast } from "@/context/ToastContext";
-interface TemplateSelectListItemProps {
-  item: {
-    id?: number | null;
-    link?: string | null;
-    template?: {
-      id?: number | null;
-    };
-    funder?: string | null;
-    title: string;
-    description?: string;
-    lastRevisedBy?: string | null;
-    lastUpdated?: string | null;
-    publishStatus?: string | null;
-    publishDate?: string | null;
-    visibility?: string | null;
-    latestPublishVisibility?: string | null;
-    hasAdditionalGuidance?: boolean;
-  };
+import { CustomizedTemplatesProps } from '@/app/types';
+
+interface CustomizedTemplateListItemProps {
+  item: CustomizedTemplatesProps;
 }
 
-function TemplateSelectListItem({ item }: TemplateSelectListItemProps) {
+function CustomizedTemplateListItem({ item }: CustomizedTemplateListItemProps) {
 
   //Localization keys
   const Global = useTranslations("Global");
@@ -57,32 +42,40 @@ function TemplateSelectListItem({ item }: TemplateSelectListItemProps) {
                 item.title
               )}
             </h3>
-            {item.description && <p className={styles.description}>{item.description}</p>}
 
-            {/**TODO: This data needs to be about customizations only. Waiting for backend changes */}
+            {/**Display customization metadata */}
             <div
               className={styles.metadata}
               data-testid="template-metadata"
             >
-              <span>
-                {Global("lastRevisedBy")}: {item.lastRevisedBy}
-              </span>
-              <span className={styles.separator}>
-                {Global("lastUpdated")}: {item.lastUpdated}
-              </span>
-              {item.publishStatus && item.publishStatus.length > 0 && (
+              {item.lastCustomizedByName && (
+                <span>
+                  {Customizable("templateStatus.lastCustomizedBy")}:{' '}{item.lastCustomizedByName}
+                </span>
+              )}
+              {item.lastCustomized && (
+                <span className={item.lastCustomizedByName ? styles.separator : ''}>
+                  {Customizable("templateStatus.lastCustomized")}:{' '}{item.lastCustomized}
+                </span>
+              )}
+              {item.customizationStatus && item.customizationStatus.length > 0 && (
                 <div className={styles.publishStatus}>
-                  <span className={styles.separator}>
-                    {item.publishStatus}
+                  <span className={(item.lastCustomizedByName || item.lastCustomized) ? styles.separator : ''}>
+                    {Customizable("templateStatus.customizationStatus")}:{' '}{item.customizationStatus}
                   </span>
                   <span className={`${styles.unpublishedChangesIcon} ${styles.warning} icon `}>
-                    {item.publishStatus === Customizable('templateStatus.hasChanged') ? (
+                    {item.customizationStatus === Customizable('templateStatus.hasChanged') ? (
                       <DmpIcon icon="warning" />
-                    ) : item.publishStatus === Global('status.unpublishedChanges') ? (
+                    ) : item.customizationStatus === Customizable('templateStatus.unPublished') ? (
                       <DmpIcon icon="edit-square" />
                     ) : null}
                   </span>
                 </div>
+              )}
+              {item.templateModified && (
+                <span className={item.templateModified ? styles.separator : ''}>
+                  {Customizable("templateStatus.templateLastUpdated")}:{' '}{item.templateModified}
+                </span>
               )}
             </div>
           </div>
@@ -105,4 +98,4 @@ function TemplateSelectListItem({ item }: TemplateSelectListItemProps) {
   );
 }
 
-export default TemplateSelectListItem;
+export default CustomizedTemplateListItem;

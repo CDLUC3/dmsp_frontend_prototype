@@ -22,7 +22,14 @@
     "description": "Selecione um modelo que você pode personalizar com orientações ou perguntas adicionais.",
     "templateStatus": {
       "hasChanged": "O modelo do financiador foi alterado.",
-      "notCustomized": "ão personalizado"
+      "notCustomized": "ão personalizado",
+      "published": "Publicado",
+      "unPublished": "Não publicado",
+      "notCustomizable": "ão personalizável",
+      "lastCustomized": "Última data de personalização",
+      "lastCustomizedBy": "Última personalização por",
+      "customizationStatus": "Status de personalização",
+      "templateLastUpdated": "Última atualização do modelo"
     }
   },
   "EditTemplates": {

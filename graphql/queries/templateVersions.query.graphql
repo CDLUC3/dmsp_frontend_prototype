@@ -71,3 +71,25 @@ query PublishedTemplatesMetaData($paginationOptions: PaginationOptions, $term: S
     availableAffiliations
   }
 }
+
+query CustomizableTemplates($term: String, $paginationOptions: PaginationOptions) {
+  customizableTemplates(term: $term, paginationOptions: $paginationOptions){
+    items {
+      description
+      name
+      isDirty
+      lastCustomized,
+      lastCustomizedById,
+      lastCustomizedByName,
+      migrationStatus
+      templateCustomizationId
+      versionedTemplateId
+      affiliationName
+      affiliationId
+      templateModified
+    }
+    nextCursor
+    totalCount
+    limit
+  }
+}
