@@ -20,7 +20,6 @@ function Header() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const {
     isAuthenticated,
-    setIsAuthenticated,
     clearAuthData
   } = useAuthContext();
   const router = useRouter();
