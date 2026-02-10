@@ -6,7 +6,7 @@
 - Added related works project overview page [#700]
 
 ## Updated
-
+- Updated `useResearchOutputTable`'s `updateStandardFieldProperty` method to `enable` a Research Output Table field when any content or config changes for that field [#943]
 
 ## Chore
 - Updated `middleware.ts` to `proxy.ts` per `middleware` being deprecated in `next v16` [#51]
