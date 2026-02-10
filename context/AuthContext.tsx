@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getApolloClient} from '@/lib/graphql/apolloClient';
+import { getApolloClient } from '@/lib/graphql/apolloClient';
 import logECS from '@/utils/clientLogger';
 
 interface AuthContextType {
@@ -38,14 +38,20 @@ export function AuthProvider({ children }: {
     checkAuth();
   }, []);
 
-    // Function to clear all auth-related data
+  // Function to clear all auth-related data
   const clearAuthData = async () => {
     try {
       const apolloClient = getApolloClient();
       if (!apolloClient) {
-        throw new Error('Apollo Client is not available');
+        // If client isn't ready yet, just clear local state
+        // This shouldn't happen in practice for login/logout
+        logECS('warn', 'Apollo Client not available during clearAuthData', {
+          source: 'AuthProvider.clearAuthData'
+        });
+        setIsAuthenticated(false);
+        return;
       }
-    
+
       await apolloClient.clearStore(); // Clear Apollo cache
       setIsAuthenticated(false);
       logECS('info', 'Auth data and Apollo cache cleared', {
@@ -60,10 +66,10 @@ export function AuthProvider({ children }: {
 
 
   return (
-    <AuthContext.Provider value={{ 
-      isAuthenticated, 
-      setIsAuthenticated, 
-      clearAuthData 
+    <AuthContext.Provider value={{
+      isAuthenticated,
+      setIsAuthenticated,
+      clearAuthData
     }}>
       {children}
     </AuthContext.Provider>
