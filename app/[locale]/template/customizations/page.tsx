@@ -247,7 +247,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
           return {
             id: template?.customizationId,
             title: template?.versionedTemplateName,
-            link: routePath('template.customize', { templateId: Number(template?.customizationId) }),
+            link: routePath('template.customize', { templateCustomizationId: Number(template?.customizationId) }),
             funder: template?.versionedTemplateAffiliationName,
             lastCustomized: (template?.customizationLastCustomized) ? formatDate(template?.customizationLastCustomized) : null,
             lastCustomizedByName: template?.customizationLastCustomizedByName,

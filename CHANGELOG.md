@@ -1,5 +1,5 @@
 ## Added
-- Added new `/template/customizations` page and associated `CustomizedTemplateListItem` [#43]
+- Added new `/template/customizations` page and associated `CustomizedTemplateListItem` component [#43]
 - Added new `useGuidanceMutation` hook for adding and removing guidance from right sidebar [#15]
 - Added new queries `GuidanceSourcesForPlan`, `AddPlanGuidance`, `RemovePlanGuidance` and `ManagedAffiliationsWithGuidance` [#15]
 - Added new component `AffiliationSearchForGuidance` to be used for the custom guidance search modal [#15]
