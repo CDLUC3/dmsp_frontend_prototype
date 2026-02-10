@@ -63,6 +63,7 @@ export function AuthProvider({ children }: {
     }
   };
 
+  // Function to clear authentication data and cache on logout
   const clearAuthData = async () => {
     await clearCache();
     setIsAuthenticated(false);
