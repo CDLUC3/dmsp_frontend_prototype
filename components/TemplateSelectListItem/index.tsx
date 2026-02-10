@@ -78,14 +78,13 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
               {item.publishStatus && item.publishStatus.length > 0 && (
                 <span className={styles.separator}>
                   {item.publishStatus}
-                  {item?.publishDate ? ` (${item.publishDate})` : ""}
                 </span>
               )}
 
               {/**Since this component is shared across different pages, we want to change the arrangement of visibility 
              text if it's coming from /template page or the Plan Create page */}
               {item.latestPublishVisibility ? (
-                <span className="ms-2">
+                <span className={styles.separator}>
                   {Global("visibility")}: {toTitleCase(item.latestPublishVisibility)}
                 </span>
               ) : item.visibility ? (

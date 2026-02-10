@@ -8,6 +8,9 @@
 ## Updated
 
 
+## Fixed
+- Fixed bug where the published status on `/template/[templateId]` did not match that on the template cards at `/template` for the `unpublished changes` state. Added a shared hook for determining the correct status text [#875]
+
 ## Chore
 - Updated `middleware.ts` to `proxy.ts` per `middleware` being deprecated in `next v16` [#51]
 - Updated `eslint` to `v8.57.1`, `cypress` to `v15.10.0`, `eslint-config-next` to `v15.5.11`, `next` to `16.1.6`, `html-react-parser` to `v5.2.16`, `next-intl` to `v4.8.2`, `react` to `v19.2.4`, `react-dom` to `v19.2.4` and `jose` to `v6.1.3`
