@@ -25,6 +25,7 @@ jest.mock('@/utils/authHelper', () => ({
 jest.mock('@/context/AuthContext', () => ({
   useAuthContext: jest.fn(() => ({
     setIsAuthenticated: jest.fn(),
+    clearAuthData: jest.fn().mockResolvedValue(undefined),
   })),
 }));
 

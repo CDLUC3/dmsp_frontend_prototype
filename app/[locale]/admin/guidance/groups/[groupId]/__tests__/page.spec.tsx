@@ -427,7 +427,7 @@ describe("GuidanceGroupIndexPage", () => {
     fireEvent.click(saveBtn);
 
     await waitFor(() => {
-      expect(mockRouter.push).not.toHaveBeenCalledWith('/en-US/admin/guidance/groups/2397/some-redirect-page')
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/admin/guidance/groups/2397/some-redirect-page')
     });
   });
 
@@ -540,7 +540,7 @@ describe("GuidanceGroupIndexPage", () => {
 
 
     await waitFor(() => {
-      expect(mockRouter.push).not.toHaveBeenCalledWith('/en-US/admin/guidance/groups/2397/some-redirect-page')
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/admin/guidance/groups/2397/some-redirect-page')
     });
   });
 
@@ -652,7 +652,10 @@ describe("GuidanceGroupIndexPage", () => {
     const sidebar = screen.getByTestId("sidebar-panel");
     const inSidebar = within(sidebar);
     const unPublishBtn = inSidebar.getByRole("button", { name: "Global.buttons.unpublish" });
-    fireEvent.click(unPublishBtn);
+    
+    await act(async () => {
+      fireEvent.click(unPublishBtn);
+    });
 
     await waitFor(() => {
       expect(mockToast.add).toHaveBeenCalledWith('Guidance.messages.success.guidanceGroupUnpublished', { type: 'success' });
@@ -691,10 +694,13 @@ describe("GuidanceGroupIndexPage", () => {
     const sidebar = screen.getByTestId("sidebar-panel");
     const inSidebar = within(sidebar);
     const unPublishBtn = inSidebar.getByRole("button", { name: "Global.buttons.unpublish" });
-    fireEvent.click(unPublishBtn);
+    
+    await act(async () => {
+      fireEvent.click(unPublishBtn);
+    });
 
     await waitFor(() => {
-      expect(mockRouter.push).not.toHaveBeenCalledWith('/en-US/admin/guidance/redirect-page')
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/admin/guidance/redirect-page')
     });
   });
 
@@ -715,7 +721,10 @@ describe("GuidanceGroupIndexPage", () => {
     const sidebar = screen.getByTestId("sidebar-panel");
     const inSidebar = within(sidebar);
     const unPublishBtn = inSidebar.getByRole("button", { name: "Global.buttons.unpublish" });
-    fireEvent.click(unPublishBtn);
+    
+    await act(async () => {
+      fireEvent.click(unPublishBtn);
+    });
 
     // Since guidanceGroupId is undefined, we expect an inline error message and no side effects
     await waitFor(() => {
@@ -759,7 +768,10 @@ describe("GuidanceGroupIndexPage", () => {
     const sidebar = screen.getByTestId("sidebar-panel");
     const inSidebar = within(sidebar);
     const unPublishBtn = inSidebar.getByRole("button", { name: "Global.buttons.unpublish" });
-    fireEvent.click(unPublishBtn);
+    
+    await act(async () => {
+      fireEvent.click(unPublishBtn);
+    });
 
     await waitFor(() => {
       expect(screen.getByText('There was a general error')).toBeInTheDocument();
@@ -803,7 +815,10 @@ describe("GuidanceGroupIndexPage", () => {
     const sidebar = screen.getByTestId("sidebar-panel");
     const inSidebar = within(sidebar);
     const publishBtn = inSidebar.getByRole("button", { name: "Global.buttons.publish" });
-    fireEvent.click(publishBtn);
+    
+    await act(async () => {
+      fireEvent.click(publishBtn);
+    });
 
     await waitFor(() => {
       expect(mockToast.add).toHaveBeenCalledWith('Guidance.messages.success.guidanceGroupPublished', { type: 'success' });
@@ -847,11 +862,13 @@ describe("GuidanceGroupIndexPage", () => {
     const sidebar = screen.getByTestId("sidebar-panel");
     const inSidebar = within(sidebar);
     const publishBtn = inSidebar.getByRole("button", { name: "Global.buttons.publish" });
-    fireEvent.click(publishBtn);
+    
+    await act(async () => {
+      fireEvent.click(publishBtn);
+    });
 
-    // Since guidanceGroupId is undefined, we expect an inline error message and no side effects
     await waitFor(() => {
-      expect(mockRouter.push).not.toHaveBeenCalledWith('/en-US/admin/guidance/redirect-page')
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/admin/guidance/redirect-page')
     });
   });
 

@@ -18,7 +18,11 @@ import { routePath } from "@/utils/routes";
 
 function Header() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const { isAuthenticated, setIsAuthenticated } = useAuthContext();
+  const { 
+    isAuthenticated, 
+    setIsAuthenticated, 
+    clearAuthData 
+  } = useAuthContext();
   const router = useRouter();
   const { csrfToken } = useCsrf();
   const t = useTranslations("Header");
@@ -51,6 +55,7 @@ function Header() {
       });
 
       if (response.ok) {
+        await clearAuthData();
         setIsAuthenticated(false);
         router.push(routePath("app.login"));
       } else {

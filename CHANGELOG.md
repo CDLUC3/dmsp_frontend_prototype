@@ -1,4 +1,5 @@
 ## Added
+- Added new `clearCacheData` during `/login` and `/logout` to make sure all cache is cleared from any previous sessions  [#55]
 - Added new `useGuidanceMutation` hook for adding and removing guidance from right sidebar [#15]
 - Added new queries `GuidanceSourcesForPlan`, `AddPlanGuidance`, `RemovePlanGuidance` and `ManagedAffiliationsWithGuidance` [#15]
 - Added new component `AffiliationSearchForGuidance` to be used for the custom guidance search modal [#15]

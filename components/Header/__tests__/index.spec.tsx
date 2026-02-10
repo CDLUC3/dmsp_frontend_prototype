@@ -6,7 +6,9 @@ import { useAuthContext } from "@/context/AuthContext";
 import { useCsrf } from "@/context/CsrfContext";
 
 jest.mock("@/context/AuthContext", () => ({
-  useAuthContext: jest.fn(),
+  useAuthContext: jest.fn(() => ({
+    clearAuthData: jest.fn().mockResolvedValue(undefined),
+  })),
 }));
 
 jest.mock("@/context/CsrfContext", () => ({
@@ -68,6 +70,7 @@ describe("Header", () => {
     (useAuthContext as jest.Mock).mockReturnValue({
       isAuthenticated: true,
       setIsAuthenticated: mockSetIsAuthenticated,
+      clearAuthData: jest.fn().mockResolvedValue(undefined),
     });
     (useCsrf as jest.Mock).mockReturnValue({
       csrfToken: "mock-csrf-token",
