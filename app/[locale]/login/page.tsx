@@ -46,7 +46,7 @@ const LoginPage: React.FC = () => {
   const { csrfToken } = useCsrf();
   const router = useRouter();
 
-  const { setIsAuthenticated, clearAuthData} = useAuthContext();
+  const { setIsAuthenticated, clearCache } = useAuthContext();
 
   const handleLogin = async () => {
     setLoading(true);
@@ -72,8 +72,8 @@ const LoginPage: React.FC = () => {
       const response = await loginRequest(csrfToken);
 
       if (response.ok) {
-        // Clear any cached data from previous users
-        await clearAuthData();
+        // Clear any cached data
+        await clearCache();
         setIsAuthenticated(true);
         router.push('/')
       } else {

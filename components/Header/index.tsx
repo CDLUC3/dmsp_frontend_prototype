@@ -18,10 +18,10 @@ import { routePath } from "@/utils/routes";
 
 function Header() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const { 
-    isAuthenticated, 
-    setIsAuthenticated, 
-    clearAuthData 
+  const {
+    isAuthenticated,
+    setIsAuthenticated,
+    clearAuthData
   } = useAuthContext();
   const router = useRouter();
   const { csrfToken } = useCsrf();
@@ -56,7 +56,6 @@ function Header() {
 
       if (response.ok) {
         await clearAuthData();
-        setIsAuthenticated(false);
         router.push(routePath("app.login"));
       } else {
         console.error("Failed to logout");

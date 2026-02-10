@@ -7,6 +7,7 @@ import logECS from '@/utils/clientLogger';
 interface AuthContextType {
   isAuthenticated: boolean | null;
   setIsAuthenticated: (auth: boolean) => void;
+  clearCache: () => Promise<void>;
   clearAuthData: () => Promise<void>;
 }
 
@@ -38,30 +39,33 @@ export function AuthProvider({ children }: {
     checkAuth();
   }, []);
 
-  // Function to clear all auth-related data
-  const clearAuthData = async () => {
+  // Function to clear cache
+  const clearCache = async () => {
     try {
       const apolloClient = getApolloClient();
       if (!apolloClient) {
         // If client isn't ready yet, just clear local state
         // This shouldn't happen in practice for login/logout
-        logECS('warn', 'Apollo Client not available during clearAuthData', {
-          source: 'AuthProvider.clearAuthData'
+        logECS('warn', 'Apollo Client not available during clearCache', {
+          source: 'AuthProvider.clearCache'
         });
-        setIsAuthenticated(false);
         return;
       }
 
       await apolloClient.clearStore(); // Clear Apollo cache
-      setIsAuthenticated(false);
       logECS('info', 'Auth data and Apollo cache cleared', {
-        source: 'AuthProvider.clearAuthData'
+        source: 'AuthProvider.clearCache'
       });
     } catch (err) {
-      logECS('error', `Error clearing auth data: ${err}`, {
-        source: 'AuthProvider.clearAuthData'
+      logECS('error', `Error clearing cache: ${err}`, {
+        source: 'AuthProvider.clearCache'
       });
     }
+  };
+
+  const clearAuthData = async () => {
+    await clearCache();
+    setIsAuthenticated(false);
   };
 
 
@@ -69,6 +73,7 @@ export function AuthProvider({ children }: {
     <AuthContext.Provider value={{
       isAuthenticated,
       setIsAuthenticated,
+      clearCache,
       clearAuthData
     }}>
       {children}

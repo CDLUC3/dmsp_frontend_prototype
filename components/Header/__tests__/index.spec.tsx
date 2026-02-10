@@ -148,7 +148,6 @@ describe("Header", () => {
     });
 
     await waitFor(() => {
-      expect(mockSetIsAuthenticated).toHaveBeenCalledWith(false);
       expect(mockPush).toHaveBeenCalledWith("/app.login");
     });
   });
@@ -222,7 +221,7 @@ describe("Header", () => {
     ) as jest.Mock;
 
     // Mock console.error to avoid noise in test output
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => { });
 
     render(<Header />);
 
