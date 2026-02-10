@@ -84,22 +84,22 @@ const TemplateListCustomizationsPage: React.FC = () => {
     */
 
     // Not customized (no customization ID)
-    if (!template?.templateCustomizationId) {
+    if (!template?.customizationId) {
       return Customizable('templateStatus.notCustomized');
     }
 
     // Out of date (funder has changes)
-    if (template.migrationStatus === 'STALE') {
+    if (template.customizationMigrationStatus === 'STALE') {
       return Customizable('templateStatus.hasChanged');
     }
 
     // Unpublished changes (OK but dirty)
-    if (template.migrationStatus === 'OK' && template.isDirty === true) {
+    if (template.customizationMigrationStatus === 'OK' && template.customizationIsDirty === true) {
       return Customizable('templateStatus.unPublished');
     }
 
     // Published (OK and not dirty)
-    if (template.migrationStatus === 'OK' && template.isDirty === false) {
+    if (template.customizationMigrationStatus === 'OK' && template.customizationIsDirty === false) {
       return Customizable('templateStatus.published');
     }
 
@@ -234,6 +234,8 @@ const TemplateListCustomizationsPage: React.FC = () => {
 
   useEffect(() => {
     if (!customizableTemplatesData || !customizableTemplatesData.customizableTemplates) return;
+
+    console.log("Customizable templates data:", customizableTemplatesData);
     // Transform customized templates into format expected by TemplateSelectListItem component
     const processTemplates = async (templates: PaginatedCustomizedTemplateSearchResultsInterface | null) => {
       const items = templates?.items ?? [];
@@ -243,15 +245,15 @@ const TemplateListCustomizationsPage: React.FC = () => {
 
           const statusForCustomization = getCustomization(template as CustomizedTemplatesSearchResultInterface);
           return {
-            id: template?.templateCustomizationId,
-            title: template?.name || "",
-            link: routePath('template.customize', { templateId: Number(template?.versionedTemplateId) }),
-            funder: template?.affiliationName,
-            lastCustomized: (template?.lastCustomized) ? formatDate(template?.lastCustomized) : null,
-            lastCustomizedByName: template?.lastCustomizedByName,
+            id: template?.customizationId,
+            title: template?.versionedTemplateName,
+            link: routePath('template.customize', { templateId: Number(template?.customizationId) }),
+            funder: template?.versionedTemplateAffiliationName,
+            lastCustomized: (template?.customizationLastCustomized) ? formatDate(template?.customizationLastCustomized) : null,
+            lastCustomizedByName: template?.customizationLastCustomizedByName,
             customizationStatus: statusForCustomization,
             defaultExpanded: false,
-            templateModified: template?.templateModified ? formatDate(template?.templateModified) : null,
+            templateModified: template?.versionedTemplateLastModified ? formatDate(template?.versionedTemplateLastModified) : null,
           }
         }));
 
@@ -282,9 +284,12 @@ const TemplateListCustomizationsPage: React.FC = () => {
       }
     }
 
+    const filteredItems = (customizableTemplatesData.customizableTemplates.items ?? [])
+      .filter((item): item is NonNullable<typeof item> => item !== null) as CustomizedTemplatesSearchResultInterface[];
+
     processTemplates({
       ...customizableTemplatesData.customizableTemplates,
-      items: (customizableTemplatesData.customizableTemplates.items ?? []).filter((item): item is CustomizedTemplatesSearchResultInterface => item !== null),
+      items: filteredItems,
     });
 
   }, [customizableTemplatesData, isSearchFetch]);
@@ -389,7 +394,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
             </div>
           ) : (
             <>
-              <div className='template-list' role="list" aria-label={t('templateList')}>
+              <div className={`${styles.templateCards} template-list`} role="list" aria-label={t('templateList')}>
                 {searchTerm && searchButtonClicked ? (
                   <p>{Global('messaging.noItemsFound')}</p>
                 ) : (

@@ -14,7 +14,7 @@ function CustomizedTemplateListItem({ item }: CustomizedTemplateListItemProps) {
   const Global = useTranslations("Global");
   const Customizable = useTranslations('CustomizableTemplates');
   // Create unique IDs for ARIA relationships
-  const headingId = `${item.title.toLowerCase().replace(/\s+/g, "-")}-heading`;
+  const headingId = `${item?.title?.toLowerCase().replace(/\s+/g, "-")}-heading`;
 
   return (
     <div

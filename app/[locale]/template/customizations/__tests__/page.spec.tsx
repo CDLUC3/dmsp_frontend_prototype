@@ -66,7 +66,8 @@ describe('TemplateListCustomizationsPage', () => {
     cleanup();
   })
 
-  const renderPage = (apolloMocks: typeof mocks = mocks) => render(
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const renderPage = (apolloMocks: any = mocks) => render(
     <MockedProvider
       mocks={apolloMocks}
       cache={apolloCache}

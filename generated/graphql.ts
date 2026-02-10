@@ -205,6 +205,12 @@ export type AddSectionInput = {
   templateId: Scalars['Int']['input'];
 };
 
+/** Input parameters for adding a new Template Customization */
+export type AddTemplateCustomizationInput = {
+  status: TemplateCustomizationStatus;
+  versionedTemplateId: Scalars['Int']['input'];
+};
+
 /** A respresentation of an institution, organization or company */
 export type Affiliation = {
   __typename?: 'Affiliation';
@@ -612,34 +618,36 @@ export type ContentMatch = {
 
 export type CustomizableTemplateSearchResult = {
   __typename?: 'CustomizableTemplateSearchResult';
-  /** Template affiliation uri */
-  affiliationId: Scalars['String']['output'];
-  /** Template affiliation name */
-  affiliationName: Scalars['String']['output'];
-  /** The description of the published template */
-  description?: Maybe<Scalars['String']['output']>;
-  /** Whether the customization has unpublished changes (if applicable) */
-  isDirty?: Maybe<Scalars['Boolean']['output']>;
-  /** The timestamp when the customization was last modified (if applicable) */
-  lastCustomized?: Maybe<Scalars['String']['output']>;
-  /** The id of the user who customized the template (if applicable) */
-  lastCustomizedById?: Maybe<Scalars['Int']['output']>;
-  /** The name of the user who last modified the customization (if applicable) */
-  lastCustomizedByName?: Maybe<Scalars['String']['output']>;
-  /** The status of the customization with regard to the published template (if applicable) */
-  migrationStatus?: Maybe<TemplateCustomizationMigrationStatus>;
-  /** The name of the published template */
-  name: Scalars['String']['output'];
-  /** The status of the customization (if applicable) */
-  status?: Maybe<TemplateCustomizationStatus>;
   /** The id of the template customization (undefined means the template has not been customized yet) */
-  templateCustomizationId?: Maybe<Scalars['Int']['output']>;
-  /** The timestamp when the published template was last modified */
-  templateModified: Scalars['String']['output'];
-  /** The version number of the published template */
-  version: Scalars['String']['output'];
+  customizationId?: Maybe<Scalars['Int']['output']>;
+  /** Whether the customization has unpublished changes (if applicable) */
+  customizationIsDirty?: Maybe<Scalars['Boolean']['output']>;
+  /** The timestamp when the customization was last modified (if applicable) */
+  customizationLastCustomized?: Maybe<Scalars['String']['output']>;
+  /** The id of the user who customized the template (if applicable) */
+  customizationLastCustomizedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the user who last modified the customization (if applicable) */
+  customizationLastCustomizedByName?: Maybe<Scalars['String']['output']>;
+  /** The status of the customization with regard to the published template (if applicable) */
+  customizationMigrationStatus?: Maybe<TemplateCustomizationMigrationStatus>;
+  /** The status of the customization (if applicable) */
+  customizationStatus?: Maybe<TemplateCustomizationStatus>;
+  /** The affiliation uri that owns the published template */
+  versionedTemplateAffiliationId: Scalars['String']['output'];
+  /** The affiliation name that owns the published template */
+  versionedTemplateAffiliationName: Scalars['String']['output'];
+  /** Whether the published template is a best practice template */
+  versionedTemplateBestPractice: Scalars['Boolean']['output'];
+  /** The description of the published template */
+  versionedTemplateDescription?: Maybe<Scalars['String']['output']>;
   /** The id of the published template */
   versionedTemplateId: Scalars['Int']['output'];
+  /** The timestamp when the published template was last modified */
+  versionedTemplateLastModified: Scalars['String']['output'];
+  /** The name of the published template */
+  versionedTemplateName: Scalars['String']['output'];
+  /** The version number of the published template */
+  versionedTemplateVersion: Scalars['String']['output'];
 };
 
 export type CustomizableTemplateSearchResults = PaginatedQueryResults & {
@@ -1129,6 +1137,8 @@ export type Mutation = {
   addTemplate?: Maybe<Template>;
   /** Add a collaborator to a Template */
   addTemplateCollaborator?: Maybe<TemplateCollaborator>;
+  /** Add a new customization to a funder template (user must be an Admin) */
+  addTemplateCustomization: TemplateCustomization;
   /** Add an email address for the current user */
   addUserEmail?: Maybe<UserEmail>;
   /** Archive a plan */
@@ -1157,6 +1167,8 @@ export type Mutation = {
   publishGuidanceGroup: GuidanceGroup;
   /** Publish a plan (changes status to PUBLISHED) */
   publishPlan?: Maybe<Plan>;
+  /** Publish a customization (user must be an Admin) */
+  publishTemplateCustomization: TemplateCustomization;
   /** Delete an Affiliation (only applicable to AffiliationProvenance == DMPTOOL) */
   removeAffiliation?: Maybe<Affiliation>;
   /** Remove answer comment */
@@ -1199,6 +1211,8 @@ export type Mutation = {
   removeTag?: Maybe<Tag>;
   /** Remove a TemplateCollaborator from a Template */
   removeTemplateCollaborator?: Maybe<TemplateCollaborator>;
+  /** Remove a customization (user must be an Admin) */
+  removeTemplateCustomization: TemplateCustomization;
   /** Anonymize the current user's account (essentially deletes their account without orphaning things) */
   removeUser?: Maybe<User>;
   /** Remove an email address from the current user */
@@ -1215,6 +1229,8 @@ export type Mutation = {
   superSyncPlanMaDMP: Scalars['Boolean']['output'];
   /** Unpublish a GuidanceGroup (sets active flag to false on current version) */
   unpublishGuidanceGroup: GuidanceGroup;
+  /** Unpublish a customization (user must be an Admin) */
+  unpublishTemplateCustomization: TemplateCustomization;
   /** Update an Affiliation */
   updateAffiliation?: Maybe<Affiliation>;
   /** Edit an answer */
@@ -1271,6 +1287,8 @@ export type Mutation = {
   updateTag?: Maybe<Tag>;
   /** Update a Template */
   updateTemplate?: Maybe<Template>;
+  /** Update a customization (user must be an Admin) */
+  updateTemplateCustomization: TemplateCustomization;
   /** Update the current user's email notifications */
   updateUserNotifications?: Maybe<User>;
   /** Update the current user's information */
@@ -1442,6 +1460,11 @@ export type MutationAddTemplateCollaboratorArgs = {
 };
 
 
+export type MutationAddTemplateCustomizationArgs = {
+  input: AddTemplateCustomizationInput;
+};
+
+
 export type MutationAddUserEmailArgs = {
   email: Scalars['String']['input'];
   isPrimary: Scalars['Boolean']['input'];
@@ -1520,6 +1543,11 @@ export type MutationPublishGuidanceGroupArgs = {
 export type MutationPublishPlanArgs = {
   planId: Scalars['Int']['input'];
   visibility?: InputMaybe<PlanVisibility>;
+};
+
+
+export type MutationPublishTemplateCustomizationArgs = {
+  templateCustomizationId: Scalars['Int']['input'];
 };
 
 
@@ -1632,6 +1660,11 @@ export type MutationRemoveTemplateCollaboratorArgs = {
 };
 
 
+export type MutationRemoveTemplateCustomizationArgs = {
+  templateCustomizationId: Scalars['Int']['input'];
+};
+
+
 export type MutationRemoveUserEmailArgs = {
   email: Scalars['String']['input'];
 };
@@ -1664,6 +1697,11 @@ export type MutationSuperSyncPlanMaDmpArgs = {
 
 export type MutationUnpublishGuidanceGroupArgs = {
   guidanceGroupId: Scalars['Int']['input'];
+};
+
+
+export type MutationUnpublishTemplateCustomizationArgs = {
+  templateCustomizationId: Scalars['Int']['input'];
 };
 
 
@@ -1833,6 +1871,11 @@ export type MutationUpdateTemplateArgs = {
   bestPractice?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   templateId: Scalars['Int']['input'];
+};
+
+
+export type MutationUpdateTemplateCustomizationArgs = {
+  input: UpdateTemplateCustomizationInput;
 };
 
 
@@ -2781,6 +2824,8 @@ export type Query = {
   template?: Maybe<Template>;
   /** Get all of the Users that belong to another affiliation that can edit the Template */
   templateCollaborators?: Maybe<Array<Maybe<TemplateCollaborator>>>;
+  /** Get the specified customization (user must be an Admin) */
+  templateCustomization?: Maybe<TemplateCustomization>;
   /** Get all of the VersionedTemplate for the specified Template (a.k. the Template history) */
   templateVersions?: Maybe<Array<Maybe<VersionedTemplate>>>;
   /** Get all of the top level research domains (the most generic ones) */
@@ -3148,6 +3193,11 @@ export type QueryTemplateArgs = {
 
 export type QueryTemplateCollaboratorsArgs = {
   templateId: Scalars['Int']['input'];
+};
+
+
+export type QueryTemplateCustomizationArgs = {
+  templateCustomizationId: Scalars['Int']['input'];
 };
 
 
@@ -3814,6 +3864,35 @@ export type TemplateCollaboratorErrors = {
   userId?: Maybe<Scalars['String']['output']>;
 };
 
+/** A Customization of a funder template */
+export type TemplateCustomization = {
+  __typename?: 'TemplateCustomization';
+  /** The affiliation that the customization belongs to */
+  affiliationId: Scalars['String']['output'];
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** The current published version of the base funder template */
+  currentVersionedTemplateId: Scalars['Int']['output'];
+  /** Errors associated with the Object */
+  errors?: Maybe<TemplateErrors>;
+  /** The unique identifier for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** Whether the customization has been modified since it was last published */
+  isDirty: Scalars['Boolean']['output'];
+  /** The date this customization was last published */
+  latestPublishedDate?: Maybe<Scalars['String']['output']>;
+  /** The status of the customizations with regard to the base template */
+  migrationStatus: TemplateCustomizationMigrationStatus;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The status of the customization */
+  status: TemplateCustomizationStatus;
+};
+
 /** The status of a Template Customization with regard to the funder template */
 export enum TemplateCustomizationMigrationStatus {
   /** The customization is tracking the published version of the funder template */
@@ -4093,6 +4172,13 @@ export type UpdateSectionInput = {
   sectionId: Scalars['Int']['input'];
   /** The Tags associated with this section. A section might not have any tags */
   tags?: InputMaybe<Array<TagInput>>;
+};
+
+/** Input parameters for updating a Template Customization */
+export type UpdateTemplateCustomizationInput = {
+  status?: InputMaybe<TemplateCustomizationStatus>;
+  templateCustomizationId: Scalars['Int']['input'];
+  versionedTemplateId: Scalars['Int']['input'];
 };
 
 export type UpdateUserNotificationsInput = {
@@ -5647,7 +5733,7 @@ export type CustomizableTemplatesQueryVariables = Exact<{
 }>;
 
 
-export type CustomizableTemplatesQuery = { __typename?: 'Query', customizableTemplates?: { __typename?: 'CustomizableTemplateSearchResults', nextCursor?: string | null, totalCount?: number | null, limit?: number | null, items?: Array<{ __typename?: 'CustomizableTemplateSearchResult', description?: string | null, name: string, isDirty?: boolean | null, lastCustomized?: string | null, lastCustomizedById?: number | null, lastCustomizedByName?: string | null, migrationStatus?: TemplateCustomizationMigrationStatus | null, templateCustomizationId?: number | null, versionedTemplateId: number, affiliationName: string, affiliationId: string, templateModified: string } | null> | null } | null };
+export type CustomizableTemplatesQuery = { __typename?: 'Query', customizableTemplates?: { __typename?: 'CustomizableTemplateSearchResults', nextCursor?: string | null, totalCount?: number | null, limit?: number | null, items?: Array<{ __typename?: 'CustomizableTemplateSearchResult', customizationId?: number | null, customizationIsDirty?: boolean | null, customizationLastCustomized?: string | null, customizationLastCustomizedById?: number | null, customizationMigrationStatus?: TemplateCustomizationMigrationStatus | null, customizationLastCustomizedByName?: string | null, versionedTemplateDescription?: string | null, versionedTemplateAffiliationId: string, versionedTemplateAffiliationName: string, versionedTemplateId: number, versionedTemplateName: string, versionedTemplateVersion: string, versionedTemplateBestPractice: boolean, customizationStatus?: TemplateCustomizationStatus | null, versionedTemplateLastModified: string } | null> | null } | null };
 
 export type TemplatesQueryVariables = Exact<{
   term?: InputMaybe<Scalars['String']['input']>;
@@ -5806,7 +5892,7 @@ export const TemplateVersionsDocument = {"kind":"Document","definitions":[{"kind
 export const MyVersionedTemplatesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"MyVersionedTemplates"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"myVersionedTemplates"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"templateId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"visibility"}},{"kind":"Field","name":{"kind":"Name","value":"bestPractice"}},{"kind":"Field","name":{"kind":"Name","value":"version"}},{"kind":"Field","name":{"kind":"Name","value":"modified"}},{"kind":"Field","name":{"kind":"Name","value":"modifiedById"}},{"kind":"Field","name":{"kind":"Name","value":"modifiedByName"}},{"kind":"Field","name":{"kind":"Name","value":"ownerId"}},{"kind":"Field","name":{"kind":"Name","value":"ownerURI"}},{"kind":"Field","name":{"kind":"Name","value":"ownerDisplayName"}},{"kind":"Field","name":{"kind":"Name","value":"ownerSearchName"}}]}}]}}]} as unknown as DocumentNode<MyVersionedTemplatesQuery, MyVersionedTemplatesQueryVariables>;
 export const PublishedTemplatesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PublishedTemplates"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"paginationOptions"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationOptions"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"term"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"publishedTemplates"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"paginationOptions"},"value":{"kind":"Variable","name":{"kind":"Name","value":"paginationOptions"}}},{"kind":"Argument","name":{"kind":"Name","value":"term"},"value":{"kind":"Variable","name":{"kind":"Name","value":"term"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"limit"}},{"kind":"Field","name":{"kind":"Name","value":"nextCursor"}},{"kind":"Field","name":{"kind":"Name","value":"totalCount"}},{"kind":"Field","name":{"kind":"Name","value":"availableSortFields"}},{"kind":"Field","name":{"kind":"Name","value":"currentOffset"}},{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"hasPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"templateId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"visibility"}},{"kind":"Field","name":{"kind":"Name","value":"bestPractice"}},{"kind":"Field","name":{"kind":"Name","value":"version"}},{"kind":"Field","name":{"kind":"Name","value":"modified"}},{"kind":"Field","name":{"kind":"Name","value":"modifiedById"}},{"kind":"Field","name":{"kind":"Name","value":"modifiedByName"}},{"kind":"Field","name":{"kind":"Name","value":"ownerId"}},{"kind":"Field","name":{"kind":"Name","value":"ownerURI"}},{"kind":"Field","name":{"kind":"Name","value":"ownerDisplayName"}},{"kind":"Field","name":{"kind":"Name","value":"ownerSearchName"}}]}}]}}]}}]} as unknown as DocumentNode<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>;
 export const PublishedTemplatesMetaDataDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PublishedTemplatesMetaData"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"paginationOptions"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationOptions"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"term"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"publishedTemplatesMetaData"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"paginationOptions"},"value":{"kind":"Variable","name":{"kind":"Name","value":"paginationOptions"}}},{"kind":"Argument","name":{"kind":"Name","value":"term"},"value":{"kind":"Variable","name":{"kind":"Name","value":"term"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"hasBestPracticeTemplates"}},{"kind":"Field","name":{"kind":"Name","value":"availableAffiliations"}}]}}]}}]} as unknown as DocumentNode<PublishedTemplatesMetaDataQuery, PublishedTemplatesMetaDataQueryVariables>;
-export const CustomizableTemplatesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CustomizableTemplates"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"term"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"paginationOptions"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationOptions"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"customizableTemplates"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"term"},"value":{"kind":"Variable","name":{"kind":"Name","value":"term"}}},{"kind":"Argument","name":{"kind":"Name","value":"paginationOptions"},"value":{"kind":"Variable","name":{"kind":"Name","value":"paginationOptions"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"isDirty"}},{"kind":"Field","name":{"kind":"Name","value":"lastCustomized"}},{"kind":"Field","name":{"kind":"Name","value":"lastCustomizedById"}},{"kind":"Field","name":{"kind":"Name","value":"lastCustomizedByName"}},{"kind":"Field","name":{"kind":"Name","value":"migrationStatus"}},{"kind":"Field","name":{"kind":"Name","value":"templateCustomizationId"}},{"kind":"Field","name":{"kind":"Name","value":"versionedTemplateId"}},{"kind":"Field","name":{"kind":"Name","value":"affiliationName"}},{"kind":"Field","name":{"kind":"Name","value":"affiliationId"}},{"kind":"Field","name":{"kind":"Name","value":"templateModified"}}]}},{"kind":"Field","name":{"kind":"Name","value":"nextCursor"}},{"kind":"Field","name":{"kind":"Name","value":"totalCount"}},{"kind":"Field","name":{"kind":"Name","value":"limit"}}]}}]}}]} as unknown as DocumentNode<CustomizableTemplatesQuery, CustomizableTemplatesQueryVariables>;
+export const CustomizableTemplatesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CustomizableTemplates"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"term"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"paginationOptions"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationOptions"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"customizableTemplates"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"term"},"value":{"kind":"Variable","name":{"kind":"Name","value":"term"}}},{"kind":"Argument","name":{"kind":"Name","value":"paginationOptions"},"value":{"kind":"Variable","name":{"kind":"Name","value":"paginationOptions"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"customizationId"}},{"kind":"Field","name":{"kind":"Name","value":"customizationIsDirty"}},{"kind":"Field","name":{"kind":"Name","value":"customizationLastCustomized"}},{"kind":"Field","name":{"kind":"Name","value":"customizationLastCustomizedById"}},{"kind":"Field","name":{"kind":"Name","value":"customizationMigrationStatus"}},{"kind":"Field","name":{"kind":"Name","value":"customizationLastCustomizedByName"}},{"kind":"Field","name":{"kind":"Name","value":"versionedTemplateDescription"}},{"kind":"Field","name":{"kind":"Name","value":"versionedTemplateAffiliationId"}},{"kind":"Field","name":{"kind":"Name","value":"versionedTemplateAffiliationName"}},{"kind":"Field","name":{"kind":"Name","value":"versionedTemplateId"}},{"kind":"Field","name":{"kind":"Name","value":"versionedTemplateName"}},{"kind":"Field","name":{"kind":"Name","value":"versionedTemplateVersion"}},{"kind":"Field","name":{"kind":"Name","value":"versionedTemplateBestPractice"}},{"kind":"Field","name":{"kind":"Name","value":"customizationStatus"}},{"kind":"Field","name":{"kind":"Name","value":"versionedTemplateLastModified"}}]}},{"kind":"Field","name":{"kind":"Name","value":"nextCursor"}},{"kind":"Field","name":{"kind":"Name","value":"totalCount"}},{"kind":"Field","name":{"kind":"Name","value":"limit"}}]}}]}}]} as unknown as DocumentNode<CustomizableTemplatesQuery, CustomizableTemplatesQueryVariables>;
 export const TemplatesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Templates"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"term"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"paginationOptions"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationOptions"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"myTemplates"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"term"},"value":{"kind":"Variable","name":{"kind":"Name","value":"term"}}},{"kind":"Argument","name":{"kind":"Name","value":"paginationOptions"},"value":{"kind":"Variable","name":{"kind":"Name","value":"paginationOptions"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"totalCount"}},{"kind":"Field","name":{"kind":"Name","value":"nextCursor"}},{"kind":"Field","name":{"kind":"Name","value":"limit"}},{"kind":"Field","name":{"kind":"Name","value":"availableSortFields"}},{"kind":"Field","name":{"kind":"Name","value":"currentOffset"}},{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"hasPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"latestPublishVisibility"}},{"kind":"Field","name":{"kind":"Name","value":"isDirty"}},{"kind":"Field","name":{"kind":"Name","value":"latestPublishVersion"}},{"kind":"Field","name":{"kind":"Name","value":"latestPublishDate"}},{"kind":"Field","name":{"kind":"Name","value":"ownerId"}},{"kind":"Field","name":{"kind":"Name","value":"ownerDisplayName"}},{"kind":"Field","name":{"kind":"Name","value":"modified"}},{"kind":"Field","name":{"kind":"Name","value":"modifiedById"}},{"kind":"Field","name":{"kind":"Name","value":"modifiedByName"}},{"kind":"Field","name":{"kind":"Name","value":"bestPractice"}}]}}]}}]}}]} as unknown as DocumentNode<TemplatesQuery, TemplatesQueryVariables>;
 export const TemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Template"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"template"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"templateId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"ownerId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"latestPublishVersion"}},{"kind":"Field","name":{"kind":"Name","value":"latestPublishDate"}},{"kind":"Field","name":{"kind":"Name","value":"created"}},{"kind":"Field","name":{"kind":"Name","value":"sections"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bestPractice"}},{"kind":"Field","name":{"kind":"Name","value":"displayOrder"}},{"kind":"Field","name":{"kind":"Name","value":"isDirty"}},{"kind":"Field","name":{"kind":"Name","value":"questions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"templateId"}},{"kind":"Field","name":{"kind":"Name","value":"sectionId"}},{"kind":"Field","name":{"kind":"Name","value":"questionText"}},{"kind":"Field","name":{"kind":"Name","value":"displayOrder"}}]}},{"kind":"Field","name":{"kind":"Name","value":"displayOrder"}},{"kind":"Field","name":{"kind":"Name","value":"guidanceText"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"questionText"}},{"kind":"Field","name":{"kind":"Name","value":"sectionId"}},{"kind":"Field","name":{"kind":"Name","value":"templateId"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"owner"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"latestPublishVisibility"}},{"kind":"Field","name":{"kind":"Name","value":"bestPractice"}},{"kind":"Field","name":{"kind":"Name","value":"isDirty"}}]}}]}}]} as unknown as DocumentNode<TemplateQuery, TemplateQueryVariables>;
 export const TemplateCollaboratorsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"TemplateCollaborators"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"template"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"templateId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"collaborators"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"givenName"}},{"kind":"Field","name":{"kind":"Name","value":"surName"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"admins"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"givenName"}},{"kind":"Field","name":{"kind":"Name","value":"surName"}},{"kind":"Field","name":{"kind":"Name","value":"email"}}]}},{"kind":"Field","name":{"kind":"Name","value":"owner"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]} as unknown as DocumentNode<TemplateCollaboratorsQuery, TemplateCollaboratorsQueryVariables>;

@@ -75,18 +75,21 @@ query PublishedTemplatesMetaData($paginationOptions: PaginationOptions, $term: S
 query CustomizableTemplates($term: String, $paginationOptions: PaginationOptions) {
   customizableTemplates(term: $term, paginationOptions: $paginationOptions){
     items {
-      description
-      name
-      isDirty
-      lastCustomized,
-      lastCustomizedById,
-      lastCustomizedByName,
-      migrationStatus
-      templateCustomizationId
+      customizationId
+      customizationIsDirty
+      customizationLastCustomized
+      customizationLastCustomizedById
+      customizationMigrationStatus
+      customizationLastCustomizedByName
+      versionedTemplateDescription
+      versionedTemplateAffiliationId
+      versionedTemplateAffiliationName
       versionedTemplateId
-      affiliationName
-      affiliationId
-      templateModified
+      versionedTemplateName
+      versionedTemplateVersion
+      versionedTemplateBestPractice
+      customizationStatus
+      versionedTemplateLastModified
     }
     nextCursor
     totalCount

@@ -65,18 +65,21 @@ export interface TemplateSearchResultInterface {
 }
 
 export interface CustomizedTemplatesSearchResultInterface {
-  description: string;
-  name: string;
-  isDirty: boolean;
-  lastCustomized: string;
-  lastCustomizedById: number;
-  lastCustomizedByName: string;
-  migrationStatus: TemplateCustomizationMigrationStatus;
-  templateCustomizationId: number;
+  customizationId: number;
+  customizationIsDirty: boolean;
+  customizationLastCustomized: string;
+  customizationLastCustomizedByName: string;
+  customizationLastCustomizedById: number;
+  customizationMigrationStatus: TemplateCustomizationMigrationStatus;
+  versionedTemplateDescription: string;
+  versionedTemplateAffiliationId: string;
+  versionedTemplateAffiliationName: string;
   versionedTemplateId: number;
-  affiliationName: string;
-  affiliationId: string;
-  templateModified: string;
+  versionedTemplateName: string;
+  versionedTemplateVersion: string;
+  versionedTemplateBestPractice: boolean;
+  customizationStatus: string;
+  versionedTemplateLastModified: string;
 }
 export interface TemplateInterface {
   name: string;
@@ -114,7 +117,7 @@ export interface TemplateItemProps {
 
 export interface CustomizedTemplatesProps {
   id?: number;
-  title: string;
+  title?: string;
   link: string;
   funder?: string;
   lastCustomized: string | null;
