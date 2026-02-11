@@ -34,6 +34,11 @@ import {
 import { updateTemplateAction, updateSectionDisplayOrderAction } from "./actions";
 
 // Components
+import {
+  ContentContainer,
+  LayoutWithPanel,
+  SidebarPanel
+} from "@/components/Container";
 import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
 import AddSectionButton from "@/components/AddSectionButton";
 import ErrorMessages from "@/components/ErrorMessages";
@@ -41,6 +46,7 @@ import SectionEditContainer from "@/components/SectionEditContainer";
 
 // Hooks
 import { useFormatDate } from "@/hooks/useFormatDate";
+import { useTemplateStatus } from "../hooks/useTemplateStatus";
 
 // Utils and other
 import logECS from "@/utils/clientLogger";
@@ -82,6 +88,9 @@ const TemplateEditPage: React.FC = () => {
   const PublishTemplate = useTranslations("PublishTemplate");
   const Messaging = useTranslations("Messaging");
   const Global = useTranslations("Global");
+
+  // Template status hook
+  const { getPublishStatusText } = useTemplateStatus();
 
   // Used to set the translated visibility text, based on the
   // public/private choice.
@@ -439,16 +448,6 @@ const TemplateEditPage: React.FC = () => {
     setIsReordering(false);
   };
 
-  const getPublishStatusText = (isDirty: boolean, latestPublishDate: string | null | undefined) => {
-    if (isDirty && latestPublishDate) {
-      return Global("status.unpublishedChanges");
-    } else if (!latestPublishDate) {
-      return Global("status.draft");
-    } else {
-      return Global("status.published");
-    }
-  };
-
   // Need to set this info to update template title
   useEffect(() => {
     if (data?.template) {
@@ -533,8 +532,8 @@ const TemplateEditPage: React.FC = () => {
         ref={errorRef}
       />
 
-      <div className="template-editor-container">
-        <div className="main-content">
+      <LayoutWithPanel>
+        <ContentContainer>
           {sectionsToRender.length > 0 && (
             <div>
               {sectionsToRender
@@ -561,8 +560,9 @@ const TemplateEditPage: React.FC = () => {
             </div>
           )}
           <AddSectionButton href={`/template/${templateId}/section/new`} />
-        </div>
-        <aside className="sidebar">
+
+        </ContentContainer>
+        <SidebarPanel className="sidebar">
           <div className="status-panel-content side-panel">
             <div className="buttonContainer withBorder mb-5">
               <Button
@@ -645,135 +645,135 @@ const TemplateEditPage: React.FC = () => {
               </div>
             </div>
           </div>
-        </aside>
-      </div>
-      <div className="template-archive-container">
-        <div className="main-content">
-          <h2>{EditTemplate("heading.archiveTemplate")}</h2>
-          <p>{EditTemplate("description.archiveTemplate")}</p>
-          <Form>
-            <Button
-              className="my-3"
-              data-tertiary
-              data-testid="archive-template"
-              onPress={handleArchiveTemplate}
-            >
-              {EditTemplate("button.archiveTemplate")}
-            </Button>
-          </Form>
-        </div>
-      </div>
-
-      <Modal
-        isDismissable
-        onOpenChange={setPublishModalOpen}
-        isOpen={isPublishModalOpen}
-        data-testid="modal"
-      >
-        <Dialog>
-          <div>
-            <Form
-              onSubmit={(e) => handleSubmit(e)}
-              data-testid="publishForm"
-            >
-              <Heading slot="title">{PublishTemplate("heading.publish")}</Heading>
-
-              <RadioGroup
-                name="visibility"
-                onChange={handleVisibilityChange}
-                defaultValue={
-                  template.latestPublishDate
-                    ? template.latestPublishVisibility === "PUBLIC"
-                      ? "public"
-                      : template.latestPublishVisibility === "ORGANIZATION"
-                        ? "organization"
-                        : undefined
-                    : undefined
-                }
+        </SidebarPanel>
+        <div className="template-archive-container">
+          <div className="main-content">
+            <h2>{EditTemplate("heading.archiveTemplate")}</h2>
+            <p>{EditTemplate("description.archiveTemplate")}</p>
+            <Form>
+              <Button
+                className="my-3"
+                data-tertiary
+                data-testid="archive-template"
+                onPress={handleArchiveTemplate}
               >
-                <Label>{PublishTemplate("heading.visibilitySettings")}</Label>
-                <Text
-                  slot="description"
-                  className="help"
-                >
-                  {PublishTemplate("descPublishedTemplate")}
-                </Text>
-                <Radio
-                  data-testid="visPublic"
-                  value="public"
-                  className={`${styles.radioBtn} react-aria-Radio`}
-                >
-                  <div>
-                    <span>{PublishTemplate("radioBtn.public")}</span>
-                    <p className="text-gray-600 text-sm">{PublishTemplate("radioBtn.publicHelpText")}</p>
-                  </div>
-                </Radio>
-                <Radio
-                  data-testid="visPrivate"
-                  value="organization"
-                  className={`${styles.radioBtn} react-aria-Radio`}
-                >
-                  <div>
-                    <span>{PublishTemplate("radioBtn.organizationOnly")}</span>
-                    <p className="text-gray-600 text-sm">{PublishTemplate("radioBtn.orgOnlyHelpText")}</p>
-                  </div>
-                </Radio>
-              </RadioGroup>
+                {EditTemplate("button.archiveTemplate")}
+              </Button>
+            </Form>
+          </div>
+        </div>
 
-              <p>
-                <strong>{PublishTemplate("heading.publishingThisTemplate")}</strong>
-              </p>
+        <Modal
+          isDismissable
+          onOpenChange={setPublishModalOpen}
+          isOpen={isPublishModalOpen}
+          data-testid="modal"
+        >
+          <Dialog>
+            <div>
+              <Form
+                onSubmit={(e) => handleSubmit(e)}
+                data-testid="publishForm"
+              >
+                <Heading slot="title">{PublishTemplate("heading.publish")}</Heading>
 
-              <ul>
-                <li>{PublishTemplate("bullet.publishingTemplate")}</li>
-                <li>{PublishTemplate("bullet.publishingTemplate2")}</li>
-                {visibilityText && <li data-testid="visText">{visibilityText}</li>}
-              </ul>
-              <div className="">
-                <TextField
-                  name="change_log"
-                  isRequired
+                <RadioGroup
+                  name="visibility"
+                  onChange={handleVisibilityChange}
+                  defaultValue={
+                    template.latestPublishDate
+                      ? template.latestPublishVisibility === "PUBLIC"
+                        ? "public"
+                        : template.latestPublishVisibility === "ORGANIZATION"
+                          ? "organization"
+                          : undefined
+                      : undefined
+                  }
                 >
-                  <Label>{PublishTemplate("heading.changeLog")}</Label>
+                  <Label>{PublishTemplate("heading.visibilitySettings")}</Label>
                   <Text
                     slot="description"
                     className="help"
                   >
-                    {PublishTemplate("descChangeLog")}
+                    {PublishTemplate("descPublishedTemplate")}
                   </Text>
-                  <TextArea
-                    data-testid="changeLog"
-                    style={{ height: "100px" }}
-                  />
-                  <FieldError />
-                </TextField>
-              </div>
-
-              <div className="modal-actions">
-                <div className="">
-                  <Button
-                    data-secondary
-                    onPress={() => setPublishModalOpen(false)}
+                  <Radio
+                    data-testid="visPublic"
+                    value="public"
+                    className={`${styles.radioBtn} react-aria-Radio`}
                   >
-                    {PublishTemplate("button.close")}
-                  </Button>
-                </div>
+                    <div>
+                      <span>{PublishTemplate("radioBtn.public")}</span>
+                      <p className="text-gray-600 text-sm">{PublishTemplate("radioBtn.publicHelpText")}</p>
+                    </div>
+                  </Radio>
+                  <Radio
+                    data-testid="visPrivate"
+                    value="organization"
+                    className={`${styles.radioBtn} react-aria-Radio`}
+                  >
+                    <div>
+                      <span>{PublishTemplate("radioBtn.organizationOnly")}</span>
+                      <p className="text-gray-600 text-sm">{PublishTemplate("radioBtn.orgOnlyHelpText")}</p>
+                    </div>
+                  </Radio>
+                </RadioGroup>
+
+                <p>
+                  <strong>{PublishTemplate("heading.publishingThisTemplate")}</strong>
+                </p>
+
+                <ul>
+                  <li>{PublishTemplate("bullet.publishingTemplate")}</li>
+                  <li>{PublishTemplate("bullet.publishingTemplate2")}</li>
+                  {visibilityText && <li data-testid="visText">{visibilityText}</li>}
+                </ul>
                 <div className="">
-                  <Button type="submit">{PublishTemplate("button.saveAndPublish")}</Button>
+                  <TextField
+                    name="change_log"
+                    isRequired
+                  >
+                    <Label>{PublishTemplate("heading.changeLog")}</Label>
+                    <Text
+                      slot="description"
+                      className="help"
+                    >
+                      {PublishTemplate("descChangeLog")}
+                    </Text>
+                    <TextArea
+                      data-testid="changeLog"
+                      style={{ height: "100px" }}
+                    />
+                    <FieldError />
+                  </TextField>
                 </div>
-              </div>
-            </Form>
-          </div>
-        </Dialog>
-      </Modal>
-      <div
-        aria-live="polite"
-        aria-atomic="true"
-        className="hidden-accessibly"
-      >
-        {announcement}
-      </div>
-    </div>
+
+                <div className="modal-actions">
+                  <div className="">
+                    <Button
+                      data-secondary
+                      onPress={() => setPublishModalOpen(false)}
+                    >
+                      {PublishTemplate("button.close")}
+                    </Button>
+                  </div>
+                  <div className="">
+                    <Button type="submit">{PublishTemplate("button.saveAndPublish")}</Button>
+                  </div>
+                </div>
+              </Form>
+            </div>
+          </Dialog>
+        </Modal>
+        <div
+          aria-live="polite"
+          aria-atomic="true"
+          className="hidden-accessibly"
+        >
+          {announcement}
+        </div>
+      </LayoutWithPanel>
+    </div >
   );
 };
 
