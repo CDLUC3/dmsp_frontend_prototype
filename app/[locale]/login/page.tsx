@@ -47,7 +47,7 @@ const LoginPage: React.FC = () => {
   const { csrfToken } = useCsrf();
   const router = useRouter();
 
-  const { setIsAuthenticated } = useAuthContext();
+  const { setIsAuthenticated, clearCache } = useAuthContext();
 
   const returnToEmail = () => {
     setStep("email");
@@ -77,6 +77,8 @@ const LoginPage: React.FC = () => {
       const response = await loginRequest(csrfToken);
 
       if (response.ok) {
+        // Clear any cached data
+        await clearCache();
         setIsAuthenticated(true);
         router.push('/')
       } else {
