@@ -6,7 +6,7 @@
 - Added related works project overview page [#700]
 
 ## Updated
-
+- Updated `/login` page step=email to include a "Back" button so user can go back to Step 1 [#997]
 
 ## Chore
 - Updated `middleware.ts` to `proxy.ts` per `middleware` being deprecated in `next v16` [#51]
