@@ -1,5 +1,9 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+
+// GraphQL
+import { useMutation } from '@apollo/client/react';
+import { AddTemplateCustomizationDocument } from '@/generated/graphql';
 import { DmpIcon } from "@/components/Icons";
 import styles from "./customizedTemplateListItem.module.scss";
 import { CustomizedTemplatesProps } from '@/app/types';
@@ -7,6 +11,18 @@ import { CustomizedTemplatesProps } from '@/app/types';
 interface CustomizedTemplateListItemProps {
   item: CustomizedTemplatesProps;
 }
+
+const handleAddCustomization = async (templateId: string) => {
+  try {
+    const { data } = await addTemplateCustomization({
+      variables: { templateId },
+    });
+    console.log("Customization added:", data);
+    // Optionally, refetch the customizable templates list or update the UI to reflect the new customization
+  } catch (error) {
+    console.error("Error adding customization:", error);
+  }
+};
 
 function CustomizedTemplateListItem({ item }: CustomizedTemplateListItemProps) {
 

@@ -76,10 +76,10 @@ const TemplateListCustomizationsPage: React.FC = () => {
 
   const getCustomization = (template: CustomizedTemplatesSearchResultInterface): string => {
     /* 
-    - If there is not templateCustomizationId - The Funder template has not been customized
+    - If there is no templateCustomizationId (i.e., customizationId) - The Funder template has not been customized
     - If the migrationStatus = "OK" and the isDirtyFlag = false - The customization is Published
     - If the migrationStatus = "OK" and the isDirtyFlag = true - The customization has unpublished changes
-    - If the migrationStatus = "STALE" 0 the funder as pulbished a new version and the customization is out of date
+    - If the migrationStatus = "STALE" - the funder has published a new version and the customization is out of date
     - If the migrationStatus = "ORPHANED" - the funder has archived the template so the customization is no longer relevant
     */
 
@@ -235,7 +235,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
   useEffect(() => {
     if (!customizableTemplatesData || !customizableTemplatesData.customizableTemplates) return;
 
-    console.log("Customizable templates data:", customizableTemplatesData);
+    console.log("Customizable Templates Data:", customizableTemplatesData);
     // Transform customized templates into format expected by TemplateSelectListItem component
     const processTemplates = async (templates: PaginatedCustomizedTemplateSearchResultsInterface | null) => {
       const items = templates?.items ?? [];
