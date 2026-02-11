@@ -202,7 +202,7 @@ const LoginPage: React.FC = () => {
 
             {(step === "password") && (
               <div className="button-container">
-                <Button type="submit" className="secondary" onPress={returnToEmail}>{Global('buttons.back')}</Button>
+                <Button type="button" className="secondary" onPress={returnToEmail}>{Global('buttons.back')}</Button>
                 <Button
                   type="submit"
                   isDisabled={loading}
