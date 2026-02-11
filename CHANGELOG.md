@@ -1,4 +1,5 @@
 ## Added
+- Added new `clearAuthData` and `clearCache` to `AuthProvider` so that we can clear cache on `/login` and `/logout` [#55]
 - Added new `useGuidanceMutation` hook for adding and removing guidance from right sidebar [#15]
 - Added new queries `GuidanceSourcesForPlan`, `AddPlanGuidance`, `RemovePlanGuidance` and `ManagedAffiliationsWithGuidance` [#15]
 - Added new component `AffiliationSearchForGuidance` to be used for the custom guidance search modal [#15]
@@ -7,6 +8,10 @@
 
 ## Updated
 - Updated `useResearchOutputTable`'s `updateStandardFieldProperty` method to `enable` a Research Output Table field when any content or config changes for that field [#943]
+- Updated `/login` page step=email to include a "Back" button so user can go back to Step 1 [#997]
+
+## Fixed
+- Fixed bug where the published status on `/template/[templateId]` did not match that on the template cards at `/template` for the `unpublished changes` state. Added a shared hook for determining the correct status text [#875]
 
 ## Chore
 - Updated `middleware.ts` to `proxy.ts` per `middleware` being deprecated in `next v16` [#51]

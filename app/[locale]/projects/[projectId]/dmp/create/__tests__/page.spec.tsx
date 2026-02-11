@@ -902,20 +902,19 @@ describe('PlanCreate Component using base mock', () => {
     });
 
     // Wait for all loading states to complete by checking for content that appears after loading
-    // The component won't show checkboxes until queries complete and state updates
     await waitFor(
-      () => {
-        // Wait for the checkbox to appear after all initialization
-        const checkbox = screen.getByRole('checkbox', { name: 'Affiliation 1 Name' });
-        expect(checkbox).toBeInTheDocument();
-      },
-      { timeout: 5000 } // Increase timeout for multiple query resolution
-    );
+      async () => {
+        // 1. Checkbox appears (means queries loaded and state computed)
+        expect(screen.getByRole('checkbox', { name: 'Affiliation 1 Name' })).toBeInTheDocument();
 
-    // Wait for the correct number of templates to load
-    await waitFor(() => {
-      expect(screen.getAllByTestId('template-metadata')).toHaveLength(5);
-    });
+        // 2. Templates loaded (means lazy query completed)
+        expect(screen.getAllByTestId('template-metadata')).toHaveLength(5);
+
+        // 3. No loading indicators present
+        expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+      },
+      { timeout: 10000 } // Increase timeout
+    );
 
     // NOW make individual assertions (outside waitFor)
     const templateData = screen.getAllByTestId('template-metadata');

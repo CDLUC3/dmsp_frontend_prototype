@@ -34,6 +34,7 @@ type LoginSteps =
 
 const LoginPage: React.FC = () => {
   const t = useTranslations('LoginPage');
+  const Global = useTranslations('Global');
   const errorRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
   const [step, setStep] = useState<LoginSteps>("email");
@@ -46,7 +47,11 @@ const LoginPage: React.FC = () => {
   const { csrfToken } = useCsrf();
   const router = useRouter();
 
-  const { setIsAuthenticated } = useAuthContext();
+  const { setIsAuthenticated, clearCache } = useAuthContext();
+
+  const returnToEmail = () => {
+    setStep("email");
+  };
 
   const handleLogin = async () => {
     setLoading(true);
@@ -72,6 +77,8 @@ const LoginPage: React.FC = () => {
       const response = await loginRequest(csrfToken);
 
       if (response.ok) {
+        // Clear any cached data
+        await clearCache();
         setIsAuthenticated(true);
         router.push('/')
       } else {
@@ -194,13 +201,16 @@ const LoginPage: React.FC = () => {
             )}
 
             {(step === "password") && (
-              <Button
-                type="submit"
-                isDisabled={loading}
-                data-testid="actionSubmit"
-              >
-                {loading ? '...' : t('login')}
-              </Button>
+              <div className="button-container">
+                <Button type="submit" className="secondary" onPress={returnToEmail}>{Global('buttons.back')}</Button>
+                <Button
+                  type="submit"
+                  isDisabled={loading}
+                  data-testid="actionSubmit"
+                >
+                  {loading ? '...' : t('login')}
+                </Button>
+              </div>
             )}
           </ToolbarContainer>
 
