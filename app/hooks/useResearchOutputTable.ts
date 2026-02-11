@@ -239,16 +239,12 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
     // Store the selected repositories in the field config
     const currentField = standardFields.find(f => f.id === 'repoSelector');
     if (currentField && currentField.repoConfig) {
-      const wasEnabled = currentField.enabled;
       const previousCount = currentField.repoConfig.customRepos?.length || 0;
       updateStandardFieldProperty('repoSelector', 'repoConfig', {
         ...currentField.repoConfig,
+        hasCustomRepos: repos.length > 0,
         customRepos: repos
       });
-      // Only enable if a repo is added and the box is currently unchecked
-      if (!wasEnabled && repos.length > previousCount) {
-        updateStandardFieldProperty('repoSelector', 'enabled', true);
-      }
 
       // Announce the change
       if (repos.length > previousCount) {
@@ -266,16 +262,12 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
     // Store the selected metadata standards in the field config
     const currentField = standardFields.find(f => f.id === 'metadataStandards');
     if (currentField && currentField.metaDataConfig) {
-      const wasEnabled = currentField.enabled;
       const previousCount = currentField.metaDataConfig.customStandards?.length || 0;
       updateStandardFieldProperty('metadataStandards', 'metaDataConfig', {
         ...currentField.metaDataConfig,
+        hasCustomStandards: standards.length > 0,
         customStandards: standards // Store metadata standard data
       });
-      // Only enable if a standard is added and the box is currently unchecked
-      if (!wasEnabled && standards.length > previousCount) {
-        updateStandardFieldProperty('metadataStandards', 'enabled', true);
-      }
 
       // Announce the change
       if (standards.length > previousCount) {
@@ -287,13 +279,56 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
     setHasUnsavedChanges(true);
   };
 
-  // Shared function to update any property in standardFields
+  // Shared function to update any property in standardFields, and handle auto-enabling logic for certain properties
   const updateStandardFieldProperty = (fieldId: string, propertyName: string, value: unknown) => {
     setStandardFields(prev =>
-      prev.map(field =>
-        field.id === fieldId ? { ...field, [propertyName]: value } : field
-      )
+      prev.map(field => {
+        if (field.id === fieldId) {
+          const wasEnabled = field.enabled;
+
+          // Build the updated field
+          const updatedField = { ...field, [propertyName]: value };
+
+          // Auto-enable if the field wasn't enabled and we're updating a meaningful property
+          // (not metadata properties like labels or helpText)
+          const meaningfulProperties = [
+            'value',
+            'outputTypeConfig',
+            'repoConfig',
+            'metaDataConfig',
+            'licensesConfig',
+            'accessLevelsConfig',
+            'content',
+            'defaultValue',
+            'required',
+            'helpText'
+          ];
+
+          if (!wasEnabled && meaningfulProperties.includes(propertyName)) {
+            // Special case: only enable repoSelector if hasCustomRepos is true
+            if (fieldId === RO_REPO_SELECTOR_ID && propertyName === 'repoConfig') {
+              const repoConfig = value as { hasCustomRepos: boolean; customRepos: RepositoryInterface[] };
+              if (repoConfig.hasCustomRepos) {
+                updatedField.enabled = true;
+              }
+            }
+            // Special case: only enable metadataStandards if hasCustomStandards is true
+            else if (fieldId === RO_METADATA_STANDARD_SELECTOR_ID && propertyName === 'metaDataConfig') {
+              const metaDataConfig = value as { hasCustomStandards: boolean; customStandards: MetaDataStandardInterface[] };
+              if (metaDataConfig.hasCustomStandards) {
+                updatedField.enabled = true;
+              }
+            }
+            else {
+              updatedField.enabled = true;
+            }
+          }
+          return updatedField;
+        }
+        return field;
+      })
     );
+
     setHasUnsavedChanges(true);
   };
 
