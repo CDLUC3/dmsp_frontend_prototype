@@ -30,6 +30,11 @@
       "lastCustomizedBy": "Última personalização por",
       "customizationStatus": "Status de personalização",
       "templateLastUpdated": "Última atualização do modelo"
+    },
+    "messages": {
+      "success": {
+        "templateAddedSuccessfully": "Modelo {title} adicionado com sucesso"
+      }
     }
   },
   "EditTemplates": {
