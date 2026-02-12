@@ -47,7 +47,7 @@ import { logECS, routePath } from '@/utils/index';
 import { useToast } from "@/context/ToastContext";
 import { extractErrors } from "@/utils/errorHandler";
 
-// # of templates displayed per section type
+// # of templates displayed per load
 const LIMIT = 5;
 
 type AddTemplateCustomizationErrors = {
@@ -102,10 +102,10 @@ const TemplateListCustomizationsPage: React.FC = () => {
   // Lazy query for organization templates
   const [fetchCustomizableTemplates, { data: customizableTemplatesData, loading, error: queryError }] = useLazyQuery<CustomizableTemplatesQuery>(CustomizableTemplatesDocument);
 
-
-  // useMutation must be called at the top level of the component
+  // Mutation for adding template customization
   const [addTemplateCustomizationMutation] = useMutation(AddTemplateCustomizationDocument);
 
+  // Function to determine customization status based on template properties
   const getCustomization = (template: CustomizedTemplatesSearchResultInterface): string => {
     /* 
     - If there is no templateCustomizationId (i.e., customizationId) - The Funder template has not been customized
@@ -139,6 +139,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
     return Customizable('templateStatus.notCustomizable');
   }
 
+  // Handler for when user clicks "Customize" on a template - either redirects to existing customization or creates new one
   const handleAddCustomization = async (item: CustomizedTemplatesProps) => {
     // If the templateCustomizedId already exists, meaning it is already in the templateCustomizations table
     // then just redirect to the page for the given templateCustomizationId
@@ -324,6 +325,8 @@ const TemplateListCustomizationsPage: React.FC = () => {
     }
   }, [customizedTemplates, searchResults, firstNewIndex]);
 
+  // Process templates data returned from query and transform into format needed for CustomizedTemplateListItem component. 
+  // Also handles appending new items for pagination and search results
   useEffect(() => {
     if (!customizableTemplatesData || !customizableTemplatesData.customizableTemplates) return;
 
@@ -413,6 +416,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
   }, [queryError]);
 
 
+  // Show loading state while fetching templates or adding customization
   if (isLoading || loading) {
     return (
       <div>
