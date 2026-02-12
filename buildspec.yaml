@@ -26,13 +26,13 @@ phases:
         - echo "Running build in ${NODE_ENV} mode - started on `date`"
         - cd $CODEBUILD_SRC_DIR
         
-        # Install dependencies
+        # Install dependencies with security flags
         - echo "Installing dependencies..."
-        - npm ci
+        - npm ci --ignore-scripts --audit=false # Don't run arbitrary scripts and audit separately for better control
         
         # Run NPM audit to check for vulnerabilities
-        - echo "Running NPM audit..."
-        - npm audit --audit-level=high
+        - echo "Running security audit..."
+        - npm audit --audit-level=high || (echo "High/Critical vulnerabilities found!" && exit 1)
         
         # Run linter checks
         - echo "Running linter checks"

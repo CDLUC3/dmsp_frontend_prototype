@@ -3,23 +3,41 @@
 FROM public.ecr.aws/docker/library/node:22.1.0-alpine3.19 as builder
 WORKDIR /app
 
-# Copy dependencies from deps stage
-COPY package*.json ./
-RUN npm ci
+# Create non-root user for build stage (security best practice)
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs && \
+    chown -R nextjs:nodejs /app
 
-COPY . .
+# Copy dependencies
+COPY --chown=nextjs:nodejs package*.json ./
+
+# Switch to non-root user for npm operations
+USER nextjs
+
+# Install dependencies WITHOUT running postinstall scripts to mitigate supply chain attacks
+RUN npm ci --ignore-scripts
+
+# Copy source code
+COPY --chown=nextjs:nodejs . .
+
 # Set production environment
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV NODE_ENV=production
 
-# Set environment variables
+# Build arguments
+ARG NEXT_PUBLIC_SERVER_ENDPOINT
+ARG NEXT_PUBLIC_BASE_URL
+
+# Set environment variables for build
 ENV NEXT_PUBLIC_SERVER_ENDPOINT=$NEXT_PUBLIC_SERVER_ENDPOINT
 ENV NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL
+
 
 # Build the application
 RUN npm run build
 
-RUN npm prune --omit=dev
+# Remove dev dependencies WITHOUT running scripts
+RUN npm prune --omit=dev --ignore-scripts
 
 # Stage 2: Runner
 FROM public.ecr.aws/docker/library/node:22.1.0-alpine3.19 as runner

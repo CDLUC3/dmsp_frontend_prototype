@@ -16,6 +16,7 @@
 
 ## Chore
 - Updated `renovate.json` to pick up on updates in `docker-compose.yaml` and added a schedule and `minimumReleaseAge`.
+- Added some steps in `buildspec.yaml` for installing and auditing packages. Added `--ignore-scripts` to `npm ci` to mitigate supply chain attacks.
 - Updated `middleware.ts` to `proxy.ts` per `middleware` being deprecated in `next v16` [#51]
 - Updated `eslint` to `v8.57.1`, `cypress` to `v15.10.0`, `eslint-config-next` to `v15.5.11`, `next` to `16.1.6`, `html-react-parser` to `v5.2.16`, `next-intl` to `v4.8.2`, `react` to `v19.2.4`, `react-dom` to `v19.2.4` and `jose` to `v6.1.3`
 - Updated version of `next` to `v16.1.5` due to vulnerability and `next-intl` to `4.8.0` due to dependency
