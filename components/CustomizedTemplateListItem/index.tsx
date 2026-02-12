@@ -1,30 +1,21 @@
+import React from "react";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
+import { Link } from "react-aria-components";
 
-// GraphQL
-import { useMutation } from '@apollo/client/react';
-import { AddTemplateCustomizationDocument } from '@/generated/graphql';
 import { DmpIcon } from "@/components/Icons";
 import styles from "./customizedTemplateListItem.module.scss";
 import { CustomizedTemplatesProps } from '@/app/types';
 
 interface CustomizedTemplateListItemProps {
   item: CustomizedTemplatesProps;
+  handleAddCustomization: (item: CustomizedTemplatesProps) => Promise<void>;
 }
 
-const handleAddCustomization = async (templateId: string) => {
-  try {
-    const { data } = await addTemplateCustomization({
-      variables: { templateId },
-    });
-    console.log("Customization added:", data);
-    // Optionally, refetch the customizable templates list or update the UI to reflect the new customization
-  } catch (error) {
-    console.error("Error adding customization:", error);
-  }
-};
 
-function CustomizedTemplateListItem({ item }: CustomizedTemplateListItemProps) {
+function CustomizedTemplateListItem({
+  item,
+  handleAddCustomization
+}: CustomizedTemplateListItemProps) {
 
   //Localization keys
   const Global = useTranslations("Global");
@@ -99,9 +90,9 @@ function CustomizedTemplateListItem({ item }: CustomizedTemplateListItemProps) {
           <div className={styles.TemplateItemActions}>
             {item.link && (
               <Link
-                href={item.link}
                 aria-label={`${Global("links.update")} ${item.title}`}
                 className="button-link button--primary"
+                onPress={() => handleAddCustomization(item)}
               >
                 {Global("links.update")}
               </Link>

@@ -104,7 +104,7 @@ const routes = {
   'template.create': '/template/create',
   'template.edit': '/template/:templateId/edit',
   'template.customizations': '/template/customizations',
-  'template.customize': '/template/:templateCustomizationId/customize',
+  'template.customize': '/template/customizations/:templateCustomizationId',
 
   // account/profile
   'account.index': '/account',

@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from "next/navigation";
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -12,17 +14,29 @@ import {
   SearchField,
   Text
 } from 'react-aria-components';
-import { useTranslations } from 'next-intl';
+
 
 //GraphQL
-import { useLazyQuery } from '@apollo/client/react';
-import { CustomizableTemplatesDocument, CustomizableTemplatesQuery } from '@/generated/graphql';
+import { useLazyQuery, useMutation } from '@apollo/client/react';
+import {
+  CustomizableTemplatesDocument,
+  CustomizableTemplatesQuery,
+  AddTemplateCustomizationDocument,
+  TemplateCustomizationStatus
+} from '@/generated/graphql';
+
+import {
+  CustomizedTemplatesProps,
+  PaginatedCustomizedTemplateSearchResultsInterface,
+  CustomizedTemplatesSearchResultInterface
+} from '@/app/types';
 
 // Components
 import PageHeader from '@/components/PageHeader';
 import CustomizedTemplateListItem from '@/components/CustomizedTemplateListItem';
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
+import Loading from "@/components/Loading";
 
 // Hooks
 import { useScrollToTop } from '@/hooks/scrollToTop';
@@ -30,23 +44,39 @@ import { useFormatDate } from '@/hooks/useFormatDate';
 
 // Utils and other
 import { logECS, routePath } from '@/utils/index';
-import {
-  CustomizedTemplatesProps,
-  PaginatedCustomizedTemplateSearchResultsInterface,
-  CustomizedTemplatesSearchResultInterface
-} from '@/app/types';
+import { useToast } from "@/context/ToastContext";
+import { extractErrors } from "@/utils/errorHandler";
+
 import styles from './templateCustomizations.module.scss';
 
 // # of templates displayed per section type
 const LIMIT = 5;
 
+type AddTemplateCustomizationErrors = {
+  collaboratorIds?: string | null;
+  description?: string | null;
+  general?: string | null;
+  languageId?: string | null;
+  latestPublishVersion?: string | null;
+  latestPublishVisibility?: string | null;
+  name?: string | null;
+  ownerId?: string | null;
+  sectionIds?: string | null;
+  sourceTemplateId?: string | null;
+};
+
+
 const TemplateListCustomizationsPage: React.FC = () => {
   const formatDate = useFormatDate();
   const { scrollToTop } = useScrollToTop();
 
+  const router = useRouter();
+  const toastState = useToast();
+
   const errorRef = useRef<HTMLDivElement | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
 
+  // Errors returned from request
   const [errors, setErrors] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [searchButtonClicked, setSearchButtonClicked] = useState(false);
@@ -58,11 +88,11 @@ const TemplateListCustomizationsPage: React.FC = () => {
   const [firstNewIndex, setFirstNewIndex] = useState<number | null>(null);
   const [isSearching, setIsSearching] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   // Add separate state for search pagination
   const [searchNextCursor, setSearchNextCursor] = useState<string | null>(null);
   const [searchTotalCount, setSearchTotalCount] = useState<number | null>(0);
-
-
   const [customizedTemplates, setCustomizedTemplates] = useState<(CustomizedTemplatesProps)[]>([]);
 
   // For translations
@@ -73,6 +103,10 @@ const TemplateListCustomizationsPage: React.FC = () => {
 
   // Lazy query for organization templates
   const [fetchCustomizableTemplates, { data: customizableTemplatesData, loading, error: queryError }] = useLazyQuery<CustomizableTemplatesQuery>(CustomizableTemplatesDocument);
+
+
+  // useMutation must be called at the top level of the component
+  const [addTemplateCustomizationMutation] = useMutation(AddTemplateCustomizationDocument);
 
   const getCustomization = (template: CustomizedTemplatesSearchResultInterface): string => {
     /* 
@@ -106,6 +140,65 @@ const TemplateListCustomizationsPage: React.FC = () => {
     // Fallback
     return Customizable('templateStatus.notCustomizable');
   }
+
+  const handleAddCustomization = async (item: CustomizedTemplatesProps) => {
+    // Set isLoading to true to show loading state on page
+    setIsLoading(true);
+
+    // If the templateCustomizedId already exists, meaning it is already in the templateCustomizations table
+    // then just redirect to the page for the given templateCustomizationId
+    if (item.id) {
+      router.push(routePath("template.customize", { templateCustomizationId: item.id }));
+      return;
+    }
+
+    // Otherwise, we need to create a new template customization entry in the database, get
+    //  the newly created templateCustomizationId, and then redirect to the page
+    try {
+      const response = await addTemplateCustomizationMutation({
+        variables: {
+          input: {
+            versionedTemplateId: item.versionedTemplateId!,
+            status: item.status || TemplateCustomizationStatus.Draft
+          }
+        }
+      });
+
+      const errs = extractErrors<AddTemplateCustomizationErrors>(response?.data?.addTemplateCustomization?.errors ?? {}, ["collaboratorIds", "description", "general", "languageId", "latestPublishVersion", "latestPublishVisibility", "name", "ownerId", "sectionIds", "sourceTemplateId"]);
+
+      if (errs.length > 0) {
+        setErrors(errs);
+        logECS("error", "Adding Template Customization", {
+          errors: errs,
+          url: { path: routePath("template.customizations") },
+        });
+      } else {
+        // If successful, redirect to the customize page for the newly created template
+        const newTemplateCustomizationId = response?.data?.addTemplateCustomization?.id;
+
+        if (newTemplateCustomizationId) {
+          const successMessage = Customizable("messages.success.templateAddedSuccessfully", { title: item.title || "" });
+          toastState.add(successMessage, { type: "success" });
+          router.push(routePath("template.customize", { templateCustomizationId: newTemplateCustomizationId }));
+        } else {
+          setIsLoading(false); // Stop loading if no ID is returned
+          const errorMessage = Global("messaging.somethingWentWrong");
+          setErrors([errorMessage]);
+          logECS("error", "Adding Template Customization - No ID returned", {
+            url: { path: routePath("template.customizations") },
+          });
+        }
+      }
+
+    } catch (error) {
+      setErrors([Global("messaging.somethingWentWrong")]);
+      setIsLoading(false); // Stop loading on error
+      logECS("error", "Adding Template Customization", {
+        errors: error,
+        url: { path: routePath("template.customizations") },
+      });
+    }
+  };
 
   // zero out search and filters
   const resetSearch = async () => {
@@ -235,7 +328,6 @@ const TemplateListCustomizationsPage: React.FC = () => {
   useEffect(() => {
     if (!customizableTemplatesData || !customizableTemplatesData.customizableTemplates) return;
 
-    console.log("Customizable Templates Data:", customizableTemplatesData);
     // Transform customized templates into format expected by TemplateSelectListItem component
     const processTemplates = async (templates: PaginatedCustomizedTemplateSearchResultsInterface | null) => {
       const items = templates?.items ?? [];
@@ -252,8 +344,10 @@ const TemplateListCustomizationsPage: React.FC = () => {
             lastCustomized: (template?.customizationLastCustomized) ? formatDate(template?.customizationLastCustomized) : null,
             lastCustomizedByName: template?.customizationLastCustomizedByName,
             customizationStatus: statusForCustomization,
+            status: template?.customizationStatus ?? undefined,
             defaultExpanded: false,
             templateModified: template?.versionedTemplateLastModified ? formatDate(template?.versionedTemplateLastModified) : null,
+            versionedTemplateId: template?.versionedTemplateId,
           }
         }));
 
@@ -319,6 +413,16 @@ const TemplateListCustomizationsPage: React.FC = () => {
     }
   }, [queryError]);
 
+
+  if (isLoading) {
+    return (
+      <div className={styles.templateItem}>
+        <Loading />
+      </div>
+    );
+  }
+
+
   return (
     <>
       <PageHeader
@@ -370,7 +474,9 @@ const TemplateListCustomizationsPage: React.FC = () => {
                   data-index={index}
                 >
                   <CustomizedTemplateListItem
-                    item={template} />
+                    item={template}
+                    handleAddCustomization={handleAddCustomization}
+                  />
                 </div>
               ))}
 
@@ -405,7 +511,9 @@ const TemplateListCustomizationsPage: React.FC = () => {
                         data-index={index}
                       >
                         <CustomizedTemplateListItem
-                          item={template} />
+                          item={template}
+                          handleAddCustomization={handleAddCustomization}
+                        />
                       </div>
                     ))}
                     {nextCursor && (

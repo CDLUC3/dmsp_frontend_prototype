@@ -30,6 +30,11 @@
       "lastCustomizedBy": "Last customized by",
       "customizationStatus": "Customization status",
       "templateLastUpdated": "Template last updated"
+    },
+    "messages": {
+      "success": {
+        "templateAddedSuccessfully": "Template {title} added successfully"
+      }
     }
   },
   "EditTemplates": {

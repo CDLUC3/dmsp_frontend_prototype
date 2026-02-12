@@ -4,7 +4,8 @@ import {
   TemplateVisibility,
   PlanFeedback,
   ProjectFundingStatus,
-  TemplateCustomizationMigrationStatus
+  TemplateCustomizationMigrationStatus,
+  TemplateCustomizationStatus
 } from "@/generated/graphql";
 import {
   AffiliationSearchQuestionType,
@@ -78,7 +79,7 @@ export interface CustomizedTemplatesSearchResultInterface {
   versionedTemplateName: string;
   versionedTemplateVersion: string;
   versionedTemplateBestPractice: boolean;
-  customizationStatus: string;
+  customizationStatus: TemplateCustomizationStatus | null;
   versionedTemplateLastModified: string;
 }
 export interface TemplateInterface {
@@ -125,6 +126,8 @@ export interface CustomizedTemplatesProps {
   customizationStatus: string;
   defaultExpanded: boolean;
   templateModified: string | null;
+  status?: TemplateCustomizationStatus;
+  versionedTemplateId?: number;
 }
 
 export interface PaginatedVersionedTemplateSearchResultsInterface {
