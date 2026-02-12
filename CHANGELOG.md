@@ -1,4 +1,5 @@
 ## Added
+- Added new `clearAuthData` and `clearCache` to `AuthProvider` so that we can clear cache on `/login` and `/logout` [#55]
 - Added new `useGuidanceMutation` hook for adding and removing guidance from right sidebar [#15]
 - Added new queries `GuidanceSourcesForPlan`, `AddPlanGuidance`, `RemovePlanGuidance` and `ManagedAffiliationsWithGuidance` [#15]
 - Added new component `AffiliationSearchForGuidance` to be used for the custom guidance search modal [#15]
@@ -6,10 +7,16 @@
 - Added related works project overview page [#700]
 
 ## Updated
+- Updated `useResearchOutputTable`'s `updateStandardFieldProperty` method to `enable` a Research Output Table field when any content or config changes for that field [#943]
+- Updated `/login` page step=email to include a "Back" button so user can go back to Step 1 [#997]
 
+## Fixed
+- Updated "Back" button on /login page to have `type=button` instead of `type=submit`
+- Fixed bug where the published status on `/template/[templateId]` did not match that on the template cards at `/template` for the `unpublished changes` state. Added a shared hook for determining the correct status text [#875]
 
 ## Chore
 - Updated `renovate.json` to pick up on updates in `docker-compose.yaml` and added a schedule and `minimumReleaseAge`.
+- Updated `middleware.ts` to `proxy.ts` per `middleware` being deprecated in `next v16` [#51]
 - Updated `eslint` to `v8.57.1`, `cypress` to `v15.10.0`, `eslint-config-next` to `v15.5.11`, `next` to `16.1.6`, `html-react-parser` to `v5.2.16`, `next-intl` to `v4.8.2`, `react` to `v19.2.4`, `react-dom` to `v19.2.4` and `jose` to `v6.1.3`
 - Updated version of `next` to `v16.1.5` due to vulnerability and `next-intl` to `4.8.0` due to dependency
 - Updated version of `@dmptool/types` to `v3.1.1` because it has a fix for the 'fs' errors

@@ -10,7 +10,8 @@ import {
   mocks,
   multipleItemsMock,
   multipleItemsErrorMock,
-  errorMock
+  errorMock,
+  unpublishedChangesMock
 } from '../__mocks__/templateListPage.mocks';
 
 expect.extend(toHaveNoViolations);
@@ -135,6 +136,18 @@ describe('TemplateListPage', () => {
     expect(publishStatus).toBeInTheDocument();
     expect(lastUpdated).toBeInTheDocument();
     expect(visibility).toBeInTheDocument();
+  });
+
+  it('should display "unpublished changes" status for templates with unpublished changes', async () => {
+    renderPage(unpublishedChangesMock);
+
+    // Wait for template to render
+    expect(await screen.findByText('Template With Unpublished Changes')).toBeInTheDocument();
+
+    // Check that the status shows unpublished changes
+    const templateData = screen.getAllByTestId('template-metadata');
+    const publishStatus = within(templateData[0]).getByText(/status.unpublishedChanges/i);
+    expect(publishStatus).toBeInTheDocument();
   });
 
   it('should render the template list with correct ARIA role', async () => {

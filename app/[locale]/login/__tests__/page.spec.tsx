@@ -25,6 +25,7 @@ jest.mock('@/utils/authHelper', () => ({
 jest.mock('@/context/AuthContext', () => ({
   useAuthContext: jest.fn(() => ({
     setIsAuthenticated: jest.fn(),
+    clearCache: jest.fn().mockResolvedValue(undefined),
   })),
 }));
 
@@ -100,6 +101,7 @@ describe('LoginPage', () => {
     await waitFor(() => {
       expect(screen.getByTestId("passInput")).toBeInTheDocument();
       expect(screen.getByTestId("actionSubmit")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "buttons.back" })).toBeInTheDocument();
     });
 
     // Ensure that email field is read-only on this step
