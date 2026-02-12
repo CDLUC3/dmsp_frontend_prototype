@@ -48,7 +48,6 @@ import { useToast } from "@/context/ToastContext";
 import { extractErrors } from "@/utils/errorHandler";
 
 import styles from './templateCustomizations.module.scss';
-import { set } from 'zod';
 
 // # of templates displayed per section type
 const LIMIT = 5;
@@ -193,7 +192,6 @@ const TemplateListCustomizationsPage: React.FC = () => {
       }
 
     } catch (error) {
-      console.log("***Error adding template customization", error);
       setErrors([Global("messaging.somethingWentWrong")]);
       setIsLoading(false); // Stop loading on error
       logECS("error", "Adding Template Customization", {
@@ -417,7 +415,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
   }, [queryError]);
 
 
-  if (isLoading) {
+  if (isLoading || loading) {
     return (
       <div className={styles.templateItem}>
         <Loading />

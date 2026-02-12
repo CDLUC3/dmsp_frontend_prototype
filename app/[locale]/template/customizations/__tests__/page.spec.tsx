@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen, within, waitFor, cleanup } from '@/util
 import { MockedProvider } from '@apollo/client/testing/react';
 import { InMemoryCache } from '@apollo/client';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/context/ToastContext';
 import TemplateListCustomizationsPage from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import {
@@ -110,6 +111,9 @@ describe('TemplateListCustomizationsPage', () => {
   it('should render the search field with correct label and help text', async () => {
 
     renderPage();
+
+    await screen.findAllByTestId('template-list-item');
+
     // MockedProvider requires await for requests to resolve
     // Searching for translation keys since cannot run next-intl for unit tests
     expect(screen.getByLabelText('searchLabel')).toBeInTheDocument();
@@ -347,7 +351,6 @@ describe('TemplateListCustomizationsPage', () => {
         push: mockPush,
       });
 
-      const { useToast } = require('@/context/ToastContext');
       (useToast as jest.Mock).mockReturnValue({
         add: mockToastAdd,
       });
@@ -688,7 +691,6 @@ describe('TemplateListCustomizationsPage', () => {
         push: mockPush,
       });
 
-      const { useToast } = require('@/context/ToastContext');
       (useToast as jest.Mock).mockReturnValue({
         add: mockToastAdd,
       });
