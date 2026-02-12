@@ -197,4 +197,205 @@ describe('useResearchOutputTable', () => {
     expect(Array.isArray(formState.columns)).toBe(true);
     expect(formState.columns.length).toBeGreaterThan(0);
   });
+
+  it('should auto-enable repository field when repositories are added via handleRepositoriesChange', () => {
+    const { result } = renderHook(() => useResearchOutputTable({ setHasUnsavedChanges, announce }));
+
+    // repoSelector starts disabled
+    const initialField = result.current.standardFields.find(f => f.id === 'repoSelector');
+    expect(initialField?.enabled).toBe(false);
+
+    // Add repositories
+    act(() => {
+      result.current.handleRepositoriesChange([
+        { id: '1', name: 'Test Repo', uri: 'https://test.com' }
+      ]);
+    });
+
+    // Field should now be enabled and hasCustomRepos should be true
+    const updatedField = result.current.standardFields.find(f => f.id === 'repoSelector');
+    expect(updatedField?.enabled).toBe(true);
+    expect(updatedField?.repoConfig?.hasCustomRepos).toBe(true);
+    expect(updatedField?.repoConfig?.customRepos).toHaveLength(1);
+  });
+
+  it('should auto-enable metadata standards field when standards are added via handleMetaDataStandardsChange', () => {
+    const { result } = renderHook(() => useResearchOutputTable({ setHasUnsavedChanges, announce }));
+
+    // metadataStandards starts disabled
+    const initialField = result.current.standardFields.find(f => f.id === 'metadataStandards');
+    expect(initialField?.enabled).toBe(false);
+
+    // Add metadata standards
+    act(() => {
+      result.current.handleMetaDataStandardsChange([
+        { id: '1', name: 'Test Standard', uri: 'https://test.com' }
+      ]);
+    });
+
+    // Field should now be enabled and hasCustomStandards should be true
+    const updatedField = result.current.standardFields.find(f => f.id === 'metadataStandards');
+    expect(updatedField?.enabled).toBe(true);
+    expect(updatedField?.metaDataConfig?.hasCustomStandards).toBe(true);
+    expect(updatedField?.metaDataConfig?.customStandards).toHaveLength(1);
+  });
+
+  describe('updateStandardFieldProperty auto-enable logic', () => {
+    it('should auto-enable disabled field when updating meaningful property', () => {
+      const { result } = renderHook(() => useResearchOutputTable({ setHasUnsavedChanges, announce }));
+
+      // Find a disabled field (description starts disabled)
+      const descriptionField = result.current.standardFields.find(f => f.id === 'description');
+      expect(descriptionField?.enabled).toBe(false);
+
+      // Update a meaningful property
+      act(() => {
+        result.current.updateStandardFieldProperty('description', 'value', 'Some description text');
+      });
+
+      // Field should now be enabled
+      const updatedField = result.current.standardFields.find(f => f.id === 'description');
+      expect(updatedField?.enabled).toBe(true);
+      expect(updatedField?.value).toBe('Some description text');
+    });
+
+    it('should auto-enable field when updating outputTypeConfig', () => {
+      const { result } = renderHook(() => useResearchOutputTable({ setHasUnsavedChanges, announce }));
+
+      // First disable the outputType field
+      act(() => {
+        result.current.setStandardFields(prev =>
+          prev.map(f => f.id === 'outputType' ? { ...f, enabled: false } : f)
+        );
+      });
+
+      const disabledField = result.current.standardFields.find(f => f.id === 'outputType');
+      expect(disabledField?.enabled).toBe(false);
+
+      // Update outputTypeConfig
+      act(() => {
+        result.current.updateStandardFieldProperty('outputType', 'outputTypeConfig', {
+          mode: 'mine',
+          selectedDefaults: [],
+          customTypes: []
+        });
+      });
+
+      // Field should now be enabled
+      const updatedField = result.current.standardFields.find(f => f.id === 'outputType');
+      expect(updatedField?.enabled).toBe(true);
+    });
+
+    it('should only auto-enable repoSelector when hasCustomRepos is true', () => {
+      const { result } = renderHook(() => useResearchOutputTable({ setHasUnsavedChanges, announce }));
+
+      // repoSelector starts disabled
+      const initialField = result.current.standardFields.find(f => f.id === 'repoSelector');
+      expect(initialField?.enabled).toBe(false);
+
+      // Update with hasCustomRepos: false
+      act(() => {
+        result.current.updateStandardFieldProperty('repoSelector', 'repoConfig', {
+          hasCustomRepos: false,
+          customRepos: []
+        });
+      });
+
+      // Should still be disabled
+      let updatedField = result.current.standardFields.find(f => f.id === 'repoSelector');
+      expect(updatedField?.enabled).toBe(false);
+
+      // Update with hasCustomRepos: true
+      act(() => {
+        result.current.updateStandardFieldProperty('repoSelector', 'repoConfig', {
+          hasCustomRepos: true,
+          customRepos: []
+        });
+      });
+
+      // Now should be enabled
+      updatedField = result.current.standardFields.find(f => f.id === 'repoSelector');
+      expect(updatedField?.enabled).toBe(true);
+    });
+
+    it('should only auto-enable metadataStandards when hasCustomStandards is true', () => {
+      const { result } = renderHook(() => useResearchOutputTable({ setHasUnsavedChanges, announce }));
+
+      // metadataStandards starts disabled
+      const initialField = result.current.standardFields.find(f => f.id === 'metadataStandards');
+      expect(initialField?.enabled).toBe(false);
+
+      // Update with hasCustomStandards: false
+      act(() => {
+        result.current.updateStandardFieldProperty('metadataStandards', 'metaDataConfig', {
+          hasCustomStandards: false,
+          customStandards: []
+        });
+      });
+
+      // Should still be disabled
+      let updatedField = result.current.standardFields.find(f => f.id === 'metadataStandards');
+      expect(updatedField?.enabled).toBe(false);
+
+      // Update with hasCustomStandards: true
+      act(() => {
+        result.current.updateStandardFieldProperty('metadataStandards', 'metaDataConfig', {
+          hasCustomStandards: true,
+          customStandards: []
+        });
+      });
+
+      // Now should be enabled
+      updatedField = result.current.standardFields.find(f => f.id === 'metadataStandards');
+      expect(updatedField?.enabled).toBe(true);
+    });
+
+    it('should NOT auto-enable field when updating non-meaningful property', () => {
+      const { result } = renderHook(() => useResearchOutputTable({ setHasUnsavedChanges, announce }));
+
+      // Find a disabled field
+      const initialField = result.current.standardFields.find(f => f.id === 'description');
+      expect(initialField?.enabled).toBe(false);
+
+      // Update a non-meaningful property (label is not in meaningfulProperties list)
+      act(() => {
+        result.current.updateStandardFieldProperty('description', 'label', 'New Label');
+      });
+
+      // Field should still be disabled
+      const updatedField = result.current.standardFields.find(f => f.id === 'description');
+      expect(updatedField?.enabled).toBe(false);
+      expect(updatedField?.label).toBe('New Label');
+    });
+
+    it('should keep already-enabled field enabled when updating property', () => {
+      const { result } = renderHook(() => useResearchOutputTable({ setHasUnsavedChanges, announce }));
+
+      // title starts enabled
+      const initialField = result.current.standardFields.find(f => f.id === 'title');
+      expect(initialField?.enabled).toBe(true);
+
+      // Update any property
+      act(() => {
+        result.current.updateStandardFieldProperty('title', 'required', false);
+      });
+
+      // Should remain enabled
+      const updatedField = result.current.standardFields.find(f => f.id === 'title');
+      expect(updatedField?.enabled).toBe(true);
+      expect(updatedField?.required).toBe(false);
+    });
+
+    it('should call setHasUnsavedChanges when updating field property', () => {
+      const { result } = renderHook(() => useResearchOutputTable({ setHasUnsavedChanges, announce }));
+
+      setHasUnsavedChanges.mockClear();
+
+      act(() => {
+        result.current.updateStandardFieldProperty('description', 'value', 'test');
+      });
+
+      expect(setHasUnsavedChanges).toHaveBeenCalledWith(true);
+    });
+  });
 });

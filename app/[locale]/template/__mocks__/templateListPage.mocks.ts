@@ -1659,3 +1659,45 @@ export const errorMock = [
     error: new Error('Network error'),
   },
 ];
+
+export const unpublishedChangesMock = [
+  {
+    request: {
+      query: TemplatesDocument,
+      variables: {
+        paginationOptions: {
+          limit: 5,
+        },
+      },
+    },
+    result: {
+      data: {
+        myTemplates: {
+          __typename: 'PaginatedTemplateSearchResults',
+          totalCount: 1,
+          nextCursor: null,
+          availableSortFields: {},
+          currentOffset: 0,
+          hasNextPage: false,
+          hasPreviousPage: false,
+          limit: 5,
+          items: [{
+            name: 'Template With Unpublished Changes',
+            description: 'This template has unpublished changes',
+            modified: '2024-11-20 00:00:00',
+            modifiedByName: 'Test User',
+            latestPublishVisibility: 'ORGANIZATION',
+            latestPublishVersion: 'v1',
+            latestPublishDate: '2024-11-20 00:00:00',
+            id: 1,
+            ownerId: 'http://example.com/user/1',
+            ownerDisplayName: 'Test Affiliation',
+            modifiedById: 1,
+            isDirty: true,
+            bestPractice: false
+          }]
+        }
+      },
+    },
+  },
+];
