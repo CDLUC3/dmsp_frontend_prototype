@@ -1,4 +1,5 @@
 import {
+  AddTemplateCustomizationDocument,
   CustomizableTemplatesDocument,
   TemplateCustomizationMigrationStatus,
   TemplateCustomizationStatus,
@@ -179,6 +180,45 @@ export const mocks = [
       },
     },
   },
+  {
+    request: {
+      query: AddTemplateCustomizationDocument,
+      variables: {
+        input: {
+          versionedTemplateId: 2,
+          status: TemplateCustomizationStatus.Published,
+        }
+      }
+    },
+    result: {
+      data: {
+        addTemplateCustomization: {
+          id: 19,
+          errors: {
+            collaboratorIds: null,
+            description: null,
+            general: null,
+            languageId: null,
+            latestPublishVersion: null,
+            latestPublishVisibility: null,
+            name: null,
+            ownerId: null,
+            sectionIds: null,
+            sourceTemplateId: null,
+            __typename: "TemplateErrors"
+          },
+          isDirty: false,
+          currentVersionedTemplateId: 945,
+          affiliationId: "https://ror.org/03yrm5c26",
+          status: "DRAFT",
+          migrationStatus: "OK",
+          latestPublishedDate: null,
+          __typename: "TemplateCustomization"
+        }
+
+      }
+    }
+  }
 ];
 
 // Mock with multiple items for pagination testing
@@ -522,6 +562,85 @@ export const multipleItemsErrorMock = [
   },
 ];
 
+export const mutationErrorMock = [
+  {
+    request: {
+      query: CustomizableTemplatesDocument,
+      variables: {
+        paginationOptions: {
+          type: "CURSOR",
+          limit: 5,
+        },
+      },
+    },
+    result: {
+      data: {
+        customizableTemplates: {
+          items: [
+            {
+              __typename: 'CustomizableTemplateSearchResult',
+              customizationId: null, // No existing customization
+              customizationIsDirty: false,
+              customizationLastCustomized: null,
+              customizationLastCustomizedById: null,
+              customizationLastCustomizedByName: null,
+              customizationMigrationStatus: null,
+              versionedTemplateDescription: 'Test Template',
+              versionedTemplateAffiliationId: "https://ror.org/test",
+              versionedTemplateAffiliationName: 'Test Funder',
+              versionedTemplateId: 999,
+              versionedTemplateName: 'Test Template',
+              versionedTemplateBestPractice: false,
+              customizationStatus: null,
+              versionedTemplateLastModified: '2023-12-01T00:00:00Z',
+            },
+          ],
+          nextCursor: null,
+          totalCount: 1,
+        },
+      },
+    },
+  },
+  {
+    request: {
+      query: AddTemplateCustomizationDocument,
+      variables: {
+        input: {
+          versionedTemplateId: 999,
+          status: TemplateCustomizationStatus.Draft,
+        }
+      }
+    },
+    result: {
+      data: {
+        addTemplateCustomization: {
+          id: null,
+          errors: {
+            collaboratorIds: null,
+            description: null,
+            general: "Something went wrong",
+            languageId: null,
+            latestPublishVersion: null,
+            latestPublishVisibility: null,
+            name: null,
+            ownerId: null,
+            sectionIds: null,
+            sourceTemplateId: null,
+            __typename: "TemplateErrors"
+          },
+          isDirty: false,
+          currentVersionedTemplateId: null,
+          affiliationId: null,
+          status: null,
+          migrationStatus: null,
+          latestPublishedDate: null,
+          __typename: "TemplateCustomization"
+        }
+      }
+    }
+  }
+];
+
 // Mock with error on initial load
 export const errorMock = [
   {
@@ -537,3 +656,4 @@ export const errorMock = [
     error: new Error('Network error'),
   },
 ];
+

@@ -2,18 +2,34 @@ import React from 'react';
 import { act, fireEvent, render, screen, within, waitFor, cleanup } from '@/utils/test-utils';
 import { MockedProvider } from '@apollo/client/testing/react';
 import { InMemoryCache } from '@apollo/client';
-
+import { useRouter } from 'next/navigation';
 import TemplateListCustomizationsPage from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import {
+  CustomizableTemplatesDocument,
+  AddTemplateCustomizationDocument,
+  TemplateCustomizationStatus
+} from '@/generated/graphql';
+import {
   mocks,
   errorMock,
+  mutationErrorMock,
   multipleItemsMock,
   multipleItemsErrorMock,
   searchWithPaginationMock
 } from '../__mocks__/customizableTemplates.mocks';
 
 expect.extend(toHaveNoViolations);
+
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
+}));
+
+jest.mock('@/context/ToastContext', () => ({
+  useToast: jest.fn(() => ({
+    add: jest.fn(),
+  })),
+}));
 
 // Mock useFormatter and useTranslations  next-intl
 jest.mock('next-intl', () => ({
@@ -101,7 +117,6 @@ describe('TemplateListCustomizationsPage', () => {
   });
 
   it('should render the template list with correct number of items', async () => {
-
     renderPage();
 
     // Wait until the list renders with the right name
@@ -115,6 +130,7 @@ describe('TemplateListCustomizationsPage', () => {
 
   it('should render template items with correct metadata', async () => {
     renderPage();
+
     // MockedProvider requires await for requests to resolve
     expect(await screen.findByText('NSF-BIO: Biological Sciences')).toBeInTheDocument();
     expect(await screen.findByText('NSF-ENG: Engineering')).toBeInTheDocument();
@@ -207,12 +223,9 @@ describe('TemplateListCustomizationsPage', () => {
     const heading = await screen.findByRole('heading', { level: 1 });
     expect(heading).toHaveTextContent('title');
 
-    // MockedProvider requires await for requests to resolve
-
     const searchInput = await screen.findByLabelText(/searchLabel/i);
     expect(searchInput).toBeInTheDocument();
     fireEvent.change(searchInput, { target: { value: 'test' } });
-
 
     const searchButton = await screen.findByRole('button', { name: /search/i });
     fireEvent.click(searchButton);
@@ -226,7 +239,6 @@ describe('TemplateListCustomizationsPage', () => {
   it('should display correct load more and remaining text when doing a search', async () => {
     renderPage(searchWithPaginationMock);
 
-    // Searching for translation key since cannot run next-intl for unit tests
     const searchInput = await screen.findByLabelText(/searchLabel/i);
     expect(searchInput).toBeInTheDocument();
 
@@ -247,12 +259,11 @@ describe('TemplateListCustomizationsPage', () => {
 
     const loadMoreButton = await screen.findByRole('button', { name: /loadMoreSearchResults/i });
 
-    // Wrap click in act and wait for results
     await act(async () => {
       fireEvent.click(loadMoreButton);
     });
 
-    // Use waitFor to wait for the items to update
+    // Wait for the items to update
     await waitFor(() => {
       const templateItems2 = screen.getAllByTestId('template-list-item');
       expect(templateItems2).toHaveLength(2);
@@ -323,4 +334,554 @@ describe('TemplateListCustomizationsPage', () => {
       expect(results).toHaveNoViolations();
     });
   });
+
+  describe('handleAddCustomization', () => {
+    let mockPush: jest.Mock;
+    let mockToastAdd: jest.Mock;
+
+    beforeEach(() => {
+      mockPush = jest.fn();
+      mockToastAdd = jest.fn();
+
+      (useRouter as jest.Mock).mockReturnValue({
+        push: mockPush,
+      });
+
+      const { useToast } = require('@/context/ToastContext');
+      (useToast as jest.Mock).mockReturnValue({
+        add: mockToastAdd,
+      });
+    });
+
+    it('should redirect directly if template customization already exists (has id)', async () => {
+      renderPage();
+
+      // Wait for initial load
+      await screen.findAllByTestId('template-list-item');
+
+      // Find the customize button for the first item (which has id=1)
+      const updateButton = screen.getAllByLabelText("links.update NSF-BIO: Biological Sciences");
+
+      await act(async () => {
+        fireEvent.click(updateButton[1]);
+      });
+
+      // Should redirect without calling mutation
+      expect(mockPush).toHaveBeenCalledWith('/en-US/template/customizations/1');
+    });
+
+    it('should create new template customization and redirect on success', async () => {
+      const newCustomizationMock = [
+        {
+          request: {
+            query: CustomizableTemplatesDocument,
+            variables: {
+              paginationOptions: {
+                type: "CURSOR",
+                limit: 5,
+              },
+            },
+          },
+          result: {
+            data: {
+              customizableTemplates: {
+                items: [
+                  {
+                    __typename: 'CustomizableTemplateSearchResult',
+                    customizationId: null, // ← No existing customization
+                    customizationIsDirty: false,
+                    customizationLastCustomized: null,
+                    customizationLastCustomizedById: null,
+                    customizationLastCustomizedByName: null,
+                    customizationMigrationStatus: null,
+                    versionedTemplateDescription: 'NSF-BIO: Biological Sciences',
+                    versionedTemplateAffiliationId: "https://ror.org/03yrm5c26",
+                    versionedTemplateAffiliationName: 'National Science Foundation',
+                    versionedTemplateId: 2,
+                    versionedTemplateName: 'NSF-BIO: Biological Sciences',
+                    versionedTemplateBestPractice: false,
+                    customizationStatus: null,
+                    versionedTemplateLastModified: '2023-12-01T00:00:00Z',
+                  },
+                ],
+                nextCursor: null,
+                totalCount: 1,
+              },
+            },
+          },
+        },
+        {
+          request: {
+            query: AddTemplateCustomizationDocument,
+            variables: {
+              input: {
+                versionedTemplateId: 2,
+                status: TemplateCustomizationStatus.Draft,
+              }
+            }
+          },
+          result: {
+            data: {
+              addTemplateCustomization: {
+                id: 19,
+                errors: {
+                  collaboratorIds: null,
+                  description: null,
+                  general: null,
+                  languageId: null,
+                  latestPublishVersion: null,
+                  latestPublishVisibility: null,
+                  name: null,
+                  ownerId: null,
+                  sectionIds: null,
+                  sourceTemplateId: null,
+                  __typename: "TemplateErrors"
+                },
+                isDirty: false,
+                currentVersionedTemplateId: 945,
+                affiliationId: "https://ror.org/03yrm5c26",
+                status: "DRAFT",
+                migrationStatus: "OK",
+                latestPublishedDate: null,
+                __typename: "TemplateCustomization"
+              }
+            }
+          }
+        }
+      ];
+      renderPage(newCustomizationMock);
+
+      // Wait for initial load
+      await screen.findAllByTestId('template-list-item');
+
+      // Create a mock for a template without customizationId
+      const updateButton = screen.getAllByLabelText("links.update NSF-BIO: Biological Sciences");
+
+      await act(async () => {
+        fireEvent.click(updateButton[1]);
+      });
+
+      // Wait for mutation to complete
+      await waitFor(() => {
+        expect(mockToastAdd).toHaveBeenCalledWith(
+          expect.any(String),
+          { type: 'success' }
+        );
+      });
+
+      // Should redirect to the new customization page
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith('/en-US/template/customizations/19');
+      });
+    });
+
+    it('should display errors when mutation returns errors', async () => {
+      renderPage(mutationErrorMock);
+
+      await screen.findAllByTestId('template-list-item');
+
+      const updateButton = screen.getAllByLabelText("links.update Test Template");
+
+      await act(async () => {
+        fireEvent.click(updateButton[1]);
+      });
+
+
+      // Should display the error message on page
+      await waitFor(() => {
+        // Try finding the error in different ways
+        const errorByTestId = screen.queryByTestId('error-messages');
+
+        expect(
+          screen.getByText('Something went wrong') ||
+          errorByTestId?.textContent?.includes('Something went wrong')
+        ).toBeTruthy();
+      }, { timeout: 3000 });
+
+      // Should not redirect
+      expect(mockPush).not.toHaveBeenCalled();
+    });
+
+    it('should handle error when mutation succeeds but no ID is returned', async () => {
+      const noIdMocks = [
+        {
+          request: {
+            query: CustomizableTemplatesDocument,
+            variables: {
+              paginationOptions: {
+                type: "CURSOR",
+                limit: 5,
+              },
+            },
+          },
+          result: {
+            data: {
+              customizableTemplates: {
+                items: [
+                  {
+                    __typename: 'CustomizableTemplateSearchResult',
+                    customizationId: null,
+                    customizationIsDirty: false,
+                    customizationLastCustomized: null,
+                    customizationLastCustomizedById: null,
+                    customizationLastCustomizedByName: null,
+                    customizationMigrationStatus: null,
+                    versionedTemplateDescription: 'Test Template',
+                    versionedTemplateAffiliationId: "https://ror.org/test",
+                    versionedTemplateAffiliationName: 'Test Funder',
+                    versionedTemplateId: 999,
+                    versionedTemplateName: 'Test Template',
+                    versionedTemplateBestPractice: false,
+                    customizationStatus: null,
+                    versionedTemplateLastModified: '2023-12-01T00:00:00Z',
+                  },
+                ],
+                nextCursor: null,
+                totalCount: 1,
+              },
+            },
+          },
+        },
+        {
+          request: {
+            query: AddTemplateCustomizationDocument,
+            variables: {
+              input: {
+                versionedTemplateId: 999,
+                status: TemplateCustomizationStatus.Draft,
+              }
+
+            }
+          },
+          result: {
+            data: {
+              addTemplateCustomization: {
+                id: null, // No ID returned
+                errors: {
+                  collaboratorIds: null,
+                  description: null,
+                  general: null,
+                  languageId: null,
+                  latestPublishVersion: null,
+                  latestPublishVisibility: null,
+                  name: null,
+                  ownerId: null,
+                  sectionIds: null,
+                  sourceTemplateId: null,
+                  __typename: "TemplateErrors"
+                },
+                isDirty: false,
+                currentVersionedTemplateId: null,
+                affiliationId: null,
+                status: "DRAFT",
+                migrationStatus: null,
+                latestPublishedDate: null,
+                __typename: "TemplateCustomization"
+              }
+            }
+          }
+        }
+      ];
+
+      renderPage(noIdMocks);
+
+      await screen.findAllByTestId('template-list-item');
+
+      const updateButton = screen.getAllByLabelText("links.update Test Template");
+
+      await act(async () => {
+        fireEvent.click(updateButton[1]);
+      });
+
+      // Should display error message
+      await waitFor(() => {
+        expect(screen.getByText('messaging.somethingWentWrong')).toBeInTheDocument();
+      });
+
+      // Should NOT redirect
+      expect(mockPush).not.toHaveBeenCalled();
+    });
+
+    it('should handle mutation error with catch block', async () => {
+      const mutationErrorMocks = [
+        {
+          request: {
+            query: CustomizableTemplatesDocument,
+            variables: {
+              paginationOptions: {
+                type: "CURSOR",
+                limit: 5,
+              },
+            },
+          },
+          result: {
+            data: {
+              customizableTemplates: {
+                items: [
+                  {
+                    __typename: 'CustomizableTemplateSearchResult',
+                    customizationId: null,
+                    customizationIsDirty: false,
+                    customizationLastCustomized: null,
+                    customizationLastCustomizedById: null,
+                    customizationLastCustomizedByName: null,
+                    customizationMigrationStatus: null,
+                    versionedTemplateDescription: 'Test Template',
+                    versionedTemplateAffiliationId: "https://ror.org/test",
+                    versionedTemplateAffiliationName: 'Test Funder',
+                    versionedTemplateId: 999,
+                    versionedTemplateName: 'Test Template',
+                    versionedTemplateBestPractice: false,
+                    customizationStatus: null,
+                    versionedTemplateLastModified: '2023-12-01T00:00:00Z',
+                  },
+                ],
+                nextCursor: null,
+                totalCount: 1,
+              },
+            },
+          },
+        },
+        {
+          request: {
+            query: AddTemplateCustomizationDocument,
+            variables: {
+              input: {
+                versionedTemplateId: 999,
+                status: TemplateCustomizationStatus.Draft,
+              }
+            }
+          },
+          error: new Error('Network error during mutation'),
+        }
+      ];
+
+      renderPage(mutationErrorMocks);
+
+      await screen.findAllByTestId('template-list-item');
+
+      const updateButton = screen.getAllByLabelText("links.update Test Template");
+
+      await act(async () => {
+        fireEvent.click(updateButton[1]);
+      });
+
+      // Should display error message
+      await waitFor(() => {
+        expect(screen.getByText('messaging.somethingWentWrong')).toBeInTheDocument();
+      }, { timeout: 3000 });
+
+      // Should NOT redirect
+      expect(mockPush).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Loading state', () => {
+    let mockPush: jest.Mock;
+    let mockToastAdd: jest.Mock;
+
+    beforeEach(() => {
+      mockPush = jest.fn();
+      mockToastAdd = jest.fn();
+
+      (useRouter as jest.Mock).mockReturnValue({
+        push: mockPush,
+      });
+
+      const { useToast } = require('@/context/ToastContext');
+      (useToast as jest.Mock).mockReturnValue({
+        add: mockToastAdd,
+      });
+    });
+
+    it('should show loading component during mutation then hide after completion', async () => {
+      const loadingMocks = [
+        {
+          request: {
+            query: CustomizableTemplatesDocument,
+            variables: {
+              paginationOptions: {
+                type: "CURSOR",
+                limit: 5,
+              },
+            },
+          },
+          result: {
+            data: {
+              customizableTemplates: {
+                items: [
+                  {
+                    __typename: 'CustomizableTemplateSearchResult',
+                    customizationId: null,
+                    customizationIsDirty: false,
+                    customizationLastCustomized: null,
+                    customizationLastCustomizedById: null,
+                    customizationLastCustomizedByName: null,
+                    customizationMigrationStatus: null,
+                    versionedTemplateDescription: 'Test Template',
+                    versionedTemplateAffiliationId: "https://ror.org/test",
+                    versionedTemplateAffiliationName: 'Test Funder',
+                    versionedTemplateId: 999,
+                    versionedTemplateName: 'Test Template',
+                    versionedTemplateBestPractice: false,
+                    customizationStatus: null,
+                    versionedTemplateLastModified: '2023-12-01T00:00:00Z',
+                  },
+                ],
+                nextCursor: null,
+                totalCount: 1,
+              },
+            },
+          },
+        },
+        {
+          request: {
+            query: AddTemplateCustomizationDocument,
+            variables: {
+              input: {
+                versionedTemplateId: 999,
+                status: TemplateCustomizationStatus.Draft,
+              }
+            }
+          },
+          delay: 100, // Small delay to ensure we can capture loading state
+          result: {
+            data: {
+              addTemplateCustomization: {
+                id: 19,
+                errors: {
+                  collaboratorIds: null,
+                  description: null,
+                  general: null,
+                  languageId: null,
+                  latestPublishVersion: null,
+                  latestPublishVisibility: null,
+                  name: null,
+                  ownerId: null,
+                  sectionIds: null,
+                  sourceTemplateId: null,
+                  __typename: "TemplateErrors"
+                },
+                isDirty: false,
+                currentVersionedTemplateId: 945,
+                affiliationId: "https://ror.org/test",
+                status: "DRAFT",
+                migrationStatus: "OK",
+                latestPublishedDate: null,
+                __typename: "TemplateCustomization"
+              }
+            }
+          }
+        }
+      ];
+
+      renderPage(loadingMocks);
+
+      await screen.findAllByTestId('template-list-item');
+
+      const customizeButton = screen.getAllByLabelText("links.update Test Template");
+
+      // Click the button to trigger mutation
+      await act(async () => {
+        fireEvent.click(customizeButton[1]);
+      });
+
+
+      // Loading component should appear
+      await waitFor(() => {
+        expect(screen.getByTestId('loading-component')).toBeInTheDocument();
+      });
+
+      // Verify the redirect happened (mutation succeeded)
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith('/en-US/template/customizations/19'); // ← Fixed path
+      });
+
+    });
+
+    it('should hide loading component after error', async () => {
+      const errorLoadingMocks = [
+        {
+          request: {
+            query: CustomizableTemplatesDocument,
+            variables: {
+              paginationOptions: {
+                type: "CURSOR",
+                limit: 5,
+              },
+            },
+          },
+          result: {
+            data: {
+              customizableTemplates: {
+                items: [
+                  {
+                    __typename: 'CustomizableTemplateSearchResult',
+                    customizationId: null,
+                    customizationIsDirty: false,
+                    customizationLastCustomized: null,
+                    customizationLastCustomizedById: null,
+                    customizationLastCustomizedByName: null,
+                    customizationMigrationStatus: null,
+                    versionedTemplateDescription: 'Test Template',
+                    versionedTemplateAffiliationId: "https://ror.org/test",
+                    versionedTemplateAffiliationName: 'Test Funder',
+                    versionedTemplateId: 999,
+                    versionedTemplateName: 'Test Template',
+                    versionedTemplateBestPractice: false,
+                    customizationStatus: null,
+                    versionedTemplateLastModified: '2023-12-01T00:00:00Z',
+                  },
+                ],
+                nextCursor: null,
+                totalCount: 1,
+              },
+            },
+          },
+        },
+        {
+          request: {
+            query: AddTemplateCustomizationDocument,
+            variables: {
+              input: {
+                versionedTemplateId: 999,
+                status: TemplateCustomizationStatus.Draft,
+              }
+            }
+          },
+          delay: 100,
+          error: new Error('Network error'),
+        }
+      ];
+
+      renderPage(errorLoadingMocks);
+
+      await screen.findAllByTestId('template-list-item');
+
+      // Initially, loading should not be visible
+      expect(screen.queryByTestId('loading-component')).not.toBeInTheDocument();
+
+      const customizeButton = screen.getAllByLabelText("links.update Test Template");
+
+      // Click the button to trigger mutation
+      await act(async () => {
+        fireEvent.click(customizeButton[1]);
+      });
+
+      // Loading component should appear
+      await waitFor(() => {
+        expect(screen.getByTestId('loading-component')).toBeInTheDocument();
+      });
+
+      // Loading should disappear
+      await waitFor(() => {
+        expect(screen.getByText('messaging.somethingWentWrong')).toBeInTheDocument();
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('loading-component')).not.toBeInTheDocument();
+      });
+    });
+  });
 });
+

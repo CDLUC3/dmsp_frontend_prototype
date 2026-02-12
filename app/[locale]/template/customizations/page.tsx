@@ -48,6 +48,7 @@ import { useToast } from "@/context/ToastContext";
 import { extractErrors } from "@/utils/errorHandler";
 
 import styles from './templateCustomizations.module.scss';
+import { set } from 'zod';
 
 // # of templates displayed per section type
 const LIMIT = 5;
@@ -142,15 +143,15 @@ const TemplateListCustomizationsPage: React.FC = () => {
   }
 
   const handleAddCustomization = async (item: CustomizedTemplatesProps) => {
-    // Set isLoading to true to show loading state on page
-    setIsLoading(true);
-
     // If the templateCustomizedId already exists, meaning it is already in the templateCustomizations table
     // then just redirect to the page for the given templateCustomizationId
     if (item.id) {
       router.push(routePath("template.customize", { templateCustomizationId: item.id }));
       return;
     }
+
+    // Set isLoading to true to show loading state on page
+    setIsLoading(true);
 
     // Otherwise, we need to create a new template customization entry in the database, get
     //  the newly created templateCustomizationId, and then redirect to the page
@@ -168,6 +169,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
 
       if (errs.length > 0) {
         setErrors(errs);
+        setIsLoading(false); // Stop loading if there are errors and display error messages
         logECS("error", "Adding Template Customization", {
           errors: errs,
           url: { path: routePath("template.customizations") },
@@ -191,6 +193,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
       }
 
     } catch (error) {
+      console.log("***Error adding template customization", error);
       setErrors([Global("messaging.somethingWentWrong")]);
       setIsLoading(false); // Stop loading on error
       logECS("error", "Adding Template Customization", {
@@ -459,8 +462,6 @@ const TemplateListCustomizationsPage: React.FC = () => {
               </Text>
             </SearchField>
           </div >
-
-          {loading && <p>{Global('messaging.loading')}</p>}
 
           {isSearchFetch && (
             <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}> {Global('links.clearFilter')}</Button>

@@ -58,6 +58,7 @@ const Loading: React.FC<LoadingProps> = ({
       className={loadingClassName}
       role="status"
       aria-live="polite"
+      data-testid="loading-component"
     >
       {showSpinner && (
         <Spinner
