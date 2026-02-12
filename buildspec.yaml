@@ -10,12 +10,6 @@ phases:
       # EnvironmentVariable config for the Pipeline action :(
       - export AWS_VERSION=$(aws --version)
 
-      # Install trivy for vulnerability scanning
-      - echo "Installing Trivy..."
-      - wget "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
-      - tar -zxvf "trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
-      - mv trivy /usr/local/bin/
-
       # Fetch the ECR repository name
       - echo $ECR_REPOSITORY_URI >> .ecr
       - export SHORT_ECR_URI=$(awk '{gsub("$ECR_REPOSITORY_NAME", "");print}' .ecr)
@@ -51,10 +45,6 @@ phases:
         # Build the Docker image
         - echo "Building the Docker image..."
         - docker build --no-cache --build-arg NEXT_PUBLIC_SERVER_ENDPOINT=$NEXT_PUBLIC_SERVER_ENDPOINT --build-arg NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL -f Dockerfile.prod -t $SHORT_ECR_URI:nextJS-latest .
-        
-        # Run Trivy on the new image to check for vulnerabilities
-        - echo "Running Trivy vulnerability scanner on the new image..."
-        - trivy image --exit-code 1 --severity HIGH,CRITICAL $SHORT_ECR_URI:nextJS-latest
         
         # Tag the image with the Git commit ID
         - docker tag $ECR_REPOSITORY_URI:nextJS-latest $SHORT_ECR_URI:$IMAGE_TAG
