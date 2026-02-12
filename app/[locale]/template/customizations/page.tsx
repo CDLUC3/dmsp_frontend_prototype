@@ -47,8 +47,6 @@ import { logECS, routePath } from '@/utils/index';
 import { useToast } from "@/context/ToastContext";
 import { extractErrors } from "@/utils/errorHandler";
 
-import styles from './templateCustomizations.module.scss';
-
 // # of templates displayed per section type
 const LIMIT = 5;
 
@@ -417,7 +415,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
 
   if (isLoading || loading) {
     return (
-      <div className={styles.templateItem}>
+      <div>
         <Loading />
       </div>
     );
@@ -462,10 +460,10 @@ const TemplateListCustomizationsPage: React.FC = () => {
           </div >
 
           {isSearchFetch && (
-            <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}> {Global('links.clearFilter')}</Button>
+            <Button onPress={resetSearch} className="link"> {Global('links.clearFilter')}</Button>
           )}
           {isSearchFetch && searchResults.length > 0 ? (
-            <div className={`${styles.templateCards} template-list`} role="list" aria-label={t('templateList')}>
+            <div className="template-list" role="list" aria-label={t('templateList')}>
               {searchResults.map((template, index) => (
                 <div
                   key={`${template.id}-${index}`}
@@ -480,7 +478,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
               ))}
 
               {searchNextCursor && (
-                <div className={styles.loadBtnContainer}>
+                <div className="loadBtnContainer">
                   <Button
                     type="button"
                     data-testid="search-load-more-btn"
@@ -492,14 +490,14 @@ const TemplateListCustomizationsPage: React.FC = () => {
                   <div>
                     {Global('messaging.numDisplaying', { num: searchResults.length, total: searchTotalCount || '' })}
                   </div>
-                  <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}> {Global('links.clearFilter')}</Button>
+                  <Button onPress={resetSearch} className="link"> {Global('links.clearFilter')}</Button>
 
                 </div>
               )}
             </div>
           ) : (
             <>
-              <div className={`${styles.templateCards} template-list`} role="list" aria-label={t('templateList')}>
+              <div className="template-list" role="list" aria-label={t('templateList')}>
                 {searchTerm && searchButtonClicked ? (
                   <p>{Global('messaging.noItemsFound')}</p>
                 ) : (
@@ -516,7 +514,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
                       </div>
                     ))}
                     {nextCursor && (
-                      <div className={styles.loadBtnContainer}>
+                      <div>
                         <Button
                           type="button"
                           data-testid="load-more-btn"
@@ -525,11 +523,11 @@ const TemplateListCustomizationsPage: React.FC = () => {
                         >
                           {Global('buttons.loadMore')}
                         </Button>
-                        <div className={styles.remainingText}>
+                        <div>
                           {Global('messaging.numDisplaying', { num: customizedTemplates.length, total: totalCount || '' })}
                         </div>
                         {isSearchFetch && (
-                          <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}> {Global('links.clearFilter')}</Button>
+                          <Button onPress={resetSearch} className="link"> {Global('links.clearFilter')}</Button>
                         )}
                       </div>
                     )}

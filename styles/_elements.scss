@@ -950,3 +950,9 @@ table,
 .editor-content tbody tr:hover {
   background-color: #f9f9f9;
 }
+
+.template-list {
+    @include r.device(lg) {
+    max-width: 75%;
+  }
+}
