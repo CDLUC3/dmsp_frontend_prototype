@@ -32,6 +32,13 @@ jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`,
 }));
 
+jest.mock('@/hooks/useFormatDate', () => ({
+  useFormatDate: jest.fn(() => (dateString: string) => {
+    if (!dateString) return '';
+    return '01-01-2023';
+  }),
+}));
+
 
 let mockRouter;
 
@@ -78,6 +85,20 @@ const projectFundingsMocks = [
       variables: {
         // Project 2 have no projectFundings
         projectId: 2
+      },
+    },
+    result: {
+      data: {
+        projectFundings: [],
+      },
+    },
+  },
+  {
+    request: {
+      query: ProjectFundingsDocument,
+      variables: {
+        // Project 3 also has no projectFundings, but will have best practice templates
+        projectId: 3
       },
     },
     result: {
@@ -160,6 +181,32 @@ const publishedMetaDataMocks = [
             "http://affiliation-2.gov"
           ],
           hasBestPracticeTemplates: false,
+        },
+      },
+    },
+  },
+  // For project 3: no funders but has best practice templates
+  {
+    request: {
+      query: PublishedTemplatesMetaDataDocument,
+      variables: {
+        paginationOptions: {
+          offset: 0,
+          limit: 5,
+          type: "OFFSET",
+          sortDir: "DESC",
+          selectOwnerURIs: [],
+          bestPractice: false
+        },
+        term: ""
+      },
+    },
+    result: {
+      data: {
+        publishedTemplatesMetaData: {
+          __typename: "PublishedTemplateMetaDataResults",
+          availableAffiliations: [],
+          hasBestPracticeTemplates: true,
         },
       },
     },
@@ -518,6 +565,57 @@ const publishedTemplatesMocks = [
       loading: false
     },
   },
+  // Best practice templates only (for project 3)
+  {
+    request: {
+      query: PublishedTemplatesDocument,
+      variables: {
+        paginationOptions: {
+          offset: 0,
+          limit: 5,
+          type: "OFFSET",
+          sortDir: "DESC",
+          selectOwnerURIs: [],
+          bestPractice: true
+        },
+        term: ""
+      },
+    },
+    result: {
+      data: {
+        publishedTemplates: {
+          __typename: "PublishedTemplateSearchResults",
+          limit: 5,
+          nextCursor: null,
+          totalCount: 2,
+          availableSortFields: ['vt.bestPractice'],
+          currentOffset: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+          items: [
+            {
+              __typename: "VersionedTemplateSearchResult",
+              id: 100,
+              bestPractice: true,
+              description: "Best Practice Template Description",
+              name: "Best Practice Template",
+              visibility: "PUBLIC",
+              ownerDisplayName: "Best Practice Owner",
+              ownerURI: "http://bestpractice.gov",
+              modified: "2021-10-25 18:42:37",
+              modifiedByName: "Jane Smith",
+              modifiedById: 15,
+              ownerId: 200,
+              version: "v1",
+              templateId: 50,
+              ownerSearchName: "Best Practice Owner Search"
+            },
+          ]
+        },
+      },
+      loading: false
+    },
+  },
   {
     request: {
       query: PublishedTemplatesDocument,
@@ -865,6 +963,16 @@ const baseMocks = [
   ...addPlanErrMocks,
 ];
 
+/**
+ * - For projectId=1: Affiliations 1 & 2 match, so checkboxes appear PRE-CHECKED and templates are filtered
+ * - For projectId=2: No fundings, so no checkboxes appear and all templates are shown
+ * 
+ * Tests must wait for this initialization sequence:
+ * 1. Initial queries (ProjectFundings, Me, PublishedTemplatesMetaData) complete
+ * 2. fundersData is computed and initialFilterConfig is determined
+ * 3. The initialization useEffect runs and triggers the lazy PublishedTemplates query
+ * 4. Templates render with appropriate filters applied
+ */
 
 describe('PlanCreate Component using base mock', () => {
   const mockUseParams = useParams as jest.Mock;
@@ -877,11 +985,9 @@ describe('PlanCreate Component using base mock', () => {
     mockScrollTo();
     mockUseParams.mockReturnValue({ projectId: '1' });
 
-    // mock router
     mockRouter = { push: jest.fn() };
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
 
-    // Mock Toast
     (useToast as jest.Mock).mockReturnValue(mockToast);
   });
 
@@ -913,61 +1019,59 @@ describe('PlanCreate Component using base mock', () => {
         // 3. No loading indicators present
         expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
       },
-      { timeout: 10000 } // Increase timeout
+      { timeout: 10000 }
     );
 
-    // NOW make individual assertions (outside waitFor)
     const templateData = screen.getAllByTestId('template-metadata');
 
     [0, 1, 2].forEach((i) => {
-      expect(screen.getByRole('heading', { level: 3, name: `Template ${i + 1} Name` })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: `Template ${i + 1} Name` })).toBeInTheDocument();
       expect(within(templateData[i]).getByText(/lastRevisedBy.*John Doe/)).toBeInTheDocument();
       expect(within(templateData[i]).getByText('published')).toBeInTheDocument();
       expect(within(templateData[i]).getByText(/visibility.*Public/)).toBeInTheDocument();
     });
 
-    expect(screen.queryByRole('heading', { level: 3, name: /labels.dmpBestPractice/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { level: 2, name: /labels.dmpBestPractice/i })).not.toBeInTheDocument();
     expect(screen.getAllByText('buttons.select')).toHaveLength(5);
 
-    // Wait a bit to ensure all async operations complete
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
   });
 
-  // it('should handle funder filter changes', async () => {
-  //   render(
-  //     <MockedProvider mocks={baseMocks} cache={apolloCache}>
-  //       <PlanCreate />
-  //     </MockedProvider>
-  //   );
+  it('should handle funder filter changes', async () => {
+    render(
+      <MockedProvider mocks={baseMocks} cache={apolloCache}>
+        <PlanCreate />
+      </MockedProvider>
+    );
 
-  //   await waitFor(() => {
-  //     // Both checkboxes should be checked initially
-  //     const checkbox1 = screen.getByRole('checkbox', { name: 'Affiliation 1 Name' }) as HTMLInputElement;
-  //     const checkbox2 = screen.getByRole('checkbox', { name: 'Affiliation 2 Name' }) as HTMLInputElement;
-  //     expect(checkbox1).toBeInTheDocument();
-  //     expect(checkbox2).toBeInTheDocument();
-  //     expect(checkbox1.checked).toBe(true);
-  //     expect(checkbox2.checked).toBe(true);
+    await waitFor(() => {
+      // Both checkboxes should be checked initially
+      const checkbox1 = screen.getByRole('checkbox', { name: 'Affiliation 1 Name' }) as HTMLInputElement;
+      const checkbox2 = screen.getByRole('checkbox', { name: 'Affiliation 2 Name' }) as HTMLInputElement;
+      expect(checkbox1).toBeInTheDocument();
+      expect(checkbox2).toBeInTheDocument();
+      expect(checkbox1.checked).toBe(true);
+      expect(checkbox2.checked).toBe(true);
 
-  //     // Uncheck the second affiliation item
-  //     fireEvent.click(checkbox2);
-  //   }, { timeout: 3000 });
+      // Uncheck the second affiliation item
+      fireEvent.click(checkbox2);
+    }, { timeout: 3000 });
 
-  //   await waitFor(() => {
-  //     // Only Affiliation 1 should remain checked
-  //     const checkbox1 = screen.getByRole('checkbox', { name: 'Affiliation 1 Name' }) as HTMLInputElement;
-  //     expect(checkbox1.checked).toBe(true);
-  //     // Affiliation 2 should be unchecked
-  //     const checkbox2 = screen.getByRole('checkbox', { name: 'Affiliation 2 Name' }) as HTMLInputElement;
-  //     expect(checkbox2.checked).toBe(false);
+    await waitFor(() => {
+      // Only Affiliation 1 should remain checked
+      const checkbox1 = screen.getByRole('checkbox', { name: 'Affiliation 1 Name' }) as HTMLInputElement;
+      expect(checkbox1.checked).toBe(true);
+      // Affiliation 2 should be unchecked
+      const checkbox2 = screen.getByRole('checkbox', { name: 'Affiliation 2 Name' }) as HTMLInputElement;
+      expect(checkbox2.checked).toBe(false);
 
-  //     // Only the filtered template should be shown
-  //     expect(screen.getAllByText('buttons.select')).toHaveLength(1);
-  //     expect(screen.getByRole('heading', { level: 3, name: 'Filtered Template Name' })).toBeInTheDocument();
-  //   });
-  // });
+      // Only the filtered template should be shown
+      expect(screen.getAllByText('buttons.select')).toHaveLength(1);
+      expect(screen.getByRole('heading', { level: 2, name: 'Filtered Template Name' })).toBeInTheDocument();
+    });
+  });
 
   it('should handle no items found in search', async () => {
     render(
@@ -1009,7 +1113,7 @@ describe('PlanCreate Component using base mock', () => {
 
     await waitFor(() => {
       // Should bring up this matching template
-      expect(screen.getByRole('heading', { level: 3, name: /NSF Search/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: /NSF Search/i })).toBeInTheDocument();
     }, { timeout: 3000 });
 
     //Empty out the search text
@@ -1018,7 +1122,7 @@ describe('PlanCreate Component using base mock', () => {
 
     await waitFor(() => {
       // Should expect to see a template from initial load
-      screen.getByRole('heading', { level: 3, name: "Template 1 Name" });
+      screen.getByRole('heading', { level: 2, name: "Template 1 Name" });
     }, { timeout: 3000 });
   });
 
@@ -1041,7 +1145,7 @@ describe('PlanCreate Component using base mock', () => {
 
     await waitFor(() => {
       // Should bring up this matching template
-      expect(screen.getByRole('heading', { level: 3, name: /NSF Search/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: /NSF Search/i })).toBeInTheDocument();
     }, { timeout: 3000 });
 
     //Click clear filter button
@@ -1050,12 +1154,12 @@ describe('PlanCreate Component using base mock', () => {
 
     await waitFor(() => {
       // Should expect to see a template from initial load
-      screen.getByRole('heading', { level: 3, name: "Template 1 Name" });
+      screen.getByRole('heading', { level: 2, name: "Template 1 Name" });
     }, { timeout: 3000 });
   });
 
   it('should not show any checkboxes if no project funders and no best practice', async () => {
-    // Project 2 have don't have any funders
+    // Project 2 doesn't have any funders
     mockUseParams.mockReturnValue({ projectId: '2' });
     render(
       <MockedProvider mocks={baseMocks} cache={apolloCache}>
@@ -1063,12 +1167,57 @@ describe('PlanCreate Component using base mock', () => {
       </MockedProvider>
     );
 
+    // Wait for component to fully initialize
+    await waitFor(() => {
+      expect(screen.getAllByText('buttons.select').length).toBeGreaterThan(0);
+    }, { timeout: 3000 });
+
+    // After initialization, there should be no checkboxes
     const funderCheckboxes = screen.queryAllByRole('checkbox');
     expect(funderCheckboxes).toHaveLength(0);
   });
 
+  it('should show best practice checkbox when no funders but best practice templates exist', async () => {
+    // Project 3 has no funders but has best practice templates
+    mockUseParams.mockReturnValue({ projectId: '3' });
+    
+    // Use custom mocks for this test - need the metadata mock WITH hasBestPracticeTemplates: true
+    const customMocks = [
+      ...meMocks,
+      ...projectFundingsMocks,
+      // Use the SECOND publishedMetaDataMock (the one with hasBestPracticeTemplates: true)
+      publishedMetaDataMocks[1],
+      ...publishedTemplatesMocks,
+      ...addPlanMocks,
+      ...addPlanErrMocks,
+    ];
+    
+    render(
+      <MockedProvider mocks={customMocks} cache={apolloCache}>
+        <PlanCreate />
+      </MockedProvider>
+    );
+
+    // Wait for component to initialize and templates to load
+    await waitFor(() => {
+      expect(screen.getAllByText('buttons.select').length).toBeGreaterThan(0);
+    }, { timeout: 3000 });
+
+    // Should show the best practice checkbox
+    const bestPracticeCheckbox = screen.getByRole('checkbox', { name: 'best practices' });
+    expect(bestPracticeCheckbox).toBeInTheDocument();
+    
+    // Best practice checkbox should be pre-checked based on initialFilterConfig
+    expect(bestPracticeCheckbox).toBeChecked();
+
+    // Should display best practice template
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2, name: 'Best Practice Template' })).toBeInTheDocument();
+    }, { timeout: 3000 });
+  });
+
   it('should display error state', async () => {
-    // Project 2 have don't have any funders
+    // Project 2 doesn't have any funders
     mockUseParams.mockReturnValue({ projectId: '2' });
 
     const mocks = [
@@ -1122,80 +1271,81 @@ describe('PlanCreate Component using base mock', () => {
     }, { timeout: 3000 });
   });
 
-  // it('should handle server errors on addPlan mutation', async () => {
-  //   const mocks = [
-  //     ...meMocks,
-  //     ...projectFundingsMocks,
-  //     ...publishedMetaDataMocks,
-  //     ...publishedTemplatesMocks,
-  //     ...addPlanErrMocks,
-  //   ];
+  it('should handle server errors on addPlan mutation', async () => {
+    // ProjectId 1 needs only the first metadata mock (with affiliations)
+    const mocks = [
+      ...meMocks,
+      ...projectFundingsMocks,
+      publishedMetaDataMocks[0], // Only the first one for projectId 1
+      ...publishedTemplatesMocks,
+      ...addPlanErrMocks,
+    ];
 
-  //   render(
-  //     <MockedProvider mocks={mocks} cache={apolloCache}>
-  //       <PlanCreate />
-  //     </MockedProvider>
-  //   );
+    render(
+      <MockedProvider mocks={mocks} cache={apolloCache}>
+        <PlanCreate />
+      </MockedProvider>
+    );
 
-  //   // Find the first template and select it
-  //   await waitFor(() => {
-  //     expect(screen.getAllByText('buttons.select')).toHaveLength(5);
-  //   }, { timeout: 3000 });
+    // Find the first template and select it
+    await waitFor(() => {
+      expect(screen.getAllByText('buttons.select')).toHaveLength(5);
+    }, { timeout: 3000 });
 
-  //   const btn = screen.getAllByText('buttons.select')[0];
-  //   fireEvent.click(btn);
+    const btn = screen.getAllByText('buttons.select')[0];
+    fireEvent.click(btn);
 
-  //   await waitFor(() => {
-  //     expect(logECS).toHaveBeenCalledWith(
-  //       'error',
-  //       'addPlanMutation',
-  //       expect.objectContaining({
-  //         error: expect.anything(),
-  //         url: { path: '/en-US/projects/1/dmp/create' },
-  //       })
-  //     )
-  //     expect(mockToast.add).toHaveBeenCalledWith('messaging.somethingWentWrong', { type: 'error' });
-  //   }, { timeout: 3000 });
-  // });
+    await waitFor(() => {
+      expect(logECS).toHaveBeenCalledWith(
+        'error',
+        'addPlanMutation',
+        expect.objectContaining({
+          error: expect.anything(),
+          url: { path: '/en-US/projects/1/dmp/create' },
+        })
+      )
+      expect(mockToast.add).toHaveBeenCalledWith('messaging.somethingWentWrong', { type: 'error' });
+    }, { timeout: 3000 });
+  });
 
-  // it('should handle server errors on addPlanFunding mutation', async () => {
-  //   // Project 2 return a server for the second step
-  //   mockUseParams.mockReturnValue({ projectId: '2' });
+  it('should handle server errors on addPlanFunding mutation', async () => {
+    // Project 2 return a server for the second step
+    mockUseParams.mockReturnValue({ projectId: '2' });
 
-  //   const mocks = [
-  //     ...meMocks,
-  //     ...projectFundingsMocks,
-  //     ...publishedMetaDataMocks,
-  //     ...publishedTemplatesMocks,
-  //     ...addPlanErrMocks,
-  //   ];
+    const mocks = [
+      ...meMocks,
+      ...projectFundingsMocks,
+      ...publishedMetaDataMocks,
+      ...publishedTemplatesMocks,
+      ...addPlanErrMocks,
+    ];
 
-  //   render(
-  //     <MockedProvider mocks={mocks} cache={apolloCache}>
-  //       <PlanCreate />
-  //     </MockedProvider>
-  //   );
+    render(
+      <MockedProvider mocks={mocks} cache={apolloCache}>
+        <PlanCreate />
+      </MockedProvider>
+    );
 
-  //   // Find the first template and select it
-  //   await waitFor(() => {
-  //     expect(screen.getAllByText('buttons.select')).toHaveLength(5);
-  //   }, { timeout: 3000 });
+    // Find the first template and select it
+    await waitFor(() => {
+      expect(screen.getAllByText('buttons.select')).toHaveLength(5);
+    }, { timeout: 3000 });
 
-  //   const btn = screen.getAllByText('buttons.select')[0];
-  //   fireEvent.click(btn);
+    const btn = screen.getAllByText('buttons.select')[0];
+    fireEvent.click(btn);
 
-  //   await waitFor(() => {
-  //     expect(logECS).toHaveBeenCalledWith(
-  //       'error',
-  //       'addPlanMutation',
-  //       expect.objectContaining({
-  //         error: expect.anything(),
-  //         url: { path: '/en-US/projects/2/dmp/create' },
-  //       })
-  //     )
-  //     expect(mockToast.add).toHaveBeenCalledWith('messaging.somethingWentWrong', { type: 'error' });
-  //   }, { timeout: 3000 });
-  // });
+    await waitFor(() => {
+      expect(logECS).toHaveBeenCalledWith(
+        'error',
+        'addPlanMutation',
+        expect.objectContaining({
+          error: expect.anything(),
+          url: { path: '/en-US/projects/2/dmp/create' },
+        })
+      )
+      expect(mockToast.add).toHaveBeenCalledWith('messaging.somethingWentWrong', { type: 'error' });
+    }, { timeout: 3000 });
+  });
 
   it('should pass axe accessibility test', async () => {
     const { container } = render(
@@ -1203,6 +1353,11 @@ describe('PlanCreate Component using base mock', () => {
         <PlanCreate />
       </MockedProvider>
     );
+
+    // Wait for component to fully render
+    await waitFor(() => {
+      expect(screen.getAllByTestId('template-metadata')).toHaveLength(5);
+    }, { timeout: 3000 });
 
     await act(async () => {
       const results = await axe(container);
