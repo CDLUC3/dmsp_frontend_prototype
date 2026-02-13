@@ -205,6 +205,12 @@ export type AddSectionInput = {
   templateId: Scalars['Int']['input'];
 };
 
+/** Input parameters for adding a new Template Customization */
+export type AddTemplateCustomizationInput = {
+  status: TemplateCustomizationStatus;
+  versionedTemplateId: Scalars['Int']['input'];
+};
+
 /** A respresentation of an institution, organization or company */
 export type Affiliation = {
   __typename?: 'Affiliation';
@@ -610,6 +616,60 @@ export type ContentMatch = {
   titleHighlight?: Maybe<Scalars['String']['output']>;
 };
 
+export type CustomizableTemplateSearchResult = {
+  __typename?: 'CustomizableTemplateSearchResult';
+  /** The id of the template customization (undefined means the template has not been customized yet) */
+  customizationId?: Maybe<Scalars['Int']['output']>;
+  /** Whether the customization has unpublished changes (if applicable) */
+  customizationIsDirty?: Maybe<Scalars['Boolean']['output']>;
+  /** The timestamp when the customization was last modified (if applicable) */
+  customizationLastCustomized?: Maybe<Scalars['String']['output']>;
+  /** The id of the user who customized the template (if applicable) */
+  customizationLastCustomizedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the user who last modified the customization (if applicable) */
+  customizationLastCustomizedByName?: Maybe<Scalars['String']['output']>;
+  /** The status of the customization with regard to the published template (if applicable) */
+  customizationMigrationStatus?: Maybe<TemplateCustomizationMigrationStatus>;
+  /** The status of the customization (if applicable) */
+  customizationStatus?: Maybe<TemplateCustomizationStatus>;
+  /** The affiliation uri that owns the published template */
+  versionedTemplateAffiliationId: Scalars['String']['output'];
+  /** The affiliation name that owns the published template */
+  versionedTemplateAffiliationName: Scalars['String']['output'];
+  /** Whether the published template is a best practice template */
+  versionedTemplateBestPractice: Scalars['Boolean']['output'];
+  /** The description of the published template */
+  versionedTemplateDescription?: Maybe<Scalars['String']['output']>;
+  /** The id of the published template */
+  versionedTemplateId: Scalars['Int']['output'];
+  /** The timestamp when the published template was last modified */
+  versionedTemplateLastModified: Scalars['String']['output'];
+  /** The name of the published template */
+  versionedTemplateName: Scalars['String']['output'];
+  /** The version number of the published template */
+  versionedTemplateVersion: Scalars['String']['output'];
+};
+
+export type CustomizableTemplateSearchResults = PaginatedQueryResults & {
+  __typename?: 'CustomizableTemplateSearchResults';
+  /** The sortFields that are available for this query (for standard offset pagination only!) */
+  availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The current offset of the results (for standard offset pagination) */
+  currentOffset?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not there is a next page */
+  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
+  /** Whether or not there is a previous page */
+  hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
+  /** The CustomizableTemplateSearchResult that match the search criteria */
+  items?: Maybe<Array<Maybe<CustomizableTemplateSearchResult>>>;
+  /** The number of items returned */
+  limit?: Maybe<Scalars['Int']['output']>;
+  /** The cursor to use for the next page of results (for infinite scroll/load more) */
+  nextCursor?: Maybe<Scalars['String']['output']>;
+  /** The total number of possible items */
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 export type DoiMatch = {
   __typename?: 'DoiMatch';
   /** Indicates whether the work's DOI was found on a funder award page associated with the plan */
@@ -847,15 +907,6 @@ export enum GuidanceSourceType {
   UserSelected = 'USER_SELECTED'
 }
 
-/** Output type for the initializePlanVersion mutation */
-export type InitializePlanVersionOutput = {
-  __typename?: 'InitializePlanVersionOutput';
-  /** The number of PlanVersion records that were created */
-  count: Scalars['Int']['output'];
-  /** The ids of the Plans that were processed */
-  planIds?: Maybe<Array<Scalars['Int']['output']>>;
-};
-
 /** An institution of an author of a work */
 export type Institution = {
   __typename?: 'Institution';
@@ -1086,6 +1137,8 @@ export type Mutation = {
   addTemplate?: Maybe<Template>;
   /** Add a collaborator to a Template */
   addTemplateCollaborator?: Maybe<TemplateCollaborator>;
+  /** Add a new customization to a funder template (user must be an Admin) */
+  addTemplateCustomization: TemplateCustomization;
   /** Add an email address for the current user */
   addUserEmail?: Maybe<UserEmail>;
   /** Archive a plan */
@@ -1114,6 +1167,8 @@ export type Mutation = {
   publishGuidanceGroup: GuidanceGroup;
   /** Publish a plan (changes status to PUBLISHED) */
   publishPlan?: Maybe<Plan>;
+  /** Publish a customization (user must be an Admin) */
+  publishTemplateCustomization: TemplateCustomization;
   /** Delete an Affiliation (only applicable to AffiliationProvenance == DMPTOOL) */
   removeAffiliation?: Maybe<Affiliation>;
   /** Remove answer comment */
@@ -1156,6 +1211,8 @@ export type Mutation = {
   removeTag?: Maybe<Tag>;
   /** Remove a TemplateCollaborator from a Template */
   removeTemplateCollaborator?: Maybe<TemplateCollaborator>;
+  /** Remove a customization (user must be an Admin) */
+  removeTemplateCustomization: TemplateCustomization;
   /** Anonymize the current user's account (essentially deletes their account without orphaning things) */
   removeUser?: Maybe<User>;
   /** Remove an email address from the current user */
@@ -1168,10 +1225,12 @@ export type Mutation = {
   setPrimaryUserEmail?: Maybe<Array<Maybe<UserEmail>>>;
   /** Set the user's ORCID */
   setUserOrcid?: Maybe<User>;
-  /** Initialize an PLanVersion record in the DynamoDB for all Plans that do not have one */
-  superInitializePlanVersions: InitializePlanVersionOutput;
+  /** Initialize a PLanVersion record in the DynamoDB for all Plans that do not have one */
+  superSyncPlanMaDMP: Scalars['Boolean']['output'];
   /** Unpublish a GuidanceGroup (sets active flag to false on current version) */
   unpublishGuidanceGroup: GuidanceGroup;
+  /** Unpublish a customization (user must be an Admin) */
+  unpublishTemplateCustomization: TemplateCustomization;
   /** Update an Affiliation */
   updateAffiliation?: Maybe<Affiliation>;
   /** Edit an answer */
@@ -1228,6 +1287,8 @@ export type Mutation = {
   updateTag?: Maybe<Tag>;
   /** Update a Template */
   updateTemplate?: Maybe<Template>;
+  /** Update a customization (user must be an Admin) */
+  updateTemplateCustomization: TemplateCustomization;
   /** Update the current user's email notifications */
   updateUserNotifications?: Maybe<User>;
   /** Update the current user's information */
@@ -1389,6 +1450,7 @@ export type MutationAddTagArgs = {
 
 export type MutationAddTemplateArgs = {
   copyFromTemplateId?: InputMaybe<Scalars['Int']['input']>;
+  copyFromVersionedTemplateId?: InputMaybe<Scalars['Int']['input']>;
   name: Scalars['String']['input'];
 };
 
@@ -1396,6 +1458,11 @@ export type MutationAddTemplateArgs = {
 export type MutationAddTemplateCollaboratorArgs = {
   email: Scalars['String']['input'];
   templateId: Scalars['Int']['input'];
+};
+
+
+export type MutationAddTemplateCustomizationArgs = {
+  input: AddTemplateCustomizationInput;
 };
 
 
@@ -1477,6 +1544,11 @@ export type MutationPublishGuidanceGroupArgs = {
 export type MutationPublishPlanArgs = {
   planId: Scalars['Int']['input'];
   visibility?: InputMaybe<PlanVisibility>;
+};
+
+
+export type MutationPublishTemplateCustomizationArgs = {
+  templateCustomizationId: Scalars['Int']['input'];
 };
 
 
@@ -1589,6 +1661,11 @@ export type MutationRemoveTemplateCollaboratorArgs = {
 };
 
 
+export type MutationRemoveTemplateCustomizationArgs = {
+  templateCustomizationId: Scalars['Int']['input'];
+};
+
+
 export type MutationRemoveUserEmailArgs = {
   email: Scalars['String']['input'];
 };
@@ -1614,8 +1691,18 @@ export type MutationSetUserOrcidArgs = {
 };
 
 
+export type MutationSuperSyncPlanMaDmpArgs = {
+  planId: Scalars['Int']['input'];
+};
+
+
 export type MutationUnpublishGuidanceGroupArgs = {
   guidanceGroupId: Scalars['Int']['input'];
+};
+
+
+export type MutationUnpublishTemplateCustomizationArgs = {
+  templateCustomizationId: Scalars['Int']['input'];
 };
 
 
@@ -1785,6 +1872,11 @@ export type MutationUpdateTemplateArgs = {
   bestPractice?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   templateId: Scalars['Int']['input'];
+};
+
+
+export type MutationUpdateTemplateCustomizationArgs = {
+  input: UpdateTemplateCustomizationInput;
 };
 
 
@@ -2604,6 +2696,8 @@ export type Query = {
   bestPracticeSections?: Maybe<Array<Maybe<VersionedSection>>>;
   /** Get all of the research domains related to the specified top level domain (more nuanced ones) */
   childResearchDomains?: Maybe<Array<Maybe<ResearchDomain>>>;
+  /** Get all of the customizable templates for the current user's affiliation (user must be an Admin) */
+  customizableTemplates?: Maybe<CustomizableTemplateSearchResults>;
   /** Get all of the research output types */
   defaultResearchOutputTypes?: Maybe<Array<Maybe<ResearchOutputType>>>;
   /** Search for a User to add as a collaborator */
@@ -2724,8 +2818,6 @@ export type Query = {
   sectionVersions?: Maybe<Array<Maybe<VersionedSection>>>;
   /** Get the Sections that belong to the associated templateId */
   sections?: Maybe<Array<Maybe<Section>>>;
-  /** Fetch the DynamoDB PlanVersion record for a specific plan and version timestamp (leave blank for the latest) */
-  superInspectPlanVersion?: Maybe<Scalars['String']['output']>;
   /** Get all available tags to display */
   tags: Array<Tag>;
   tagsBySectionId?: Maybe<Array<Maybe<Tag>>>;
@@ -2733,6 +2825,8 @@ export type Query = {
   template?: Maybe<Template>;
   /** Get all of the Users that belong to another affiliation that can edit the Template */
   templateCollaborators?: Maybe<Array<Maybe<TemplateCollaborator>>>;
+  /** Get the specified customization (user must be an Admin) */
+  templateCustomization?: Maybe<TemplateCustomization>;
   /** Get all of the VersionedTemplate for the specified Template (a.k. the Template history) */
   templateVersions?: Maybe<Array<Maybe<VersionedTemplate>>>;
   /** Get all of the top level research domains (the most generic ones) */
@@ -2797,6 +2891,14 @@ export type QueryBestPracticeGuidanceArgs = {
 
 export type QueryChildResearchDomainsArgs = {
   parentResearchDomainId: Scalars['Int']['input'];
+};
+
+
+export type QueryCustomizableTemplatesArgs = {
+  migrationStatus?: InputMaybe<Scalars['String']['input']>;
+  paginationOptions?: InputMaybe<PaginationOptions>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  term?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -3080,12 +3182,6 @@ export type QuerySectionsArgs = {
 };
 
 
-export type QuerySuperInspectPlanVersionArgs = {
-  modified?: InputMaybe<Scalars['String']['input']>;
-  planId: Scalars['Int']['input'];
-};
-
-
 export type QueryTagsBySectionIdArgs = {
   sectionId: Scalars['Int']['input'];
 };
@@ -3098,6 +3194,11 @@ export type QueryTemplateArgs = {
 
 export type QueryTemplateCollaboratorsArgs = {
   templateId: Scalars['Int']['input'];
+};
+
+
+export type QueryTemplateCustomizationArgs = {
+  templateCustomizationId: Scalars['Int']['input'];
 };
 
 
@@ -3726,6 +3827,8 @@ export type Template = {
   sections?: Maybe<Array<Maybe<Section>>>;
   /** The template that this one was derived from */
   sourceTemplateId?: Maybe<Scalars['Int']['output']>;
+  /** The versioned template that this one was derived from */
+  sourceVersionedTemplateId?: Maybe<Scalars['Int']['output']>;
 };
 
 /** A user that that belongs to a different affiliation that can edit the Template */
@@ -3764,6 +3867,55 @@ export type TemplateCollaboratorErrors = {
   userId?: Maybe<Scalars['String']['output']>;
 };
 
+/** A Customization of a funder template */
+export type TemplateCustomization = {
+  __typename?: 'TemplateCustomization';
+  /** The affiliation that the customization belongs to */
+  affiliationId: Scalars['String']['output'];
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** The current published version of the base funder template */
+  currentVersionedTemplateId: Scalars['Int']['output'];
+  /** Errors associated with the Object */
+  errors?: Maybe<TemplateErrors>;
+  /** The unique identifier for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** Whether the customization has been modified since it was last published */
+  isDirty: Scalars['Boolean']['output'];
+  /** The date this customization was last published */
+  latestPublishedDate?: Maybe<Scalars['String']['output']>;
+  /** The status of the customizations with regard to the base template */
+  migrationStatus: TemplateCustomizationMigrationStatus;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The status of the customization */
+  status: TemplateCustomizationStatus;
+};
+
+/** The status of a Template Customization with regard to the funder template */
+export enum TemplateCustomizationMigrationStatus {
+  /** The customization is tracking the published version of the funder template */
+  Ok = 'OK',
+  /** The customization is tracking a funder template that is no longer published */
+  Orphaned = 'ORPHANED',
+  /** The customization is tracking an unpublished version of the funder template */
+  Stale = 'STALE'
+}
+
+/** The status of a Template Customization */
+export enum TemplateCustomizationStatus {
+  /** The customization has been archived */
+  Archived = 'ARCHIVED',
+  /** The customization is not currently published */
+  Draft = 'DRAFT',
+  /** The customization is published and can be used by researchers */
+  Published = 'PUBLISHED'
+}
+
 /** A collection of errors related to the Template */
 export type TemplateErrors = {
   __typename?: 'TemplateErrors';
@@ -3778,6 +3930,7 @@ export type TemplateErrors = {
   ownerId?: Maybe<Scalars['String']['output']>;
   sectionIds?: Maybe<Scalars['String']['output']>;
   sourceTemplateId?: Maybe<Scalars['String']['output']>;
+  sourceVersionedTemplateId?: Maybe<Scalars['String']['output']>;
 };
 
 /** A search result for templates */
@@ -4023,6 +4176,13 @@ export type UpdateSectionInput = {
   sectionId: Scalars['Int']['input'];
   /** The Tags associated with this section. A section might not have any tags */
   tags?: InputMaybe<Array<TagInput>>;
+};
+
+/** Input parameters for updating a Template Customization */
+export type UpdateTemplateCustomizationInput = {
+  status?: InputMaybe<TemplateCustomizationStatus>;
+  templateCustomizationId: Scalars['Int']['input'];
+  versionedTemplateId: Scalars['Int']['input'];
 };
 
 export type UpdateUserNotificationsInput = {
@@ -5149,6 +5309,7 @@ export type CreateTemplateVersionMutation = { __typename?: 'Mutation', createTem
 export type AddTemplateMutationVariables = Exact<{
   name: Scalars['String']['input'];
   copyFromTemplateId?: InputMaybe<Scalars['Int']['input']>;
+  copyFromVersionedTemplateId?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
@@ -5668,7 +5829,7 @@ export const AddTemplateCollaboratorDocument = {"kind":"Document","definitions":
 export const RemoveTemplateCollaboratorDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveTemplateCollaborator"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"email"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"removeTemplateCollaborator"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"templateId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}}},{"kind":"Argument","name":{"kind":"Name","value":"email"},"value":{"kind":"Variable","name":{"kind":"Name","value":"email"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"email"}}]}}]}}]}}]} as unknown as DocumentNode<RemoveTemplateCollaboratorMutation, RemoveTemplateCollaboratorMutationVariables>;
 export const ArchiveTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"ArchiveTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"archiveTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"templateId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"ownerId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<ArchiveTemplateMutation, ArchiveTemplateMutationVariables>;
 export const CreateTemplateVersionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateTemplateVersion"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"comment"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"versionType"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"TemplateVersionType"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"latestPublishVisibility"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"TemplateVisibility"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createTemplateVersion"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"templateId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}}},{"kind":"Argument","name":{"kind":"Name","value":"comment"},"value":{"kind":"Variable","name":{"kind":"Name","value":"comment"}}},{"kind":"Argument","name":{"kind":"Name","value":"versionType"},"value":{"kind":"Variable","name":{"kind":"Name","value":"versionType"}}},{"kind":"Argument","name":{"kind":"Name","value":"latestPublishVisibility"},"value":{"kind":"Variable","name":{"kind":"Name","value":"latestPublishVisibility"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"ownerId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<CreateTemplateVersionMutation, CreateTemplateVersionMutationVariables>;
-export const AddTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AddTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"copyFromTemplateId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"addTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}},{"kind":"Argument","name":{"kind":"Name","value":"copyFromTemplateId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"copyFromTemplateId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"ownerId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<AddTemplateMutation, AddTemplateMutationVariables>;
+export const AddTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AddTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"copyFromTemplateId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"copyFromVersionedTemplateId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"addTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}},{"kind":"Argument","name":{"kind":"Name","value":"copyFromTemplateId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"copyFromTemplateId"}}},{"kind":"Argument","name":{"kind":"Name","value":"copyFromVersionedTemplateId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"copyFromVersionedTemplateId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"ownerId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<AddTemplateMutation, AddTemplateMutationVariables>;
 export const UpdateTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"templateId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}}},{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"latestPublishVisibility"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateTemplateMutation, UpdateTemplateMutationVariables>;
 export const UpdateUserProfileDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateUserProfile"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateUserProfileInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateUserProfile"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"givenName"}},{"kind":"Field","name":{"kind":"Name","value":"surName"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"password"}},{"kind":"Field","name":{"kind":"Name","value":"role"}}]}},{"kind":"Field","name":{"kind":"Name","value":"affiliation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"searchName"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}}]}},{"kind":"Field","name":{"kind":"Name","value":"languageId"}},{"kind":"Field","name":{"kind":"Name","value":"email"}}]}}]}}]} as unknown as DocumentNode<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>;
 export const AddUserEmailDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AddUserEmail"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"email"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"isPrimary"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"addUserEmail"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"email"},"value":{"kind":"Variable","name":{"kind":"Name","value":"email"}}},{"kind":"Argument","name":{"kind":"Name","value":"isPrimary"},"value":{"kind":"Variable","name":{"kind":"Name","value":"isPrimary"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"email"}}]}},{"kind":"Field","name":{"kind":"Name","value":"isPrimary"}},{"kind":"Field","name":{"kind":"Name","value":"isConfirmed"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}}]}}]}}]} as unknown as DocumentNode<AddUserEmailMutation, AddUserEmailMutationVariables>;
