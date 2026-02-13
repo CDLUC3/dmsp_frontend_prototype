@@ -4,15 +4,22 @@
     "config:recommended"
   ],
   "enabledManagers": [
-    "npm"
+    "npm",
+    "docker-compose"
   ],
   "baseBranches": [
     "development"
   ],
   "ignorePaths": [
+    ".github",
+    ".husky",
     "public/**",
-    "Dockerfile*",
-    "docker-compose.yml",
     ".nvmrc"
+  ],
+  "minimumReleaseAge": "3 days",
+  "abandonmentThreshold": "2 years",
+  "rangeStrategy": "pin",
+  "schedule": [
+    "0 0 * * 0"
   ]
 }

@@ -17,8 +17,8 @@ RUN apk add --no-cache bash curl
 # to the /app working directory
 COPY package*.json ./
 
-# Install dependencies in /app
-RUN npm ci
+# Install dependencies WITHOUT running postinstall scripts to mitigate supply chain attacks
+RUN npm ci --ignore-scripts
 
 # Copy the rest of our Next.js folder into /app
 COPY . .

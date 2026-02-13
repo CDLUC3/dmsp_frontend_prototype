@@ -24,9 +24,29 @@ phases:
   build:
       commands:
         - echo "Running build in ${NODE_ENV} mode - started on `date`"
-        - echo Building the Docker image...
         - cd $CODEBUILD_SRC_DIR
+        
+        # Install dependencies with security flags
+        - echo "Installing dependencies..."
+        - npm ci --ignore-scripts --audit=false # Don't run arbitrary scripts and audit separately for better control
+        
+        # Run NPM audit to check for vulnerabilities
+        - echo "Running security audit..."
+        - npm audit --audit-level=high || (echo "High/Critical vulnerabilities found!" && exit 1)
+        
+        # Run linter checks
+        - echo "Running linter checks"
+        - npm run lint
+        
+        # Run tests
+        - echo "Running tests"
+        - npm run test
+
+        # Build the Docker image
+        - echo "Building the Docker image..."
         - docker build --no-cache --build-arg NEXT_PUBLIC_SERVER_ENDPOINT=$NEXT_PUBLIC_SERVER_ENDPOINT --build-arg NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL -f Dockerfile.prod -t $SHORT_ECR_URI:nextJS-latest .
+        
+        # Tag the image with the Git commit ID
         - docker tag $ECR_REPOSITORY_URI:nextJS-latest $SHORT_ECR_URI:$IMAGE_TAG
 
   post_build:
