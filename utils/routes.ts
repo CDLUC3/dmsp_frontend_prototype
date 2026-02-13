@@ -103,6 +103,8 @@ const routes = {
   'template.section.new': '/template/:templateId/section/new',
   'template.create': '/template/create',
   'template.edit': '/template/:templateId/edit',
+  'template.customizations': '/template/customizations',
+  'template.customize': '/template/customizations/:templateCustomizationId',
 
   // account/profile
   'account.index': '/account',
@@ -115,7 +117,6 @@ const routes = {
   'admin.index': '/admin/',
   'admin.notifications': '/admin/notifications',
   'admin.templates': '/admin/templates',
-  'admin.templateCustomizations': '/admin/template-customizations',
 
   // Guidance routes
   'admin.guidance.index': '/admin/guidance',

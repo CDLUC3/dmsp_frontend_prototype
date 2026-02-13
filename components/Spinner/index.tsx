@@ -19,8 +19,8 @@ function Spinner(props: SpinnerProps) {
           <svg
             className="graphic"
             xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
+            width="40"
+            height="40"
             viewBox="0 0 48 48"
           >
             <g fill="none">

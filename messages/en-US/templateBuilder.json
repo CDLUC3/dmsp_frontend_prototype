@@ -17,6 +17,26 @@
     "additionalInfo": "Additional information goes here...",
     "templateList": "List of templates"
   },
+  "CustomizableTemplates": {
+    "title": "Customizable templates",
+    "description": "Select a template that you can customize with additional guidance or questions.",
+    "templateStatus": {
+      "hasChanged": "Funder template has changed",
+      "notCustomized": "Not customized",
+      "published": "Published",
+      "unPublished": "Unpublished",
+      "notCustomizable": "Not customizable",
+      "lastCustomized": "Last customized date",
+      "lastCustomizedBy": "Last customized by",
+      "customizationStatus": "Customization status",
+      "templateLastUpdated": "Template last updated"
+    },
+    "messages": {
+      "success": {
+        "templateAddedSuccessfully": "Template {title} added successfully"
+      }
+    }
+  },
   "EditTemplates": {
     "title": "Edit template",
     "templateTitleLabel": "Template title",

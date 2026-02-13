@@ -32,7 +32,7 @@ const AdminOverviewPage: React.FC = () => {
         {
           title: t("sections.organisationTemplatesAndPlans.items.templateCustomizations.title"),
           description: t("sections.organisationTemplatesAndPlans.items.templateCustomizations.description"),
-          href: routePath("admin.templateCustomizations"),
+          href: routePath("template.customizations"),
         },
         {
           title: t("sections.organisationTemplatesAndPlans.items.guidance.title"),
