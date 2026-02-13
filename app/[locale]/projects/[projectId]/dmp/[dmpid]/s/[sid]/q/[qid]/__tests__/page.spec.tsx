@@ -509,6 +509,65 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByText((content) => content.includes('Sample text'))).toBeInTheDocument();
   })
 
+  it('should NOT load sampleText in textArea even if useSampleTextAsDefault is true if there is an answerId', async () => {
+    // Create answer data with an answerId but empty content to verify sample text is not used
+    const mockAnswerDataWithEmptyContent = {
+      answerByVersionedQuestionId: {
+        id: 4,
+        planId: 1,
+        versionedQuestionId: 344,
+        json: JSON.stringify({
+          type: 'textArea',
+          answer: '', // Empty answer to test that sample text is NOT used
+          meta: { schemaVersion: '1.0' }
+        }),
+        comments: [],
+        feedbackComments: []
+      }
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataWithEmptyContent,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
+    });
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    // Check that the textArea question field is in page
+    const textAreaQuestion = screen.getByLabelText('question-text-editor');
+    expect(textAreaQuestion).toBeInTheDocument();
+
+    // Verify that sample text does NOT appear in the document even though:
+    // 1. useSampleTextAsDefault is true
+    // 2. The answer content is empty
+    // 3. An answerId exists (which should prevent sample text from loading)
+    expect(screen.queryByText((content) => content.includes('This is my sample text'))).not.toBeInTheDocument();
+  })
+
   it('should load correct question content for checkbox question', async () => {
     mockUseQuery.mockImplementation((document) => {
       if (document === PublishedQuestionDocument) {
