@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 'use client'
 
 import { Button, Checkbox } from "react-aria-components";
