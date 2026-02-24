@@ -24,13 +24,12 @@ module.exports = [
       "__mocks__/"
     ]
   },
-  // Main configuration
+  // Main configuration - only extend Next.js configs via compat
   ...compat.extends(
     "next",
-    "next/core-web-vitals",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:react/recommended"
+    "next/core-web-vitals"
   ),
+  // TypeScript and other plugins in flat config format
   {
     files: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"],
     languageOptions: {
@@ -43,6 +42,11 @@ module.exports = [
       "@typescript-eslint": require("@typescript-eslint/eslint-plugin"),
       "react": require("eslint-plugin-react"),
       "unused-imports": require("eslint-plugin-unused-imports"),
+    },
+    settings: {
+      react: {
+        version: "detect",
+      },
     },
     rules: {
       // JavaScript rules
