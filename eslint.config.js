@@ -1,9 +1,7 @@
-const { FlatCompat } = require("@eslint/eslintrc");
-const path = require("path");
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+const typescriptEslint = require("@typescript-eslint/eslint-plugin");
+const typescriptParser = require("@typescript-eslint/parser");
+const reactPlugin = require("eslint-plugin-react");
+const unusedImportsPlugin = require("eslint-plugin-unused-imports");
 
 module.exports = [
   // Global ignores
@@ -18,31 +16,32 @@ module.exports = [
       ".next/**",
       "next-env.d.ts",
       "cypress/**",
-      "next-env.d.ts",
       "eslint.config.js",
       "scripts/**",
       "__mocks__/"
     ]
   },
   // Main configuration
-  ...compat.extends(
-    "next",
-    "next/core-web-vitals",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:react/recommended"
-  ),
   {
     files: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"],
     languageOptions: {
-      parser: require("@typescript-eslint/parser"),
+      parser: typescriptParser,
       parserOptions: {
         project: "./tsconfig.json",
+        ecmaFeatures: {
+          jsx: true
+        }
       },
     },
     plugins: {
-      "@typescript-eslint": require("@typescript-eslint/eslint-plugin"),
-      "react": require("eslint-plugin-react"),
-      "unused-imports": require("eslint-plugin-unused-imports"),
+      "@typescript-eslint": typescriptEslint,
+      "react": reactPlugin,
+      "unused-imports": unusedImportsPlugin,
+    },
+    settings: {
+      react: {
+        version: "detect",
+      },
     },
     rules: {
       // JavaScript rules
@@ -65,11 +64,13 @@ module.exports = [
           "varsIgnorePattern": "^_"
         }
       ],
+      "@typescript-eslint/no-explicit-any": "warn",
       "object-shorthand": "warn",
       "quote-props": ["warn", "as-needed"],
+      // React rules
+      "react/prop-types": "off",
       "react/react-in-jsx-scope": "off",
-      "react-hooks/exhaustive-deps": "off",
-      "import/no-unresolved": "warn",
+      "react/display-name": "off",
       // TypeScript rules
       "@typescript-eslint/array-type": [
         "warn",

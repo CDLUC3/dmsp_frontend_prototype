@@ -1274,7 +1274,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
     },
     textAreaProps: {
       content:
-        !formData.textAreaContent &&
+        // Check if answerId does not exist (meaning answer has not yet been created) and 
+        // question allows sample text as default and sample text exists, then use sample text. 
+        // Otherwise use formData which could be existing answer or user input
+        !answerData?.answerByVersionedQuestionId?.id &&
+          !formData.textAreaContent &&
           question?.useSampleTextAsDefault &&
           !!question?.sampleText
           ? question.sampleText
