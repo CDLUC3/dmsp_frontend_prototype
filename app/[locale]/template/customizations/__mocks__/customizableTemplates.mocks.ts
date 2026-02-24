@@ -195,16 +195,7 @@ export const mocks = [
         addTemplateCustomization: {
           id: 19,
           errors: {
-            collaboratorIds: null,
-            description: null,
             general: null,
-            languageId: null,
-            latestPublishVersion: null,
-            latestPublishVisibility: null,
-            name: null,
-            ownerId: null,
-            sectionIds: null,
-            sourceTemplateId: null,
             __typename: "TemplateErrors"
           },
           isDirty: false,
@@ -616,16 +607,7 @@ export const mutationErrorMock = [
         addTemplateCustomization: {
           id: null,
           errors: {
-            collaboratorIds: null,
-            description: null,
             general: "Something went wrong",
-            languageId: null,
-            latestPublishVersion: null,
-            latestPublishVisibility: null,
-            name: null,
-            ownerId: null,
-            sectionIds: null,
-            sourceTemplateId: null,
             __typename: "TemplateErrors"
           },
           isDirty: false,

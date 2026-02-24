@@ -51,16 +51,7 @@ import { extractErrors } from "@/utils/errorHandler";
 const LIMIT = 5;
 
 type AddTemplateCustomizationErrors = {
-  collaboratorIds?: string | null;
-  description?: string | null;
   general?: string | null;
-  languageId?: string | null;
-  latestPublishVersion?: string | null;
-  latestPublishVisibility?: string | null;
-  name?: string | null;
-  ownerId?: string | null;
-  sectionIds?: string | null;
-  sourceTemplateId?: string | null;
 };
 
 
@@ -136,7 +127,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
     }
 
     // Fallback
-    return Customizable('templateStatus.notCustomizable');
+    return Customizable('templateStatus.notYetCustomizable');
   }
 
   // Handler for when user clicks "Customize" on a template - either redirects to existing customization or creates new one
@@ -163,7 +154,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
         }
       });
 
-      const errs = extractErrors<AddTemplateCustomizationErrors>(response?.data?.addTemplateCustomization?.errors ?? {}, ["collaboratorIds", "description", "general", "languageId", "latestPublishVersion", "latestPublishVisibility", "name", "ownerId", "sectionIds", "sourceTemplateId"]);
+      const errs = extractErrors<AddTemplateCustomizationErrors>(response?.data?.addTemplateCustomization?.errors ?? {}, [ "general"]);
 
       if (errs.length > 0) {
         setErrors(errs);
@@ -211,7 +202,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
 
     //Reset templates
     setCustomizedTemplates([]);
-    setNextCursor(null); // Reset cursor
+    //setNextCursor(null); // Reset cursor
     setTotalCount(0);
     await fetchCustomizableTemplates({
       variables: {
@@ -329,7 +320,6 @@ const TemplateListCustomizationsPage: React.FC = () => {
   // Also handles appending new items for pagination and search results
   useEffect(() => {
     if (!customizableTemplatesData || !customizableTemplatesData.customizableTemplates) return;
-
     // Transform customized templates into format expected by TemplateSelectListItem component
     const processTemplates = async (templates: PaginatedCustomizedTemplateSearchResultsInterface | null) => {
       const items = templates?.items ?? [];
