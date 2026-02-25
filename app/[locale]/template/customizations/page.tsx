@@ -202,7 +202,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
 
     //Reset templates
     setCustomizedTemplates([]);
-    //setNextCursor(null); // Reset cursor
+    setNextCursor(null); // Reset cursor
     setTotalCount(0);
     await fetchCustomizableTemplates({
       variables: {
