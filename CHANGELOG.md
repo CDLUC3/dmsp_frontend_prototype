@@ -19,6 +19,7 @@
 - Fixed bug where the published status on `/template/[templateId]` did not match that on the template cards at `/template` for the `unpublished changes` state. Added a shared hook for determining the correct status text [#875]
 
 ## Chore
+- Updated version of `@dmptool/types` to `3.1.2` and `zod` to match package version to `4.3.6`
 - Added override for `minimatch` dependency and removed them for `prismjs` and `qs`.
   - Added override for transient dependency `@eslint/plugin-kit (0.3.4)` and `test-exclude` due to vulnerabilities. `test-exclude` override was necessary because `minimatch 10.x` changed its API. Older test-exclude version expects older minimatch API, which called minimatch as a function. This caused errors.
   - Updated versions of `@graphql-codegen/cli (6.1.2)`, `@graphql-codegen/client-preset (5.2.3)`, `@graphql-codegen/typed-document-ndoe (6.1.6)`, `@graphql-codegen/typescript (5.0.8)`, `@graphql-codegen/typescript-operations (5.0.8)`, `@typescript-eslint/eslint-plugin (8.56.1)`, `@typescript-eslint/parser (8.56.1)`, `eslint (9.18.0)`, `eslint-config-next (16.1.6)` so that we can remove vulnerabilities.

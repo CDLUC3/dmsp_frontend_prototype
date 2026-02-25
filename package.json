@@ -25,7 +25,7 @@
   "dependencies": {
     "@apollo/client": "4.0.11",
     "@apollo/client-integration-nextjs": "0.14.4",
-    "@dmptool/types": "3.1.1",
+    "@dmptool/types": "3.1.2",
     "@elastic/ecs-pino-format": "1.5.0",
     "@fortawesome/fontawesome-svg-core": "6.6.0",
     "@fortawesome/free-solid-svg-icons": "6.6.0",
@@ -52,7 +52,7 @@
     "rxjs": "7.8.2",
     "sanitize-html": "2.17.0",
     "tinymce": "7.9.1",
-    "zod": "4.1.13"
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "6.1.2",
