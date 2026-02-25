@@ -1,4 +1,6 @@
 ## Added
+- Added new `/template/customizations` page and associated `CustomizedTemplateListItem` component [#43]
+- Added new `warning` icon to `iconset.svg` [#43]
 - Added new `clearAuthData` and `clearCache` to `AuthProvider` so that we can clear cache on `/login` and `/logout` [#55]
 - Added new `useGuidanceMutation` hook for adding and removing guidance from right sidebar [#15]
 - Added new queries `GuidanceSourcesForPlan`, `AddPlanGuidance`, `RemovePlanGuidance` and `ManagedAffiliationsWithGuidance` [#15]
@@ -13,11 +15,16 @@
 - Updated `/login` page step=email to include a "Back" button so user can go back to Step 1 [#997]
 
 ## Fixed
+- Fixed bug where user's org was not displaying as a filter option, and Best practice was displaying instead [#62]
 - Fixed issue with default `sampleText` appearing again in textArea question, after the user overrides it, saves, and then deletes their answer [#7]
 - Updated "Back" button on /login page to have `type=button` instead of `type=submit`
 - Fixed bug where the published status on `/template/[templateId]` did not match that on the template cards at `/template` for the `unpublished changes` state. Added a shared hook for determining the correct status text [#875]
 
 ## Chore
+- Added override for `minimatch` dependency and removed them for `prismjs` and `qs`.
+  - Added override for transient dependency `@eslint/plugin-kit (0.3.4)` and `test-exclude` due to vulnerabilities. `test-exclude` override was necessary because `minimatch 10.x` changed its API. Older test-exclude version expects older minimatch API, which called minimatch as a function. This caused errors.
+  - Updated versions of `@graphql-codegen/cli (6.1.2)`, `@graphql-codegen/client-preset (5.2.3)`, `@graphql-codegen/typed-document-ndoe (6.1.6)`, `@graphql-codegen/typescript (5.0.8)`, `@graphql-codegen/typescript-operations (5.0.8)`, `@typescript-eslint/eslint-plugin (8.56.1)`, `@typescript-eslint/parser (8.56.1)`, `eslint (9.18.0)`, `eslint-config-next (16.1.6)` so that we can remove vulnerabilities.
+  - Updated `eslint.config.js` to accomodate new eslint updates
 - Updated `middleware.ts` to `proxy.ts` per `middleware` being deprecated in `next v16` [#51]
 - Updated `eslint` to `v8.57.1`, `cypress` to `v15.10.0`, `eslint-config-next` to `v15.5.11`, `next` to `16.1.6`, `html-react-parser` to `v5.2.16`, `next-intl` to `v4.8.2`, `react` to `v19.2.4`, `react-dom` to `v19.2.4` and `jose` to `v6.1.3`
 - Updated version of `next` to `v16.1.5` due to vulnerability and `next-intl` to `4.8.0` due to dependency

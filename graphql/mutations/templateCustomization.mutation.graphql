@@ -1,0 +1,14 @@
+mutation AddTemplateCustomization($input: AddTemplateCustomizationInput!) {
+  addTemplateCustomization(input: $input) {
+    id
+    errors {
+      general
+    }
+    isDirty
+    currentVersionedTemplateId
+    affiliationId
+    status
+    migrationStatus
+    latestPublishedDate
+  }
+}

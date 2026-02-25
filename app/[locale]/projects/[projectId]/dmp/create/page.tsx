@@ -129,7 +129,6 @@ const PlanCreate: React.FC = () => {
     }
   });
 
-
   // Initialize the addPlan mutation
   const [addPlanMutation] = useMutation(AddPlanDocument, {
     notifyOnNetworkStatusChange: true,
@@ -475,20 +474,14 @@ const PlanCreate: React.FC = () => {
 
     const funderURIs = fundersData.map(f => f.uri);
 
-    // Filter out user affiliation URI from initial selection because it's unchecked initially
-    const userAffiliationURI = userData?.me?.affiliation?.uri;
-    const funderURIsWithoutUserAffiliation = userAffiliationURI
-      ? funderURIs.filter(uri => uri !== userAffiliationURI)
-      : funderURIs;
-
     // Funders exist (excluding user affiliation)
-    if (funderURIsWithoutUserAffiliation.length > 0) {
+    if (funderURIs.length > 0) {
       return {
         type: 'funders' as const,
         fundersData,
-        funderURIs: funderURIsWithoutUserAffiliation,
-      };
+        funderURIs
     }
+  }
 
     // Best practice templates exist
     if (hasBestPracticeTemplates) {
@@ -665,7 +658,7 @@ const PlanCreate: React.FC = () => {
           </div>
 
           {searchTerm.length > 0 && (
-            <div className="clear-filter">
+            <div>
               <div><Button data-testid="clear-filter" onPress={resetSearch} className={`${styles.clearFilter} search-match-text link`}>{Global('links.clearFilter')}</Button></div>
             </div>
           )}
