@@ -45,7 +45,7 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
         <div className={styles.TemplateItemInner}>
           <div className={styles.TemplateItemContent}>
             <div className={styles.funder}>{item.funder}</div>
-            <h3
+            <h2
               className={styles.TemplateItemHeading}
               id={headingId}
             >
@@ -62,7 +62,7 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
               ) : (
                 item.title
               )}
-            </h3>
+            </h2>
             {item.description && <p className={styles.description}>{item.description}</p>}
 
             <div
