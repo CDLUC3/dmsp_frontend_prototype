@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -89,7 +89,6 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     hasNextPage: false,
     hasPreviousPage: false
   });
-
 
   //Localization keys
   const SelectTemplate = useTranslations('TemplateSelectTemplatePage');
@@ -208,13 +207,12 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     ]);
   };
 
-  // When user selects a pre-existing template, we will create the new template
-  // using a copy of the pre-existing template
-  const onSelect = async (versionedTemplateId: number) => {
+  // When user selects a template from myTemplates (org templates)
+  const onSelectMyTemplate = async (templateId: number) => {
     addTemplateMutation({
       variables: {
         name: templateName,
-        copyFromTemplateId: versionedTemplateId,
+        copyFromTemplateId: templateId,
       },
     }).then(response => {
       if (response?.data) {
@@ -237,7 +235,37 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         url: { path: routePath('template.create') }
       });
     });
-  }
+  };
+
+  // When user selects a template from publishedTemplates (versioned templates)
+  const onSelectPublishedTemplate = async (versionedTemplateId: number) => {
+    addTemplateMutation({
+      variables: {
+        name: templateName,
+        copyFromVersionedTemplateId: versionedTemplateId,
+      },
+    }).then(response => {
+      if (response?.data) {
+        const responseData = response?.data?.addTemplate;
+        if (responseData && responseData.errors) {
+          const errorMessages = Object.values(responseData.errors)
+            .filter((error) => error) as string[];
+          setErrors(errorMessages);
+        }
+        clearErrors();
+
+        const newTemplateId = response?.data?.addTemplate?.id;
+        if (newTemplateId) {
+          router.push(routePath('template.show', { templateId: newTemplateId }));
+        }
+      }
+    }).catch(err => {
+      logECS('error', 'handleClick', {
+        error: err,
+        url: { path: routePath('template.create') }
+      });
+    });
+  };
 
   async function handleStartNew() {
     addTemplateMutation({
@@ -469,7 +497,6 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
               </SearchField>
             </div>
 
-
             {/*My Org Templates */}
             <div data-testid="my-org-templates">
               {myTemplates.length > 0 && (
@@ -486,7 +513,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
                     {
                       <TemplateList
                         templates={myTemplates}
-                        onSelect={onSelect}
+                        onSelect={onSelectMyTemplate}
                       />
                     }
                   </section>
@@ -522,7 +549,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
                     {
                       <TemplateList
                         templates={publishedTemplates}
-                        onSelect={onSelect}
+                        onSelect={onSelectPublishedTemplate}
                       />
                     }
                   </section>
