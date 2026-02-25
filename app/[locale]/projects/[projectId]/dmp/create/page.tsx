@@ -665,7 +665,7 @@ const PlanCreate: React.FC = () => {
           </div>
 
           {searchTerm.length > 0 && (
-            <div className="clear-filter">
+            <div>
               <div><Button data-testid="clear-filter" onPress={resetSearch} className={`${styles.clearFilter} search-match-text link`}>{Global('links.clearFilter')}</Button></div>
             </div>
           )}

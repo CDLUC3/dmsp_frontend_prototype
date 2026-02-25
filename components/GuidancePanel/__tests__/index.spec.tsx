@@ -333,7 +333,7 @@ describe('GuidancePanel', () => {
   });
 
   describe('Add organization functionality', () => {
-    it.only('should call onAddOrganization when funder is selected in modal', async () => {
+    it('should call onAddOrganization when funder is selected in modal', async () => {
       const user = userEvent.setup();
       const onAddOrganization = jest.fn();
 
