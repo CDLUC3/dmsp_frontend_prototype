@@ -127,7 +127,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
     }
 
     // Fallback
-    return Customizable('templateStatus.notYetCustomizable');
+    return Customizable('templateStatus.notCustomizable');
   }
 
   // Handler for when user clicks "Customize" on a template - either redirects to existing customization or creates new one

@@ -25,7 +25,7 @@
       "notCustomized": "Not customized",
       "published": "Published",
       "unPublished": "Unpublished",
-      "notYetCustomizable": "Not yet customizable",
+      "notCustomizable": "Not customizable",
       "lastCustomized": "Last customized date",
       "lastCustomizedBy": "Last customized by",
       "customizationStatus": "Customization status",
