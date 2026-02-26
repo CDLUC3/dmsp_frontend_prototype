@@ -33,7 +33,7 @@ import {
 
 // Components
 import PageHeader from '@/components/PageHeader';
-import CustomizedTemplateListItem from '@/components/CustomizedTemplateListItem';
+import CustomizedTemplateListItem from '@/components/CustomizedTemplate/CustomizedTemplateListItem';
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
 import Loading from "@/components/Loading";
@@ -48,7 +48,7 @@ import { useToast } from "@/context/ToastContext";
 import { extractErrors } from "@/utils/errorHandler";
 
 // # of templates displayed per load
-const LIMIT = 5;
+const LIMIT = 2;
 
 type AddTemplateCustomizationErrors = {
   general?: string | null;
@@ -165,7 +165,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
         });
       } else {
         // If successful, redirect to the customize page for the newly created template
-        const newTemplateCustomizationId = response?.data?.addTemplateCustomization?.id;
+        const newTemplateCustomizationId = response?.data?.addTemplateCustomization?.customizationId;
 
         if (newTemplateCustomizationId) {
           const successMessage = Customizable("messages.success.templateAddedSuccessfully", { title: item.title || "" });
@@ -320,6 +320,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
   // Also handles appending new items for pagination and search results
   useEffect(() => {
     if (!customizableTemplatesData || !customizableTemplatesData.customizableTemplates) return;
+    console.log('Customizable Templates Data:', customizableTemplatesData);
     // Transform customized templates into format expected by TemplateSelectListItem component
     const processTemplates = async (templates: PaginatedCustomizedTemplateSearchResultsInterface | null) => {
       const items = templates?.items ?? [];

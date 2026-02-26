@@ -1,14 +1,56 @@
 mutation AddTemplateCustomization($input: AddTemplateCustomizationInput!) {
   addTemplateCustomization(input: $input) {
-    id
+    customizationId
     errors {
       general
     }
-    isDirty
-    currentVersionedTemplateId
-    affiliationId
-    status
-    migrationStatus
-    latestPublishedDate
+    customizationIsDirty
+    versionedTemplateId
+    versionedTemplateAffiliationId
+    customizationStatus
+    customizationMigrationStatus
+  }
+}
+
+
+
+mutation PublishTemplateCustomization($publishTemplateCustomizationTemplateCustomizationId: Int!) {
+  publishTemplateCustomization(templateCustomizationId: $publishTemplateCustomizationTemplateCustomizationId) {
+    customizationId
+    customizationIsDirty
+    customizationLastCustomized
+    customizationLastCustomizedById
+    customizationLastCustomizedByName
+    customizationMigrationStatus
+    customizationStatus
+    errors {
+      general
+      currentVersionedTemplateId
+      affiliationId
+      templateId
+    }
+    sections {
+      id
+      hasCustomGuidance
+      displayOrder
+      migrationStatus
+      name
+      questions {
+        displayOrder
+        hasCustomGuidance
+        hasCustomSampleAnswer
+        migrationStatus
+        id
+        questionType
+        questionText
+      }
+      sectionType
+    }
+    versionedTemplateAffiliationId
+    versionedTemplateId
+    versionedTemplateAffiliationName
+    versionedTemplateLastModified
+    versionedTemplateName
+    versionedTemplateVersion
   }
 }

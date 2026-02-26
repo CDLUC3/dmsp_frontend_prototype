@@ -1,0 +1,18 @@
+mutation MoveCustomSection($input: MoveCustomSectionInput!) {
+  moveCustomSection(input: $input) {
+    id
+    guidance
+    errors {
+      general
+    }
+    introduction
+    migrationStatus
+    name
+    pinnedSectionId
+    pinnedSectionType
+    requirements
+    templateCustomizationId
+    modified
+    modifiedById
+  }
+}
