@@ -51,11 +51,6 @@ import logECS from "@/utils/clientLogger";
 import { useToast } from "@/context/ToastContext";
 import styles from "./templateCustomizationOverview.module.scss";
 
-interface TemplateInfoInterface {
-  templateId: number | null;
-  name: string;
-}
-
 const TemplateCustomizationOverview: React.FC = () => {
   const formatDate = useFormatDate();
 
@@ -103,7 +98,9 @@ const TemplateCustomizationOverview: React.FC = () => {
     variables: { templateCustomizationId: Number(templateCustomizationId) },
   });
 
-  const [publishTemplateCustomization, { loading: createTemplateVersionLoading }] = useMutation(PublishTemplateCustomizationDocument);
+  console.log("***Template Customization Data from query", data);
+
+  const [publishTemplateCustomization] = useMutation(PublishTemplateCustomizationDocument);
   const [moveCustomSectionMutation] = useMutation(MoveCustomSectionDocument);
 
   const showSuccessToast = () => {

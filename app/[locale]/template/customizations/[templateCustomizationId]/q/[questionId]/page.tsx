@@ -90,7 +90,7 @@ import {
   isOptionsType,
   getOverrides,
 } from './hooks/useEditQuestion';
-import styles from '../questionEdit.module.scss';
+import styles from './questionCustomEdit.module.scss';
 import ResearchOutputDisplay from '@/components/Form/ResearchOutputDisplay';
 
 const QuestionCustomizePage = () => {
@@ -99,7 +99,7 @@ const QuestionCustomizePage = () => {
   const searchParams = useSearchParams();
   const toastState = useToast(); // Access the toast state from context
   const templateId = String(params.templateId);
-  const questionId = String(params.q_slug); //question id
+  const questionId = String(params.questionId); //question id
   const questionTypeIdQueryParam = searchParams.get('questionType') || null;
 
   //For scrolling to error in page
@@ -639,8 +639,7 @@ const QuestionCustomizePage = () => {
   return (
     <>
       <PageHeader
-        title="Customize question"
-        subtitle={question?.questionText ? question.questionText : ''}
+        title="Add Custom Question"
         description=""
         showBackButton={false}
         breadcrumbs={

@@ -8,52 +8,37 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
-  Checkbox,
-  CheckboxGroup,
   Dialog,
   DialogTrigger,
   Form,
   Label,
   Link,
-  OverlayArrow,
-  Popover,
-  Tab,
-  TabList,
-  TabPanel,
-  Tabs,
   Modal,
   ModalOverlay,
 } from "react-aria-components";
 
 // GraphQL
 import {
-  SectionErrors,
-  TagsDocument,
-  // TODO: UpdateCustomSectionDocument not available yet - temporarily commented out
-  // UpdateCustomSectionDocument,
-  RemoveSectionDocument,
+  RemoveSectionCustomizationDocument,
+  SectionCustomizationDocument,
+  UpdateSectionCustomizationDocument,
 } from '@/generated/graphql';
 
 //Components
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
-import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
 import TinyMCEEditor from "@/components/TinyMCEEditor";
 import ErrorMessages from '@/components/ErrorMessages';
-import FormInput from '@/components/Form/FormInput';
 import Loading from '@/components/Loading';
 
 import {
-  CustomSectionInterface,
-  SectionFormErrorsInterface,
   SectionFormInterface,
   TagsInterface
 } from '@/app/types';
 
 // TODO: Custom error interface for custom section updates
 interface CustomSectionErrors {
-  customSectionGuidance?: string | null;
-  customSectionRequirements?: string | null;
+  customSectionGuidance?: string;
   general?: string | null;
   [key: string]: string | null | undefined;
 }
@@ -77,9 +62,18 @@ const SectionCustomizePage: React.FC = () => {
   const router = useRouter();
 
   // Get templateId and sectionId params
-  const templateId = String(params.templateId);
-  const sectionId = String(params.section_slug);
+  const templateCustomizationId = String(params.templateCustomizationId);
+  const sectionCustomizationId = String(params.sectionCustomizationId);
 
+  // Get sectionCustomization data
+  const { data: sectionCustomizationData } = useQuery(SectionCustomizationDocument, {
+    variables: {
+      sectionCustomizationId: Number(sectionCustomizationId)
+    }
+  });
+  console.log('sectionCustomizationData', sectionCustomizationData);
+
+  const sectionId = sectionCustomizationData?.sectionCustomization?.versionedSection?.id;
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
   // Track whether there are unsaved changes
@@ -93,22 +87,23 @@ const SectionCustomizePage: React.FC = () => {
   const topRef = useRef<HTMLDivElement | null>(null);
 
   const {
-    customSectionData,
     sectionData,
     selectedTags,
-    checkboxTags,
     loading,
-    setCustomSectionData,
     setSectionData,
     setSelectedTags,
   } = useSectionData(Number(sectionId));
 
+  const [customSectionData, setCustomSectionData] = useState<{
+    customSectionGuidance?: string;
+  }>({
+    customSectionGuidance: '',
+  });
 
   // Save errors in state to display on page
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
-  const [fieldErrors, setFieldErrors] = useState<CustomSectionInterface>({
+  const [fieldErrors, setFieldErrors] = useState<CustomSectionErrors>({
     customSectionGuidance: '',
-    customSectionRequirements: ''
   });
 
   // localization keys
@@ -116,37 +111,17 @@ const SectionCustomizePage: React.FC = () => {
   const SectionUpdatePage = useTranslations('SectionUpdatePage');
   const Section = useTranslations('Section');
 
-  //Store selection of tags in state
-  const [tags, setTags] = useState<TagsInterface[]>([]);
-
   // Set URLs
-  const TEMPLATE_URL = routePath('template.show', { templateId });
-  const UPDATE_SECTION_URL = routePath('template.section.slug', { templateId, section_slug: sectionId });
-
-
-  // TODO: Placeholder for UpdateCustomSectionDocument - not available yet
-  // Temporary mock mutation that returns success
-  const updateCustomSectionMutation = async (options: any) => {
-    console.warn('UpdateCustomSectionDocument not yet implemented - using placeholder');
-    return {
-      data: {
-        updateCustomSection: {
-          errors: null
-        }
-      }
-    };
-  };
+  const TEMPLATE_URL = routePath('template.customize', { templateCustomizationId });
+  const UPDATE_SECTION_URL = routePath('template.customize.sectionId', { templateCustomizationId, sectionCustomizationId });
 
   // Initialize remove section mutation
-  const [removeSectionMutation] = useMutation(RemoveSectionDocument);
+  const [removeSectionCustomization] = useMutation(RemoveSectionCustomizationDocument);
+  const [updateSectionCustomization] = useMutation(UpdateSectionCustomizationDocument);
 
   // State for delete confirmation modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  // Query for all tags
-  const { data: tagsData } = useQuery(TagsDocument);
-
 
   const RichTextDisplay: React.FC<{ label: string; content: string; }> = ({
     label,
@@ -172,7 +147,7 @@ const SectionCustomizePage: React.FC = () => {
   // Client-side validation of fields
   const validateField = (name: string, value: string | string[] | undefined): string => {
     switch (name) {
-      case 'sectionName':
+      case 'customSectionGuidance':
         if (!value || value.length <= 2) {
           return SectionUpdatePage('messages.fieldLengthValidation');
         }
@@ -192,26 +167,15 @@ const SectionCustomizePage: React.FC = () => {
       ? validateField('customSectionGuidance', guidanceValue)
       : '';
 
-    // Validate customSectionRequirements
-    const requirementsValue = customSectionData.customSectionRequirements;
-    const requirementsError = typeof requirementsValue === 'string'
-      ? validateField('customSectionRequirements', requirementsValue)
-      : '';
-
     // Build errors object
-    const errors: CustomSectionInterface = {
+    const errors: CustomSectionErrors = {
       customSectionGuidance: guidanceError,
-      customSectionRequirements: requirementsError
     };
 
     // Check if there are any errors
     if (guidanceError) {
       hasError = true;
       errorList.push(guidanceError);
-    }
-    if (requirementsError) {
-      hasError = true;
-      errorList.push(requirementsError);
     }
 
     // Update state with all errors
@@ -225,7 +189,6 @@ const SectionCustomizePage: React.FC = () => {
     //Remove all field errors
     setFieldErrors({
       customSectionGuidance: '',
-      customSectionRequirements: ''
     });
   }
 
@@ -235,21 +198,17 @@ const SectionCustomizePage: React.FC = () => {
     // string all tags from sectionName before sending to backend
     const cleanedSectionName = stripHtmlTags(sectionData.sectionName);
 
-    // TODO: Replace this with actual mutation when UpdateCustomSectionDocument is available
     try {
-      const response = await updateCustomSectionMutation({
+      const response = await updateSectionCustomization({
         variables: {
           input: {
-            requirements: customSectionData.customSectionRequirements,
+            sectionCustomizationId: Number(sectionId),
             guidance: customSectionData.customSectionGuidance,
-            displayOrder: sectionData.displayOrder,
-            bestPractice: sectionData.bestPractice ?? false, // have to write it this way, otherwise the 'false' will remove this prop from input
-            tags: selectedTags
           }
         }
       });
 
-      const responseErrors = response.data?.updateCustomSection?.errors
+      const responseErrors = response.data?.updateSectionCustomization?.errors
       if (responseErrors) {
         if (responseErrors && Object.values(responseErrors).filter((err) => err && err !== 'SectionErrors').length > 0) {
           return [responseErrors, false];
@@ -271,9 +230,9 @@ const SectionCustomizePage: React.FC = () => {
   const handleDeleteSection = async () => {
     setIsDeleting(true);
     try {
-      await removeSectionMutation({
+      await removeSectionCustomization({
         variables: {
-          sectionId: Number(sectionId)
+          sectionCustomizationId: Number(sectionId)
         }
       });
       // Show success message and redirect to template page
@@ -291,25 +250,11 @@ const SectionCustomizePage: React.FC = () => {
     }
   };
 
-  // Handle changes to tag checkbox selection
-  const handleCheckboxChange = (tag: TagsInterface) => {
-    setSelectedTags(prevTags => prevTags.some(selectedTag => selectedTag.id === tag.id)
-      ? prevTags.filter(selectedTag => selectedTag.id !== tag.id)
-      : [...prevTags, tag]
-    );
-    setHasUnsavedChanges(true);
-  };
-
   // Show Success Message
   const showSuccessToast = () => {
     const successMessage = SectionUpdatePage('messages.success');
     toastState.add(successMessage, { type: 'success' });
   }
-
-  const handleSectionNameChange = (sectionData: SectionFormInterface) => {
-    setSectionData(sectionData);
-    setHasUnsavedChanges(true);
-  };
 
   // Handle form submit
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -331,7 +276,6 @@ const SectionCustomizePage: React.FC = () => {
         if (errors) {
           setFieldErrors({
             customSectionGuidance: errors.customSectionGuidance || '',
-            customSectionRequirements: errors.customSectionRequirements || ''
           });
         }
         setErrorMessages([errors.general || SectionUpdatePage('messages.errorUpdatingSection')]);
@@ -363,14 +307,6 @@ const SectionCustomizePage: React.FC = () => {
     };
   }, [hasUnsavedChanges]);
 
-  useEffect(() => {
-    if (tagsData?.tags) {
-      // Remove __typename field from the tags selection
-      const cleanedData = tagsData.tags.map(({ __typename, ...fields }) => fields);
-      setTags(cleanedData);
-    }
-  }, [tagsData])
-
   // If errors when submitting publish form, scroll them into view
   useEffect(() => {
     if (errorMessages.length > 0) {
@@ -395,8 +331,8 @@ const SectionCustomizePage: React.FC = () => {
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('template.customizations', { templateId })}>Customization templates</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('template.customize', { templateId })}>Customize template</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.customizations', { templateCustomizationId })}>Customization templates</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.customize', { templateCustomizationId })}>Customize template</Link></Breadcrumb>
             <Breadcrumb>Customize section</Breadcrumb>
           </Breadcrumbs>
         }
@@ -425,16 +361,6 @@ const SectionCustomizePage: React.FC = () => {
                 <RichTextDisplay
                   label={Section('labels.sectionRequirements')}
                   content={sectionData.sectionRequirements}
-                />
-
-                <Label htmlFor="customSectionRequirements" id="customSectionRequirementsLabel">Additional section requirements</Label>
-                <TinyMCEEditor
-                  content={customSectionData.customSectionRequirements || ''}
-                  setContent={(value) => updateCustomSectionGuidanceContent('customSectionRequirements', value)}
-                  error={fieldErrors['customSectionRequirements']}
-                  id="customSectionRequirements"
-                  labelId="customSectionRequirementsLabel"
-                  helpText="Add additional requirements that will appear on the Section Overview page"
                 />
 
                 <RichTextDisplay
