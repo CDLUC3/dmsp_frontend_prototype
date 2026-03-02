@@ -1,4 +1,6 @@
 ## Added
+- Added new `/template/customizations/[templateCustomizationOverview]` page [#927]
+- Added new `CustomizedTemplate` components directory and new `CustomizedQuestionEdit` and `CustomizedSectionEdit` components [#927]
 - Added new `/template/customizations` page and associated `CustomizedTemplateListItem` component [#43]
 - Added new `warning` icon to `iconset.svg` [#43]
 - Added new `clearAuthData` and `clearCache` to `AuthProvider` so that we can clear cache on `/login` and `/logout` [#55]

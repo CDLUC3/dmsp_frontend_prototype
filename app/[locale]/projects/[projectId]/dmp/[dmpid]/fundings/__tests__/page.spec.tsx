@@ -384,12 +384,14 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
       </MockedProvider>
     );
 
+    // Wait for both queries to complete - checkboxes AND initial selection
     await waitFor(() => {
-      const option = screen.getByRole('checkbox', { name: 'Project Funder B' });
-      expect(option).toBeInTheDocument();
-      fireEvent.click(option);
+      const funderB = screen.getByRole('checkbox', { name: 'Project Funder B' });
+      expect(funderB).toBeInTheDocument();
+      expect(funderB).toBeChecked(); // Wait for B to be pre-selected
     });
 
+    // Submit with just B selected (which triggers the response error)
     const saveButton = screen.getByRole('button', { name: 'buttons.save' });
     fireEvent.click(saveButton);
 
@@ -406,15 +408,24 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
       </MockedProvider>
     );
 
-    // MockedProvider is async, so need to wait for the data to be in
+    // Wait for BOTH queries to complete - checkboxes AND initial selection
     await waitFor(() => {
-      expect(screen.getByRole('checkbox', { name: 'Project Funder C' })).toBeInTheDocument();
+      const funderB = screen.getByRole('checkbox', { name: 'Project Funder B' });
+      const funderC = screen.getByRole('checkbox', { name: 'Project Funder C' });
+      expect(funderB).toBeInTheDocument();
+      expect(funderB).toBeChecked(); // Wait for B to be pre-selected
+      expect(funderC).toBeInTheDocument();
     });
 
+    // Click on Funder C to add it to the selection
+    const funderC = screen.getByRole('checkbox', { name: 'Project Funder C' });
+    fireEvent.click(funderC);
+
+    // Verify both B and C are now checked
     await waitFor(() => {
-      const option = screen.getByRole('checkbox', { name: 'Project Funder C' });
-      expect(option).toBeInTheDocument();
-      fireEvent.click(option);
+      expect(funderC).toBeChecked();
+      const funderB = screen.getByRole('checkbox', { name: 'Project Funder B' });
+      expect(funderB).toBeChecked();
     });
 
     const saveButton = screen.getByRole('button', { name: 'buttons.save' });

@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 'use client'
 
 import { useTranslations } from 'next-intl';
@@ -26,7 +25,6 @@ const ResearchOutputDisplay: React.FC<ResearchOutputReadOnlyProps> = ({
   standardFields,
   additionalFields,
 }) => {
-  const Global = useTranslations('Global');
   const QuestionAdd = useTranslations('QuestionAdd');
 
   return (

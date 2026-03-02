@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { act, fireEvent, render, screen, within, waitFor, cleanup } from '@/utils/test-utils';
 import { MockedProvider } from '@apollo/client/testing/react';
 import { InMemoryCache } from '@apollo/client';
@@ -8,7 +8,6 @@ import { useToast } from '@/context/ToastContext';
 import TemplateCustomizationOverview from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import logECS from '@/utils/clientLogger';
-import { MoveCustomSectionDocument } from '@/generated/graphql';
 import {
   mocks,
   errorMock,
@@ -74,6 +73,7 @@ jest.mock('next-intl', () => ({
 jest.mock('@/components/CustomizedTemplate/CustomizedSectionEdit', () => {
   return {
     __esModule: true,
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     default: ({ section, onMoveUp, onMoveDown }: any) => (
       <div data-testid="customized-section-edit">
         <h2>{section.name}</h2>

@@ -13,6 +13,7 @@ jest.mock('next-intl', () => ({
 jest.mock('next/link', () => {
   return {
     __esModule: true,
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     default: ({ href, children, className, 'aria-label': ariaLabel }: any) => (
       <a href={href} className={className} aria-label={ariaLabel}>
         {children}

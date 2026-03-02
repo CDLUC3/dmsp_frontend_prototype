@@ -207,8 +207,8 @@ const TemplateCustomizationOverview: React.FC = () => {
         variables: {
           input: {
             customSectionId: sectionId,
-            newSectionId: newSectionId,
-            newSectionType: newSectionType,
+            newSectionId,
+            newSectionType,
           }
         }
       });
@@ -220,7 +220,7 @@ const TemplateCustomizationOverview: React.FC = () => {
         setErrorMessages(prev => [...prev, result?.errors?.general || CustomizableTemplates("messages.error.updatingSectionMoveError")]);
         logECS("error", "handleSectionMove", {
           error: result?.errors?.general || "Unknown error",
-          url: { path: routePath("template.customize", { templateCustomizationId: templateCustomizationId }) },
+          url: { path: routePath("template.customize", { templateCustomizationId }) },
         });
       } else {
         showSuccessMoveSection();
@@ -230,7 +230,7 @@ const TemplateCustomizationOverview: React.FC = () => {
       setErrorMessages(prev => [...prev, CustomizableTemplates("messages.error.updatingSectionMoveError")]);
       logECS("error", "handleSectionMove", {
         error: err,
-        url: { path: routePath("template.customize", { templateCustomizationId: templateCustomizationId }) },
+        url: { path: routePath("template.customize", { templateCustomizationId }) },
       });
     } finally {
       setIsReordering(false);
@@ -238,6 +238,10 @@ const TemplateCustomizationOverview: React.FC = () => {
   };
 
   const handleDeleteCustomization = async () => {
+    if (isDeleting) return; // Prevent double-clicks
+    setIsDeleting(true);
+    setErrorMessages([]); // Clear previous errors
+
     try {
       const response = await removeTemplateCustomization({
         variables: {
@@ -246,13 +250,14 @@ const TemplateCustomizationOverview: React.FC = () => {
       });
 
       const responseErrors = response.data?.removeTemplateCustomization?.errors;
+
       if (responseErrors && typeof responseErrors.general === "string") {
         if (responseErrors.general) {
           const message = responseErrors.general;
           setErrorMessages((prev) => [...prev, message]);
           logECS("error", "handleDeleteCustomization", {
             error: message,
-            url: { path: routePath("template.customize", { templateCustomizationId: templateCustomizationId }) },
+            url: { path: routePath("template.customize", { templateCustomizationId }) },
           });
         }
       } else {
@@ -263,8 +268,10 @@ const TemplateCustomizationOverview: React.FC = () => {
       setErrorMessages((prevErrors) => [...prevErrors, CustomizableTemplates("messages.error.deleteCustomizationError")]);
       logECS("error", "handleDeleteCustomization", {
         error: err,
-        url: { path: routePath("template.customize", { templateCustomizationId: templateCustomizationId }) },
+        url: { path: routePath("template.customize", { templateCustomizationId }) },
       });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -284,7 +291,7 @@ const TemplateCustomizationOverview: React.FC = () => {
         setErrorMessages([CustomizableTemplates("messages.error.unpublishCustomizationError")]);
         logECS("error", "unpublishTemplateCustomization", {
           error: "No result returned from mutation",
-          url: { path: routePath("template.customize", { templateCustomizationId: templateCustomizationId }) },
+          url: { path: routePath("template.customize", { templateCustomizationId }) },
         });
         return;
       }
@@ -300,7 +307,7 @@ const TemplateCustomizationOverview: React.FC = () => {
       setErrorMessages([CustomizableTemplates("messages.error.unpublishCustomizationError")]);
       logECS("error", "unpublishTemplateCustomization", {
         error: err,
-        url: { path: routePath("template.customize", { templateCustomizationId: templateCustomizationId }) },
+        url: { path: routePath("template.customize", { templateCustomizationId }) },
       });
     }
   };
@@ -321,7 +328,7 @@ const TemplateCustomizationOverview: React.FC = () => {
         setErrorMessages([CustomizableTemplates("messages.error.saveCustomizationError")]);
         logECS("error", "saveCustomizationTemplate", {
           error: "No result returned from mutation",
-          url: { path: routePath("template.customize", { templateCustomizationId: templateCustomizationId }) },
+          url: { path: routePath("template.customize", { templateCustomizationId }) },
         });
         return;
       }
@@ -337,7 +344,7 @@ const TemplateCustomizationOverview: React.FC = () => {
       setErrorMessages([CustomizableTemplates("messages.error.saveCustomizationError")]);
       logECS("error", "saveCustomizationTemplate", {
         error: err,
-        url: { path: routePath("template.customize", { templateCustomizationId: templateCustomizationId }) },
+        url: { path: routePath("template.customize", { templateCustomizationId }) },
       });
     }
   };

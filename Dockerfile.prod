@@ -1,6 +1,6 @@
 # Stage 1: Builder (all dependencies)
 # preferred node version chosen here (Active LTS = 22 as of 10/2024)
-FROM public.ecr.aws/docker/library/node:22.1.0-alpine3.19 as builder
+FROM public.ecr.aws/docker/library/node:22.22-alpine3.23
 WORKDIR /app
 
 # Copy dependencies from deps stage

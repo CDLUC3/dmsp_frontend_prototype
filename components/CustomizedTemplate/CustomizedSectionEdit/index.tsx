@@ -153,8 +153,8 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
             customQuestionId: questionId,
             sectionId: section.id,
             sectionType: section.sectionType as CustomizableObjectOwnership,
-            pinnedQuestionId: pinnedQuestionId,
-            pinnedQuestionType: pinnedQuestionType,
+            pinnedQuestionId,
+            pinnedQuestionType,
           },
         },
       });

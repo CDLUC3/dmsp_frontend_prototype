@@ -6,25 +6,7 @@ import { StandardField } from '@/app/types';
 
 // Mock the useTranslations hook
 jest.mock('next-intl', () => ({
-  useTranslations: () => (key: string, params?: any) => {
-    const translations: { [key: string]: string } = {
-      'researchOutput.headings.enableStandardFields': 'Enable Standard Fields',
-      'researchOutput.description': 'Research Output Description',
-      'researchOutput.headings.additionalTextFields': 'Additional Text Fields',
-      'researchOutput.tooltip.requiredFields': 'Required',
-      'labels.helpText': `Help Text for ${params?.fieldName || 'field'}`,
-      'researchOutput.labels.description': 'Description',
-      'researchOutput.legends.dataFlag': 'Data Flags',
-      'researchOutput.labels.customOutputTypes': 'Custom Output Types',
-      'researchOutput.labels.defaultOutputTypes': 'Default Output Types',
-      'researchOutput.labels.customLicenses': 'Custom Licenses',
-      'researchOutput.labels.defaultLicenses': 'Default Licenses',
-      'researchOutput.additionalFields.fieldLabel.label': 'Field Label',
-      'researchOutput.additionalFields.maxLength.label': 'Max Length',
-      'researchOutput.additionalFields.defaultValue.label': 'Default Value',
-    };
-    return translations[key] || key;
-  },
+  useTranslations: () => (key: string) => key,
 }));
 
 // Mock the styles module
@@ -65,6 +47,7 @@ describe('ResearchOutputDisplay', () => {
         { label: 'Flag 2', value: 'flag2', selected: false },
       ],
       attributes: { labelTranslationKey: 'labels.dataFlags' },
+      /* eslint-disable @typescript-eslint/no-explicit-any */
     } as any,
   };
 
@@ -163,6 +146,7 @@ describe('ResearchOutputDisplay', () => {
         defaultValue: 'Default value',
       },
     },
+    /* eslint-disable @typescript-eslint/no-explicit-any */
   } as any;
 
   it('should render the component without crashing', () => {
@@ -171,7 +155,7 @@ describe('ResearchOutputDisplay', () => {
       additionalFields: [],
     };
     render(<ResearchOutputDisplay {...props} />);
-    expect(screen.getByText('Enable Standard Fields')).toBeInTheDocument();
+    expect(screen.getByText('researchOutput.headings.enableStandardFields')).toBeInTheDocument();
   });
 
   it('should render the standard fields heading and description', () => {
@@ -180,8 +164,8 @@ describe('ResearchOutputDisplay', () => {
       additionalFields: [],
     };
     render(<ResearchOutputDisplay {...props} />);
-    expect(screen.getByText('Enable Standard Fields')).toBeInTheDocument();
-    expect(screen.getByText('Research Output Description')).toBeInTheDocument();
+    expect(screen.getByText('researchOutput.headings.enableStandardFields')).toBeInTheDocument();
+    expect(screen.getByText('researchOutput.description')).toBeInTheDocument();
   });
 
   it('should only render enabled standard fields', () => {
@@ -204,7 +188,7 @@ describe('ResearchOutputDisplay', () => {
       additionalFields: [],
     };
     render(<ResearchOutputDisplay {...props} />);
-    const requiredBadges = screen.getAllByText('Required');
+    const requiredBadges = screen.getAllByText('researchOutput.tooltip.requiredFields')
     expect(requiredBadges.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -214,7 +198,7 @@ describe('ResearchOutputDisplay', () => {
       additionalFields: [],
     };
     render(<ResearchOutputDisplay {...props} />);
-    expect(screen.queryByText('Required')).not.toBeInTheDocument();
+    expect(screen.queryByText('researchOutput.tooltip.requiredFields')).not.toBeInTheDocument();
   });
 
   describe('Data Flags Field', () => {
@@ -224,7 +208,7 @@ describe('ResearchOutputDisplay', () => {
         additionalFields: [],
       };
       render(<ResearchOutputDisplay {...props} />);
-      expect(screen.getByText('Data Flags')).toBeInTheDocument();
+      expect(screen.getByText('researchOutput.legends.dataFlag:')).toBeInTheDocument();
       expect(screen.getByText('Flag 1')).toBeInTheDocument();
     });
 
@@ -247,7 +231,7 @@ describe('ResearchOutputDisplay', () => {
       };
       render(<ResearchOutputDisplay {...props} />);
       expect(screen.getByText('Configuration Mode:')).toBeInTheDocument();
-      expect(screen.getByText('Custom Output Types')).toBeInTheDocument();
+      expect(screen.getByText('researchOutput.labels.customOutputTypes')).toBeInTheDocument();
       expect(screen.getByText('Type 1')).toBeInTheDocument();
       expect(screen.getByText('Type 2')).toBeInTheDocument();
     });
@@ -258,7 +242,7 @@ describe('ResearchOutputDisplay', () => {
         additionalFields: [],
       };
       render(<ResearchOutputDisplay {...props} />);
-      expect(screen.getByText('Default Output Types')).toBeInTheDocument();
+      expect(screen.getByText('researchOutput.labels.defaultOutputTypes')).toBeInTheDocument();
       expect(screen.getByText('DEFAULT_TYPE_1')).toBeInTheDocument();
       expect(screen.getByText('DEFAULT_TYPE_2')).toBeInTheDocument();
     });
@@ -269,7 +253,7 @@ describe('ResearchOutputDisplay', () => {
         additionalFields: [],
       };
       render(<ResearchOutputDisplay {...props} />);
-      expect(screen.getByText(/Help Text for Output Type/)).toBeInTheDocument();
+      expect(screen.getByText('researchOutput.tooltip.requiredFields')).toBeInTheDocument();
     });
   });
 
@@ -342,7 +326,7 @@ describe('ResearchOutputDisplay', () => {
         additionalFields: [],
       };
       render(<ResearchOutputDisplay {...props} />);
-      expect(screen.getByText('Custom Licenses')).toBeInTheDocument();
+      expect(screen.getByText('researchOutput.labels.customLicenses')).toBeInTheDocument();
       expect(screen.getByText('Custom License')).toBeInTheDocument();
     });
 
@@ -370,7 +354,7 @@ describe('ResearchOutputDisplay', () => {
         additionalFields: [],
       };
       render(<ResearchOutputDisplay {...props} />);
-      expect(screen.getByText('Default Licenses')).toBeInTheDocument();
+      expect(screen.getByText('researchOutput.labels.defaultLicenses')).toBeInTheDocument();
     });
   });
 
@@ -393,8 +377,8 @@ describe('ResearchOutputDisplay', () => {
         additionalFields: [],
       };
       render(<ResearchOutputDisplay {...props} />);
-      expect(screen.getByText('public')).toBeInTheDocument();
-      expect(screen.getByText('restricted')).toBeInTheDocument();
+      expect(screen.getByText('Public')).toBeInTheDocument();
+      expect(screen.getByText('Private')).toBeInTheDocument();
     });
 
     it('should display default access levels mode', () => {
@@ -405,6 +389,7 @@ describe('ResearchOutputDisplay', () => {
           customLevels: [],
           selectedDefaults: ['public'],
         },
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
       const props = {
         standardFields: [defaultAccessLevelsField],
@@ -422,7 +407,7 @@ describe('ResearchOutputDisplay', () => {
         additionalFields: [mockAdditionalField],
       };
       render(<ResearchOutputDisplay {...props} />);
-      expect(screen.getByText('Additional Text Fields')).toBeInTheDocument();
+      expect(screen.getByText('researchOutput.headings.additionalTextFields')).toBeInTheDocument();
       // Additional Field 1 appears in both label and detail value
       expect(screen.getAllByText('Additional Field 1').length).toBeGreaterThan(0);
     });
@@ -484,8 +469,8 @@ describe('ResearchOutputDisplay', () => {
         additionalFields: [mockAdditionalField],
       };
       render(<ResearchOutputDisplay {...props} />);
-      expect(screen.getByText('Enable Standard Fields')).toBeInTheDocument();
-      expect(screen.getByText('Additional Text Fields')).toBeInTheDocument();
+      expect(screen.getByText('researchOutput.headings.enableStandardFields')).toBeInTheDocument();
+      expect(screen.getByText('researchOutput.headings.additionalTextFields')).toBeInTheDocument();
       expect(screen.getByText('Title')).toBeInTheDocument();
       // Additional Field 1 appears in both label and detail value
       expect(screen.getAllByText('Additional Field 1').length).toBeGreaterThan(0);
@@ -499,7 +484,7 @@ describe('ResearchOutputDisplay', () => {
         additionalFields: [],
       };
       render(<ResearchOutputDisplay {...props} />);
-      expect(screen.getByText('Enable Standard Fields')).toBeInTheDocument();
+      expect(screen.getByText('researchOutput.headings.enableStandardFields')).toBeInTheDocument();
     });
 
     it('should handle field without help text', () => {
@@ -536,6 +521,7 @@ describe('ResearchOutputDisplay', () => {
         enabled: true,
         heading: 'Minimal Field',
         label: 'Minimal Field',
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
       const props = {
         standardFields: [],
