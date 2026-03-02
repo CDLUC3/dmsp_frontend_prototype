@@ -871,7 +871,8 @@
     "status": {
       "published": "Publicado",
       "draft": "Rascunho",
-      "unpublishedChanges": "Alterações não publicadas"
+      "unpublishedChanges": "Alterações não publicadas",
+      "notStarted": "Não iniciado"
     }
   },
   "OrganizationTemplates": {

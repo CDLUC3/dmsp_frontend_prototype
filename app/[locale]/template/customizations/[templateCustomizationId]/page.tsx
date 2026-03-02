@@ -54,18 +54,17 @@ const TemplateCustomizationOverview: React.FC = () => {
 
   const toastState = useToast();
 
-  // Template status hook
+  // Page level errors
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
   // localization keys
-  const BreadCrumbs = useTranslations("Breadcrumbs");
   const EditTemplate = useTranslations("EditTemplates");
   const CustomizableTemplates = useTranslations("CustomizableTemplates");
   const Messaging = useTranslations("Messaging");
   const Global = useTranslations("Global");
 
 
-  // Template status hook
+  // Template publish status hook
   const { getPublishStatusText, getCustomizationStatus } = useTemplateStatus();
 
   //Track local section order - using optimistic rendering
@@ -76,16 +75,15 @@ const TemplateCustomizationOverview: React.FC = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Get templateId param
+  // Get templateCustomizationId param
   const params = useParams();
   const router = useRouter();
-  //const { templateId } = params; // From route /template/:templateId
   const templateCustomizationId = String(params.templateCustomizationId); // From route /template/customizations/:templateCustomizationId
 
   //For scrolling to error in modal window
   const errorRef = useRef<HTMLDivElement | null>(null);
 
-  // Run template query to get all templates under the given templateIdx
+  // Run template query to get all templates under the given templateCustomizationId
   const {
     data,
     loading,
@@ -198,7 +196,7 @@ const TemplateCustomizationOverview: React.FC = () => {
 
     const { newSectionId, newSectionType } = getSectionAnchor(localSections, sectionId, direction);
 
-    // Optimistic update still works on displayOrder locally
+    // Optimistic update
     updateLocalSectionOrder(sectionId, direction);
     setIsReordering(true);
 
@@ -399,12 +397,12 @@ const TemplateCustomizationOverview: React.FC = () => {
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb>
-              <Link href="/">{BreadCrumbs("home")}</Link>
+              <Link href={routePath("app.home")}>{Global("breadcrumbs.home")}</Link>
             </Breadcrumb>
             <Breadcrumb>
-              <Link href="/template">{BreadCrumbs("templates")}</Link>
+              <Link href={routePath("template.customizations")}>{Global("breadcrumbs.templateCustomizations")}</Link>
             </Breadcrumb>
-            <Breadcrumb>Temp Template title</Breadcrumb>
+            <Breadcrumb>{template.versionedTemplateName}</Breadcrumb>
           </Breadcrumbs>
         }
         className="page-template-overview"

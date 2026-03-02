@@ -158,12 +158,12 @@ describe('TemplateCustomizationOverview', () => {
       renderPage();
 
       await waitFor(() => {
-        const homeLink = screen.getByText('home');
-        const templatesLink = screen.getByText('templates');
+        const homeLink = screen.getByText('breadcrumbs.home');
+        const templatesLink = screen.getByText('breadcrumbs.templateCustomizations');
         expect(homeLink).toBeInTheDocument();
         expect(templatesLink).toBeInTheDocument();
-        expect(homeLink).toHaveAttribute('href', '/');
-        expect(templatesLink).toHaveAttribute('href', '/template');
+        expect(homeLink).toHaveAttribute('href', '/en-US');
+        expect(templatesLink).toHaveAttribute('href', '/en-US/template/customizations');
       });
     });
 

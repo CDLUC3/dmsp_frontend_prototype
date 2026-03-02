@@ -124,8 +124,7 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
     });
   };
 
-
-  // QuestionEditCard passes (questionId, newDisplayOrder) so we derive direction here
+  // Handler for when a question's display order is changed (moved up or down)
   const handleDisplayOrderChange = async (questionId: number, newDisplayOrder: number) => {
     setErrorMessages([]);
     if (isReordering) return;
