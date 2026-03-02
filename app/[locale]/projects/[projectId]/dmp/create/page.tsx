@@ -480,8 +480,8 @@ const PlanCreate: React.FC = () => {
         type: 'funders' as const,
         fundersData,
         funderURIs
+      }
     }
-  }
 
     // Best practice templates exist
     if (hasBestPracticeTemplates) {

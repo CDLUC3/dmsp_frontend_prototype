@@ -38,13 +38,15 @@ const CustomizedQuestionEdit: React.FC<CustomizedQuestionEditProps> = ({
 
   // Localization
   const EditQuestion = useTranslations("EditQuestion");
+  const CustomizableTemplates = useTranslations("CustomizableTemplates");
+  const Global = useTranslations("Global");
 
   const eyebrowText = questionType === 'BASE'
     ? EditQuestion("label.funderQuestion")
     : EditQuestion("label.organizationQuestion");
 
   const linkText = questionType === 'BASE'
-    ? EditQuestion("links.customizeQuestion")
+    ? Global("buttons.customize")
     : EditQuestion("links.editQuestion");
 
   const isOrganizationQuestion = questionType === 'CUSTOM';
@@ -107,26 +109,20 @@ const CustomizedQuestionEdit: React.FC<CustomizedQuestionEditProps> = ({
         >
           <p>{questionText}</p>
         </div>
-        <div className={styles.questionEditCard__checklist} role="group" aria-label="Question customization options">
-          <div className={`${styles.checklistItem} ${!hasCustomGuidance ? styles.unchecked : ""}`}>
-            <span className={`${styles.checkIcon} ${hasCustomGuidance ? styles.checked : styles.unchecked}`} aria-hidden="true">✓</span>
-            <span className={styles.checkLabel}>
-              {EditQuestion("checklist.guidance")}
-              <span className="hidden-accessibly">
-                {hasCustomGuidance ? EditQuestion("checklist.completed") : EditQuestion("checklist.notCompleted")}
-              </span>
-            </span>
+        {questionType === 'BASE' && (
+          <div className={styles.questionEditCard__checklist} role="group" aria-label="Question customization options">
+            <dl>
+              <div className={styles.checklistItem}>
+                <dt><strong>{EditQuestion("checklist.guidance")}:{' '}</strong></dt>
+                <dd>{hasCustomGuidance ? CustomizableTemplates("status.completed") : CustomizableTemplates("status.notCompleted")}</dd>
+              </div>
+              <div className={styles.checklistItem}>
+                <dt><strong>{EditQuestion("checklist.sampleText")}:{' '}</strong></dt>
+                <dd>{hasCustomSampleAnswer ? CustomizableTemplates("status.added") : CustomizableTemplates("status.notAdded")}</dd>
+              </div>
+            </dl>
           </div>
-          <div className={`${styles.checklistItem} ${!hasCustomSampleAnswer ? styles.unchecked : ""}`}>
-            <span className={`${styles.checkIcon} ${hasCustomSampleAnswer ? styles.checked : styles.unchecked}`} aria-hidden="true">✓</span>
-            <span className={styles.checkLabel}>
-              {EditQuestion("checklist.sampleText")}
-              <span className="hidden-accessibly">
-                {hasCustomSampleAnswer ? EditQuestion("checklist.completed") : EditQuestion("checklist.notCompleted")}
-              </span>
-            </span>
-          </div>
-        </div>
+        )}
       </div>
       <div
         className={styles.questionEditCard__actions}

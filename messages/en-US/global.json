@@ -874,7 +874,8 @@
     "status": {
       "published": "Published",
       "draft": "Draft",
-      "unpublishedChanges": "Unpublished changes"
+      "unpublishedChanges": "Unpublished changes",
+      "notStarted": "Not started"
     }
   },
   "OrganizationTemplates": {

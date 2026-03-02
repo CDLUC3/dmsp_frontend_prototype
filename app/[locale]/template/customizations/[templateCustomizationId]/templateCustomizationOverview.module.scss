@@ -17,3 +17,14 @@
     color: var(--gray-600);
   }
 }
+
+.deleteWarning {
+  display: flex;
+  align-items: center;
+}
+
+.deleteConfirmButtons {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}

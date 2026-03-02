@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 
 import { useToast } from '@/context/ToastContext';
 import SectionHeaderEdit from '@/components/SectionHeaderEdit';
-import QuestionEditCard from '@/components/QuestionEditCard';
 import AddQuestionButton from '@/components/AddQuestionButton';
 
 // GraphQL
@@ -36,10 +34,8 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
   onMoveUp,
   onMoveDown,
 }) => {
-  const router = useRouter();
   const toastState = useToast();
   const t = useTranslations('Sections');
-  const Global = useTranslations('Global');
 
   // Local state for optimistic updates
   const [localQuestions, setLocalQuestions] = useState<QuestionCustomizationOverview[]>([]);
@@ -66,10 +62,6 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
       setLocalQuestions(sortedQuestionsFromData);
     }
   }, [sortedQuestionsFromData]);
-
-  const sortQuestions = (questions: QuestionCustomizationOverview[]) => {
-    return [...questions].sort((a, b) => (a.displayOrder!) - (b.displayOrder!));
-  };
 
   // Direction-based validation matching the section pattern
   const validateQuestionMove = (questionId: number, direction: 'up' | 'down'): { isValid: boolean; message?: string } => {
@@ -186,38 +178,43 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
     }
   };
 
+  const sectionAuthorType = section.sectionType === "BASE" ? "funder" : "organization";
   return (
-    <div role="list" aria-label="Questions list" style={{ marginBottom: '40px' }}>
-      <div role="listitem">
-        <SectionHeaderEdit
-          sectionNumber={displayOrder + 1} // fix 0-based offset for display
-          title={section.name}
-          editUrl={`/template/customizations/${templateCustomizationId}/section/${section.id}`}
-          onMoveUp={isBaseSection ? undefined : onMoveUp}
-          onMoveDown={isBaseSection ? undefined : onMoveDown}
-        />
-      </div>
-      {localQuestions.map((question: QuestionCustomizationOverview) => (
-        <div key={question.id} role="listitem">
-          <CustomizedQuestionEdit
-            id={question.id.toString()}
-            text={question.questionText ?? ''}
-            link={`/template/customizations/${templateCustomizationId}/q/${question.id}`}
-            displayOrder={Number(question.displayOrder)}
-            questionType={question.questionType as 'BASE' | 'CUSTOM'}
-            hasCustomGuidance={question.hasCustomGuidance || false}
-            hasCustomSampleAnswer={question.hasCustomSampleAnswer || false}
-            handleDisplayOrderChange={handleDisplayOrderChange}
+    <>
+      <div role="list" aria-label="Questions list" style={{ marginBottom: '40px' }}>
+        <div role="listitem">
+          <SectionHeaderEdit
+            sectionNumber={displayOrder + 1} // fix 0-based offset for display
+            title={section.name}
+            editUrl={`/template/customizations/${templateCustomizationId}/section/${section.id}`}
+            sectionAuthorType={sectionAuthorType}
+            onMoveUp={isBaseSection ? undefined : onMoveUp}
+            onMoveDown={isBaseSection ? undefined : onMoveDown}
+            isCustomizationTemplate={true}
           />
         </div>
-      ))}
-      <div role="listitem">
-        <AddQuestionButton href={`/template/customizations/${templateCustomizationId}/q/new?section_id=${section.id}`} />
+        {localQuestions.map((question: QuestionCustomizationOverview) => (
+          <div key={question.id} role="listitem">
+            <CustomizedQuestionEdit
+              id={question.id.toString()}
+              text={question.questionText ?? ''}
+              link={`/template/customizations/${templateCustomizationId}/q/${question.id}`}
+              displayOrder={Number(question.displayOrder)}
+              questionType={question.questionType as 'BASE' | 'CUSTOM'}
+              hasCustomGuidance={question.hasCustomGuidance || false}
+              hasCustomSampleAnswer={question.hasCustomSampleAnswer || false}
+              handleDisplayOrderChange={handleDisplayOrderChange}
+            />
+          </div>
+        ))}
+        <div role="listitem">
+          <AddQuestionButton href={`/template/customizations/${templateCustomizationId}/q/new?section_id=${section.id}`} />
+        </div>
       </div>
       <div aria-live="polite" aria-atomic="true" className="hidden-accessibly">
         {announcement}
       </div>
-    </div>
+    </>
   );
 };
 

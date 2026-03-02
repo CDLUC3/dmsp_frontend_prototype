@@ -8,17 +8,10 @@ import {
   Breadcrumbs,
   Button,
   Dialog,
-  FieldError,
-  Form,
-  Heading,
-  Label,
+  DialogTrigger,
   Link,
   Modal,
-  Radio,
-  RadioGroup,
-  Text,
-  TextArea,
-  TextField,
+  ModalOverlay
 } from "react-aria-components";
 
 // GraphQL
@@ -28,7 +21,9 @@ import {
   MoveCustomSectionDocument,
   SectionCustomizationOverview,
   PublishTemplateCustomizationDocument,
+  UnpublishTemplateCustomizationDocument,
   TemplateCustomizationOverviewDocument,
+  RemoveTemplateCustomizationDocument
 } from "@/generated/graphql";
 
 // Components
@@ -41,43 +36,45 @@ import PageHeader from "@/components/PageHeader";
 import AddSectionButton from "@/components/AddSectionButton";
 import ErrorMessages from "@/components/ErrorMessages";
 import CustomizedSectionEdit from "@/components/CustomizedTemplate/CustomizedSectionEdit";
+import { DmpIcon } from "@/components/Icons";
+import Loading from "@/components/Loading";
+
 // Hooks
 import { useFormatDate } from "@/hooks/useFormatDate";
-
 import { useTemplateStatus } from "../../hooks/useTemplateStatus";
 
 // Utils and other
 import logECS from "@/utils/clientLogger";
 import { useToast } from "@/context/ToastContext";
 import styles from "./templateCustomizationOverview.module.scss";
+import { routePath } from "@/utils/index";
 
 const TemplateCustomizationOverview: React.FC = () => {
   const formatDate = useFormatDate();
 
-  const [isPublishModalOpen, setPublishModalOpen] = useState(false);
   const toastState = useToast();
 
   // Template status hook
-  const { getPublishStatusText } = useTemplateStatus();
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
-
-  // Added for accessibility
-  const [announcement, setAnnouncement] = useState("");
 
   // localization keys
   const BreadCrumbs = useTranslations("Breadcrumbs");
   const EditTemplate = useTranslations("EditTemplates");
-  const PublishTemplate = useTranslations("PublishTemplate");
+  const CustomizableTemplates = useTranslations("CustomizableTemplates");
   const Messaging = useTranslations("Messaging");
   const Global = useTranslations("Global");
 
-  // Used to set the translated visibility text, based on the
-  // public/private choice.
-  const [visibilityText, setVisibilityText] = useState<string>("");
+
+  // Template status hook
+  const { getPublishStatusText, getCustomizationStatus } = useTemplateStatus();
 
   //Track local section order - using optimistic rendering
   const [localSections, setLocalSections] = useState<SectionCustomizationOverview[]>([]);
   const [isReordering, setIsReordering] = useState(false);
+
+  // State for remove project member modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Get templateId param
   const params = useParams();
@@ -98,13 +95,30 @@ const TemplateCustomizationOverview: React.FC = () => {
     variables: { templateCustomizationId: Number(templateCustomizationId) },
   });
 
-  console.log("***Template Customization Data from query", data);
-
+  // Mutations
   const [publishTemplateCustomization] = useMutation(PublishTemplateCustomizationDocument);
+  const [unpublishTemplateCustomization] = useMutation(UnpublishTemplateCustomizationDocument);
   const [moveCustomSectionMutation] = useMutation(MoveCustomSectionDocument);
+  const [removeTemplateCustomization] = useMutation(RemoveTemplateCustomizationDocument);
+
 
   const showSuccessToast = () => {
     const successMessage = Messaging("successfullyUpdated");
+    toastState.add(successMessage, { type: "success" });
+  };
+
+  const showSuccessDeleteCustomization = () => {
+    const successMessage = CustomizableTemplates("messages.success.successfullyDeletedCustomizations");
+    toastState.add(successMessage, { type: "success" });
+  };
+
+  const showSuccessMoveSection = () => {
+    const successMessage = CustomizableTemplates("messages.success.sectionMoved");
+    toastState.add(successMessage, { type: "success" });
+  };
+
+  const showSuccessUnpublishCustomization = () => {
+    const successMessage = CustomizableTemplates("messages.success.successfullyUnpublishedCustomization");
     toastState.add(successMessage, { type: "success" });
   };
 
@@ -203,34 +217,75 @@ const TemplateCustomizationOverview: React.FC = () => {
 
       if (!result || result.errors?.general) {
         setLocalSections(previousSections); // revert
-        setErrorMessages(prev => [...prev, result?.errors?.general || EditTemplate("errors.updateDisplayOrderError")]);
+        setErrorMessages(prev => [...prev, result?.errors?.general || CustomizableTemplates("messages.error.updatingSectionMoveError")]);
+        logECS("error", "handleSectionMove", {
+          error: result?.errors?.general || "Unknown error",
+          url: { path: routePath("template.customize", { templateCustomizationId: templateCustomizationId }) },
+        });
       } else {
-        const accessibleMessage = EditTemplate("messages.sectionMoved");
-        setAnnouncement(accessibleMessage);
+        showSuccessMoveSection();
       }
     } catch (err) {
       setLocalSections(previousSections); // revert
-      setErrorMessages(prev => [...prev, EditTemplate("errors.updateDisplayOrderError")]);
+      setErrorMessages(prev => [...prev, CustomizableTemplates("messages.error.updatingSectionMoveError")]);
+      logECS("error", "handleSectionMove", {
+        error: err,
+        url: { path: routePath("template.customize", { templateCustomizationId: templateCustomizationId }) },
+      });
     } finally {
       setIsReordering(false);
     }
   };
 
-  // Save either 'DRAFT' or 'PUBLISHED' based on versionType passed into function
-  const saveCustomizationTemplate = async () => {
-    setErrorMessages([]); // Clear previous errors
-
+  const handleDeleteCustomization = async () => {
     try {
-      const response = await publishTemplateCustomization({
+      const response = await removeTemplateCustomization({
         variables: {
-          publishTemplateCustomizationTemplateCustomizationId: Number(templateCustomizationId)
+          templateCustomizationId: Number(templateCustomizationId),
         },
       });
 
-      const result = response?.data?.publishTemplateCustomization;
+      const responseErrors = response.data?.removeTemplateCustomization?.errors;
+      if (responseErrors && typeof responseErrors.general === "string") {
+        if (responseErrors.general) {
+          const message = responseErrors.general;
+          setErrorMessages((prev) => [...prev, message]);
+          logECS("error", "handleDeleteCustomization", {
+            error: message,
+            url: { path: routePath("template.customize", { templateCustomizationId: templateCustomizationId }) },
+          });
+        }
+      } else {
+        showSuccessDeleteCustomization();
+        router.push(routePath("template.customizations"));
+      }
+    } catch (err) {
+      setErrorMessages((prevErrors) => [...prevErrors, CustomizableTemplates("messages.error.deleteCustomizationError")]);
+      logECS("error", "handleDeleteCustomization", {
+        error: err,
+        url: { path: routePath("template.customize", { templateCustomizationId: templateCustomizationId }) },
+      });
+    }
+  };
+
+  const handleUnpublishCustomization = async () => {
+    setErrorMessages([]); // Clear previous errors
+
+    try {
+      const response = await unpublishTemplateCustomization({
+        variables: {
+          templateCustomizationId: Number(templateCustomizationId)
+        },
+      });
+
+      const result = response?.data?.unpublishTemplateCustomization;
 
       if (!result) {
-        setErrorMessages([EditTemplate("errors.saveTemplateError")]);
+        setErrorMessages([CustomizableTemplates("messages.error.unpublishCustomizationError")]);
+        logECS("error", "unpublishTemplateCustomization", {
+          error: "No result returned from mutation",
+          url: { path: routePath("template.customize", { templateCustomizationId: templateCustomizationId }) },
+        });
         return;
       }
 
@@ -239,28 +294,53 @@ const TemplateCustomizationOverview: React.FC = () => {
         return;
       }
 
-      // Success: Close modal and show toast
-      setPublishModalOpen(false);
-      showSuccessToast();
+      showSuccessUnpublishCustomization();
       await refetch();
     } catch (err) {
-      setErrorMessages([EditTemplate("errors.saveTemplateError")]);
-
-      logECS("error", "saveTemplate", {
+      setErrorMessages([CustomizableTemplates("messages.error.unpublishCustomizationError")]);
+      logECS("error", "unpublishTemplateCustomization", {
         error: err,
-        url: { path: "/template/[templateId]" },
+        url: { path: routePath("template.customize", { templateCustomizationId: templateCustomizationId }) },
       });
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handlePublishCustomization = async () => {
+    setErrorMessages([]); // Clear previous errors
 
-    await saveCustomizationTemplate();
+    try {
+      const response = await publishTemplateCustomization({
+        variables: {
+          templateCustomizationId: Number(templateCustomizationId)
+        },
+      });
+
+      const result = response?.data?.publishTemplateCustomization;
+
+      if (!result) {
+        setErrorMessages([CustomizableTemplates("messages.error.saveCustomizationError")]);
+        logECS("error", "saveCustomizationTemplate", {
+          error: "No result returned from mutation",
+          url: { path: routePath("template.customize", { templateCustomizationId: templateCustomizationId }) },
+        });
+        return;
+      }
+
+      if (result.errors?.general) {
+        setErrorMessages([result.errors.general]);
+        return;
+      }
+
+      showSuccessToast();
+      await refetch();
+    } catch (err) {
+      setErrorMessages([CustomizableTemplates("messages.error.saveCustomizationError")]);
+      logECS("error", "saveCustomizationTemplate", {
+        error: err,
+        url: { path: routePath("template.customize", { templateCustomizationId: templateCustomizationId }) },
+      });
+    }
   };
-
-  console.log("Template Customization Overview data:", data);
-
 
   useEffect(() => {
     if (data?.templateCustomizationOverview?.sections) {
@@ -273,16 +353,15 @@ const TemplateCustomizationOverview: React.FC = () => {
 
 
   if (loading) {
-    return <div>{Global("messaging.loading")}...</div>;
+    return <Loading />;
   }
 
   if (templateQueryErrors) {
-    return <div>{EditTemplate("errors.getTemplatesError")}</div>;
+    return <ErrorMessages errors={[templateQueryErrors.message]} />;
   }
 
   const template = data?.templateCustomizationOverview;
 
-  console.log("***Template", template);
   if (!template) {
     return <div>{EditTemplate("errors.noTemplateFound")}</div>;
   }
@@ -299,6 +378,10 @@ const TemplateCustomizationOverview: React.FC = () => {
       ? ` - ${Global("lastUpdated")}: ${formattedPublishDate}`
       : "");
 
+  const customizationStatus = getCustomizationStatus(
+    template.customizationIsDirty,
+    template.customizationLastPublishedDate
+  );
 
   return (
     <div>
@@ -356,15 +439,43 @@ const TemplateCustomizationOverview: React.FC = () => {
         </ContentContainer>
         <SidebarPanel className="sidebar">
           <div className="status-panel-content side-panel">
-            <div className="buttonContainer withBorder mb-5">
-              <Button
-                data-secondary
-                className="secondary"
-                onPress={() => console.log("Save as draft")}
-              >
-                {EditTemplate("button.saveAsDraft")}
-              </Button>
-              <Button onPress={() => console.log("Publish template")}>{EditTemplate("button.publishTemplate")}</Button>
+            {/* NOT_STARTED: no buttons rendered */}
+            {customizationStatus !== 'NOT_STARTED' && (
+              <div className={`buttonContainer withBorder mb-5 ${customizationStatus === 'DRAFT' || customizationStatus === 'PUBLISHED' ? 'centered' : ''
+                }`}>
+
+                {customizationStatus === 'DRAFT' && (
+                  <Button onPress={handlePublishCustomization}>
+                    {CustomizableTemplates("buttons.publishCustomization")}
+                  </Button>
+                )}
+
+                {customizationStatus === 'UNPUBLISHED_CHANGES' && (
+                  <>
+                    <Button onPress={handlePublishCustomization}>
+                      {CustomizableTemplates("buttons.publishChanges")}
+                    </Button>
+                    <Button className="secondary" onPress={handleUnpublishCustomization}>
+                      {Global("buttons.unpublish")}
+                    </Button>
+                  </>
+                )}
+
+                {customizationStatus === 'PUBLISHED' && (
+                  <Button className="secondary" onPress={handleUnpublishCustomization}>
+                    {Global("buttons.unpublish")}
+                  </Button>
+                )}
+              </div>
+            )}
+
+            <div className="panelRow mb-5">
+              <div>
+                <h3>{CustomizableTemplates("buttons.publishStatus")}</h3>
+              </div>
+              <div>
+                {getPublishStatusText(template.customizationIsDirty, template?.customizationLastPublishedDate)}
+              </div>
             </div>
 
             <div className="side-panel-content">
@@ -378,36 +489,6 @@ const TemplateCustomizationOverview: React.FC = () => {
                   className="side-panel-link"
                 >
                   {Global('buttons.preview')}
-                </Link>
-              </div>
-
-              {(template.customizationIsDirty && !template.customizationLastCustomized) && (
-                <div className="panelRow mb-5">
-                  <div>
-                    <h3>{EditTemplate("button.publishTemplate")}</h3>
-                    <p>{EditTemplate("draft")}</p>
-                  </div>
-                  <Link
-                    href="#"
-                    onPress={() => setPublishModalOpen(true)}
-                    className="side-panel-link"
-                  >
-                    {EditTemplate("links.edit")}
-                  </Link>
-                </div>
-              )}
-
-              <div className="panelRow mb-5">
-                <div>
-                  <h3>{EditTemplate("heading.visibilitySettings")}</h3>
-                  <p>{getPublishStatusText(template.customizationIsDirty, template?.customizationLastCustomized)}</p>
-                </div>
-                <Link
-                  href="#"
-                  onPress={() => setPublishModalOpen(true)}
-                  className="side-panel-link"
-                >
-                  {EditTemplate("links.edit")}
                 </Link>
               </div>
 
@@ -438,124 +519,52 @@ const TemplateCustomizationOverview: React.FC = () => {
             </div>
           </div>
         </SidebarPanel>
-        <div className="template-archive-container">
-          <div className="main-content">
-            <h2>{EditTemplate("heading.archiveTemplate")}</h2>
-            <p>{EditTemplate("description.archiveTemplate")}</p>
-            <Form>
-              <Button
-                className="my-3"
-                data-tertiary
-                data-testid="archive-template"
-                onPress={() => console.log("Archive template")}
-              >
-                {EditTemplate("button.archiveTemplate")}
-              </Button>
-            </Form>
-          </div>
-        </div>
-
-        <Modal
-          isDismissable
-          onOpenChange={setPublishModalOpen}
-          isOpen={isPublishModalOpen}
-          data-testid="modal"
-        >
-          <Dialog>
-            <div>
-              <Form
-                onSubmit={(e) => handleSubmit(e)}
-                data-testid="publishForm"
-              >
-                <Heading slot="title">{PublishTemplate("heading.publish")}</Heading>
-
-                <RadioGroup
-                  name="visibility"
-                  onChange={() => console.log("Visibility changed")} // Optional: Handle visibility change if needed
-                  defaultValue="organization"
-                >
-                  <Label>{PublishTemplate("heading.visibilitySettings")}</Label>
-                  <Text
-                    slot="description"
-                    className="help"
-                  >
-                    {PublishTemplate("descPublishedTemplate")}
-                  </Text>
-                  <Radio
-                    data-testid="visPublic"
-                    value="public"
-                    className={`${styles.radioBtn} react-aria-Radio`}
-                  >
-                    <div>
-                      <span>{PublishTemplate("radioBtn.public")}</span>
-                      <p className="text-gray-600 text-sm">{PublishTemplate("radioBtn.publicHelpText")}</p>
-                    </div>
-                  </Radio>
-                  <Radio
-                    data-testid="visPrivate"
-                    value="organization"
-                    className={`${styles.radioBtn} react-aria-Radio`}
-                  >
-                    <div>
-                      <span>{PublishTemplate("radioBtn.organizationOnly")}</span>
-                      <p className="text-gray-600 text-sm">{PublishTemplate("radioBtn.orgOnlyHelpText")}</p>
-                    </div>
-                  </Radio>
-                </RadioGroup>
-
-                <p>
-                  <strong>{PublishTemplate("heading.publishingThisTemplate")}</strong>
-                </p>
-
-                <ul>
-                  <li>{PublishTemplate("bullet.publishingTemplate")}</li>
-                  <li>{PublishTemplate("bullet.publishingTemplate2")}</li>
-                  {visibilityText && <li data-testid="visText">{visibilityText}</li>}
-                </ul>
-                <div className="">
-                  <TextField
-                    name="change_log"
-                    isRequired
-                  >
-                    <Label>{PublishTemplate("heading.changeLog")}</Label>
-                    <Text
-                      slot="description"
-                      className="help"
-                    >
-                      {PublishTemplate("descChangeLog")}
-                    </Text>
-                    <TextArea
-                      data-testid="changeLog"
-                      style={{ height: "100px" }}
-                    />
-                    <FieldError />
-                  </TextField>
-                </div>
-
-                <div className="modal-actions">
-                  <div className="">
-                    <Button
-                      data-secondary
-                      onPress={() => setPublishModalOpen(false)}
-                    >
-                      {PublishTemplate("button.close")}
-                    </Button>
-                  </div>
-                  <div className="">
-                    <Button type="submit">{PublishTemplate("button.saveAndPublish")}</Button>
-                  </div>
-                </div>
-              </Form>
-            </div>
-          </Dialog>
-        </Modal>
-        <div
-          aria-live="polite"
-          aria-atomic="true"
-          className="hidden-accessibly"
-        >
-          {announcement}
-        </div>
+        {/* Delete Customization Modal */}
+        <section className={styles.dangerZone} aria-labelledby="delete-customization-heading" data-testid="delete-customization-section">
+          <h2 id="delete-customization-heading">{CustomizableTemplates("heading.deleteCustomization")}</h2>
+          <p className={styles.deleteWarning}><DmpIcon icon="warning" />{CustomizableTemplates.rich("descriptions.deleteCustomization", {
+            strong: (chunks) => <strong>{chunks}</strong>
+          })}</p>
+          <DialogTrigger isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+            <Button
+              className="danger"
+              isDisabled={isDeleting}
+            >
+              {isDeleting ? `${CustomizableTemplates('buttons.deletingCustomizations')}...` : CustomizableTemplates("buttons.deleteCustomization")}
+            </Button>
+            <ModalOverlay>
+              <Modal>
+                <Dialog>
+                  {({ close }) => (
+                    <>
+                      <h3>{CustomizableTemplates("heading.deleteCustomization")}</h3>
+                      <p>{CustomizableTemplates.rich("descriptions.deleteCustomization", {
+                        strong: (chunks) => <strong>{chunks}</strong>
+                      })}</p>
+                      <div className={styles.deleteConfirmButtons}>
+                        <Button
+                          className="secondary"
+                          autoFocus
+                          onPress={close}>
+                          {Global('buttons.cancel')}
+                        </Button>
+                        <Button
+                          className="primary"
+                          onPress={() => {
+                            handleDeleteCustomization();
+                            close();
+                          }}
+                        >
+                          {Global('buttons.delete')}
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </Dialog>
+              </Modal>
+            </ModalOverlay>
+          </DialogTrigger>
+        </section>
       </LayoutWithPanel>
     </div >
   );

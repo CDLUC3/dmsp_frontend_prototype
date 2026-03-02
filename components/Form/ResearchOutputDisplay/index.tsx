@@ -4,9 +4,6 @@
 import { useTranslations } from 'next-intl';
 import {
   StandardField,
-  OutputTypeInterface,
-  RepositoryInterface,
-  MetaDataStandardInterface,
   MetaDataConfig,
   AdditionalFieldsType
 } from '@/app/types';
@@ -28,8 +25,6 @@ const hasMetaDataConfig = (field: StandardField): field is StandardField & { met
 const ResearchOutputDisplay: React.FC<ResearchOutputReadOnlyProps> = ({
   standardFields,
   additionalFields,
-  defaultResearchOutputTypesData,
-  licensesData,
 }) => {
   const Global = useTranslations('Global');
   const QuestionAdd = useTranslations('QuestionAdd');

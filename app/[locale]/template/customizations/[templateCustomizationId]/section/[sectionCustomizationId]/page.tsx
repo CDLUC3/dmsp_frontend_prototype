@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { use, useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -30,11 +30,6 @@ import PageHeader from "@/components/PageHeader";
 import TinyMCEEditor from "@/components/TinyMCEEditor";
 import ErrorMessages from '@/components/ErrorMessages';
 import Loading from '@/components/Loading';
-
-import {
-  SectionFormInterface,
-  TagsInterface
-} from '@/app/types';
 
 // TODO: Custom error interface for custom section updates
 interface CustomSectionErrors {
@@ -71,7 +66,6 @@ const SectionCustomizePage: React.FC = () => {
       sectionCustomizationId: Number(sectionCustomizationId)
     }
   });
-  console.log('sectionCustomizationData', sectionCustomizationData);
 
   const sectionId = sectionCustomizationData?.sectionCustomization?.versionedSection?.id;
   //For scrolling to error in page
@@ -90,8 +84,6 @@ const SectionCustomizePage: React.FC = () => {
     sectionData,
     selectedTags,
     loading,
-    setSectionData,
-    setSelectedTags,
   } = useSectionData(Number(sectionId));
 
   const [customSectionData, setCustomSectionData] = useState<{
@@ -110,6 +102,7 @@ const SectionCustomizePage: React.FC = () => {
   const Global = useTranslations('Global');
   const SectionUpdatePage = useTranslations('SectionUpdatePage');
   const Section = useTranslations('Section');
+  const SectionCustomize = useTranslations('SectionCustomize');
 
   // Set URLs
   const TEMPLATE_URL = routePath('template.customize', { templateCustomizationId });
@@ -325,15 +318,15 @@ const SectionCustomizePage: React.FC = () => {
   return (
     <>
       <PageHeader
-        title="Customize section"
+        title={SectionCustomize('title')}
         description=""
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('template.customizations', { templateCustomizationId })}>Customization templates</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('template.customize', { templateCustomizationId })}>Customize template</Link></Breadcrumb>
-            <Breadcrumb>Customize section</Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.customizations', { templateCustomizationId })}>{SectionCustomize('breadcrumbs.customizationTemplates')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.customize', { templateCustomizationId })}>{SectionCustomize('breadcrumbs.customizeTemplate')}</Link></Breadcrumb>
+            <Breadcrumb>{SectionCustomize('title')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}

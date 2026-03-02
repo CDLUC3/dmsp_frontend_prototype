@@ -48,7 +48,7 @@ import { useToast } from "@/context/ToastContext";
 import { extractErrors } from "@/utils/errorHandler";
 
 // # of templates displayed per load
-const LIMIT = 2;
+const LIMIT = 5;
 
 type AddTemplateCustomizationErrors = {
   general?: string | null;
@@ -154,7 +154,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
         }
       });
 
-      const errs = extractErrors<AddTemplateCustomizationErrors>(response?.data?.addTemplateCustomization?.errors ?? {}, [ "general"]);
+      const errs = extractErrors<AddTemplateCustomizationErrors>(response?.data?.addTemplateCustomization?.errors ?? {}, ["general"]);
 
       if (errs.length > 0) {
         setErrors(errs);
@@ -320,7 +320,6 @@ const TemplateListCustomizationsPage: React.FC = () => {
   // Also handles appending new items for pagination and search results
   useEffect(() => {
     if (!customizableTemplatesData || !customizableTemplatesData.customizableTemplates) return;
-    console.log('Customizable Templates Data:', customizableTemplatesData);
     // Transform customized templates into format expected by TemplateSelectListItem component
     const processTemplates = async (templates: PaginatedCustomizedTemplateSearchResultsInterface | null) => {
       const items = templates?.items ?? [];

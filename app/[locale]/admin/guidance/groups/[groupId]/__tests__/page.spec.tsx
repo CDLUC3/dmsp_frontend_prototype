@@ -628,7 +628,7 @@ describe("GuidanceGroupIndexPage", () => {
     (unPublishGuidanceGroupAction as jest.Mock).mockResolvedValue({
       success: true,
       data: {
-        id: 2397,
+        id: 2398,
         name: "CDL Guidance Group",
         errors: {
           affiliationId: null,
@@ -653,9 +653,7 @@ describe("GuidanceGroupIndexPage", () => {
     const inSidebar = within(sidebar);
     const unPublishBtn = inSidebar.getByRole("button", { name: "Global.buttons.unpublish" });
 
-    await waitFor(async () => {
-      fireEvent.click(unPublishBtn);
-    });
+    fireEvent.click(unPublishBtn);
 
     await waitFor(() => {
       expect(mockToast.add).toHaveBeenCalledWith('Guidance.messages.success.guidanceGroupUnpublished', { type: 'success' });
@@ -891,14 +889,19 @@ describe("GuidanceGroupIndexPage", () => {
     const inSidebar = within(sidebar);
     const publishBtn = inSidebar.getByRole("button", { name: "Global.buttons.publish" });
 
-    // Use act to wrap the state update
-    await act(async () => {
-      fireEvent.click(publishBtn);
+    // Click the button
+    fireEvent.click(publishBtn);
+
+    // Wait for the publish action to be called
+    await waitFor(() => {
+      expect(publishGuidanceGroupAction).toHaveBeenCalled();
     });
 
     // Wait for the async action to complete and error to be displayed
     await waitFor(() => {
-      expect(screen.getByText('Some error occurred')).toBeInTheDocument();
+      const errorContainer = screen.getByRole('alert');
+      expect(errorContainer).toBeInTheDocument();
+      expect(within(errorContainer).getByText('Some error occurred')).toBeInTheDocument();
     }, { timeout: 3000 });
 
     // Check that error logged
@@ -910,6 +913,11 @@ describe("GuidanceGroupIndexPage", () => {
         url: { path: '/en-US/admin/guidance/groups/create' },
       })
     );
+
+    // Flush any pending act warnings
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
   });
 
   it('should display error if field-level errors returned from handlepublish', async () => {

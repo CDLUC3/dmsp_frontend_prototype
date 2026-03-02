@@ -14,7 +14,7 @@
   @include device(md) {
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;
+    //align-items: center;
     gap: var(--space-4);
   }
 
@@ -122,7 +122,9 @@
 
   // Organization question styling
   &.organizationQuestion {
-    background-color: var(--blue-50);
+    background-color: var(--messaging-info);
+    border-left: 12px solid var(--purple-300);
+    min-height: 120px;
   }
 
   // Checklist styling
@@ -132,18 +134,27 @@
     margin-top: var(--space-3);
     flex-wrap: wrap;
 
+        dl {
+      display: flex;
+      gap: var(--space-6);
+    }
+
     @include device(sm) {
       flex-wrap: nowrap;
     }
   }
 
   .checklistItem {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: var(--space-1);
     font-size: var(--fs-xsmall);
     color: var(--text-color);
     transition: color 0.2s ease;
+
+    dt, dd {
+      font-size: var(--fs-small);
+      margin: 0 var(--space-1);
+    }
 
     &.unchecked {
       color: var(--gray-500);
