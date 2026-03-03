@@ -91,7 +91,7 @@
     "typescript": "5.9.3"
   },
   "overrides": {
-    "minimatch": "10.2.1",
+    "minimatch": "10.2.4",
     "@eslint/plugin-kit": "0.3.4",
     "test-exclude": "7.0.1"
   }

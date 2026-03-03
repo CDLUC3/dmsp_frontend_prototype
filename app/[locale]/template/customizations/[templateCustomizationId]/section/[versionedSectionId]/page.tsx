@@ -1,6 +1,6 @@
 'use client';
 
-import React, { use, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -21,9 +21,10 @@ import {
 import {
   PublishedSectionDocument,
   RemoveSectionCustomizationDocument,
-  SectionCustomizationBySectionDocument,
+  SectionCustomizationByVersionedSectionDocument,
   UpdateSectionCustomizationDocument,
-  AddSectionCustomizationDocument
+  AddSectionCustomizationDocument,
+  SectionCustomizationErrors
 } from '@/generated/graphql';
 
 import { SectionFormInterface, TagsInterface } from '@/app/types';
@@ -34,6 +35,7 @@ import PageHeader from "@/components/PageHeader";
 import TinyMCEEditor from "@/components/TinyMCEEditor";
 import ErrorMessages from '@/components/ErrorMessages';
 import Loading from '@/components/Loading';
+import { DmpIcon } from "@/components/Icons";
 
 interface CustomSectionErrors {
   customSectionGuidance?: string;
@@ -47,7 +49,9 @@ import { useToast } from '@/context/ToastContext';
 import { scrollToTop } from '@/utils/general';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
+import { SanitizeHTML } from '@/utils/sanitize';
 import styles from './sectionCustomize.module.scss';
+import { extractErrors } from '@/utils/errorHandler';
 
 
 const SectionCustomizePage: React.FC = () => {
@@ -61,6 +65,9 @@ const SectionCustomizePage: React.FC = () => {
   const templateCustomizationId = String(params.templateCustomizationId);
   const versionedSectionId = String(params.versionedSectionId);
 
+  // Ref to track whether the component has finished initial loading to prevent useEffect from running on initial load and overwriting data that is loaded in
+  const hasInitialized = useRef(false);
+
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
   // Track whether there are unsaved changes
@@ -69,13 +76,15 @@ const SectionCustomizePage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   // To be able to show a loading state when redirecting after successful update because otherwise there is a bit of a stutter where the page reloads before redirecting
   const [isRedirecting, setIsRedirecting] = useState(false);
+  // To store the section customization id so that we can use it in the delete mutation without having to wait for the query to load in the case where there isn't an existing customization and we have to create one
+  const [sectionCustomizationId, setSectionCustomizationId] = useState<number | null>(null);
+  const [selectedTags, setSelectedTags] = useState<TagsInterface[]>([]);
   // Custom section data state
   const [customSectionData, setCustomSectionData] = useState<{
     customSectionGuidance?: string;
   }>({
     customSectionGuidance: '',
   });
-
   // Published section data
   const [sectionData, setSectionData] = useState<SectionFormInterface>({
     sectionName: '',
@@ -96,16 +105,12 @@ const SectionCustomizePage: React.FC = () => {
     }
   });
 
-  const sectionId = publishedSection?.publishedSection?.id;
-
-
   // Get section customization data
-  const { data: sectionCustomization, loading: sectionCustomizationLoading } = useQuery(SectionCustomizationBySectionDocument,
+  const { data: sectionCustomization, loading: sectionCustomizationLoading } = useQuery(SectionCustomizationByVersionedSectionDocument,
     {
       variables: { templateCustomizationId: Number(templateCustomizationId), versionedSectionId: Number(versionedSectionId) },
     }
   );
-
 
   // Save errors in state to display on page
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
@@ -138,10 +143,7 @@ const SectionCustomizePage: React.FC = () => {
   }) => (
     <div className="field-display">
       <h2>{label}</h2>
-      <div
-        className="rich-text-content"
-        dangerouslySetInnerHTML={{ __html: content }}
-      />
+      <div>{content.length > 0 ? <SanitizeHTML html={content} /> : <p><i>{SectionCustomize('messages.noContent', { label: label })}</i></p>}</div>
     </div>
   );
 
@@ -204,14 +206,11 @@ const SectionCustomizePage: React.FC = () => {
   // Make GraphQL mutation request to update section
   // TODO: UpdateCustomSectionDocument placeholder - not yet available
   const updateCustomSection = async (): Promise<[CustomSectionErrors, boolean]> => {
-    // string all tags from sectionName before sending to backend
-    const cleanedSectionName = stripHtmlTags(sectionData.sectionName);
-
     try {
       const response = await updateSectionCustomization({
         variables: {
           input: {
-            sectionCustomizationId: Number(sectionId),
+            sectionCustomizationId: Number(sectionCustomizationId),
             guidance: customSectionData.customSectionGuidance,
           }
         }
@@ -219,7 +218,7 @@ const SectionCustomizePage: React.FC = () => {
 
       const responseErrors = response.data?.updateSectionCustomization?.errors
       if (responseErrors) {
-        if (responseErrors && Object.values(responseErrors).filter((err) => err && err !== 'SectionErrors').length > 0) {
+        if (responseErrors && Object.values(responseErrors).filter((err) => err && err !== 'SectionCustomizationErrors').length > 0) {
           return [responseErrors, false];
         }
       }
@@ -237,23 +236,46 @@ const SectionCustomizePage: React.FC = () => {
 
   // Handle section deletion
   const handleDeleteSectionCustomization = async () => {
+    if (isDeleting) return;
     setIsDeleting(true);
+    setErrorMessages([]);
+
     try {
-      await removeSectionCustomization({
+      const response = await removeSectionCustomization({
         variables: {
-          sectionCustomizationId: Number(sectionId)
+          sectionCustomizationId: Number(sectionCustomizationId)
         }
       });
-      // Show success message and redirect to template page
-      toastState.add(SectionUpdatePage('messages.successDeletingSection'), { type: 'success' });
-      router.push(TEMPLATE_URL);
+
+      const responseErrors = response.data?.removeSectionCustomization?.errors;
+      if (responseErrors && Object.keys(responseErrors).length > 0) {
+        const errorMessages = extractErrors<SectionCustomizationErrors>(responseErrors, ["general", "guidance", "migrationStatus", "sectionId", "templateCustomizationId"]);
+
+        if (errorMessages.length > 0) {
+          setErrorMessages(prevErrors => [...prevErrors, ...errorMessages]);
+          logECS("error", "handleDeleteCustomization", {
+            error: errorMessages[0],
+            url: { path: routePath("template.customize", { templateCustomizationId }) },
+          });
+          setIsDeleting(false);
+          setIsDeleteModalOpen(false);
+          return;
+        } else {
+          setIsDeleting(false);
+          setIsDeleteModalOpen(false);
+          // Show success message and redirect to template customizations
+          toastState.add(SectionCustomize('messages.success.successfullyDeletedSectionCustomization'), { type: 'success' });
+          setIsRedirecting(true);
+          router.push(TEMPLATE_URL);
+        }
+      }
+
     } catch (error) {
       logECS('error', 'deleteSection', {
         error,
         url: { path: UPDATE_SECTION_URL }
       });
-      setErrorMessages([SectionUpdatePage('messages.errorDeletingSection')]);
-    } finally {
+      setErrorMessages([SectionCustomize('messages.error.errorDeletingSectionCustomization')]);
       setIsDeleting(false);
       setIsDeleteModalOpen(false);
     }
@@ -314,21 +336,38 @@ const SectionCustomizePage: React.FC = () => {
         sectionGuidance: section?.guidance ? section.guidance : '',
       })
     }
+
+    if (publishedSection?.publishedSection?.tags) {
+      const cleanedTags = publishedSection.publishedSection.tags.filter(tag => tag !== null && tag !== undefined);
+      const cleanedData = cleanedTags.map(({ __typename, ...fields }) => fields);
+      setSelectedTags(cleanedData); // Replace tags instead of appending
+    }
   }, [publishedSection])
 
   // If there is no existing customization for this section, create one so that there is always a customization 
   // to edit and we don't have to worry about handling the case where there isn't one
   useEffect(() => {
     const initializeCustomization = async () => {
-      if (!sectionCustomizationLoading && !sectionCustomization?.sectionCustomizationBySection) {
-        await addSectionCustomization({
-          variables: {
-            input: {
-              templateCustomizationId: Number(templateCustomizationId),
-              versionedSectionId: Number(versionedSectionId),
+      if (hasInitialized.current || sectionCustomizationLoading) return;
+      hasInitialized.current = true;
+
+      if (!sectionCustomizationLoading) {
+        if (!sectionCustomization?.sectionCustomizationByVersionedSection) {
+          const response = await addSectionCustomization({
+            variables: {
+              input: {
+                templateCustomizationId: Number(templateCustomizationId),
+                versionedSectionId: Number(versionedSectionId),
+              },
             },
-          },
-        });
+          });
+          setSectionCustomizationId(response.data?.addSectionCustomization?.id || null);
+        } else {
+          setSectionCustomizationId(sectionCustomization.sectionCustomizationByVersionedSection.id || null);
+          setCustomSectionData({
+            customSectionGuidance: sectionCustomization.sectionCustomizationByVersionedSection.guidance || '',
+          });
+        }
       }
     };
 
@@ -412,6 +451,26 @@ const SectionCustomizePage: React.FC = () => {
                   content={sectionData.sectionGuidance}
                 />
 
+                <div>
+                  <Label htmlFor="bestPracticeTags">{SectionCustomize('labels.bestPracticeTags')}<DmpIcon icon="tag" className="ml-2" /></Label>
+                  <p>
+                    {SectionCustomize('descriptions.tagDescription')}{' '}
+                    <Link href={routePath("admin.guidance.index")}>{SectionCustomize('descriptions.editGuidanceForTags')}</Link>
+                  </p>
+                  {selectedTags.length > 0 && (
+                    <div className="field-display">
+
+                      <ul className="tags-list">
+                        {selectedTags.map(tag => (
+                          <li key={tag.id}>{tag.name}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+
+
                 <div className={styles.additionalGuidance}>
                   <Label htmlFor="customSectionGuidance" id="customSectionGuidanceLabel">Additional section guidance</Label>
                   <TinyMCEEditor
@@ -435,10 +494,10 @@ const SectionCustomizePage: React.FC = () => {
 
               {/* Delete Section Button and Modal */}
               <div className={styles.deleteSectionContainer}>
-                <h3 className={styles.dangerZoneTitle}>Delete customization</h3>
-                <p className={styles.dangerZoneDescription}>
-                  Your customizations to this section will be removed from the template. This is not reversible.
-                </p>
+                <h3 className={styles.dangerZoneTitle}>{SectionCustomize('buttons.deleteCustomization')}</h3>
+                <p className={styles.dangerZoneDescription}><DmpIcon icon="warning" />{SectionCustomize.rich("descriptions.deleteCustomization", {
+                  strong: (chunks) => <strong>{chunks}</strong>
+                })}</p>
                 <DialogTrigger isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
                   <Button
                     className="danger"

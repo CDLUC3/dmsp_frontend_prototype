@@ -14,7 +14,8 @@ export const TYPES_WITH_ERRORS = [
   'Plan',
   'PlanMember',
   'Template',
-  'CustomSection'
+  'CustomSection',
+  'VersionedSection'
 ] as const;
 
 // Map of typeName to additional fields needing merge: false

@@ -93,7 +93,6 @@ const TemplateCustomizationOverview: React.FC = () => {
     variables: { templateCustomizationId: Number(templateCustomizationId) },
   });
 
-  console.log("***data", data);
   // Mutations
   const [publishTemplateCustomization] = useMutation(PublishTemplateCustomizationDocument);
   const [unpublishTemplateCustomization] = useMutation(UnpublishTemplateCustomizationDocument);

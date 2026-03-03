@@ -5,8 +5,16 @@
 }
 
 .dangerZoneDescription {
-  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+    svg {
+    flex-shrink: 0;
+    position: relative;
+    top: -1px; // nudge up to optically align with text
+  }
 }
+
 
 .additionalGuidance {
   margin: var(--space-6) 0;

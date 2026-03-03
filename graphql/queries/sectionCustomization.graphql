@@ -25,8 +25,8 @@ query SectionCustomization($sectionCustomizationId: Int!) {
   }
 }
 
-query SectionCustomizationBySection($templateCustomizationId: Int!, $versionedSectionId: Int!) {
-  sectionCustomizationBySection(templateCustomizationId: $templateCustomizationId, versionedSectionId: $versionedSectionId) {
+query SectionCustomizationByVersionedSection($templateCustomizationId: Int!, $versionedSectionId: Int!) {
+  sectionCustomizationByVersionedSection(templateCustomizationId: $templateCustomizationId, versionedSectionId: $versionedSectionId) {
     id
     guidance
     sectionId

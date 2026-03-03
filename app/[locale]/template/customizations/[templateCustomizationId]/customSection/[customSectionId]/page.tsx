@@ -36,6 +36,7 @@ import TinyMCEEditor from "@/components/TinyMCEEditor";
 import ErrorMessages from '@/components/ErrorMessages';
 import FormInput from '@/components/Form/FormInput';
 import Loading from '@/components/Loading';
+import { DmpIcon } from "@/components/Icons";
 
 import {
   SectionFormErrorsInterface,
@@ -77,16 +78,13 @@ const CustomSectionEdit: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   // To be able to show a loading state when redirecting after successful update because otherwise there is a bit of a stutter where the page reloads before redirecting
   const [isRedirecting, setIsRedirecting] = useState(false);
+  // State for delete confirmation modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   //For scrolling to top of page
   const topRef = useRef<HTMLDivElement | null>(null);
-
-  // Query for the specified section
-  const { data, loading } = useQuery(CustomSectionDocument, {
-    variables: {
-      customSectionId: Number(sectionId)
-    }
-  })
+  const isBeingDeletedRef = useRef(false);
 
   // Save errors in state to display on page
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
@@ -100,6 +98,7 @@ const CustomSectionEdit: React.FC = () => {
   // localization keys
   const Global = useTranslations('Global');
   const SectionUpdatePage = useTranslations('SectionUpdatePage');
+  const SectionCustomize = useTranslations('SectionCustomize');
   const Section = useTranslations('Section');
 
   // Set URLs
@@ -113,10 +112,14 @@ const CustomSectionEdit: React.FC = () => {
   // Initialize remove section mutation
   const [removeCustomSectionMutation] = useMutation(RemoveCustomSectionDocument);
 
-  // State for delete confirmation modal
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
 
+  // Query for the specified section
+  const { data, loading } = useQuery(CustomSectionDocument, {
+    variables: {
+      customSectionId: Number(sectionId)
+    },
+    skip: isBeingDeletedRef.current, // Skip the query if the section is being deleted to avoid errors from trying to fetch a deleted section
+  })
 
   const updateSectionContent = (key: string, value: string) => {
     setSectionData((prevContents) => ({
@@ -217,21 +220,14 @@ const CustomSectionEdit: React.FC = () => {
   };
 
   // Handle section deletion
-  const handleDeleteSection = async () => {
+  const handleDeleteSectionCustomization = async () => {
+    isBeingDeletedRef.current = true; // No render needed
     setIsDeleting(true);
     try {
       const response = await removeCustomSectionMutation({
         variables: {
           customSectionId: Number(sectionId)
         },
-        // Apollo does not automatically remove objects from cache after deletion. We either have to
-        // call refetchQueries or manually evict the deleted object from the cache. We choose to evict here to avoid the overhead of refetching all queries that include sections.
-        update(cache) {
-          cache.evict({
-            id: cache.identify({ __typename: 'CustomSection', id: Number(sectionId) })
-          });
-          cache.gc(); // removes any dangling references to the deleted section
-        }
       });
 
       const responseErrors = response.data?.removeCustomSection?.errors
@@ -453,36 +449,41 @@ const CustomSectionEdit: React.FC = () => {
 
               {/* Delete Section Button and Modal */}
               <div className={styles.deleteSectionContainer}>
-                <h3 className={styles.dangerZoneTitle}>{SectionUpdatePage('deleteSection.heading')}</h3>
-                <p className={styles.dangerZoneDescription}>
-                  {SectionUpdatePage('deleteSection.description')}
-                </p>
+                <h3 className={styles.dangerZoneTitle}>{SectionCustomize("heading.deleteCustomSection")}</h3>
+                <p className={styles.dangerZoneDescription}><DmpIcon icon="warning" />{SectionCustomize.rich("descriptions.deleteCustomSection", {
+                  strong: (chunks) => <strong>{chunks}</strong>
+                })}</p>
                 <DialogTrigger isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
                   <Button
-                    className={`react-aria-Button danger`}
+                    className="danger"
                     isDisabled={isDeleting}
                   >
-                    {isDeleting ? 'Deleting...' : SectionUpdatePage('buttons.deleteSection')}
+                    {isDeleting ? `${SectionCustomize('buttons.deletingCustomizations')}...` : SectionCustomize("buttons.deleteCustomization")}
                   </Button>
                   <ModalOverlay>
                     <Modal>
                       <Dialog>
                         {({ close }) => (
                           <>
-                            <h3>{SectionUpdatePage('deleteModal.title')}</h3>
-                            <p>{SectionUpdatePage('deleteModal.content')}</p>
+                            <h3>{SectionCustomize("heading.deleteCustomSection")}</h3>
+                            <p>{SectionCustomize.rich("descriptions.deleteCustomSection", {
+                              strong: (chunks) => <strong>{chunks}</strong>
+                            })}</p>
                             <div className={styles.deleteConfirmButtons}>
-                              <Button className='react-aria-Button' autoFocus onPress={close}>
-                                {SectionUpdatePage('deleteModal.cancelButton')}
+                              <Button
+                                className="secondary"
+                                autoFocus
+                                onPress={close}>
+                                {Global('buttons.cancel')}
                               </Button>
                               <Button
-                                className={`danger`}
-                                onPress={() => {
-                                  handleDeleteSection();
+                                className="danger"
+                                onPress={async () => {
+                                  await handleDeleteSectionCustomization();
                                   close();
                                 }}
                               >
-                                {SectionUpdatePage('deleteModal.deleteButton')}
+                                {Global('buttons.delete')}
                               </Button>
                             </div>
                           </>
