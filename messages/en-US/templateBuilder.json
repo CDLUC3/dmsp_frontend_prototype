@@ -245,6 +245,10 @@
     "breadcrumbs": {
       "customizationTemplates": "Customization templates",
       "customizeTemplate": "Customize template"
+    },
+    "buttons": {
+      "deleteCustomization": "Delete customization",
+      "deletingCustomizations": "Deleting customizations..."
     }
   },
   "CreateSectionPage": {

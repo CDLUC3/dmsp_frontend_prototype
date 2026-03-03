@@ -223,6 +223,14 @@ const CustomSectionEdit: React.FC = () => {
       const response = await removeCustomSectionMutation({
         variables: {
           customSectionId: Number(sectionId)
+        },
+        // Apollo does not automatically remove objects from cache after deletion. We either have to
+        // call refetchQueries or manually evict the deleted object from the cache. We choose to evict here to avoid the overhead of refetching all queries that include sections.
+        update(cache) {
+          cache.evict({
+            id: cache.identify({ __typename: 'CustomSection', id: Number(sectionId) })
+          });
+          cache.gc(); // removes any dangling references to the deleted section
         }
       });
 

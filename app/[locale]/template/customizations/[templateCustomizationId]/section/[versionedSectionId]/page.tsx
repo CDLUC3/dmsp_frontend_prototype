@@ -19,10 +19,14 @@ import {
 
 // GraphQL
 import {
+  PublishedSectionDocument,
   RemoveSectionCustomizationDocument,
-  SectionCustomizationDocument,
+  SectionCustomizationBySectionDocument,
   UpdateSectionCustomizationDocument,
+  AddSectionCustomizationDocument
 } from '@/generated/graphql';
+
+import { SectionFormInterface, TagsInterface } from '@/app/types';
 
 //Components
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
@@ -31,15 +35,11 @@ import TinyMCEEditor from "@/components/TinyMCEEditor";
 import ErrorMessages from '@/components/ErrorMessages';
 import Loading from '@/components/Loading';
 
-// TODO: Custom error interface for custom section updates
 interface CustomSectionErrors {
   customSectionGuidance?: string;
   general?: string | null;
   [key: string]: string | null | undefined;
 }
-
-// Hooks
-import { useSectionData } from "@/hooks/sectionData";
 
 // Utils and other
 import logECS from '@/utils/clientLogger';
@@ -48,6 +48,7 @@ import { scrollToTop } from '@/utils/general';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import styles from './sectionCustomize.module.scss';
+
 
 const SectionCustomizePage: React.FC = () => {
   const toastState = useToast(); // Access the toast state from context
@@ -58,16 +59,8 @@ const SectionCustomizePage: React.FC = () => {
 
   // Get templateId and sectionId params
   const templateCustomizationId = String(params.templateCustomizationId);
-  const sectionCustomizationId = String(params.sectionCustomizationId);
+  const versionedSectionId = String(params.versionedSectionId);
 
-  // Get sectionCustomization data
-  const { data: sectionCustomizationData } = useQuery(SectionCustomizationDocument, {
-    variables: {
-      sectionCustomizationId: Number(sectionCustomizationId)
-    }
-  });
-
-  const sectionId = sectionCustomizationData?.sectionCustomization?.versionedSection?.id;
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
   // Track whether there are unsaved changes
@@ -76,21 +69,43 @@ const SectionCustomizePage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   // To be able to show a loading state when redirecting after successful update because otherwise there is a bit of a stutter where the page reloads before redirecting
   const [isRedirecting, setIsRedirecting] = useState(false);
-
-  //For scrolling to top of page
-  const topRef = useRef<HTMLDivElement | null>(null);
-
-  const {
-    sectionData,
-    selectedTags,
-    loading,
-  } = useSectionData(Number(sectionId));
-
+  // Custom section data state
   const [customSectionData, setCustomSectionData] = useState<{
     customSectionGuidance?: string;
   }>({
     customSectionGuidance: '',
   });
+
+  // Published section data
+  const [sectionData, setSectionData] = useState<SectionFormInterface>({
+    sectionName: '',
+    sectionIntroduction: '',
+    sectionRequirements: '',
+    sectionGuidance: '',
+  });
+
+
+  //For scrolling to top of page
+  const topRef = useRef<HTMLDivElement | null>(null);
+
+
+  // Get published Section data
+  const { data: publishedSection, loading: publishedSectionLoading } = useQuery(PublishedSectionDocument, {
+    variables: {
+      versionedSectionId: Number(versionedSectionId)
+    }
+  });
+
+  const sectionId = publishedSection?.publishedSection?.id;
+
+
+  // Get section customization data
+  const { data: sectionCustomization, loading: sectionCustomizationLoading } = useQuery(SectionCustomizationBySectionDocument,
+    {
+      variables: { templateCustomizationId: Number(templateCustomizationId), versionedSectionId: Number(versionedSectionId) },
+    }
+  );
+
 
   // Save errors in state to display on page
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
@@ -106,9 +121,10 @@ const SectionCustomizePage: React.FC = () => {
 
   // Set URLs
   const TEMPLATE_URL = routePath('template.customize', { templateCustomizationId });
-  const UPDATE_SECTION_URL = routePath('template.customize.sectionId', { templateCustomizationId, sectionCustomizationId });
+  const UPDATE_SECTION_URL = routePath('template.customize.sectionId', { templateCustomizationId, versionedSectionId });
 
   // Initialize remove section mutation
+  const [addSectionCustomization] = useMutation(AddSectionCustomizationDocument);
   const [removeSectionCustomization] = useMutation(RemoveSectionCustomizationDocument);
   const [updateSectionCustomization] = useMutation(UpdateSectionCustomizationDocument);
 
@@ -121,7 +137,7 @@ const SectionCustomizePage: React.FC = () => {
     content,
   }) => (
     <div className="field-display">
-      <Label>{label}</Label>
+      <h2>{label}</h2>
       <div
         className="rich-text-content"
         dangerouslySetInnerHTML={{ __html: content }}
@@ -220,7 +236,7 @@ const SectionCustomizePage: React.FC = () => {
   };
 
   // Handle section deletion
-  const handleDeleteSection = async () => {
+  const handleDeleteSectionCustomization = async () => {
     setIsDeleting(true);
     try {
       await removeSectionCustomization({
@@ -285,6 +301,41 @@ const SectionCustomizePage: React.FC = () => {
     }
   };
 
+
+  useEffect(() => {
+    // Update state values from data results
+    if (publishedSection?.publishedSection) {
+      const section = publishedSection.publishedSection;
+      const cleanedSectionName = stripHtmlTags(section.name);
+      setSectionData({
+        sectionName: cleanedSectionName,
+        sectionIntroduction: section?.introduction ? section.introduction : '',
+        sectionRequirements: section?.requirements ? section.requirements : '',
+        sectionGuidance: section?.guidance ? section.guidance : '',
+      })
+    }
+  }, [publishedSection])
+
+  // If there is no existing customization for this section, create one so that there is always a customization 
+  // to edit and we don't have to worry about handling the case where there isn't one
+  useEffect(() => {
+    const initializeCustomization = async () => {
+      if (!sectionCustomizationLoading && !sectionCustomization?.sectionCustomizationBySection) {
+        await addSectionCustomization({
+          variables: {
+            input: {
+              templateCustomizationId: Number(templateCustomizationId),
+              versionedSectionId: Number(versionedSectionId),
+            },
+          },
+        });
+      }
+    };
+
+    initializeCustomization();
+  }, [sectionCustomizationLoading, sectionCustomization]);
+
+
   // Warn user of unsaved changes if they try to leave the page
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -308,8 +359,8 @@ const SectionCustomizePage: React.FC = () => {
   }, [errorMessages]);
 
   // We need this so that the page waits to render until data is available
-  if (loading) {
-    return <div>Loading...</div>;
+  if (publishedSectionLoading) {
+    return <Loading />;
   }
 
   if (isRedirecting) {
@@ -342,7 +393,7 @@ const SectionCustomizePage: React.FC = () => {
 
               <Form onSubmit={handleFormSubmit}>
                 <div className="field-display">
-                  <Label>{Section('labels.sectionName')}</Label>
+                  <h2>{Section('labels.sectionName')}</h2>
                   <p>{sectionData.sectionName}</p>
                 </div>
 
@@ -361,26 +412,17 @@ const SectionCustomizePage: React.FC = () => {
                   content={sectionData.sectionGuidance}
                 />
 
-                <Label htmlFor="customSectionGuidance" id="customSectionGuidanceLabel">Additional section guidance</Label>
-                <TinyMCEEditor
-                  content={customSectionData.customSectionGuidance || ''}
-                  setContent={(value) => updateCustomSectionGuidanceContent('customSectionGuidance', value)}
-                  error={fieldErrors['customSectionGuidance']}
-                  id="customSectionGuidance"
-                  labelId="customSectionGuidanceLabel"
-                  helpText="Add additional guidance that will appear on the Section Overview page"
-                />
-
-                {selectedTags.length > 0 && (
-                  <div className="field-display">
-                    <Label>{Section('labels.bestPracticeTags')}</Label>
-                    <ul className="tags-list">
-                      {selectedTags.map(tag => (
-                        <li key={tag.id}>{tag.name}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                <div className={styles.additionalGuidance}>
+                  <Label htmlFor="customSectionGuidance" id="customSectionGuidanceLabel">Additional section guidance</Label>
+                  <TinyMCEEditor
+                    content={customSectionData.customSectionGuidance || ''}
+                    setContent={(value) => updateCustomSectionGuidanceContent('customSectionGuidance', value)}
+                    error={fieldErrors['customSectionGuidance']}
+                    id="customSectionGuidance"
+                    labelId="customSectionGuidanceLabel"
+                    helpText="Add additional guidance that will appear on the Section Overview page"
+                  />
+                </div>
 
                 <Button
                   type="submit"
@@ -399,30 +441,35 @@ const SectionCustomizePage: React.FC = () => {
                 </p>
                 <DialogTrigger isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
                   <Button
-                    className={`react-aria-Button danger`}
+                    className="danger"
                     isDisabled={isDeleting}
                   >
-                    {isDeleting ? 'Deleting...' : 'Delete customization'}
+                    {isDeleting ? `${SectionCustomize('buttons.deletingCustomizations')}...` : SectionCustomize("buttons.deleteCustomization")}
                   </Button>
                   <ModalOverlay>
                     <Modal>
                       <Dialog>
                         {({ close }) => (
                           <>
-                            <h3>{SectionUpdatePage('deleteModal.title')}</h3>
-                            <p>{SectionUpdatePage('deleteModal.content')}</p>
+                            <h3>{SectionCustomize("heading.deleteCustomization")}</h3>
+                            <p>{SectionCustomize.rich("descriptions.deleteCustomization", {
+                              strong: (chunks) => <strong>{chunks}</strong>
+                            })}</p>
                             <div className={styles.deleteConfirmButtons}>
-                              <Button className='react-aria-Button' autoFocus onPress={close}>
-                                {SectionUpdatePage('deleteModal.cancelButton')}
+                              <Button
+                                className="secondary"
+                                autoFocus
+                                onPress={close}>
+                                {Global('buttons.cancel')}
                               </Button>
                               <Button
-                                className={`danger`}
+                                className="danger"
                                 onPress={() => {
-                                  handleDeleteSection();
+                                  handleDeleteSectionCustomization();
                                   close();
                                 }}
                               >
-                                {SectionUpdatePage('deleteModal.deleteButton')}
+                                {Global('buttons.delete')}
                               </Button>
                             </div>
                           </>

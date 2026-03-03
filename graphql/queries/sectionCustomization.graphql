@@ -24,3 +24,23 @@ query SectionCustomization($sectionCustomizationId: Int!) {
     }
   }
 }
+
+query SectionCustomizationBySection($templateCustomizationId: Int!, $versionedSectionId: Int!) {
+  sectionCustomizationBySection(templateCustomizationId: $templateCustomizationId, versionedSectionId: $versionedSectionId) {
+    id
+    guidance
+    sectionId
+    templateCustomizationId
+    versionedSection {
+      id
+      name
+    }
+    errors {
+      guidance
+      migrationStatus
+      sectionId
+      templateCustomizationId
+      general
+    }
+  }
+}
