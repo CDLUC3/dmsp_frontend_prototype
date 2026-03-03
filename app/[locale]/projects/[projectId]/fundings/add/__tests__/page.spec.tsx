@@ -1,7 +1,7 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useParams, useRouter } from 'next/navigation';
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import {
   AddAffiliationDocument,
   AddProjectFundingDocument,
@@ -328,7 +328,7 @@ describe('AddProjectFunderManually', () => {
   it('should render the project details form', async () => {
     await act(async () => {
       render(
-        <MockedProvider mocks={successMocks} addTypename={false}>
+        <MockedProvider mocks={successMocks}>
           <AddProjectFunderManually />
         </MockedProvider>
       );
@@ -347,7 +347,7 @@ describe('AddProjectFunderManually', () => {
 
     await act(async () => {
       render(
-        <MockedProvider mocks={successMocks} addTypename={false}>
+        <MockedProvider mocks={successMocks}>
           <AddProjectFunderManually />
         </MockedProvider>
       );
@@ -403,7 +403,7 @@ describe('AddProjectFunderManually', () => {
 
     await act(async () => {
       render(
-        <MockedProvider mocks={errorMocks} addTypename={false}>
+        <MockedProvider mocks={errorMocks}>
           <AddProjectFunderManually />
         </MockedProvider>
       );
@@ -435,7 +435,7 @@ describe('AddProjectFunderManually', () => {
 
     await act(async () => {
       render(
-        <MockedProvider mocks={errorMocks} addTypename={false}>
+        <MockedProvider mocks={errorMocks}>
           <AddProjectFunderManually />
         </MockedProvider>
       );
@@ -470,7 +470,7 @@ describe('AddProjectFunderManually', () => {
 
     await act(async () => {
       render(
-        <MockedProvider mocks={errorMocks} addTypename={false}>
+        <MockedProvider mocks={errorMocks}>
           <AddProjectFunderManually />
         </MockedProvider>
       );
@@ -509,7 +509,7 @@ describe('AddProjectFunderManually', () => {
 
   it('should pass axe accessibility test', async () => {
     const { container } = render(
-      <MockedProvider mocks={successMocks} addTypename={false}>
+      <MockedProvider mocks={successMocks}>
         <AddProjectFunderManually />
       </MockedProvider>
     );

@@ -1,8 +1,9 @@
 import React from "react";
 import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import { useMutation, useLazyQuery } from '@apollo/client/react';
 import {
-  useAddSectionMutation,
-  usePublishedSectionsLazyQuery
+  AddSectionDocument,
+  PublishedSectionsDocument,
 } from '@/generated/graphql';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter } from 'next/navigation';
@@ -14,12 +15,10 @@ import mockPublishedSections from '../__mocks__/mockPublishedSections.json';
 
 expect.extend(toHaveNoViolations);
 
-// Mock the useTemplateQuery hook
-jest.mock("@/generated/graphql", () => ({
-  useAddSectionMutation: jest.fn(),
-  usePublishedSectionsLazyQuery: jest.fn(),
-  VersionedSectionSearchResult: jest.fn(),
-  VersionedSectionSearchResults: jest.fn(),
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useMutation: jest.fn(),
+  useLazyQuery: jest.fn(),
 }));
 
 jest.mock('next/navigation', () => ({
@@ -36,9 +35,55 @@ jest.mock('@/components/BackButton', () => {
 
 const mockFetchSections = jest.fn();
 
+// Cast with jest.mocked utility
+const mockUseLazyQuery = jest.mocked(useLazyQuery);
+const mockUseMutation = jest.mocked(useMutation);
+
+let mockAddSectionFn: jest.Mock;
+
+const setupMocks = () => {
+  // Create stable references OUTSIDE mockImplementation
+  const stablePublishedSectionReturn = [
+    mockFetchSections,
+    {
+      data: mockPublishedSections,
+      loading: false,
+      error: undefined,
+      called: false
+    }
+  ]
+
+  mockUseLazyQuery.mockImplementation((document) => {
+    if (document === PublishedSectionsDocument) {
+      /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
+      return stablePublishedSectionReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+
+  mockAddSectionFn = jest.fn().mockResolvedValue({
+    data: { key: 'value' }
+  });
+
+  mockUseMutation.mockImplementation((document) => {
+    if (document === AddSectionDocument) {
+      /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
+      return [mockAddSectionFn, { loading: false, error: undefined }] as any;
+    }
+    /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
+    return [jest.fn(), { loading: false, error: undefined }] as any;
+  });
+};
+
 describe("SectionTypeSelectPage", () => {
   let mockRouter;
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
     const mockTemplateId = 123;
@@ -49,27 +94,32 @@ describe("SectionTypeSelectPage", () => {
 
     mockRouter = { push: jest.fn() };
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
-
-    // Return [fetchFunction, { data, loading, error }]
-    (usePublishedSectionsLazyQuery as jest.Mock).mockReturnValue([
-      mockFetchSections,
-      { data: mockPublishedSections, loading: false, error: null }
-    ]);
-
   });
 
   it("should display loading message when sections are loading", async () => {
 
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    // Return [fetchFunction, { data, loading, error }]
-    (usePublishedSectionsLazyQuery as jest.Mock).mockReturnValue([
+    const stablePublishedSectionReturn = [
       mockFetchSections,
-      { data: null, loading: true, error: null }
-    ]);
+      {
+        data: null,
+        loading: true,
+        error: undefined,
+        called: false
+      }
+    ]
+
+    mockUseLazyQuery.mockImplementation((document) => {
+      if (document === PublishedSectionsDocument) {
+        /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
+        return stablePublishedSectionReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
 
     await act(async () => {
       render(
@@ -81,17 +131,28 @@ describe("SectionTypeSelectPage", () => {
   });
 
   it("should handle when empty array is returned", async () => {
-
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    // Return [fetchFunction, { data, loading, error }]
-    (usePublishedSectionsLazyQuery as jest.Mock).mockReturnValue([
+    const stablePublishedSectionReturn = [
       mockFetchSections,
-      { data: { publishedSections: { items: [] } }, loading: false, error: null }
-    ]);
+      {
+        data: [],
+        loading: false,
+        error: undefined,
+        called: false
+      }
+    ]
+
+    mockUseLazyQuery.mockImplementation((document) => {
+      if (document === PublishedSectionsDocument) {
+        /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
+        return stablePublishedSectionReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
 
     await act(async () => {
       render(
@@ -104,13 +165,6 @@ describe("SectionTypeSelectPage", () => {
   });
 
   it("should render data returned from published section query correctly", async () => {
-
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-
     await act(async () => {
       render(
         <SectionTypeSelectPage />
@@ -150,13 +204,6 @@ describe("SectionTypeSelectPage", () => {
   });
 
   it('should show filtered lists when user clicks Search button', async () => {
-
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-
     await act(async () => {
       render(
         <SectionTypeSelectPage />
@@ -191,10 +238,15 @@ describe("SectionTypeSelectPage", () => {
     const mockAddSection = jest.fn().mockResolvedValueOnce({
       data: { addSection: { id: 999, errors: [] } }
     });
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      mockAddSection,
-      { loading: false, error: undefined },
-    ]);
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddSectionDocument) {
+        /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
+        return [mockAddSection, { loading: false, error: undefined }] as any;
+      }
+      /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -222,15 +274,29 @@ describe("SectionTypeSelectPage", () => {
 
   it('should show error message when we cannot find item that matches search term', async () => {
 
-    // Return [fetchFunction, { data, loading, error }]
-    (usePublishedSectionsLazyQuery as jest.Mock).mockReturnValue([
+    const stablePublishedSectionReturn = [
       mockFetchSections,
-      { data: {}, loading: false, error: null }
-    ]);
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
+      {
+        data: {},
+        loading: false,
+        error: undefined,
+        called: false
+      }
+    ]
+
+    mockUseLazyQuery.mockImplementation((document) => {
+      if (document === PublishedSectionsDocument) {
+        /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
+        return stablePublishedSectionReturn as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
+    });
+
 
     await act(async () => {
       render(
@@ -258,12 +324,6 @@ describe("SectionTypeSelectPage", () => {
   })
 
   it('should pass axe accessibility test', async () => {
-
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     const { container } = render(
       <SectionTypeSelectPage />
     );
@@ -276,11 +336,6 @@ describe("SectionTypeSelectPage", () => {
   });
 
   it('should display correct pagination for sections', async () => {
-
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
 
     await act(async () => {
       render(
@@ -302,11 +357,6 @@ describe("SectionTypeSelectPage", () => {
   });
 
   it('should handle click of pagination links for org section', async () => {
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
       render(
         <SectionTypeSelectPage />
@@ -338,11 +388,6 @@ describe("SectionTypeSelectPage", () => {
   });
 
   it('should handle click of pagination navigation for best practices section', async () => {
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
       render(
         <SectionTypeSelectPage />
@@ -374,23 +419,26 @@ describe("SectionTypeSelectPage", () => {
   });
 
   it('should display error message when field-level error is returned from addSectionMutation', async () => {
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({
-        data: {
-          addSection: {
-            id: null,
-            errors: {
-              name: "Name is required",
-              general: "An error occurred"
-            }
+    const mockAddSection = jest.fn().mockResolvedValueOnce({
+      data: {
+        addSection: {
+          id: null,
+          errors: {
+            name: "Name is required",
+            general: "An error occurred"
           }
         }
-      }),
-      {
-        loading: false,
-        error: null
-      },
-    ]);
+      }
+    });
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddSectionDocument) {
+        /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
+        return [mockAddSection, { loading: false, error: undefined }] as any;
+      }
+      /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -411,19 +459,25 @@ describe("SectionTypeSelectPage", () => {
   })
 
   it('should call mockRouter if addSectionMutation is successful', async () => {
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({
-        data: {
-          addSection: {
-            id: 1,
-            errors: {
-              general: null
-            }
+    const mockAddSection = jest.fn().mockResolvedValueOnce({
+      data: {
+        addSection: {
+          id: 1,
+          errors: {
+            general: null
           }
         }
-      }),
-      { loading: false, error: undefined },
-    ]);
+      }
+    });
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddSectionDocument) {
+        /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
+        return [mockAddSection, { loading: false, error: undefined }] as any;
+      }
+      /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -444,14 +498,20 @@ describe("SectionTypeSelectPage", () => {
   })
 
   it('should display error if the response does not include data', async () => {
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({
-        data: {
-          addSection: null
-        }
-      }),
-      { loading: false, error: undefined },
-    ]);
+    const mockAddSection = jest.fn().mockResolvedValueOnce({
+      data: {
+        addSection: null
+      }
+    });
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddSectionDocument) {
+        /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
+        return [mockAddSection, { loading: false, error: undefined }] as any;
+      }
+      /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -471,10 +531,16 @@ describe("SectionTypeSelectPage", () => {
   })
 
   it('should call logECS if addSectionMutation throws an error', async () => {
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockRejectedValueOnce(new Error('Network error')),
-      { loading: false, error: undefined },
-    ]);
+    const mockAddSection = jest.fn().mockRejectedValueOnce(new Error('Network error'));
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddSectionDocument) {
+        /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
+        return [mockAddSection, { loading: false, error: undefined }] as any;
+      }
+      /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(

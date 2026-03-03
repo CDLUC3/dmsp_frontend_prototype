@@ -1,7 +1,12 @@
 'use client'
 
 import { useEffect } from 'react';
-import { useMeQuery, useUpdateUserProfileMutation } from '@/generated/graphql';
+
+// GraphQL
+import { useQuery, useMutation } from '@apollo/client/react';
+import { MeDocument, UpdateUserProfileDocument } from '@/generated/graphql';
+
+// Utils and other
 import { refreshAuthTokens } from '@/utils/authHelper';
 
 interface CustomRouter {
@@ -14,8 +19,8 @@ export const useSwitchLanguage = (
   pathname: string,
   router: CustomRouter
 ) => {
-  const [updateUserProfileMutation] = useUpdateUserProfileMutation();
-  const { data } = useMeQuery();
+  const [updateUserProfileMutation] = useMutation(UpdateUserProfileDocument);
+  const { data } = useQuery(MeDocument);
 
   useEffect(() => {
     if (!newLocale || newLocale === currentLocale) return;

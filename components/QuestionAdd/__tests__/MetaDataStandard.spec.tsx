@@ -4,8 +4,9 @@
 import React from 'react';
 import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useToast } from '@/context/ToastContext';
+import { useLazyQuery } from '@apollo/client/react';
 import {
-  useMetadataStandardsLazyQuery
+  MetadataStandardsDocument
 } from '@/generated/graphql';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { addMetaDataStandardsAction } from '@/app/actions';
@@ -38,6 +39,12 @@ jest.mock('@/app/actions', () => ({
   addMetaDataStandardsAction: jest.fn(),
 }));
 
+
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useLazyQuery: jest.fn(),
+}));
+
 // ---- Test data ----
 const mockField = {
   id: 'test-id',
@@ -58,10 +65,40 @@ jest.mock("@/generated/graphql", () => ({
 const mockHandleToggle = jest.fn();
 const mockOnChange = jest.fn();
 
-const mockFetchMetaDataStandards = jest.fn();
+// Cast with jest.mocked utility
+const mockUseLazyQuery = jest.mocked(useLazyQuery);
 
+const setupMocks = () => {
+  // Lazy query mocks
+  const mockFetchMetaDataStandards = jest.fn().mockResolvedValue({
+    data: mockMetaDataStandards
+  });
+
+  const stableMetadataStandardsReturn = [
+    mockFetchMetaDataStandards,
+    {
+      data: mockMetaDataStandards,
+      loading: false,
+      error: null
+    }
+  ];
+  mockUseLazyQuery.mockImplementation((document) => {
+    if (document === MetadataStandardsDocument) {
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any*/
+      return stableMetadataStandardsReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+
+};
 describe('MetaDataStandardsSelector', () => {
   beforeEach(() => {
+    setupMocks();
     jest.clearAllMocks();
 
     // Mock Next.js useParams
@@ -93,13 +130,6 @@ describe('MetaDataStandardsSelector', () => {
         }
       }
     });
-
-    // Return [fetchFunction, { data, loading, error }] for metadata standards query
-    (useMetadataStandardsLazyQuery as jest.Mock).mockReturnValue([
-      mockFetchMetaDataStandards,
-      { data: mockMetaDataStandards, loading: false, error: null }
-    ]);
-
   });
 
   describe('Rendering', () => {

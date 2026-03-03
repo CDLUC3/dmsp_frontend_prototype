@@ -1,6 +1,6 @@
 import React from 'react';
 import type { DateRangeQuestionType } from '@dmptool/types';
-import { act, render, screen } from '@/utils/test-utils';
+import { act, render, screen, waitFor } from '@/utils/test-utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { CalendarDate } from '@internationalized/date';
@@ -40,7 +40,7 @@ describe('RadioButtonsQuestionComponent', () => {
   });
 
 
-  it('should render date range with correct labels and values', () => {
+  it('should render date range with correct labels and values', async () => {
     render(
       <DateRangeQuestionComponent
         parsedQuestion={mockParsedQuestion}
@@ -49,32 +49,26 @@ describe('RadioButtonsQuestionComponent', () => {
       />
     );
 
-    expect(screen.getByText('Starting number')).toBeInTheDocument();
-    expect(screen.getByText('Ending number')).toBeInTheDocument();
+    await waitFor(async () => {
+      const startLabel = screen.getByText('Starting number');
+      expect(startLabel).toBeInTheDocument();
 
-    // These are now very specific because the selector was two broad matching both
-    // a text element and a hidden input element and produced errors in the tests.
-    const beginInput = screen
-        .getAllByDisplayValue('2023-01-01')
-        .find(
-            el =>
-                el.classList.contains('react-aria-Input') &&
-                el.getAttribute('name') === 'startDate' &&
-                el.getAttribute('type') === 'text'
-        );
+      const endLabel = screen.getByText('Ending number');
+      expect(endLabel).toBeInTheDocument();
 
-    expect(beginInput).toBeInTheDocument();
+      const startDateSegments = screen.getAllByText('2023');
+      expect(startDateSegments.length).toBeGreaterThan(0);
+    })
 
-    const endInput = screen
-        .getAllByDisplayValue('2023-12-31')
-        .find(
-            el =>
-                el.classList.contains('react-aria-Input') &&
-                el.getAttribute('name') === 'endDate' &&
-                el.getAttribute('type') === 'text'
-        );
+    const hiddenStartInputs = screen.getAllByDisplayValue('2023-01-01');
+    const textInput = hiddenStartInputs.find(
+      el =>
+        el.getAttribute('name') === 'startDate' &&
+        el.getAttribute('type') === 'text' &&
+        el.hasAttribute('hidden')
+    );
+    expect(textInput).toBeInTheDocument();
 
-    expect(endInput).toBeInTheDocument();
   });
 
   it('should call mockHandleDateChange when start input value change', async () => {

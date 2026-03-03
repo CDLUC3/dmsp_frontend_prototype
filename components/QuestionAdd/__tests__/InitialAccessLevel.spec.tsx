@@ -93,8 +93,8 @@ describe('InitialAccessLevelField', () => {
           },
         });
 
-        expect(screen.getByText('Controlled Access')).toBeInTheDocument();
-        expect(screen.getByText('Unrestricted Access')).toBeInTheDocument();
+        expect(screen.getByText('Open Access')).toBeInTheDocument();
+        expect(screen.getByText('Restricted Access')).toBeInTheDocument();
         expect(screen.getByText('Other')).toBeInTheDocument();
 
 

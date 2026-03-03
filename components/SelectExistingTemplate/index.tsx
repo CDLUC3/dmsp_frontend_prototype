@@ -23,12 +23,13 @@ import ErrorMessages from '@/components/ErrorMessages';
 import Pagination from '@/components/Pagination';
 
 //GraphQL
+import { useMutation, useLazyQuery } from '@apollo/client/react';
 import {
   PublishedTemplateSearchResults,
   TemplateSearchResult,
-  useAddTemplateMutation,
-  useTemplatesLazyQuery,
-  usePublishedTemplatesLazyQuery,
+  AddTemplateDocument,
+  TemplatesDocument,
+  PublishedTemplatesDocument,
   VersionedTemplateSearchResult,
 } from '@/generated/graphql';
 
@@ -42,6 +43,7 @@ import {
 import { toSentenceCase } from '@/utils/general';
 import { useToast } from '@/context/ToastContext';
 import { useFormatDate } from '@/hooks/useFormatDate';
+import { handleApolloError } from '@/utils/apolloErrorHandler';
 
 // # of templates displayed
 const LIMIT = 5;
@@ -59,6 +61,8 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
+  // check if this is initial mount
+  const isInitialMount = useRef(true);
   const formatDate = useFormatDate();
   const router = useRouter();
   const toastState = useToast();
@@ -92,11 +96,11 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   const Global = useTranslations('Global');
 
   // Separate lazy queries for published sections
-  const [fetchPublishedTemplates, { data: publishedTemplatesData, loading: publishedTemplatesLoading }] = usePublishedTemplatesLazyQuery();
-  const [fetchMyTemplates, { data: myTemplatesData, loading: myTemplatesLoading }] = useTemplatesLazyQuery();
+  const [fetchPublishedTemplates, { data: publishedTemplatesData, loading: publishedTemplatesLoading }] = useLazyQuery(PublishedTemplatesDocument);
+  const [fetchMyTemplates, { data: myTemplatesData, loading: myTemplatesLoading }] = useLazyQuery(TemplatesDocument);
 
   // GraphQL mutation for adding the new template
-  const [addTemplateMutation] = useAddTemplateMutation({
+  const [addTemplateMutation] = useMutation(AddTemplateDocument, {
     notifyOnNetworkStatusChange: true,
   });
 
@@ -110,42 +114,46 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     page = 1,
     searchTerm = ''
   }: FetchTemplateByTypeParams) => {
-    if (templateType === 'published') {
-      let offsetLimit = 0;
-      if (page) {
-        setPublishedPagination(prev => ({ ...prev, currentPage: page }));
-        offsetLimit = (page - 1) * LIMIT;
-      }
-      await fetchPublishedTemplates({
-        variables: {
-          paginationOptions: {
-            offset: offsetLimit,
-            limit: LIMIT,
-            type: "OFFSET",
-            sortDir: "DESC",
-            bestPractice: false
-          },
-          term: searchTerm,
+    try {
+      if (templateType === 'published') {
+        let offsetLimit = 0;
+        if (page) {
+          setPublishedPagination(prev => ({ ...prev, currentPage: page }));
+          offsetLimit = (page - 1) * LIMIT;
         }
-      });
-    } else {
-      let offsetLimit = 0;
-      if (page) {
-        setMyTemplatesPagination(prev => ({ ...prev, currentPage: page }));
-        offsetLimit = (page - 1) * LIMIT;
-      }
-      await fetchMyTemplates({
-        variables: {
-          paginationOptions: {
-            offset: offsetLimit,
-            limit: LIMIT,
-            type: "OFFSET",
-            sortDir: "DESC",
-            bestPractice: true
-          },
-          term: searchTerm,
+        await fetchPublishedTemplates({
+          variables: {
+            paginationOptions: {
+              offset: offsetLimit,
+              limit: LIMIT,
+              type: "OFFSET",
+              sortDir: "DESC",
+              bestPractice: false
+            },
+            term: searchTerm,
+          }
+        });
+      } else {
+        let offsetLimit = 0;
+        if (page) {
+          setMyTemplatesPagination(prev => ({ ...prev, currentPage: page }));
+          offsetLimit = (page - 1) * LIMIT;
         }
-      });
+        await fetchMyTemplates({
+          variables: {
+            paginationOptions: {
+              offset: offsetLimit,
+              limit: LIMIT,
+              type: "OFFSET",
+              sortDir: "DESC",
+              bestPractice: true
+            },
+            term: searchTerm,
+          }
+        });
+      }
+    } catch (err) {
+      handleApolloError(err, 'TemplateSelectTemplatePage.fetchTemplatesByType');
     }
   };
 
@@ -159,9 +167,22 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   };
 
   // zero out search and filters
-  const resetSearch = () => {
+  const resetSearch = async () => {
     setSearchTerm('');
-    handleSearchInput('');
+    // Reset both paginations to first page
+    setPublishedPagination(prev => ({ ...prev, currentPage: 1 }));
+    setMyTemplatesPagination(prev => ({ ...prev, currentPage: 1 }));
+
+    try {
+      // Fetch both types without search term
+      await Promise.all([
+        fetchTemplatesByType({ templateType: 'published', page: 1, searchTerm: '' }),
+        fetchTemplatesByType({ templateType: 'myTemplates', page: 1, searchTerm: '' })
+      ]);
+    } catch (error) {
+      handleApolloError(error, 'TemplateSelectTemplatePage.resetSearch');
+
+    }
   }
 
 
@@ -169,10 +190,6 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   const handleInputChange = (value: string) => {
     // Update search term immediately for UI responsiveness
     setSearchTerm(value);
-    if (value === '') {
-      //reset search
-      resetSearch();
-    }
   };
 
   // Handle search when user presses search button
@@ -378,6 +395,12 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   }, [myTemplatesData]);
 
   useEffect(() => {
+    // Skip on initial mount since the other useEffect handles it
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
     // Need this to set list of templates back to original
     if (searchTerm === '') {
       resetSearch();

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useReducer, useState } from 'react';
-import { ApolloError } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -30,17 +30,16 @@ import ProjectRoles from '../../ProjectRoles';
 import {
   MemberRole,
   ProjectMemberErrors,
-  useMemberRolesQuery,
-  useUpdateProjectMemberMutation,
-  useRemoveProjectMemberMutation
+  MemberRolesDocument,
+  UpdateProjectMemberDocument,
+  RemoveProjectMemberDocument
 } from '@/generated/graphql';
-
 
 // Hooks
 import { useScrollToTop } from '@/hooks/scrollToTop';
 import { useProjectMemberData } from "@/hooks/projectMemberData";
 
-//Other
+//Utils and other
 import logECS from '@/utils/clientLogger';
 import { ProjectMemberFormInterface, ProjectMemberErrorInterface } from '@/app/types';
 import styles from './ProjectsProjectMembersEdit.module.scss';
@@ -112,7 +111,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
   const t = useTranslations('ProjectsProjectMembersEdit');
 
   // Get Member Roles
-  const { data: memberRoles, loading: memberRolesLoading, error: memberRolesError } = useMemberRolesQuery();
+  const { data: memberRoles, loading: memberRolesLoading, error: memberRolesError } = useQuery(MemberRolesDocument);
 
   // Hooks for project member data
   const {
@@ -130,8 +129,8 @@ const ProjectsProjectMembersEdit: React.FC = () => {
 
 
   // Initialize project member mutations
-  const [updateProjectMemberMutation] = useUpdateProjectMemberMutation();
-  const [removeProjectMemberMutation] = useRemoveProjectMemberMutation();
+  const [updateProjectMemberMutation] = useMutation(UpdateProjectMemberDocument);
+  const [removeProjectMemberMutation] = useMutation(RemoveProjectMemberDocument);
 
   // Show Success Message for updating member
   const showSuccessToast = () => {
@@ -182,12 +181,8 @@ const ProjectsProjectMembersEdit: React.FC = () => {
         error,
         url: { path: EDIT_MEMBER_ROUTE }
       });
-      if (error instanceof ApolloError) {
-        return [{}, false];
-      } else {
-        setErrorMessages(prevErrors => [...prevErrors, t('form.errors.removingMember')]);
-        return [{}, false];
-      }
+      setErrorMessages(prevErrors => [...prevErrors, t('form.errors.removingMember')]);
+      return [{}, false];
     }
   }
 
@@ -249,12 +244,8 @@ const ProjectsProjectMembersEdit: React.FC = () => {
         error,
         url: { path: EDIT_MEMBER_ROUTE }
       });
-      if (error instanceof ApolloError) {
-        return [{}, false];
-      } else {
-        setErrorMessages(prevErrors => [...prevErrors, t('form.errors.updatingMember')]);
-        return [{}, false];
-      }
+      setErrorMessages(prevErrors => [...prevErrors, t('form.errors.updatingMember')]);
+      return [{}, false];
     }
   };
 

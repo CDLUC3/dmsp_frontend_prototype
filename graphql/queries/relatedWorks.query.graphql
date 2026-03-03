@@ -93,3 +93,43 @@ query RelatedWorksByPlan($planId: Int!, $paginationOptions: PaginationOptions, $
     }
   }
 }
+
+query FindWorkByIdentifier($planId: Int!, $doi: String) {
+  findWorkByIdentifier(planId: $planId, doi: $doi) {
+    items {
+      id
+      planId
+      workVersion {
+        work {
+          doi
+        }
+        title
+        hash
+        workType
+        publicationDate
+        publicationVenue
+        authors {
+          orcid
+          firstInitial
+          givenName
+          surname
+          full
+        }
+        sourceName
+        sourceUrl
+      }
+      status
+      sourceType
+      modified
+    }
+  }
+}
+
+query RelatedWorksByPlanStats($planId: Int!) {
+  relatedWorksByPlanStats(planId: $planId) {
+    acceptedCount
+    pendingCount
+    rejectedCount
+    totalCount
+  }
+}

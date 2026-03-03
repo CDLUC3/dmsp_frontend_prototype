@@ -4,11 +4,13 @@ import React, { useMemo } from "react";
 import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
 import { useTranslations } from "next-intl";
 
+import { useQuery } from '@apollo/client/react';
+
 // GraphQL
 import {
-  useMeQuery,
-  useTagsQuery,
-  useGuidanceGroupsQuery
+  MeDocument,
+  TagsDocument,
+  GuidanceGroupsDocument
 } from '@/generated/graphql';
 
 
@@ -34,12 +36,12 @@ const GuidancePage: React.FC = () => {
   const GUIDANCE_CREATE_URL = routePath("admin.guidance.groups.create");
 
   // Run me query to get user's name
-  const { data: me, loading: meLoading } = useMeQuery();
+  const { data: me, loading: meLoading } = useQuery(MeDocument);
 
   // Query for all tags
-  const { data: tagsData, loading: tagsLoading } = useTagsQuery();
+  const { data: tagsData, loading: tagsLoading } = useQuery(TagsDocument);
 
-  const { data: guidanceGroupsData, loading: guidanceGroupsLoading } = useGuidanceGroupsQuery({
+  const { data: guidanceGroupsData, loading: guidanceGroupsLoading } = useQuery(GuidanceGroupsDocument, {
     variables: {
       affiliationId: me?.me?.affiliation?.uri || null
     },

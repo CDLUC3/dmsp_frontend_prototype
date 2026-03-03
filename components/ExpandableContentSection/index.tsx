@@ -57,38 +57,54 @@ export default function ExpandableContentSection({
   const { summaryElements, wasTruncated } = useMemo(() => {
     const childrenArray = React.Children.toArray(children);
     let charCount = 0;
-    const limit = summaryCharLimit ?? Infinity; // If no character limit is specified, just show all the content
+    const limit = summaryCharLimit ?? Infinity;
     const summary: React.ReactNode[] = [];
     let reachedLimit = false;
 
-    for (const child of childrenArray) {
-      // Skip if not a valid React element
-      const allowedTags = ['p', 'div', 'span'];
-      if (!React.isValidElement(child) || !allowedTags.includes(child.type as string)) continue;
+    const processElement = (child: React.ReactNode): React.ReactNode | null => {
+      if (!React.isValidElement(child)) return child;
 
+      const allowedTags = ['p', 'div', 'span', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong', 'em', 'a', 'b', 'i', 'br'];
+      if (!allowedTags.includes(child.type as string)) return null;
+
+      // Handle lists specially - process children individually
+      if (child.type === 'ul' || child.type === 'ol') {
+        const listItems: React.ReactNode[] = [];
+        const childProps = child.props as { children?: React.ReactNode };
+        const items = React.Children.toArray(childProps.children);
+
+        for (const item of items) {
+          if (reachedLimit) break;
+          const processed = processElement(item);
+          if (processed) listItems.push(processed);
+        }
+
+        if (listItems.length === 0) return null;
+        return React.cloneElement(child as React.ReactElement, { children: listItems });
+      }
+
+      // For other elements, check text length
       const textContent = getTextContent(child);
-      const remaining = limit - charCount; // How much of the summaryCharLimit is remaining
+      const remaining = limit - charCount;
 
-      if (reachedLimit) break;
-
-      // If the textContent length is still under the specified summaryCharLimit, 
-      // then add text to summary and update the character count
       if (textContent.length <= remaining) {
-        summary.push(child);
         charCount += textContent.length;
+        return child;
       } else {
-        // Otherwise we need to truncate the node, such as a paragraph
         const { truncated } = truncateText(textContent, remaining);
-        const truncatedElement = React.cloneElement(
+        charCount += remaining;
+        reachedLimit = true;
+        return React.cloneElement(
           child as React.ReactElement<{ children?: React.ReactNode }>,
           { children: truncated }
         );
-
-        // Set summary content to the truncated element
-        summary.push(truncatedElement);
-        charCount += remaining;
-        reachedLimit = true;
       }
+    };
+
+    for (const child of childrenArray) {
+      if (reachedLimit) break;
+      const processed = processElement(child);
+      if (processed) summary.push(processed);
     }
 
     return {

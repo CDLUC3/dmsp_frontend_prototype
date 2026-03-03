@@ -1,9 +1,47 @@
 import '@testing-library/jest-dom';
 import dotenv from 'dotenv';
+import DOMException from 'domexception';
 
 
 //Load environment variables from .env.local
 dotenv.config({ path: './.env.local' });//
+
+const originalError = console.error;
+
+/**
+ * Apollo v4 uses AbortController more agressively for request cancellation, and
+ * these abort operations trigger DOMException errors during test cleanup. This
+ * happens commonly in tests when Components unmount before queries component,
+ * MockedProvider cleans up, or Tests finish while requests are in-flight.
+ * 
+ * Since these errors are expected and handled by Apollo Client internally, we
+ * suppress them in the global console.error to avoid noise in test output.
+ */
+beforeAll(() => {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  console.error = (...args: any[]) => {
+    if (
+      args[0] instanceof DOMException ||
+      String(args[0]).includes('AbortError')
+    ) {
+      return;
+    }
+    originalError(...args);
+  };
+});
+
+afterAll(() => {
+  console.error = originalError;
+});
+
+
+// DOMException polyfill used by Apollo Client's MockedProvider, but is not available in Node.js environment
+global.DOMException = DOMException as any;
+
+// Also set it on window if it exists (for jsdom)
+if (typeof window !== 'undefined') {
+  window.DOMException = DOMException as any;
+}
 
 // Mock toast
 jest.mock('@/context/ToastContext', () => ({
@@ -12,24 +50,22 @@ jest.mock('@/context/ToastContext', () => ({
   })),
 }));
 
+// Create ONE stable mock function that gets reused
+const stableMockTranslate = (key: string) => key;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+stableMockTranslate.rich = (key: string, values?: Record<string, any>) => {
+  if (values?.p) {
+    return values.p(key);
+  }
+  return key;
+};
+
 jest.mock('next-intl', () => {
-  // Enable the other parts of next-intl to not be mocked
   const originalModule = jest.requireActual('next-intl');
 
   return {
     ...originalModule,
-
-    useTranslations: jest.fn(() => {
-      const mockUseTranslations = (key: string) => key;
-      /*eslint-disable-next-line @typescript-eslint/no-explicit-any*/
-      mockUseTranslations.rich = (key: string, values?: Record<string, any>) => {
-        if (values?.p) {
-          return values.p(key);
-        }
-        return key;
-      };
-      return mockUseTranslations;
-    }),
+    useTranslations: jest.fn(() => stableMockTranslate), // ← Return SAME function each time
   };
 });
 

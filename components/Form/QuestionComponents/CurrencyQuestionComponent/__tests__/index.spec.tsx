@@ -1,6 +1,6 @@
 import React from 'react';
 import type { CurrencyQuestionType } from '@dmptool/types';
-import { act, fireEvent, render, screen } from '@/utils/test-utils';
+import { act, render, screen } from '@/utils/test-utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { CurrencyQuestionComponent } from '@/components/Form/QuestionComponents';
@@ -9,6 +9,11 @@ expect.extend(toHaveNoViolations);
 
 
 describe('Currency Question Component', () => {
+  let user: ReturnType<typeof userEvent.setup>;
+  beforeEach(() => {
+    user = userEvent.setup();
+  });
+
   const mockHandleCurrencyChange = jest.fn();
   const mockParsedQuestion: CurrencyQuestionType = {
     type: "currency",
@@ -137,15 +142,11 @@ describe('Currency Question Component', () => {
 
     const currencyInputIncreaseButton = increaseButton;
     const currencyInputDecreaseButton = decreaseButton;
+    await user.click(currencyInputIncreaseButton);
 
-    act(() => {
-      fireEvent.click(currencyInputIncreaseButton);
-    })
     expect(mockHandleCurrencyChange).toHaveBeenCalledWith(13.00);
+    await user.click(currencyInputDecreaseButton);
 
-    act(() => {
-      fireEvent.click(currencyInputDecreaseButton);
-    })
     expect(mockHandleCurrencyChange).toHaveBeenCalledWith(11.00);
   });
 

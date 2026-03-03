@@ -33,7 +33,7 @@ const LicenseField = ({
 
 
   // Filter licenses into recommended and other categories
-  const allLicenses = licensesData?.licenses?.items?.filter((license): license is NonNullable<typeof license> => license !== null) || [];
+  const allLicenses = licensesData?.licenses?.filter((license): license is NonNullable<typeof license> => license !== null) || [];
   const defaultLicenses = allLicenses.filter(license => license.recommended).map(license => license.name);
   const otherLicenses = allLicenses.filter(license => !license.recommended).map(license => ({
     id: license.uri,

@@ -9,6 +9,8 @@ query Plan($planId: Int!) {
       name
       owner {
         uri
+        name
+        acronyms
         displayName
       }
       version

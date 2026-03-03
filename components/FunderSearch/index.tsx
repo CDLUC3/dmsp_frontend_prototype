@@ -2,10 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-
-import { useAffiliationFundersLazyQuery } from '@/generated/graphql';
-import { FunderSearchResults } from '@/app/types';
-
 import {
   Button,
   Form,
@@ -15,6 +11,12 @@ import {
   Text,
 } from "react-aria-components";
 
+// GraphQL
+import { useLazyQuery } from '@apollo/client/react';
+import { AffiliationFundersDocument } from '@/generated/graphql';
+
+// Utils and other
+import { FunderSearchResults } from '@/app/types';
 
 interface FunderSearchProps extends React.HTMLAttributes<HTMLDivElement> {
   // Call back to return the results
@@ -36,7 +38,7 @@ const FunderSearch = ({
   const trans = useTranslations('Global');
   const [moreCounter, setMoreCounter] = useState<number>(0);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [fetchAffiliations, { data }] = useAffiliationFundersLazyQuery({});
+  const [fetchAffiliations, { data }] = useLazyQuery(AffiliationFundersDocument, {});
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [newSearch, setNewSearch] = useState<boolean>(true);
 

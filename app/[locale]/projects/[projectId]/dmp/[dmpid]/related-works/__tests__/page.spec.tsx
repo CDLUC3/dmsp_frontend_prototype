@@ -6,12 +6,13 @@ import { axe, toHaveNoViolations } from "jest-axe";
 import RelatedWorks from "../page";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
-import { useRelatedWorksByPlanQuery } from "@/generated/graphql";
+import { useQuery } from '@apollo/client/react';
+import { RelatedWorksByPlanDocument } from "@/generated/graphql";
 import {
   MOCK_ACCEPTED_WORKS,
   MOCK_PENDING_WORKS,
-  MOCK_REJECTED_WORKS,
-} from "@/components/RelatedWorksList/__tests__/index.spec";
+  MOCK_REJECTED_WORKS
+} from "@/app/[locale]/projects/[projectId]/dmp/[dmpid]/related-works/mockWorks";
 
 expect.extend(toHaveNoViolations);
 
@@ -20,13 +21,42 @@ jest.mock("next/navigation", () => ({
   useParams: jest.fn(),
 }));
 
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+}));
+
+
 const mockUseRouter = useRouter as jest.Mock;
 const mockUseParams = useParams as jest.Mock;
 
-jest.mock("@/generated/graphql", () => ({
-  ...jest.requireActual("@/generated/graphql"),
-  useRelatedWorksByPlanQuery: jest.fn(),
-}));
+
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+
+const setupMocks = () => {
+  mockUseQuery.mockImplementation((document) => {
+    if (document === RelatedWorksByPlanDocument) {
+      return {
+        data: {
+          relatedWorksByPlan: {
+            items: MOCK_PENDING_WORKS,
+          },
+        },
+        loading: false,
+        error: undefined,
+        refetch: jest.fn()
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+      } as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+};
 
 function RelatedWorksHarness() {
   mockUseParams.mockReturnValue({ dmpid: "1" });
@@ -44,6 +74,7 @@ function RelatedWorksHarness() {
 
 describe("RelatedWorks", () => {
   beforeEach(() => {
+    setupMocks();
     window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
     mockUseRouter.mockReturnValue({
       push: jest.fn(),
@@ -55,45 +86,20 @@ describe("RelatedWorks", () => {
   });
 
   it("should render the page header with correct title and description", () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: MOCK_PENDING_WORKS,
-        },
-      },
-      loading: false,
-      error: null,
-    });
     render(<RelatedWorksHarness />);
-    expect(screen.getByText("header.title")).toBeInTheDocument();
-    expect(screen.getByText("header.description")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: 'title' })).toBeInTheDocument();
+    expect(screen.getByText("description")).toBeInTheDocument();
   });
 
   it("should render the breadcrumb links", () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: MOCK_PENDING_WORKS,
-        },
-      },
-      loading: false,
-      error: null,
-    });
     render(<RelatedWorksHarness />);
-    expect(screen.getByText("Home")).toBeInTheDocument();
-    expect(screen.getByText("Projects")).toBeInTheDocument();
+    expect(screen.getByText("breadcrumbs.home")).toBeInTheDocument();
+    expect(screen.getByText("breadcrumbs.projects")).toBeInTheDocument();
+    expect(screen.getByText("breadcrumbs.projectOverview")).toBeInTheDocument();
+    expect(screen.getByText("breadcrumbs.planOverview")).toBeInTheDocument();
   });
 
   it("should render tabs", () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: MOCK_PENDING_WORKS,
-        },
-      },
-      loading: false,
-      error: null,
-    });
     render(<RelatedWorksHarness />);
 
     expect(screen.getByRole("tab", { name: "tabs.pending" })).toBeInTheDocument();
@@ -102,30 +108,34 @@ describe("RelatedWorks", () => {
   });
 
   it("should render pending research outputs", () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: MOCK_PENDING_WORKS,
-        },
-      },
-      loading: false,
-      error: null,
-    });
     render(<RelatedWorksHarness />);
     expect(screen.getByText("Synthetic Empathy: Emotional Intelligence in Autonomous Agents")).toBeInTheDocument();
     expect(screen.getByText("NeuroSynthetics: Toward Biologically-Inspired Cognitive Robotics")).toBeInTheDocument();
   });
 
   it("should render related research outputs", async () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: MOCK_ACCEPTED_WORKS,
-        },
-      },
-      loading: false,
-      error: null,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === RelatedWorksByPlanDocument) {
+        return {
+          data: {
+            relatedWorksByPlan: {
+              items: MOCK_ACCEPTED_WORKS,
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
+
     render(<RelatedWorksHarness />);
 
     // Click related tab
@@ -136,15 +146,28 @@ describe("RelatedWorks", () => {
   });
 
   it("should render discarded research outputs", async () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: MOCK_REJECTED_WORKS,
-        },
-      },
-      loading: false,
-      error: null,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === RelatedWorksByPlanDocument) {
+        return {
+          data: {
+            relatedWorksByPlan: {
+              items: MOCK_REJECTED_WORKS,
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
+
     render(<RelatedWorksHarness />);
 
     // Click discarded tab
@@ -156,29 +179,54 @@ describe("RelatedWorks", () => {
   });
 
   it("should render the add related work button", () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: MOCK_PENDING_WORKS,
-        },
-      },
-      loading: false,
-      error: null,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === RelatedWorksByPlanDocument) {
+        return {
+          data: {
+            relatedWorksByPlan: {
+              items: MOCK_PENDING_WORKS,
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
+
     render(<RelatedWorksHarness />);
-    const addButton = screen.getByRole("button", { name: "buttons.addRelatedWorkManually" });
+    const addButton = screen.getByRole("link", { name: "buttons.addRelatedWorkManually" });
     expect(addButton).toBeInTheDocument();
   });
 
   it("should pass accessibility tests", async () => {
-    (useRelatedWorksByPlanQuery as jest.Mock).mockReturnValue({
-      data: {
-        relatedWorksByPlan: {
-          items: MOCK_PENDING_WORKS,
-        },
-      },
-      loading: false,
-      error: null,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === RelatedWorksByPlanDocument) {
+        return {
+          data: {
+            relatedWorksByPlan: {
+              items: MOCK_PENDING_WORKS,
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+          /* eslint-disable @typescript-eslint/no-explicit-any */
+        } as any;
+      }
+
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      };
     });
     const { container } = render(<RelatedWorksHarness />);
     const results = await axe(container);

@@ -1,4 +1,5 @@
 import { TemplatesDocument } from '@/generated/graphql';
+import { GraphQLError } from 'graphql';
 
 export const mocks = [
   // Initial load mock
@@ -14,6 +15,7 @@ export const mocks = [
     result: {
       data: {
         myTemplates: {
+          __typename: 'PaginatedTemplateSearchResults',
           totalCount: 2,
           nextCursor: null,
           availableSortFields: {},
@@ -67,6 +69,7 @@ export const mocks = [
     result: {
       data: {
         myTemplates: {
+          __typename: 'PaginatedTemplateSearchResults',
           totalCount: 2,
           nextCursor: null,
           availableSortFields: {},
@@ -113,9 +116,9 @@ export const mocks = [
       query: TemplatesDocument,
       variables: {
         paginationOptions: {
-          limit: 5,
           type: "CURSOR",
           cursor: 1,
+          limit: 5,
         },
         term: 'missing',
       },
@@ -123,6 +126,7 @@ export const mocks = [
     result: {
       data: {
         myTemplates: {
+          __typename: 'PaginatedTemplateSearchResults',
           totalCount: 2,
           nextCursor: null,
           availableSortFields: {},
@@ -171,14 +175,15 @@ export const mocks = [
       variables: {
         term: 'ucop',
         paginationOptions: {
-          limit: 5,
           type: "CURSOR",
+          limit: 5,
         },
       },
     },
     result: {
       data: {
         myTemplates: {
+          __typename: 'PaginatedTemplateSearchResults',
           totalCount: 2,
           nextCursor: null,
           availableSortFields: {},
@@ -212,16 +217,17 @@ export const mocks = [
     request: {
       query: TemplatesDocument,
       variables: {
-        term: 'missing',
         paginationOptions: {
+          type: 'CURSOR',
           limit: 5,
-          type: 'CURSOR'
         },
+        term: 'missing',
       },
     },
     result: {
       data: {
         myTemplates: {
+          __typename: 'PaginatedTemplateSearchResults',
           totalCount: 10,
           nextCursor: 1,
           availableSortFields: {},
@@ -249,6 +255,29 @@ export const mocks = [
       },
     },
   },
+  {
+    request: {
+      query: TemplatesDocument,
+      variables: {
+        paginationOptions: {
+          type: "CURSOR",
+          cursor: "cursor-missing-1",
+          limit: 5,
+        },
+        term: 'missing',
+      },
+    },
+    result: {
+      data: {
+        myTemplates: {
+          __typename: 'PaginatedTemplateSearchResults',
+          totalCount: 1,
+          nextCursor: null,
+          items: []
+        }
+      },
+    },
+  },
   // Search mock for 'test'
   {
     request: {
@@ -256,14 +285,15 @@ export const mocks = [
       variables: {
         term: 'test',
         paginationOptions: {
-          limit: 5,
           type: "CURSOR",
+          limit: 5,
         },
       },
     },
     result: {
       data: {
         myTemplates: {
+          __typename: 'PaginatedTemplateSearchResults',
           totalCount: 2,
           nextCursor: null,
           availableSortFields: {},
@@ -292,6 +322,7 @@ export const multipleItemsMock = [
     result: {
       data: {
         myTemplates: {
+          __typename: 'PaginatedTemplateSearchResults',
           totalCount: 10,
           nextCursor: 1,
           availableSortFields: {},
@@ -392,6 +423,7 @@ export const multipleItemsMock = [
     result: {
       data: {
         myTemplates: {
+          __typename: 'PaginatedTemplateSearchResults',
           totalCount: 10,
           nextCursor: 1,
           availableSortFields: {},
@@ -524,6 +556,7 @@ export const multipleItemsMock = [
     result: {
       data: {
         myTemplates: {
+          __typename: 'PaginatedTemplateSearchResults',
           totalCount: 10,
           nextCursor: 1,
           availableSortFields: {},
@@ -655,6 +688,7 @@ export const multipleItemsMock = [
     result: {
       data: {
         myTemplates: {
+          __typename: 'PaginatedTemplateSearchResults',
           totalCount: 10,
           nextCursor: 1,
           availableSortFields: {},
@@ -786,6 +820,7 @@ export const multipleItemsMock = [
     result: {
       data: {
         myTemplates: {
+          __typename: 'PaginatedTemplateSearchResults',
           totalCount: 10,
           nextCursor: 1,
           availableSortFields: {},
@@ -911,14 +946,15 @@ export const multipleItemsMock = [
       variables: {
         term: 'template',
         paginationOptions: {
-          limit: 5,
           type: "CURSOR",
+          limit: 5,
         },
       },
     },
     result: {
       data: {
         myTemplates: {
+          __typename: 'PaginatedTemplateSearchResults',
           totalCount: 10,
           nextCursor: 1,
           availableSortFields: {},
@@ -1044,15 +1080,16 @@ export const multipleItemsMock = [
       variables: {
         term: 'template',
         paginationOptions: {
-          limit: 5,
           type: "CURSOR",
           cursor: 1,
+          limit: 5,
         },
       },
     },
     result: {
       data: {
         myTemplates: {
+          __typename: 'PaginatedTemplateSearchResults',
           totalCount: 10,
           nextCursor: 1,
           availableSortFields: {},
@@ -1186,6 +1223,7 @@ export const multipleItemsErrorMock = [
     result: {
       data: {
         myTemplates: {
+          __typename: 'PaginatedTemplateSearchResults',
           totalCount: 10,
           nextCursor: 1,
           availableSortFields: {},
@@ -1317,6 +1355,7 @@ export const multipleItemsErrorMock = [
     result: {
       data: {
         myTemplates: {
+          __typename: 'PaginatedTemplateSearchResults',
           totalCount: 10,
           nextCursor: 1,
           availableSortFields: {},
@@ -1441,14 +1480,15 @@ export const multipleItemsErrorMock = [
       variables: {
         term: 'template',
         paginationOptions: {
-          limit: 5,
           type: "CURSOR",
+          limit: 5,
         },
       },
     },
     result: {
       data: {
         myTemplates: {
+          __typename: 'PaginatedTemplateSearchResults',
           totalCount: 10,
           nextCursor: 1,
           availableSortFields: {},
@@ -1573,14 +1613,37 @@ export const multipleItemsErrorMock = [
       variables: {
         term: 'template',
         paginationOptions: {
-          limit: 5,
           type: "CURSOR",
-          cursor: 1
+          cursor: 1,
+          limit: 5,
         },
       },
     },
-    error: new Error('Network error'),
+    result: {
+      errors: [new GraphQLError('Network error')],
+    },
+    newData: () => ({
+      errors: [new GraphQLError('Network error')], // this allows multiple fetches to return the same error
+    }),
   },
+  {
+    request: {
+      query: TemplatesDocument,
+      variables: {
+        paginationOptions: {
+          type: "CURSOR",
+          cursor: 1,
+          limit: 5,
+        },
+      },
+    },
+    result: {
+      errors: [new GraphQLError('Network error')],
+    },
+    newData: () => ({
+      errors: [new GraphQLError('Network error')], // this allows multiple fetches to return the same error
+    }),
+  }
 ];
 
 export const errorMock = [

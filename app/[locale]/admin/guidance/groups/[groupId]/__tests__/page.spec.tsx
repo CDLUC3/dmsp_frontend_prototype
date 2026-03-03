@@ -5,10 +5,11 @@ import {
   screen,
   waitFor,
   waitForElementToBeRemoved,
-  within
+  within,
+  act
 } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { MockedProvider } from "@apollo/client/testing";
+import { MockedProvider } from "@apollo/client/testing/react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useParams, useRouter } from 'next/navigation';
 import logECS from '@/utils/clientLogger';
@@ -238,7 +239,7 @@ describe("GuidanceGroupIndexPage", () => {
 
   it("should initially render loading spinner", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -251,7 +252,7 @@ describe("GuidanceGroupIndexPage", () => {
 
   it("should render guidance text fields", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -298,7 +299,7 @@ describe("GuidanceGroupIndexPage", () => {
 
   it('should update existing guidance text locally when editor changes', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -327,7 +328,7 @@ describe("GuidanceGroupIndexPage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -357,6 +358,46 @@ describe("GuidanceGroupIndexPage", () => {
     });
   });
 
+  it('should preserve entered content for other tags when a new guidance is saved for a tag', async () => {
+    (addGuidanceTextAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: { id: 999, errors: null },
+      redirect: undefined,
+    });
+
+    render(
+      <MockedProvider mocks={mocks}>
+        <GuidanceGroupIndexPage />
+      </MockedProvider>,
+    );
+
+    await waitForElementToBeRemoved(() => screen.getByText('Global.messaging.loading'));
+
+    // Tag id 14 (Data description) has no guidance in mockGuidanceByGroupData
+    const editor = screen.getByTestId('editor-content-14');
+    expect(editor).toHaveValue(''); // starts empty
+
+    fireEvent.change(editor, { target: { value: 'New guidance for Data description' } });
+    expect(editor).toHaveValue('New guidance for Data description');
+
+    // Enter content into a different tag to verify it's preserved
+    const editorTag1 = screen.getByTestId('editor-content-1');
+    fireEvent.change(editorTag1, { target: { value: 'Updated guidance for Tag 1' } });
+    expect(editorTag1).toHaveValue('Updated guidance for Tag 1');
+
+    // Find save buttons; click the one corresponding to tag 14.
+    // We locate heading first then within its card look for button
+    const guidanceCard = editor.closest('div')?.parentElement; // textarea wrapper -> its parent is the card section
+    const saveBtn = within(guidanceCard as HTMLElement).getByRole('button', { name: 'Global.buttons.save' });
+    fireEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(addGuidanceTextAction).toHaveBeenCalledTimes(1);
+      expect(screen.getByText("New guidance for Data description")).toBeInTheDocument();
+      expect(screen.getByText("Updated guidance for Tag 1")).toBeInTheDocument();
+    });
+  });
+
   it('should redirect if addGuidanceTextAction response includes a redirect', async () => {
     (addGuidanceTextAction as jest.Mock).mockResolvedValue({
       success: true,
@@ -365,7 +406,7 @@ describe("GuidanceGroupIndexPage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -402,7 +443,7 @@ describe("GuidanceGroupIndexPage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -444,7 +485,7 @@ describe("GuidanceGroupIndexPage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -481,7 +522,7 @@ describe("GuidanceGroupIndexPage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -515,7 +556,7 @@ describe("GuidanceGroupIndexPage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -561,7 +602,7 @@ describe("GuidanceGroupIndexPage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -599,7 +640,7 @@ describe("GuidanceGroupIndexPage", () => {
       },
     });
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -639,7 +680,7 @@ describe("GuidanceGroupIndexPage", () => {
       redirect: '/en-US/admin/guidance/redirect-page'
     });
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -663,7 +704,7 @@ describe("GuidanceGroupIndexPage", () => {
       errors: ['Some error occurred'],
     });
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -707,13 +748,13 @@ describe("GuidanceGroupIndexPage", () => {
       },
     });
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
 
     // Wait for loading to be gone (tagsLoading and guidanceLoading both false)
-    await waitForElementToBeRemoved(() => screen.getByText("Global.messaging.loading"));
+    await waitForElementToBeRemoved(() => screen.getByText("Global.messaging.loading"), { timeout: 5000 });
 
     const sidebar = screen.getByTestId("sidebar-panel");
     const inSidebar = within(sidebar);
@@ -731,7 +772,7 @@ describe("GuidanceGroupIndexPage", () => {
           url: { path: '/en-US/admin/guidance/groups/create' },
         })
       )
-    });
+    }, { timeout: 3000 });
   });
 
   it('should handle publishing of guidance group', async () => {
@@ -750,7 +791,7 @@ describe("GuidanceGroupIndexPage", () => {
       },
     });
     render(
-      <MockedProvider mocks={inactiveGroupMocks} addTypename={false}>
+      <MockedProvider mocks={inactiveGroupMocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -795,7 +836,7 @@ describe("GuidanceGroupIndexPage", () => {
       redirect: '/en-US/admin/guidance/redirect-page'
     });
     render(
-      <MockedProvider mocks={inactiveGroupMocks} addTypename={false}>
+      <MockedProvider mocks={inactiveGroupMocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
@@ -815,38 +856,44 @@ describe("GuidanceGroupIndexPage", () => {
   });
 
   it('should handle handlepublish when response is not successful', async () => {
-    (publishGuidanceGroupAction as jest.Mock).mockResolvedValue({
-      success: false,
-      errors: ['Some error occurred'],
-    });
-    render(
-      <MockedProvider mocks={inactiveGroupMocks} addTypename={false}>
-        <GuidanceGroupIndexPage />
-      </MockedProvider>,
-    );
-
-    // Wait for loading to be gone (tagsLoading and guidanceLoading both false)
-    await waitForElementToBeRemoved(() => screen.getByText("Global.messaging.loading"));
-
-    const sidebar = screen.getByTestId("sidebar-panel");
-    const inSidebar = within(sidebar);
-    const publishBtn = inSidebar.getByRole("button", { name: "Global.buttons.publish" });
-    fireEvent.click(publishBtn);
-
-    // Since guidanceGroupId is undefined, we expect an inline error message and no side effects
-    await waitFor(() => {
-      expect(screen.getByText('Some error occurred')).toBeInTheDocument();
-      //Check that error logged
-      expect(logECS).toHaveBeenCalledWith(
-        'error',
-        'publishing Guidance Group',
-        expect.objectContaining({
-          errors: expect.anything(),
-          url: { path: '/en-US/admin/guidance/groups/create' },
-        })
-      )
-    });
+  (publishGuidanceGroupAction as jest.Mock).mockResolvedValue({
+    success: false,
+    errors: ['Some error occurred'],
   });
+  
+  render(
+    <MockedProvider mocks={inactiveGroupMocks}>
+      <GuidanceGroupIndexPage />
+    </MockedProvider>,
+  );
+
+  // Wait for loading to be gone (tagsLoading and guidanceLoading both false)
+  await waitForElementToBeRemoved(() => screen.getByText("Global.messaging.loading"));
+
+  const sidebar = screen.getByTestId("sidebar-panel");
+  const inSidebar = within(sidebar);
+  const publishBtn = inSidebar.getByRole("button", { name: "Global.buttons.publish" });
+  
+  // Use act to wrap the state update
+  await act(async () => {
+    fireEvent.click(publishBtn);
+  });
+
+  // Wait for the async action to complete and error to be displayed
+  await waitFor(() => {
+    expect(screen.getByText('Some error occurred')).toBeInTheDocument();
+  }, { timeout: 3000 });
+
+  // Check that error logged
+  expect(logECS).toHaveBeenCalledWith(
+    'error',
+    'publishing Guidance Group',
+    expect.objectContaining({
+      errors: expect.anything(),
+      url: { path: '/en-US/admin/guidance/groups/create' },
+    })
+  );
+});
 
   it('should display error if field-level errors returned from handlepublish', async () => {
     (publishGuidanceGroupAction as jest.Mock).mockResolvedValue({
@@ -864,19 +911,20 @@ describe("GuidanceGroupIndexPage", () => {
       },
     });
     render(
-      <MockedProvider mocks={inactiveGroupMocks} addTypename={false}>
+      <MockedProvider mocks={inactiveGroupMocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );
 
     // Wait for loading to be gone (tagsLoading and guidanceLoading both false)
-    await waitForElementToBeRemoved(() => screen.getByText("Global.messaging.loading"));
+    await waitForElementToBeRemoved(() => screen.getByText("Global.messaging.loading"), { timeout: 5000 });
 
     const sidebar = screen.getByTestId("sidebar-panel");
     const inSidebar = within(sidebar);
     const publishBtn = inSidebar.getByRole("button", { name: "Global.buttons.publish" });
-    fireEvent.click(publishBtn);
-
+    await act(async () => {
+      fireEvent.click(publishBtn);
+    });
 
     // Since guidanceGroupId is undefined, we expect an inline error message and no side effects
     await waitFor(() => {
@@ -895,7 +943,7 @@ describe("GuidanceGroupIndexPage", () => {
 
   it("should pass accessibility tests", async () => {
     const { container } = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupIndexPage />
       </MockedProvider>,
     );

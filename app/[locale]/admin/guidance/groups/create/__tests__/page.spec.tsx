@@ -8,7 +8,7 @@ import {
 import {
   addGuidanceGroupAction
 } from '../actions';
-import { MockedProvider } from "@apollo/client/testing";
+import { MockedProvider } from "@apollo/client/testing/react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useParams, useRouter } from 'next/navigation';
 import logECS from '@/utils/clientLogger';
@@ -94,7 +94,7 @@ describe("GuidanceGroupCreatePage", () => {
 
   it("should render the correct form data", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupCreatePage />
       </MockedProvider>,
     );
@@ -114,7 +114,7 @@ describe("GuidanceGroupCreatePage", () => {
 
   it("should handle group name input changes", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupCreatePage />
       </MockedProvider>,
     );
@@ -130,7 +130,7 @@ describe("GuidanceGroupCreatePage", () => {
 
   it("should handle group description input changes", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupCreatePage />
       </MockedProvider>,
     );
@@ -156,7 +156,7 @@ describe("GuidanceGroupCreatePage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupCreatePage />
       </MockedProvider>,
     );
@@ -190,7 +190,7 @@ describe("GuidanceGroupCreatePage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupCreatePage />
       </MockedProvider>,
     );
@@ -231,7 +231,7 @@ describe("GuidanceGroupCreatePage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupCreatePage />
       </MockedProvider>,
     );
@@ -272,7 +272,7 @@ describe("GuidanceGroupCreatePage", () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupCreatePage />
       </MockedProvider>,
     );
@@ -299,7 +299,7 @@ describe("GuidanceGroupCreatePage", () => {
 
   it("should pass accessibility tests", async () => {
     const { container } = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidanceGroupCreatePage />
       </MockedProvider>,
     );

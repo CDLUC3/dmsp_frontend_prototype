@@ -15,10 +15,10 @@ import {
   SearchField,
 } from "react-aria-components";
 
-
-// GraphQL queries and mutations
+// GraphQL
+import { useLazyQuery } from '@apollo/client/react';
 import {
-  useMetadataStandardsLazyQuery,
+  MetadataStandardsDocument,
 } from '@/generated/graphql';
 
 import {
@@ -29,6 +29,7 @@ import {
 import { routePath } from "@/utils/routes";
 import { extractErrors } from "@/utils/errorHandler";
 import logECS from "@/utils/clientLogger";
+import { handleApolloError } from '@/utils/apolloErrorHandler';
 
 // Components
 import {
@@ -103,7 +104,7 @@ const MetaDataStandardsSelector = ({
   const [metaDataStandards, setMetaDataStandards] = useState<any[]>([]);
 
   // Metadata standards lazy query
-  const [fetchMetaDataStandardsData, { data: metaDataStandardsData }] = useMetadataStandardsLazyQuery();
+  const [fetchMetaDataStandardsData, { data: metaDataStandardsData }] = useLazyQuery(MetadataStandardsDocument);
 
 
   // Fetch metadata standards based on search term criteria
@@ -120,17 +121,21 @@ const MetaDataStandardsSelector = ({
       offsetLimit = (page - 1) * LIMIT;
     }
 
-    await fetchMetaDataStandardsData({
-      variables: {
-        paginationOptions: {
-          offset: offsetLimit,
-          limit: LIMIT,
-          type: "OFFSET",
-          sortDir: "DESC",
-        },
-        term: searchTerm,
-      }
-    });
+    try {
+      await fetchMetaDataStandardsData({
+        variables: {
+          paginationOptions: {
+            offset: offsetLimit,
+            limit: LIMIT,
+            type: "OFFSET",
+            sortDir: "DESC",
+          },
+          term: searchTerm,
+        }
+      })
+    } catch (err) {
+      handleApolloError(err, 'MetaDataStandardsSelector.fetchMetaDataStandards');
+    };
   };
 
   // Handle pagination page click

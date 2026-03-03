@@ -9,8 +9,6 @@ import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
 
 expect.extend(toHaveNoViolations);
 
-
-jest.mock('@/lib/graphql/client/apollo-client');
 jest.mock('@/utils/clientLogger', () => ({
   __esModule: true,
   default: jest.fn(),

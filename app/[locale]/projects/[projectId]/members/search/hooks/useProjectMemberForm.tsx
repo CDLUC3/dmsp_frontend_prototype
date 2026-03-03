@@ -4,8 +4,12 @@ import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
+// GraphQL
+import { useQuery } from '@apollo/client/react';
+import { MemberRolesDocument, MemberRole } from '@/generated/graphql';
+
+// Utils and other
 import { useToast } from '@/context/ToastContext';
-import { useMemberRolesQuery, MemberRole } from '@/generated/graphql';
 import { addProjectMemberAction } from '@/app/actions';
 import { AddProjectMemberResponse } from '@/app/types';
 import { extractErrors } from '@/utils/errorHandler';
@@ -49,7 +53,7 @@ export const useProjectMemberForm = (projectId: string) => {
     projectRoles: '',
   });
 
-  const { data: memberRolesData } = useMemberRolesQuery();
+  const { data: memberRolesData } = useQuery(MemberRolesDocument,);
   const memberRoles: MemberRole[] =
     memberRolesData?.memberRoles?.filter((r): r is MemberRole => r !== null) || [];
 

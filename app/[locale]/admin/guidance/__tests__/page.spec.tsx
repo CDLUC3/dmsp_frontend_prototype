@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { MockedProvider } from "@apollo/client/testing";
+import { MockedProvider } from "@apollo/client/testing/react";
 import { useFormatter, useTranslations } from "next-intl";
 import {
   MeDocument,
@@ -76,7 +76,7 @@ describe("GuidancePage", () => {
 
   it("should render the create group button", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidancePage />
       </MockedProvider>,
     );
@@ -88,7 +88,7 @@ describe("GuidancePage", () => {
 
   it("should initially render loading message", () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidancePage />
       </MockedProvider>,
     );
@@ -98,7 +98,7 @@ describe("GuidancePage", () => {
 
   it("should render guidance groups list", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidancePage />
       </MockedProvider>,
     );
@@ -113,7 +113,7 @@ describe("GuidancePage", () => {
 
   it("should render guidance group items", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidancePage />
       </MockedProvider>,
     );
@@ -126,7 +126,7 @@ describe("GuidancePage", () => {
 
   it("should render guidance group metadata", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidancePage />
       </MockedProvider>,
     );
@@ -143,7 +143,7 @@ describe("GuidancePage", () => {
 
   it("should render guidance group descriptions", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidancePage />
       </MockedProvider>,
     );
@@ -156,7 +156,7 @@ describe("GuidancePage", () => {
 
   it("should render guidance group status information", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidancePage />
       </MockedProvider>,
     );
@@ -171,7 +171,7 @@ describe("GuidancePage", () => {
 
   it("should render multiple guidance groups", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidancePage />
       </MockedProvider>,
     );
@@ -184,7 +184,7 @@ describe("GuidancePage", () => {
 
   it("should have guidance-specific structure", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidancePage />
       </MockedProvider>,
     );
@@ -197,7 +197,7 @@ describe("GuidancePage", () => {
 
   it("should render author information in metadata", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidancePage />
       </MockedProvider>,
     );
@@ -210,7 +210,7 @@ describe("GuidancePage", () => {
 
   it("should pass accessibility tests", async () => {
     const { container } = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <GuidancePage />
       </MockedProvider>,
     );

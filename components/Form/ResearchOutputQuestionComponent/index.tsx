@@ -14,14 +14,15 @@ import {
   OutputTypeInterface,
   RepositoryInterface,
   MetaDataStandardInterface,
-  MetaDataConfig
+  MetaDataConfig,
+  AdditionalFieldsType
 } from '@/app/types';
 import { DefaultResearchOutputTypesQuery, LicensesQuery } from '@/generated/graphql';
 import styles from './researchOutput.module.scss';
 
 interface ResearchOutputComponentProps {
   standardFields: StandardField[];
-  additionalFields: StandardField[];
+  additionalFields: AdditionalFieldsType[];
   expandedFields: string[];
   nonCustomizableFieldIds: string[];
   newOutputType: OutputTypeInterface;
@@ -169,11 +170,11 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                             {field.content.options.map((option, index) => (
                               <div key={`${option.value}-${index}`} style={{ marginBottom: '0.5rem' }}>
                                 <Checkbox
-                                  isSelected={option.checked}
+                                  isSelected={option.selected}
                                   onChange={(isSelected) => {
                                     if (field.content?.type === 'checkBoxes') {
                                       const updatedOptions = [...field.content.options];
-                                      updatedOptions[index] = { ...option, checked: isSelected };
+                                      updatedOptions[index] = { ...option, selected: isSelected };
                                       onUpdateStandardFieldProperty('dataFlags', 'content', {
                                         ...field.content,
                                         options: updatedOptions
@@ -334,7 +335,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                           <polyline points="1 9 7 14 15 4" />
                         </svg>
                       </div>
-                      <span>{field.customLabel !== undefined && field.customLabel !== '' ? field.customLabel : field.label}</span>
+                      <span>{field.heading}</span>
                     </Checkbox>
                     <div className={styles.fieldActions}>
                       <Button
@@ -351,7 +352,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                         type="button"
                         className={`buttonLink link ${styles.deleteButton}`}
                         onPress={() => onDeleteAdditionalField(field.id)}
-                        aria-label={Global('buttons.delete', { item: field.customLabel || field.label })}
+                        aria-label={Global('buttons.delete', { item: field.heading })}
                       >
                         {Global('buttons.delete')}
                       </Button>
@@ -370,7 +371,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                           id={`${field.id}_label`}
                           isRequired={false}
                           label={QuestionAdd('researchOutput.additionalFields.fieldLabel.label')}
-                          value={field.customLabel !== undefined ? field.customLabel : field.label}
+                          value={field.heading}
                           onChange={(e) => onUpdateAdditionalField(field.id, 'customLabel', e.currentTarget.value)}
                           helpMessage={QuestionAdd('researchOutput.additionalFields.fieldLabel.helpText')}
                         />
@@ -379,8 +380,8 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                         <FormInput
                           name={`${field.id}_help`}
                           isRequired={false}
-                          label={QuestionAdd('labels.helpText', { fieldName: field.customLabel || field.label })}
-                          value={field.helpText}
+                          label={QuestionAdd('labels.helpText', { fieldName: field.heading })}
+                          value={field.content?.attributes?.help || ''}
                           onChange={(e) => onUpdateAdditionalField(field.id, 'helpText', e.currentTarget.value)}
                           helpMessage={QuestionAdd('researchOutput.helpText')}
                           maxLength={300}
@@ -392,7 +393,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                           type="number"
                           isRequired={false}
                           label={QuestionAdd('researchOutput.additionalFields.maxLength.label')}
-                          value={field.maxLength || ''}
+                          value={field.content?.attributes?.maxLength?.toString() || ''}
                           onChange={(e) => onUpdateAdditionalField(field.id, 'maxLength', e.currentTarget.value)}
                           helpMessage={QuestionAdd('researchOutput.additionalFields.maxLength.helpText')}
                         />
@@ -402,7 +403,7 @@ const ResearchOutputComponent: React.FC<ResearchOutputComponentProps> = ({
                           name={`${field.id}_defaultValue`}
                           isRequired={false}
                           label={QuestionAdd('researchOutput.additionalFields.defaultValue.label')}
-                          value={field.defaultValue || ''}
+                          value={field.content?.attributes?.defaultValue || ''}
                           onChange={(e) => onUpdateAdditionalField(field.id, 'defaultValue', e.currentTarget.value)}
                           helpMessage={QuestionAdd('researchOutput.additionalFields.defaultValue.helpText')}
                           maxLength={300}

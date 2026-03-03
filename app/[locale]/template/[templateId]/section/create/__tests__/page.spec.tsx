@@ -1,11 +1,12 @@
 import React from "react";
-import { ApolloError } from '@apollo/client';
 import { useParams, useRouter } from 'next/navigation';
 import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import { useQuery, useMutation } from '@apollo/client/react';
+
 import {
-  useAddSectionMutation,
-  useSectionsDisplayOrderQuery,
-  useTagsQuery,
+  AddSectionDocument,
+  SectionsDisplayOrderDocument,
+  TagsDocument,
 } from '@/generated/graphql';
 
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -15,13 +16,12 @@ import mockSectionData from '../__mocks__/addSectionMock.json';
 
 expect.extend(toHaveNoViolations);
 
-// Mock the graphql hooks
-jest.mock("@/generated/graphql", () => ({
-  useAddSectionMutation: jest.fn(),
-  useTagsQuery: jest.fn(),
-  useSectionsDisplayOrderQuery: jest.fn(),
-  SectionsDisplayOrderDocument: jest.fn()
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+  useMutation: jest.fn(),
 }));
+
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -106,8 +106,61 @@ const mockTagsData = {
   ]
 };
 
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+const mockUseMutation = jest.mocked(useMutation);
+
+let mockAddSectionFn: jest.Mock;
+
+const setupMocks = () => {
+  // Create stable references OUTSIDE mockImplementation
+  const stableSectionReturn = {
+    data: mockSectionsData,
+    loading: false,
+    error: null,
+  };
+
+  const stableTagsReturn = {
+    data: mockTagsData,
+    loading: false,
+    error: null,
+  };
+
+  mockUseQuery.mockImplementation((document) => {
+    if (document === SectionsDisplayOrderDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return stableSectionReturn as any;
+    }
+
+    if (document === TagsDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return stableTagsReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+
+  mockAddSectionFn = jest.fn().mockResolvedValue({
+    data: { key: 'value' }
+  });
+
+  mockUseMutation.mockImplementation((document) => {
+    if (document === AddSectionDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return [mockAddSectionFn, { loading: false, error: undefined }] as any;
+    }
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    return [jest.fn(), { loading: false, error: undefined }] as any;
+  });
+};
+
 describe("CreateSectionPage", () => {
   beforeEach(() => {
+    setupMocks();
     jest.clearAllMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
@@ -124,28 +177,12 @@ describe("CreateSectionPage", () => {
 
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
-    (useTagsQuery as jest.Mock).mockReturnValue({
-      data: mockTagsData,
-      loading: true,
-      error: null,
-    });
-
     mockUseRouter.mockReturnValue({
       push: jest.fn(),
     });
-
-    (useSectionsDisplayOrderQuery as jest.Mock).mockReturnValue({
-      data: mockSectionsData,
-      loading: false,
-      error: undefined,
-    });
-
   });
 
   it("should render correct fields", async () => {
-    (useAddSectionMutation as jest.Mock).mockImplementation(() => {
-      return [{ data: { key: 'value' } }, { loading: false, error: undefined }];
-    });
 
     await act(async () => {
       render(
@@ -182,11 +219,6 @@ describe("CreateSectionPage", () => {
   });
 
   it('should display error when no value is entered in section name field', async () => {
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
-      { loading: false, error: undefined },
-    ]);
-
     await act(async () => {
       render(
         <CreateSectionPage />
@@ -204,11 +236,14 @@ describe("CreateSectionPage", () => {
   it('should call addSectionMutation when user enters data and clicks Create section button', async () => {
     const mockAddSection = jest.fn().mockResolvedValueOnce({ data: mockSectionData });
 
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      mockAddSection,
-      { loading: false, error: undefined },
-    ]);
-
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddSectionDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        return [mockAddSection, { loading: false, error: undefined }] as any;
+      }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -243,11 +278,14 @@ describe("CreateSectionPage", () => {
     const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener');
     const mockAddSection = jest.fn().mockResolvedValueOnce({ data: mockSectionData });
 
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      mockAddSection,
-      { loading: false, error: undefined },
-    ]);
-
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddSectionDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        return [mockAddSection, { loading: false, error: undefined }] as any;
+      }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -289,10 +327,16 @@ describe("CreateSectionPage", () => {
   })
 
   it('should display error when addSectionMutation throws an error', async () => {
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockRejectedValueOnce(new Error("Error")),
-      { loading: false, error: undefined },
-    ]);
+    const mockAddSection = jest.fn().mockRejectedValueOnce(new Error("Error"));
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddSectionDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        return [mockAddSection, { loading: false, error: undefined }] as any;
+      }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -314,21 +358,19 @@ describe("CreateSectionPage", () => {
   })
 
   it('should display error when addSectionMutation returns an instance of apollo error', async () => {
-    const apolloError = new ApolloError({
-      graphQLErrors: [{ message: 'Apollo error occurred' }],
-      networkError: null,
-      errorMessage: 'Apollo error occurred',
-    });
 
     const mockUpdateSection = jest.fn()
-      .mockRejectedValueOnce(apolloError) // First call returns an Apollo error
+      .mockRejectedValueOnce(new Error('Apollo error occurred')) // First call returns an Apollo error
       .mockResolvedValueOnce({ data: { removeUserEmail: [{ errors: null }] } }); // Second call succeeds
 
-
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      mockUpdateSection,
-      { loading: false, error: undefined }
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddSectionDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        return [mockUpdateSection, { loading: false, error: undefined }] as any;
+      }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(
@@ -344,24 +386,30 @@ describe("CreateSectionPage", () => {
       fireEvent.click(createButton);
     });
     await waitFor(() => {
-      expect(screen.getByText('Apollo error occurred')).toBeInTheDocument();
+      expect(screen.getByText('messages.errorCreatingSection')).toBeInTheDocument();
     });
   })
 
   it('should display errors when addSectionMutation returns field-level errors', async () => {
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({
-        data: {
-          addSection: {
-            errors: {
-              general: 'Error adding section',
-              name: 'Section name not in correct format',
-            },
+    const mockUpdateSection = jest.fn().mockResolvedValueOnce({
+      data: {
+        addSection: {
+          errors: {
+            general: 'Error adding section',
+            name: 'Section name not in correct format',
           },
         },
-      }),
-      { loading: false, error: undefined },
-    ]);
+      },
+    });
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddSectionDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        return [mockUpdateSection, { loading: false, error: undefined }] as any;
+      }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     await act(async () => {
       render(<CreateSectionPage />);
@@ -387,10 +435,6 @@ describe("CreateSectionPage", () => {
 
 
   it('should pass axe accessibility test', async () => {
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-    ]);
-
     const { container } = render(
       <CreateSectionPage />
     );

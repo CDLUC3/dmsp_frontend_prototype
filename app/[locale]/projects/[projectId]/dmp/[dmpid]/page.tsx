@@ -16,13 +16,22 @@ import {
   Radio,
   Text,
 } from "react-aria-components";
+
+// GraphQL
+import { useQuery } from '@apollo/client/react';
 import {
   PlanSectionProgress,
   PlanStatus,
   PlanVisibility,
-  usePlanQuery,
-  usePlanFeedbackStatusQuery,
+  PlanDocument,
+  PlanFeedbackStatusDocument,
+  RelatedWorksByPlanStatsDocument,
 } from "@/generated/graphql";
+import {
+  publishPlanAction,
+  updatePlanStatusAction,
+  updatePlanTitleAction
+} from "./actions";
 
 //Components
 import { ContentContainer, LayoutWithPanel, SidebarPanel } from "@/components/Container";
@@ -32,11 +41,11 @@ import { FormSelect, RadioGroupComponent } from "@/components/Form";
 import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
 import OverviewSection from "@/components/OverviewSection";
 
+// Utils and other
 import { routePath } from "@/utils/routes";
 import { toTitleCase } from "@/utils/general";
 import { extractErrors } from "@/utils/errorHandler";
 import { useToast } from "@/context/ToastContext";
-import { publishPlanAction, updatePlanStatusAction, updatePlanTitleAction } from "./actions";
 import {
   PlanMember,
   PlanOverviewInterface,
@@ -170,17 +179,26 @@ const PlanOverviewPage: React.FC = () => {
     loading,
     error: queryError,
     refetch,
-  } = usePlanQuery({
+  } = useQuery(PlanDocument, {
     variables: { planId: Number(planId) },
     skip: isNaN(planId), // prevents the query from running when id is not a number
     notifyOnNetworkStatusChange: true,
+  });
+
+  // Query data
+  const {
+    data: relatedWorksByPlanStats,
+  } = useQuery(RelatedWorksByPlanStatsDocument, {
+    variables: {
+      planId,
+    },
   });
 
   const {
     data: feedbackData,
     loading: feedbackLoading,
     error: feedbackError,
-  } = usePlanFeedbackStatusQuery({
+  } = useQuery(PlanFeedbackStatusDocument, {
     variables: { planId: Number(planId) },
     skip: isNaN(planId),
   });
@@ -202,9 +220,6 @@ const PlanOverviewPage: React.FC = () => {
   }), [projectId, planId]);
 
   const { FUNDINGS_URL, MEMBERS_URL, DOWNLOAD_URL, FEEDBACK_URL, CHANGE_PRIMARY_CONTACT_URL, RELATED_WORKS_URL } = urls;
-
-  //TODO: Get related works count from backend
-  const relatedWorksCount = 3;
 
   // Format the publish date - no memoization needed since date doesn't change after load
   const formattedPublishDate = formatPublishDate(planData?.templatePublished ?? null, formatter);
@@ -589,8 +604,11 @@ const PlanOverviewPage: React.FC = () => {
                 linkHref={RELATED_WORKS_URL}
                 linkText={t("relatedWorks.edit")}
                 linkAriaLabel={t("relatedWorks.edit")}
+                includeLink={!!planData.registered}
               >
-                <p>{t("relatedWorks.count", { count: relatedWorksCount })}</p>
+                {!planData.registered && <p>{t("relatedWorks.publish")}</p>}
+                {planData.registered && relatedWorksByPlanStats?.relatedWorksByPlanStats?.pendingCount != null && <p>{t("relatedWorks.pendingCount", { count: relatedWorksByPlanStats?.relatedWorksByPlanStats?.pendingCount })}</p>}
+                {planData.registered && relatedWorksByPlanStats?.relatedWorksByPlanStats?.acceptedCount != null && <p>{t("relatedWorks.acceptedCount", { count: relatedWorksByPlanStats?.relatedWorksByPlanStats?.acceptedCount })}</p>}
               </OverviewSection>
             </div>
 
@@ -646,7 +664,7 @@ const PlanOverviewPage: React.FC = () => {
         </ContentContainer>
 
         <SidebarPanel>
-          <div className={`statusPanelContent sidePanel`}>
+          <div className="status-panel-content side-panel">
             <div className={`buttonContainer withBorder  mb-5`}>
               <Link
                 href={getNarrativeUrl(planData.dmpId)}
@@ -660,7 +678,7 @@ const PlanOverviewPage: React.FC = () => {
                 {Global("buttons.publish")}
               </Button>
             </div>
-            <div className="sidePanelContent">
+            <div className="side-panel-content">
               <div className={`panelRow mb-5`}>
                 <div>
                   <h3>{t("status.feedback.title")}</h3>

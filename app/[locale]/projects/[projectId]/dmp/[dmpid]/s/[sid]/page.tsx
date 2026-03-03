@@ -4,14 +4,15 @@ import React, { useEffect, useState } from 'react';
 import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
 import { useParams } from 'next/navigation';
 import { useTranslations } from "next-intl";
-import Image from 'next/image';
 
+// GraphQL
+import { useQuery } from '@apollo/client/react';
 import {
-  usePublishedQuestionsQuery,
-  usePublishedSectionQuery,
-  usePlanQuery,
+  PublishedQuestionsDocument,
+  PublishedSectionDocument,
+  PlanDocument,
+  MeDocument
 } from '@/generated/graphql';
-
 
 // Components
 import {
@@ -21,14 +22,18 @@ import {
 } from "@/components/Container";
 import { DmpIcon } from '@/components/Icons';
 import ErrorMessages from '@/components/ErrorMessages';
-import ExpandableContentSection from '@/components/ExpandableContentSection';
 import PageHeader from "@/components/PageHeader";
 import SafeHtml from '@/components/SafeHtml';
+import GuidancePanel from '@/components/GuidancePanel';
+import Loading from '@/components/Loading';
 
-// Other
+// Utils and other
 import { stripHtml } from '@/utils/general';
 import { routePath } from '@/utils/routes';
+import { GuidanceItemInterface } from '@/app/types';
 import styles from './PlanOverviewSectionPage.module.scss';
+import { useGuidanceData } from '@/app/hooks/useGuidanceData';
+
 interface VersionedQuestion {
   id: string;
   title: string;
@@ -37,8 +42,12 @@ interface VersionedQuestion {
 }
 
 const PlanOverviewSectionPage: React.FC = () => {
+  // Localization
   const t = useTranslations('PlanOverview');
-  const Global = useTranslations('Global');
+  const Guidance = useTranslations('Guidance');
+  const Section = useTranslations('SectionPage');
+
+  // Get route params
   const params = useParams();
   const versionedSectionId = Number(params.sid);
   const dmpId = params.dmpid as string;
@@ -46,24 +55,87 @@ const PlanOverviewSectionPage: React.FC = () => {
 
   // State for navigation visibility
   const [showNavigation, setShowNavigation] = useState(true);
+  const [guidanceItems, setGuidanceItems] = useState<GuidanceItemInterface[]>([]);
 
   // Validate that dmpId is a valid number
   const planId = parseInt(dmpId);
 
-  const { data: questionsData, loading: questionsLoading, error: questionsError } = usePublishedQuestionsQuery({
+  // Get user data
+  const { data: me } = useQuery(MeDocument);
+
+  const { data: questionsData, loading: questionsLoading, error: questionsError } = useQuery(PublishedQuestionsDocument, {
     variables: { planId, versionedSectionId },
     skip: !versionedSectionId
   });
 
-  const { data: sectionData, loading: sectionLoading } = usePublishedSectionQuery({
+  const { data: sectionData, loading: sectionLoading } = useQuery(PublishedSectionDocument, {
     variables: { versionedSectionId },
     skip: !versionedSectionId
   });
 
-  const { data: planData, loading: planLoading } = usePlanQuery({
+  const { data: planData, loading: planLoading } = useQuery(PlanDocument, {
     variables: { planId },
     skip: !planId
   });
+
+  // Use the guidance data hook to get section tags and matched guidance
+  const { sectionTagsMap, matchedGuidanceByOrg } = useGuidanceData({
+    userAffiliationUri: me?.me?.affiliation?.uri,
+    userAffiliationName: me?.me?.affiliation?.name,
+    userAffiliationAcronyms: me?.me?.affiliation?.acronyms,
+    planData,
+    versionedSectionId: String(versionedSectionId)
+  });
+
+  // Handlers for guidance panel
+  const handleAddGuidanceOrganization = () => {
+    console.log('Add guidance organization');
+  };
+
+  const handleRemoveGuidanceOrganization = (orgId: string) => {
+    console.log('Remove guidance organization:', orgId);
+  };
+
+  // Combine section guidance with user's matched guidance
+  useEffect(() => {
+    if (sectionData?.publishedSection) {
+      const section = sectionData.publishedSection;
+
+      // Section's own guidance
+      const sectionGuidance: GuidanceItemInterface = {
+        orgURI: planData?.plan?.versionedTemplate?.owner?.uri ?? '',
+        orgName: planData?.plan?.versionedTemplate?.owner?.name ?? '',
+        orgShortname: planData?.plan?.versionedTemplate?.owner?.acronyms?.[0] || '',
+        items: section.guidance ? [
+          {
+            title: planData?.plan?.versionedTemplate?.owner?.name || '',
+            guidanceText: section.guidance
+          }
+        ] : []
+      };
+
+      // Consolidate guidance by orgURI
+      const guidanceMap = new Map<string, GuidanceItemInterface>();
+
+      // Add section guidance if it has items
+      if (sectionGuidance.items.length > 0) {
+        guidanceMap.set(sectionGuidance.orgURI, sectionGuidance);
+      }
+
+      // Add or merge matched guidance from user's affiliation
+      matchedGuidanceByOrg.forEach(guidance => {
+        if (guidanceMap.has(guidance.orgURI)) {
+          // Merge items if orgURI already exists
+          const existing = guidanceMap.get(guidance.orgURI)!;
+          existing.items = [...existing.items, ...guidance.items];
+        } else {
+          guidanceMap.set(guidance.orgURI, guidance);
+        }
+      });
+
+      setGuidanceItems(Array.from(guidanceMap.values()));
+    }
+  }, [sectionData, matchedGuidanceByOrg]);
 
   // Hide navigation when close to footer
   useEffect(() => {
@@ -91,11 +163,11 @@ const PlanOverviewSectionPage: React.FC = () => {
 
   // Loading states
   if (questionsLoading || sectionLoading || planLoading) {
-    return <div>Loading questions...</div>;
+    return <Loading />;
   }
 
   if (questionsError) {
-    return <div>Error loading questions: {questionsError.message}</div>;
+    return <div>{Section('errors.errorLoadingSections', { message: questionsError.message })}</div>;
   }
 
   // Plan sections data for rendering
@@ -172,14 +244,14 @@ const PlanOverviewSectionPage: React.FC = () => {
               style={{ display: showNavigation ? 'block' : 'none' }}
               aria-labelledby="plan-nav-title"
             >
-              <h2 id="plan-nav-title" className={"hidden-accessibly"}>Plan Navigation</h2>
+              <h2 id="plan-nav-title" className={"hidden-accessibly"}>{Section('navigation.planNavigation')}</h2>
 
               <Link
                 href={routePath('projects.dmp.show', { projectId, dmpId })}
                 className={styles.planOverviewLink}
                 aria-label="Go to plan overview"
               >
-                Plan Overview
+                {Section('navigation.planOverview')}
               </Link>
 
               {planSections.length > 0 && (
@@ -227,8 +299,8 @@ const PlanOverviewSectionPage: React.FC = () => {
 
               {questions.length === 0 ? (
                 <section className={styles.noQuestionsMessage}>
-                  <h3>No Questions Available</h3>
-                  <p>There are currently no questions in this section.</p>
+                  <h3>{Section('headings.noQuestionsAvailable')}</h3>
+                  <p>{Section('headings.noQuestionsInSection')}</p>
                 </section>
               ) : (
                 questions.map((question) => (
@@ -274,71 +346,17 @@ const PlanOverviewSectionPage: React.FC = () => {
         </ContentContainer>
 
         <SidebarPanel>
-
-          <div className={styles.headerWithLogo}>
-            <h2 className="h4">{Global('bestPractice')}</h2>
-            <Image
-              className={styles.Logo}
-              src="/images/DMP-logo.svg"
-              width="140"
-              height="16"
-              alt="DMP Tool"
+          <div className="status-panel-content side-panel">
+            <h2 className="h4">{Guidance('title')}</h2>
+            <GuidancePanel
+              userAffiliationId={me?.me?.affiliation?.uri}
+              ownerAffiliationId={planData?.plan?.versionedTemplate?.owner?.uri}
+              guidanceItems={guidanceItems}
+              sectionTags={sectionTagsMap}
+              onAddOrganization={handleAddGuidanceOrganization}
+              onRemoveOrganization={handleRemoveGuidanceOrganization}
             />
           </div>
-
-
-          <ExpandableContentSection
-            id="data-description"
-            heading={Global('dataDescription')}
-            expandLabel={Global('links.expand')}
-            summaryCharLimit={200}
-          >
-            <p>
-              Give a summary of the data you will collect or create, noting the content, coverage and data type, e.g., tabular data, survey data, experimental measurements, models, software, audiovisual data, physical samples, etc.
-            </p>
-            <p>
-              Consider how your data could complement and integrate with existing data, or whether there are any existing data or methods that you could reuse.
-            </p>
-            <p>
-              Indicate which data are of long-term value and should be shared and/or preserved.
-
-            </p>
-            <p>
-              If purchasing or reusing existing data, explain how issues such as copyright and IPR have been addressed. You should aim to minimize any restrictions on the reuse (and subsequent sharing) of third-party data.
-
-            </p>
-
-          </ExpandableContentSection>
-
-          <ExpandableContentSection
-            id="data-format"
-            heading={Global('dataFormat')}
-            expandLabel={Global('links.expand')}
-            summaryCharLimit={200}
-
-          >
-            <p>
-              Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
-            </p>
-
-          </ExpandableContentSection>
-
-          <ExpandableContentSection
-            id="data-volume"
-            heading={Global('dataVolume')}
-            expandLabel={Global('links.expand')}
-            summaryCharLimit={200}
-          >
-            <p>
-              Note what volume of data you will create in MB/GB/TB. Indicate the proportions of raw data, processed data, and other secondary outputs (e.g., reports).
-            </p>
-            <p>
-              Consider the implications of data volumes in terms of storage, access, and preservation. Do you need to include additional costs?
-            </p>
-            <p>
-              Consider whether the scale of the data will pose challenges when sharing or transferring data between sites; if so, how will you address these challenges?
-            </p>
-          </ExpandableContentSection>
         </SidebarPanel>
       </LayoutWithPanel>
     </>

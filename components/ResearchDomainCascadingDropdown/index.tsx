@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ListBoxItem, } from "react-aria-components";
+import { useQuery, useLazyQuery } from '@apollo/client/react';
 import {
-  useChildResearchDomainsQuery,
-  useTopLevelResearchDomainsQuery,
+  ChildResearchDomainsDocument,
+  TopLevelResearchDomainsDocument,
 } from '@/generated/graphql';
 
 import { FormSelect, } from "@/components/Form";
@@ -35,15 +36,12 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
   const ProjectDetail = useTranslations('ProjectsProjectDetail');
 
   // Get all Research Domains
-  const { data: myResearchDomains } = useTopLevelResearchDomainsQuery();
+  const { data: myResearchDomains } = useQuery(TopLevelResearchDomainsDocument);
 
   // Get all related child domains
-  const { data: myChildDomains, refetch } = useChildResearchDomainsQuery(
-    {
-      variables: { parentResearchDomainId: Number(selectedParent) },
-      notifyOnNetworkStatusChange: true
-    }
-  );
+  const [fetchChildDomains, { data: myChildDomains }] = useLazyQuery(ChildResearchDomainsDocument, {
+    notifyOnNetworkStatusChange: true,
+  });
 
   // Update child dropdown when parent selection changes
   const updateChildDropdown = async (parentResearchDomainId: string) => {
@@ -52,7 +50,12 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
     setProjectData({ ...projectData, researchDomainId: parentResearchDomainId });
 
     if (parentResearchDomainId) {
-      await refetch({ parentResearchDomainId: Number(parentResearchDomainId) });
+      await fetchChildDomains({
+        variables: { parentResearchDomainId: Number(parentResearchDomainId) }
+      });
+    } else {
+      // Clear child options if no parent selected
+      setChildOptionsList([]);
     }
   };
 
@@ -86,15 +89,17 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
       setChildOptionsList(subDomains);
 
       // Update live region when subdomains change
-      if (statusRef.current) {
-        if (subDomains.length > 0) {
-          statusRef.current.textContent = ProjectDetail('helpText.childDropdownUpdated', { childOptionsList: subDomains.length, selectedParent: selectedParentName });
-        } else {
-          statusRef.current.textContent = '';
-        }
+      if (statusRef.current && subDomains.length > 0) {
+        const parentName = myResearchDomains?.topLevelResearchDomains?.find(
+          domain => domain?.id === Number(selectedParent)
+        )?.description ?? '';
+        statusRef.current.textContent = ProjectDetail('helpText.childDropdownUpdated', {
+          childOptionsList: subDomains.length,
+          selectedParent: parentName
+        });
       }
     }
-  }, [myChildDomains]);
+  }, [myChildDomains, myResearchDomains, selectedParent, ProjectDetail]);
 
   useEffect(() => {
     const handleResearchDomains = async () => {
@@ -119,13 +124,17 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
     if (initialLoadRef.current && projectData?.parentResearchDomainId && projectData?.researchDomainId) {
       if (projectData?.parentResearchDomainId) {
         setSelectedParent(projectData.parentResearchDomainId.toString());
+        // Fetch child domains for the initial parent selection
+        fetchChildDomains({
+          variables: { parentResearchDomainId: Number(projectData.parentResearchDomainId) }
+        });
       }
       if (projectData?.researchDomainId && projectData?.researchDomainId !== projectData?.parentResearchDomainId) {
         setSelectedChild(projectData.researchDomainId.toString());
       }
       initialLoadRef.current = false;
     }
-  }, [projectData]);
+  }, [projectData, fetchChildDomains]);
 
   return (
     <div className="cascading-dropdown">
@@ -141,7 +150,7 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
         >
           {rDomains.map((domain) => {
             return (
-              <ListBoxItem key={domain.id} textValue={String(domain.id)}>{domain.id}</ListBoxItem>
+              <ListBoxItem key={domain.id} textValue={domain.name}>{domain.name}</ListBoxItem>
             )
 
           })}

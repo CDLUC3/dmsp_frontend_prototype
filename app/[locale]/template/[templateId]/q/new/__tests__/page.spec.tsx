@@ -111,7 +111,7 @@ describe("QuestionTypeSelectPage", () => {
     expect(questionTypeCard2Description).toBeInTheDocument();
     expect(questionTypeCard3).toBeInTheDocument();
     expect(questionTypeCard3Description).toBeInTheDocument();
-    expect(selectButtons.length).toBe(16); // total of 16 question types
+    expect(selectButtons.length).toBe(15); // total of 15 question types
   });
 
   it('should show filtered list when user clicks Search button', async () => {

@@ -13,10 +13,10 @@ import {
   Text
 } from 'react-aria-components';
 import { useTranslations } from 'next-intl';
-import { useFormatDate } from '@/hooks/useFormatDate';
 
 //GraphQL
-import { useTemplatesLazyQuery } from '@/generated/graphql';
+import { useLazyQuery } from '@apollo/client/react';
+import { TemplatesDocument, TemplatesQuery } from '@/generated/graphql';
 
 // Components
 import PageHeader from '@/components/PageHeader';
@@ -26,7 +26,9 @@ import ErrorMessages from '@/components/ErrorMessages';
 
 // Hooks
 import { useScrollToTop } from '@/hooks/scrollToTop';
+import { useFormatDate } from '@/hooks/useFormatDate';
 
+// Utils and other
 import { toSentenceCase } from '@/utils/general';
 import { logECS, routePath } from '@/utils/index';
 import {
@@ -74,7 +76,7 @@ const TemplateListPage: React.FC = () => {
   const TEMPLATE_CREATE_URL = routePath('template.create');
 
   // Lazy query for organization templates
-  const [fetchTemplates, { data: templateData, loading, error: queryError }] = useTemplatesLazyQuery();
+  const [fetchTemplates, { data: templateData, loading, error: queryError }] = useLazyQuery<TemplatesQuery>(TemplatesDocument);
 
   // zero out search and filters
   const resetSearch = async () => {
@@ -154,7 +156,6 @@ const TemplateListPage: React.FC = () => {
   const handleLoadMore = async () => {
     if (!nextCursor) return;
     setFirstNewIndex(templates.length);
-
     await fetchTemplates({
       variables: {
         paginationOptions: {
@@ -333,6 +334,7 @@ const TemplateListPage: React.FC = () => {
               {searchResults.map((template, index) => (
                 <div
                   key={`${template.id}-${index}`}
+                  role="listitem"
                   data-index={index}
                 >
                   <TemplateSelectListItem

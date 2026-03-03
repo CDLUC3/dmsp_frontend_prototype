@@ -1,6 +1,6 @@
 import React from "react";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { MockedProvider } from "@apollo/client/testing";
+import { MockedProvider } from "@apollo/client/testing/react";
 import { MyProjectsDocument } from "@/generated/graphql";
 import { axe, toHaveNoViolations } from "jest-axe";
 import ProjectsListPage from "../page";
@@ -559,12 +559,19 @@ describe("ProjectsListPage", () => {
     });
   });
 
+  // Need this because the test is ending before async operations complete.
+  afterEach(async () => {
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    });
+  });
+
+
   it("should render the ProjectsListPage component", async () => {
     await act(async () => {
       render(
         <MockedProvider
           mocks={mocks}
-          addTypename={false}
         >
           <ProjectsListPage />
         </MockedProvider>,
@@ -597,7 +604,6 @@ describe("ProjectsListPage", () => {
       render(
         <MockedProvider
           mocks={mocks}
-          addTypename={false}
         >
           <ProjectsListPage />
         </MockedProvider>,
@@ -649,7 +655,6 @@ describe("ProjectsListPage", () => {
       render(
         <MockedProvider
           mocks={mocks}
-          addTypename={false}
         >
           <ProjectsListPage />
         </MockedProvider>,
@@ -673,7 +678,6 @@ describe("ProjectsListPage", () => {
       render(
         <MockedProvider
           mocks={mocks}
-          addTypename={false}
         >
           <ProjectsListPage />
         </MockedProvider>,
@@ -706,7 +710,6 @@ describe("ProjectsListPage", () => {
       render(
         <MockedProvider
           mocks={mocks}
-          addTypename={false}
         >
           <ProjectsListPage />
         </MockedProvider>,
@@ -729,7 +732,6 @@ describe("ProjectsListPage", () => {
       render(
         <MockedProvider
           mocks={mocks}
-          addTypename={false}
         >
           <ProjectsListPage />
         </MockedProvider>,
@@ -763,7 +765,6 @@ describe("ProjectsListPage", () => {
       render(
         <MockedProvider
           mocks={mocks}
-          addTypename={false}
         >
           <ProjectsListPage />
         </MockedProvider>,
@@ -786,7 +787,6 @@ describe("ProjectsListPage", () => {
       render(
         <MockedProvider
           mocks={mocks}
-          addTypename={false}
         >
           <ProjectsListPage />
         </MockedProvider>,
@@ -831,12 +831,10 @@ describe("ProjectsListPage", () => {
     const { container } = render(
       <MockedProvider
         mocks={mocks}
-        addTypename={false}
       >
         <ProjectsListPage />
       </MockedProvider>,
     );
-
     await act(async () => {
       const results = await axe(container);
       expect(results).toHaveNoViolations();

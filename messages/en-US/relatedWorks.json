@@ -1,9 +1,7 @@
 {
   "RelatedWorksPage": {
-    "header": {
-      "title": "Related Works",
-      "description": "Match related works to your research project."
-    },
+    "title": "Related Works",
+    "description": "Match related works to your research project.",
     "buttons": {
       "addRelatedWorkManually": "Add Related Work"
     },
@@ -47,9 +45,7 @@
     }
   },
   "RelatedWorksListItem": {
-    "header": {
-      "title": "Open the published version of this work"
-    },
+    "title": "Open the published version of this work",
     "buttons": {
       "expand": "Expand",
       "collapse": "Collapse",
@@ -85,6 +81,11 @@
       "HIGH": "High",
       "MEDIUM": "Medium",
       "LOW": "Low"
+    },
+    "status": {
+      "PENDING": "Pending",
+      "ACCEPTED": "Accepted",
+      "REJECTED": "Rejected"
     },
     "workType": {
       "ARTICLE": "Article",
@@ -123,6 +124,34 @@
       "TEXT": "Text",
       "TRADITIONAL_KNOWLEDGE": "Traditional Knowledge",
       "WORKFLOW": "Workflow"
+    }
+  },
+  "AddRelatedWorkPage": {
+    "title": "Add related work",
+    "description": "To manually add a related work to a plan, enter work's DOI below and click Lookup to find it. Click Accept to add the work to the plan. You can run multiple searches on this page to add more than one work.",
+    "searchLabel": "Digital Object Identifier (DOI)",
+    "searchDescription": "Enter the work's DOI in either short or URL form (e.g. <code>10.1000/182</code> or <code>https://doi.org/10.1000/182</code>), then click Lookup.",
+    "invalidDoi": "Please enter a valid DOI",
+    "buttons": {
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "accept": "Accept",
+      "reject": "Reject"
+    },
+    "fieldNames": {
+      "status": "Status",
+      "confidence": "Confidence",
+      "dateFound": "Date Found",
+      "dateReviewed": "Reviewed",
+      "type": "Type",
+      "source": "Source",
+      "doi": "DOI",
+      "title": "Title",
+      "abstract": "Abstract",
+      "awardIds": "Award IDs",
+      "authors": "Authors",
+      "institutions": "Institutions",
+      "funders": "Funders"
     }
   }
 }

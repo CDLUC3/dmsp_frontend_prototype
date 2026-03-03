@@ -24,3 +24,21 @@ query MetadataStandards($term: String, $researchDomainId: Int, $paginationOption
     }
   }
 }
+
+query MetadataStandardsByURIs($uris: [String!]!) {
+  metadataStandardsByURIs(uris: $uris) {
+    id
+    errors {
+      general
+      description
+      name
+      uri
+      keywords
+      researchDomainIds
+    }
+    name
+    uri
+    description
+    keywords
+  }
+}

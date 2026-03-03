@@ -1,7 +1,6 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
@@ -23,10 +22,11 @@ import {
   TextField
 } from "react-aria-components";
 
-// GraphQL queries and mutations
+// GraphQL
+import { useMutation, useQuery } from '@apollo/client/react';
 import {
-  useAddQuestionMutation,
-  useQuestionsDisplayOrderQuery,
+  AddQuestionDocument,
+  QuestionsDisplayOrderDocument,
 } from '@/generated/graphql';
 
 import {
@@ -34,7 +34,6 @@ import {
   QuestionOptions,
   AnyParsedQuestion,
 } from '@/app/types';
-
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -63,12 +62,14 @@ import {
   RANGE_QUESTION_TYPE,
   TYPEAHEAD_QUESTION_TYPE,
   TEXT_AREA_QUESTION_TYPE,
-  RESEARCH_OUTPUT_QUESTION_TYPE
+  RESEARCH_OUTPUT_QUESTION_TYPE,
+  QUESTION_TYPES_EXCLUDED_FROM_COMMENT_FIELD
 } from '@/lib/constants';
 import {
   isOptionsType,
   getOverrides,
 } from './hooks/useAddQuestion';
+import logECS from '@/utils/clientLogger';
 import styles from './questionAdd.module.scss';
 
 const defaultQuestion = {
@@ -77,6 +78,7 @@ const defaultQuestion = {
   sampleText: '',
   useSampleTextAsDefault: false,
   required: false,
+  showCommentField: false,
 };
 
 const QuestionAdd = ({
@@ -129,10 +131,10 @@ const QuestionAdd = ({
   const QuestionAdd = useTranslations('QuestionAdd');
 
   // Initialize add and update question mutations
-  const [addQuestionMutation] = useAddQuestionMutation();
+  const [addQuestionMutation] = useMutation(AddQuestionDocument);
 
   // Query request for questions to calculate max displayOrder
-  const { data: questionDisplayOrders } = useQuestionsDisplayOrderQuery({
+  const { data: questionDisplayOrders } = useQuery(QuestionsDisplayOrderDocument, {
     variables: {
       sectionId: Number(sectionId)
     },
@@ -360,10 +362,18 @@ const QuestionAdd = ({
       }
       return;
     }
-    return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+
+    const json = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
       parsed,
       userInput
     );
+
+    // Add showCommentField to the output if needed
+    if (json && typeof question.showCommentField === 'boolean') {
+      json.data.showCommentField = question.showCommentField;
+    }
+
+    return json;
   };
 
   // Function to add and save the new question
@@ -406,12 +416,14 @@ const QuestionAdd = ({
           router.push(routePath('template.show', { templateId }));
         }
       } catch (error) {
-        if (!(error instanceof ApolloError)) {
-          setErrors(prevErrors => [
-            ...prevErrors,
-            QuestionAdd('messages.errors.questionAddingError'),
-          ]);
-        }
+        // Handle errors
+        setErrors(prevErrors => [
+          ...prevErrors,
+          QuestionAdd('messages.errors.questionAddingError'),
+        ]);
+        logECS('error', 'Adding Question in QuestionAdd', {
+          error,
+        });
       }
     } else {
       const errorMessage = error ?? QuestionAdd('messages.errors.questionAddingError');
@@ -600,6 +612,23 @@ const QuestionAdd = ({
                     handleTypeAheadSearchLabelChange={handleTypeAheadSearchLabelChange}
                     handleTypeAheadHelpTextChange={handleTypeAheadHelpTextChange}
                   />
+                )}
+
+                {!QUESTION_TYPES_EXCLUDED_FROM_COMMENT_FIELD.includes(questionType ?? '') && (
+                  <RadioGroupComponent
+                    name="radioGroup"
+                    value={question?.showCommentField ? 'yes' : 'no'}
+                    radioGroupLabel={QuestionAdd('labels.additionalCommentBox')}
+                    onChange={(value) => handleInputChange('showCommentField', value === 'yes')}
+                  >
+                    <div>
+                      <Radio value="yes">{QuestionAdd('labels.showCommentField')}</Radio>
+                    </div>
+
+                    <div>
+                      <Radio value="no">{QuestionAdd('labels.doNotShowCommentField')}</Radio>
+                    </div>
+                  </RadioGroupComponent>
                 )}
 
                 <FormTextArea

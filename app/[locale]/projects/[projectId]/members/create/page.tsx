@@ -16,9 +16,10 @@ import {
   addProjectMemberAction
 } from '@/app/actions';
 import { AddProjectMemberResponse } from '@/app/types';
+import { useQuery } from '@apollo/client/react';
 import {
   MemberRole,
-  useMemberRolesQuery,
+  MemberRolesDocument,
 } from '@/generated/graphql';
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -99,7 +100,7 @@ const ProjectsProjectMemberCreate: React.FC = () => {
   const CreateMember = useTranslations('ProjectsProjectMemberCreate');
 
   // Get Member Roles
-  const { data: memberRoles, loading: memberRolesLoading, error: memberRolesError } = useMemberRolesQuery();
+  const { data: memberRoles, loading: memberRolesLoading, error: memberRolesError } = useQuery(MemberRolesDocument);
 
   const isLoading = memberRolesLoading;
   const isError = memberRolesError;
@@ -249,7 +250,7 @@ const ProjectsProjectMemberCreate: React.FC = () => {
   useEffect(() => {
     // Set the roles from the query
     if (memberRoles?.memberRoles) {
-      const filteredRoles = memberRoles.memberRoles.filter((role): role is MemberRole => role !== null);
+      const filteredRoles = memberRoles.memberRoles.filter((role: MemberRole | null): role is MemberRole => role !== null);
       setRoles(filteredRoles);
     }
   }, [memberRoles]);

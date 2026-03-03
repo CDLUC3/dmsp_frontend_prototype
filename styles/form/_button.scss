@@ -126,6 +126,37 @@
   }
 }
 
+@mixin button-toggle {
+  background: var(--gray-25);
+  box-shadow: 0 0 0 1px var(--gray-100) inset; // Thinner border than secondary
+  color: var(--slate-700);
+  padding: 6px 12px; // Tighter padding
+  font-weight: 500; // Less bold than other buttons
+  font-size: 1rem;
+
+  &:active,
+  &:visited {
+    color: var(--slate-700);
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--gray-100);
+    box-shadow: 0 0 0 1px var(--slate-400) inset;
+    color: var(--slate-900);
+  }
+
+  &:active:not(:disabled),
+  &[data-pressed]:not(:disabled) {
+    background: var(--gray-200);
+  }
+
+  &:disabled {
+    background: transparent;
+    opacity: 0.5;
+  }
+}
+
+
 @mixin button-link {
   background: none;
   border: none;
@@ -152,6 +183,17 @@
 
   &:disabled {
     color: var(--slate-400);
+  }
+
+  // Use both :focus and :focus-visible
+  &[data-focus-visible],
+  &:focus-visible,
+  &:focus {  // Add this
+    outline: 2px solid var(--blue-900) !important;
+    outline-offset: 2px !important;
+    border-radius: 2px !important;
+    background: none !important;
+    color: var(--blue-900) !important;
   }
 }
 
@@ -288,6 +330,21 @@ input[type="reset"].tertiary,
 input[type="submit"].tertiary {
   @include button-tertiary;
 }
+
+// Toggle button styles
+.react-aria-Button.toggle,
+button.toggle,
+.button--toggle {
+  @include button-toggle;
+}
+
+// Size variant for small toggle
+button.toggle.small,
+button.small.toggle {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+}
+
 
 // Link button styles
 .react-aria-Button.link,

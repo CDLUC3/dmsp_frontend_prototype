@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
+import { useLazyQuery } from '@apollo/client/react';
 
 // Components
 import {
@@ -21,8 +22,8 @@ import { ContentContainer, LayoutContainer } from "@/components/Container";
 import ErrorMessages from "@/components/ErrorMessages";
 
 //GraphQL
-// TODO: Change to organization-scoped GraphQL query instead of useMyProjectsLazyQuery
-import { useMyProjectsLazyQuery } from "@/generated/graphql";
+// TODO: Change to organization-scoped GraphQL query instead of MyProjectsDocument
+import { MyProjectsDocument } from "@/generated/graphql";
 
 import { ProjectItemProps, ProjectSearchResultInterface, PaginatedProjectSearchResultsInterface } from "@/app/types";
 
@@ -47,7 +48,9 @@ const OrganizationProjectsListPage: React.FC = () => {
   const [nextCursor, setNextCursor] = useState<string | null>(null);
 
   const [totalCount, setTotalCount] = useState<number | null>(0);
-  const [fetchProjects, { data: projectData }] = useMyProjectsLazyQuery();
+  const [fetchProjects, { data: projectData }] = useLazyQuery(MyProjectsDocument, {
+    notifyOnNetworkStatusChange: true,
+  });
   const [searchResults, setSearchResults] = useState<ProjectItemProps[]>([]);
   const [isSearchFetch, setIsSearchFetch] = useState(false);
   const [firstNewIndex, setFirstNewIndex] = useState<number | null>(null);
@@ -75,7 +78,6 @@ const OrganizationProjectsListPage: React.FC = () => {
           limit: LIMIT,
         },
       },
-      notifyOnNetworkStatusChange: true,
     });
     scrollToTop(topRef);
   };
@@ -147,7 +149,6 @@ const OrganizationProjectsListPage: React.FC = () => {
             limit: LIMIT,
           },
         },
-        notifyOnNetworkStatusChange: true,
       });
     } catch (err) {
       logECS("error", "handleLoadMore", {
@@ -180,7 +181,6 @@ const OrganizationProjectsListPage: React.FC = () => {
           limit: LIMIT,
         },
       },
-      notifyOnNetworkStatusChange: true,
     });
   }, []);
 

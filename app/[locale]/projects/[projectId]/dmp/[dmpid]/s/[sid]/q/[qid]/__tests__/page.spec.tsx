@@ -3,12 +3,13 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import userEvent from '@testing-library/user-event';
 import { useParams, useRouter } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
+import { useQuery } from '@apollo/client/react';
 import {
-  useAnswerByVersionedQuestionIdQuery,
-  usePublishedQuestionQuery,
-  usePlanQuery,
-  useMeQuery,
-  useGuidanceGroupsQuery
+  AnswerByVersionedQuestionIdDocument,
+  PublishedQuestionDocument,
+  PlanDocument,
+  MeDocument,
+  GuidanceGroupsDocument
 } from '@/generated/graphql';
 import {
   addAnswerAction,
@@ -109,6 +110,18 @@ jest.mock('../hooks/useComments', () => {
   };
 });
 
+// Mock GuidancePanel component
+jest.mock('@/components/GuidancePanel', () => ({
+  __esModule: true,
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  default: ({ guidanceItems, sectionTags }: any) => (
+    <div data-testid="mock-guidance-panel">
+      <div data-testid="guidance-items-count">{guidanceItems.length}</div>
+      <div data-testid="section-tags-count">{Object.keys(sectionTags).length}</div>
+    </div>
+  ),
+}));
+
 // Mock the ResearchOutputAnswerComponent
 jest.mock('@/components/Form/ResearchOutputAnswerComponent', () => ({
   __esModule: true,
@@ -180,15 +193,11 @@ beforeEach(() => {
 
 expect.extend(toHaveNoViolations);
 
-
-// Mock the GraphQL query and mutation hooks
-jest.mock("@/generated/graphql", () => ({
-  useMeQuery: jest.fn(),
-  usePlanQuery: jest.fn(),
-  usePublishedQuestionQuery: jest.fn(),
-  useAnswerByVersionedQuestionIdQuery: jest.fn(),
-  useGuidanceGroupsQuery: jest.fn(),
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
 }));
+
 
 // Mock actions
 jest.mock('../actions/index', () => ({
@@ -200,8 +209,6 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
   useParams: jest.fn()
 }));
-
-jest.mock('@/lib/graphql/client/apollo-client');
 
 jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`,
@@ -216,9 +223,77 @@ jest.mock('@/components/PageHeader', () => ({
 const mockUseRouter = useRouter as jest.Mock;
 const mockUseParams = useParams as jest.Mock;
 
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+const mockRefetch = jest.fn();
+
+const setupMocks = () => {
+  // Create stable references OUTSIDE mockImplementation
+  const stableAnswerByVersionedQuestionIdReturn = {
+    data: mockAnswerData,
+    loading: false,
+    refetch: mockRefetch
+  };
+
+  const stablePublishedQuestionReturn = {
+    data: mockPublishedQuestion,
+    loading: false,
+    error: undefined,
+    refetch: mockRefetch
+  };
+
+  const stablePlanReturn = {
+    data: mockPlanData,
+    loading: false,
+    refetch: mockRefetch
+  };
+
+  const stableMeReturn = {
+    data: mockMeData,
+    loading: false,
+    error: undefined,
+    refetch: mockRefetch
+  };
+
+  const stableGuidanceReturn = {
+    data: mockGuidanceGroupsData,
+    loading: false,
+    error: undefined,
+    refetch: mockRefetch
+  };
+
+  mockUseQuery.mockImplementation((document) => {
+    if (document === AnswerByVersionedQuestionIdDocument) {
+      return stableAnswerByVersionedQuestionIdReturn as any;
+    }
+
+    if (document === PublishedQuestionDocument) {
+      return stablePublishedQuestionReturn as any;
+    }
+
+    if (document === PlanDocument) {
+      return stablePlanReturn as any;
+    }
+
+    if (document === MeDocument) {
+      return stableMeReturn as any;
+    }
+
+    if (document === GuidanceGroupsDocument) {
+      return stableGuidanceReturn as any;
+    }
+
+    return {
+      data: null,
+      loading: false,
+      error: undefined
+    };
+  });
+};
 
 describe('PlanOverviewQuestionPage render of questions', () => {
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
 
     // Mock window.tinymce
@@ -233,52 +308,49 @@ describe('PlanOverviewQuestionPage render of questions', () => {
       push: jest.fn(),
     });
 
-    (useMeQuery as jest.Mock).mockReturnValue({
-      data: mockMeData,
-      loading: false,
-      error: undefined
-    });
-
     mockUseComments.mockReturnValue(defaultMockReturn);
-
-    (usePlanQuery as jest.Mock).mockReturnValue({
-      data: mockPlanData,
-      loading: false,
-      error: undefined,
-    });
-
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockPublishedQuestion,
-      loading: false,
-      error: undefined,
-    });
-
-    (useGuidanceGroupsQuery as jest.Mock).mockReturnValue({
-      data: mockGuidanceGroupsData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerData,
-      loading: false,
-      error: undefined,
-    });
-
   })
 
   it('should load correct question content for textArea question', async () => {
 
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
+    const stablePublishQuestion = {
       data: mockQuestionDataForTextArea,
       loading: false,
       error: undefined,
-    });
+      refetch: mockRefetch
+    };
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+    const stableAnswerByVersionedQuestionId = {
       data: mockAnswerDataForTextArea,
       loading: false,
       error: undefined,
+      refetch: jest.fn()
+    };
+
+    const stableGuidanceReturn = {
+      data: mockGuidanceGroupsData,
+      loading: false,
+      error: undefined,
+      refetch: mockRefetch
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return stablePublishQuestion as any;
+      }
+
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return stableAnswerByVersionedQuestionId as any;
+      }
+
+      if (document === GuidanceGroupsDocument) {
+        return stableGuidanceReturn as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     await act(async () => {
@@ -316,44 +388,37 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     // Check that the textArea question field is in page
     expect(screen.getByLabelText('question-text-editor')).toBeInTheDocument();
 
-    // Check for guidance content
-    const boldedGuidance = screen.getByText('Guidance text - Lorem Ipsum');
-    expect(boldedGuidance).toBeInTheDocument();
-    expect(boldedGuidance.tagName).toBe('STRONG');
-    expect(screen.getByText((content) => content.includes('is simply dummy guidance text'))).toBeInTheDocument();
-    // There are multiple h3 headings with 'page.guidanceBy' (one for funder, one for org)
-    const guidanceHeadings = screen.getAllByRole('heading', { level: 3, name: 'page.guidanceBy' });
-    expect(guidanceHeadings).toHaveLength(2);
-    expect(screen.getByText('Use the active voice whenever possible')).toBeInTheDocument();
-    expect(screen.getByText("Dot your i's and cross your t's")).toBeInTheDocument();
-    expect(screen.getByText('Guidance text - Lorem Ipsum')).toBeInTheDocument();
-    const orgGuidance = screen.getByText(/is simply dummy guidance text/i);
-    expect(orgGuidance.tagName).toBe('P');
-    expect(screen.getByRole('button', { name: 'labels.saveAnswer' })).toBeInTheDocument();
+    // Check that mock guidance loaded
+    const guidancePanel = screen.getByTestId('mock-guidance-panel');
+    expect(guidancePanel).toBeInTheDocument();
 
-    // Check for best practice content in sidebar
-    expect(screen.getByTestId('sidebar-panel')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 2, name: 'bestPractice' })).toBeInTheDocument();
-    const bestPracticeDataDescription = screen.getByRole('heading', { level: 3, name: 'dataDescription' });
-    expect(bestPracticeDataDescription).toBeInTheDocument();
-    const bestPracticeDataFormat = screen.getByRole('heading', { level: 3, name: 'dataFormat' });
-    expect(bestPracticeDataFormat).toBeInTheDocument();
-    const bestPracticeDataVolume = screen.getByRole('heading', { level: 3, name: 'dataVolume' });
-    expect(bestPracticeDataVolume).toBeInTheDocument();
   })
 
   it('should display disabled comment button when an answer does not exist for the question', async () => {
 
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForTextArea,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: null,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: null,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     await act(async () => {
@@ -369,17 +434,29 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load sampleText in textArea if useSampleTextAsDefault is true and sampleText exists in question', async () => {
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForTextArea,
-      loading: false,
-      error: undefined,
-    });
-
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForTextArea,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     await act(async () => {
@@ -395,12 +472,30 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for checkbox question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockCheckboxQuestion,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockCheckboxQuestion,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockCheckboxAnswer,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
+    });
     await act(async () => {
       render(
         <PlanOverviewQuestionPage />
@@ -413,37 +508,43 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     // View sample text button should not display when the question is not a textArea question type
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'buttons.commentWithNumber' })).toBeInTheDocument();
-    const checkboxGroup = screen.getByTestId('checkbox-group');
-    expect(checkboxGroup).toBeInTheDocument();
-    const checkboxes = within(checkboxGroup).getAllByRole('checkbox');
-    const alexCheckbox = checkboxes.find(
-      (checkbox) => (checkbox as HTMLInputElement).value === 'Alex'
-    );
-    const barbaraCheckbox = checkboxes.find(
-      (checkbox) => (checkbox as HTMLInputElement).value === 'Barbara'
-    );
-    const charlieCheckbox = checkboxes.find(
-      (checkbox) => (checkbox as HTMLInputElement).value === 'Charlie'
-    );
 
-    expect(alexCheckbox).toBeInTheDocument();
-    expect(barbaraCheckbox).toBeInTheDocument();
-    expect(barbaraCheckbox).toHaveAttribute('checked');
-    expect(charlieCheckbox).toBeInTheDocument();
-    expect(charlieCheckbox).toHaveAttribute('checked');
+    const checkboxGroup = screen.getByTestId('checkbox-group');
+    const checkboxes = within(checkboxGroup).getAllByRole('checkbox');
+
+    const getCheckboxByValue = (value: string) =>
+      checkboxes.find((checkbox) => (checkbox as HTMLInputElement).value === value);
+
+    expect((getCheckboxByValue('Alex') as HTMLInputElement).checked).toBe(true);
+    expect((getCheckboxByValue('Barbara') as HTMLInputElement).checked).toBe(true);
+    expect((getCheckboxByValue('Charlie') as HTMLInputElement).checked).toBe(true);
   })
 
   it('should load correct question content for radioButton question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForRadioButton,
-      loading: false,
-      error: undefined,
-    });
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForRadioButton,
-      loading: false,
-      error: undefined,
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForRadioButton,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForRadioButton,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     await act(async () => {
@@ -475,16 +576,29 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for text field question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForTextField,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForTextField,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForTextField,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForTextField,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     await act(async () => {
@@ -505,18 +619,30 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for typeaheadSearch question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForTypeAheadSearch,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForTypeAheadSearch,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForTypeAheadSearch,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForTypeAheadSearch,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
-
 
     await act(async () => {
       render(
@@ -534,16 +660,29 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for date range question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForDateRange,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForDateRange,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForDateRange,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForDateRange,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     await act(async () => {
@@ -584,18 +723,30 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for date question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForDate,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForDate,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForDate,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForDate,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
-
 
     await act(async () => {
       render(
@@ -622,18 +773,30 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for boolean question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForBoolean,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForBoolean,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForBoolean,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForBoolean,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
-
 
     await act(async () => {
       render(
@@ -656,18 +819,30 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for url question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForURL,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForURL,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForURL,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForURL,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
-
 
     await act(async () => {
       render(
@@ -686,16 +861,29 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for email question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForEmail,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForEmail,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForEmail,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForEmail,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     await act(async () => {
@@ -715,18 +903,30 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for currency question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForCurrency,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForCurrency,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForCurrency,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForCurrency,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
-
 
     await act(async () => {
       render(
@@ -750,18 +950,30 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for numberRange question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForNumberRange,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForNumberRange,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForNumberRange,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForNumberRange,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
-
 
     await act(async () => {
       render(
@@ -789,18 +1001,30 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for number question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForNumber,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForNumber,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForNumber,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForNumber,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
-
 
     await act(async () => {
       render(
@@ -825,18 +1049,30 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for multiSelect question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForMultiSelect,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForMultiSelect,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForMultiSelect,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForMultiSelect,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
-
 
     await act(async () => {
       render(
@@ -866,16 +1102,29 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for selectBox question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForSelectBox,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForSelectBox,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForSelectBox,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForSelectBox,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     await act(async () => {
@@ -900,17 +1149,29 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should redirect to section overview page when user clicks \'Back to section\' button', async () => {
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForTextArea,
-      loading: false,
-      error: undefined,
-    });
-
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForTextArea,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     await act(async () => {
@@ -944,30 +1205,6 @@ describe('accessibility', () => {
     mockUseRouter.mockReturnValue({
       push: jest.fn(),
     });
-
-    (usePlanQuery as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce(mockPlanData),
-      { loading: false, error: undefined },
-    ]);
-
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockPublishedQuestion,
-      loading: false,
-      error: undefined,
-    });
-
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useMeQuery as jest.Mock).mockReturnValue({
-      data: mockMeData,
-      loading: false,
-      error: undefined
-    });
-
   })
 
   it('should pass accessibility tests', async () => {
@@ -994,44 +1231,33 @@ describe('Call to updateAnswerAction', () => {
       push: jest.fn(),
     });
 
-    (usePlanQuery as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce(mockPlanData),
-      { loading: false, error: undefined },
-    ]);
-
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockPublishedQuestion,
-      loading: false,
-      error: undefined,
-    });
-
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useMeQuery as jest.Mock).mockReturnValue({
-      data: mockMeData,
-      loading: false,
-      error: undefined
-    });
-
     mockUseComments.mockReturnValue(defaultMockReturn);
   })
 
   it('should call updateAnswerAction when data changes for typeaheadSearch field', async () => {
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForTypeAheadSearch,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForTypeAheadSearch,
-      loading: false,
-      error: undefined,
-    });
-
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForTypeAheadSearch,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForTypeAheadSearch,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
 
@@ -1052,22 +1278,35 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 20,
-        json: "{\"type\":\"affiliationSearch\",\"answer\":{\"affiliationId\":\"https://ror.org/0168r3w48\",\"affiliationName\":\"UCOP\"},\"meta\":{\"schemaVersion\":\"1.0\"}}",
+        json: "{\"type\":\"affiliationSearch\",\"answer\":{\"affiliationId\":\"https://ror.org/0168r3w48\",\"affiliationName\":\"UCOP\"},\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}",
       });
     });
   })
 
   it('should call updateAnswerAction with correct data for checkbox', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockCheckboxQuestion,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockCheckboxQuestion,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockCheckboxAnswer,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockCheckboxAnswer,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     (addAnswerAction as jest.Mock).mockResolvedValue({
@@ -1077,7 +1316,7 @@ describe('Call to updateAnswerAction', () => {
           general: null,
         },
         id: 27,
-        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"],\"meta\":{\"schemaVersion\":\"1.0\"}}",
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"],\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -1107,22 +1346,35 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 27,
-        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\"],\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\"],\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   });
 
   it('should call updateAnswerAction with correct data for radioButton', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForRadioButton,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForRadioButton,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForRadioButton,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForRadioButton,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     await act(async () => {
@@ -1144,22 +1396,35 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 5,
-        json: "{\"type\":\"radioButtons\",\"answer\":\"No\",\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"radioButtons\",\"answer\":\"No\",\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   });
 
   it('should call updateAnswerAction with correct data for text field', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForTextField,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForTextField,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForTextField,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForTextField,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     await act(async () => {
@@ -1190,18 +1455,30 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should call updateAnswerAction with correct data for date range question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForDateRange,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForDateRange,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForDateRange,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForDateRange,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
-
     await act(async () => {
       render(
         <PlanOverviewQuestionPage />
@@ -1224,24 +1501,36 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 16,
-        json: "{\"type\":\"dateRange\",\"answer\":{\"start\":\"2025-05-15\",\"end\":\"2025-07-05\"},\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"dateRange\",\"answer\":{\"start\":\"2025-05-15\",\"end\":\"2025-07-05\"},\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   })
 
   it('should call updateAnswerAction with correct data for date question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForDate,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForDate,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForDate,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForDate,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
-
 
     await act(async () => {
       render(
@@ -1265,24 +1554,36 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 15,
-        json: "{\"type\":\"date\",\"answer\":\"2025-07-15\",\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"date\",\"answer\":\"2025-07-15\",\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   })
 
   it('should call updateAnswerAction with correct data for boolean', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForBoolean,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForBoolean,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForBoolean,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForBoolean,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
-
 
     await act(async () => {
       render(
@@ -1313,16 +1614,29 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should call updateAnswerAction with correct data for url question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForURL,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForURL,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForURL,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForURL,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     await act(async () => {
@@ -1349,18 +1663,30 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should call updateAnswerAction with correct data for email question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForEmail,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForEmail,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForEmail,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForEmail,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
-
     await act(async () => {
       render(
         <PlanOverviewQuestionPage />
@@ -1384,16 +1710,29 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should call updateAnswerAction with correct data for textArea question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForTextArea,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForTextArea,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     // Store the change handler reference
@@ -1448,16 +1787,29 @@ describe('Call to updateAnswerAction', () => {
   });
 
   it('should call updateAnswerAction with correct data for currency question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForCurrency,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForCurrency,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForCurrency,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForCurrency,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     await act(async () => {
@@ -1480,22 +1832,35 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 11,
-        json: "{\"type\":\"currency\",\"answer\":15,\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"currency\",\"answer\":15,\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   })
 
   it('should call updateAnswerAction with correct data for numberRange question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForNumberRange,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForNumberRange,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForNumberRange,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForNumberRange,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     await act(async () => {
@@ -1517,22 +1882,35 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 10,
-        json: "{\"type\":\"numberRange\",\"answer\":{\"start\":2,\"end\":10},\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"numberRange\",\"answer\":{\"start\":2,\"end\":10},\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   })
 
   it('should call updateAnswerAction with correct data for number question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForNumber,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForNumber,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForNumber,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForNumber,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     await act(async () => {
@@ -1553,24 +1931,36 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 9,
-        json: "{\"type\":\"number\",\"answer\":3,\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"number\",\"answer\":3,\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   })
 
   it('should call updateAnswerAction with correct data for multiSelect question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForMultiSelect,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForMultiSelect,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForMultiSelect,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForMultiSelect,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
-
     await act(async () => {
       render(
         <PlanOverviewQuestionPage />
@@ -1589,24 +1979,36 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 18,
-        json: "{\"type\":\"multiselectBox\",\"answer\":[\"Banana\",\"Pear\",\"Orange\",\"Apple\"],\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"multiselectBox\",\"answer\":[\"Banana\",\"Pear\",\"Orange\",\"Apple\"],\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   })
 
   it('should call updateAnswerAction with correct data for selectBox question', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForSelectBox,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForSelectBox,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForSelectBox,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForSelectBox,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
-
     await act(async () => {
       render(
         <PlanOverviewQuestionPage />
@@ -1628,23 +2030,35 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 30,
-        json: "{\"type\":\"selectBox\",\"answer\":\"California\",\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"selectBox\",\"answer\":\"California\",\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   })
 
   it('should redirect if the response to calling updateAnswerAction returns a redirect', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForTextArea,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForTextArea,
-      loading: false,
-      error: undefined,
-      redirect: '/project/1/dmp/1/s/22'
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     (updateAnswerAction as jest.Mock).mockResolvedValue({
@@ -1654,7 +2068,7 @@ describe('Call to updateAnswerAction', () => {
           general: null,
         },
         id: 27,
-        json: "{\"type\":\"textArea\",\"answer\":\"This is a test\",\"meta\":{\"schemaVersion\":\"1.0\"}}",
+        json: "{\"type\":\"textArea\",\"answer\":\"This is a test\",\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -1703,17 +2117,29 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should display errors if updateAnswerAction returns errors in the response', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForTextArea,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForTextArea,
-      loading: false,
-      error: undefined,
-      redirect: '/project/1/dmp/1/s/22'
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     (updateAnswerAction as jest.Mock).mockResolvedValue({
@@ -1724,7 +2150,7 @@ describe('Call to updateAnswerAction', () => {
           versionedQuestionId: 'versionedQuestionId already exists'
         },
         id: 27,
-        json: "{\"type\":\"textArea\",\"answer\":\"This is a test\",\"meta\":{\"schemaVersion\":\"1.0\"}}",
+        json: "{\"type\":\"textArea\",\"answer\":\"This is a test\",\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -1777,17 +2203,29 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should load page with error when answer type is not in the list ', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockOtherQuestion,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockOtherQuestion,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockOtherAnswerData,
-      loading: false,
-      error: undefined,
-      redirect: '/project/1/dmp/1/s/22'
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockOtherAnswerData,
+          loading: false,
+          error: undefined,
+          redirect: '/projects/1/dmp/1/s/22'
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     (updateAnswerAction as jest.Mock).mockResolvedValue({
@@ -1798,7 +2236,7 @@ describe('Call to updateAnswerAction', () => {
           versionedQuestionId: 'versionedQuestionId already exists'
         },
         id: 27,
-        json: "{\"type\":\"textArea123\",\"answer\":\"This is a test\",\"meta\":{\"schemaVersion\":\"1.0\"}}",
+        json: "{\"type\":\"textArea123\",\"answer\":\"This is a test\",\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -1829,42 +2267,32 @@ describe('Call to addAnswerAction', () => {
     mockUseRouter.mockReturnValue({
       push: jest.fn(),
     });
-
-    (usePlanQuery as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce(mockPlanData),
-      { loading: false, error: undefined },
-    ]);
-
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockPublishedQuestion,
-      loading: false,
-      error: undefined,
-    });
-
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useMeQuery as jest.Mock).mockReturnValue({
-      data: mockMeData,
-      loading: false,
-      error: undefined
-    });
   })
 
   it('should call addAnswerAction with correct data for checkbox when there is no corresponding answer in our db', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockCheckboxQuestion,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockCheckboxQuestion,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: null,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: null,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     (addAnswerAction as jest.Mock).mockResolvedValue({
@@ -1874,7 +2302,7 @@ describe('Call to addAnswerAction', () => {
           general: null,
         },
         id: 27,
-        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"],\"meta\":{\"schemaVersion\":\"1.0\"}}",
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"],\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -1906,7 +2334,7 @@ describe('Call to addAnswerAction', () => {
         planId: 1,
         versionedSectionId: 22,
         versionedQuestionId: 344,
-        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"],\"meta\":{\"schemaVersion\":\"1.0\"}}"
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Alex\"],\"meta\":{\"schemaVersion\":\"1.0\"},\"comment\":\"\"}"
       });
     });
   });
@@ -1930,45 +2358,34 @@ describe('DrawerPanel', () => {
       push: jest.fn(),
     });
 
-    (usePlanQuery as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce(mockPlanData),
-      { loading: false, error: undefined },
-    ]);
-
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockPublishedQuestion,
-      loading: false,
-      error: undefined,
-    });
-
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useMeQuery as jest.Mock).mockReturnValue({
-      data: mockMeData,
-      loading: false,
-      error: undefined
-    });
-
     mockUseComments.mockReturnValue(defaultMockReturn);
 
   })
 
   it('should open Sample text DrawerPanel when user clicks on the \'View sample answer\' button', async () => {
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForTextArea,
-      loading: false,
-      error: undefined,
-    });
-
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForTextArea,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
     await act(async () => {
@@ -2028,19 +2445,30 @@ describe('DrawerPanel', () => {
   })
 
   it('should transfer sample text into the textArea field when user clicks on the \'use answer\' button', async () => {
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForTextArea,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
-
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForTextArea,
-      loading: false,
-      error: undefined,
-    });
-
     await act(async () => {
       render(
         <PlanOverviewQuestionPage />
@@ -2074,18 +2502,30 @@ describe('DrawerPanel', () => {
 
   it('should open Comments DrawerPanel when user clicks on the \'Comments\' button', async () => {
 
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForTextArea,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForTextArea,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
-
     await act(async () => {
       render(
         <PlanOverviewQuestionPage />
@@ -2144,18 +2584,30 @@ describe('DrawerPanel', () => {
 
   it('should close drawer panel when user clicks on the Comment button to submit a new comment', async () => {
 
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForTextArea,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForTextArea,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
-
     await act(async () => {
       render(
         <PlanOverviewQuestionPage />
@@ -2198,18 +2650,6 @@ describe('Prevent unload when user has unsaved changes', () => {
     mockUseRouter.mockReturnValue({
       push: jest.fn(),
     });
-
-    (usePlanQuery as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce(mockPlanData),
-      { loading: false, error: undefined },
-    ]);
-
-    (useMeQuery as jest.Mock).mockReturnValue({
-      data: mockMeData,
-      loading: false,
-      error: undefined
-    });
-
     // Mock addEventListener
     addEventListenerSpy = jest.spyOn(window, 'addEventListener');
     removeEventListenerSpy = jest.spyOn(window, 'removeEventListener');
@@ -2222,18 +2662,30 @@ describe('Prevent unload when user has unsaved changes', () => {
   })
 
   it('should prevent unload when there are unsaved changes and user tries to navigate away from page', async () => {
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockCheckboxQuestion,
-      loading: false,
-      error: undefined,
-    });
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockCheckboxQuestion,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
 
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: null,
-      loading: false,
-      error: undefined,
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: null,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
-
     (addAnswerAction as jest.Mock).mockResolvedValue({
       success: true,
       data: {
@@ -2241,7 +2693,7 @@ describe('Prevent unload when user has unsaved changes', () => {
           general: null,
         },
         id: 27,
-        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}",
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"],\"comment\":\"\"}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -2301,30 +2753,31 @@ describe('Auto save', () => {
       push: jest.fn(),
     });
 
-    (useMeQuery as jest.Mock).mockReturnValue({
-      data: mockMeData,
-      loading: false,
-      error: undefined
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockCheckboxQuestion,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockCheckboxAnswer,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
     });
 
-
-    (usePlanQuery as jest.Mock).mockReturnValue({
-      data: mockPlanData,
-      loading: false,
-      error: undefined,
-    });
-
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockCheckboxQuestion,
-      loading: false,
-      error: undefined,
-    });
-
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockCheckboxAnswer,
-      loading: false,
-      error: undefined,
-    });
 
     const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
     await act(async () => {
@@ -2365,38 +2818,33 @@ describe('Auto save', () => {
         push: jest.fn(),
       });
 
-      (useMeQuery as jest.Mock).mockReturnValue({
-        data: mockMeData,
-        loading: false,
-        error: undefined
-      });
-
       mockUseComments.mockReturnValue(defaultMockReturn);
-
-      (usePlanQuery as jest.Mock).mockReturnValue({
-        data: mockPlanData,
-        loading: false,
-        error: undefined,
-      });
-
-      (useGuidanceGroupsQuery as jest.Mock).mockReturnValue({
-        data: mockGuidanceGroupsData,
-        loading: false,
-        error: undefined,
-      });
     });
 
     it('should load correct question content for research output table question', async () => {
-      (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-        data: mockQuestionDataForResearchOutput,
-        loading: false,
-        error: undefined,
-      });
+      mockUseQuery.mockImplementation((document) => {
+        if (document === PublishedQuestionDocument) {
+          return {
+            data: mockQuestionDataForResearchOutput,
+            loading: false,
+            error: undefined,
+            refetch: jest.fn()
+          } as any;
+        }
 
-      (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-        data: null,
-        loading: false,
-        error: undefined,
+        if (document === AnswerByVersionedQuestionIdDocument) {
+          return {
+            data: null,
+            loading: false,
+            error: undefined,
+            refetch: jest.fn()
+          } as any;
+        }
+        return {
+          data: null,
+          loading: false,
+          error: undefined
+        } as any;
       });
 
       await act(async () => {
@@ -2413,25 +2861,40 @@ describe('Auto save', () => {
       expect(screen.getByTestId('column-count')).toHaveTextContent('2');
     });
 
+
     it('should call updateAnswerAction with correct data for research output table', async () => {
-      (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-        data: mockQuestionDataForResearchOutput,
-        loading: false,
-        error: undefined,
+      mockUseQuery.mockImplementation((document) => {
+        if (document === PublishedQuestionDocument) {
+          return {
+            data: mockQuestionDataForResearchOutput,
+            loading: false,
+            error: undefined,
+            refetch: jest.fn()
+          } as any;
+        }
+
+        if (document === AnswerByVersionedQuestionIdDocument) {
+          return {
+            data: mockAnswerDataForResearchOutput,
+            loading: false,
+            error: undefined,
+            refetch: jest.fn()
+          } as any;
+        }
+        return {
+          data: null,
+          loading: false,
+          error: undefined
+        } as any;
       });
 
-      (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-        data: mockAnswerDataForResearchOutput,
-        loading: false,
-        error: undefined,
-      });
 
       (updateAnswerAction as jest.Mock).mockResolvedValue({
         success: true,
         data: {
           errors: { general: null },
           id: 25,
-          json: '{"type":"researchOutputTable","columnHeadings":["Title","Description","Anticipated Release Date","Anticipated file size"],"answer":[{"columns":[{"type":"text","answer":"My Dataset","meta":{"schemaVersion":"1.0"}},{"type":"textArea","answer":"Updated description","meta":{"schemaVersion":"1.0"}}]}]}',
+          json: '{"type":"researchOutputTable","columnHeadings":["Title","Description","Anticipated Release Date","Anticipated file size"],"answer":[{"columns":[{"type":"text","answer":"My Dataset","meta":{"schemaVersion":"1.0"}},{"type":"textArea","answer":"Updated description","meta":{"schemaVersion":"1.0"}}]}],\"comment\":\"\"}',
           modified: "1735000000000",
           versionedQuestion: {
             versionedSectionId: 22
@@ -2467,16 +2930,29 @@ describe('Auto save', () => {
     });
 
     it('should call addAnswerAction when creating new research output table answer', async () => {
-      (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-        data: mockQuestionDataForResearchOutput,
-        loading: false,
-        error: undefined,
-      });
+      mockUseQuery.mockImplementation((document) => {
+        if (document === PublishedQuestionDocument) {
+          return {
+            data: mockQuestionDataForResearchOutput,
+            loading: false,
+            error: undefined,
+            refetch: jest.fn()
+          } as any;
+        }
 
-      (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-        data: null,
-        loading: false,
-        error: undefined,
+        if (document === AnswerByVersionedQuestionIdDocument) {
+          return {
+            data: null,
+            loading: false,
+            error: undefined,
+            refetch: jest.fn()
+          } as any;
+        }
+        return {
+          data: null,
+          loading: false,
+          error: undefined
+        } as any;
       });
 
       (addAnswerAction as jest.Mock).mockResolvedValue({
@@ -2484,7 +2960,7 @@ describe('Auto save', () => {
         data: {
           errors: { general: null },
           id: 26,
-          json: '{"type":"researchOutputTable","columnHeadings":["Title","Description","Anticipated Release Date","Anticipated file size"],"answer":[]}',
+          json: '{"type":"researchOutputTable","columnHeadings":["Title","Description","Anticipated Release Date","Anticipated file size"],"answer":[],\"comment\":\"\"}',
           modified: "1735000000000",
           versionedQuestion: {
             versionedSectionId: 22
@@ -2512,17 +2988,31 @@ describe('Auto save', () => {
     });
 
     it('should trigger onSave callback when research output table internal save is called', async () => {
-      (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-        data: mockQuestionDataForResearchOutput,
-        loading: false,
-        error: undefined,
+      mockUseQuery.mockImplementation((document) => {
+        if (document === PublishedQuestionDocument) {
+          return {
+            data: mockQuestionDataForResearchOutput,
+            loading: false,
+            error: undefined,
+            refetch: jest.fn()
+          } as any;
+        }
+
+        if (document === AnswerByVersionedQuestionIdDocument) {
+          return {
+            data: mockAnswerDataForResearchOutput,
+            loading: false,
+            error: undefined,
+            refetch: jest.fn()
+          } as any;
+        }
+        return {
+          data: null,
+          loading: false,
+          error: undefined
+        } as any;
       });
 
-      (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-        data: mockAnswerDataForResearchOutput,
-        loading: false,
-        error: undefined,
-      });
 
       (updateAnswerAction as jest.Mock).mockResolvedValue({
         success: true,

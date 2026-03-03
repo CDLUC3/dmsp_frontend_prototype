@@ -1,5 +1,5 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { ReactNode } from 'react';
 import { useCollaboratorSearch } from '../useCollaboratorSearch';
 import { FindCollaboratorDocument, CollaboratorSearchResult } from '@/generated/graphql';
@@ -129,7 +129,7 @@ interface WrapperProps {
 
 const createWrapper = (mocks: any[] = []) => {
   const Wrapper = ({ children }: WrapperProps) => (
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider mocks={mocks}>
       {children}
     </MockedProvider>
   );

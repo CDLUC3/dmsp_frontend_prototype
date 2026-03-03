@@ -113,7 +113,10 @@
         "surNameValidation": "O nome deve ter pelo menos 2 caracteres",
         "affiliationValidation": "O nome da instituição não pode ficar em branco e deve ter pelo menos 2 caracteres",
         "otherAffiliationValidation": "Outro nome de instituição não pode estar em branco e deve ter pelo menos 2 caracteres",
-        "errorUpdatingProfile": "Erro ao atualizar perfil"
+        "errorUpdatingProfile": "Erro ao atualizar perfil",
+        "errorSettingPrimaryEmail": "Erro ao definir o e-mail principal",
+        "errorAddingNewEmail": "Erro ao adicionar novo e-mail",
+        "errorDeletingEmail": "Erro ao excluir e-mail"
       }
     }
   },
@@ -697,7 +700,8 @@
       "editGroup": "Editar grupo",
       "createText": "Criar texto",
       "editText": "Editar Texto",
-      "group": "grupo"
+      "group": "grupo",
+      "relatedWorks": "Obras Relacionadas"
     },
     "form": {
       "yesLabel": "Sim",
@@ -752,6 +756,7 @@
       "add": "Adicionar",
       "customize": "Personalizar",
       "applyFilter": "Aplicar filtro(s)",
+      "applyFilterSingular": "Aplicar filtro",
       "moreInfo": "Mais informações",
       "lessInfo": "Menos informações",
       "createNewPlan": "Criar nova DMP"
@@ -783,7 +788,8 @@
       "fileSizeUnit": "Unidade de tamanho do arquivo",
       "selectAnItem": "Selecione um item",
       "mayContainSensitiveData": "Pode conter dados sensíveis?",
-      "mayContainPersonalData": "Pode conter informações pessoalmente identificáveis?"
+      "mayContainPersonalData": "Pode conter informações pessoalmente identificáveis?",
+      "additionalComments": "Comentários adicionais"
     },
     "helpText": {
       "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc.",
@@ -794,7 +800,8 @@
       "requiredFieldDescription": "Atenção aos usuários que isto é considerado uma questão necessária para este template DMP pela organização. Os usuários poderão optar por ignorar isso dentro da ferramenta e não será necessário responder antes de movê-la."
     },
     "placeholders": {
-      "funderSearch": "Insira o nome da pasta"
+      "funderSearch": "Insira o nome da pasta",
+      "enterComment": "Insira seu comentário"
     },
     "links": {
       "clearFilter": "limpar filtro",

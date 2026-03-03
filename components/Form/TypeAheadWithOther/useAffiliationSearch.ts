@@ -1,11 +1,16 @@
 import { useCallback, useState } from "react";
+
+// GraphQL
+import { useLazyQuery } from '@apollo/client/react';
+import { AffiliationsDocument } from '@/generated/graphql';
+
+// Utils and other
 import { debounce } from '@/hooks/debounce';
-import { useAffiliationsLazyQuery } from '@/generated/graphql';
 import { SuggestionInterface } from '@/app/types';
 
 export function useAffiliationSearch() {
   const [suggestions, setSuggestions] = useState<SuggestionInterface[]>([]);
-  const [fetchAffiliations] = useAffiliationsLazyQuery();
+  const [fetchAffiliations] = useLazyQuery(AffiliationsDocument);
 
 
   const handleSearch = useCallback(

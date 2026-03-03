@@ -15,11 +15,12 @@ import {
 } from "react-aria-components";
 import { useToast } from "@/context/ToastContext";
 import { useTranslations } from "next-intl";
+import { useQuery } from '@apollo/client/react';
 import {
   RelatedWorkConfidence,
   RelatedWorkSearchResult,
   RelatedWorkStatus,
-  useRelatedWorksByPlanQuery,
+  RelatedWorksByPlanDocument,
   WorkType,
 } from "@/generated/graphql";
 import { updateRelatedWorkStatusAction } from "@/app/[locale]/projects/[projectId]/dmp/[dmpid]/related-works/actions";
@@ -116,7 +117,7 @@ export const RelatedWorksList = ({
     previousData,
     loading: relatedWorksDataLoading,
     refetch: relatedWorksRefetch,
-  } = useRelatedWorksByPlanQuery({
+  } = useQuery(RelatedWorksByPlanDocument, {
     variables: {
       planId,
       filterOptions: {

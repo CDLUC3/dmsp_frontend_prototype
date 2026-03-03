@@ -1,5 +1,5 @@
-import { onError } from "@apollo/client/link/error";
-import { Observable } from "@apollo/client";
+import { ErrorLink } from "@apollo/client/link/error";
+import { Observable, CombinedGraphQLErrors } from "@apollo/client";
 import logECS from "@/utils/clientLogger";
 import { RetryLink } from "@apollo/client/link/retry";
 import { createAuthLink } from "@/utils/authLink";
@@ -10,9 +10,9 @@ interface CustomError extends Error {
   customInfo?: { errorMessage: string }
 }
 
-export const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
-  if (graphQLErrors) {
-    const unauthenticated = graphQLErrors.find(
+export const errorLink = new ErrorLink(({ error, operation, forward }) => {
+  if (CombinedGraphQLErrors.is(error)) {
+    const unauthenticated = error.errors.find(
       ({ extensions }) => extensions?.code === 'UNAUTHENTICATED'
     );
 
@@ -49,7 +49,7 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
     }
 
     // FORBIDDEN
-    const forbidden = graphQLErrors.find(
+    const forbidden = error.errors.find(
       ({ extensions }) => extensions?.code === 'FORBIDDEN'
     );
     if (forbidden) {
@@ -76,7 +76,7 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
     }
 
     // INTERNAL SERVER ERROR
-    graphQLErrors.forEach(({ message, extensions }) => {
+    error.errors.forEach(({ message, extensions }) => {
       if (extensions?.code === 'INTERNAL_SERVER_ERROR') {
         logECS('error', `[GraphQL Error]: INTERNAL_SERVER_ERROR - ${message}`, {
           errorCode: 'INTERNAL_SERVER_ERROR'
@@ -88,11 +88,15 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
         });
       }
     });
-  }
+  } else {
+    // Network error or other error types
+    // Filter out AbortErrors globally - these are expected when React Strict Mode unmounts/remounts
+    if ('name' in error && error.name === 'AbortError') {
+      return; // Ignore abort errors silently
+    }
 
-  if (networkError) {
-    logECS('error', `[GraphQL Network Error]: ${networkError.message}`, { errorCode: 'NETWORK_ERROR' });
-    const customNetworkError = networkError as CustomError;
+    logECS('error', `[GraphQL Network Error]: ${error.message}`, { errorCode: 'NETWORK_ERROR' });
+    const customNetworkError = error as CustomError;
     customNetworkError.customInfo = { errorMessage: 'There was a problem' };
     operation.setContext({ networkError: customNetworkError });
   }
@@ -105,8 +109,8 @@ export const retryLink = new RetryLink({
   attempts: {
     max: 3, // Maximum number of retry attempts
     retryIf: (error) => {
-      // Retry on network errors
-      return !!error.networkError;
+      // Retry on network errors (not GraphQL errors)
+      return !CombinedGraphQLErrors.is(error);
     }
   },
   delay: {

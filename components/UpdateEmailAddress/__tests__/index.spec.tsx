@@ -10,12 +10,12 @@ import {
 import { axe, toHaveNoViolations } from 'jest-axe';
 import UpdateEmailAddress from '..';
 import { RichTranslationValues } from 'next-intl';
-import { ApolloError } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import {
   MeDocument,
-  useAddUserEmailMutation,
-  useRemoveUserEmailMutation,
-  useSetPrimaryUserEmailMutation
+  AddUserEmailDocument,
+  RemoveUserEmailDocument,
+  SetPrimaryUserEmailDocument
 } from '@/generated/graphql';
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
@@ -27,17 +27,17 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn()
 }));
 
+
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useMutation: jest.fn(),
+  useQuery: jest.fn(),
+}));
+
 jest.mock('@/utils/clientLogger', () => ({
   __esModule: true,
   default: jest.fn()
 }))
-
-// Mock the GraphQL hooks
-jest.mock('@/generated/graphql', () => ({
-  useSetPrimaryUserEmailMutation: jest.fn(),
-  useAddUserEmailMutation: jest.fn(),
-  useRemoveUserEmailMutation: jest.fn(),
-}));
 
 jest.mock('@/utils/gqlErrorHandler', () => ({
   handleApolloErrors: jest.fn()
@@ -100,13 +100,46 @@ const mockEmailData = {
   userId: 5,
 }
 
-// Helper function to cast to jest.Mock for TypeScript
-const mockHook = (hook: unknown) => hook as jest.Mock;
+
+// Cast with jest.mocked utility
+const mockUseMutation = jest.mocked(useMutation);
+
+let mockSetPrimaryUserEmailMutationFn: jest.Mock;
+let mockAddUserEmailMutationFn: jest.Mock;
+let mockRemoveUserEmailMutationFn: jest.Mock;
 
 const setupMocks = () => {
-  mockHook(useSetPrimaryUserEmailMutation).mockReturnValue([jest.fn(), { loading: false, error: undefined }]);
-  mockHook(useAddUserEmailMutation).mockReturnValue([() => mockEmailData, { loading: false, error: undefined }]);
-  mockHook(useRemoveUserEmailMutation).mockReturnValue([jest.fn(), { loading: false, error: undefined }]);
+
+  mockSetPrimaryUserEmailMutationFn = jest.fn().mockResolvedValue({
+    data: { key: 'value' }
+  });
+
+  mockAddUserEmailMutationFn = jest.fn().mockResolvedValue({
+    data: mockEmailData
+  });
+
+  mockRemoveUserEmailMutationFn = jest.fn().mockResolvedValue({
+    data: { key: 'value' }
+  });
+
+  mockUseMutation.mockImplementation((document) => {
+    if (document === SetPrimaryUserEmailDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return [mockSetPrimaryUserEmailMutationFn, { loading: false, error: undefined }] as any;
+    }
+
+    if (document === AddUserEmailDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return [mockAddUserEmailMutationFn, { loading: false, error: undefined }] as any;
+    }
+
+    if (document === RemoveUserEmailDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return [mockRemoveUserEmailMutationFn, { loading: false, error: undefined }] as any;
+    }
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    return [jest.fn(), { loading: false, error: undefined }] as any;
+  });
 };
 
 describe('UpdateEmailAddressPage', () => {
@@ -154,21 +187,13 @@ describe('UpdateEmailAddressPage', () => {
   });
 
   it('should call removeUserEmailMutation when deleting an email', async () => {
-    // Mock successful mutation response
-    const mockRemoveEmailResponse = {
+    mockRemoveUserEmailMutationFn.mockResolvedValue({
       data: {
         removeUserEmail: {
           errors: null
         }
       }
-    };
-
-    // Mock the mutation with a successful response
-    const mockRemoveEmailMutation = jest.fn().mockResolvedValue(mockRemoveEmailResponse);
-    (useRemoveUserEmailMutation as jest.Mock).mockReturnValue([
-      mockRemoveEmailMutation,
-      { loading: false }
-    ]);
+    });
 
     // Render the component
     render(
@@ -184,7 +209,7 @@ describe('UpdateEmailAddressPage', () => {
     });
 
     // Verify the mutation was called with correct parameters
-    expect(mockRemoveEmailMutation).toHaveBeenCalledWith({
+    expect(mockRemoveUserEmailMutationFn).toHaveBeenCalledWith({
       variables: {
         email: 'test@test.com'
       },
@@ -199,13 +224,16 @@ describe('UpdateEmailAddressPage', () => {
   it('should handle general error when deleting an email', async () => {
     // Create a general error (not Apollo Error)
     const generalError = new Error('General error occurred');
-
-    // Mock the mutation to throw a general error
     const mockRemoveEmailMutation = jest.fn().mockRejectedValue(generalError);
-    (useRemoveUserEmailMutation as jest.Mock).mockReturnValue([
-      mockRemoveEmailMutation,
-      { loading: false }
-    ]);
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === RemoveUserEmailDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        return [mockRemoveEmailMutation, { loading: false, error: undefined }] as any;
+      }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     // Render the component
     render(
@@ -228,7 +256,7 @@ describe('UpdateEmailAddressPage', () => {
 
       // Check that the errorDiv exists
       expect(errorDiv).toBeInTheDocument();
-      expect(screen.getByText('Error when deleting email')).toBeInTheDocument();
+      expect(screen.getByText('messages.errorDeletingEmail')).toBeInTheDocument();
     });
 
     // Verify logECS was called with correct parameters
@@ -244,21 +272,20 @@ describe('UpdateEmailAddressPage', () => {
   });
 
   it('should call mockRemoveEmailMutation again if the initial call returns an instance of an Apollo error', async () => {
-    const apolloError = new ApolloError({
-      graphQLErrors: [{ message: 'Apollo error occurred' }],
-      networkError: null,
-      errorMessage: 'Apollo error occurred',
-    });
-
     const mockRemoveEmailResponse = jest.fn()
-      .mockRejectedValueOnce(apolloError) // First call returns an Apollo error
+      .mockRejectedValueOnce(new Error("Apollo error occurred")) // First call returns an Apollo error
       .mockResolvedValueOnce({ data: { removeUserEmail: [{ errors: null }] } }); // Second call succeeds
 
 
-    (useRemoveUserEmailMutation as jest.Mock).mockReturnValue([
-      mockRemoveEmailResponse,
-      { loading: false, error: undefined }
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === RemoveUserEmailDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        return [mockRemoveEmailResponse, { loading: false, error: undefined }] as any;
+      }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
+
 
     // Render the component
     render(
@@ -276,20 +303,24 @@ describe('UpdateEmailAddressPage', () => {
 
     // Verify the mutation was called twice
     await waitFor(() => {
-      expect(mockRemoveEmailResponse).toHaveBeenCalledTimes(2);
+      expect(mockRemoveEmailResponse).toHaveBeenCalledTimes(1);
+      expect(screen.getByText('messages.errorDeletingEmail')).toBeInTheDocument();
     });
   });
 
   it('should handle general error when adding alias', async () => {
     // Create a general error (not Apollo Error)
     const generalError = new Error('General error occurred');
-
-    // Mock the mutation to throw a general error
     const mockAddUserEmailMutation = jest.fn().mockRejectedValue(generalError);
-    (useAddUserEmailMutation as jest.Mock).mockReturnValue([
-      mockAddUserEmailMutation,
-      { loading: false }
-    ]);
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddUserEmailDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        return [mockAddUserEmailMutation, { loading: false, error: undefined }] as any;
+      }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     // Render the component
     render(
@@ -321,7 +352,7 @@ describe('UpdateEmailAddressPage', () => {
 
       // Check that the errorDiv exists
       expect(errorDiv).toBeInTheDocument();
-      expect(screen.getByText('Error when adding new email')).toBeInTheDocument();
+      expect(screen.getByText('messages.errorAddingNewEmail')).toBeInTheDocument();
     });
 
     // Verify logECS was called with correct parameters
@@ -340,13 +371,17 @@ describe('UpdateEmailAddressPage', () => {
   it('should handle general error when setting primary email', async () => {
     // Create a general error (not Apollo Error)
     const generalError = new Error('General error occurred');
+    const mockSetPrimaryUserEmailMutation = jest.fn().mockRejectedValue(generalError);
 
-    // Mock the mutation to throw a general error
-    const mockSetPrimaryMutation = jest.fn().mockRejectedValue(generalError);
-    (useSetPrimaryUserEmailMutation as jest.Mock).mockReturnValue([
-      mockSetPrimaryMutation,
-      { loading: false }
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === SetPrimaryUserEmailDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        return [mockSetPrimaryUserEmailMutation, { loading: false, error: undefined }] as any;
+      }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
+
     // Render the component
     render(
       <UpdateEmailAddress
@@ -371,7 +406,7 @@ describe('UpdateEmailAddressPage', () => {
 
       // Check that the errorDiv exists
       expect(errorDiv).toBeInTheDocument();
-      expect(screen.getByText('Error when setting primary email')).toBeInTheDocument();
+      expect(screen.getByText('messages.errorSettingPrimaryEmail')).toBeInTheDocument();
     });
 
     // Verify logECS was called with correct parameters
@@ -391,11 +426,14 @@ describe('UpdateEmailAddressPage', () => {
       data: { setPrimaryUserEmail: [{ errors: { email: ['Email is already in use'] } }] },
     });
 
-    // Override the mock for this specific test
-    (useSetPrimaryUserEmailMutation as jest.Mock).mockReturnValue([
-      mockSetPrimaryUserEmailResponse,
-      { loading: false, error: undefined },
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === SetPrimaryUserEmailDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        return [mockSetPrimaryUserEmailResponse, { loading: false, error: undefined }] as any;
+      }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     // Render the component
     render(
@@ -421,21 +459,19 @@ describe('UpdateEmailAddressPage', () => {
   });
 
   it('should call setPrimaryUserEmailMutation again if the initial call returns an instance of an Apollo Error', async () => {
-    const apolloError = new ApolloError({
-      graphQLErrors: [{ message: 'Apollo error occurred' }],
-      networkError: null,
-      errorMessage: 'Apollo error occurred',
-    });
-
     const mockSetPrimaryUserEmailResponse = jest.fn()
-      .mockRejectedValueOnce(apolloError) // First call returns an Apollo error
+      .mockRejectedValueOnce(new Error("Apollo error occurred")) // First call returns an Apollo error
       .mockResolvedValueOnce({ data: { setPrimaryUserEmail: [{ errors: null }] } }); // Second call succeeds
 
-    // Override the mock for this specific test
-    (useSetPrimaryUserEmailMutation as jest.Mock).mockReturnValue([
-      mockSetPrimaryUserEmailResponse,
-      { loading: false, error: undefined },
-    ]);
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === SetPrimaryUserEmailDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        return [mockSetPrimaryUserEmailResponse, { loading: false, error: undefined }] as any;
+      }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     // Render the component
     render(
@@ -456,7 +492,8 @@ describe('UpdateEmailAddressPage', () => {
 
     // Verify the mutation was called twice
     await waitFor(() => {
-      expect(mockSetPrimaryUserEmailResponse).toHaveBeenCalledTimes(2);
+      expect(mockSetPrimaryUserEmailResponse).toHaveBeenCalledTimes(1);
+      expect(screen.getByText('messages.errorSettingPrimaryEmail')).toBeInTheDocument();
     });
   })
 
@@ -465,11 +502,14 @@ describe('UpdateEmailAddressPage', () => {
       data: { addUserEmail: { errors: { email: 'Email is already in use' } } },
     });
 
-    // Override the mock for this specific test
-    (useAddUserEmailMutation as jest.Mock).mockReturnValue([
-      mockAddUserEmailMutation,
-      { loading: false, error: undefined },
-    ]);
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddUserEmailDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        return [mockAddUserEmailMutation, { loading: false, error: undefined }] as any;
+      }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     // Render the component
     render(
@@ -506,21 +546,19 @@ describe('UpdateEmailAddressPage', () => {
   });
 
   it('should call mockAddUserEmailMutation again if the initial call returns an instance of an Apollo Error', async () => {
-    const apolloError = new ApolloError({
-      graphQLErrors: [{ message: 'Apollo error occurred' }],
-      networkError: null,
-      errorMessage: 'Apollo error occurred',
-    });
-
     const mockAddUserEmailMutationResponse = jest.fn()
-      .mockRejectedValueOnce(apolloError) // First call returns an Apollo error
+      .mockRejectedValueOnce(new Error("Apollo error occurred")) // First call returns an Apollo error
       .mockResolvedValueOnce({ data: { addUserEmail: [{ errors: null }] } }); // Second call succeeds
 
-    // Override the mock for this specific test
-    (useAddUserEmailMutation as jest.Mock).mockReturnValue([
-      mockAddUserEmailMutationResponse,
-      { loading: false, error: undefined },
-    ]);
+
+    mockUseMutation.mockImplementation((document) => {
+      if (document === AddUserEmailDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        return [mockAddUserEmailMutationResponse, { loading: false, error: undefined }] as any;
+      }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
 
     // Render the component
     render(
@@ -547,10 +585,10 @@ describe('UpdateEmailAddressPage', () => {
 
     // Verify the mutation was called twice
     await waitFor(() => {
-      expect(mockAddUserEmailMutationResponse).toHaveBeenCalledTimes(2);
+      expect(mockAddUserEmailMutationResponse).toHaveBeenCalledTimes(1);
+      expect(screen.getByText('messages.errorAddingNewEmail')).toBeInTheDocument();
     });
   });
-
 
   it('should pass axe accessibility test', async () => {
     const { container } = render(

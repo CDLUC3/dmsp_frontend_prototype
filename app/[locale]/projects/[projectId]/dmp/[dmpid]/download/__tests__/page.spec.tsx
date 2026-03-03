@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 import { useParams } from 'next/navigation';
-import { MockedProvider } from "@apollo/client/testing";
+import { MockedProvider } from "@apollo/client/testing/react";
 import { axe, toHaveNoViolations } from 'jest-axe';
 import mockedPlan from '../__mocks__/mockedPlan.json';
 import {
@@ -52,15 +52,14 @@ describe('ProjectsProjectPlanDownloadPage', () => {
     render(
       <MockedProvider
         mocks={mocks}
-        addTypename={false}
       >
         <ProjectsProjectPlanDownloadPage />
       </MockedProvider>,
     );
 
-    await waitFor(() => { // Wait for query to resolve so mocked data is rendered
-      expect(screen.getByText('title')).toBeInTheDocument();
-    });
+    // Wait for the plan data to load by checking for the filename
+    await screen.findByText(/Butterfly Migration/i);
+
 
     expect(screen.getByText('title')).toBeInTheDocument();
     expect(screen.getByText('description')).toBeInTheDocument();
@@ -150,15 +149,14 @@ describe('ProjectsProjectPlanDownloadPage', () => {
     render(
       <MockedProvider
         mocks={mocks}
-        addTypename={false}
       >
         <ProjectsProjectPlanDownloadPage />
       </MockedProvider>,
     );
 
-    await waitFor(() => { // Wait for query to resolve so mocked data is rendered
-      expect(screen.getByText('title')).toBeInTheDocument();
-    });
+    // Wait for the plan data to load by checking for the filename
+    await screen.findByText(/Butterfly Migration/i);
+
 
     // Formatting options
     expect(screen.getByRole('heading', { level: 2, name: 'headings.formattingOptions' })).toBeInTheDocument();
@@ -181,15 +179,13 @@ describe('ProjectsProjectPlanDownloadPage', () => {
     render(
       <MockedProvider
         mocks={mocks}
-        addTypename={false}
       >
         <ProjectsProjectPlanDownloadPage />
       </MockedProvider>,
     );
 
-    await waitFor(() => { // Wait for query to resolve so mocked data is rendered
-      expect(screen.getByText('title')).toBeInTheDocument();
-    });
+    // Wait for the plan data to load by checking for the filename
+    await screen.findByText(/Butterfly Migration/i);
 
     const selectFontSize = screen.getByLabelText('Font size');
     const option8 = screen.getByRole('option', { name: '8pt' });
@@ -217,15 +213,13 @@ describe('ProjectsProjectPlanDownloadPage', () => {
     render(
       <MockedProvider
         mocks={mocks}
-        addTypename={false}
       >
         <ProjectsProjectPlanDownloadPage />
       </MockedProvider>,
     );
 
-    await waitFor(() => { // Wait for query to resolve so mocked data is rendered
-      expect(screen.getByText('title')).toBeInTheDocument();
-    });
+    // Wait for the plan data to load by checking for the filename
+    await screen.findByText(/Butterfly Migration/i);
 
     const select = screen.getByLabelText('Top margin');
     // Simulate user selecting 15mm
@@ -238,15 +232,13 @@ describe('ProjectsProjectPlanDownloadPage', () => {
     render(
       <MockedProvider
         mocks={mocks}
-        addTypename={false}
       >
         <ProjectsProjectPlanDownloadPage />
       </MockedProvider>,
     );
 
-    await waitFor(() => { // Wait for query to resolve so mocked data is rendered
-      expect(screen.getByText('title')).toBeInTheDocument();
-    });
+    // Wait for the plan data to load by checking for the filename
+    await screen.findByText(/Butterfly Migration/i);
 
     // Settings checkboxes should be present
     expect(screen.getByRole('heading', { level: 2, name: 'headings.settings' })).toBeInTheDocument();
@@ -277,16 +269,14 @@ describe('ProjectsProjectPlanDownloadPage', () => {
     render(
       <MockedProvider
         mocks={mocks}
-        addTypename={false}
       >
         <ProjectsProjectPlanDownloadPage />
       </MockedProvider>,
     );
 
 
-    await waitFor(() => { // Wait for query to resolve so mocked data is rendered
-      expect(screen.getByText('title')).toBeInTheDocument();
-    });
+    // Wait for the plan data to load by checking for the filename
+    await screen.findByText(/Butterfly Migration/i);
 
     const pdfRadio = screen.getByRole('radio', { name: /PDF/i });
     const docRadio = screen.getByRole('radio', { name: /DOC/i });
@@ -308,16 +298,14 @@ describe('ProjectsProjectPlanDownloadPage', () => {
     render(
       <MockedProvider
         mocks={mocks}
-        addTypename={false}
       >
         <ProjectsProjectPlanDownloadPage />
       </MockedProvider>,
     );
 
 
-    await waitFor(() => { // Wait for query to resolve so mocked data is rendered
-      expect(screen.getByText('title')).toBeInTheDocument();
-    });
+    // Wait for the plan data to load by checking for the filename
+    await screen.findByText(/Butterfly Migration/i);
 
     const docRadio = screen.getByRole('radio', { name: /DOC/i });
 
@@ -333,7 +321,6 @@ describe('ProjectsProjectPlanDownloadPage', () => {
     const { container } = render(
       <MockedProvider
         mocks={mocks}
-        addTypename={false}
       >
         <ProjectsProjectPlanDownloadPage />
       </MockedProvider>,
@@ -384,7 +371,7 @@ describe('handleDownload', () => {
 
   it('should download PDF with default settings', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <ProjectsProjectPlanDownloadPage />
       </MockedProvider>,
     );
@@ -406,7 +393,7 @@ describe('handleDownload', () => {
 
   it('should download DOC format when DOC is selected', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <ProjectsProjectPlanDownloadPage />
       </MockedProvider>,
     );
@@ -437,7 +424,7 @@ describe('handleDownload', () => {
 
   it('should include changed settings in download', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <ProjectsProjectPlanDownloadPage />
       </MockedProvider>,
     );
@@ -474,7 +461,7 @@ describe('handleDownload', () => {
     });
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <ProjectsProjectPlanDownloadPage />
       </MockedProvider>,
     );
@@ -495,7 +482,7 @@ describe('handleDownload', () => {
 
   it('should use correct filename from plan data', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <ProjectsProjectPlanDownloadPage />
       </MockedProvider>,
     );

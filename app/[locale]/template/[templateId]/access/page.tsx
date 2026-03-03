@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { ApolloError } from "@apollo/client";
+import { useMutation, useQuery } from '@apollo/client/react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -12,12 +12,11 @@ import {
   Link,
 } from 'react-aria-components';
 
-// Graphql mutations
+// GraphQL
 import {
   TemplateCollaboratorsDocument,
-  useAddTemplateCollaboratorMutation,
-  useRemoveTemplateCollaboratorMutation,
-  useTemplateCollaboratorsQuery
+  AddTemplateCollaboratorDocument,
+  RemoveTemplateCollaboratorDocument,
 } from '@/generated/graphql';
 
 // Components
@@ -32,7 +31,6 @@ import logECS from '@/utils/clientLogger';
 import { isValidEmail } from '@/utils/validation';
 import { scrollToTop } from '@/utils/general';
 import { useToast } from '@/context/ToastContext';
-
 import styles from './TemplateAccessPage.module.scss';
 
 const GET_COLLABORATORS = TemplateCollaboratorsDocument;
@@ -65,16 +63,14 @@ const TemplateAccessPage: React.FC = () => {
   const AccessPage = useTranslations('TemplateAccessPage');
 
   // Run template query to get template name
-  const { data: templateCollaboratorData, loading, error: templateQueryErrors } = useTemplateCollaboratorsQuery(
-    {
-      variables: { templateId: Number(templateId) },
-      notifyOnNetworkStatusChange: true
-    }
-  );
+  const { data: templateCollaboratorData, loading, error: templateQueryErrors } = useQuery(TemplateCollaboratorsDocument, {
+    variables: { templateId: Number(templateId) },
+    notifyOnNetworkStatusChange: true
+  });
 
   // Initialize graphql mutations for component
-  const [addTemplateCollaboratorlMutation] = useAddTemplateCollaboratorMutation();
-  const [removeTemplateCollaboratorMutation] = useRemoveTemplateCollaboratorMutation({
+  const [addTemplateCollaboratorlMutation] = useMutation(AddTemplateCollaboratorDocument);
+  const [removeTemplateCollaboratorMutation] = useMutation(RemoveTemplateCollaboratorDocument, {
     notifyOnNetworkStatusChange: true,
   });
   const clearErrors = () => {
@@ -103,15 +99,11 @@ const TemplateAccessPage: React.FC = () => {
         addToast(successMessage, { type: 'success' });
       }
     } catch (err) {
-      if (err instanceof ApolloError) {
-        setErrorMessages(prevErrors => [...prevErrors, err.message]);
-      } else {
-        setErrorMessages(prevErrors => [...prevErrors, AccessPage('messages.errors.errorRemovingEmail')]);
-        logECS('error', 'handleRevokeAccess', {
-          error: err,
-          url: { path: '/template/[templateId]/access' }
-        });
-      }
+      setErrorMessages(prevErrors => [...prevErrors, AccessPage('messages.errors.errorRemovingEmail')]);
+      logECS('error', 'handleRevokeAccess', {
+        error: err,
+        url: { path: '/template/[templateId]/access' }
+      });
     }
   }, [templateId, removeTemplateCollaboratorMutation, AccessPage, addToast]);
 
@@ -147,16 +139,12 @@ const TemplateAccessPage: React.FC = () => {
       const successMessage = AccessPage('messages.success.emailInviteSent');
       addToast(successMessage, { type: 'success' });
     } catch (err) {
-      if (err instanceof ApolloError) {
-        setErrorMessages(prevErrors => [...prevErrors, err.message]);
-        setAddCollaboratorEmail('');
-      } else {
-        setErrorMessages(prevErrors => [...prevErrors, AccessPage('messages.errors.errorAddingCollaborator')]);
-        logECS('error', 'handleAddingEmail', {
-          error: err,
-          url: { path: '/template/[templateId]/access' }
-        });
-      }
+      setErrorMessages(prevErrors => [...prevErrors, AccessPage('messages.errors.errorAddingCollaborator')]);
+      setAddCollaboratorEmail('');
+      logECS('error', 'handleAddingEmail', {
+        error: err,
+        url: { path: '/template/[templateId]/access' }
+      });
     }
   }, [templateId, addCollaboratorEmail, addTemplateCollaboratorlMutation, AccessPage, addToast]);
 

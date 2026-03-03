@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { render, screen, fireEvent, waitFor } from '@/utils/test-utils';
 import { toHaveNoViolations } from 'jest-axe';
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { AffiliationFundersDocument } from '@/generated/graphql';
 import {
   FunderSearchResults,
@@ -156,8 +156,8 @@ describe("FunderSearch", () => {
 
   it("should render the component", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
-        <FunderSearch moreTrigger={0} onResults={() => {}} />
+      <MockedProvider mocks={mocks}>
+        <FunderSearch moreTrigger={0} onResults={() => { }} />
       </MockedProvider>
     );
 
@@ -167,15 +167,15 @@ describe("FunderSearch", () => {
 
   it("should cleanly handle an empty search term", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <WrappedSearch />
       </MockedProvider>
     );
 
     // We must set the search term before we can search
     const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input')!;
-    fireEvent.change(searchInput, {target: {value: " " }});
+      .querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: " " } });
 
     const searchBtn = screen.getByTestId('search-btn');
     fireEvent.click(searchBtn);
@@ -188,15 +188,15 @@ describe("FunderSearch", () => {
 
   it("should perform search on submit", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <WrappedSearch />
       </MockedProvider>
     );
 
     // We must set the search term before we can search
     const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input')!;
-    fireEvent.change(searchInput, {target: {value: "nih" }});
+      .querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "nih" } });
 
     const searchBtn = screen.getByTestId('search-btn');
     fireEvent.click(searchBtn);
@@ -212,18 +212,18 @@ describe("FunderSearch", () => {
       }
     });
   });
-  
+
   it("should load more when the moretrigger is activated", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <WrappedSearch />
       </MockedProvider>
     );
 
     // We must set the search term before we can search
     const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input')!;
-    fireEvent.change(searchInput, {target: {value: "nih" }});
+      .querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "nih" } });
 
     const searchBtn = screen.getByTestId('search-btn');
     fireEvent.click(searchBtn);

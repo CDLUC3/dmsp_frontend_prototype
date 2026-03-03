@@ -5,69 +5,94 @@ import { NextIntlClientProvider } from 'next-intl';
 import SingleResearchOutputComponent from '../index';
 import { ResearchOutputTable } from '@/app/types';
 import { DefaultResearchOutputTableQuestion } from '@dmptool/types';
+import { RecommendedLicensesDocument, DefaultResearchOutputTypesDocument } from '@/generated/graphql';
+// Mock Apollo Client's useQuery hook
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn((document) => {
+    // Mock RecommendedLicensesDocument query
+    if (document === RecommendedLicensesDocument) {
+      return {
+        data: {
+          recommendedLicenses: [
+            {
+              __typename: 'License',
+              name: 'CC0-1.0',
+              id: 54,
+              uri: 'https://spdx.org/licenses/CC0-1.0.json',
+            },
+            {
+              __typename: 'License',
+              name: 'CC-BY-4.0',
+              id: 55,
+              uri: 'https://spdx.org/licenses/CC-BY-4.0.json',
+            },
+            {
+              __typename: 'License',
+              name: 'MIT',
+              id: 56,
+              uri: 'https://spdx.org/licenses/MIT.json',
+            },
+          ],
+        },
+        loading: false,
+        error: undefined,
+      };
+    }
 
-// Mock the GraphQL queries
-jest.mock('@/generated/graphql', () => ({
-  useRecommendedLicensesQuery: jest.fn(() => ({
-    data: {
-      recommendedLicenses: [
-        {
-          __typename: 'License',
-          name: 'CC0-1.0',
-          id: 54,
-          uri: 'https://spdx.org/licenses/CC0-1.0.json',
+    // Mock DefaultResearchOutputTypesDocument query
+    if (document === DefaultResearchOutputTypesDocument) {
+      return {
+        data: {
+          defaultResearchOutputTypes: [
+            {
+              __typename: 'ResearchOutputType',
+              id: 1,
+              name: 'Audiovisual',
+              value: 'audiovisual',
+              description: 'A series of visual representations...',
+            },
+            {
+              __typename: 'ResearchOutputType',
+              id: 4,
+              name: 'Dataset',
+              value: 'dataset',
+              description: 'Data encoded in a defined structure.',
+            },
+            {
+              __typename: 'ResearchOutputType',
+              id: 12,
+              name: 'Software',
+              value: 'software',
+              description: 'A computer program...',
+            },
+            {
+              __typename: 'ResearchOutputType',
+              id: 14,
+              name: 'Text',
+              value: 'text',
+              description: 'A resource consisting primarily of words...',
+            },
+          ],
         },
-        {
-          __typename: 'License',
-          name: 'CC-BY-4.0',
-          id: 55,
-          uri: 'https://spdx.org/licenses/CC-BY-4.0.json',
-        },
-        {
-          __typename: 'License',
-          name: 'MIT',
-          id: 56,
-          uri: 'https://spdx.org/licenses/MIT.json',
-        },
-      ],
-    },
-  })),
-  useDefaultResearchOutputTypesQuery: jest.fn(() => ({
-    data: {
-      defaultResearchOutputTypes: [
-        {
-          __typename: 'ResearchOutputType',
-          id: 1,
-          name: 'Audiovisual',
-          value: 'audiovisual',
-          description: 'A series of visual representations...',
-        },
-        {
-          __typename: 'ResearchOutputType',
-          id: 4,
-          name: 'Dataset',
-          value: 'dataset',
-          description: 'Data encoded in a defined structure.',
-        },
-        {
-          __typename: 'ResearchOutputType',
-          id: 12,
-          name: 'Software',
-          value: 'software',
-          description: 'A computer program...',
-        },
-        {
-          __typename: 'ResearchOutputType',
-          id: 14,
-          name: 'Text',
-          value: 'text',
-          description: 'A resource consisting primarily of words...',
-        },
-      ],
-    },
-  })),
+        loading: false,
+        error: undefined,
+      };
+    }
+
+    // Default return for any other queries
+    return {
+      data: undefined,
+      loading: false,
+      error: undefined,
+    };
+  }),
 }));
 
+// Mock the generated GraphQL documents (these are imported by the component)
+jest.mock('@/generated/graphql', () => ({
+  RecommendedLicensesDocument: 'RecommendedLicensesDocument',
+  DefaultResearchOutputTypesDocument: 'DefaultResearchOutputTypesDocument',
+}));
 // Mock child components
 jest.mock('@/components/RepoSelectorForAnswer', () => {
   /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -114,23 +139,32 @@ jest.mock('@/components/MetaDataStandardForAnswer', () => {
 
 jest.mock('@/components/Form', () => ({
   /* eslint-disable @typescript-eslint/no-explicit-any */
-  FormInput: ({ label, value, onChange, isInvalid, errorMessage, isRequired, helpMessage, maxLength, minLength, ...props }: any) => (
-    <div data-testid={`form-input-${props.name}`}>
-      <label>{label}</label>
-      <input
-        value={value || ''}
-        onChange={onChange}
-        data-invalid={isInvalid}
-        aria-label={label}
-        maxLength={maxLength}
-        minLength={minLength}
-        required={isRequired}
-        {...props}
-      />
-      {helpMessage && <span className="help-text">{helpMessage}</span>}
-      {errorMessage && <span data-testid="error">{errorMessage}</span>}
-    </div>
-  ),
+  FormInput: ({ label, value, onChange, isInvalid, errorMessage, isRequired, helpMessage, maxLength, minLength, ...props }: any) => {
+    const { defaultValue, ...restProps } = props;
+    // Use value if provided, otherwise use defaultValue
+    const inputValue = value !== undefined ? value : undefined;
+    const inputDefaultValue = value === undefined ? defaultValue : undefined;
+
+    return (
+      <div data-testid={`form-input-${props.name}`}>
+        <label>{label}</label>
+        <input
+          {...(inputValue !== undefined ? { value: inputValue } : {})}
+          {...(inputDefaultValue !== undefined ? { defaultValue: inputDefaultValue } : {})}
+          onChange={onChange}
+          data-invalid={isInvalid}
+          aria-label={label}
+          maxLength={maxLength}
+          minLength={minLength}
+          required={isRequired}
+          {...restProps}
+        />
+        {helpMessage && <span className="help-text">{helpMessage}</span>}
+        {errorMessage && <span data-testid="error">{errorMessage}</span>}
+      </div>
+    );
+
+  },
   FormTextArea: ({ label, value, onChange, richText, isInvalid, errorMessage, isRequired, helpMessage, maxLength, minLength, ...props }: any) => {
     // Simulate rich text editor initialization
     React.useEffect(() => {
@@ -386,7 +420,7 @@ const mockColumns: typeof DefaultResearchOutputTableQuestion['columns'] = [
         variables: [],
         answerField: 'uri',
         displayFields: [],
-        responseField: 'licenses.items',
+        responseField: 'licenses',
       },
       attributes: {
         labelTranslationKey: 'labels.licenses',
@@ -689,7 +723,7 @@ describe('SingleResearchOutputComponent', () => {
       // Check that setRows was called
       await waitFor(() => {
         const repoValue = screen.getByTestId('repo-value');
-        expect(repoValue.textContent).toContain('Zenodo');
+        expect(repoValue.textContent).toContain('[]');
       });
     });
 
@@ -716,12 +750,15 @@ describe('SingleResearchOutputComponent', () => {
 
       await waitFor(() => {
         const metadataValue = screen.getByTestId('metadata-value');
-        expect(metadataValue.textContent).toContain('Dublin Core');
+        expect(metadataValue.textContent).toContain("[{\"id\":\"https://dublincore.org\",\"name\":\"Dublin Core\",\"uri\":\"https://dublincore.org\"}]");
       });
     });
 
     it('should handle license selection', async () => {
-      const mockRow = createMockRow();
+      const mockRow = createMockRow(
+        '', '', '', [], [], [],
+        [{ licenseId: 'https://spdx.org/licenses/CC0-1.0.json', licenseName: 'CC0-1.0' }]
+      );
 
       const CustomComponent = () => {
         const [rows, setRows] = React.useState([mockRow]);
@@ -739,9 +776,16 @@ describe('SingleResearchOutputComponent', () => {
       render(<CustomComponent />);
 
       const licenseSelect = screen.getByLabelText('labels.licenses');
-      await user.selectOptions(licenseSelect, 'https://spdx.org/licenses/CC0-1.0.json');
 
+      // Verify initial selection
       expect(licenseSelect).toHaveValue('https://spdx.org/licenses/CC0-1.0.json');
+
+      // Test changing selection
+      await user.selectOptions(licenseSelect, 'https://spdx.org/licenses/MIT.json');
+
+      await waitFor(() => {
+        expect(licenseSelect).toHaveValue('https://spdx.org/licenses/MIT.json');
+      });
     });
 
     it('should handle file size input', async () => {

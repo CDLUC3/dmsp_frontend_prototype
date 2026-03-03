@@ -2,15 +2,18 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { useParams } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { useProjectQuery } from '@/generated/graphql';
+import { useQuery } from '@apollo/client/react';
 import ProjectOverviewPage from '../page';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
-jest.mock("@/generated/graphql", () => ({
-  useProjectQuery: jest.fn(),
+// Mock Apollo Client
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
 }));
+
+const mockUseQuery = jest.mocked(useQuery);
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -103,21 +106,26 @@ const mockProjectData = {
   ]
 };
 
+const setupMocks = () => {
+  mockUseQuery.mockReturnValue({
+    data: { project: mockProjectData },
+    loading: false,
+    error: undefined,
+    refetch: jest.fn(),
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+  } as any);
+};
+
 
 describe('ProjectOverviewPage', () => {
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
 
     const mockUseParams = useParams as jest.Mock;
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ projectId: '123' });
-    // Mock the hook for data state
-    (useProjectQuery as jest.Mock).mockReturnValue({
-      data: { project: mockProjectData },
-      loading: false,
-      error: null,
-    });
   })
 
   it('should render the project title', () => {
@@ -131,11 +139,14 @@ describe('ProjectOverviewPage', () => {
       startDate: null
     };
 
-    (useProjectQuery as jest.Mock).mockReturnValue({
+    mockUseQuery.mockReturnValue({
       data: { project: mockProjectDataWithoutStartDate },
       loading: false,
-      error: null,
-    });
+      error: undefined,
+      refetch: jest.fn(),
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+    } as any);
+
     render(<ProjectOverviewPage />);
     //Should not see end date
     expect(screen.queryByText('2028-12-31')).not.toBeInTheDocument();
@@ -157,11 +168,15 @@ describe('ProjectOverviewPage', () => {
   });
 
   it('should display Loading message ', async () => {
-    (useProjectQuery as jest.Mock).mockReturnValue({
-      data: null,
+
+    mockUseQuery.mockReturnValue({
+      data: undefined,
+      error: undefined,
       loading: true,
-      error: null,
-    });
+      refetch: jest.fn(),
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+    } as any);
+
     render(<ProjectOverviewPage />);
     const loadingText = screen.getByText(/messaging.loading/i);
     expect(loadingText).toBeInTheDocument();

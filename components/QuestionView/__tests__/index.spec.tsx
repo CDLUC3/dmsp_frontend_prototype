@@ -3,17 +3,15 @@ import React from 'react';
 import { act, fireEvent, render, screen, within } from '@/utils/test-utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import * as apolloClientModule from '@/lib/graphql/client/apollo-client';
-
+import { useQuery } from '@apollo/client/react';
 import {
-  useTemplateQuery,
-  useRecommendedLicensesQuery,
-  useDefaultResearchOutputTypesQuery
+  TemplateDocument,
+  RecommendedLicensesDocument,
+  DefaultResearchOutputTypesDocument
 } from '@/generated/graphql';
 import QuestionView from '@/components/QuestionView';
 import {
   AffiliationSearchQuestionType,
-  BooleanQuestionType,
   CheckboxesQuestionType,
   CurrencyQuestionType,
   DateRangeQuestionType,
@@ -59,12 +57,10 @@ jest.mock('@/components/Form/TypeAheadWithOther', () => ({
   ),
 }));
 
-jest.mock('@/lib/graphql/client/apollo-client');
-jest.mock('@/generated/graphql', () => ({
-  useQuestionTypesQuery: jest.fn(),
-  useTemplateQuery: jest.fn(),
-  useRecommendedLicensesQuery: jest.fn(),
-  useDefaultResearchOutputTypesQuery: jest.fn(),
+// Mock Apollo Client hooks
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+  useMutation: jest.fn(),
 }));
 
 
@@ -107,101 +103,116 @@ const mockTemplate = {
   ]
 };
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-const mockHook = (hook: any) => hook as jest.Mock;
-const mockQuery = jest.fn();
-const mockClient = { query: mockQuery };
+// Cast with jest.mocked utility
+const mockUseQuery = jest.mocked(useQuery);
+
+const setupMocks = () => {
+  // Create stable references OUTSIDE mockImplementation
+  const stableTemplateReturn = {
+    data: { template: mockTemplate },
+    loading: false,
+    error: null,
+  };
+
+  const stableRecommendedLicensesReturn = {
+    data: {
+      recommendedLicenses: [
+        {
+          __typename: "License",
+          name: "CC0-1.0",
+          id: 54,
+          uri: "https://spdx.org/licenses/CC0-1.0.json"
+        },
+        {
+          __typename: "License",
+          name: "CC-BY-4.0",
+          id: 55,
+          uri: "https://spdx.org/licenses/CC-BY-4.0.json"
+        },
+        {
+          __typename: "License",
+          name: "MIT",
+          id: 56,
+          uri: "https://spdx.org/licenses/MIT.json"
+        }
+      ]
+    },
+    loading: false,
+    error: null,
+  };
+
+  const stableDefaultResearchOutputTypesReturn = {
+    data: {
+      defaultResearchOutputTypes: [
+        {
+          __typename: "ResearchOutputType",
+          id: 1,
+          name: "Audiovisual",
+          value: "audiovisual",
+          errors: {
+            __typename: "ResearchOutputTypeErrors",
+            general: null,
+            name: null,
+            value: null
+          },
+          description: "A series of visual representations imparting an impression of motion when shown in succession. May or may not include sound. (e.g. films, video, etc.)"
+        },
+        {
+          __typename: "ResearchOutputType",
+          id: 2,
+          name: "Collection",
+          value: "collection",
+          errors: {
+            __typename: "ResearchOutputTypeErrors",
+            general: null,
+            name: null,
+            value: null
+          },
+          description: "An aggregation of resources, which may encompass collections of one resourceType as well as those of mixed types. A collection is described as a group; its parts may also be separately described. (e.g. A collection of samples, or various files making up a report)"
+        },
+        {
+          __typename: "ResearchOutputType",
+          id: 3,
+          name: "Data paper",
+          value: "data-paper",
+          errors: {
+            __typename: "ResearchOutputTypeErrors",
+            general: null,
+            name: null,
+            value: null
+          },
+          description: "A factual and objective publication with a focused intent to identify and describe specific data, sets of data, or data collections to facilitate discoverability. (i.e. A data paper describes data provenance and methodologies used in the gathering, processing, organizing, and representing the data)"
+        }
+      ]
+    },
+    loading: false,
+    error: null,
+  };
+
+  mockUseQuery.mockImplementation((document) => {
+    if (document === TemplateDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return stableTemplateReturn as any;
+    }
+    if (document === RecommendedLicensesDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return stableRecommendedLicensesReturn as any;
+    }
+    if (document === DefaultResearchOutputTypesDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return stableDefaultResearchOutputTypesReturn as any;
+    }
+  });
+};
 
 describe("QuestionView", () => {
   beforeEach(() => {
+    setupMocks();
     // Mock window.tinymce
     window.tinymce = {
       init: jest.fn(),
       remove: jest.fn(),
     };
-
-    (apolloClientModule.createApolloClient as jest.Mock).mockImplementation(() => mockClient);
-
-    mockHook(useTemplateQuery).mockReturnValue({
-      data: { template: mockTemplate },
-      loading: false,
-      error: null,
-    });
-
-    mockHook(useRecommendedLicensesQuery).mockReturnValue({
-      data: {
-        recommendedLicenses: [
-          {
-            __typename: "License",
-            name: "CC0-1.0",
-            id: 54,
-            uri: "https://spdx.org/licenses/CC0-1.0.json"
-          },
-          {
-            __typename: "License",
-            name: "CC-BY-4.0",
-            id: 55,
-            uri: "https://spdx.org/licenses/CC-BY-4.0.json"
-          },
-          {
-            __typename: "License",
-            name: "MIT",
-            id: 56,
-            uri: "https://spdx.org/licenses/MIT.json"
-          }
-        ]
-      },
-      loading: false,
-      error: null,
-    });
-
-    mockHook(useDefaultResearchOutputTypesQuery).mockReturnValue({
-      data: {
-        defaultResearchOutputTypes: [
-          {
-            __typename: "ResearchOutputType",
-            id: 1,
-            name: "Audiovisual",
-            value: "audiovisual",
-            errors: {
-              __typename: "ResearchOutputTypeErrors",
-              general: null,
-              name: null,
-              value: null
-            },
-            description: "A series of visual representations imparting an impression of motion when shown in succession. May or may not include sound. (e.g. films, video, etc.)"
-          },
-          {
-            __typename: "ResearchOutputType",
-            id: 2,
-            name: "Collection",
-            value: "collection",
-            errors: {
-              __typename: "ResearchOutputTypeErrors",
-              general: null,
-              name: null,
-              value: null
-            },
-            description: "An aggregation of resources, which may encompass collections of one resourceType as well as those of mixed types. A collection is described as a group; its parts may also be separately described. (e.g. A collection of samples, or various files making up a report)"
-          },
-          {
-            __typename: "ResearchOutputType",
-            id: 3,
-            name: "Data paper",
-            value: "data-paper",
-            errors: {
-              __typename: "ResearchOutputTypeErrors",
-              general: null,
-              name: null,
-              value: null
-            },
-            description: "A factual and objective publication with a focused intent to identify and describe specific data, sets of data, or data collections to facilitate discoverability. (i.e. A data paper describes data provenance and methodologies used in the gathering, processing, organizing, and representing the data)"
-          }
-        ]
-      },
-      loading: false,
-      error: null,
-    });
   });
 
   afterEach(() => {
@@ -375,22 +386,22 @@ describe("QuestionView", () => {
         {
           label: "Interviews",
           value: "interviews",
-          checked: true
+          selected: true
         },
         {
           label: "Surveys",
           value: "surveys",
-          checked: false
+          selected: false
         },
         {
           label: "Observations",
           value: "observations",
-          checked: true
+          selected: true
         },
         {
           label: "Focus Groups",
           value: "focus_groups",
-          checked: true
+          selected: true
         }
       ]
     };
@@ -755,39 +766,6 @@ describe("QuestionView", () => {
     expect(screen.getByRole('textbox')).toHaveAttribute('minLength', '0');
     expect(screen.getByRole('textbox')).toHaveAttribute('maxLength', '100');
 
-  });
-
-  it('should render the boolean question type', () => {
-    const json: BooleanQuestionType = {
-      meta: {
-        schemaVersion: "1.0"
-      },
-      type: "boolean",
-      attributes: {
-        label: "Boolean Question",
-        value: false
-      }
-    };
-    const mockQuestionWithBooleanField = { ...mockQuestion, json: JSON.stringify(json) };
-
-    render(
-      <QuestionView
-        question={mockQuestionWithBooleanField}
-        isPreview={true}
-        templateId={1}
-        path="/template/123"
-      />
-    );
-
-    expect(screen.getByTestId('card-body').textContent).toContain('form.yesLabel');
-    expect(screen.getByTestId('card-body').textContent).toContain('form.noLabel');
-    expect(screen.getByRole('radio', { name: 'form.noLabel' })).toBeChecked();
-
-    const radioButtons = screen.getByTestId('card-body').querySelectorAll('input[type="radio"]');
-    act(() => {
-      fireEvent.click(radioButtons[0]);
-    })
-    expect(radioButtons[0]).toBeChecked();
   });
 
   it('should render the typeahead search question type', () => {

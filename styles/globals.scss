@@ -226,7 +226,7 @@ body {
 }
 
 #App {
-  max-width: 1200px;
+  max-width: 1500px;
   margin-left: auto;
   margin-right: auto;
   line-height: var(--lh-normal);
@@ -276,7 +276,7 @@ body {
 
 
 
-.statusPanelContent {
+.status-panel-content {
   padding: var(--space-4);
   background-color: var(--gray-75);
   border-radius: var(--border-radius-lg);
@@ -389,7 +389,7 @@ footer a {
   }
 }
 
-.sidePanelContent {
+.side-panel-content {
   padding-top: var(--space-1);
 
   // Optional border top - only when needed
@@ -402,7 +402,7 @@ footer a {
   }
 }
 
-.sidePanel {
+.side-panel {
 
   a {
     // Uses default text-link styling from above
@@ -474,7 +474,7 @@ footer a {
       flex: 1;
     }
 
-    .sidePanelLink,
+    .side-panel-link,
     .buttonLink {
       font-size: var(--fs-base);
       font-weight: 300;

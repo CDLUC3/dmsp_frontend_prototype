@@ -20,22 +20,22 @@ describe('RadioButtonsQuestionComponent', () => {
       {
         label: "Interviews",
         value: "interviews",
-        checked: true
+        selected: true
       },
       {
         label: "Surveys",
         value: "surveys",
-        checked: false
+        selected: false
       },
       {
         label: "Observations",
         value: "observations",
-        checked: true
+        selected: true
       },
       {
         label: "Focus Groups",
         value: "focus_groups",
-        checked: true
+        selected: true
       }
     ]
   };
