@@ -1,0 +1,21 @@
+query CustomSection($customSectionId: Int!) {
+  customSection(customSectionId: $customSectionId) {
+    errors {
+      general
+      guidance
+      introduction
+      name
+      requirements
+    }
+    guidance
+    id
+    introduction
+    migrationStatus
+    modified
+    name
+    pinnedSectionId
+    pinnedSectionType
+    requirements
+    templateCustomizationId
+  }
+}

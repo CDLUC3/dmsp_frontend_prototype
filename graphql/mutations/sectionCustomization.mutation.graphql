@@ -83,39 +83,3 @@ mutation RemoveSectionCustomization($sectionCustomizationId: Int!) {
     }
   }
 }
-
-mutation UpdateCustomSection($input: UpdateCustomSectionInput!) {
-  updateCustomSection(input: $input) {
-    id
-    guidance
-    errors {
-      general
-    }
-    introduction
-    migrationStatus
-    modified
-    name
-    pinnedSectionId
-    pinnedSectionType
-    requirements
-    templateCustomizationId
-  }
-}
-
-mutation RemoveCustomSection($customSectionId: Int!) {
-  removeCustomSection(customSectionId: $customSectionId) {
-    id
-    guidance
-    introduction
-    migrationStatus
-    modified
-    name
-    pinnedSectionId
-    pinnedSectionType
-    requirements
-    templateCustomizationId
-    errors {
-      general
-    }
-  }
-}

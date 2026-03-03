@@ -83,7 +83,7 @@ const TemplateCustomizationOverview: React.FC = () => {
   //For scrolling to error in modal window
   const errorRef = useRef<HTMLDivElement | null>(null);
 
-  // Run template query to get all templates under the given templateCustomizationId
+  // Run template query to get all sections and questions under the given templateCustomizationId
   const {
     data,
     loading,
@@ -439,7 +439,7 @@ const TemplateCustomizationOverview: React.FC = () => {
               ))}
             </div>
           )}
-          <AddSectionButton href={`/template/customizations/${templateCustomizationId}/section/new`} />
+          <AddSectionButton href={`/template/customizations/${templateCustomizationId}/section/create`} />
 
         </ContentContainer>
         <SidebarPanel className="sidebar">
@@ -524,10 +524,11 @@ const TemplateCustomizationOverview: React.FC = () => {
             </div>
           </div>
         </SidebarPanel>
+
         {/* Delete Customization Modal */}
-        <section className={styles.dangerZone} aria-labelledby="delete-customization-heading" data-testid="delete-customization-section">
+        <section className={styles.deleteTemplateCustomizationContainer} aria-labelledby="delete-customization-heading" data-testid="delete-customization-section">
           <h2 id="delete-customization-heading">{CustomizableTemplates("heading.deleteCustomization")}</h2>
-          <p className={styles.deleteWarning}><DmpIcon icon="warning" />{CustomizableTemplates.rich("descriptions.deleteCustomization", {
+          <p className={styles.dangerZoneDescription}><DmpIcon icon="warning" />{CustomizableTemplates.rich("descriptions.deleteCustomization", {
             strong: (chunks) => <strong>{chunks}</strong>
           })}</p>
           <DialogTrigger isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
@@ -554,7 +555,7 @@ const TemplateCustomizationOverview: React.FC = () => {
                           {Global('buttons.cancel')}
                         </Button>
                         <Button
-                          className="primary"
+                          className="danger"
                           onPress={() => {
                             handleDeleteCustomization();
                             close();
