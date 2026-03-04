@@ -182,7 +182,7 @@ describe('TemplateCustomizationOverview', () => {
 
       const addButton = await screen.findByTestId('add-section-button');
       expect(addButton).toBeInTheDocument();
-      expect(addButton).toHaveAttribute('href', '/template/customizations/1/section/new');
+      expect(addButton).toHaveAttribute('href', '/template/customizations/1/section/create');
     });
 
     it('should render error message when query fails', async () => {

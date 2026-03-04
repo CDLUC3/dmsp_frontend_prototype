@@ -1,4 +1,5 @@
 ## Added
+- Added `CustomSectionEdit`, and `CreateCustomSectionPage` for adding and editing Custom Sections [#928]
 - Added new `/template/customizations/[templateCustomizationOverview]` page [#927]
 - Added new `CustomizedTemplate` components directory and new `CustomizedQuestionEdit` and `CustomizedSectionEdit` components [#927]
 - Added `MoveCustomQuestion`, `MoveCustomSection`, `UpdateSectionCustomization`, `RemoveSectionCustomization`, `UpdateCustomSection`, `AddTemplateCustomization` mutations and `SectionCustomization` and `TemplateCustomizationOverview` queries [#927]
@@ -12,6 +13,7 @@
 - Added related works project overview page [#700]
 
 ## Updated
+- Updated `SectionCustomizePage` component for customizing existing sections [#928]
 - Updated `TemplateSelectTemplatePage` component to pass `versionedTemplateId` to `addTemplate` mutation when the template being cloned is not in the user's organization [#1006]
 - Update `addTemplate` query to include `copyFromVersionedTemplateId` variable [#1006]
 - Updated `useResearchOutputTable`'s `updateStandardFieldProperty` method to `enable` a Research Output Table field when any content or config changes for that field [#943]

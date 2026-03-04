@@ -178,14 +178,21 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
   };
 
   const sectionAuthorType = section.sectionType === "BASE" ? "funder" : "organization";
+
+  // Construct the edit URL based on section type
+  const editUrl = section.sectionType === "CUSTOM"
+    ? `/template/customizations/${templateCustomizationId}/customSection/${section.id}`// Custom Section
+    : `/template/customizations/${templateCustomizationId}/section/${section.id}`; // Section Customization
+
   return (
     <>
       <div role="list" aria-label="Questions list" style={{ marginBottom: '40px' }}>
         <div role="listitem">
+          {/** If section.sectionType is "CUSTOM" we want to take user to custom section page */}
           <SectionHeaderEdit
             sectionNumber={displayOrder + 1} // fix 0-based offset for display
             title={section.name}
-            editUrl={`/template/customizations/${templateCustomizationId}/section/${section.id}`}
+            editUrl={editUrl}
             sectionAuthorType={sectionAuthorType}
             onMoveUp={isBaseSection ? undefined : onMoveUp}
             onMoveDown={isBaseSection ? undefined : onMoveDown}

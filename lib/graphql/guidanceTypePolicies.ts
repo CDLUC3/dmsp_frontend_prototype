@@ -9,4 +9,7 @@ export const guidanceTypePolicies: TypePolicies = {
   GuidanceItem: {
     keyFields: false,
   },
+  CustomSectionErrors: {
+    keyFields: false,
+  }
 };

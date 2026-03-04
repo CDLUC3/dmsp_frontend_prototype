@@ -241,6 +241,39 @@
       "sectionGuidance": "Forneça aos usuários orientações úteis para ajudá-los a responder às perguntas da seção."
     }
   },
+  "SectionCustomize": {
+    "title": "Seção Personalizar",
+    "breadcrumbs": {
+      "customizationTemplates": "Modelos de personalização",
+      "customizeTemplate": "Personalizar modelo"
+    },
+    "buttons": {
+      "deleteCustomization": "Excluir personalização",
+      "deletingCustomizations": "Excluindo personalizações..."
+    },
+    "heading": {
+      "deleteCustomSection": "Excluir seção personalizada",
+      "deleteCustomization": "Excluir personalização da seção"
+    },
+    "descriptions": {
+      "deleteCustomization": "<strong>Suas personalizações serão removidas desta seção. </strong>  Isso não é reversível.",
+      "deleteCustomSection": "<strong>Sua seção personalizada será removida. Isso não é reversível.</strong>",
+      "tagDescription": "As etiquetas são usadas para reunir as informações de melhores práticas da sua organização e serão exibidas para cada pergunta nesta seção. As etiquetas são definidas pela Ferramenta DMP ou pelo Financiador que criou este modelo originalmente e não podem ser alteradas.",
+      "editGuidanceForTags": "Edite suas orientações para tags."
+    },
+    "messages": {
+      "noContent": "O financiador não adicionou {label}",
+      "success": {
+        "successfullyDeletedSectionCustomization": "Personalizações da seção excluídas com sucesso"
+      },
+      "error": {
+        "errorDeletingSectionCustomization": "Erro ao excluir personalizações da seção"
+      }
+    },
+    "labels": {
+      "bestPracticeTags": "Etiquetas de práticas recomendadas"
+    }
+  },
   "CreateSectionPage": {
     "title": "Criar seção",
     "button": {
