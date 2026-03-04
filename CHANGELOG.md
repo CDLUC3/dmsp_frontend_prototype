@@ -25,6 +25,7 @@
 - Fixed bug where the published status on `/template/[templateId]` did not match that on the template cards at `/template` for the `unpublished changes` state. Added a shared hook for determining the correct status text [#875]
 
 ## Chore
+- Updated version of `minimatch` to `10.2.4` to address vulnerabilities
 - Updated version of `@dmptool/types` to `3.1.2` and `zod` to match package version to `4.3.6`
 - Added override for `minimatch` dependency and removed them for `prismjs` and `qs`.
   - Added override for transient dependency `@eslint/plugin-kit (0.3.4)` and `test-exclude` due to vulnerabilities. `test-exclude` override was necessary because `minimatch 10.x` changed its API. Older test-exclude version expects older minimatch API, which called minimatch as a function. This caused errors.
