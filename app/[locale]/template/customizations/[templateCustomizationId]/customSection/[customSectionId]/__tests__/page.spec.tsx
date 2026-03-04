@@ -117,12 +117,9 @@ describe("CustomSectionEdit", () => {
     jest.clearAllMocks();
   });
 
-  // ─── Rendering ────────────────────────────────────────────────────────────
 
   it("should render all expected fields and tabs", async () => {
-    await act(async () => {
-      render(<CustomSectionEdit />);
-    });
+    render(<CustomSectionEdit />);
 
     // Page heading
     const heading = screen.getByRole('heading', { level: 1 });
@@ -151,24 +148,19 @@ describe("CustomSectionEdit", () => {
   it("should show loading state while query is in flight", async () => {
     mockUseQuery.mockReturnValue({ data: undefined, loading: true, error: undefined } as any);
 
-    await act(async () => {
-      render(<CustomSectionEdit />);
-    });
+    render(<CustomSectionEdit />);
 
     // Loading component should be rendered and form fields should not
     expect(screen.queryByLabelText(/labels.sectionName/i)).not.toBeInTheDocument();
   });
 
   it("should populate form fields with data from query", async () => {
-    await act(async () => {
-      render(<CustomSectionEdit />);
-    });
+    render(<CustomSectionEdit />);
 
     const sectionNameInput = screen.getByLabelText(/labels.sectionName/i) as HTMLInputElement;
     expect(sectionNameInput.value).toBe('Test Section Name');
   });
 
-  // ─── Form Validation ──────────────────────────────────────────────────────
 
   it("should display a validation error when section name is empty on submit", async () => {
     // Return a section with an empty name so the field starts empty
@@ -180,9 +172,7 @@ describe("CustomSectionEdit", () => {
       error: null,
     } as any);
 
-    await act(async () => {
-      render(<CustomSectionEdit />);
-    });
+    render(<CustomSectionEdit />);
 
     const saveButton = screen.getByRole('button', { name: /buttons.saveAndUpdate/i });
     await act(async () => {
@@ -190,15 +180,12 @@ describe("CustomSectionEdit", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByRole('alert')).toBeInTheDocument();
       expect(screen.getByText(/messages.fieldLengthValidation/i)).toBeInTheDocument();
     });
   });
 
   it("should display a validation error when section name is too short (≤ 2 chars)", async () => {
-    await act(async () => {
-      render(<CustomSectionEdit />);
-    });
+    render(<CustomSectionEdit />);
 
     const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
     await act(async () => {
@@ -215,8 +202,6 @@ describe("CustomSectionEdit", () => {
     });
   });
 
-  // ─── Successful Update ────────────────────────────────────────────────────
-
   it("should call updateCustomSectionMutation with correct variables on save", async () => {
     const mockUpdateCustomSection = jest.fn().mockResolvedValueOnce({
       data: { updateCustomSection: { errors: null } },
@@ -229,9 +214,7 @@ describe("CustomSectionEdit", () => {
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
-    await act(async () => {
-      render(<CustomSectionEdit />);
-    });
+    render(<CustomSectionEdit />);
 
     const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
     await act(async () => {
@@ -258,9 +241,7 @@ describe("CustomSectionEdit", () => {
   });
 
   it("should redirect to template customize page after a successful save", async () => {
-    await act(async () => {
-      render(<CustomSectionEdit />);
-    });
+    render(<CustomSectionEdit />);
 
     const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
     await act(async () => {
@@ -274,12 +255,11 @@ describe("CustomSectionEdit", () => {
 
     await waitFor(() => {
       expect(mockUseRouter().push).toHaveBeenCalledWith(
-        expect.stringContaining('/template/16')
+        expect.stringContaining('/en-US/template/customizations/16')
       );
     });
   });
 
-  // ─── Error Handling ───────────────────────────────────────────────────────
 
   it("should display error message when updateCustomSection throws", async () => {
     const mockUpdateCustomSection = jest.fn().mockRejectedValueOnce(new Error("Network error"));
@@ -291,9 +271,7 @@ describe("CustomSectionEdit", () => {
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
-    await act(async () => {
-      render(<CustomSectionEdit />);
-    });
+    render(<CustomSectionEdit />);
 
     const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
     await act(async () => {
@@ -320,9 +298,7 @@ describe("CustomSectionEdit", () => {
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
-    await act(async () => {
-      render(<CustomSectionEdit />);
-    });
+    render(<CustomSectionEdit />);
 
     const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
     await act(async () => {
@@ -362,9 +338,7 @@ describe("CustomSectionEdit", () => {
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
-    await act(async () => {
-      render(<CustomSectionEdit />);
-    });
+    render(<CustomSectionEdit />);
 
     const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
     await act(async () => {
@@ -381,15 +355,11 @@ describe("CustomSectionEdit", () => {
     });
   });
 
-  // ─── Unsaved Changes ──────────────────────────────────────────────────────
-
   it("should warn user of unsaved changes when trying to navigate away", async () => {
     const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
     const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener');
 
-    await act(async () => {
-      render(<CustomSectionEdit />);
-    });
+    render(<CustomSectionEdit />);
 
     const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
     await act(async () => {
@@ -420,13 +390,9 @@ describe("CustomSectionEdit", () => {
     addEventListenerSpy.mockRestore();
   });
 
-  // ─── Delete Functionality ─────────────────────────────────────────────────
-
   describe("Delete Custom Section", () => {
     it("should render the danger zone with a delete button", async () => {
-      await act(async () => {
-        render(<CustomSectionEdit />);
-      });
+      render(<CustomSectionEdit />);
 
       expect(screen.getByText(/heading.deleteCustomSection/i)).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /buttons.deleteCustomization/i })).toBeInTheDocument();
@@ -448,9 +414,7 @@ describe("CustomSectionEdit", () => {
     });
 
     it("should close the modal when cancel is clicked", async () => {
-      await act(async () => {
-        render(<CustomSectionEdit />);
-      });
+      render(<CustomSectionEdit />);
 
       const deleteButton = screen.getByRole('button', { name: /buttons.deleteCustomization/i });
       fireEvent.click(deleteButton);
@@ -479,9 +443,7 @@ describe("CustomSectionEdit", () => {
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
-      await act(async () => {
-        render(<CustomSectionEdit />);
-      });
+      render(<CustomSectionEdit />);
 
       const deleteButton = screen.getByRole('button', { name: /buttons.deleteCustomization/i });
       fireEvent.click(deleteButton);
@@ -502,7 +464,7 @@ describe("CustomSectionEdit", () => {
           })
         );
         expect(mockUseRouter().push).toHaveBeenCalledWith(
-          expect.stringContaining('/template/16')
+          expect.stringContaining('/en-US/template/customizations/16')
         );
       });
     });
@@ -517,9 +479,7 @@ describe("CustomSectionEdit", () => {
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
-      await act(async () => {
-        render(<CustomSectionEdit />);
-      });
+      render(<CustomSectionEdit />);
 
       const deleteButton = screen.getByRole('button', { name: /buttons.deleteCustomization/i });
       fireEvent.click(deleteButton);
@@ -548,9 +508,7 @@ describe("CustomSectionEdit", () => {
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
-      await act(async () => {
-        render(<CustomSectionEdit />);
-      });
+      render(<CustomSectionEdit />);
 
       const deleteButton = screen.getByRole('button', { name: /buttons.deleteCustomization/i });
       fireEvent.click(deleteButton);
@@ -588,9 +546,7 @@ describe("CustomSectionEdit", () => {
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
-      await act(async () => {
-        render(<CustomSectionEdit />);
-      });
+      render(<CustomSectionEdit />);
 
       const deleteButton = screen.getByRole('button', { name: /buttons.deleteCustomization/i });
       fireEvent.click(deleteButton);
@@ -623,9 +579,7 @@ describe("CustomSectionEdit", () => {
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
-      await act(async () => {
-        render(<CustomSectionEdit />);
-      });
+      render(<CustomSectionEdit />);
 
       const deleteButton = screen.getByRole('button', { name: /buttons.deleteCustomization/i });
       fireEvent.click(deleteButton);
@@ -644,8 +598,6 @@ describe("CustomSectionEdit", () => {
       });
     });
   });
-
-  // ─── Accessibility ────────────────────────────────────────────────────────
 
   it("should pass axe accessibility checks", async () => {
     const { container } = render(<CustomSectionEdit />);

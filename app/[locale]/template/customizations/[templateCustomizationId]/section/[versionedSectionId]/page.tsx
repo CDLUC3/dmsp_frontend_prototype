@@ -249,6 +249,7 @@ const SectionCustomizePage: React.FC = () => {
 
       const responseErrors = response.data?.removeSectionCustomization?.errors;
       if (responseErrors && Object.keys(responseErrors).length > 0) {
+
         const errorMessages = extractErrors<SectionCustomizationErrors>(responseErrors, ["general", "guidance", "migrationStatus", "sectionId", "templateCustomizationId"]);
 
         if (errorMessages.length > 0) {
@@ -260,16 +261,15 @@ const SectionCustomizePage: React.FC = () => {
           setIsDeleting(false);
           setIsDeleteModalOpen(false);
           return;
-        } else {
-          setIsDeleting(false);
-          setIsDeleteModalOpen(false);
-          // Show success message and redirect to template customizations
-          toastState.add(SectionCustomize('messages.success.successfullyDeletedSectionCustomization'), { type: 'success' });
-          setIsRedirecting(true);
-          router.push(TEMPLATE_URL);
         }
+      } else {
+        setIsDeleting(false);
+        setIsDeleteModalOpen(false);
+        // Show success message and redirect to template customizations
+        toastState.add(SectionCustomize('messages.success.successfullyDeletedSectionCustomization'), { type: 'success' });
+        setIsRedirecting(true);
+        router.push(TEMPLATE_URL);
       }
-
     } catch (error) {
       logECS('error', 'deleteSection', {
         error,

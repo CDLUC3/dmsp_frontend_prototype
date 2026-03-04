@@ -123,7 +123,6 @@ const CustomSectionEdit: React.FC = () => {
     skip: isBeingDeletedRef.current, // Skip the query if the section is being deleted to avoid errors from trying to fetch a deleted section
   })
 
-  console.log("***Custom Section Data:", data);
   // Update custom section data in state when fields are edited
   const updateSectionContent = (key: string, value: string) => {
     setSectionData((prevContents) => ({
@@ -167,6 +166,10 @@ const CustomSectionEdit: React.FC = () => {
         errors[name] = error;
       }
     });
+
+    // Update state with all errors
+    setFieldErrors(errors);
+    setErrorMessages(errors.sectionName ? [errors.sectionName] : []);
     return isValid;
   };
 
