@@ -1,5 +1,5 @@
 ## Added
-- Added `CustomSectionEdit` for adding and editing Custom Sections [#928]
+- Added `CustomSectionEdit`, and `CreateCustomSectionPage` for adding and editing Custom Sections [#928]
 - Added new `/template/customizations/[templateCustomizationOverview]` page [#927]
 - Added new `CustomizedTemplate` components directory and new `CustomizedQuestionEdit` and `CustomizedSectionEdit` components [#927]
 - Added `MoveCustomQuestion`, `MoveCustomSection`, `UpdateSectionCustomization`, `RemoveSectionCustomization`, `UpdateCustomSection`, `AddTemplateCustomization` mutations and `SectionCustomization` and `TemplateCustomizationOverview` queries [#927]

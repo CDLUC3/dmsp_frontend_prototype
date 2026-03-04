@@ -52,15 +52,15 @@ import { stripHtmlTags } from '@/utils/general';
 import styles from './customSectionEdit.module.scss';
 
 const CustomSectionEdit: React.FC = () => {
-  const toastState = useToast(); // Access the toast state from context
+  const toastState = useToast();
 
   // Get sectionId param
   const params = useParams();
   const router = useRouter();
 
-  // Get templateId and sectionId params
+  // Get templateCustomizationId and customSectionId params
   const templateCustomizationId = String(params.templateCustomizationId);
-  const sectionId = String(params.customSectionId);
+  const customSectionId = String(params.customSectionId);
 
   // State for section data
   const [sectionData, setSectionData] = useState<SectionFormInterface>({
@@ -76,7 +76,8 @@ const CustomSectionEdit: React.FC = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   // Form state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  // To be able to show a loading state when redirecting after successful update because otherwise there is a bit of a stutter where the page reloads before redirecting
+  /*To be able to show a loading state when redirecting after successful update because otherwise there is a 
+  bit of a stutter where the page reloads before redirecting*/
   const [isRedirecting, setIsRedirecting] = useState(false);
   // State for delete confirmation modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -84,6 +85,7 @@ const CustomSectionEdit: React.FC = () => {
 
   //For scrolling to top of page
   const topRef = useRef<HTMLDivElement | null>(null);
+  // Ref to track whether customization is being deleted to prevent refetching deleted customization
   const isBeingDeletedRef = useRef(false);
 
   // Save errors in state to display on page
@@ -103,24 +105,26 @@ const CustomSectionEdit: React.FC = () => {
 
   // Set URLs
   const TEMPLATE_CUSTOMIZE_URL = routePath('template.customize', { templateCustomizationId });
-  const UPDATE_CUSTOM_SECTION_URL = routePath('template.customSection', { templateCustomizationId, customSectionId: sectionId });
+  const UPDATE_CUSTOM_SECTION_URL = routePath('template.customSection', { templateCustomizationId, customSectionId });
 
 
-  // Initialize user addSection mutation
+  // Initialize user updateCustomSection mutation
   const [updateCustomSectionMutation] = useMutation(UpdateCustomSectionDocument);
 
-  // Initialize remove section mutation
+  // Initialize removeCustomSection mutation
   const [removeCustomSectionMutation] = useMutation(RemoveCustomSectionDocument);
 
 
-  // Query for the specified section
+  // Query for the specified custom section
   const { data, loading } = useQuery(CustomSectionDocument, {
     variables: {
-      customSectionId: Number(sectionId)
+      customSectionId: Number(customSectionId)
     },
     skip: isBeingDeletedRef.current, // Skip the query if the section is being deleted to avoid errors from trying to fetch a deleted section
   })
 
+  console.log("***Custom Section Data:", data);
+  // Update custom section data in state when fields are edited
   const updateSectionContent = (key: string, value: string) => {
     setSectionData((prevContents) => ({
       ...prevContents,
@@ -129,7 +133,7 @@ const CustomSectionEdit: React.FC = () => {
     setHasUnsavedChanges(true);
   };
 
-  // Client-side validation of fields
+  // Client-side validation of section name field since it's required
   const validateField = (name: string, value: string | string[] | undefined): string => {
     switch (name) {
       case 'sectionName':
@@ -143,34 +147,27 @@ const CustomSectionEdit: React.FC = () => {
 
   // Check whether form is valid before submitting
   const isFormValid = (): boolean => {
-    const errors: SectionFormErrorsInterface = {
+    // Initialize a flag for form validity
+    let isValid = true;
+    const errors: SectionFormInterface = {
       sectionName: '',
       sectionIntroduction: '',
       sectionRequirements: '',
-      sectionGuidance: ''
+      sectionGuidance: '',
     };
 
-    let hasError = false;
-
-    // Validate all fields and collect errors
+    // Iterate over formData to validate each field
     Object.keys(sectionData).forEach((key) => {
       const name = key as keyof SectionFormErrorsInterface;
       const value = sectionData[name];
+      // Call validateField to update errors for each field
       const error = validateField(name, value);
-
       if (error) {
-        hasError = true;
+        isValid = false;
         errors[name] = error;
       }
     });
-
-    // Update state with all errors
-    setFieldErrors(errors);
-    if (errors) {
-      setErrorMessages(Object.values(errors).filter((e) => e)); // Store only non-empty error messages
-    }
-
-    return !hasError;
+    return isValid;
   };
 
   const clearAllFieldErrors = () => {
@@ -185,14 +182,14 @@ const CustomSectionEdit: React.FC = () => {
 
   // Make GraphQL mutation request to update section
   const updateSection = async (): Promise<[CustomSectionErrors, boolean]> => {
-    // string all tags from sectionName before sending to backend
+    // strip any HTML from section name
     const cleanedSectionName = stripHtmlTags(sectionData.sectionName);
 
     try {
       const response = await updateCustomSectionMutation({
         variables: {
           input: {
-            customSectionId: Number(sectionId),
+            customSectionId: Number(customSectionId),
             name: cleanedSectionName,
             introduction: sectionData.sectionIntroduction,
             requirements: sectionData.sectionRequirements,
@@ -219,14 +216,14 @@ const CustomSectionEdit: React.FC = () => {
     }
   };
 
-  // Handle section deletion
+  // Handle custom section deletion
   const handleDeleteSectionCustomization = async () => {
-    isBeingDeletedRef.current = true; // No render needed
+    isBeingDeletedRef.current = true; // No re-render of page needed since re-routing after deletion
     setIsDeleting(true);
     try {
       const response = await removeCustomSectionMutation({
         variables: {
-          customSectionId: Number(sectionId)
+          customSectionId: Number(customSectionId)
         },
       });
 
@@ -447,7 +444,7 @@ const CustomSectionEdit: React.FC = () => {
                 </TabPanel>
               </Tabs>
 
-              {/* Delete Section Button and Modal */}
+              {/* Delete Customization Button and Modal */}
               <div className={styles.deleteSectionContainer}>
                 <h3 className={styles.dangerZoneTitle}>{SectionCustomize("heading.deleteCustomSection")}</h3>
                 <p className={styles.dangerZoneDescription}><DmpIcon icon="warning" />{SectionCustomize.rich("descriptions.deleteCustomSection", {
