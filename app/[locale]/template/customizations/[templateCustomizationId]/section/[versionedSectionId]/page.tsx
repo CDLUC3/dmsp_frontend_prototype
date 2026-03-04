@@ -143,7 +143,7 @@ const SectionCustomizePage: React.FC = () => {
   }) => (
     <div className="field-display">
       <h2>{label}</h2>
-      <div>{content.length > 0 ? <SanitizeHTML html={content} /> : <p><i>{SectionCustomize('messages.noContent', { label: label })}</i></p>}</div>
+      <div>{content.length > 0 ? <SanitizeHTML html={content} /> : <p><i>{SectionCustomize('messages.noContent', { label })}</i></p>}</div>
     </div>
   );
 

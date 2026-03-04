@@ -67,6 +67,7 @@ const setupMocks = () => {
 
   mockUseQuery.mockImplementation((document) => {
     if (document === CustomSectionDocument) {
+      /*eslint-disable @typescript-eslint/no-explicit-any */
       return stableCustomSectionReturn as any;
     }
     return { data: null, loading: false, error: undefined };
@@ -82,11 +83,14 @@ const setupMocks = () => {
 
   mockUseMutation.mockImplementation((document) => {
     if (document === UpdateCustomSectionDocument) {
+      /*eslint-disable @typescript-eslint/no-explicit-any */
       return [mockUpdateCustomSectionFn, { loading: false, error: undefined }] as any;
     }
     if (document === RemoveCustomSectionDocument) {
+      /*eslint-disable @typescript-eslint/no-explicit-any */
       return [mockRemoveCustomSectionFn, { loading: false, error: undefined }] as any;
     }
+    /*eslint-disable @typescript-eslint/no-explicit-any */
     return [jest.fn(), { loading: false, error: undefined }] as any;
   });
 };
@@ -146,6 +150,7 @@ describe("CustomSectionEdit", () => {
   });
 
   it("should show loading state while query is in flight", async () => {
+    /*eslint-disable @typescript-eslint/no-explicit-any */
     mockUseQuery.mockReturnValue({ data: undefined, loading: true, error: undefined } as any);
 
     render(<CustomSectionEdit />);
@@ -170,6 +175,7 @@ describe("CustomSectionEdit", () => {
       },
       loading: false,
       error: null,
+      /*eslint-disable @typescript-eslint/no-explicit-any */
     } as any);
 
     render(<CustomSectionEdit />);
@@ -209,8 +215,10 @@ describe("CustomSectionEdit", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === UpdateCustomSectionDocument) {
+        /*eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateCustomSection, { loading: false, error: undefined }] as any;
       }
+      /*eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -266,8 +274,10 @@ describe("CustomSectionEdit", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === UpdateCustomSectionDocument) {
+        /*eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateCustomSection, { loading: false, error: undefined }] as any;
       }
+      /*eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -293,8 +303,10 @@ describe("CustomSectionEdit", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === UpdateCustomSectionDocument) {
+        /*eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateCustomSection, { loading: false, error: undefined }] as any;
       }
+      /*eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -333,8 +345,10 @@ describe("CustomSectionEdit", () => {
 
     mockUseMutation.mockImplementation((document) => {
       if (document === UpdateCustomSectionDocument) {
+        /*eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateCustomSection, { loading: false, error: undefined }] as any;
       }
+      /*eslint-disable @typescript-eslint/no-explicit-any */
       return [jest.fn(), { loading: false, error: undefined }] as any;
     });
 
@@ -438,8 +452,10 @@ describe("CustomSectionEdit", () => {
 
       mockUseMutation.mockImplementation((document) => {
         if (document === RemoveCustomSectionDocument) {
+          /*eslint-disable @typescript-eslint/no-explicit-any */
           return [mockRemoveCustomSection, { loading: false, error: undefined }] as any;
         }
+        /*eslint-disable @typescript-eslint/no-explicit-any */
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
@@ -474,8 +490,10 @@ describe("CustomSectionEdit", () => {
 
       mockUseMutation.mockImplementation((document) => {
         if (document === RemoveCustomSectionDocument) {
+          /*eslint-disable @typescript-eslint/no-explicit-any */
           return [mockRemoveCustomSection, { loading: false, error: undefined }] as any;
         }
+        /*eslint-disable @typescript-eslint/no-explicit-any */
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
@@ -503,8 +521,10 @@ describe("CustomSectionEdit", () => {
 
       mockUseMutation.mockImplementation((document) => {
         if (document === RemoveCustomSectionDocument) {
+          /*eslint-disable @typescript-eslint/no-explicit-any */
           return [mockRemoveCustomSection, { loading: false, error: undefined }] as any;
         }
+        /*eslint-disable @typescript-eslint/no-explicit-any */
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
@@ -541,8 +561,10 @@ describe("CustomSectionEdit", () => {
 
       mockUseMutation.mockImplementation((document) => {
         if (document === RemoveCustomSectionDocument) {
+          /*eslint-disable @typescript-eslint/no-explicit-any */
           return [mockRemoveCustomSection, { loading: false, error: undefined }] as any;
         }
+        /*eslint-disable @typescript-eslint/no-explicit-any */
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
@@ -574,8 +596,10 @@ describe("CustomSectionEdit", () => {
 
       mockUseMutation.mockImplementation((document) => {
         if (document === RemoveCustomSectionDocument) {
+          /*eslint-disable @typescript-eslint/no-explicit-any */
           return [mockRemoveCustomSection, { loading: false, error: undefined }] as any;
         }
+        /*eslint-disable @typescript-eslint/no-explicit-any */
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 

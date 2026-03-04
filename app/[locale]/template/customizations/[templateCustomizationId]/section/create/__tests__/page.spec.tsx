@@ -43,6 +43,7 @@ let mockAddCustomSectionFn: jest.Mock;
 const setupMocks = () => {
   mockUseQuery.mockImplementation((document) => {
     if (document === TemplateCustomizationOverviewDocument) {
+      /*eslint-disable @typescript-eslint/no-explicit-any */
       return { data: mockTemplateOverviewData, loading: false, error: null } as any;
     }
     return { data: null, loading: false, error: undefined };
@@ -54,8 +55,10 @@ const setupMocks = () => {
 
   mockUseMutation.mockImplementation((document) => {
     if (document === AddCustomSectionDocument) {
+      /*eslint-disable @typescript-eslint/no-explicit-any */
       return [mockAddCustomSectionFn, { loading: false, error: undefined }] as any;
     }
+    /*eslint-disable @typescript-eslint/no-explicit-any */
     return [jest.fn(), { loading: false, error: undefined }] as any;
   });
 };
@@ -224,6 +227,7 @@ describe("CreateCustomSectionPage", () => {
             data: { templateCustomizationOverview: { sections: [] } },
             loading: false,
             error: null,
+            /*eslint-disable @typescript-eslint/no-explicit-any */
           } as any;
         }
         return { data: null, loading: false, error: undefined };
@@ -277,6 +281,7 @@ describe("CreateCustomSectionPage", () => {
               () => new Promise(resolve => setTimeout(() => resolve({ data: { addCustomSection: { id: 99, errors: null } } }), 200))
             ),
             { loading: false, error: undefined },
+            /*eslint-disable @typescript-eslint/no-explicit-any */
           ] as any;
         }
         return [jest.fn(), { loading: false, error: undefined }] as any;
@@ -321,8 +326,10 @@ describe("CreateCustomSectionPage", () => {
           return [
             jest.fn().mockRejectedValueOnce(new Error("Network error")),
             { loading: false, error: undefined },
+            /*eslint-disable @typescript-eslint/no-explicit-any */
           ] as any;
         }
+        /*eslint-disable @typescript-eslint/no-explicit-any */
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
@@ -359,8 +366,10 @@ describe("CreateCustomSectionPage", () => {
               },
             }),
             { loading: false, error: undefined },
+            /*eslint-disable @typescript-eslint/no-explicit-any */
           ] as any;
         }
+        /*eslint-disable @typescript-eslint/no-explicit-any */
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
@@ -392,8 +401,10 @@ describe("CreateCustomSectionPage", () => {
               },
             }),
             { loading: false, error: undefined },
+            /*eslint-disable @typescript-eslint/no-explicit-any */
           ] as any;
         }
+        /*eslint-disable @typescript-eslint/no-explicit-any */
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
@@ -416,6 +427,7 @@ describe("CreateCustomSectionPage", () => {
       const mockQueryError = new Error("Failed to fetch template");
       mockUseQuery.mockImplementation((document) => {
         if (document === TemplateCustomizationOverviewDocument) {
+          /*eslint-disable @typescript-eslint/no-explicit-any */
           return { data: undefined, loading: false, error: mockQueryError } as any;
         }
         return { data: null, loading: false, error: undefined };
