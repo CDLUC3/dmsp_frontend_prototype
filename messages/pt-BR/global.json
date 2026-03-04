@@ -657,6 +657,10 @@
         "guidanceGroupUpdated": "Grupo de orientação {groupName} atualizado com sucesso",
         "guidanceTextAdded": "Texto de orientação adicionado com sucesso ao {tagName}. As alterações precisam ser publicadas para que tenham efeito.",
         "guidanceTextUpdated": "Texto de orientação para {tagName} atualizado com sucesso. As alterações precisam ser publicadas para terem efeito."
+      },
+      "errors": {
+        "unableToAddOrganization": "Não foi possível adicionar a organização.",
+        "unableToRemoveOrganization": "Não foi possível remover a organização."
       }
     },
     "labels": {
@@ -719,6 +723,7 @@
     "dataFormat": "Formato de dados:",
     "dataVolume": "Volume dos dados",
     "opensInNewTab": "Abrir em uma nova aba",
+    "noGuidanceAvailable": "A organização selecionada não tem orientação para esta pergunta",
     "buttons": {
       "search": "Buscar",
       "lookup": "Procurar",

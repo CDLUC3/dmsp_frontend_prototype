@@ -23,3 +23,20 @@ mutation UpdateGuidance($input: UpdateGuidanceInput!) {
     }
   }
 }
+
+mutation AddPlanGuidance($planId: Int!, $affiliationId: String!) {
+  addPlanGuidance(planId: $planId, affiliationId: $affiliationId) {
+    id
+    planId
+    affiliationId
+  }
+}
+
+mutation RemovePlanGuidance($planId: Int!, $affiliationId: String!) {
+  removePlanGuidance(planId: $planId, affiliationId: $affiliationId) {
+    id
+    planId
+    userId
+    affiliationId
+  }
+}

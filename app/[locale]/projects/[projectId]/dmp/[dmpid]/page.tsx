@@ -188,11 +188,13 @@ const PlanOverviewPage: React.FC = () => {
   // Query data
   const {
     data: relatedWorksByPlanStats,
+    refetch: relatedWorksByProjectStatsRefetch,
   } = useQuery(RelatedWorksByPlanStatsDocument, {
     variables: {
       planId,
     },
   });
+  const rwPlanStats = relatedWorksByPlanStats?.relatedWorksByPlanStats;
 
   const {
     data: feedbackData,
@@ -216,7 +218,7 @@ const PlanOverviewPage: React.FC = () => {
     DOWNLOAD_URL: routePath("projects.dmp.download", { projectId, dmpId: planId }),
     FEEDBACK_URL: routePath("projects.dmp.feedback", { projectId, dmpId: planId }),
     CHANGE_PRIMARY_CONTACT_URL: routePath("projects.dmp.members", { projectId, dmpId: planId }),
-    RELATED_WORKS_URL: routePath("projects.dmp.relatedWorks", { projectId, dmpId: planId }),
+    RELATED_WORKS_URL: routePath("projects.dmp.related-works", { projectId, dmpId: planId }),
   }), [projectId, planId]);
 
   const { FUNDINGS_URL, MEMBERS_URL, DOWNLOAD_URL, FEEDBACK_URL, CHANGE_PRIMARY_CONTACT_URL, RELATED_WORKS_URL } = urls;
@@ -351,8 +353,11 @@ const PlanOverviewPage: React.FC = () => {
       }
       //Need to refetch plan data to refresh the info that was changed
       await refetch();
+
+      // Need to refetch related works project stats data
+      await relatedWorksByProjectStatsRefetch();
     }
-  }, [publishPlan, Global, t, toastState, refetch]);
+  }, [publishPlan, Global, t, toastState, refetch, relatedWorksByProjectStatsRefetch]);
 
   // Call Server Action updatePlanTitleAction to run the updatePlanTitleMutation
   const updateTitle = useCallback(async (title: string) => {
@@ -604,11 +609,11 @@ const PlanOverviewPage: React.FC = () => {
                 linkHref={RELATED_WORKS_URL}
                 linkText={t("relatedWorks.edit")}
                 linkAriaLabel={t("relatedWorks.edit")}
-                includeLink={!!planData.registered}
+                includeLink={!!rwPlanStats?.hasPublishedPlan}
               >
-                {!planData.registered && <p>{t("relatedWorks.publish")}</p>}
-                {planData.registered && relatedWorksByPlanStats?.relatedWorksByPlanStats?.pendingCount != null && <p>{t("relatedWorks.pendingCount", { count: relatedWorksByPlanStats?.relatedWorksByPlanStats?.pendingCount })}</p>}
-                {planData.registered && relatedWorksByPlanStats?.relatedWorksByPlanStats?.acceptedCount != null && <p>{t("relatedWorks.acceptedCount", { count: relatedWorksByPlanStats?.relatedWorksByPlanStats?.acceptedCount })}</p>}
+                {!rwPlanStats?.hasPublishedPlan && <p>{t("relatedWorks.publish")}</p>}
+                {rwPlanStats?.hasPublishedPlan && rwPlanStats?.pendingCount != null && <p>{t("relatedWorks.pendingCount", { count: rwPlanStats?.pendingCount })}</p>}
+                {rwPlanStats?.hasPublishedPlan && rwPlanStats?.acceptedCount != null && <p>{t("relatedWorks.acceptedCount", { count: rwPlanStats?.acceptedCount })}</p>}
               </OverviewSection>
             </div>
 

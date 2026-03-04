@@ -2,6 +2,9 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
+  Dialog,
+  Heading,
+  Modal,
   Tabs,
   TabList,
   Tab,
@@ -13,71 +16,48 @@ import parse from 'html-react-parser';
 import { useTranslations } from "next-intl";
 
 // GraphQL
-import { useQuery } from '@apollo/client/react';
 import {
-  BestPracticeGuidanceDocument
+  AffiliationSearch,
+  GuidanceSourceType
 } from '@/generated/graphql';
 
 // Types
 import {
   GuidanceSource,
   GuidancePanelProps,
-  MatchedGuidance,
+  FunderSearchResults
 } from '@/app/types';
 
 // Components
 import ExpandableContentSection from '@/components/ExpandableContentSection';
 import { DmpIcon } from "@/components/Icons";
+import ErrorMessages from '@/components/ErrorMessages';
+import AffiliationSearchForGuidance from '../AffiliationSearchForGuidance';
 import styles from './GuidancePanel.module.scss';
-
-// Additional hard-coded guidance for demonstration purposes
-// TODO: Remove when implementing next phase of work with the ability to add custom organizations
-const additionalGuidance = [
-  {
-    orgURI: 'https://ror.org/01an7q238',
-    orgName: 'UC Berkeley',
-    orgShortname: 'UCB',
-    items: [
-      {
-        id: 1001,
-        title: "UC Berkeley",
-        guidanceText: `
-    <p><strong>UC Berkeley Data Management:</strong> All research data must be stored on approved institutional storage systems. Consider using bDrive or Research Data Management services.</p>
-    <p>Ensure compliance with UC Berkeley's data retention policies. Data should be retained for a minimum of 3 years after publication.</p>
-    <p>For sensitive data, consult with the Office of Research Compliance and ensure appropriate IRB approval is obtained.</p>
-  `.trim()
-      }
-    ]
-  },
-  {
-    orgURI: 'https://ror.org/021nxhr68',
-    orgName: 'National Institute of Health',
-    orgShortname: 'NIH',
-    items: [
-      {
-        id: 2001,
-        title: "National Institute of Health",
-        guidanceText: '<p>Data sharing plans should describe how data will be shared and preserved, or explain why data sharing is not possible.</p><p>Data should be deposited in a recognized repository appropriate to your field of study. Consider using domain-specific repositories when available.</p>'
-      },
-    ]
-  },
-]
 
 const GuidancePanel: React.FC<GuidancePanelProps> = ({
   userAffiliationId,
   ownerAffiliationId,
+  versionedTemplateId,
   guidanceItems,
-  sectionTags,
+  guidanceError,
+  onClearError,
   onAddOrganization,
-  //onRemoveOrganization, - This will be used for future work on removing pills
+  onRemoveOrganization,
 }) => {
-
   const Global = useTranslations('Global');
   const t = useTranslations('GuidancePanel');
+  const Org = useTranslations('FunderSearch');
 
   // Refs for measuring
   const containerRef = useRef<HTMLDivElement>(null);
   const pillsRef = useRef<(HTMLDivElement | null)[]>([]);
+  // Ref for scrolling down to first result
+  const resultsRef = useRef<HTMLElement>(null);
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
+  // Track previous guidanceSources
+  const prevGuidanceSourcesRef = useRef<GuidanceSource[]>([]);
 
   // Internal state for uncontrolled usage
   const [showAllTabs, setShowAllTabs] = useState<boolean>(false);
@@ -86,74 +66,123 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
   const [selectedGuidanceId, setSelectedGuidanceId] = useState<string>('bestPractice');
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
-  // Query to get Best Practice guidance content
-  const { data: bestPracticeGuidanceData, loading: bestPracticeLoading } = useQuery(
-    BestPracticeGuidanceDocument,
-    {
-      variables: {
-        tagIds: Object.keys(sectionTags).map(Number)// Extract tag IDs from sectionTags and convert to numbers
-      },
-      notifyOnNetworkStatusChange: true
-    }
-  );
+  // State for modal dialog
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [moreCounter, setMoreCounter] = useState<number>(0);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [funders, setFunders] = useState<AffiliationSearch[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  // Track whether search was performed
+  const [searchPerformed, setSearchPerformed] = useState<boolean>(false);
+  // Track the search value
+  const [searchValue, setSearchValue] = useState<string>('');
 
-  // Build guidance sources for tabs
+  // Get guidanceItems prop which includes all sources (best practice + orgs)
   const guidanceSources = useMemo<GuidanceSource[]>(() => {
     const sources: GuidanceSource[] = [];
 
-    // Build best practice guidance items
-    const bestPracticeItems: MatchedGuidance[] = [];
+    // Find best practice from the guidance items passed in
+    const bestPracticeSource = guidanceItems.find(item => item.type === GuidanceSourceType.BestPractice);
 
-    bestPracticeGuidanceData?.bestPracticeGuidance.forEach((bp) => {
-      if (bp.guidanceText && bp.id != null && Object.keys(sectionTags).map(Number).includes(bp.tagId)) {
-        bestPracticeItems.push({
-          id: bp.id,
-          title: sectionTags[bp.tagId],
-          guidanceText: bp.guidanceText
-        });
-      }
-    });
-
-    // Only add best practice source if it has items
-    if (bestPracticeItems.length > 0) {
+    if (bestPracticeSource) {
       sources.push({
         id: 'bestPractice',
         type: 'bestPractice',
         label: "DMP Tool",
         shortName: 'DMP Tool',
-        items: bestPracticeItems
+        items: bestPracticeSource.items
       });
     }
 
-    // Build organization guidance sources
-    guidanceItems.forEach((org, index) => {
-      if (org.items.length > 0) {
-        sources.push({
-          id: `org-${index}`,
-          type: 'organization',
-          label: org.orgName,
-          shortName: org.orgShortname || null,
-          items: org.items || [],
-          orgURI: org.orgURI
-        });
-      }
-    });
-
-    // Additional guidance hard-coded just for demonstation purposes, since we cannot yet add additional orgs
-    additionalGuidance.forEach((org, index) => {
-      if (org.items.length > 0) {
-        sources.push({
-          id: `org-additional-${index}`,
-          type: 'organization',
-          label: org.orgName,
-          shortName: org.orgShortname || null,
-          items: org.items,
-          orgURI: org.orgURI
-        });
-      }
-    });
+    // Add organization guidance sources
+    guidanceItems
+      .filter(item => item.type !== GuidanceSourceType.BestPractice)
+      .forEach((org, index) => {
+        if (org.items.length > 0) {
+          sources.push({
+            id: `org-${index}`,
+            type: 'organization',
+            label: org.orgName,
+            shortName: org.orgShortname || null,
+            items: org.items || [],
+            orgURI: org.orgURI
+          });
+        }
+      });
     return sources;
-  }, [guidanceItems, bestPracticeGuidanceData]);
+  }, [guidanceItems]);
+
+  const handleDialogCloseBtn = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleOpenDialog = () => {
+    setIsModalOpen(true);
+  }
+
+  const handleSelectFunder = (funder: AffiliationSearch) => {
+    if (!funder.uri) return;
+
+    // Trigger callback to add organization
+    if (onAddOrganization) {
+      onAddOrganization(funder);
+    }
+  };
+
+  const toggleShowAllTabs = () => {
+    setIsTransitioning(true);
+
+    setShowAllTabs(!showAllTabs);
+
+    // Clear transition flag after animation completes
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 200); // Match your fadeIn animation duration
+
+  };
+
+  /**
+   * Checks if the useMore button should display or not.
+   */
+  const hasMore = () => {
+    if (!nextCursor) return false;
+    return (funders.length < totalCount);
+  }
+
+
+  function onResults(results: FunderSearchResults, isNew: boolean) {
+    let validResults: AffiliationSearch[];
+    if (results.items && results.items.length > 0) {
+      validResults = results.items.filter((r): r is AffiliationSearch => r !== null)
+    } else {
+      validResults = [];
+    }
+
+    if (isNew) {
+      setFunders(validResults);
+      setSearchPerformed(true);
+    } else {
+      setFunders(funders.concat(validResults));
+    }
+
+    setTotalCount(results.totalCount as number);
+
+    if (results.nextCursor) {
+      setNextCursor(results.nextCursor);
+    }
+  }
+
+  const handleRemoveOrganization = (sourceId: string, orgId?: string) => {
+    if (!orgId || !onRemoveOrganization) return;
+
+    if (onRemoveOrganization) {
+      onRemoveOrganization(orgId);
+    }
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchValue(value);
+  };
 
   // Calculate how many pills can fit in first row
   // because we always want to show the "More" button in the first row if there are too many pills
@@ -202,20 +231,59 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
     if (!isInitialized) {
       return;
     }
+
+    // Check if currently selected tab still exists
     if (guidanceSources.length > 0 && !guidanceSources.find(s => s.id === selectedGuidanceId)) {
-      setSelectedGuidanceId(guidanceSources[0].id);
+      // Currently selected tab was removed, need to select a new one
+      let matchingSource = null;
+
+      // First priority: Try to match user's affiliation
+      if (userAffiliationId) {
+        matchingSource = guidanceSources.find(
+          source => source.type === 'organization' && source.orgURI === userAffiliationId
+        );
+      }
+
+      // Second priority: If no user match, try to match owner's affiliation
+      if (!matchingSource && ownerAffiliationId) {
+        matchingSource = guidanceSources.find(
+          source => source.type === 'organization' && source.orgURI === ownerAffiliationId
+        );
+      }
+
+      // Third priority: Fall back to bestPractice
+      if (!matchingSource) {
+        matchingSource = guidanceSources[0]; // bestPractice should be first
+      }
+
+      if (matchingSource) {
+        setSelectedGuidanceId(matchingSource.id);
+      }
     }
-  }, [guidanceSources, selectedGuidanceId]);
+  }, [guidanceSources, selectedGuidanceId, isInitialized, userAffiliationId, ownerAffiliationId]);
 
   // Auto-select tab based on user affiliation, with fallback to owner affiliation, and then best practice
   useEffect(() => {
-    // Wait for GraphQL to finish loading before auto-selecting
-    if (bestPracticeLoading || isInitialized) {
+    if (guidanceSources.length === 0) {
       return;
     }
 
-    if (guidanceSources.length > 0) {
-      // Compute correct selection
+    // Check if user's affiliation was just added
+    const userAffiliationJustAdded = userAffiliationId &&
+      !prevGuidanceSourcesRef.current.some(s => s.orgURI === userAffiliationId) &&
+      guidanceSources.some(s => s.type === 'organization' && s.orgURI === userAffiliationId);
+
+    // Check if owner's affiliation was just added
+    const ownerAffiliationJustAdded = ownerAffiliationId &&
+      !prevGuidanceSourcesRef.current.some(s => s.orgURI === ownerAffiliationId) &&
+      guidanceSources.some(s => s.type === 'organization' && s.orgURI === ownerAffiliationId);
+
+
+    // Only auto-select if:
+    // 1. Not yet initialized (first load), OR
+    // 2. User's affiliation was just added back
+    // 3. Owner's affiliation was just added back (and no user affiliation)
+    if (!isInitialized || userAffiliationJustAdded || (!userAffiliationId && ownerAffiliationJustAdded)) {
       let matchingSource = null;
 
       // First priority: Try to match user's affiliation
@@ -235,33 +303,68 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
       // Set the selected tab
       if (matchingSource) {
         setSelectedGuidanceId(matchingSource.id);
-      } else {
-        // No match found, fall back to bestPractice
+      } else if (!isInitialized) {
+        // Only fall back to bestPractice on initial load
         setSelectedGuidanceId('bestPractice');
       }
 
-      setIsInitialized(true);
+      if (!isInitialized) {
+        setIsInitialized(true);
+      }
     }
-  }, [bestPracticeLoading, userAffiliationId, ownerAffiliationId, guidanceSources]);
+
+    // Update the ref with current sources for next comparison
+    prevGuidanceSourcesRef.current = guidanceSources;
+  }, [guidanceSources, userAffiliationId, ownerAffiliationId, isInitialized]);
+
+  useEffect(() => {
+    if (isModalOpen && funders.length > 0 && resultsRef.current) {
+      resultsRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  }, [funders, isModalOpen]);
+
+  // When modal closes reset funders and searchPerformed
+  useEffect(() => {
+    if (!isModalOpen) {
+      setFunders([]);
+      setSearchValue('');
+      setSearchPerformed(false); // Important: prevents "no results" message from showing on reopen
+
+      // Clear any errors when modal closes
+      if (onClearError) {
+        onClearError();
+      }
+    }
+  }, [isModalOpen]);
 
 
-  const toggleShowAllTabs = () => {
-    setIsTransitioning(true);
-
-    setShowAllTabs(!showAllTabs);
-
-    // Clear transition flag after animation completes
-    setTimeout(() => {
-      setIsTransitioning(false);
-    }, 200); // Match your fadeIn animation duration
-
-  };
+  useEffect(() => {
+    if (searchValue === '') {
+      setSearchPerformed(false);
+      setFunders([]);
+    }
+  }, [searchValue]);
 
   // Show "More" button if there are more than the calculated visible tabs that fit in one row
   const hasOverflow = guidanceSources.length > visibleCount;
 
   return (
     <div className={`${styles.guidancePanel} ${!isInitialized ? styles.initializing : ''}`}>
+      {guidanceSources.length === 0 && onAddOrganization && (
+        <div className={`${styles.actionButtons} ${styles.emptyState}`}>
+          <Button
+            className="link"
+            onPress={handleOpenDialog}
+            aria-label={t('addGuidanceSource')}
+          >
+            <DmpIcon icon="plus" />
+            <span>{t('addOrganization')}</span>
+          </Button>
+        </div>
+      )}
       <Tabs
         selectedKey={selectedGuidanceId}
         onSelectionChange={(key) => setSelectedGuidanceId(String(key))}
@@ -333,7 +436,7 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
               {onAddOrganization && (
                 <Button
                   className="link"
-                  onPress={onAddOrganization}
+                  onPress={handleOpenDialog}
                   aria-label={t('addGuidanceSource')}
                 >
                   <DmpIcon icon="plus" />
@@ -348,7 +451,7 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
             <div className={`${styles.actionButtons} ${styles.singleRow}`}>
               <Button
                 className="link"
-                onPress={onAddOrganization}
+                onPress={handleOpenDialog}
                 aria-label={t('addGuidanceSource')}
               >
                 <span>{t('addOrganization')}</span>
@@ -364,6 +467,141 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
           </TabPanel>
         ))}
       </Tabs>
+
+      {/** Modal to add or remove guidance orgs */}
+      <Modal
+        isDismissable
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        data-testid="modal"
+      >
+        <Dialog className={styles.guidanceDialog}>
+          <div className={styles.modalHeader}>
+            <div className={styles.modalHeaderTop}>
+              <Heading slot="title">{t('headings.customizeBestPractice')}</Heading>
+              <Button
+                className="close-action"
+                aria-label={Global('buttons.close')}
+                onPress={handleDialogCloseBtn}
+                data-testid="close-action"
+              >
+                <DmpIcon icon="right-panel_close" />
+                {' '}{Global('buttons.close')}
+              </Button>
+            </div>
+            {guidanceError && (
+              <ErrorMessages
+                errors={[guidanceError]}
+                ref={errorRef}
+              />
+            )}
+          </div>
+          <div className={styles.modalScrollableContent}>
+            <div className={`${styles.publishModal} ${styles.dialogWrapper} ${styles.modalContent}`}>
+              <Tabs
+                className={styles.guidanceTabs}
+              >
+                <div className={styles.tabListWrapper}>
+                  <div className={`${styles.tabsRow} ${styles.modalTabsRow}`}>
+                    <div><h3 className={styles.modalH3}>{t('headings.currentlyDisplaying')}</h3></div>
+                    <div className={styles.pillsContainer}>
+                      {guidanceSources
+                        .filter(source => source.type !== 'bestPractice') // Don't show remove option for best practice
+                        .map((source) => (
+                          <div
+                            key={source.id}
+                            className={`${styles.pill} ${styles.pillVisible}`}
+                            onClick={() => handleRemoveOrganization(source.id, source.orgURI)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                handleRemoveOrganization(source.id, source.orgURI);
+                              }
+                            }}
+                          >
+
+                            <div className={`${styles.pillCustomize} ${styles.pillInner}`}>
+                              <span>{source.shortName}</span>
+                              <Button
+                                className={"unstyled"}
+                                aria-label={`Remove ${source.label}`}
+                              >
+                                <DmpIcon icon="cancel-reverse" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div><h3 className={styles.modalH3}>{t('headings.addMore')}</h3></div>
+                <AffiliationSearchForGuidance
+                  onResults={onResults}
+                  moreTrigger={moreCounter}
+                  versionedTemplateId={versionedTemplateId}
+                  onSearchChange={handleSearchChange}
+                />
+
+                {searchPerformed && funders.length === 0 && (
+                  <section>
+                    <p className={styles.resultsCount}>
+                      {Org('noResults')}
+                    </p>
+                  </section>
+                )}
+                {(funders.length > 0 && searchValue) && (
+                  <section
+                    ref={resultsRef}
+                    aria-labelledby="funders-section"
+                  >
+                    <p className={styles.resultsCount}>
+                      {Org('showCount', {
+                        count: funders.length,
+                        total: totalCount,
+                      })}
+                    </p>
+                    <div>
+                      {funders.map((funder, index) => (
+                        <div key={index} className={styles.fundingResultsList}>
+                          <div
+                            className={styles.fundingResultsListItem}
+                            role="group"
+                            aria-label={`${Org('funder')}: ${funder.displayName}`}
+                          >
+                            <p className="funder-name">{funder.displayName}</p>
+                            <Button
+                              className="secondary select-button"
+                              data-funder-uri={funder.uri}
+                              onPress={() => handleSelectFunder(funder)}
+                              aria-label={`${Global('buttons.select')} ${funder.displayName}`}
+                            >
+                              {Global('buttons.select')}
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+
+                      {(hasMore()) && (
+                        <div className={styles.fundingResultsListMore}>
+                          <Button
+                            data-testid="load-more-btn"
+                            onPress={() => setMoreCounter(moreCounter + 1)}
+                            aria-label={Global('buttons.loadMore')}
+                          >
+                            {Global('buttons.loadMore')}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                )}
+              </Tabs>
+            </div>
+          </div>
+        </Dialog>
+      </Modal>
     </div >
   );
 };
@@ -375,12 +613,11 @@ const renderGuidanceContentForSource = (source: GuidanceSource, Global: (key: st
       return (
         <>
           <div className={styles.headerWithLogo}>
-            <h2 className="h4">{Global('bestPractice')}</h2>
+            <h2 className={`h4 ${styles.headerWithLogo}`}>{Global('bestPractice')}</h2>
             <Image
-              className={styles.Logo}
-              src="/images/DMP-logo.svg"
-              width="140"
-              height="16"
+              src="/images/dmplogo.svg"
+              width={114}
+              height={16}
               alt="DMP Tool"
             />
           </div>
@@ -412,6 +649,9 @@ const renderGuidanceContentForSource = (source: GuidanceSource, Global: (key: st
         <>
           <div className={styles.matchedGuidanceList}>
             <h2 className="h4">{source.label}</h2>
+            {source.items?.length === 0 && (
+              <p>{Global('noGuidanceAvailable')}</p>
+            )}
             {source.items?.map(g => {
               // Extract text from HTML to check if we need expandable section
               const tempDiv = document.createElement('div');

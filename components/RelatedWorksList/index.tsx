@@ -2,28 +2,24 @@ import styles from "./RelatedWorksList.module.scss";
 import RelatedWorksListItem from "@/components/RelatedWorksListItem";
 import Pagination from "@/components/Pagination";
 import LinkFilter from "@/components/LinkFilter";
-import React, { useCallback, useMemo, useState } from "react";
-import {
-  Button,
-  FieldError,
-  ListBox,
-  ListBoxItem,
-  Popover,
-  Select as ReactAriaSelect,
-  SelectValue,
-  Switch,
-} from "react-aria-components";
-import { useToast } from "@/context/ToastContext";
-import { useTranslations } from "next-intl";
-import { useQuery } from '@apollo/client/react';
+import React, {useCallback, useMemo, useState} from "react";
+import {Switch,} from "react-aria-components";
+import {useToast} from "@/context/ToastContext";
+import {useTranslations} from "next-intl";
+import {useQuery} from '@apollo/client/react';
 import {
   RelatedWorkConfidence,
+  RelatedWorksDocument,
   RelatedWorkSearchResult,
+  RelatedWorksIdentifierType,
   RelatedWorkStatus,
-  RelatedWorksByPlanDocument,
   WorkType,
 } from "@/generated/graphql";
-import { updateRelatedWorkStatusAction } from "@/app/[locale]/projects/[projectId]/dmp/[dmpid]/related-works/actions";
+import {updateRelatedWorkStatusAction} from "@/app/actions";
+import {
+  ProjectPlanSelect,
+  RelatedWorksSelect
+} from "@/components/RelatedWorksSelect";
 
 const LIMIT = 20;
 const FADEOUT_TIMEOUT = 550;
@@ -70,7 +66,8 @@ const SORT_MAP = new Map<SortByOptions | string | null, [RelatedWorksSortBy, Rel
 ]);
 
 interface RelatedWorksListProps {
-  planId: number;
+  identifierType: RelatedWorksIdentifierType;
+  identifier: number;
   status: RelatedWorkStatus;
   defaultConfidence?: ConfidenceOptions;
   defaultType?: WorkType | null;
@@ -79,7 +76,8 @@ interface RelatedWorksListProps {
 }
 
 export const RelatedWorksList = ({
-  planId,
+  identifierType,
+  identifier,
   status,
   defaultConfidence = ConfidenceOptions.All,
   defaultType = null,
@@ -95,6 +93,7 @@ export const RelatedWorksList = ({
   const [highlightMatches, setHighlightMatches] = useState<boolean>(defaultHighlightMatches);
   const [currentPage, setCurrentPage] = useState<number>(defaultPage);
   const [sortBy, setSortBy] = useState<string | null>(getDefaultSortBy(status));
+  const [planId, setPlanId] = useState<number | null>(null);
 
   // Derived API values
   const apiConfidence = useMemo(() => {
@@ -117,10 +116,12 @@ export const RelatedWorksList = ({
     previousData,
     loading: relatedWorksDataLoading,
     refetch: relatedWorksRefetch,
-  } = useQuery(RelatedWorksByPlanDocument, {
+  } = useQuery(RelatedWorksDocument, {
     variables: {
-      planId,
+      id: identifier,
+      idType: identifierType,
       filterOptions: {
+        planId,
         status,
         workType: apiWorkType,
         confidence: apiConfidence,
@@ -137,14 +138,14 @@ export const RelatedWorksList = ({
   });
 
   // Use previous data when loading new data, stops flickering results
-  const relatedWorksData = data || previousData;
+  const relatedWorksData = data?.relatedWorks || previousData?.relatedWorks;
 
   // Remaining pagination variables
-  const statusOnlyCount = relatedWorksData?.relatedWorksByPlan?.statusOnlyCount ?? 0;
-  const totalCount = relatedWorksData?.relatedWorksByPlan?.totalCount ?? 0;
-  const totalPages = Math.ceil((relatedWorksData?.relatedWorksByPlan?.totalCount ?? 0) / LIMIT);
-  const hasPreviousPage = relatedWorksData?.relatedWorksByPlan?.hasPreviousPage ?? null;
-  const hasNextPage = relatedWorksData?.relatedWorksByPlan?.hasNextPage ?? null;
+  const statusOnlyCount = relatedWorksData?.statusOnlyCount ?? 0;
+  const totalCount = relatedWorksData?.totalCount ?? 0;
+  const totalPages = Math.ceil((relatedWorksData?.totalCount ?? 0) / LIMIT);
+  const hasPreviousPage = relatedWorksData?.hasPreviousPage ?? null;
+  const hasNextPage = relatedWorksData?.hasNextPage ?? null;
   const handlePageClick = async (page: number) => {
     setCurrentPage(page);
   };
@@ -173,7 +174,7 @@ export const RelatedWorksList = ({
 
   // Confidence items
   const confidenceCounts = new Map(
-    relatedWorksData?.relatedWorksByPlan?.confidenceCounts?.map((item) => [item.typeId, item.count]),
+    relatedWorksData?.confidenceCounts?.map((item) => [item.typeId, item.count]),
   );
   const confidenceItems = Object.values(ConfidenceOptions).map((key: string) => ({
     id: key,
@@ -183,7 +184,7 @@ export const RelatedWorksList = ({
 
   // Work type items
   const typeItems =
-    relatedWorksData?.relatedWorksByPlan?.workTypeCounts
+    relatedWorksData?.workTypeCounts
       ?.map((item) => ({ id: item.typeId, label: `${dataTypes(`workType.${item.typeId}`)} (${item.count ?? 0})` }))
       .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase())) ?? [];
 
@@ -198,6 +199,7 @@ export const RelatedWorksList = ({
         [SortByOptions.DateFoundNew, SortByOptions.DateFoundOld].includes(item.id);
       return !(pendingReviewed || relatedDiscardedDateFound);
     });
+
 
   return (
     <div className={styles.container}>
@@ -214,11 +216,22 @@ export const RelatedWorksList = ({
           </div>
         </div>
 
+        {
+          identifierType === RelatedWorksIdentifierType.ProjectId && (
+            <div className={styles.filter}>
+              <span className={styles.filterLabel}>{t("filters.planId")}</span>
+              <div className={styles.spacer}>
+                <ProjectPlanSelect projectId={identifier} selectedKey={planId} setSelectedKey={setPlanId} />
+              </div>
+            </div>
+          )
+        }
+
         <div className={styles.filter}>
           <span className={styles.filterLabel}>{t("filters.filterByType")}</span>
           <div className={styles.spacer}>
-            <Select
-              placeholder={t("filters.filterByType")}
+            <RelatedWorksSelect<string>
+              placeholder={t("filters.filterByTypePlaceholder")}
               selectedKey={workType}
               setSelectedKey={setWorkType}
               items={typeItems}
@@ -231,7 +244,7 @@ export const RelatedWorksList = ({
         <div className={styles.filter}>
           <span className={styles.filterLabel}>Sort by</span>
           <div className={styles.spacer}>
-            <Select
+            <RelatedWorksSelect<string>
               placeholder={t("filters.sort")}
               selectedKey={sortBy}
               setSelectedKey={setSortBy}
@@ -261,9 +274,10 @@ export const RelatedWorksList = ({
         data-testid="related-works-list"
         role="list"
       >
-        {relatedWorksData?.relatedWorksByPlan?.items?.map((relatedWork) => (
+        {relatedWorksData?.items?.map((relatedWork) => (
           <RelatedWorksListItem
-            key={relatedWork?.workVersion.work.doi}
+            identifierType={identifierType}
+            key={relatedWork?.id}
             relatedWork={relatedWork as RelatedWorkSearchResult}
             highlightMatches={highlightMatches}
             updateRelatedWorkStatus={updateRelatedWorkStatus}
@@ -300,68 +314,4 @@ const getDefaultSortBy = (status: RelatedWorkStatus): SortByOptions => {
   }
 
   return SortByOptions.ConfidenceHigh;
-};
-
-interface SelectProps {
-  label?: string;
-  placeholder: string;
-  selectedKey: string | null;
-  setSelectedKey: (selectedKey: string | null) => void;
-  items: { id: string; label: string }[];
-  containerClassName?: string;
-  includeEmptyValue?: boolean;
-}
-
-const Select = ({
-  label,
-  placeholder,
-  selectedKey,
-  setSelectedKey,
-  items,
-  containerClassName,
-  includeEmptyValue = false,
-}: SelectProps) => {
-  return (
-    <div className={containerClassName}>
-      <ReactAriaSelect
-        aria-label={placeholder}
-        placeholder={placeholder}
-        selectedKey={selectedKey}
-        onSelectionChange={(key) => {
-          setSelectedKey(key !== "" ? (key as string) : null);
-        }}
-      >
-        {label != null && <span>{placeholder}</span>}
-        <Button
-          type="button"
-          className="react-aria-Button selectButton"
-        >
-          <SelectValue />
-          <span aria-hidden="true">▼</span>
-        </Button>
-        <Popover>
-          <ListBox>
-            {includeEmptyValue && (
-              <ListBoxItem
-                id=""
-                style={{ fontStyle: "italic" }}
-              >
-                {placeholder}
-              </ListBoxItem>
-            )}
-
-            {items.map((item) => (
-              <ListBoxItem
-                key={item.id}
-                id={item.id}
-              >
-                {item.label}
-              </ListBoxItem>
-            ))}
-          </ListBox>
-        </Popover>
-        <FieldError />
-      </ReactAriaSelect>
-    </div>
-  );
 };
