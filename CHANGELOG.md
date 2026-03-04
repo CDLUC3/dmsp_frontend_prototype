@@ -18,6 +18,7 @@
 - Updated `/login` page step=email to include a "Back" button so user can go back to Step 1 [#997]
 
 ## Fixed
+- Fixed issue with missing `as builder` in `Dockerfile.prod`
 - Fixed bug where user's org was not displaying as a filter option, and Best practice was displaying instead [#62]
 - Fixed issue with default `sampleText` appearing again in textArea question, after the user overrides it, saves, and then deletes their answer [#7]
 - Updated "Back" button on /login page to have `type=button` instead of `type=submit`
