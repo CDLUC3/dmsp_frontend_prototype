@@ -1,0 +1,121 @@
+mutation MoveCustomSection($input: MoveCustomSectionInput!) {
+  moveCustomSection(input: $input) {
+    id
+    guidance
+    errors {
+      general
+    }
+    introduction
+    migrationStatus
+    name
+    pinnedSectionId
+    pinnedSectionType
+    requirements
+    templateCustomizationId
+    modified
+    modifiedById
+  }
+}
+
+mutation UpdateSectionCustomization($input: UpdateSectionCustomizationInput!) {
+  updateSectionCustomization(input: $input) {
+    id
+    guidance
+    errors {
+      guidance
+      general
+      migrationStatus
+      sectionId
+      templateCustomizationId
+    }
+    migrationStatus
+    modified
+    sectionId
+    templateCustomizationId
+    versionedSection {
+      id
+      displayOrder
+      name
+    }
+  }
+}
+
+mutation RemoveSectionCustomization($sectionCustomizationId: Int!) {
+  removeSectionCustomization(sectionCustomizationId: $sectionCustomizationId) {
+    id
+    guidance
+    errors {
+      general
+      guidance
+      migrationStatus
+      sectionId
+      templateCustomizationId
+    }
+    migrationStatus
+    modified
+    sectionId
+    templateCustomizationId
+    versionedSection {
+      id
+      displayOrder
+      guidance
+      errors {
+        general
+      }
+      introduction
+      modified
+      name
+      requirements
+      section {
+        id
+        displayOrder
+        name
+      }
+      versionedQuestions {
+        id
+        guidanceText
+      }
+      versionedTemplate {
+        id
+        description
+        name
+      }
+    }
+  }
+}
+
+mutation UpdateCustomSection($input: UpdateCustomSectionInput!) {
+  updateCustomSection(input: $input) {
+    id
+    guidance
+    errors {
+      general
+    }
+    introduction
+    migrationStatus
+    modified
+    name
+    pinnedSectionId
+    pinnedSectionType
+    requirements
+    templateCustomizationId
+  }
+}
+
+mutation RemoveCustomSection($customSectionId: Int!) {
+  removeCustomSection(customSectionId: $customSectionId) {
+    id
+    guidance
+    introduction
+    migrationStatus
+    modified
+    name
+    pinnedSectionId
+    pinnedSectionType
+    requirements
+    templateCustomizationId
+    errors {
+      general
+    }
+  }
+}

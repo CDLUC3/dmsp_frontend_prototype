@@ -426,26 +426,16 @@ describe('TemplateListCustomizationsPage', () => {
           result: {
             data: {
               addTemplateCustomization: {
-                id: 19,
+                customizationId: 19,
+                customizationIsDirty: false,
+                customizationMigrationStatus: "OK",
+                customizationStatus: "DRAFT",
                 errors: {
-                  collaboratorIds: null,
-                  description: null,
                   general: null,
-                  languageId: null,
-                  latestPublishVersion: null,
-                  latestPublishVisibility: null,
-                  name: null,
-                  ownerId: null,
-                  sectionIds: null,
-                  sourceTemplateId: null,
                   __typename: "TemplateErrors"
                 },
-                isDirty: false,
-                currentVersionedTemplateId: 945,
-                affiliationId: "https://ror.org/03yrm5c26",
-                status: "DRAFT",
-                migrationStatus: "OK",
-                latestPublishedDate: null,
+                versionedTemplateAffiliationId: "https://ror.org/03yrm5c26",
+                versionedTemplateId: 2,
                 __typename: "TemplateCustomization"
               }
             }
@@ -750,26 +740,16 @@ describe('TemplateListCustomizationsPage', () => {
           result: {
             data: {
               addTemplateCustomization: {
-                id: 19,
+                customizationId: 19,
                 errors: {
-                  collaboratorIds: null,
-                  description: null,
                   general: null,
-                  languageId: null,
-                  latestPublishVersion: null,
-                  latestPublishVisibility: null,
-                  name: null,
-                  ownerId: null,
-                  sectionIds: null,
-                  sourceTemplateId: null,
                   __typename: "TemplateErrors"
                 },
-                isDirty: false,
-                currentVersionedTemplateId: 945,
-                affiliationId: "https://ror.org/test",
-                status: "DRAFT",
-                migrationStatus: "OK",
-                latestPublishedDate: null,
+                customizationIsDirty: false,
+                customizationMigrationStatus: "OK",
+                customizationStatus: "DRAFT",
+                versionedTemplateAffiliationId: "https://ror.org/test",
+                versionedTemplateId: 945,
                 __typename: "TemplateCustomization"
               }
             }

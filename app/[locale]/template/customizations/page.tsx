@@ -33,7 +33,7 @@ import {
 
 // Components
 import PageHeader from '@/components/PageHeader';
-import CustomizedTemplateListItem from '@/components/CustomizedTemplateListItem';
+import CustomizedTemplateListItem from '@/components/CustomizedTemplate/CustomizedTemplateListItem';
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
 import Loading from "@/components/Loading";
@@ -154,7 +154,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
         }
       });
 
-      const errs = extractErrors<AddTemplateCustomizationErrors>(response?.data?.addTemplateCustomization?.errors ?? {}, [ "general"]);
+      const errs = extractErrors<AddTemplateCustomizationErrors>(response?.data?.addTemplateCustomization?.errors ?? {}, ["general"]);
 
       if (errs.length > 0) {
         setErrors(errs);
@@ -165,7 +165,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
         });
       } else {
         // If successful, redirect to the customize page for the newly created template
-        const newTemplateCustomizationId = response?.data?.addTemplateCustomization?.id;
+        const newTemplateCustomizationId = response?.data?.addTemplateCustomization?.customizationId;
 
         if (newTemplateCustomizationId) {
           const successMessage = Customizable("messages.success.templateAddedSuccessfully", { title: item.title || "" });

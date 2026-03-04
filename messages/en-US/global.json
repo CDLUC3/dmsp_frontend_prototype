@@ -674,6 +674,7 @@
       "admin": "Admin",
       "templates": "Templates",
       "template": "Template",
+      "templateCustomizations": "Customizable templates",
       "createTemplate": "Create a template",
       "selectExistingTemplate": "Select an existing template",
       "templateHistory": "Template history",
@@ -874,7 +875,8 @@
     "status": {
       "published": "Published",
       "draft": "Draft",
-      "unpublishedChanges": "Unpublished changes"
+      "unpublishedChanges": "Unpublished changes",
+      "notStarted": "Not started"
     }
   },
   "OrganizationTemplates": {

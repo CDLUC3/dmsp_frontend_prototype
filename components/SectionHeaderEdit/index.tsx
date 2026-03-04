@@ -16,6 +16,7 @@ interface SectionHeaderEditProps {
   onMoveDown?: (() => void) | undefined;
   sectionAuthorType?: "funder" | "organization" | null;
   checklist?: SectionChecklist;
+  isCustomizationTemplate?: boolean;
 }
 
 const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
@@ -26,8 +27,11 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
   onMoveDown,
   sectionAuthorType,
   checklist,
+  isCustomizationTemplate = false,
 }) => {
   const Sections = useTranslations("Sections");
+  const Global = useTranslations("Global");
+
   const UpArrowIcon = () => (
     <svg
       width="24"
@@ -113,13 +117,17 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
           </div>
         )}
       </div>
+
       <div className={styles.buttonGroup}>
         <a
           href={editUrl}
           className={styles.editButton}
         >
-          {Sections("links.editSection")}
+          {isCustomizationTemplate && sectionAuthorType === "funder"
+            ? Global("buttons.customize")
+            : Sections("links.editSection")}
         </a>
+
 
         <div className={styles.orderButtons}>
           {onMoveUp && (

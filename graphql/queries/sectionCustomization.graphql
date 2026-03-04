@@ -1,0 +1,26 @@
+query SectionCustomization($sectionCustomizationId: Int!) {
+  sectionCustomization(sectionCustomizationId: $sectionCustomizationId) {
+    id
+    errors {
+      general
+      guidance
+      migrationStatus
+      sectionId
+      templateCustomizationId
+    }
+    guidance
+    migrationStatus
+    modified
+    sectionId
+    templateCustomizationId
+    versionedSection {
+      id
+      guidance
+      name
+      modified
+      introduction
+      requirements
+      displayOrder
+    }
+  }
+}

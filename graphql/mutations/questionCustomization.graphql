@@ -1,0 +1,22 @@
+mutation MoveCustomQuestion($input: MoveCustomQuestionInput!) {
+  moveCustomQuestion(input: $input) {
+    id
+    guidanceText
+    errors {
+      general
+    }
+    json
+    migrationStatus
+    modified
+    pinnedQuestionId
+    pinnedQuestionType
+    questionText
+    required
+    requirementText
+    sampleText
+    sectionId
+    sectionType
+    templateCustomizationId
+    useSampleTextAsDefault
+  }
+}

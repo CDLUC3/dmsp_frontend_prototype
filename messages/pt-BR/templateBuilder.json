@@ -31,10 +31,38 @@
       "customizationStatus": "Status de personalização",
       "templateLastUpdated": "Última atualização do modelo"
     },
+    "heading": {
+      "deleteCustomization": "Excluir personalização"
+    },
+    "descriptions": {
+      "deleteCustomization": "<strong>Suas personalizações para este modelo serão removidas do modelo. </strong>  Isso não é reversível."
+    },
+    "buttons": {
+      "deleteCustomization": "Excluir personalização",
+      "deletingCustomizations": "Excluindo personalizações...",
+      "publishCustomization": "Publicar personalização",
+      "publishStatus": "Status de publicação",
+      "publishChanges": "Publicar alterações"
+    },
     "messages": {
       "success": {
-        "templateAddedSuccessfully": "Modelo {title} adicionado com sucesso"
+        "templateAddedSuccessfully": "Template {title} adicionado com sucesso",
+        "successfullyDeletedCustomizations": "Personalizações do modelo excluídas com sucesso",
+        "sectionMoved": "Seção movida com sucesso",
+        "successfullyUnpublishedCustomization": "Personalização do modelo não publicada com sucesso"
+      },
+      "error": {
+        "deleteCustomizationError": "Error when deleting template customizations",
+        "saveCustomizationError": "Erro ao salvar personalizações do modelo",
+        "updatingSectionMoveError": "Erro ao reordenar seções",
+        "unpublishCustomizationError": "Erro ao despublicar personalizações do modelo"
       }
+    },
+    "status": {
+      "completed": "Concluído",
+      "notCompleted": "ão concluído",
+      "added": "Adicionado",
+      "notAdded": "ão adicionado"
     }
   },
   "EditTemplates": {

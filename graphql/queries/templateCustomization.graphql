@@ -1,0 +1,41 @@
+query TemplateCustomizationOverview($templateCustomizationId: Int!) {
+  templateCustomizationOverview(templateCustomizationId: $templateCustomizationId) {
+    customizationId
+    customizationIsDirty
+    customizationLastCustomized
+    customizationLastCustomizedById
+    customizationLastCustomizedByName
+    customizationMigrationStatus
+    customizationStatus
+    customizationLastPublishedDate
+    errors {
+      general
+      affiliationId
+      currentVersionedTemplateId
+      templateId
+    }
+    sections {
+      id
+      hasCustomGuidance
+      displayOrder
+      migrationStatus
+      name
+      sectionType
+      questions {
+        displayOrder
+        questionText
+        migrationStatus
+        id
+        hasCustomSampleAnswer
+        hasCustomGuidance
+        questionType
+      }
+    }
+    versionedTemplateAffiliationId
+    versionedTemplateAffiliationName
+    versionedTemplateId
+    versionedTemplateLastModified
+    versionedTemplateName
+    versionedTemplateVersion
+  }
+}
