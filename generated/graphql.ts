@@ -43,10 +43,18 @@ export type AddCustomQuestionInput = {
 
 /** Input parameters for adding a custom section to a funder template */
 export type AddCustomSectionInput = {
+  /** The custom guidance for the custom section */
+  guidance?: InputMaybe<Scalars['String']['input']>;
+  /** The introduction to the custom section */
+  introduction?: InputMaybe<Scalars['String']['input']>;
+  /** The custom section name */
+  name: Scalars['String']['input'];
   /** The identifier of the section this new custom section should appear after */
   pinnedSectionId?: InputMaybe<Scalars['Int']['input']>;
   /** The type of the section this new custom section should appear after */
   pinnedSectionType?: InputMaybe<CustomizableObjectOwnership>;
+  /** The requirements for the custom section */
+  requirements?: InputMaybe<Scalars['String']['input']>;
   /** The identifier of the parent template customization */
   templateCustomizationId: Scalars['Int']['input'];
 };
@@ -1346,6 +1354,10 @@ export type Mutation = {
   createTemplateVersion?: Maybe<Template>;
   /** Deactivate the specified user Account (Admin only) */
   deactivateUser?: Maybe<User>;
+  /** The custom guidance for the custom section */
+  guidance?: Maybe<Scalars['String']['output']>;
+  /** The introduction to the custom section */
+  introduction?: Maybe<Scalars['String']['output']>;
   /** Merge two licenses */
   mergeLicenses?: Maybe<License>;
   /** Merge two metadata standards */
@@ -1358,6 +1370,8 @@ export type Mutation = {
   moveCustomQuestion: CustomQuestion;
   /** Move a custom section to a different position in the template (null means move to the top of the template) */
   moveCustomSection: CustomSection;
+  /** The custom section name */
+  name: Scalars['String']['output'];
   /** Import a project from an external source */
   projectImport?: Maybe<Project>;
   /** Publish a GuidanceGroup (creates a VersionedGuidanceGroup snapshot) */
@@ -1424,6 +1438,8 @@ export type Mutation = {
   removeUserEmail?: Maybe<UserEmail>;
   /** Request a round of admin feedback */
   requestFeedback?: Maybe<PlanFeedback>;
+  /** The requirements for the custom section */
+  requirements?: Maybe<Scalars['String']['output']>;
   /** Resend an invite to a ProjectCollaborator */
   resendInviteToProjectCollaborator?: Maybe<ProjectCollaborator>;
   /** Designate the email as the current user's primary email address */

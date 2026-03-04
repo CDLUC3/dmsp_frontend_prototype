@@ -249,27 +249,27 @@ const SectionCustomizePage: React.FC = () => {
 
       const responseErrors = response.data?.removeSectionCustomization?.errors;
       if (responseErrors && Object.keys(responseErrors).length > 0) {
-
         const errorMessages = extractErrors<SectionCustomizationErrors>(responseErrors, ["general", "guidance", "migrationStatus", "sectionId", "templateCustomizationId"]);
 
         if (errorMessages.length > 0) {
-          setErrorMessages(prevErrors => [...prevErrors, ...errorMessages]);
+          setErrorMessages(prev => [...prev, ...errorMessages]);
           logECS("error", "handleDeleteCustomization", {
             error: errorMessages[0],
             url: { path: routePath("template.customize", { templateCustomizationId }) },
           });
           setIsDeleting(false);
           setIsDeleteModalOpen(false);
-          return;
+          return; // <-- only early return on actual errors
         }
-      } else {
-        setIsDeleting(false);
-        setIsDeleteModalOpen(false);
-        // Show success message and redirect to template customizations
-        toastState.add(SectionCustomize('messages.success.successfullyDeletedSectionCustomization'), { type: 'success' });
-        setIsRedirecting(true);
-        router.push(TEMPLATE_URL);
       }
+
+      // Success — reached when errors is null, empty, or had nothing extractable
+      setIsDeleting(false);
+      setIsDeleteModalOpen(false);
+      toastState.add(SectionCustomize('messages.success.successfullyDeletedSectionCustomization'), { type: 'success' });
+      setIsRedirecting(true);
+      router.push(TEMPLATE_URL);
+
     } catch (error) {
       logECS('error', 'deleteSection', {
         error,

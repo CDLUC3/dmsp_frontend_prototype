@@ -366,7 +366,6 @@ const TemplateCustomizationOverview: React.FC = () => {
   }
 
   const template = data?.templateCustomizationOverview;
-  console.log("***Template Customization Overview Data:", data?.templateCustomizationOverview);
 
   if (!template) {
     return <div>{EditTemplate("errors.noTemplateFound")}</div>;

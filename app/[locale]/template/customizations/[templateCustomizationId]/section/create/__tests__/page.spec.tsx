@@ -3,7 +3,6 @@ import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import { useQuery, useMutation } from '@apollo/client/react';
 import {
   AddCustomSectionDocument,
-  UpdateCustomSectionDocument,
   TemplateCustomizationOverviewDocument,
 } from '@/generated/graphql';
 
@@ -40,7 +39,6 @@ const mockTemplateOverviewData = {
 };
 
 let mockAddCustomSectionFn: jest.Mock;
-let mockUpdateCustomSectionFn: jest.Mock;
 
 const setupMocks = () => {
   mockUseQuery.mockImplementation((document) => {
@@ -54,16 +52,9 @@ const setupMocks = () => {
     data: { addCustomSection: { id: 99, errors: null } },
   });
 
-  mockUpdateCustomSectionFn = jest.fn().mockResolvedValue({
-    data: { updateCustomSection: { errors: null } },
-  });
-
   mockUseMutation.mockImplementation((document) => {
     if (document === AddCustomSectionDocument) {
       return [mockAddCustomSectionFn, { loading: false, error: undefined }] as any;
-    }
-    if (document === UpdateCustomSectionDocument) {
-      return [mockUpdateCustomSectionFn, { loading: false, error: undefined }] as any;
     }
     return [jest.fn(), { loading: false, error: undefined }] as any;
   });
@@ -119,15 +110,27 @@ describe("CreateCustomSectionPage", () => {
       fireEvent.click(screen.getByRole('tab', { name: /tabs.logic/i }));
       expect(screen.getByRole('heading', { name: /tabs.logic/i })).toBeInTheDocument();
     });
+
+    it("should show a loading state while template data is loading", () => {
+      mockUseQuery.mockImplementation((document) => {
+        if (document === TemplateCustomizationOverviewDocument) {
+          return { data: undefined, loading: true, error: null } as any;
+        }
+        return { data: null, loading: false, error: undefined };
+      });
+
+      render(<CreateCustomSectionPage />);
+
+      expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
+    });
   });
 
   describe("Validation", () => {
     it("should display a validation error when section name is empty on submit", async () => {
       render(<CreateCustomSectionPage />);
 
-      const saveButton = screen.getByRole('button', { name: /button.createSection/i });
       await act(async () => {
-        fireEvent.click(saveButton);
+        fireEvent.click(screen.getByRole('button', { name: /button.createSection/i }));
       });
 
       await waitFor(() => {
@@ -138,27 +141,25 @@ describe("CreateCustomSectionPage", () => {
     it("should display a validation error when section name is too short (≤ 2 chars)", async () => {
       render(<CreateCustomSectionPage />);
 
-      const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
       await act(async () => {
-        fireEvent.change(sectionNameInput, { target: { value: 'AB' } });
+        fireEvent.change(screen.getByLabelText(/labels.sectionName/i), { target: { value: 'AB' } });
       });
 
-      const saveButton = screen.getByRole('button', { name: /button.createSection/i });
       await act(async () => {
-        fireEvent.click(saveButton);
+        fireEvent.click(screen.getByRole('button', { name: /button.createSection/i }));
       });
 
       await waitFor(() => {
-        expect(screen.getByText(/messages.fieldLengthValidation/i)).toBeInTheDocument();
+        // One at the top of the page, one at field level
+        expect(screen.getAllByText(/messages.fieldLengthValidation/i)).toHaveLength(2);
       });
     });
 
     it("should not call addCustomSection when validation fails", async () => {
       render(<CreateCustomSectionPage />);
 
-      const saveButton = screen.getByRole('button', { name: /button.createSection/i });
       await act(async () => {
-        fireEvent.click(saveButton);
+        fireEvent.click(screen.getByRole('button', { name: /button.createSection/i }));
       });
 
       expect(mockAddCustomSectionFn).not.toHaveBeenCalled();
@@ -166,17 +167,15 @@ describe("CreateCustomSectionPage", () => {
   });
 
   describe("Form Submission", () => {
-    it("should call addCustomSection then updateCustomSection with correct variables on save", async () => {
+    it("should call addCustomSection with correct variables on save", async () => {
       render(<CreateCustomSectionPage />);
 
-      const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
       await act(async () => {
-        fireEvent.change(sectionNameInput, { target: { value: 'New Section Name' } });
+        fireEvent.change(screen.getByLabelText(/labels.sectionName/i), { target: { value: 'New Section Name' } });
       });
 
-      const saveButton = screen.getByRole('button', { name: /button.createSection/i });
       await act(async () => {
-        fireEvent.click(saveButton);
+        fireEvent.click(screen.getByRole('button', { name: /button.createSection/i }));
       });
 
       await waitFor(() => {
@@ -184,18 +183,8 @@ describe("CreateCustomSectionPage", () => {
           expect.objectContaining({
             variables: expect.objectContaining({
               input: expect.objectContaining({
-                templateCustomizationId: 16,
-              }),
-            }),
-          })
-        );
-
-        expect(mockUpdateCustomSectionFn).toHaveBeenCalledWith(
-          expect.objectContaining({
-            variables: expect.objectContaining({
-              input: expect.objectContaining({
-                customSectionId: 99,
                 name: 'New Section Name',
+                templateCustomizationId: 16,
               }),
             }),
           })
@@ -206,14 +195,12 @@ describe("CreateCustomSectionPage", () => {
     it("should pin the new section after the section with the highest displayOrder", async () => {
       render(<CreateCustomSectionPage />);
 
-      const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
       await act(async () => {
-        fireEvent.change(sectionNameInput, { target: { value: 'New Section Name' } });
+        fireEvent.change(screen.getByLabelText(/labels.sectionName/i), { target: { value: 'New Section Name' } });
       });
 
-      const saveButton = screen.getByRole('button', { name: /button.createSection/i });
       await act(async () => {
-        fireEvent.click(saveButton);
+        fireEvent.click(screen.getByRole('button', { name: /button.createSection/i }));
       });
 
       await waitFor(() => {
@@ -244,14 +231,12 @@ describe("CreateCustomSectionPage", () => {
 
       render(<CreateCustomSectionPage />);
 
-      const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
       await act(async () => {
-        fireEvent.change(sectionNameInput, { target: { value: 'New Section Name' } });
+        fireEvent.change(screen.getByLabelText(/labels.sectionName/i), { target: { value: 'New Section Name' } });
       });
 
-      const saveButton = screen.getByRole('button', { name: /button.createSection/i });
       await act(async () => {
-        fireEvent.click(saveButton);
+        fireEvent.click(screen.getByRole('button', { name: /button.createSection/i }));
       });
 
       await waitFor(() => {
@@ -271,14 +256,12 @@ describe("CreateCustomSectionPage", () => {
 
       render(<CreateCustomSectionPage />);
 
-      const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
       await act(async () => {
-        fireEvent.change(sectionNameInput, { target: { value: 'New Section Name' } });
+        fireEvent.change(screen.getByLabelText(/labels.sectionName/i), { target: { value: 'New Section Name' } });
       });
 
-      const saveButton = screen.getByRole('button', { name: /button.createSection/i });
       await act(async () => {
-        fireEvent.click(saveButton);
+        fireEvent.click(screen.getByRole('button', { name: /button.createSection/i }));
       });
 
       await waitFor(() => {
@@ -296,17 +279,13 @@ describe("CreateCustomSectionPage", () => {
             { loading: false, error: undefined },
           ] as any;
         }
-        if (document === UpdateCustomSectionDocument) {
-          return [mockUpdateCustomSectionFn, { loading: false, error: undefined }] as any;
-        }
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
       render(<CreateCustomSectionPage />);
 
-      const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
       await act(async () => {
-        fireEvent.change(sectionNameInput, { target: { value: 'New Section Name' } });
+        fireEvent.change(screen.getByLabelText(/labels.sectionName/i), { target: { value: 'New Section Name' } });
       });
 
       fireEvent.click(screen.getByRole('button', { name: /button.createSection/i }));
@@ -319,9 +298,8 @@ describe("CreateCustomSectionPage", () => {
     it("should prevent double submission", async () => {
       render(<CreateCustomSectionPage />);
 
-      const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
       await act(async () => {
-        fireEvent.change(sectionNameInput, { target: { value: 'New Section Name' } });
+        fireEvent.change(screen.getByLabelText(/labels.sectionName/i), { target: { value: 'New Section Name' } });
       });
 
       const saveButton = screen.getByRole('button', { name: /button.createSection/i });
@@ -345,17 +323,13 @@ describe("CreateCustomSectionPage", () => {
             { loading: false, error: undefined },
           ] as any;
         }
-        if (document === UpdateCustomSectionDocument) {
-          return [mockUpdateCustomSectionFn, { loading: false, error: undefined }] as any;
-        }
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
       render(<CreateCustomSectionPage />);
 
-      const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
       await act(async () => {
-        fireEvent.change(sectionNameInput, { target: { value: 'New Section Name' } });
+        fireEvent.change(screen.getByLabelText(/labels.sectionName/i), { target: { value: 'New Section Name' } });
       });
 
       await act(async () => {
@@ -372,7 +346,7 @@ describe("CreateCustomSectionPage", () => {
       });
     });
 
-    it("should display field-level errors returned from addCustomSection", async () => {
+    it("should display a general error returned from addCustomSection", async () => {
       mockUseMutation.mockImplementation((document) => {
         if (document === AddCustomSectionDocument) {
           return [
@@ -387,17 +361,13 @@ describe("CreateCustomSectionPage", () => {
             { loading: false, error: undefined },
           ] as any;
         }
-        if (document === UpdateCustomSectionDocument) {
-          return [mockUpdateCustomSectionFn, { loading: false, error: undefined }] as any;
-        }
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
       render(<CreateCustomSectionPage />);
 
-      const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
       await act(async () => {
-        fireEvent.change(sectionNameInput, { target: { value: 'New Section Name' } });
+        fireEvent.change(screen.getByLabelText(/labels.sectionName/i), { target: { value: 'New Section Name' } });
       });
 
       await act(async () => {
@@ -409,49 +379,14 @@ describe("CreateCustomSectionPage", () => {
       });
     });
 
-    it("should display an error and not call updateCustomSection when addCustomSection returns no id", async () => {
+    it("should display field-level errors returned from addCustomSection", async () => {
       mockUseMutation.mockImplementation((document) => {
         if (document === AddCustomSectionDocument) {
-          return [
-            jest.fn().mockResolvedValueOnce({
-              data: { addCustomSection: { id: null, errors: null } },
-            }),
-            { loading: false, error: undefined },
-          ] as any;
-        }
-        if (document === UpdateCustomSectionDocument) {
-          return [mockUpdateCustomSectionFn, { loading: false, error: undefined }] as any;
-        }
-        return [jest.fn(), { loading: false, error: undefined }] as any;
-      });
-
-      render(<CreateCustomSectionPage />);
-
-      const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
-      await act(async () => {
-        fireEvent.change(sectionNameInput, { target: { value: 'New Section Name' } });
-      });
-
-      await act(async () => {
-        fireEvent.click(screen.getByRole('button', { name: /button.createSection/i }));
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText(/messages.errorCreatingSection/i)).toBeInTheDocument();
-        expect(mockUpdateCustomSectionFn).not.toHaveBeenCalled();
-      });
-    });
-
-    it("should display field-level errors returned from updateCustomSection", async () => {
-      mockUseMutation.mockImplementation((document) => {
-        if (document === AddCustomSectionDocument) {
-          return [mockAddCustomSectionFn, { loading: false, error: undefined }] as any;
-        }
-        if (document === UpdateCustomSectionDocument) {
           return [
             jest.fn().mockResolvedValueOnce({
               data: {
-                updateCustomSection: {
+                addCustomSection: {
+                  id: null,
                   errors: { name: 'Name is too long', general: null },
                 },
               },
@@ -464,9 +399,8 @@ describe("CreateCustomSectionPage", () => {
 
       render(<CreateCustomSectionPage />);
 
-      const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
       await act(async () => {
-        fireEvent.change(sectionNameInput, { target: { value: 'New Section Name' } });
+        fireEvent.change(screen.getByLabelText(/labels.sectionName/i), { target: { value: 'New Section Name' } });
       });
 
       await act(async () => {
@@ -474,7 +408,28 @@ describe("CreateCustomSectionPage", () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText(/name is too long/i)).toBeInTheDocument();
+        expect(screen.getAllByText(/name is too long/i)).toHaveLength(2); // One at the top of the page, one at field level
+      });
+    });
+
+    it("should display an error and call logECS when the template query fails", async () => {
+      const mockQueryError = new Error("Failed to fetch template");
+      mockUseQuery.mockImplementation((document) => {
+        if (document === TemplateCustomizationOverviewDocument) {
+          return { data: undefined, loading: false, error: mockQueryError } as any;
+        }
+        return { data: null, loading: false, error: undefined };
+      });
+
+      render(<CreateCustomSectionPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText(/messaging.error/i)).toBeInTheDocument();
+        expect(logECS).toHaveBeenCalledWith(
+          'error',
+          'TemplateCustomizationOverview query error in CreateCustomSectionPage',
+          expect.objectContaining({ error: mockQueryError })
+        );
       });
     });
   });
@@ -486,9 +441,8 @@ describe("CreateCustomSectionPage", () => {
 
       render(<CreateCustomSectionPage />);
 
-      const sectionNameInput = screen.getByLabelText(/labels.sectionName/i);
       await act(async () => {
-        fireEvent.change(sectionNameInput, { target: { value: 'New Section Name' } });
+        fireEvent.change(screen.getByLabelText(/labels.sectionName/i), { target: { value: 'New Section Name' } });
       });
 
       await waitFor(() => {

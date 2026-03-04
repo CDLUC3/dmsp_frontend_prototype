@@ -16,31 +16,40 @@ import {
   TabPanel,
   Tabs,
 } from "react-aria-components";
+
 // GraphQL queries and mutations
 import {
   CustomSectionErrors,
   CustomizableObjectOwnership,
   AddCustomSectionDocument,
-  UpdateCustomSectionDocument,
   TemplateCustomizationOverviewDocument
 } from '@/generated/graphql';
-
-//Components
-import { ContentContainer, LayoutContainer, } from '@/components/Container';
-import PageHeader from "@/components/PageHeader";
-import TinyMCEEditor from "@/components/TinyMCEEditor";
-import ErrorMessages from '@/components/ErrorMessages';
-import FormInput from '@/components/Form/FormInput';
-import { stripHtmlTags } from '@/utils/general';
-import { scrollToTop } from '@/utils/general';
 
 import {
   SectionFormErrorsInterface,
   SectionFormInterface,
 } from '@/app/types';
+
+// Components
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import PageHeader from "@/components/PageHeader";
+import TinyMCEEditor from "@/components/TinyMCEEditor";
+import ErrorMessages from '@/components/ErrorMessages';
+import FormInput from '@/components/Form/FormInput';
+import Loading from '@/components/Loading';
+
+// Utils
+import { stripHtmlTags } from '@/utils/general';
+import { scrollToTop } from '@/utils/general';
 import { logECS, routePath } from "@/utils/index";
 import { useToast } from '@/context/ToastContext';
 import { extractErrors } from '@/utils/errorHandler';
+
+type CreateCustomSectionResult = {
+  errorObj: CustomSectionErrors;
+  errorMessages: string[];
+} | null;
+
 
 const CreateCustomSectionPage: React.FC = () => {
 
@@ -57,14 +66,11 @@ const CreateCustomSectionPage: React.FC = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   // Form state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  // Ref to track whether form is currently being submitted to prevent double submission
+  const isSubmittingRef = useRef(false);
   //For scrolling to top of page
   const topRef = useRef<HTMLDivElement | null>(null);
-
-  //Set initial Rich Text Editor field values
-  const [sectionNameContent, setSectionNameContent] = useState('');
-  const [sectionIntroductionContent, setSectionIntroductionContent] = useState('');
-  const [sectionRequirementsContent, setSectionRequirementsContent] = useState('');
-  const [sectionGuidanceContent, setSectionGuidanceContent] = useState('');
 
   //Keep form field values in state
   const [formData, setFormData] = useState<SectionFormInterface>({
@@ -91,22 +97,20 @@ const CreateCustomSectionPage: React.FC = () => {
   const CreateSectionPage = useTranslations('CreateSectionPage');
   const Section = useTranslations('Section');
 
-  // Initialize mutations
+  // Initialize mutation
   const [addCustomSectionMutation] = useMutation(AddCustomSectionDocument);
-  const [updateCustomSectionMutation] = useMutation(UpdateCustomSectionDocument);
 
   // Run template query to get all sections and questions under the given templateCustomizationId
   const {
     data,
     loading,
     error: templateQueryErrors,
-    refetch
   } = useQuery(TemplateCustomizationOverviewDocument, {
     variables: { templateCustomizationId: Number(templateCustomizationId) },
   });
 
 
-  // Update custom section data in state when fields are edited
+  // Update form fields in state when fields are edited
   const updateSectionContent = (key: string, value: string) => {
     clearAllFieldErrors();
     setFormData((prevContents) => ({
@@ -181,15 +185,19 @@ const CreateCustomSectionPage: React.FC = () => {
   }
 
   // Make GraphQL mutation request to create custom section
-  const createCustomSection = async (): Promise<CustomSectionErrors | null> => {
+  const createCustomSection = async (): Promise<CreateCustomSectionResult> => {
     // strip all tags from sectionName before sending to backend
-    const cleanedSectionName = stripHtmlTags(sectionNameContent);
+    const cleanedSectionName = stripHtmlTags(formData.sectionName);
 
     try {
       // First, create the custom section
       const addResponse = await addCustomSectionMutation({
         variables: {
           input: {
+            name: cleanedSectionName,
+            introduction: formData.sectionIntroduction,
+            requirements: formData.sectionRequirements,
+            guidance: formData.sectionGuidance,
             templateCustomizationId: Number(templateCustomizationId),
             ...(lastSectionId !== null && {
               pinnedSectionId: lastSectionId,
@@ -197,6 +205,8 @@ const CreateCustomSectionPage: React.FC = () => {
             })
           }
         },
+        // Refetch the template overview query to get the updated list of sections after adding the new section
+        // otherwise it won't display on the template customization page without a full page refresh
         refetchQueries: [{
           query: TemplateCustomizationOverviewDocument,
           variables: {
@@ -214,51 +224,9 @@ const CreateCustomSectionPage: React.FC = () => {
         if (errorMessages.length > 0) {
           // Set all error messages for display
           setErrors(prevErrors => [...prevErrors, ...errorMessages]);
-          return errorObj;
+          return { errorObj, errorMessages };
         }
       }
-
-      // Get the newly created section ID
-      const customSectionId = addResponse.data?.addCustomSection?.id;
-
-      if (!customSectionId) {
-        setErrors(prevErrors => [...prevErrors, CreateSectionPage('messages.errorCreatingSection')]);
-        logECS("error", "Creating Custom Section in CreateCustomSectionPage", {});
-        return null;
-      }
-
-      // Now update the custom section with the content
-      const updateResponse = await updateCustomSectionMutation({
-        variables: {
-          input: {
-            customSectionId: Number(customSectionId),
-            name: cleanedSectionName,
-            introduction: sectionIntroductionContent,
-            requirements: sectionRequirementsContent,
-            guidance: sectionGuidanceContent,
-          }
-        },
-        refetchQueries: [{
-          query: TemplateCustomizationOverviewDocument,
-          variables: {
-            templateCustomizationId: Number(templateCustomizationId)
-          }
-        }]
-      });
-
-      if (updateResponse.data?.updateCustomSection?.errors) {
-        const errorObj = updateResponse.data.updateCustomSection.errors;
-
-        // Extract all error messages from the error object
-        const errorMessages = extractErrors<CustomSectionErrors>(errorObj, ["general", "guidance", "introduction", "name", "requirements"]);
-
-        if (errorMessages.length > 0) {
-          // Set all error messages for display
-          setErrors(prevErrors => [...prevErrors, ...errorMessages]);
-          return errorObj;
-        }
-      }
-
     } catch (error) {
       setErrors(prevErrors => [...prevErrors, CreateSectionPage('messages.errorCreatingSection')]);
       logECS("error", "Creating Custom Section in CreateCustomSectionPage", {
@@ -268,12 +236,13 @@ const CreateCustomSectionPage: React.FC = () => {
     return null;
   };
 
-  // Handle form submit
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // Prevent double submission
-    if (isSubmitting) return;
+    // Prevent double submission. useRef check prevents double submission since ref updates are synchronous,
+    // unlike useState which is batched and won't block a second click in the same tick
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
 
     // Clear previous errors
@@ -282,25 +251,23 @@ const CreateCustomSectionPage: React.FC = () => {
 
     if (isFormValid()) {
       // Create new custom section
-      const errors = await createCustomSection();
+      const result = await createCustomSection();
 
-      // Check if there are any errors (always exclude the GraphQL `_typename` entry)
-      if (errors && Object.values(errors).filter((err) => err && err !== '__typename').length > 0) {
-        // Set field-specific errors for inline validation
+      if (result) {
+
+        const { errorObj, errorMessages } = result;
+        setErrors(errorMessages);
         setFieldErrors({
-          sectionName: errors.name || '',
-          sectionIntroduction: errors.introduction || '',
-          sectionRequirements: errors.requirements || '',
-          sectionGuidance: errors.guidance || ''
+          sectionName: errorObj.name || '',
+          sectionIntroduction: errorObj.introduction || '',
+          sectionRequirements: errorObj.requirements || '',
+          sectionGuidance: errorObj.guidance || '',
         });
 
-        // Error messages were already set in createCustomSection via extractErrors
-        // No need to set them again here
         setIsSubmitting(false);
       } else {
         setIsSubmitting(false);
         setHasUnsavedChanges(false);
-        // Show success message
         showSuccessToast();
         // Redirect to the template customization page
         router.push(`/template/customizations/${templateCustomizationId}`)
@@ -308,19 +275,10 @@ const CreateCustomSectionPage: React.FC = () => {
 
       scrollToTop(topRef);
     } else {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   };
-
-  useEffect(() => {
-    setFormData({
-      ...formData,
-      sectionName: sectionNameContent,
-      sectionIntroduction: sectionIntroductionContent,
-      sectionRequirements: sectionRequirementsContent,
-      sectionGuidance: sectionGuidanceContent
-    });
-  }, [sectionNameContent, sectionIntroductionContent, sectionRequirementsContent, sectionGuidanceContent])
 
   // Find the last section to pin the new custom section after it
   useEffect(() => {
@@ -356,6 +314,21 @@ const CreateCustomSectionPage: React.FC = () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [hasUnsavedChanges]);
+
+  // Handle errors from template query
+  useEffect(() => {
+    if (templateQueryErrors) {
+      logECS('error', 'TemplateCustomizationOverview query error in CreateCustomSectionPage', {
+        error: templateQueryErrors,
+      });
+      setErrors(prev => [...prev, CreateSectionPage('messaging.error')]);
+    }
+  }, [templateQueryErrors]);
+
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <>
@@ -405,7 +378,7 @@ const CreateCustomSectionPage: React.FC = () => {
 
                     <Label htmlFor="sectionIntroduction" id="sectionIntroductionLabel">{Section('labels.sectionIntroduction')}</Label>
                     <TinyMCEEditor
-                      content={sectionIntroductionContent}
+                      content={formData.sectionIntroduction}
                       setContent={(value) => updateSectionContent('sectionIntroduction', value)}
                       error={fieldErrors['sectionIntroduction']}
                       id="sectionIntroduction"
@@ -415,7 +388,7 @@ const CreateCustomSectionPage: React.FC = () => {
 
                     <Label htmlFor="sectionRequirements" id="sectionRequirementsLabel">{Section('labels.sectionRequirements')}</Label>
                     <TinyMCEEditor
-                      content={sectionRequirementsContent}
+                      content={formData.sectionRequirements}
                       setContent={(value) => updateSectionContent('sectionRequirements', value)}
                       error={fieldErrors['sectionRequirements']}
                       id="sectionRequirements"
@@ -425,7 +398,7 @@ const CreateCustomSectionPage: React.FC = () => {
 
                     <Label htmlFor="sectionGuidance" id="sectionGuidanceLabel">{Section('labels.sectionGuidance')}</Label>
                     <TinyMCEEditor
-                      content={sectionGuidanceContent}
+                      content={formData.sectionGuidance}
                       setContent={(value) => updateSectionContent('sectionGuidance', value)}
                       error={fieldErrors['sectionGuidance']}
                       id="sectionGuidance"
