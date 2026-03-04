@@ -451,13 +451,14 @@ const SectionCustomizePage: React.FC = () => {
                   content={sectionData.sectionGuidance}
                 />
 
-                <div>
-                  <Label htmlFor="bestPracticeTags">{SectionCustomize('labels.bestPracticeTags')}<DmpIcon icon="tag" className="ml-2" /></Label>
-                  <p>
-                    {SectionCustomize('descriptions.tagDescription')}{' '}
-                    <Link href={routePath("admin.guidance.index")}>{SectionCustomize('descriptions.editGuidanceForTags')}</Link>
-                  </p>
-                  {selectedTags.length > 0 && (
+                {selectedTags.length > 0 && (
+                  <div>
+                    <Label htmlFor="bestPracticeTags">{SectionCustomize('labels.bestPracticeTags')}<DmpIcon icon="tag" className="ml-2" /></Label>
+                    <p>
+                      {SectionCustomize('descriptions.tagDescription')}{' '}
+                      <Link href={routePath("admin.guidance.index")}>{SectionCustomize('descriptions.editGuidanceForTags')}</Link>
+                    </p>
+
                     <div className="field-display">
 
                       <ul className="tags-list">
@@ -466,9 +467,9 @@ const SectionCustomizePage: React.FC = () => {
                         ))}
                       </ul>
                     </div>
-                  )}
-                </div>
 
+                  </div>
+                )}
 
 
                 <div className={styles.additionalGuidance}>
