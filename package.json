@@ -93,6 +93,6 @@
   "overrides": {
     "minimatch": "10.2.4",
     "@eslint/plugin-kit": "0.3.4",
-    "test-exclude": "7.0.1"
+    "test-exclude": "7.0.2"
   }
 }
