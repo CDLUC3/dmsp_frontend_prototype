@@ -105,7 +105,9 @@ const routes = {
   'template.edit': '/template/:templateId/edit',
   'template.customizations': '/template/customizations',
   'template.customize': '/template/customizations/:templateCustomizationId',
-  'template.customize.sectionId': '/template/customizations/:templateCustomizationId/section/:sectionCustomizationId',
+  'template.customize.sectionId': '/template/customizations/:templateCustomizationId/section/:versionedSectionId',
+  'template.customSection': '/template/customizations/:templateCustomizationId/customSection/:customSectionId',
+  'template.customize.section.create': '/template/customizations/:templateCustomizationId/section/create',
 
   // account/profile
   'account.index': '/account',
