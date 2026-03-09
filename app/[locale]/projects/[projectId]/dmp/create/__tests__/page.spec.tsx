@@ -1336,9 +1336,11 @@ describe('PlanCreate Component using base mock', () => {
       expect(buttons.length).toBeGreaterThan(0);
     }, { timeout: 3000 });
 
-    const buttons = screen.getAllByText('buttons.select');
-    const btn = buttons[0];
-    fireEvent.click(btn);
+    await waitFor(() => {
+      const buttons = screen.getAllByText('buttons.select');
+      const btn = buttons[0];
+      fireEvent.click(btn);
+    })
 
     await waitFor(() => {
       expect(logECS).toHaveBeenCalledWith(

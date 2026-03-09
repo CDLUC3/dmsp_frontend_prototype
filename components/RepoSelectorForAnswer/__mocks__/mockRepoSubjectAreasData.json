@@ -1,193 +1,510 @@
 {
-  "repositorySubjectAreas": [
-    "Academic publications",
-    "accounting",
-    "agricultural science",
-    "agriculture",
-    "agroecosystems, natural resources and environment",
-    "animal production",
-    "archaeology",
-    "art education",
-    "artificial intelligence",
-    "artistic research",
-    "atmosphere",
-    "atmospheric sciences",
-    "behavioral operation",
-    "Bibliometrics",
-    "biodiversity",
-    "biology",
-    "biomass, bioinputs and renewable energy",
-    "biotechnology, nanotechnology, precision agriculture",
-    "building permits",
-    "business logistics",
-    "cancer imaging",
-    "Caribbean",
-    "Ccpital market",
-    "cleavages",
-    "climate impact science",
-    "climate science",
-    "clinical effectiveness research",
-    "Code",
-    "cohesion",
-    "conflict",
-    "coral",
-    "correspondence",
-    "council meetings",
-    "COVID-19",
-    "creative Works",
-    "crop production",
-    "cross-sectional study",
-    "Data citation",
-    "design research",
-    "development indicators",
-    "DICOM",
-    "digital edition",
-    "digital humanities",
-    "Doctoral theses",
-    "earth",
-    "earth observation",
-    "earth sciences",
-    "ecology",
-    "economics",
-    "economics, development and rural sociology",
-    "electoral studies",
-    "electronic lab notebook",
-    "emotional intelligence",
-    "environment",
-    "environmental science",
-    "environmental studies",
-    "EOSC",
-    "ERIC",
-    "ESFRI",
-    "essential ocean variable (EOV)",
-    "ethiopia health",
-    "FAIR",
-    "FAIR principles",
-    "family",
-    "fish",
-    "fisheries data",
-    "fluorescence",
-    "food and human nutrition",
-    "food sciences",
-    "forest",
-    "frozen ground",
-    "gene expression",
-    "genetic resources",
-    "geodesy",
-    "geology",
-    "GeoNetwork",
-    "geophysics",
-    "georeferenced metadata",
-    "geoscientific information",
-    "glaciers",
-    "graphic design",
-    "gravimetry",
-    "health",
-    "health dataset",
-    "health policy work",
-    "health statistics data",
-    "high perfomance computing",
-    "higher degree by research theses",
-    "ice shelves",
-    "immune-mediated disease",
-    "Industry 4.0",
-    "inequality",
-    "infectious disease",
-    "Institutional repository",
-    "interdisciplinary",
-    "interior design",
-    "Interoperability",
-    "Italy",
-    "land use",
-    "laser",
-    "Latin America",
-    "leadership",
-    "Long Term Ecological Research network",
-    "management",
-    "marine data",
-    "marine environmental indicators",
-    "medicine",
-    "Mediterranean Sea",
-    "metadata",
-    "Metadata management",
-    "meteorology",
-    "methods studies",
-    "microbe",
-    "multidisciplinary",
-    "municipal archives",
-    "nanoparticles",
-    "networks",
-    "oceania",
-    "oceanographics",
-    "oceanography",
-    "Open access",
-    "open data",
-    "Open research data",
-    "open source",
-    "open source software",
-    "OpenAIRE",
-    "OpenDOAR",
-    "organizational effectiveness",
-    "organizational innovation",
-    "pacific",
-    "panel study",
-    "pathology",
-    "patient-centered",
-    "PBPK modelling",
-    "performance art",
-    "performance measurement",
-    "Persistent identifiers (DOI, ORCID)",
-    "pharmacodynamics",
-    "pharmacokinetics",
-    "physical health",
-    "phythoplankton",
-    "plasmid host strain",
-    "plasmids",
-    "polarization",
-    "population pharmacokinetics",
-    "portfolio management",
-    "prehistory",
-    "private archives",
-    "production management",
-    "propane dehydrogenation",
-    "publications",
-    "Python (Computer program language)",
-    "qualitative data",
-    "quality improvement",
-    "quantitative data",
-    "R (Computer program language)",
-    "radiology",
-    "Research data",
-    "Research data repository",
-    "Research Infrastructure",
-    "research software",
-    "romanticism",
-    "Scholarly communication",
-    "scholarly edition",
-    "scientific and medical publications",
-    "scientific software",
-    "sea ice",
-    "sea weather",
-    "segregation",
-    "social networking",
-    "social sciences",
-    "social survey",
-    "soil moisture",
-    "southeast Asia",
-    "spectrometry",
-    "strategic planning",
-    "surveillance",
-    "survey",
-    "syngas",
-    "technological innovations",
-    "theses and dissertations",
-    "Tigray health",
-    "veterinary",
-    "visual arts",
-    "web archives",
-    "web-based hosting service",
-    "workflows",
-    "zoning plans",
-    "zooplankton"
-  ]
+  "subjectAreasData": {
+    "re3SubjectList": {
+      "__typename": "Re3SubjectListResults",
+      "totalCount": 100,
+      "subjects": [
+        {
+          "__typename": "Re3Subject",
+          "subject": "Life Sciences",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Natural Sciences",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Humanities and Social Sciences",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Biology",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Geosciences (including Geography)",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Medicine",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Engineering Sciences",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Basic Biological and Medical Research",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Social and Behavioural Sciences",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Atmospheric Science and Oceanography",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Humanities",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Physics",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Social Sciences",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Geophysics and Geodesy",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Zoology",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Chemistry",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Microbiology, Virology and Immunology",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Economics",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Plant Sciences",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "General Genetics",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Agriculture, Forestry, Horticulture and Veterinary Medicine",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Geography",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Oceanography",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Bioinformatics and Theoretical Biology",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Astrophysics and Astronomy",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Water Research",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Computer Science, Electrical and System Engineering",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Public Health, Health Services Research, Social Medicine",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Atmospheric Science",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "History",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Human Genetics",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Linguistics",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Neurosciences",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Geochemistry, Mineralogy and Crystallography",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Empirical Social Research",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Animal Genetics, Cell and Developmental Biology",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Computer Science",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Geodesy, Photogrammetry, Remote Sensing, Geoinformatics, Cartogaphy",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Cell Biology",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Geology and Palaeontology",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Animal Ecology, Biodiversity and Ecosystem Research",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Fine Arts, Music, Theatre and Media Studies",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Biochemistry",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Education Sciences",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Optics, Quantum Optics and Physics of Atoms, Molecules and Plasmas",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Plant Genetics",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Ancient Cultures",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Geophysics",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Epidemiology, Medical Biometry, Medical Informatics",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Plant Ecology and Ecosystem Analysis",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Statistics and Econometrics",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Political Science",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Jurisprudence",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Construction Engineering and Architecture",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Economic and Social Policy",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Hydrogeology, Hydrology, Limnology, Urban Water Management, Water Chemistry, Integrated Water Resources Management",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Non-European Languages and Cultures, Social and Cultural Anthropology, Jewish Studies and Religious Studies",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Psychology",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Materials Science and Engineering",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Particles, Nuclei and Fields",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Mathematics",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Molecular Chemistry",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Metabolism, Biochemistry and Genetics of Microorganisms",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Structural Biology",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Soil Sciences",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Physical and Theoretical Chemistry",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Ecology of Agricultural Landscapes",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Literary Studies",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Materials Science",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Condensed Matter Physics",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Human Geography",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Artificial Intelligence, Image and Language Processing",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Basic Forest Research",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Systems Engineering",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Virology",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Chemical Solid State and Surface Research",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Immunology",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Analytical Chemistry, Method Development (Chemistry)",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Social and Cultural Anthropology and Ethnology/Folklore",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Art History",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Pharmacology",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Theology",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Thermal Engineering/Process Engineering",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Biological Chemistry and Food Chemistry",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Modern and Current History",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Physical Geography",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Evolution, Anthropology",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Physical Chemistry of Molecules, Interfaces and Liquids - Spectroscopy, Kinetics",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Classical Archaeology",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Cognitive Neuroscience and Neuroimaging",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Urbanism, Spatial Planning, Transportation and Infrastructure Planning, Landscape Planning",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Electrical Engineering",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Agricultural Economics and Sociology",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Architecture, Building and Construction History, Sustainable Building Technology, Building Design",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Medical Microbiology, Molecular Infection Biology",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Optics, Quantum Optics, Atoms, Molecules, Plasmas",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Business Administration",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Hematology, Oncology, Transfusion Medicine",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Musicology",
+          "count": null
+        },
+        {
+          "__typename": "Re3Subject",
+          "subject": "Public Finance",
+          "count": null
+        }
+      ]
+    }
+  }
 }

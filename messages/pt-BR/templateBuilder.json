@@ -458,7 +458,8 @@
     },
     "headings": {
       "bestPractice": "Melhores práticas pela Ferramenta DMP",
-      "displayingRepositoriesStatus": "Exibindo repositórios {current} de {total}"
+      "displayingRepositoriesStatus": "Exibindo repositórios {current} de {total}",
+      "noMatchesFound": "Nenhuma correspondência encontrada"
     },
     "messages": {
       "errors": {

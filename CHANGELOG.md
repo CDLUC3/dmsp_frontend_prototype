@@ -12,6 +12,8 @@
 - Added related works project overview page [#700]
 
 ## Updated
+- Updated `ReposSelector` and `RepoSelectorForAnswer` components to use the new `Re3RepositoryTypesListDocument`, `Re3SubjectListDocument`, and `Re3byUrIsDocument` queries [#113]
+- Updated `ResearchOutputAnswerComponent` so that we don't get a duplicate `save` CTAs when on the `SingleResearchOutputComponent` page [#113]
 - Updated `TemplateSelectTemplatePage` component to pass `versionedTemplateId` to `addTemplate` mutation when the template being cloned is not in the user's organization [#1006]
 - Update `addTemplate` query to include `copyFromVersionedTemplateId` variable [#1006]
 - Updated `useResearchOutputTable`'s `updateStandardFieldProperty` method to `enable` a Research Output Table field when any content or config changes for that field [#943]

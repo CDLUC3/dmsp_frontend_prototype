@@ -22,6 +22,7 @@ type ResearchOutputAnswerComponentProps = {
   setRows: React.Dispatch<React.SetStateAction<ResearchOutputTable[]>>;
   onSave?: (rows: ResearchOutputTable[], type?: string) => Promise<void>; // Callback to trigger parent save with current data
   initialViewMode?: 'list' | 'form'; // Control initial view - 'form' for preview, 'list' for normal use
+  onEditingStateChange?: (isEditing: boolean) => void; // Notify parent when entering/leaving single-edit view
 };
 
 const ResearchOutputAnswerComponent: React.FC<ResearchOutputAnswerComponentProps> = ({
@@ -30,6 +31,7 @@ const ResearchOutputAnswerComponent: React.FC<ResearchOutputAnswerComponentProps
   setRows,
   onSave,
   initialViewMode = 'list',
+  onEditingStateChange,
 }) => {
 
   // State to track which row is being edited (null means showing list view)
@@ -178,6 +180,12 @@ const ResearchOutputAnswerComponent: React.FC<ResearchOutputAnswerComponentProps
       handleAddNew();
     }
   }, [rows.length, editingRowIndex]);
+
+  // Notify parent when entering/leaving single-edit view, so that it can
+  // hide its own save button, preventing multiple CTAs in the SingleResearchOutputComponent
+  useEffect(() => {
+    onEditingStateChange?.(editingRowIndex !== null);
+  }, [editingRowIndex, onEditingStateChange]);
 
   // If editing a specific row, show the single form
   if (editingRowIndex !== null) {
