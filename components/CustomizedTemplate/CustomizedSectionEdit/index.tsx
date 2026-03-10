@@ -34,6 +34,8 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
   onMoveUp,
   onMoveDown,
 }) => {
+
+  console.log("***SectionEdit received section: ", section);
   const toastState = useToast();
   const t = useTranslations('Sections');
 
@@ -182,8 +184,9 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
   // Construct the edit URL based on section type
   const editUrl = section.sectionType === "CUSTOM"
     ? `/template/customizations/${templateCustomizationId}/customSection/${section.id}`// Custom Section
-    : `/template/customizations/${templateCustomizationId}/section/${section.id}`; // Section Customization
+    : `/template/customizations/${templateCustomizationId}/section/${section.id}`; // Section Customization    
 
+  console.log("***localQuestions in SectionEdit: ", localQuestions);
   return (
     <>
       <div role="list" aria-label="Questions list" style={{ marginBottom: '40px' }}>
@@ -204,7 +207,11 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
             <CustomizedQuestionEdit
               id={question.id.toString()}
               text={question.questionText ?? ''}
-              link={`/template/customizations/${templateCustomizationId}/q/${question.id}`}
+              link={
+                question.questionType === 'BASE'
+                  ? `/template/customizations/q/${question.id}`
+                  : `/template/customizations/${templateCustomizationId}/customQuestion/${question.id}`
+              }
               displayOrder={Number(question.displayOrder)}
               questionType={question.questionType as 'BASE' | 'CUSTOM'}
               hasCustomGuidance={question.hasCustomGuidance || false}

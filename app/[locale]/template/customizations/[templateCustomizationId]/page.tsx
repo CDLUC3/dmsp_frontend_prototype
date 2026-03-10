@@ -93,6 +93,8 @@ const TemplateCustomizationOverview: React.FC = () => {
     variables: { templateCustomizationId: Number(templateCustomizationId) },
   });
 
+  console.log("***Template Customization Overview", data);
+
   // Mutations
   const [publishTemplateCustomization] = useMutation(PublishTemplateCustomizationDocument);
   const [unpublishTemplateCustomization] = useMutation(UnpublishTemplateCustomizationDocument);
@@ -356,6 +358,7 @@ const TemplateCustomizationOverview: React.FC = () => {
     }
   }, [data]);
 
+  console.log("***Local Sections in Template Customization Overview: ", localSections);
 
   if (loading) {
     return <Loading />;

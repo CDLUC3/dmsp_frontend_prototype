@@ -15,6 +15,7 @@ export const TYPES_WITH_ERRORS = [
   'PlanMember',
   'Template',
   'CustomSection',
+  'CustomQuestion',
   'VersionedSection'
 ] as const;
 

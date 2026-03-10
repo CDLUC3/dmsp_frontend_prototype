@@ -158,6 +158,12 @@
       "moveDown": "Move question down {name}"
     },
     "messages": {
+      "error": {
+        "errorDeletingQuestion": "Error when deleting question"
+      },
+      "success": {
+        "successDeletingQuestion": "Question deleted successfully"
+      },
       "questionMoved": "Question moved to position {displayOrder}"
     },
     "checklist": {

@@ -58,7 +58,7 @@ const CreateCustomSectionPage: React.FC = () => {
   // Get templateCustomizationId param
   const params = useParams();
   const router = useRouter();
-  const { templateCustomizationId } = params; // From route /template/customizations/:templateCustomizationId/section/create
+  const templateCustomizationId = String(params.templateCustomizationId);
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -109,6 +109,7 @@ const CreateCustomSectionPage: React.FC = () => {
     variables: { templateCustomizationId: Number(templateCustomizationId) },
   });
 
+  console.log("***Template Customization Overview", data);
 
   // Update form fields in state when fields are edited
   const updateSectionContent = (key: string, value: string) => {
@@ -340,7 +341,7 @@ const CreateCustomSectionPage: React.FC = () => {
           <Breadcrumbs>
             <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('template.customizations')}>{Global('breadcrumbs.templateCustomizations')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/template/customizations/${templateCustomizationId}`}>{Global('breadcrumbs.template')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.customize', { templateCustomizationId })}>{Global('breadcrumbs.template')}</Link></Breadcrumb>
             <Breadcrumb>{CreateSectionPage('title')}</Breadcrumb>
           </Breadcrumbs>
         }

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useQuery } from '@apollo/client/react';
+import { useQuery, useMutation } from '@apollo/client/react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -28,13 +28,11 @@ import {
 
 // GraphQL
 import {
-  QuestionDocument,
+  UpdateCustomQuestionDocument,
+  CustomQuestionDocument,
+  RemoveCustomQuestionDocument
 } from '@/generated/graphql';
 
-import {
-  removeQuestionAction,
-  updateQuestionAction
-} from './actions/index';
 
 import {
   AnyParsedQuestion,
@@ -62,6 +60,7 @@ import FormTextArea from '@/components/Form/FormTextArea';
 import ErrorMessages from '@/components/ErrorMessages';
 import QuestionView from '@/components/QuestionView';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
+import Loading from '@/components/Loading';
 
 //Utils and Other
 import { useResearchOutputTable } from '@/app/hooks/useResearchOutputTable';
@@ -89,25 +88,33 @@ import {
   isOptionsType,
   getOverrides,
 } from '@/app/hooks/useEditQuestion';
-import styles from './questionEdit.module.scss';
+import styles from './customQuestionEdit.module.scss';
 
-const QuestionEdit = () => {
+const CustomQuestionEdit = () => {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
   const toastState = useToast(); // Access the toast state from context
-  const templateId = String(params.templateId);
-  const questionId = String(params.q_slug); //question id
+  const templateCustomizationId = String(params.templateCustomizationId);
+  const customQuestionId = String(params.customQuestionId);
   const questionTypeIdQueryParam = searchParams.get('questionType') || null;
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
+  // Ref to track whether customization is being deleted to prevent refetching deleted customization
+  const isBeingDeletedRef = useRef(false);
 
   const hasHydrated = useRef(false);
   // Track whether there are unsaved changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   // Form state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  /*To be able to show a loading state when redirecting after successful update because otherwise there is a 
+  bit of a stutter where the page reloads before redirecting*/
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  // State for delete confirmation modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // State for managing form inputs
   const [question, setQuestion] = useState<Question>();
@@ -130,9 +137,10 @@ const QuestionEdit = () => {
   const Global = useTranslations('Global');
   const t = useTranslations('QuestionEdit');
   const QuestionAdd = useTranslations('QuestionAdd');
+  const QuestionEdit = useTranslations("EditQuestion");
 
   // Set URLs
-  const TEMPLATE_URL = routePath('template.show', { templateId });
+  const TEMPLATE_URL = routePath('template.customize', { templateCustomizationId });
 
   // Helper function to make announcements
   const announce = (message: string) => {
@@ -173,16 +181,23 @@ const QuestionEdit = () => {
     updateStandardFieldProperty
   } = useResearchOutputTable({ setHasUnsavedChanges, announce });
 
+
+  // Initialize user updateCustomQuestion mutation
+  const [updateCustomQuestionMutation] = useMutation(UpdateCustomQuestionDocument);
+
+  // Initialize removeCustomQuestion mutation
+  const [removeCustomQuestionMutation] = useMutation(RemoveCustomQuestionDocument);
+
   // Run selected question query
   const {
     data: selectedQuestion,
     loading,
     error: selectedQuestionQueryError
-  } = useQuery(QuestionDocument, {
-    variables: {
-      questionId: Number(questionId)
-    }
+  } = useQuery(CustomQuestionDocument, {
+    variables: { customQuestionId: Number(customQuestionId) },
+    skip: isBeingDeletedRef.current,
   });
+
 
   // Update rows state and question.json when options change
   const updateRows = (newRows: QuestionOptions[]) => {
@@ -203,9 +218,9 @@ const QuestionEdit = () => {
 
   // Return user back to the page to select a question type
   const redirectToQuestionTypes = () => {
-    const sectionId = selectedQuestion?.question?.sectionId;
+    const sectionId = selectedQuestion?.customQuestion?.sectionId;
     // questionId as query param included to let page know that user is updating an existing question
-    router.push(routePath('template.q.new', { templateId }, { section_id: sectionId, step: 1, questionId }))
+    router.push(routePath('template.customize.question.create', { templateCustomizationId }, { section_id: sectionId, step: 1, customQuestionId }))
   }
 
   //Handle change to Question Text
@@ -302,7 +317,7 @@ const QuestionEdit = () => {
       };
     }
 
-    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }), Global);
+    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.customize', { templateCustomizationId }), Global);
 
     if (questionType === RESEARCH_OUTPUT_QUESTION_TYPE) {
       return buildResearchOutputFormState();
@@ -326,7 +341,7 @@ const QuestionEdit = () => {
   // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
   const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
     const userInput = getFormState(question, rowsOverride);
-    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }), Global);
+    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.customize', { templateCustomizationId }), Global);
 
     if (!parsed) {
       if (error) {
@@ -340,101 +355,97 @@ const QuestionEdit = () => {
     );
   };
 
-  // Handle form submission to update the question
-  const handleUpdate = async (e: React.FormEvent) => {
+  // Make GraphQL mutation request to update the custom question
+  const handleUpdateCustomQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Prevent double submission
     if (isSubmitting) return;
     setIsSubmitting(true);
-
-    // Set formSubmitted to true to indicate the form has been submitted
     setFormSubmitted(true);
 
-    if (question) {
-      const updatedJSON = buildUpdatedJSON(question);
-      const { success, error } = updatedJSON ?? {};
-
-      if (success && !error) {
-        // Strip all tags from questionText before sending to backend
-        const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
-
-        // Add mutation for question
-        const response = await updateQuestionAction({
-          questionId: Number(questionId),
-          displayOrder: Number(question.displayOrder),
-          json: JSON.stringify(updatedJSON ? updatedJSON.data : ''),
-          questionText: cleanedQuestionText,
-          requirementText: String(question.requirementText),
-          guidanceText: String(question.guidanceText),
-          sampleText: String(question.sampleText),
-          useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
-          required: Boolean(question.required)
-        });
-
-        if (response.redirect) {
-          router.push(response.redirect);
-        }
-
-        if (!response.success) {
-          const errors = response.errors;
-          // Announcement for screen readers
-          announce(QuestionAdd('researchOutput.announcements.errorOccurred') || 'An error occurred. Please check the form.');
-
-          //Check if errors is an array or an object
-          if (Array.isArray(errors)) {
-            //Handle errors as an array
-            setErrors(errors);
-          }
-        } else {
-          if (response?.data?.errors) {
-            const errs = extractErrors<UpdateQuestionErrors>(response?.data?.errors, ["general", "questionText"]);
-            if (errs.length > 0) {
-              setErrors(errs);
-            }
-          }
-          setIsSubmitting(false);
-          setHasUnsavedChanges(false);
-          toastState.add(QuestionAdd('messages.success.questionUpdated'), { type: 'success' });
-
-          // Redirect user to the Edit Question view with their new question id after successfully adding the new question
-          router.push(TEMPLATE_URL);
-        }
-      }
-    }
-  };
-
-  // Handle form submission to delete the question
-  const handleDelete = async () => {
-    const response = await removeQuestionAction({
-      questionId: Number(questionId),
-    });
-
-    if (response.redirect) {
-      router.push(response.redirect);
+    if (!question) {
+      setIsSubmitting(false);
       return;
     }
 
-    if (!response.success) {
-      const errors = response.errors;
+    const updatedJSON = buildUpdatedJSON(question);
+    const { success, error } = updatedJSON ?? {};
 
-      //Check if errors is an array or an object
-      if (Array.isArray(errors)) {
-        //Handle errors as an array
-        setErrors(errors);
-      }
-    } else {
-      if (response?.data?.errors) {
-        const errs = extractErrors<RemoveQuestionErrors>(response?.data?.errors, ["general", "guidanceText", "questionText", "requirementText", "sampleText"]);
-        if (errs.length > 0) {
-          setErrors(errs);
-        } else {
-          // Show success message and redirect to Edit Template page
-          toastState.add(t('messages.success.questionRemoved'), { type: 'success' });
-          router.push(TEMPLATE_URL);
+    if (!success || error) {
+      const errorMessage = error ?? t('messages.errors.questionUpdateError');
+      setErrors(prev => [...prev, errorMessage]);
+      announce(QuestionAdd('researchOutput.announcements.errorOccurred') || 'An error occurred.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
+
+    try {
+      const response = await updateCustomQuestionMutation({
+        variables: {
+          input: {
+            customQuestionId: Number(customQuestionId),
+            questionText: cleanedQuestionText,
+            json: JSON.stringify(updatedJSON?.data ?? {}),
+            requirementText: question.requirementText ?? null,
+            guidanceText: question.guidanceText ?? null,
+            sampleText: question.sampleText ?? null,
+            useSampleTextAsDefault: question.useSampleTextAsDefault ?? false,
+            required: question.required ?? false,
+          }
         }
+      });
+
+      const responseErrors = response.data?.updateCustomQuestion?.errors;
+      if (responseErrors && Object.values(responseErrors).some(err => err && err !== 'CustomQuestionErrors')) {
+        setErrors([responseErrors.general ?? t('messages.errors.questionUpdateError')]);
+        setIsSubmitting(false);
+        return;
       }
+
+      setHasUnsavedChanges(false);
+      setIsRedirecting(true);
+      toastState.add(QuestionAdd('messages.success.questionUpdated'), { type: 'success' });
+      router.push(TEMPLATE_URL);
+    } catch (error) {
+      setIsSubmitting(false);
+      logECS('error', 'updateCustomQuestion', {
+        error,
+        url: { path: TEMPLATE_URL }
+      });
+      setErrors(prev => [...prev, t('messages.errors.questionUpdateError')]);
     }
   };
+
+  const handleDeleteCustomQuestion = async () => {
+    isBeingDeletedRef.current = true;
+    setIsDeleting(true);
+    try {
+      const response = await removeCustomQuestionMutation({
+        variables: { customQuestionId: Number(customQuestionId) },
+      });
+
+      const responseErrors = response.data?.removeCustomQuestion?.errors;
+      if (responseErrors && Object.values(responseErrors).some(err => err && err !== 'CustomQuestionErrors')) {
+        setErrors([responseErrors.general ?? QuestionEdit('messages.error.errorDeletingQuestion')]);
+        return;
+      }
+
+      toastState.add(QuestionEdit('messages.success.successDeletingQuestion'), { type: 'success' });
+      router.push(TEMPLATE_URL);
+    } catch (error) {
+      logECS('error', 'deleteCustomQuestion', {
+        error,
+        url: { path: routePath('template.customQuestion', { templateCustomizationId, customQuestionId }) }
+      });
+      setErrors([QuestionEdit('messages.error.errorDeletingQuestion')]);
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteModalOpen(false);
+      setIsSubmitting(false);
+    }
+  };
+
 
   // Saves any query errors to errors state
   useEffect(() => {
@@ -449,18 +460,18 @@ const QuestionEdit = () => {
 
   // Set question details in state when data is loaded
   useEffect(() => {
-    if (selectedQuestion?.question) {
+    if (selectedQuestion?.customQuestion) {
       const q = {
-        ...selectedQuestion.question,
-        required: selectedQuestion.question.required ?? false // convert null to false
+        ...selectedQuestion.customQuestion,
+        required: selectedQuestion.customQuestion.required ?? false // convert null to false
       };
       try {
-        const { parsed, error } = getParsedQuestionJSON(q, routePath('template.show', { templateId }), Global);
+        const { parsed, error } = getParsedQuestionJSON(q, routePath('template.customize', { templateCustomizationId }), Global);
         if (!parsed?.type) {
           if (error) {
             logECS('error', 'Parsing error', {
               error: 'Invalid question type in parsed JSON',
-              url: { path: routePath('template.q.slug', { templateId, q_slug: questionId }) }
+              url: { path: routePath('template.customize', { templateCustomizationId }) }
             });
 
             setErrors(prev => [...prev, error])
@@ -502,7 +513,7 @@ const QuestionEdit = () => {
       } catch (error) {
         logECS('error', 'Parsing error', {
           error,
-          url: { path: routePath('template.q.slug', { templateId, q_slug: questionId }) }
+          url: { path: routePath('template.customize', { templateCustomizationId }) }
         });
         setErrors(prev => [...prev, 'Error parsing question data']);
       }
@@ -588,7 +599,7 @@ const QuestionEdit = () => {
   // Set parsed question JSON whenever question state changes
   useEffect(() => {
     if (question) {
-      const { parsed, error } = getParsedQuestionJSON(question, routePath('template.show', { templateId }), Global);
+      const { parsed, error } = getParsedQuestionJSON(question, routePath('template.customize', { templateCustomizationId }), Global);
       if (!parsed) {
         if (error) {
           setErrors(prev => [...prev, error])
@@ -614,21 +625,21 @@ const QuestionEdit = () => {
     };
   }, [hasUnsavedChanges]);
 
-  if (loading) {
-    return <div>{Global('messaging.loading')}...</div>;
+  if (loading || isRedirecting) {
+    return <Loading />;
   }
 
   return (
     <>
       <PageHeader
-        title={t('title', { title: selectedQuestion?.question?.questionText ?? '' })}
+        title={t('title', { title: selectedQuestion?.customQuestion?.questionText ?? '' })}
         description=""
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('template.index', { templateId })}>{Global('breadcrumbs.templates')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('template.show', { templateId })}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.customizations')}>{Global('breadcrumbs.templateCustomizations')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.customize', { templateCustomizationId })}>{Global('breadcrumbs.template')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -657,7 +668,7 @@ const QuestionEdit = () => {
             </TabList>
 
             <TabPanel id="edit">
-              <Form onSubmit={handleUpdate}>
+              <Form onSubmit={handleUpdateCustomQuestion}>
                 <TextField
                   name="type"
                   type="text"
@@ -701,7 +712,7 @@ const QuestionEdit = () => {
                       setRows={updateRows}
                       questionJSON={(() => {
                         if (!question) return undefined;
-                        const result = getParsedQuestionJSON(question, routePath('template.show', { templateId }), Global);
+                        const result = getParsedQuestionJSON(question, routePath('template.customize', { templateCustomizationId }), Global);
                         return result.parsed ? JSON.stringify(result.parsed) : undefined;
                       })()}
                       formSubmitted={formSubmitted}
@@ -902,7 +913,7 @@ const QuestionEdit = () => {
                         <div className={styles.deleteConfirmButtons}>
                           <Button className='react-aria-Button' autoFocus onPress={close}>{Global('buttons.cancel')}</Button>
                           <Button className={`danger `} onPress={() => {
-                            handleDelete();
+                            handleDeleteCustomQuestion();
                             close();
                           }}>{Global('buttons.confirm')}</Button>
                         </div>
@@ -928,8 +939,7 @@ const QuestionEdit = () => {
             <QuestionView
               isPreview={true}
               question={question}
-              templateId={Number(templateId)}
-              path={routePath('template.q.slug', { templateId, q_slug: questionId })}
+              path={routePath('template.customize', { templateCustomizationId })}
             />
           </QuestionPreview>
 
@@ -944,4 +954,4 @@ const QuestionEdit = () => {
   );
 }
 
-export default QuestionEdit;
+export default CustomQuestionEdit;

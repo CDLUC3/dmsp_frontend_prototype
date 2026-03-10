@@ -89,7 +89,7 @@ interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
    * NOTE: We pass this explicitly, as we cannot predict or infer if the
    * templateId will be available in the question object.
    */
-  templateId: number,
+  templateId?: number,
 }
 
 //This component is meant to work with the QuestionAdd and QuestionEdit components, to display
@@ -108,8 +108,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   const { data: qtData } = { data: getQuestionTypes() };
   const { data: templateData } = useQuery(TemplateDocument, {
     variables: {
-      templateId,
+      templateId: templateId ?? 0
     },
+    skip: !templateId, // Skip the query if templateId is not provided. We don't need to templateId for Custom Questions, since it's only used for owner's display name
     notifyOnNetworkStatusChange: true
   });
 
@@ -503,9 +504,11 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
         {(question?.requirementText) && (
           <div className={styles.Requirements}>
-            <p className={styles.ByLine}>
-              {trans('requirements', { orgName: templateData?.template?.owner?.displayName || '' })}
-            </p>
+            {templateData?.template?.owner && (
+              <p className={styles.ByLine}>
+                {trans('requirements', { orgName: templateData?.template?.owner?.displayName || '' })}
+              </p>
+            )}
             <div dangerouslySetInnerHTML={{ __html: question.requirementText || '' }}></div>
           </div>
         )}
@@ -535,9 +538,10 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
         {(question?.guidanceText) && (
           <div className="guidance">
-            <p className={styles.ByLine}>
-              {trans('guidanceBy', { orgName: templateData?.template?.owner?.displayName ?? '' })}
-            </p>
+            {templateData?.template?.owner && (
+              <p className={styles.ByLine}>
+                {trans('guidanceBy', { orgName: templateData?.template?.owner?.displayName ?? '' })}
+              </p>)}
             <div dangerouslySetInnerHTML={{ __html: question.guidanceText }}></div>
           </div>
         )}
