@@ -153,7 +153,7 @@ const QuestionTypeSelectPage: React.FC = () => {
             showBackButton={false}
             breadcrumbs={
               <Breadcrumbs>
-                <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+                <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
                 <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
                 <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
                 <Breadcrumb>{Global('breadcrumbs.selectQuestionType')}</Breadcrumb>
