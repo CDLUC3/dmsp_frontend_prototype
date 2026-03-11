@@ -10,6 +10,7 @@ interface DateRangeQuestionProps {
     startDate: string | DateValue | CalendarDate | null;
     endDate: string | DateValue | CalendarDate | null;
   };
+  isDisabled?: boolean;
   handleDateChange: (
     key: string,
     value: string | DateValue | CalendarDate | null
@@ -19,6 +20,7 @@ interface DateRangeQuestionProps {
 const DateRangeQuestionComponent: React.FC<DateRangeQuestionProps> = ({
   parsedQuestion,
   dateRange,
+  isDisabled = false,
   handleDateChange,
 }) => {
   // Extract labels from JSON if available
@@ -34,12 +36,14 @@ const DateRangeQuestionComponent: React.FC<DateRangeQuestionProps> = ({
         value={getCalendarDateValue(dateRange.startDate)}
         onChange={newDate => handleDateChange('startDate', newDate)}
         label={startLabel}
+        isDisabled={isDisabled}
       />
       <DateComponent
         name="endDate"
         value={getCalendarDateValue(dateRange.endDate)}
         onChange={newDate => handleDateChange('endDate', newDate)}
         label={endLabel}
+        isDisabled={isDisabled}
       />
     </div >
   )

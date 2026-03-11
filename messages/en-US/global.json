@@ -850,7 +850,11 @@
       "logic": "Logic"
     },
     "headings": {
-      "preview": "Preview"
+      "preview": "Preview",
+      "requirementsByFunder": "Requirements by {funder}",
+      "guidanceFromOrg": "Guidance from {org}",
+      "requirements": "Requirements",
+      "guidance": "Guidance"
     },
     "version": "Version",
     "questionTypes": {

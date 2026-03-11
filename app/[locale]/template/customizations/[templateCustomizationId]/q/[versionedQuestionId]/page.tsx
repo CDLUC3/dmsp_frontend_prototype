@@ -8,7 +8,6 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
-  Checkbox,
   Dialog,
   DialogTrigger,
   Form,
@@ -25,19 +24,27 @@ import {
   QuestionCustomizationByVersionedQuestionDocument,
   PublishedQuestionDocument,
   QuestionCustomizationErrors,
+  MeDocument,
 } from '@/generated/graphql';
+
+import { Question } from '@/app/types';
 
 // Components
 import PageHeader from "@/components/PageHeader";
-import { ContentContainer, LayoutContainer } from '@/components/Container';
+import {
+  ContentContainer,
+  LayoutWithPanel,
+  SidebarPanel,
+} from '@/components/Container';
 import FormTextArea from '@/components/Form/FormTextArea';
 import ErrorMessages from '@/components/ErrorMessages';
 import Loading from '@/components/Loading';
-import { SanitizeHTML } from '@/utils/sanitize';
 import { DmpIcon } from "@/components/Icons";
 import QuestionView from '@/components/QuestionView';
-import { Question } from '@/app/types';
+import QuestionPreview from '@/components/QuestionPreview';
+
 // Utils
+import { SanitizeHTML } from '@/utils/sanitize';
 import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
 import { scrollToTop } from '@/utils/general';
@@ -56,7 +63,6 @@ const QuestionCustomizePage: React.FC = () => {
 
   const hasInitialized = useRef(false);
   const errorRef = useRef<HTMLDivElement | null>(null);
-  const topRef = useRef<HTMLDivElement | null>(null);
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,19 +72,12 @@ const QuestionCustomizePage: React.FC = () => {
   const [questionCustomizationId, setQuestionCustomizationId] = useState<number | null>(null);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
+  // Base question data from the published question - used for preview and as reference for customization
   const [baseQuestion, setBaseQuestion] = useState<Question | undefined>(undefined);
-
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   // Customizable fields
   const [customQuestionData, setCustomQuestionData] = useState({
-    guidanceText: '',
-    sampleText: '',
-  });
-
-  // Read-only base question data
-  const [baseQuestionData, setBaseQuestionData] = useState({
-    questionText: '',
-    requirementText: '',
     guidanceText: '',
     sampleText: '',
   });
@@ -87,7 +86,6 @@ const QuestionCustomizePage: React.FC = () => {
   const Global = useTranslations('Global');
   const QuestionCustomize = useTranslations('QuestionCustomize');
   const QuestionEdit = useTranslations('QuestionEdit');
-  const PlanOverview = useTranslations('PlanOverview');
 
   // URLs
   const TEMPLATE_URL = routePath('template.customize', { templateCustomizationId });
@@ -103,6 +101,8 @@ const QuestionCustomizePage: React.FC = () => {
     variables: { versionedQuestionId: Number(versionedQuestionId) },
   });
 
+  const { data: meData, loading: meLoading } = useQuery(MeDocument);
+
   const { data: questionCustomization, loading: questionCustomizationLoading } = useQuery(
     QuestionCustomizationByVersionedQuestionDocument,
     {
@@ -112,8 +112,6 @@ const QuestionCustomizePage: React.FC = () => {
       },
     }
   );
-
-  console.log("***QuestionCustomization data: ", questionCustomization);
 
   const updateCustomQuestionContent = (key: string, value: string | boolean) => {
     setCustomQuestionData(prev => ({ ...prev, [key]: value }));
@@ -156,6 +154,7 @@ const QuestionCustomizePage: React.FC = () => {
     try {
       const response = await removeQuestionCustomization({
         variables: { questionCustomizationId: Number(questionCustomizationId) },
+        refetchQueries: [QuestionCustomizationByVersionedQuestionDocument],
       });
 
       const responseErrors = response.data?.removeQuestionCustomization?.errors;
@@ -200,19 +199,6 @@ const QuestionCustomizePage: React.FC = () => {
       router.push(TEMPLATE_URL);
     }
   };
-
-  // Load base question data from published question query
-  useEffect(() => {
-    if (publishedQuestion?.publishedQuestion) {
-      const q = publishedQuestion.publishedQuestion;
-      setBaseQuestionData({
-        questionText: stripHtmlTags(q.questionText ?? ''),
-        requirementText: q.requirementText ?? '',
-        guidanceText: q.guidanceText ?? '',
-        sampleText: q.sampleText ?? '',
-      });
-    }
-  }, [publishedQuestion]);
 
   // Initialize or load existing customization
   useEffect(() => {
@@ -264,15 +250,23 @@ const QuestionCustomizePage: React.FC = () => {
   useEffect(() => {
     if (publishedQuestion?.publishedQuestion) {
       const q = publishedQuestion.publishedQuestion;
-      // Map to the Question type QuestionView expects
       setBaseQuestion({
-        questionText: q.questionText ?? '',
+        id: q.id,
+        displayOrder: q.displayOrder,
+        questionText: stripHtmlTags(q.questionText) ?? null,
         requirementText: q.requirementText ?? null,
         guidanceText: q.guidanceText ?? null,
         sampleText: q.sampleText ?? null,
         useSampleTextAsDefault: q.useSampleTextAsDefault ?? false,
         required: q.required ?? false,
-        json: q.json ?? '',
+        json: q.json ?? null,
+        templateId: q.versionedTemplateId ?? null,
+        ownerAffiliation: q.ownerAffiliation ? {
+          acronyms: q.ownerAffiliation.acronyms ?? null,
+          displayName: q.ownerAffiliation.displayName,
+          uri: q.ownerAffiliation.uri,
+          name: q.ownerAffiliation.name,
+        } : null,
       });
     }
   }, [publishedQuestion]);
@@ -299,131 +293,157 @@ const QuestionCustomizePage: React.FC = () => {
         className=""
       />
 
-      <LayoutContainer>
+      <LayoutWithPanel>
         <ContentContainer>
-          <div className="template-editor-container" ref={topRef}>
-            <div className="main-content">
-              <ErrorMessages errors={errorMessages} ref={errorRef} />
 
-              <Form onSubmit={handleFormSubmit}>
-                {baseQuestionData.requirementText && (
-                  <div className="field-display">
-                    <h2>{QuestionCustomize('labels.requirements')}</h2>
-                    <SanitizeHTML html={baseQuestionData.requirementText} />
-                  </div>
-                )}
+          <div className={styles.questionContainer}>
+            <ErrorMessages errors={errorMessages} ref={errorRef} />
 
-                {baseQuestionData.guidanceText && (
-                  <div className="field-display">
-                    <h2>{QuestionCustomize('labels.guidance')}</h2>
-                    <SanitizeHTML html={baseQuestionData.guidanceText} />
-                  </div>
-                )}
-
-                {baseQuestionData.sampleText && (
-                  <div className="field-display">
-                    <h2>{QuestionCustomize('labels.sampleText')}</h2>
-                    <SanitizeHTML html={baseQuestionData.sampleText} />
-                  </div>
-                )}
-
-                {baseQuestion && (
-                  <div className={styles.baseQuestionPreview}>
-                    <div className={styles.baseQuestionView} inert>
-                      <QuestionView
-                        isPreview={true}
-                        question={baseQuestion}
-                        path={routePath('template.customize', { templateCustomizationId })}
-                        cardOnly={true}
-                      />
-                    </div>
-                  </div>
-                )}
-
-
-
-                {/* Editable customization fields */}
-                <div className={styles.additionalGuidance}>
-                  <FormTextArea
-                    name="guidanceText"
-                    isRequired={false}
-                    richText={true}
-                    label={QuestionCustomize('labels.additionalGuidanceText')}
-                    helpMessage={QuestionCustomize('helpText.additionalGuidanceText')}
-                    value={customQuestionData.guidanceText}
-                    onChange={(value) => updateCustomQuestionContent('guidanceText', value)}
-                  />
+            <Form onSubmit={handleFormSubmit}>
+              {baseQuestion?.requirementText && (
+                <div className="field-display">
+                  <h2>{QuestionCustomize('labels.requirements')}</h2>
+                  <SanitizeHTML html={baseQuestion?.requirementText} />
                 </div>
+              )}
 
-                <div className={styles.additionalSampleText}>
-                  <FormTextArea
-                    name="sampleText"
-                    isRequired={false}
-                    richText={true}
-                    label={QuestionCustomize('labels.additionalSampleText')}
-                    helpMessage={QuestionCustomize('helpText.additionalSampleText')}
-                    value={customQuestionData.sampleText}
-                    onChange={(value) => updateCustomQuestionContent('sampleText', value)}
-                  />
-
-                  {/* <Checkbox
-                    isSelected={customQuestionData.useSampleTextAsDefault}
-                    onChange={(checked) => updateCustomQuestionContent('useSampleTextAsDefault', checked)}
+              {baseQuestion && (
+                <div className={styles.baseQuestionPreview}>
+                  {/**Key the inert div so it remounts when preview closes */}
+                  <div
+                    key={String(isPreviewOpen)}
+                    className={styles.baseQuestionView}
+                    inert
                   >
-                    <div className="checkbox">
-                      <svg viewBox="0 0 18 18" aria-hidden="true">
-                        <polyline points="1 9 7 14 15 4" />
-                      </svg>
-                    </div>
-                    {QuestionCustomize('labels.useSampleTextAsDefault')}
-                  </Checkbox> */}
+                    <QuestionView
+                      isPreview={true}
+                      question={baseQuestion}
+                      isDisabled={true}
+                      path={routePath('template.customize', { templateCustomizationId })}
+                      cardOnly={true}
+                    />
+                  </div>
                 </div>
+              )}
 
-                <Button type="submit" aria-disabled={isSubmitting}>
-                  {isSubmitting ? Global('buttons.saving') : Global('buttons.saveAndUpdate')}
-                </Button>
-              </Form>
 
-              {/* Delete customization */}
-              <div className={styles.deleteQuestionCustomizationContainer}>
-                <h3>{QuestionCustomize('buttons.deleteCustomization')}</h3>
-                <p className={styles.dangerZoneDescription}><DmpIcon icon="warning" />{QuestionCustomize.rich("descriptions.deleteCustomization", {
-                  strong: (chunks) => <strong>{chunks}</strong>
-                })}</p>
-                <DialogTrigger isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-                  <Button className="danger" isDisabled={isDeleting}>
-                    {isDeleting
-                      ? `${QuestionCustomize('buttons.deletingCustomization')}...`
-                      : QuestionCustomize('buttons.deleteCustomization')}
-                  </Button>
-                  <ModalOverlay>
-                    <Modal>
-                      <Dialog>
-                        {({ close }) => (
-                          <>
-                            <h3>{QuestionCustomize('heading.deleteCustomization')}</h3>
-                            <p className={styles.dangerZoneDescription}>{QuestionCustomize.rich("descriptions.deleteCustomization", {
-                              strong: (chunks) => <strong>{chunks}</strong>
-                            })}</p>
-                            <div className={styles.deleteConfirmButtons}>
-                              <Button className="secondary" autoFocus onPress={close}>
-                                {Global('buttons.cancel')}
-                              </Button>
-                              <Button className="danger" onPress={() => { handleDeleteQuestionCustomization(); close(); }}>
-                                {Global('buttons.delete')}
-                              </Button>
-                            </div>
-                          </>
-                        )}
-                      </Dialog>
-                    </Modal>
-                  </ModalOverlay>
-                </DialogTrigger>
+              {baseQuestion?.guidanceText && (
+                <div className="field-display">
+                  <h2>{QuestionCustomize('labels.guidance')}</h2>
+                  <SanitizeHTML html={baseQuestion?.guidanceText} />
+                </div>
+              )}
+
+              {/* Editable customization fields */}
+              <div className={styles.additionalGuidance}>
+                <FormTextArea
+                  name="guidanceText"
+                  isRequired={false}
+                  richText={true}
+                  label={QuestionCustomize('labels.additionalGuidanceText')}
+                  helpMessage={QuestionCustomize('helpText.additionalGuidanceText')}
+                  value={customQuestionData.guidanceText}
+                  onChange={(value) => updateCustomQuestionContent('guidanceText', value)}
+                />
               </div>
+
+              {baseQuestion?.sampleText && (
+                <>
+                  {baseQuestion?.sampleText && (
+                    <div className="field-display">
+                      <h2>{QuestionCustomize('labels.sampleText')}</h2>
+                      <SanitizeHTML html={baseQuestion?.sampleText} />
+                    </div>
+                  )}
+
+                  <div className={styles.additionalSampleText}>
+                    <FormTextArea
+                      name="sampleText"
+                      isRequired={false}
+                      richText={true}
+                      label={QuestionCustomize('labels.additionalSampleText')}
+                      helpMessage={QuestionCustomize('helpText.additionalSampleText')}
+                      value={baseQuestion?.sampleText}
+                      onChange={(value) => updateCustomQuestionContent('sampleText', value)}
+                    />
+                  </div>
+                </>
+              )}
+
+              <Button type="submit" aria-disabled={isSubmitting}>
+                {isSubmitting ? Global('buttons.saving') : Global('buttons.saveAndUpdate')}
+              </Button>
+            </Form>
+
+            {/* Delete customization */}
+            <div className={styles.deleteQuestionCustomizationContainer}>
+              <h3>{QuestionCustomize('buttons.deleteCustomization')}</h3>
+              <p className={styles.dangerZoneDescription}><DmpIcon icon="warning" />{QuestionCustomize.rich("descriptions.deleteCustomization", {
+                strong: (chunks) => <strong>{chunks}</strong>
+              })}</p>
+              <DialogTrigger isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+                <Button className="danger" isDisabled={isDeleting}>
+                  {isDeleting
+                    ? `${QuestionCustomize('buttons.deletingCustomization')}...`
+                    : QuestionCustomize('buttons.deleteCustomization')}
+                </Button>
+                <ModalOverlay>
+                  <Modal>
+                    <Dialog>
+                      {({ close }) => (
+                        <>
+                          <h3>{QuestionCustomize('heading.deleteCustomization')}</h3>
+                          <p className={styles.dangerZoneDescription}>{QuestionCustomize.rich("descriptions.deleteCustomization", {
+                            strong: (chunks) => <strong>{chunks}</strong>
+                          })}</p>
+                          <div className={styles.deleteConfirmButtons}>
+                            <Button className="secondary" autoFocus onPress={close}>
+                              {Global('buttons.cancel')}
+                            </Button>
+                            <Button className="danger" onPress={() => { handleDeleteQuestionCustomization(); close(); }}>
+                              {Global('buttons.delete')}
+                            </Button>
+                          </div>
+                        </>
+                      )}
+                    </Dialog>
+                  </Modal>
+                </ModalOverlay>
+              </DialogTrigger>
             </div>
           </div>
-        </ContentContainer>
-      </LayoutContainer>
+        </ContentContainer >
+        <SidebarPanel>
+          <>
+            <h2>{Global('headings.preview')}</h2>
+            <p>{QuestionEdit('descriptions.previewText')}</p>
+            {/** When modal closes, isPreviewOpen flips from true -> false, the key changes and React unmounts and remounts the inert QuestionView 
+             * with a fresh TinyMCEEditor instance. This was needed because sometimes the TinyMCEEditor did not rerender after coming back from Preview*/}
+            <QuestionPreview
+              buttonLabel={QuestionEdit('buttons.previewQuestion')}
+              previewDisabled={baseQuestion ? false : true}
+              onOpenChange={setIsPreviewOpen}
+            >
+              <QuestionView
+                isPreview={true}
+                question={baseQuestion}
+                path={routePath('template.customize.question', {
+                  templateCustomizationId,
+                  versionedQuestionId,
+                })}
+                isDisabled={true}
+                orgGuidance={customQuestionData.guidanceText}
+                org={meData?.me?.affiliation?.displayName ?? meData?.me?.affiliation?.name ?? ''}
+              />
+            </QuestionPreview>
+
+            <h3>{QuestionEdit('headings.bestPractice')}</h3>
+            <p>{QuestionEdit('descriptions.bestPracticePara1')}</p>
+            <p>{QuestionEdit('descriptions.bestPracticePara2')}</p>
+            <p>{QuestionEdit('descriptions.bestPracticePara3')}</p>
+          </>
+        </SidebarPanel>
+      </LayoutWithPanel >
     </>
   );
 };

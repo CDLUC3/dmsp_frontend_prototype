@@ -22,6 +22,7 @@ type ResearchOutputAnswerComponentProps = {
   setRows: React.Dispatch<React.SetStateAction<ResearchOutputTable[]>>;
   onSave?: (rows: ResearchOutputTable[], type?: string) => Promise<void>; // Callback to trigger parent save with current data
   initialViewMode?: 'list' | 'form'; // Control initial view - 'form' for preview, 'list' for normal use
+  isDisabled?: boolean; // Whether the component is in read-only mode (e.g., for preview or if question is disabled)
   onEditingStateChange?: (isEditing: boolean) => void; // Notify parent when entering/leaving single-edit view
 };
 
@@ -31,6 +32,7 @@ const ResearchOutputAnswerComponent: React.FC<ResearchOutputAnswerComponentProps
   setRows,
   onSave,
   initialViewMode = 'list',
+  isDisabled = false,
   onEditingStateChange,
 }) => {
 
@@ -215,6 +217,7 @@ const ResearchOutputAnswerComponent: React.FC<ResearchOutputAnswerComponentProps
           onDelete={() => handleDelete(editingRowIndex!)}
           isNewEntry={isAddingNew}
           hasOtherRows={hasOtherRows}
+          isDisabled={isDisabled}
         />
       </div>
     );

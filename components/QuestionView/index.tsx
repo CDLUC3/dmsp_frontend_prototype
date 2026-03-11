@@ -90,8 +90,11 @@ interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
    * templateId will be available in the question object.
    */
   templateId?: number,
+  isDisabled?: boolean; // This is used to disable the question for use in question customizations
   cardOnly?: boolean // If true, only render the question card without surrounding layout and guidance sections
-  noSidebar?: boolean; // If true, do not render the sidebar at all
+  org?: string // This is used to pass the organization name to the question view, so that it can be displayed in the requirements and guidance sections. 
+  // We pass this as a separate prop because the organization name is not always available in the question data, but we still want to display it if we have it.
+  orgGuidance?: string // This is used to pass the organization-specific guidance to the question view, so that it can be displayed in the guidance section. We pass this as a separate prop because the organization-specific guidance is not always available in the question data, but we still want to display it if we have it.
 }
 
 //This component is meant to work with the QuestionAdd and QuestionEdit components, to display
@@ -102,9 +105,11 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   isPreview = false,
   question,
   templateId,
+  isDisabled = false,
   path = '',
   cardOnly = false,
-  noSidebar = false,
+  org = '',
+  orgGuidance = '',
 }) => {
 
   const trans = useTranslations('QuestionView');
@@ -285,6 +290,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               selectedRadioValue={selectedRadioValue}
               name='radio-buttons'
               handleRadioChange={handleRadioChange}
+              isDisabled={isDisabled}
             />
           )
         }
@@ -296,6 +302,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               parsedQuestion={parsed}
               selectedCheckboxValues={selectedCheckboxValues}
               handleCheckboxGroupChange={handleCheckboxGroupChange}
+              isDisabled={isDisabled}
             />
           )
         }
@@ -307,6 +314,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               parsedQuestion={parsed}
               selectedMultiSelectValues={selectedMultiSelectValues}
               handleMultiSelectChange={handleMultiSelectChange}
+              isDisabled={isDisabled}
             />
           );
         }
@@ -318,6 +326,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               parsedQuestion={parsed}
               selectedSelectValue={selectedSelectValue}
               handleSelectChange={handleSelectChange}
+              isDisabled={isDisabled}
             />
           );
         }
@@ -338,6 +347,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               onChange={e => handleTextChange(e)}
               minLength={minLength}
               maxLength={maxLength}
+              disabled={isDisabled}
             />
           )
         }
@@ -348,6 +358,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               id="question-text-editor"
               content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
               setContent={() => { }}
+              disabled={isDisabled}
             />
           );
         }
@@ -363,7 +374,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               label="Date"
               minValue={dateMinValue}
               maxValue={dateMaxValue}
-
+              isDisabled={isDisabled}
             />
           )
         }
@@ -374,6 +385,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               parsedQuestion={parsed}
               dateRange={dateRange}
               handleDateChange={handleDateRangeChange}
+              isDisabled={isDisabled}
             />
           )
         }
@@ -391,6 +403,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               minValue={minValue}
               {...(typeof maxValue === 'number' ? { maxValue } : {})} //if maxValue is null, we don't want to set it
               step={step}
+              disabled={isDisabled}
             />
           )
         }
@@ -404,6 +417,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               handleNumberChange={handleNumberChange}
               startPlaceholder="start"
               endPlaceholder="end"
+              isDisabled={isDisabled}
             />
           )
         }
@@ -414,6 +428,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               parsedQuestion={parsed}
               inputCurrencyValue={inputCurrencyValue}
               handleCurrencyChange={setInputCurrencyValue}
+              isDisabled={isDisabled}
             />
           )
         }
@@ -433,6 +448,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               minLength={urlMinLength}
               maxLength={urlMaxLength}
               pattern={urlPattern}
+              disabled={isDisabled}
             />
           )
         }
@@ -452,6 +468,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               minLength={emailMinLength}
               maxLength={emailMaxLength}
               pattern={emailPattern}
+              disabled={isDisabled}
             />
           )
         }
@@ -463,6 +480,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               parsedQuestion={parsed}
               selectedValue={yesNoValue}
               handleRadioChange={handleBooleanChange}
+              isDisabled={isDisabled}
             />
           )
         }
@@ -478,6 +496,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               setOtherField={setOtherField}
               handleAffiliationChange={(handleAffiliationChange)}
               handleOtherAffiliationChange={handleOtherAffiliationChange}
+              isDisabled={isDisabled}
             />
           )
         }
@@ -490,6 +509,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               setRows={setResearchOutputRows}
               onSave={handleResearchOutputChange}
               initialViewMode="form"
+              isDisabled={isDisabled}
             />
           )
         }
@@ -501,20 +521,11 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   // Only return the question card if cardOnly is true. This allows us to reuse this component in other places where we just want to show the question card without the surrounding layout and guidance sections
   if (cardOnly) {
     return (
-      <Card data-testid='question-card'>
+      <Card className={styles.noBorder} data-testid='question-card'>
         <CardEyebrow>{trans('cardType')}</CardEyebrow>
         <CardHeading>{question?.questionText}</CardHeading>
         <CardBody data-testid="card-body">
           {renderQuestionField()}
-          {question?.showCommentField && (
-            <FormTextArea
-              name="comment"
-              label={Global('labels.additionalComments')}
-              placeholder={Global('placeholders.enterComment')}
-              value={commentValue}
-              onChange={setCommentValue}
-            />
-          )}
         </CardBody>
       </Card>
     );
@@ -526,10 +537,11 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       className={`${styles.QuestionView} ${className}`}
     >
       <ContentContainer className={`${styles.QuestionView}__content-container`}>
-        <h2>{question?.questionText}</h2>
+        {/* <h2>{question?.questionText}</h2> */}
 
         {(question?.requirementText) && (
           <div className={styles.Requirements}>
+            <h3 className={`h4 ${styles.heading3}`}>{Global('headings.requirements')}</h3>
             {templateData?.template?.owner && (
               <p className={styles.ByLine}>
                 {trans('requirements', { orgName: templateData?.template?.owner?.displayName || '' })}
@@ -538,12 +550,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             <div dangerouslySetInnerHTML={{ __html: question.requirementText || '' }}></div>
           </div>
         )}
-
-        <p>
-          <a className={styles.JumpLink} href="#_guidance">
-            &darr; {trans('guidanceLink')}
-          </a>
-        </p>
 
         <Card data-testid='question-card'>
           <CardEyebrow>{trans('cardType')}</CardEyebrow>
@@ -563,12 +569,24 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         </Card>
 
         {(question?.guidanceText) && (
-          <div className="guidance">
+          <div className={styles.guidance}>
+            <h3 className={`h4 ${styles.heading3}`}>{Global('headings.guidance')}</h3>
             {templateData?.template?.owner && (
               <p className={styles.ByLine}>
                 {trans('guidanceBy', { orgName: templateData?.template?.owner?.displayName ?? '' })}
               </p>)}
             <div dangerouslySetInnerHTML={{ __html: question.guidanceText }}></div>
+          </div>
+        )}
+
+        {(orgGuidance) && (
+          <div className={styles.guidance}>
+            <h3 className={`h4 ${styles.heading3}`}>{Global('headings.guidanceFromOrg', { org: org ?? '' })}</h3>
+            {templateData?.template?.owner && (
+              <p className={styles.ByLine}>TEST
+                {trans('guidanceBy', { orgName: org })}
+              </p>)}
+            <p dangerouslySetInnerHTML={{ __html: orgGuidance }}></p>
           </div>
         )}
 
@@ -583,82 +601,80 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         )}
       </ContentContainer>
 
-      {!noSidebar && (
-        <SidebarPanel>
-          <div className={styles.headerWithLogo}>
-            <h2 className="h4">{Global('bestPractice')}</h2>
-            <Image
-              className={styles.Logo}
-              src="/images/DMP-logo.svg"
-              width="140"
-              height="16"
-              alt="DMP Tool"
-            />
-          </div>
+      <SidebarPanel>
+        <div className={styles.headerWithLogo}>
+          <h2 className="h4">{Global('bestPractice')}</h2>
+          <Image
+            className={styles.Logo}
+            src="/images/DMP-logo.svg"
+            width="140"
+            height="16"
+            alt="DMP Tool"
+          />
+        </div>
 
-          <ExpandableContentSection
-            id="data-description"
-            heading={trans('dataDescription')}
-            expandLabel={trans('expandLink')}
-            summaryCharLimit={200}
-          >
-            <p>
-              Give a summary of the data you will collect or create, noting the content, coverage and data type, e.g., tabular data, survey data, experimental measurements, models, software, audiovisual data, physical samples, etc.
-            </p>
-            <p>
-              Consider how your data could complement and integrate with existing data, or whether there are any existing data or methods that you could reuse.
-            </p>
-            <p>
-              Indicate which data are of long-term value and should be shared and/or preserved.
+        <ExpandableContentSection
+          id="data-description"
+          heading={trans('dataDescription')}
+          expandLabel={trans('expandLink')}
+          summaryCharLimit={200}
+        >
+          <p>
+            Give a summary of the data you will collect or create, noting the content, coverage and data type, e.g., tabular data, survey data, experimental measurements, models, software, audiovisual data, physical samples, etc.
+          </p>
+          <p>
+            Consider how your data could complement and integrate with existing data, or whether there are any existing data or methods that you could reuse.
+          </p>
+          <p>
+            Indicate which data are of long-term value and should be shared and/or preserved.
 
-            </p>
-            <p>
-              If purchasing or reusing existing data, explain how issues such as copyright and IPR have been addressed. You should aim to minimize any restrictions on the reuse (and subsequent sharing) of third-party data.
+          </p>
+          <p>
+            If purchasing or reusing existing data, explain how issues such as copyright and IPR have been addressed. You should aim to minimize any restrictions on the reuse (and subsequent sharing) of third-party data.
 
-            </p>
+          </p>
 
-          </ExpandableContentSection>
+        </ExpandableContentSection>
 
-          <ExpandableContentSection
-            id="data-format"
-            heading={trans('dataFormat')}
-            expandLabel={trans('expandLink')}
-            summaryCharLimit={200}
+        <ExpandableContentSection
+          id="data-format"
+          heading={trans('dataFormat')}
+          expandLabel={trans('expandLink')}
+          summaryCharLimit={200}
 
-          >
-            <p>
-              Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
-            </p>
+        >
+          <p>
+            Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
+          </p>
 
-          </ExpandableContentSection>
+        </ExpandableContentSection>
 
-          <ExpandableContentSection
-            id="data-volume"
-            heading={trans('dataVolume')}
-            expandLabel={trans('expandLink')}
-            summaryCharLimit={200}
-          >
-            <p>
-              Note what volume of data you will create in MB/GB/TB. Indicate the proportions of raw data, processed data, and other secondary outputs (e.g., reports).
-            </p>
-            <p>
-              Consider the implications of data volumes in terms of storage, access, and preservation. Do you need to include additional costs?
-            </p>
-            <p>
-              Consider whether the scale of the data will pose challenges when sharing or transferring data between sites; if so, how will you address these challenges?
-            </p>
-          </ExpandableContentSection>
+        <ExpandableContentSection
+          id="data-volume"
+          heading={trans('dataVolume')}
+          expandLabel={trans('expandLink')}
+          summaryCharLimit={200}
+        >
+          <p>
+            Note what volume of data you will create in MB/GB/TB. Indicate the proportions of raw data, processed data, and other secondary outputs (e.g., reports).
+          </p>
+          <p>
+            Consider the implications of data volumes in terms of storage, access, and preservation. Do you need to include additional costs?
+          </p>
+          <p>
+            Consider whether the scale of the data will pose challenges when sharing or transferring data between sites; if so, how will you address these challenges?
+          </p>
+        </ExpandableContentSection>
 
-          <ExpandableContentSection
-            id="data-volume"
-            heading={trans('dataVolume')}
-            expandLabel={trans('expandLink')}
-            summaryCharLimit={30}>
-            <p>This is a very long sentence that should be truncated at word boundaries.</p>
+        <ExpandableContentSection
+          id="data-volume"
+          heading={trans('dataVolume')}
+          expandLabel={trans('expandLink')}
+          summaryCharLimit={30}>
+          <p>This is a very long sentence that should be truncated at word boundaries.</p>
 
-          </ExpandableContentSection>
-        </SidebarPanel>
-      )}
+        </ExpandableContentSection>
+      </SidebarPanel>
     </LayoutWithPanel >
   )
 }

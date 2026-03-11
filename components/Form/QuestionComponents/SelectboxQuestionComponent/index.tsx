@@ -12,6 +12,7 @@ interface SelectboxQuestionProps {
   selectName?: string;
   errorMessage?: string;
   helpMessage?: string;
+  isDisabled?: boolean;
   handleSelectChange?: (value: string) => void;
 }
 
@@ -22,8 +23,10 @@ const SelectboxQuestionComponent: React.FC<SelectboxQuestionProps> = ({
   selectName = 'select',
   errorMessage = '',
   helpMessage = '',
+  isDisabled = false,
   handleSelectChange
 }) => {
+
   // Transform options to items for FormSelect
   const items = parsedQuestion.options?.map((opt: SelectBoxQuestionType['options'][number]) => ({
     id: opt.value,
@@ -37,7 +40,6 @@ const SelectboxQuestionComponent: React.FC<SelectboxQuestionProps> = ({
   const value = selectedSelectValue !== undefined ? selectedSelectValue : initialValue;
 
   return (
-
     <FormSelect
       label={selectLabel}
       name={selectName}
@@ -46,13 +48,12 @@ const SelectboxQuestionComponent: React.FC<SelectboxQuestionProps> = ({
       errorMessage={errorMessage}
       helpMessage={helpMessage}
       onChange={handleSelectChange}
+      isDisabled={isDisabled}
     >
       {items.map((item: { id: string; name: string }) => (
         <ListBoxItem key={item.id}>{item.name}</ListBoxItem>
       ))}
     </FormSelect>
-
-
   );
 };
 

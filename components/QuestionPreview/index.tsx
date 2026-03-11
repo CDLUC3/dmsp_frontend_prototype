@@ -15,6 +15,7 @@ import styles from './QuestionPreview.module.scss';
 interface QuestionPreviewProps extends React.HTMLAttributes<HTMLDivElement> {
   buttonLabel?: string,
   previewDisabled?: boolean,
+  onOpenChange?: (isOpen: boolean) => void,
 }
 
 
@@ -24,6 +25,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   className = '',
   buttonLabel = 'Preview',
   previewDisabled = true,
+  onOpenChange
 }) => {
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -122,7 +124,8 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
       id={id}
       className={`${styles.QuestionPreview} ${className}`}
     >
-      <DialogTrigger>
+      {/**Key the inert div so it remounts when preview closes */}
+      <DialogTrigger onOpenChange={(isOpen) => { setOpen(isOpen); onOpenChange?.(isOpen) }}>
         <Button
           onPress={() => setOpen(true)}
           data-testid="preview-button"

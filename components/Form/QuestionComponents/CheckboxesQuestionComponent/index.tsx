@@ -2,16 +2,19 @@ import React from 'react';
 import { CheckboxesQuestionType } from '@dmptool/types';
 import { CheckboxGroupComponent } from '@/components/Form';
 import { Checkbox } from "react-aria-components";
+import { is } from 'zod/v4/locales';
 
 interface CheckboxesQuestionProps {
   parsedQuestion: CheckboxesQuestionType;
   selectedCheckboxValues: string[];
+  isDisabled?: boolean;
   handleCheckboxGroupChange: (values: string[]) => void;
 }
 
 const CheckboxesQuestionComponent: React.FC<CheckboxesQuestionProps> = ({
   parsedQuestion,
   selectedCheckboxValues,
+  isDisabled = false,
   handleCheckboxGroupChange
 }) => {
   const checkboxData = parsedQuestion.options?.map((opt: CheckboxesQuestionType['options'][number]) => ({
@@ -30,6 +33,7 @@ const CheckboxesQuestionComponent: React.FC<CheckboxesQuestionProps> = ({
       onChange={handleCheckboxGroupChange}
       checkboxGroupLabel=""
       checkboxGroupDescription={""}
+      isDisabled={isDisabled}
     >
       {checkboxData.map((checkbox, index) => (
         <div key={index}>

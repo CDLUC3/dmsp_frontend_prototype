@@ -28,6 +28,7 @@ export type TypeAheadInputProps = {
   className?: string;
   otherText?: string;
   suggestions: SuggestionInterface[];
+  isDisabled?: boolean;
   onSearch: (searchTerm: string) => void;
 }
 
@@ -46,8 +47,8 @@ const TypeAheadWithOther = ({
   isRequired = false,
   isRequiredVisualOnly = false,
   otherText = "Other",
+  isDisabled = false
 }: TypeAheadInputProps) => {
-
   const showRequired = isRequired || isRequiredVisualOnly;
   const Global = useTranslations('Global.labels');
 
@@ -227,6 +228,7 @@ const TypeAheadWithOther = ({
           placeholder={placeholder ? placeholder : 'Type to search...'}
           ref={inputRef}
           autoComplete="off"
+          disabled={isDisabled}
         />
         {(helpText && !error) && (
           <Text slot="description" className={styles.helpText}>

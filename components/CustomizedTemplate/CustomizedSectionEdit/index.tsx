@@ -35,7 +35,6 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
   onMoveDown,
 }) => {
 
-  console.log("***SectionEdit received section: ", section);
   const toastState = useToast();
   const t = useTranslations('Sections');
 
@@ -50,8 +49,6 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
   const isBaseSection = section.sectionType === 'BASE';
 
   const [moveCustomQuestionMutation] = useMutation(MoveCustomQuestionDocument);
-
-  console.log("***Section", section);
 
   // Memoize the sorted questions to prevent unnecessary re-renders
   const sortedQuestionsFromData = useMemo(() => {

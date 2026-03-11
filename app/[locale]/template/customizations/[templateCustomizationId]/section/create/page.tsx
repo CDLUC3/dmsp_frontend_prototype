@@ -108,9 +108,6 @@ const CreateCustomSectionPage: React.FC = () => {
   } = useQuery(TemplateCustomizationOverviewDocument, {
     variables: { templateCustomizationId: Number(templateCustomizationId) },
   });
-
-  console.log("***Template Customization Overview", data);
-
   // Update form fields in state when fields are edited
   const updateSectionContent = (key: string, value: string) => {
     clearAllFieldErrors();

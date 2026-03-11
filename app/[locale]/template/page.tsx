@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -8,7 +9,6 @@ import {
   FieldError,
   Input,
   Label,
-  Link,
   SearchField,
   Text
 } from 'react-aria-components';
@@ -299,8 +299,10 @@ const TemplateListPage: React.FC = () => {
         }
         actions={
           <>
-            <Link href={TEMPLATE_CREATE_URL}
-              className="button-link button--primary">{t('actionCreate')}</Link>
+            <Link
+              href={TEMPLATE_CREATE_URL}
+              className="button-link button--primary">{t('actionCreate')}
+            </Link>
           </>
         }
         className="page-template-list"
