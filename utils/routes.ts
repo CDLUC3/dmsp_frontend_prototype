@@ -106,6 +106,7 @@ const routes = {
   'template.customizations': '/template/customizations',
   'template.customize': '/template/customizations/:templateCustomizationId',
   'template.customize.sectionId': '/template/customizations/:templateCustomizationId/section/:versionedSectionId',
+  'template.customize.question': '/template/customizations/:templateCustomizationId/q/:versionedQuestionId',
   'template.customSection': '/template/customizations/:templateCustomizationId/customSection/:customSectionId',
   'template.customize.section.create': '/template/customizations/:templateCustomizationId/section/create',
   'template.customize.question.create': '/template/customizations/:templateCustomizationId/q/new',

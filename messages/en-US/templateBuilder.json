@@ -279,6 +279,41 @@
       "bestPracticeTags": "Best practice tags"
     }
   },
+  "QuestionCustomize": {
+    "title": "Customize question",
+    "messages": {
+      "noContent": "Funder didn't add {label}",
+      "success": {
+        "successfullyDeletedCustomization": "Successfully deleted the question customizations",
+        "successfullyUpdatedCustomization": "Successfully updated the question customizations"
+      },
+      "error": {
+        "errorDeletingCustomization": "Error deleting question customization",
+        "errorUpdatingCustomization": "Error updating question customization"
+      }
+    },
+    "labels": {
+      "additionalGuidanceText": "Additional guidance text",
+      "additionalSampleText": "Additional sample text",
+      "requirements": "Requirements",
+      "guidance": "Guidance",
+      "sampleText": "Sample text"
+    },
+    "helpText": {
+      "additionalGuidanceText": "Outline the guidance that a user should consider for this question.",
+      "additionalSampleText": "We will allow users to copy the same text into the Text field this will allow users to speed up content entry."
+    },
+    "heading": {
+      "deleteCustomization": "Delete customization"
+    },
+    "descriptions": {
+      "deleteCustomization": "<strong>Your customizations to this template will be removed from the question. </strong>  This is not reversible."
+    },
+    "buttons": {
+      "deleteCustomization": "Delete customization",
+      "deletingCustomizations": "Deleting customizations..."
+    }
+  },
   "CreateSectionPage": {
     "title": "Create section",
     "button": {

@@ -1,0 +1,115 @@
+mutation AddQuestionCustomization($input: AddQuestionCustomizationInput!) {
+  addQuestionCustomization(input: $input) {
+    id
+    guidanceText
+    errors {
+      general
+      guidanceText
+      migrationStatus
+      questionId
+      sampleText
+      templateCustomizationId
+    }
+    migrationStatus
+    modified
+    questionId
+    sampleText
+    templateCustomizationId
+    versionedQuestion {
+      id
+      guidanceText
+      displayOrder
+      modified
+      questionId
+      ownerAffiliation {
+        displayName
+      }
+    }
+  }
+}
+
+mutation UpdateQuestionCustomization($input: UpdateQuestionCustomizationInput!) {
+  updateQuestionCustomization(input: $input) {
+    guidanceText
+    errors {
+      general
+      guidanceText
+      migrationStatus
+      questionId
+      sampleText
+      templateCustomizationId
+    }
+    id
+    migrationStatus
+    modified
+    questionId
+    sampleText
+    templateCustomizationId
+    versionedQuestion {
+      id
+      guidanceText
+      ownerAffiliation {
+        displayName
+      }
+    }
+  }
+}
+
+mutation RemoveQuestionCustomization($questionCustomizationId: Int!) {
+  removeQuestionCustomization(questionCustomizationId: $questionCustomizationId) {
+    id
+    guidanceText
+    migrationStatus
+    modified
+    questionId
+    sampleText
+    templateCustomizationId
+    versionedQuestion {
+      id
+      guidanceText
+      json
+      ownerAffiliation {
+        displayName
+      }
+    }
+    errors {
+      general
+      guidanceText
+      migrationStatus
+      questionId
+      sampleText
+      templateCustomizationId
+    }
+  }
+}
+
+query QuestionCustomizationByVersionedQuestion($templateCustomizationId: Int!, $versionedQuestionId: Int!) {
+  questionCustomizationByVersionedQuestion(templateCustomizationId: $templateCustomizationId, versionedQuestionId: $versionedQuestionId) {
+    id
+    guidanceText
+    migrationStatus
+    modified
+    questionId
+    sampleText
+    templateCustomizationId
+    errors {
+      general
+      guidanceText
+      migrationStatus
+      questionId
+      sampleText
+      templateCustomizationId
+    }
+    versionedQuestion {
+      id
+      guidanceText
+      questionText
+      requirementText
+      required
+      sampleText
+      ownerAffiliation {
+        displayName
+      }
+    }
+  }
+}

@@ -1,865 +1,431 @@
-// 'use client'
-
-// import { useEffect, useRef, useState } from 'react';
-// import { useParams, useRouter, useSearchParams } from 'next/navigation';
-// import { useTranslations } from 'next-intl';
-// import { useQuery } from '@apollo/client/react';
-// import {
-//   Breadcrumb,
-//   Breadcrumbs,
-//   Button,
-//   Dialog,
-//   DialogTrigger,
-//   Form,
-//   Label,
-//   Link,
-//   Modal,
-//   ModalOverlay,
-//   Tab,
-//   TabList,
-//   TabPanel,
-//   Tabs,
-//   Text,
-// } from "react-aria-components";
-
-// // GraphQL
-// import {
-//   QuestionDocument,
-// } from '@/generated/graphql';
-
-// import {
-//   removeQuestionAction,
-//   updateQuestionAction
-// } from './actions';
-
-// import {
-//   AnyParsedQuestion,
-//   Question,
-//   QuestionOption,
-//   QuestionOptions,
-//   QuestionFormatInterface,
-//   RemoveQuestionErrors,
-//   UpdateQuestionErrors,
-// } from '@/app/types';
-
-// // Components
-// import PageHeader from "@/components/PageHeader";
-// import QuestionOptionsComponent
-//   from '@/components/Form/QuestionOptionsComponent';
-// import QuestionPreview from '@/components/QuestionPreview';
-// import {
-//   FormInput,
-//   RadioGroupComponent,
-//   RangeComponent,
-//   TypeAheadSearch,
-//   ResearchOutputComponent
-// } from '@/components/Form';
-// import FormTextArea from '@/components/Form/FormTextArea';
-// import ErrorMessages from '@/components/ErrorMessages';
-// import TinyMCEEditor from "@/components/TinyMCEEditor";
-// import QuestionView from '@/components/QuestionView';
-// import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
-
-// //Utils and Other
-// import { useResearchOutputTable } from '@/app/hooks/useResearchOutputTable';
-// import { useToast } from '@/context/ToastContext';
-// import { routePath } from '@/utils/routes';
-// import { stripHtmlTags } from '@/utils/general';
-// import logECS from '@/utils/clientLogger';
-// import { extractErrors } from "@/utils/errorHandler";
-// import {
-//   getQuestionFormatInfo,
-//   getQuestionTypes,
-//   questionTypeHandlers
-// } from '@/utils/questionTypeHandlers';
-
-// import {
-//   RANGE_QUESTION_TYPE,
-//   TYPEAHEAD_QUESTION_TYPE,
-//   DATE_RANGE_QUESTION_TYPE,
-//   NUMBER_RANGE_QUESTION_TYPE,
-//   TEXT_AREA_QUESTION_TYPE,
-//   RESEARCH_OUTPUT_QUESTION_TYPE,
-//   QUESTION_TYPES_EXCLUDED_FROM_COMMENT_FIELD,
-// } from '@/lib/constants';
-// import {
-//   isOptionsType,
-//   getOverrides,
-// } from './hooks/useEditQuestion';
-// import styles from './questionCustomEdit.module.scss';
-// import ResearchOutputDisplay from '@/components/Form/ResearchOutputDisplay';
-
-// const QuestionCustomizePage = () => {
-//   const params = useParams();
-//   const router = useRouter();
-//   const searchParams = useSearchParams();
-//   const toastState = useToast(); // Access the toast state from context
-//   const templateId = String(params.templateId);
-//   const questionId = String(params.questionId); //question id
-//   const questionTypeIdQueryParam = searchParams.get('questionType') || null;
-
-//   //For scrolling to error in page
-//   const errorRef = useRef<HTMLDivElement | null>(null);
-
-//   const hasHydrated = useRef(false);
-//   // Track whether there are unsaved changes
-//   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
-//   // Form state
-//   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
-//   // State for managing form inputs
-//   const [question, setQuestion] = useState<Question>();
-//   const [rows, setRows] = useState<QuestionOptions[]>([{ id: 0, text: "", isSelected: false }]);
-//   const [questionType, setQuestionType] = useState<string>('');
-//   const [questionTypeName, setQuestionTypeName] = useState<string>(''); // Added to store friendly question name
-//   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
-//   const [hasOptions, setHasOptions] = useState<boolean | null>(false);
-//   const [errors, setErrors] = useState<string[]>([]);
-//   const [dateRangeLabels, setDateRangeLabels] = useState<{ start: string; end: string }>({ start: '', end: '' });
-//   const [typeaheadHelpText, setTypeAheadHelpText] = useState<string>('');
-//   const [typeaheadSearchLabel, setTypeaheadSearchLabel] = useState<string>('');
-//   const [parsedQuestionJSON, setParsedQuestionJSON] = useState<AnyParsedQuestion>();
-//   const [isConfirmOpen, setConfirmOpen] = useState(false);
-
-//   // Add state for live region announcements
-//   const [announcement, setAnnouncement] = useState('');
-
-//   // localization keys
-//   const Global = useTranslations('Global');
-//   const t = useTranslations('QuestionEdit');
-//   const QuestionAdd = useTranslations('QuestionAdd');
-
-//   // Set URLs
-//   const TEMPLATE_URL = routePath('template.show', { templateId });
-
-//   // Helper function to make announcements
-//   const announce = (message: string) => {
-//     setAnnouncement(message);
-//     // Clear after announcement is made
-//     setTimeout(() => setAnnouncement(''), 100);
-//   };
-
-//   // Research Output Table Hooks
-//   const {
-//     buildResearchOutputFormState,
-//     hydrateFromJSON,
-//     licensesData,
-//     defaultResearchOutputTypesData,
-//     expandedFields,
-//     nonCustomizableFieldIds,
-//     standardFields,
-//     additionalFields,
-//     newOutputType,
-//     setNewOutputType,
-//     newLicenseType,
-//     setNewLicenseType,
-//     handleRepositoriesChange,
-//     handleMetaDataStandardsChange,
-//     handleStandardFieldChange,
-//     handleCustomizeField,
-//     handleToggleMetaDataStandards,
-//     handleTogglePreferredRepositories,
-//     handleLicenseModeChange,
-//     handleAddCustomLicenseType,
-//     handleRemoveCustomLicenseType,
-//     handleOutputTypeModeChange,
-//     handleAddCustomOutputType,
-//     handleRemoveCustomOutputType,
-//     addAdditionalField,
-//     handleDeleteAdditionalField,
-//     handleUpdateAdditionalField,
-//     updateStandardFieldProperty
-//   } = useResearchOutputTable({ setHasUnsavedChanges, announce });
-
-//   // Run selected question query
-//   const {
-//     data: selectedQuestion,
-//     loading,
-//     error: selectedQuestionQueryError
-//   } = useQuery(QuestionDocument, {
-//     variables: {
-//       questionId: Number(questionId)
-//     }
-//   });
-
-//   const RichTextDisplay: React.FC<{ label: string; content: string; helpText?: string }> = ({
-//     label,
-//     content,
-//     helpText
-//   }) => (
-//     <div className={styles.fieldDisplay}>
-//       <Label>{label}</Label>
-//       {helpText && <Text slot="description" className="help-text">{helpText}</Text>}
-//       <div
-//         className={styles.richTextContent}
-//         dangerouslySetInnerHTML={{ __html: content }}
-//       />
-//     </div>
-//   );
-
-
-//   // Update rows state and question.json when options change
-//   const updateRows = (newRows: QuestionOptions[]) => {
-//     setRows(newRows);
-
-//     if (hasOptions && questionType && question?.json) {
-//       const updatedJSON = buildUpdatedJSON(question, newRows);
-
-//       if (updatedJSON) {
-//         setQuestion((prev) => ({
-//           ...prev,
-//           json: JSON.stringify(updatedJSON.data),
-//         }));
-//         setHasUnsavedChanges(true);
-//       }
-//     }
-//   };
-
-//   // Return user back to the page to select a question type
-//   const redirectToQuestionTypes = () => {
-//     const sectionId = selectedQuestion?.question?.sectionId;
-//     // questionId as query param included to let page know that user is updating an existing question
-//     router.push(routePath('template.q.new', { templateId }, { section_id: sectionId, step: 1, questionId }))
-//   }
-
-//   //Handle change to Question Text
-//   const handleQuestionTextChange = (value: string) => {
-//     setQuestion(prev => ({
-//       ...prev,
-//       questionText: value
-//     }));
-//     setHasUnsavedChanges(true);
-//   };
-
-//   // Update common input fields when any of them change
-//   const handleInputChange = (field: keyof Question, value: string | boolean | undefined) => {
-//     setQuestion((prev) => ({
-//       ...prev,
-//       [field]: value === undefined ? '' : value, // Default to empty string if value is undefined
-//     }));
-//     setHasUnsavedChanges(true);
-//   };
-
-
-//   // Handle changes from RadioGroup
-//   const handleRadioChange = (value: string) => {
-//     if (value) {
-//       const isRequired = value === 'yes' ? true : false;
-//       setQuestion(prev => ({
-//         ...prev,
-//         required: isRequired
-//       }));
-//       setHasUnsavedChanges(true);
-//     }
-//   };
-
-//   // Handler for date range label changes
-//   const handleRangeLabelChange = (field: 'start' | 'end', value: string) => {
-//     setDateRangeLabels(prev => ({ ...prev, [field]: value }));
-
-//     if (parsedQuestionJSON && (parsedQuestionJSON?.type === "dateRange" || parsedQuestionJSON?.type === "numberRange")) {
-//       if (parsedQuestionJSON?.columns?.[field]) {
-//         const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
-//         updatedParsed.columns[field].label = value;
-//         setQuestion(prev => ({
-//           ...prev,
-//           json: JSON.stringify(updatedParsed),
-//         }));
-//         setHasUnsavedChanges(true);
-//       }
-//     }
-//   };
-
-//   // Handler for typeahead search label changes
-//   const handleTypeAheadSearchLabelChange = (value: string) => {
-//     setTypeaheadSearchLabel(value);
-
-//     if (parsedQuestionJSON && parsedQuestionJSON?.type === "affiliationSearch") {
-//       const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
-//       updatedParsed.attributes.label = value;
-//       setQuestion(prev => ({
-//         ...prev,
-//         json: JSON.stringify(updatedParsed),
-//       }));
-//       setHasUnsavedChanges(true);
-//     }
-//   };
-
-//   // Handler for typeahead help text changes
-//   const handleTypeAheadHelpTextChange = (value: string) => {
-//     setTypeAheadHelpText(value);
-
-//     if (parsedQuestionJSON && parsedQuestionJSON?.type === "affiliationSearch") {
-//       if (parsedQuestionJSON?.attributes?.help) {
-//         const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
-//         updatedParsed.attributes.help = value;
-//         setQuestion(prev => ({
-//           ...prev,
-//           json: JSON.stringify(updatedParsed),
-//         }));
-//         setHasUnsavedChanges(true);
-//       }
-//     }
-//   };
-
-//   // Prepare input for the questionTypeHandler. For options questions, we update the 
-//   // values with rows state. For non-options questions, we use the parsed JSON
-//   const getFormState = (question: Question, rowsOverride?: QuestionOptions[]) => {
-//     if (hasOptions) {
-//       const useRows = rowsOverride ?? rows;
-//       return {
-//         options: useRows.map(row => ({
-//           label: row.text,
-//           value: row.text,
-//           selected: row.isSelected,
-//         })),
-//       };
-//     }
-
-//     const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }), Global);
-
-//     if (questionType === RESEARCH_OUTPUT_QUESTION_TYPE) {
-//       return buildResearchOutputFormState();
-//     }
-
-//     if (!parsed) {
-//       if (error) {
-//         setErrors(prev => [...prev, error])
-//       }
-//       return;
-//     }
-//     return {
-//       ...parsed,
-//       attributes: {
-//         ...('attributes' in parsed ? parsed.attributes : {}),
-//         ...getOverrides(questionType),
-//       },
-//     };
-//   };
-
-//   // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
-//   const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
-//     const userInput = getFormState(question, rowsOverride);
-//     const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }), Global);
-
-//     if (!parsed) {
-//       if (error) {
-//         setErrors(prev => [...prev, error])
-//       }
-//       return;
-//     }
-//     return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
-//       parsed,
-//       userInput
-//     );
-//   };
-
-//   // Handle form submission to update the question
-//   const handleUpdate = async (e: React.FormEvent) => {
-//     e.preventDefault();
-//     // Prevent double submission
-//     if (isSubmitting) return;
-//     setIsSubmitting(true);
-
-//     // Set formSubmitted to true to indicate the form has been submitted
-//     setFormSubmitted(true);
-
-//     if (question) {
-//       const updatedJSON = buildUpdatedJSON(question);
-//       const { success, error } = updatedJSON ?? {};
-
-//       if (success && !error) {
-//         // Strip all tags from questionText before sending to backend
-//         const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
-
-//         // Add mutation for question
-//         const response = await updateQuestionAction({
-//           questionId: Number(questionId),
-//           displayOrder: Number(question.displayOrder),
-//           json: JSON.stringify(updatedJSON ? updatedJSON.data : ''),
-//           questionText: cleanedQuestionText,
-//           requirementText: String(question.requirementText),
-//           guidanceText: String(question.guidanceText),
-//           sampleText: String(question.sampleText),
-//           useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
-//           required: Boolean(question.required)
-//         });
-
-//         if (response.redirect) {
-//           router.push(response.redirect);
-//         }
-
-//         if (!response.success) {
-//           const errors = response.errors;
-//           // Announcement for screen readers
-//           announce(QuestionAdd('researchOutput.announcements.errorOccurred') || 'An error occurred. Please check the form.');
-
-//           //Check if errors is an array or an object
-//           if (Array.isArray(errors)) {
-//             //Handle errors as an array
-//             setErrors(errors);
-//           }
-//         } else {
-//           if (response?.data?.errors) {
-//             const errs = extractErrors<UpdateQuestionErrors>(response?.data?.errors, ["general", "questionText"]);
-//             if (errs.length > 0) {
-//               setErrors(errs);
-//             }
-//           }
-//           setIsSubmitting(false);
-//           setHasUnsavedChanges(false);
-//           toastState.add(QuestionAdd('messages.success.questionUpdated'), { type: 'success' });
-
-//           // Redirect user to the Edit Question view with their new question id after successfully adding the new question
-//           router.push(TEMPLATE_URL);
-//         }
-//       }
-//     }
-//   };
-
-//   // Handle form submission to delete the question
-//   const handleDelete = async () => {
-//     const response = await removeQuestionAction({
-//       questionId: Number(questionId),
-//     });
-
-//     if (response.redirect) {
-//       router.push(response.redirect);
-//       return;
-//     }
-
-//     if (!response.success) {
-//       const errors = response.errors;
-
-//       //Check if errors is an array or an object
-//       if (Array.isArray(errors)) {
-//         //Handle errors as an array
-//         setErrors(errors);
-//       }
-//     } else {
-//       if (response?.data?.errors) {
-//         const errs = extractErrors<RemoveQuestionErrors>(response?.data?.errors, ["general", "guidanceText", "questionText", "requirementText", "sampleText"]);
-//         if (errs.length > 0) {
-//           setErrors(errs);
-//         } else {
-//           // Show success message and redirect to Edit Template page
-//           toastState.add(t('messages.success.questionRemoved'), { type: 'success' });
-//           router.push(TEMPLATE_URL);
-//         }
-//       }
-//     }
-//   };
-
-//   // Saves any query errors to errors state
-//   useEffect(() => {
-//     const allErrors = [];
-
-//     if (selectedQuestionQueryError) {
-//       allErrors.push(selectedQuestionQueryError.message);
-//     }
-
-//     setErrors(allErrors);
-//   }, [selectedQuestionQueryError]);
-
-//   // Set question details in state when data is loaded
-//   useEffect(() => {
-//     if (selectedQuestion?.question) {
-//       const q = {
-//         ...selectedQuestion.question,
-//         required: selectedQuestion.question.required ?? false // convert null to false
-//       };
-//       try {
-//         const { parsed, error } = getParsedQuestionJSON(q, routePath('template.show', { templateId }), Global);
-//         if (!parsed?.type) {
-//           if (error) {
-//             logECS('error', 'Parsing error', {
-//               error: 'Invalid question type in parsed JSON',
-//               url: { path: routePath('template.q.slug', { templateId, q_slug: questionId }) }
-//             });
-
-//             setErrors(prev => [...prev, error])
-//           }
-//           return;
-//         }
-
-//         const questionType = parsed.type;
-//         const translationKey = `questionTypes.${questionType}`;
-//         const questionTypeFriendlyName = Global(translationKey);
-
-//         setQuestionType(questionType);
-//         setQuestionTypeName(questionTypeFriendlyName);
-//         setParsedQuestionJSON(parsed);
-
-//         const isOptionsQuestion = isOptionsType(questionType);
-//         setQuestion({
-//           ...q,
-//           showCommentField: 'showCommentField' in parsed ? parsed.showCommentField : false // Default to false if not present
-//         });
-
-//         setHasOptions(isOptionsQuestion);
-
-//         if (questionType === TYPEAHEAD_QUESTION_TYPE) {
-//           setTypeaheadSearchLabel(parsed?.attributes?.label ?? '');
-//           setTypeAheadHelpText(parsed?.attributes?.help ?? '');
-//         }
-
-//         // Set options info with proper type checking
-//         if (isOptionsQuestion && 'options' in parsed && parsed.options && Array.isArray(parsed.options)) {
-//           const optionRows: QuestionOptions[] = parsed.options
-//             .map((option: QuestionOption, index: number) => ({
-//               id: index,
-//               text: option?.label || '',
-//               isSelected: option?.selected || option?.checked || false,
-//             }));
-//           setRows(optionRows);
-//         }
-//       } catch (error) {
-//         logECS('error', 'Parsing error', {
-//           error,
-//           url: { path: routePath('template.q.slug', { templateId, q_slug: questionId }) }
-//         });
-//         setErrors(prev => [...prev, 'Error parsing question data']);
-//       }
-//     }
-//   }, [selectedQuestion]);
-
-//   useEffect(() => {
-//     if (questionType) {
-//       // To determine if we have an options question type
-//       const isOptionQuestion = isOptionsType(questionType);
-
-//       setHasOptions(isOptionQuestion);
-//     }
-
-//   }, [questionType])
-
-//   // Set labels for dateRange and numberRange
-//   useEffect(() => {
-//     if ((parsedQuestionJSON?.type === DATE_RANGE_QUESTION_TYPE || parsedQuestionJSON?.type === NUMBER_RANGE_QUESTION_TYPE)) {
-//       try {
-//         setDateRangeLabels({
-//           start: parsedQuestionJSON?.columns?.start?.label ?? '',
-//           end: parsedQuestionJSON?.columns?.end?.label ?? '',
-//         });
-//       } catch {
-//         setDateRangeLabels({ start: '', end: '' });
-//       }
-//     }
-//   }, [parsedQuestionJSON])
-
-//   // Research Output Question - Hydrate state from JSON
-//   useEffect(() => {
-//     if (!hasHydrated.current &&
-//       parsedQuestionJSON?.type === RESEARCH_OUTPUT_QUESTION_TYPE &&
-//       Array.isArray(parsedQuestionJSON.columns)) {
-//       try {
-//         hydrateFromJSON(parsedQuestionJSON);
-//         hasHydrated.current = true;
-//       } catch (error) {
-//         console.error('Error hydrating research output fields from JSON', error);
-//       }
-//     }
-//   }, [parsedQuestionJSON, hydrateFromJSON]);
-
-//   // If a user changes their question type, then we need to fetch the question types to set the new json schema
-//   useEffect(() => {
-//     // Only fetch question types if we have a questionType query param present
-//     if (questionTypeIdQueryParam) {
-//       getQuestionTypes();
-//     }
-//   }, [questionTypeIdQueryParam]);
-
-
-//   // If a user passes in a questionType query param we will find the matching questionTypes 
-//   // json schema and update the question with it
-//   useEffect(() => {
-//     if (questionType && questionTypeIdQueryParam && question) {
-//       // Find the matching question type
-//       const qInfo: QuestionFormatInterface | null = getQuestionFormatInfo(questionTypeIdQueryParam);
-
-//       if (qInfo?.defaultJSON) {
-//         // Update the question object with the new JSON
-//         setQuestion(prev => ({
-//           ...prev,
-//           json: JSON.stringify(qInfo.defaultJSON)
-//         }));
-
-//         setHasUnsavedChanges(true);
-
-//         setQuestionType(questionTypeIdQueryParam)
-
-//         // Update the questionTypeName
-//         const questionTypeFriendlyName = Global(`questionTypes.${questionTypeIdQueryParam}`);
-//         setQuestionTypeName(questionTypeFriendlyName);
-
-//         const isOptionsQuestion = isOptionsType(questionTypeIdQueryParam)
-//         setHasOptions(isOptionsQuestion);
-
-//       }
-//     }
-//   }, [questionType, questionTypeIdQueryParam]);
-
-//   // Set parsed question JSON whenever question state changes
-//   useEffect(() => {
-//     if (question) {
-//       const { parsed, error } = getParsedQuestionJSON(question, routePath('template.show', { templateId }), Global);
-//       if (!parsed) {
-//         if (error) {
-//           setErrors(prev => [...prev, error])
-//         }
-//         return;
-//       }
-//       setParsedQuestionJSON(parsed);
-//     }
-//   }, [question])
-
-//   // Warn user of unsaved changes if they try to leave the page
-//   useEffect(() => {
-//     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-//       if (hasUnsavedChanges) {
-//         e.preventDefault();
-//         e.returnValue = ''; // Required for Chrome/Firefox to show the confirm dialog
-//       }
-//     };
-
-//     window.addEventListener('beforeunload', handleBeforeUnload);
-//     return () => {
-//       window.removeEventListener('beforeunload', handleBeforeUnload);
-//     };
-//   }, [hasUnsavedChanges]);
-
-//   if (loading) {
-//     return <div>{Global('messaging.loading')}...</div>;
-//   }
-
-//   return (
-//     <>
-//       <PageHeader
-//         title="Add Custom Question"
-//         description=""
-//         showBackButton={false}
-//         breadcrumbs={
-//           <Breadcrumbs>
-//             <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
-//             <Breadcrumb><Link href={routePath('template.index', { templateId })}>{Global('breadcrumbs.templates')}</Link></Breadcrumb>
-//             <Breadcrumb><Link href={routePath('template.show', { templateId })}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
-//             <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
-//           </Breadcrumbs>
-//         }
-//         actions={null}
-//         className=""
-//       />
-
-//       {/* Live region for announcements - visually hidden but read by screen readers */}
-//       <div
-//         role="status"
-//         aria-live="polite"
-//         aria-atomic="true"
-//         className="hidden-accessibly"
-//       >
-//         {announcement}
-//       </div>
-//       <ErrorMessages errors={errors} ref={errorRef} />
-
-//       <div className="template-editor-container">
-//         <div className="main-content">
-//           <Tabs>
-//             <TabList aria-label="Question editing">
-//               <Tab id="edit">{Global('tabs.editQuestion')}</Tab>
-//               <Tab id="options">{Global('tabs.options')}</Tab>
-//               <Tab id="logic">{Global('tabs.logic')}</Tab>
-//             </TabList>
-
-//             <TabPanel id="edit">
-//               <Form onSubmit={handleUpdate}>
-//                 <div className={styles.fieldDisplay}>
-//                   <Label>Question type</Label>
-//                   <p>{questionTypeName}</p>
-//                 </div>
-
-//                 {/**Question type fields here */}
-//                 {hasOptions && rows.length > 0 && (
-//                   <div className={styles.fieldDisplay}>
-//                     <Label>{t('labels.options')}</Label>
-//                     <ul className={styles.optionsList}>
-//                       {rows.map(row => (
-//                         <li key={row.id}>
-//                           {row.isSelected && <span className={styles.selectedBadge}>Selected</span>}
-//                           {row.text}
-//                         </li>
-//                       ))}
-//                     </ul>
-//                   </div>
-//                 )}
-
-//                 {/**Date and Number range question types */}
-//                 {questionType && RANGE_QUESTION_TYPE.includes(questionType) && (
-//                   <div className={styles.fieldDisplay}>
-//                     <Label>{t('labels.rangeLabels')}</Label>
-//                     <p><strong>Start:</strong> {dateRangeLabels.start}</p>
-//                     <p><strong>End:</strong> {dateRangeLabels.end}</p>
-//                   </div>
-//                 )}
-
-
-//                 {/**Typeahead search question type */}
-//                 {questionType === TYPEAHEAD_QUESTION_TYPE && (
-//                   <>
-//                     <div className={styles.fieldDisplay}>
-//                       <Label>{t('labels.searchLabel')}</Label>
-//                       <p>{typeaheadSearchLabel}</p>
-//                     </div>
-//                     <div className={styles.fieldDisplay}>
-//                       <Label>{t('labels.helpText')}</Label>
-//                       <p>{typeaheadHelpText}</p>
-//                     </div>
-//                   </>
-//                 )}
-
-//                 {!QUESTION_TYPES_EXCLUDED_FROM_COMMENT_FIELD.includes(questionType ?? '') && (
-//                   <div className={styles.fieldDisplay}>
-//                     <Label>{QuestionAdd('labels.additionalCommentBox')}</Label>
-//                     <p>{question?.showCommentField ? 'Yes' : 'No'}</p>
-//                   </div>
-//                 )}
-
-//                 {question?.requirementText && (
-//                   <RichTextDisplay
-//                     label="Requirements"
-//                     content={question.requirementText}
-//                   />
-//                 )}
-
-//                 <Label htmlFor="customQuestionRequirements" id="customQuestionRequirementsLabel">Additional section requirements</Label>
-//                 <TinyMCEEditor
-//                   content="Custom question requirements"
-//                   setContent={(value) => console.log(value)}
-//                   id="customQuestionRequirements"
-//                   labelId="customQuestionRequirementsLabel"
-//                   helpText="Add additional requirements that will appear on the Section Overview page"
-//                 />
-
-//                 {/* Guidance Text */}
-//                 {question?.guidanceText && (
-//                   <RichTextDisplay
-//                     label="Guidance"
-//                     content={question.guidanceText}
-//                   />
-//                 )}
-
-//                 <Label htmlFor="customQuestionGuidance" id="customQuestionGuidanceLabel">Additional section guidance</Label>
-//                 <TinyMCEEditor
-//                   content="Custom question guidance"
-//                   setContent={(value) => console.log(value)}
-//                   id="customQuestionGuidance"
-//                   labelId="customQuestionGuidanceLabel"
-//                   helpText="Add additional guidance that will appear on the Question page"
-//                 />
-
-//                 {/* Sample Text */}
-//                 {questionType === TEXT_AREA_QUESTION_TYPE && question?.sampleText && (
-//                   <>
-//                     <RichTextDisplay
-//                       label={t('labels.sampleText')}
-//                       content={question.sampleText}
-//                     />
-//                   </>
-//                 )}
-
-//                 {questionType === RESEARCH_OUTPUT_QUESTION_TYPE && (
-//                   <ResearchOutputDisplay
-//                     standardFields={standardFields}
-//                     additionalFields={additionalFields}
-//                     defaultResearchOutputTypesData={defaultResearchOutputTypesData}
-//                     licensesData={licensesData}
-//                   />
-//                 )}
-
-//                 <div className={styles.fieldDisplay}>
-//                   <Label>{Global('labels.requiredField')}</Label>
-//                   <p>{question?.required ? Global('form.yesLabel') : Global('form.noLabel')}</p>
-//                 </div>
-
-//                 <Button
-//                   type="submit"
-//                   aria-disabled={isSubmitting}
-//                   onPress={() => setFormSubmitted(true)}
-//                 >
-//                   {isSubmitting ? Global('buttons.saving') : Global('buttons.saveAndUpdate')}
-//                 </Button>
-//               </Form>
-
-
-//             </TabPanel>
-//             <TabPanel id="options">
-//               <h2>{Global('tabs.options')}</h2>
-//             </TabPanel>
-//             <TabPanel id="logic">
-//               <h2>{Global('tabs.logic')}</h2>
-//             </TabPanel>
-//           </Tabs>
-
-//           <div className={styles.deleteZone}>
-//             <h2>Delete customization</h2>
-//             <p>Your customizations to this Question will be removed from the template. This is not reversible.</p>
-//             <DialogTrigger isOpen={isConfirmOpen} onOpenChange={setConfirmOpen}>
-//               <Button className={`danger`}>{t('buttons.deleteQuestion')}</Button>
-//               <ModalOverlay>
-//                 <Modal>
-//                   <Dialog>
-//                     {({ close }) => (
-//                       <>
-//                         <h3>{t('headings.confirmDelete')}</h3>
-//                         <p>{t('descriptions.deleteWarning')}</p>
-//                         <div className={styles.deleteConfirmButtons}>
-//                           <Button className='react-aria-Button' autoFocus onPress={close}>{Global('buttons.cancel')}</Button>
-//                           <Button className={`danger `} onPress={() => {
-//                             handleDelete();
-//                             close();
-//                           }}>{Global('buttons.confirm')}</Button>
-//                         </div>
-//                       </>
-//                     )}
-//                   </Dialog>
-//                 </Modal>
-//               </ModalOverlay>
-//             </DialogTrigger>
-//           </div>
-
-//         </div>
-
-
-
-//         <div className="sidebar">
-//           <h2>{Global('headings.preview')}</h2>
-//           <p>{t('descriptions.previewText')}</p>
-//           <QuestionPreview
-//             buttonLabel={t('buttons.previewQuestion')}
-//             previewDisabled={question ? false : true}
-//           >
-//             <QuestionView
-//               isPreview={true}
-//               question={question}
-//               templateId={Number(templateId)}
-//               path={routePath('template.q.slug', { templateId, q_slug: questionId })}
-//             />
-//           </QuestionPreview>
-
-//           <h3>{t('headings.bestPractice')}</h3>
-//           <p>{t('descriptions.bestPracticePara1')}</p>
-//           <p>{t('descriptions.bestPracticePara2')}</p>
-//           <p>{t('descriptions.bestPracticePara3')}</p>
-//         </div>
-//       </div >
-//     </>
-
-//   );
-// }
-
-// export default QuestionCustomizePage;
-
-const QuestionCustomizePage = () => {
-  return <h1>TBD</h1>;
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { useQuery, useMutation } from '@apollo/client/react';
+import {
+  Breadcrumb,
+  Breadcrumbs,
+  Button,
+  Checkbox,
+  Dialog,
+  DialogTrigger,
+  Form,
+  Link,
+  Modal,
+  ModalOverlay,
+} from "react-aria-components";
+
+// GraphQL
+import {
+  AddQuestionCustomizationDocument,
+  UpdateQuestionCustomizationDocument,
+  RemoveQuestionCustomizationDocument,
+  QuestionCustomizationByVersionedQuestionDocument,
+  PublishedQuestionDocument,
+  QuestionCustomizationErrors,
+} from '@/generated/graphql';
+
+// Components
+import PageHeader from "@/components/PageHeader";
+import { ContentContainer, LayoutContainer } from '@/components/Container';
+import FormTextArea from '@/components/Form/FormTextArea';
+import ErrorMessages from '@/components/ErrorMessages';
+import Loading from '@/components/Loading';
+import { SanitizeHTML } from '@/utils/sanitize';
+import { DmpIcon } from "@/components/Icons";
+import QuestionView from '@/components/QuestionView';
+import { Question } from '@/app/types';
+// Utils
+import logECS from '@/utils/clientLogger';
+import { useToast } from '@/context/ToastContext';
+import { scrollToTop } from '@/utils/general';
+import { routePath } from '@/utils/routes';
+import { extractErrors } from '@/utils/errorHandler';
+import { stripHtmlTags } from '@/utils/general';
+import styles from './questionCustomEdit.module.scss';
+
+const QuestionCustomizePage: React.FC = () => {
+  const toastState = useToast();
+  const params = useParams();
+  const router = useRouter();
+
+  const templateCustomizationId = String(params.templateCustomizationId);
+  const versionedQuestionId = String(params.versionedQuestionId);
+
+  const hasInitialized = useRef(false);
+  const errorRef = useRef<HTMLDivElement | null>(null);
+  const topRef = useRef<HTMLDivElement | null>(null);
+
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [questionCustomizationId, setQuestionCustomizationId] = useState<number | null>(null);
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
+
+  const [baseQuestion, setBaseQuestion] = useState<Question | undefined>(undefined);
+
+
+  // Customizable fields
+  const [customQuestionData, setCustomQuestionData] = useState({
+    guidanceText: '',
+    sampleText: '',
+  });
+
+  // Read-only base question data
+  const [baseQuestionData, setBaseQuestionData] = useState({
+    questionText: '',
+    requirementText: '',
+    guidanceText: '',
+    sampleText: '',
+  });
+
+  // Localization
+  const Global = useTranslations('Global');
+  const QuestionCustomize = useTranslations('QuestionCustomize');
+  const QuestionEdit = useTranslations('QuestionEdit');
+  const PlanOverview = useTranslations('PlanOverview');
+
+  // URLs
+  const TEMPLATE_URL = routePath('template.customize', { templateCustomizationId });
+  const UPDATE_QUESTION_URL = routePath('template.customize.question', { templateCustomizationId, versionedQuestionId });
+
+  // Mutations
+  const [addQuestionCustomization] = useMutation(AddQuestionCustomizationDocument);
+  const [updateQuestionCustomization] = useMutation(UpdateQuestionCustomizationDocument);
+  const [removeQuestionCustomization] = useMutation(RemoveQuestionCustomizationDocument);
+
+  // Queries
+  const { data: publishedQuestion, loading: publishedQuestionLoading } = useQuery(PublishedQuestionDocument, {
+    variables: { versionedQuestionId: Number(versionedQuestionId) },
+  });
+
+  const { data: questionCustomization, loading: questionCustomizationLoading } = useQuery(
+    QuestionCustomizationByVersionedQuestionDocument,
+    {
+      variables: {
+        templateCustomizationId: Number(templateCustomizationId),
+        versionedQuestionId: Number(versionedQuestionId),
+      },
+    }
+  );
+
+  console.log("***QuestionCustomization data: ", questionCustomization);
+
+  const updateCustomQuestionContent = (key: string, value: string | boolean) => {
+    setCustomQuestionData(prev => ({ ...prev, [key]: value }));
+    setHasUnsavedChanges(true);
+  };
+
+  const handleSave = async (): Promise<[Record<string, string | null | undefined>, boolean]> => {
+    try {
+      const response = await updateQuestionCustomization({
+        variables: {
+          input: {
+            questionCustomizationId: Number(questionCustomizationId),
+            guidanceText: customQuestionData.guidanceText,
+            sampleText: customQuestionData.sampleText,
+          },
+        },
+      });
+
+      const responseErrors = response.data?.updateQuestionCustomization?.errors;
+      if (responseErrors && Object.values(responseErrors).some(err => err && err !== 'QuestionCustomizationErrors')) {
+        return [responseErrors, false];
+      }
+
+      return [{}, true];
+    } catch (error) {
+      logECS('error', 'updateQuestionCustomization', {
+        error,
+        url: { path: UPDATE_QUESTION_URL },
+      });
+      setErrorMessages(prev => [...prev, QuestionCustomize('messages.error.errorUpdatingCustomization')]);
+      return [{}, false];
+    }
+  };
+
+  const handleDeleteQuestionCustomization = async () => {
+    if (isDeleting) return;
+    setIsDeleting(true);
+    setErrorMessages([]);
+
+    try {
+      const response = await removeQuestionCustomization({
+        variables: { questionCustomizationId: Number(questionCustomizationId) },
+      });
+
+      const responseErrors = response.data?.removeQuestionCustomization?.errors;
+      if (responseErrors && Object.keys(responseErrors).length > 0) {
+        const errs = extractErrors<QuestionCustomizationErrors>(responseErrors, ['general', 'guidanceText', 'sampleText']);
+        if (errs.length > 0) {
+          setErrorMessages(errs);
+          return;
+        }
+      }
+
+      toastState.add(QuestionCustomize('messages.success.successfullyDeletedCustomization'), { type: 'success' });
+      setIsRedirecting(true);
+      router.push(TEMPLATE_URL);
+    } catch (error) {
+      logECS('error', 'deleteQuestionCustomization', {
+        error,
+        url: { path: UPDATE_QUESTION_URL },
+      });
+      setErrorMessages([QuestionCustomize('messages.error.errorDeletingCustomization')]);
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteModalOpen(false);
+    }
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setErrorMessages([]);
+
+    const [errors, success] = await handleSave();
+
+    if (!success) {
+      setErrorMessages([errors?.general ?? QuestionCustomize('messages.error.errorUpdatingCustomization')]);
+      setIsSubmitting(false);
+    } else {
+      setHasUnsavedChanges(false);
+      toastState.add(QuestionCustomize('messages.success.successfullyUpdatedCustomization'), { type: 'success' });
+      setIsRedirecting(true);
+      router.push(TEMPLATE_URL);
+    }
+  };
+
+  // Load base question data from published question query
+  useEffect(() => {
+    if (publishedQuestion?.publishedQuestion) {
+      const q = publishedQuestion.publishedQuestion;
+      setBaseQuestionData({
+        questionText: stripHtmlTags(q.questionText ?? ''),
+        requirementText: q.requirementText ?? '',
+        guidanceText: q.guidanceText ?? '',
+        sampleText: q.sampleText ?? '',
+      });
+    }
+  }, [publishedQuestion]);
+
+  // Initialize or load existing customization
+  useEffect(() => {
+    const initializeCustomization = async () => {
+      if (hasInitialized.current || questionCustomizationLoading) return;
+      hasInitialized.current = true;
+
+      if (!questionCustomization?.questionCustomizationByVersionedQuestion) {
+        // No existing customization — create one
+        const response = await addQuestionCustomization({
+          variables: {
+            input: {
+              templateCustomizationId: Number(templateCustomizationId),
+              versionedQuestionId: Number(versionedQuestionId),
+            },
+          },
+        });
+        setQuestionCustomizationId(response.data?.addQuestionCustomization?.id ?? null);
+      } else {
+        const existing = questionCustomization.questionCustomizationByVersionedQuestion;
+        setQuestionCustomizationId(existing.id ?? null);
+        setCustomQuestionData({
+          guidanceText: existing.guidanceText ?? '',
+          sampleText: existing.sampleText ?? '',
+        });
+      }
+    };
+
+    initializeCustomization();
+  }, [questionCustomizationLoading, questionCustomization]);
+
+  // Warn on unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  // Scroll errors into view
+  useEffect(() => {
+    if (errorMessages.length > 0) scrollToTop(errorRef);
+  }, [errorMessages]);
+
+  useEffect(() => {
+    if (publishedQuestion?.publishedQuestion) {
+      const q = publishedQuestion.publishedQuestion;
+      // Map to the Question type QuestionView expects
+      setBaseQuestion({
+        questionText: q.questionText ?? '',
+        requirementText: q.requirementText ?? null,
+        guidanceText: q.guidanceText ?? null,
+        sampleText: q.sampleText ?? null,
+        useSampleTextAsDefault: q.useSampleTextAsDefault ?? false,
+        required: q.required ?? false,
+        json: q.json ?? '',
+      });
+    }
+  }, [publishedQuestion]);
+
+
+  if (publishedQuestionLoading) return <Loading />;
+  if (isRedirecting) return <Loading />;
+
+  return (
+    <>
+      <PageHeader
+        title={QuestionCustomize('title')}
+        description=""
+        showBackButton={false}
+        breadcrumbs={
+          <Breadcrumbs>
+            <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.customizations')}>{Global('breadcrumbs.templateCustomizations')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={TEMPLATE_URL}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
+            <Breadcrumb>{QuestionCustomize('title')}</Breadcrumb>
+          </Breadcrumbs>
+        }
+        actions={null}
+        className=""
+      />
+
+      <LayoutContainer>
+        <ContentContainer>
+          <div className="template-editor-container" ref={topRef}>
+            <div className="main-content">
+              <ErrorMessages errors={errorMessages} ref={errorRef} />
+
+              <Form onSubmit={handleFormSubmit}>
+                {baseQuestionData.requirementText && (
+                  <div className="field-display">
+                    <h2>{QuestionCustomize('labels.requirements')}</h2>
+                    <SanitizeHTML html={baseQuestionData.requirementText} />
+                  </div>
+                )}
+
+                {baseQuestionData.guidanceText && (
+                  <div className="field-display">
+                    <h2>{QuestionCustomize('labels.guidance')}</h2>
+                    <SanitizeHTML html={baseQuestionData.guidanceText} />
+                  </div>
+                )}
+
+                {baseQuestionData.sampleText && (
+                  <div className="field-display">
+                    <h2>{QuestionCustomize('labels.sampleText')}</h2>
+                    <SanitizeHTML html={baseQuestionData.sampleText} />
+                  </div>
+                )}
+
+                {baseQuestion && (
+                  <div className={styles.baseQuestionPreview}>
+                    <div className={styles.baseQuestionView} inert>
+                      <QuestionView
+                        isPreview={true}
+                        question={baseQuestion}
+                        path={routePath('template.customize', { templateCustomizationId })}
+                        cardOnly={true}
+                      />
+                    </div>
+                  </div>
+                )}
+
+
+
+                {/* Editable customization fields */}
+                <div className={styles.additionalGuidance}>
+                  <FormTextArea
+                    name="guidanceText"
+                    isRequired={false}
+                    richText={true}
+                    label={QuestionCustomize('labels.additionalGuidanceText')}
+                    helpMessage={QuestionCustomize('helpText.additionalGuidanceText')}
+                    value={customQuestionData.guidanceText}
+                    onChange={(value) => updateCustomQuestionContent('guidanceText', value)}
+                  />
+                </div>
+
+                <div className={styles.additionalSampleText}>
+                  <FormTextArea
+                    name="sampleText"
+                    isRequired={false}
+                    richText={true}
+                    label={QuestionCustomize('labels.additionalSampleText')}
+                    helpMessage={QuestionCustomize('helpText.additionalSampleText')}
+                    value={customQuestionData.sampleText}
+                    onChange={(value) => updateCustomQuestionContent('sampleText', value)}
+                  />
+
+                  {/* <Checkbox
+                    isSelected={customQuestionData.useSampleTextAsDefault}
+                    onChange={(checked) => updateCustomQuestionContent('useSampleTextAsDefault', checked)}
+                  >
+                    <div className="checkbox">
+                      <svg viewBox="0 0 18 18" aria-hidden="true">
+                        <polyline points="1 9 7 14 15 4" />
+                      </svg>
+                    </div>
+                    {QuestionCustomize('labels.useSampleTextAsDefault')}
+                  </Checkbox> */}
+                </div>
+
+                <Button type="submit" aria-disabled={isSubmitting}>
+                  {isSubmitting ? Global('buttons.saving') : Global('buttons.saveAndUpdate')}
+                </Button>
+              </Form>
+
+              {/* Delete customization */}
+              <div className={styles.deleteQuestionCustomizationContainer}>
+                <h3>{QuestionCustomize('buttons.deleteCustomization')}</h3>
+                <p className={styles.dangerZoneDescription}><DmpIcon icon="warning" />{QuestionCustomize.rich("descriptions.deleteCustomization", {
+                  strong: (chunks) => <strong>{chunks}</strong>
+                })}</p>
+                <DialogTrigger isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+                  <Button className="danger" isDisabled={isDeleting}>
+                    {isDeleting
+                      ? `${QuestionCustomize('buttons.deletingCustomization')}...`
+                      : QuestionCustomize('buttons.deleteCustomization')}
+                  </Button>
+                  <ModalOverlay>
+                    <Modal>
+                      <Dialog>
+                        {({ close }) => (
+                          <>
+                            <h3>{QuestionCustomize('heading.deleteCustomization')}</h3>
+                            <p className={styles.dangerZoneDescription}>{QuestionCustomize.rich("descriptions.deleteCustomization", {
+                              strong: (chunks) => <strong>{chunks}</strong>
+                            })}</p>
+                            <div className={styles.deleteConfirmButtons}>
+                              <Button className="secondary" autoFocus onPress={close}>
+                                {Global('buttons.cancel')}
+                              </Button>
+                              <Button className="danger" onPress={() => { handleDeleteQuestionCustomization(); close(); }}>
+                                {Global('buttons.delete')}
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </Dialog>
+                    </Modal>
+                  </ModalOverlay>
+                </DialogTrigger>
+              </div>
+            </div>
+          </div>
+        </ContentContainer>
+      </LayoutContainer>
+    </>
+  );
 };
 
 export default QuestionCustomizePage;

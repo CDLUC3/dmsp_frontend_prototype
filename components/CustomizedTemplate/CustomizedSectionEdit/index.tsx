@@ -51,6 +51,7 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
 
   const [moveCustomQuestionMutation] = useMutation(MoveCustomQuestionDocument);
 
+  console.log("***Section", section);
 
   // Memoize the sorted questions to prevent unnecessary re-renders
   const sortedQuestionsFromData = useMemo(() => {
@@ -186,7 +187,6 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
     ? `/template/customizations/${templateCustomizationId}/customSection/${section.id}`// Custom Section
     : `/template/customizations/${templateCustomizationId}/section/${section.id}`; // Section Customization    
 
-  console.log("***localQuestions in SectionEdit: ", localQuestions);
   return (
     <>
       <div role="list" aria-label="Questions list" style={{ marginBottom: '40px' }}>
@@ -209,7 +209,7 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
               text={question.questionText ?? ''}
               link={
                 question.questionType === 'BASE'
-                  ? `/template/customizations/q/${question.id}`
+                  ? `/template/customizations/${templateCustomizationId}/q/${question.id}`
                   : `/template/customizations/${templateCustomizationId}/customQuestion/${question.id}`
               }
               displayOrder={Number(question.displayOrder)}

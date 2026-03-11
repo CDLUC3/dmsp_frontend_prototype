@@ -90,6 +90,8 @@ interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
    * templateId will be available in the question object.
    */
   templateId?: number,
+  cardOnly?: boolean // If true, only render the question card without surrounding layout and guidance sections
+  noSidebar?: boolean; // If true, do not render the sidebar at all
 }
 
 //This component is meant to work with the QuestionAdd and QuestionEdit components, to display
@@ -100,7 +102,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   isPreview = false,
   question,
   templateId,
-  path = ''
+  path = '',
+  cardOnly = false,
+  noSidebar = false,
 }) => {
 
   const trans = useTranslations('QuestionView');
@@ -494,6 +498,28 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     }
   };
 
+  // Only return the question card if cardOnly is true. This allows us to reuse this component in other places where we just want to show the question card without the surrounding layout and guidance sections
+  if (cardOnly) {
+    return (
+      <Card data-testid='question-card'>
+        <CardEyebrow>{trans('cardType')}</CardEyebrow>
+        <CardHeading>{question?.questionText}</CardHeading>
+        <CardBody data-testid="card-body">
+          {renderQuestionField()}
+          {question?.showCommentField && (
+            <FormTextArea
+              name="comment"
+              label={Global('labels.additionalComments')}
+              placeholder={Global('placeholders.enterComment')}
+              value={commentValue}
+              onChange={setCommentValue}
+            />
+          )}
+        </CardBody>
+      </Card>
+    );
+  }
+
   return (
     <LayoutWithPanel
       id={id}
@@ -557,80 +583,82 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         )}
       </ContentContainer>
 
-      <SidebarPanel>
-        <div className={styles.headerWithLogo}>
-          <h2 className="h4">{Global('bestPractice')}</h2>
-          <Image
-            className={styles.Logo}
-            src="/images/DMP-logo.svg"
-            width="140"
-            height="16"
-            alt="DMP Tool"
-          />
-        </div>
+      {!noSidebar && (
+        <SidebarPanel>
+          <div className={styles.headerWithLogo}>
+            <h2 className="h4">{Global('bestPractice')}</h2>
+            <Image
+              className={styles.Logo}
+              src="/images/DMP-logo.svg"
+              width="140"
+              height="16"
+              alt="DMP Tool"
+            />
+          </div>
 
-        <ExpandableContentSection
-          id="data-description"
-          heading={trans('dataDescription')}
-          expandLabel={trans('expandLink')}
-          summaryCharLimit={200}
-        >
-          <p>
-            Give a summary of the data you will collect or create, noting the content, coverage and data type, e.g., tabular data, survey data, experimental measurements, models, software, audiovisual data, physical samples, etc.
-          </p>
-          <p>
-            Consider how your data could complement and integrate with existing data, or whether there are any existing data or methods that you could reuse.
-          </p>
-          <p>
-            Indicate which data are of long-term value and should be shared and/or preserved.
+          <ExpandableContentSection
+            id="data-description"
+            heading={trans('dataDescription')}
+            expandLabel={trans('expandLink')}
+            summaryCharLimit={200}
+          >
+            <p>
+              Give a summary of the data you will collect or create, noting the content, coverage and data type, e.g., tabular data, survey data, experimental measurements, models, software, audiovisual data, physical samples, etc.
+            </p>
+            <p>
+              Consider how your data could complement and integrate with existing data, or whether there are any existing data or methods that you could reuse.
+            </p>
+            <p>
+              Indicate which data are of long-term value and should be shared and/or preserved.
 
-          </p>
-          <p>
-            If purchasing or reusing existing data, explain how issues such as copyright and IPR have been addressed. You should aim to minimize any restrictions on the reuse (and subsequent sharing) of third-party data.
+            </p>
+            <p>
+              If purchasing or reusing existing data, explain how issues such as copyright and IPR have been addressed. You should aim to minimize any restrictions on the reuse (and subsequent sharing) of third-party data.
 
-          </p>
+            </p>
 
-        </ExpandableContentSection>
+          </ExpandableContentSection>
 
-        <ExpandableContentSection
-          id="data-format"
-          heading={trans('dataFormat')}
-          expandLabel={trans('expandLink')}
-          summaryCharLimit={200}
+          <ExpandableContentSection
+            id="data-format"
+            heading={trans('dataFormat')}
+            expandLabel={trans('expandLink')}
+            summaryCharLimit={200}
 
-        >
-          <p>
-            Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
-          </p>
+          >
+            <p>
+              Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
+            </p>
 
-        </ExpandableContentSection>
+          </ExpandableContentSection>
 
-        <ExpandableContentSection
-          id="data-volume"
-          heading={trans('dataVolume')}
-          expandLabel={trans('expandLink')}
-          summaryCharLimit={200}
-        >
-          <p>
-            Note what volume of data you will create in MB/GB/TB. Indicate the proportions of raw data, processed data, and other secondary outputs (e.g., reports).
-          </p>
-          <p>
-            Consider the implications of data volumes in terms of storage, access, and preservation. Do you need to include additional costs?
-          </p>
-          <p>
-            Consider whether the scale of the data will pose challenges when sharing or transferring data between sites; if so, how will you address these challenges?
-          </p>
-        </ExpandableContentSection>
+          <ExpandableContentSection
+            id="data-volume"
+            heading={trans('dataVolume')}
+            expandLabel={trans('expandLink')}
+            summaryCharLimit={200}
+          >
+            <p>
+              Note what volume of data you will create in MB/GB/TB. Indicate the proportions of raw data, processed data, and other secondary outputs (e.g., reports).
+            </p>
+            <p>
+              Consider the implications of data volumes in terms of storage, access, and preservation. Do you need to include additional costs?
+            </p>
+            <p>
+              Consider whether the scale of the data will pose challenges when sharing or transferring data between sites; if so, how will you address these challenges?
+            </p>
+          </ExpandableContentSection>
 
-        <ExpandableContentSection
-          id="data-volume"
-          heading={trans('dataVolume')}
-          expandLabel={trans('expandLink')}
-          summaryCharLimit={30}>
-          <p>This is a very long sentence that should be truncated at word boundaries.</p>
+          <ExpandableContentSection
+            id="data-volume"
+            heading={trans('dataVolume')}
+            expandLabel={trans('expandLink')}
+            summaryCharLimit={30}>
+            <p>This is a very long sentence that should be truncated at word boundaries.</p>
 
-        </ExpandableContentSection>
-      </SidebarPanel>
+          </ExpandableContentSection>
+        </SidebarPanel>
+      )}
     </LayoutWithPanel >
   )
 }
