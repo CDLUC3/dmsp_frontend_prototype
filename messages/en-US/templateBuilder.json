@@ -245,6 +245,32 @@
     "breadcrumbs": {
       "customizationTemplates": "Customization templates",
       "customizeTemplate": "Customize template"
+    },
+    "buttons": {
+      "deleteCustomization": "Delete customization",
+      "deletingCustomizations": "Deleting customizations..."
+    },
+    "heading": {
+      "deleteCustomSection": "Delete custom section",
+      "deleteCustomization": "Delete section customization"
+    },
+    "descriptions": {
+      "deleteCustomization": "<strong>Your customizations will be removed from this section. </strong>  This is not reversible.",
+      "deleteCustomSection": "<strong>Your custom section will be removed. This is not reversible.</strong>",
+      "tagDescription": "Tags are used to pull in your organization’s best practice information and will show for each question in this section. Tags are set by DMP Tool or the Funder that created this template originally and cannot be changed.",
+      "editGuidanceForTags": "Edit your Guidance for tags"
+    },
+    "messages": {
+      "noContent": "Funder didn't add {label}",
+      "success": {
+        "successfullyDeletedSectionCustomization": "Successfully deleted the section customizations"
+      },
+      "error": {
+        "errorDeletingSectionCustomization": "Error deleting section customization"
+      }
+    },
+    "labels": {
+      "bestPracticeTags": "Best practice tags"
     }
   },
   "CreateSectionPage": {

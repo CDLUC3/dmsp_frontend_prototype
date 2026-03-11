@@ -998,13 +998,11 @@ describe('PlanCreate Component using base mock', () => {
 
 
   it('should render PlanCreate component with funder checkbox', async () => {
-    await act(async () => {
-      render(
-        <MockedProvider mocks={baseMocks} cache={apolloCache}>
-          <PlanCreate />
-        </MockedProvider>
-      );
-    });
+    render(
+      <MockedProvider mocks={baseMocks} cache={apolloCache}>
+        <PlanCreate />
+      </MockedProvider>
+    );
 
     // Wait for all loading states to complete by checking for content that appears after loading
     await waitFor(

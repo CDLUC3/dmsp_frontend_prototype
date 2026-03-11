@@ -1,4 +1,5 @@
 ## Added
+- Added `CustomSectionEdit`, and `CreateCustomSectionPage` for adding and editing Custom Sections [#928]
 - Added new `/template/customizations/[templateCustomizationOverview]` page [#927]
 - Added new `CustomizedTemplate` components directory and new `CustomizedQuestionEdit` and `CustomizedSectionEdit` components [#927]
 - Added `MoveCustomQuestion`, `MoveCustomSection`, `UpdateSectionCustomization`, `RemoveSectionCustomization`, `UpdateCustomSection`, `AddTemplateCustomization` mutations and `SectionCustomization` and `TemplateCustomizationOverview` queries [#927]
@@ -14,6 +15,7 @@
 ## Updated
 - Updated `ReposSelector` and `RepoSelectorForAnswer` components to use the new `Re3RepositoryTypesListDocument`, `Re3SubjectListDocument`, and `Re3byUrIsDocument` queries [#113]
 - Updated `ResearchOutputAnswerComponent` so that we don't get a duplicate `save` CTAs when on the `SingleResearchOutputComponent` page [#113]
+- Updated `SectionCustomizePage` component for customizing existing sections [#928]
 - Updated `TemplateSelectTemplatePage` component to pass `versionedTemplateId` to `addTemplate` mutation when the template being cloned is not in the user's organization [#1006]
 - Update `addTemplate` query to include `copyFromVersionedTemplateId` variable [#1006]
 - Updated `useResearchOutputTable`'s `updateStandardFieldProperty` method to `enable` a Research Output Table field when any content or config changes for that field [#943]
@@ -27,6 +29,7 @@
 - Fixed bug where the published status on `/template/[templateId]` did not match that on the template cards at `/template` for the `unpublished changes` state. Added a shared hook for determining the correct status text [#875]
 
 ## Chore
+- Updated version of `dompurify` to `v3.3.2` due to security vulnerability, and included updates to`test-exclude` to v7.0.2, `sanitize-html` to v2.17.1, `tinymce` to v7.9.2, `next-intl` to v4.8.3, `html-react-parser` to v5.2.17, `@types/node` to v24.12.0, and `@types/react to v18.3.28.
 - Updated version of `minimatch` to `10.2.4` to address vulnerabilities
 - Updated version of `@dmptool/types` to `3.1.2` and `zod` to match package version to `4.3.6`
 - Added override for `minimatch` dependency and removed them for `prismjs` and `qs`.
