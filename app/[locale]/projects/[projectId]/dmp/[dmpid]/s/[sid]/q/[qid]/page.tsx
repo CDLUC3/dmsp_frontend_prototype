@@ -168,6 +168,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [questionType, setQuestionType] = useState<string>('');
   const [parsed, setParsed] = useState<AnyParsedQuestion>();
   const [answerId, setAnswerId] = useState<number | null>(null);
+  // Track whether ResearchOutputAnswerComponent is in single-edit view
+  const [isResearchOutputEditing, setIsResearchOutputEditing] = useState(false);
 
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -1350,6 +1352,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           rows: researchOutputRows,
           setRows: setResearchOutputRows,
           onSave: saveResearchOutputs,
+          onEditingStateChange: setIsResearchOutputEditing,
         }
         : undefined,
   });
@@ -1495,27 +1498,30 @@ const PlanOverviewQuestionPage: React.FC = () => {
                   {getLastSavedText()}
                 </div>
                 <div className={styles.modalAction}>
-                  <div>
-                    <Button
-                      type="submit"
-                      data-secondary
-                      className="primary"
-                      aria-label={PlanOverview('labels.saveAnswer')}
-                      aria-disabled={isSubmitting}
-                    >
-                      {isSubmitting ? Global('buttons.saving') : Global('buttons.save')}
-                    </Button>
-                  </div>
-                  <div>
-                    <Button
-                      className="secondary"
-                      aria-label={PlanOverview('labels.returnToSection')}
-                      onPress={() => handleBackToSection()}
-                    >
-                      {PlanOverview('buttons.backToSection')}
-                    </Button>
-                  </div>
-
+                  {!(questionType === RESEARCH_OUTPUT_QUESTION_TYPE && isResearchOutputEditing) && (
+                    <>
+                      <div>
+                        <Button
+                          type="submit"
+                          data-secondary
+                          className="primary"
+                          aria-label={PlanOverview('labels.saveAnswer')}
+                          aria-disabled={isSubmitting}
+                        >
+                          {isSubmitting ? Global('buttons.saving') : Global('buttons.save')}
+                        </Button>
+                      </div>
+                      <div>
+                        <Button
+                          className="secondary"
+                          aria-label={PlanOverview('labels.returnToSection')}
+                          onPress={() => handleBackToSection()}
+                        >
+                          {PlanOverview('buttons.backToSection')}
+                        </Button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </Card>
             </Form>

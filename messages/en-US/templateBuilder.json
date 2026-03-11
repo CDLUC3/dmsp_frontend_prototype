@@ -491,7 +491,8 @@
     },
     "headings": {
       "bestPractice": "Best practice by DMP Tool",
-      "displayingRepositoriesStatus": "Displaying repositories {current} of {total}"
+      "displayingRepositoriesStatus": "Displaying repositories {current} of {total}",
+      "noMatchesFound": "No matches found"
     },
     "messages": {
       "errors": {

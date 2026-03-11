@@ -22,6 +22,16 @@ export type Scalars = {
   MD5: { input: any; output: any; }
   /** A researcher ORCID */
   Orcid: { input: any; output: any; }
+  /**
+   * Repository type values follow the re3data standard:
+   * - disciplinary: A discipline specific repository (e.g. GeneCards, Arctic Data Centre, etc.)
+   * - institutional: An institution specific repository (e.g. ASU Library Research Data Repository, etc.)
+   * - other: A repository that doesn't fit into any of the other categories
+   * - multidisciplinary: A repository that accepts any type of dataset, from any discipline
+   * - project-related: A repository created to support a specific project or initiative (e.g. Human Genome Project)
+   * - governmental: A repository owned and managed by a government entity (e.g. NCBI, NASA)
+   */
+  RepositoryTypeValue: { input: any; output: any; }
   /** An organization ROR ID */
   Ror: { input: any; output: any; }
   URL: { input: any; output: any; }
@@ -215,6 +225,8 @@ export type AddRepositoryInput = {
   keywords?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The name of the repository */
   name: Scalars['String']['input'];
+  /** The re3data identifier if this is a local copy of re3data information (e.g. 'r3d100014782') */
+  re3dataId?: InputMaybe<Scalars['String']['input']>;
   /** The Categories/Types of the repository */
   repositoryTypes?: InputMaybe<Array<Scalars['String']['input']>>;
   /** Research domains associated with the repository */
@@ -727,6 +739,41 @@ export type CustomQuestionErrors = {
   sectionType?: Maybe<Scalars['String']['output']>;
   templateCustomizationId?: Maybe<Scalars['String']['output']>;
   useSampleTextAsDefault?: Maybe<Scalars['String']['output']>;
+};
+
+/** A custom repository where research outputs are preserved (database-backed) */
+export type CustomRepository = {
+  __typename?: 'CustomRepository';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** A description of the repository */
+  description?: Maybe<Scalars['String']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<RepositoryErrors>;
+  /** The unique identifer for the Object (returns as String for compatibility with Re3DataRepository) */
+  id: Scalars['String']['output'];
+  /** Keywords to assist in finding the repository */
+  keywords?: Maybe<Array<Scalars['String']['output']>>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the repository */
+  name: Scalars['String']['output'];
+  /** The re3data identifier if this is a local copy of re3data information (e.g. 'r3d100014782') */
+  re3dataId?: Maybe<Scalars['String']['output']>;
+  /** The Categories/Types of the repository */
+  repositoryTypes?: Maybe<Array<Scalars['String']['output']>>;
+  /** Research domains associated with the repository */
+  researchDomains?: Maybe<Array<ResearchDomain>>;
+  /** The source of this repository */
+  source: RepositorySource;
+  /** The taxonomy URL of the repository */
+  uri?: Maybe<Scalars['String']['output']>;
+  /** The website URL */
+  website?: Maybe<Scalars['String']['output']>;
 };
 
 /** A section created/owned by the affiliation that owns the customization */
@@ -1325,7 +1372,7 @@ export type Mutation = {
   /** Add a related work manually, by specifying all work details */
   addRelatedWorkManual?: Maybe<RelatedWorkSearchResult>;
   /** Add a new Repository */
-  addRepository?: Maybe<Repository>;
+  addRepository?: Maybe<CustomRepository>;
   /** Add a new research output type (name must be unique!) */
   addResearchOutputType?: Maybe<ResearchOutputType>;
   /** Create a new Section. Leave the 'copyFromVersionedSectionId' blank to create a new section from scratch */
@@ -1363,7 +1410,7 @@ export type Mutation = {
   /** Merge two metadata standards */
   mergeMetadataStandards?: Maybe<MetadataStandard>;
   /** Merge two repositories */
-  mergeRepositories?: Maybe<Repository>;
+  mergeRepositories?: Maybe<CustomRepository>;
   /** Merge the 2 user accounts (Admin only) */
   mergeUsers?: Maybe<User>;
   /** Move a custom question to a different position within the section (null means move to the top of the section) */
@@ -1419,7 +1466,7 @@ export type Mutation = {
   /** Remove custom guidance and sample answer from a funder question */
   removeQuestionCustomization: QuestionCustomization;
   /** Delete a Repository */
-  removeRepository?: Maybe<Repository>;
+  removeRepository?: Maybe<CustomRepository>;
   /** Delete the research output type */
   removeResearchOutputType?: Maybe<ResearchOutputType>;
   /** Delete a section */
@@ -1503,7 +1550,7 @@ export type Mutation = {
   /** Update the status of a related work */
   updateRelatedWorkStatus?: Maybe<RelatedWorkSearchResult>;
   /** Update a Repository record */
-  updateRepository?: Maybe<Repository>;
+  updateRepository?: Maybe<CustomRepository>;
   /** Update the research output type */
   updateResearchOutputType?: Maybe<ResearchOutputType>;
   /** Update a Section */
@@ -3095,6 +3142,12 @@ export type Query = {
   questionCustomization?: Maybe<QuestionCustomization>;
   /** Get the Questions that belong to the associated sectionId */
   questions?: Maybe<Array<Maybe<Question>>>;
+  /** return all distinct repository types from re3data with optional counts */
+  re3RepositoryTypesList: Re3RepositoryTypesListResults;
+  /** return all distinct subject strings from re3data with optional counts */
+  re3SubjectList: Re3SubjectListResults;
+  /** return all re3data repositories whose unique uri values are provided */
+  re3byURIs?: Maybe<Array<Re3DataRepository>>;
   /** Return the recommended Licenses */
   recommendedLicenses?: Maybe<Array<Maybe<License>>>;
   /** Get all of the related works for a project or plan */
@@ -3103,12 +3156,12 @@ export type Query = {
   relatedWorksByPlanStats?: Maybe<RelatedWorkStatsResults>;
   /** Get summary statistics for related works by project */
   relatedWorksByProjectStats?: Maybe<RelatedWorkStatsResults>;
-  /** Search for a repository */
+  /** Search for repositories from custom database and re3data combined */
   repositories?: Maybe<RepositorySearchResults>;
   /** return all repositories whose unique uri values are provided */
-  repositoriesByURIs?: Maybe<Array<Repository>>;
-  /** Fetch a specific repository */
-  repository?: Maybe<Repository>;
+  repositoriesByURIs?: Maybe<Array<CustomRepository>>;
+  /** Fetch a specific custom repository */
+  repository?: Maybe<CustomRepository>;
   /** return all distinct subject area keywords across all repositories */
   repositorySubjectAreas?: Maybe<Array<Scalars['String']['output']>>;
   /** Get the research output type by it's id */
@@ -3438,6 +3491,21 @@ export type QueryQuestionsArgs = {
 };
 
 
+export type QueryRe3RepositoryTypesListArgs = {
+  input?: InputMaybe<Re3RepositoryTypesListInput>;
+};
+
+
+export type QueryRe3SubjectListArgs = {
+  input?: InputMaybe<Re3SubjectListInput>;
+};
+
+
+export type QueryRe3byUrIsArgs = {
+  uris: Array<Scalars['String']['input']>;
+};
+
+
 export type QueryRecommendedLicensesArgs = {
   recommended: Scalars['Boolean']['input'];
 };
@@ -3744,6 +3812,99 @@ export type QuestionErrors = {
   templateId?: Maybe<Scalars['String']['output']>;
 };
 
+/** A preset repository from re3data (external source) */
+export type Re3DataRepository = {
+  __typename?: 'Re3DataRepository';
+  /** Access restrictions */
+  access?: Maybe<Scalars['String']['output']>;
+  /** Certifications held */
+  certificates?: Maybe<Array<Scalars['String']['output']>>;
+  /** Contact information */
+  contact?: Maybe<Scalars['String']['output']>;
+  /** When the repository record was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** A description of the repository */
+  description?: Maybe<Scalars['String']['output']>;
+  /** The unique identifier from re3data */
+  id: Scalars['String']['output'];
+  /** Keywords to assist in finding the repository */
+  keywords?: Maybe<Array<Scalars['String']['output']>>;
+  /** When the repository record was last updated */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The name of the repository */
+  name: Scalars['String']['output'];
+  /** Persistent identifier systems supported */
+  pidSystem?: Maybe<Array<Scalars['String']['output']>>;
+  /** Data policies */
+  policies?: Maybe<Array<Scalars['String']['output']>>;
+  /** Provider types */
+  providerTypes?: Maybe<Array<Scalars['String']['output']>>;
+  /** The Categories/Types of the repository */
+  repositoryTypes?: Maybe<Array<Scalars['String']['output']>>;
+  /** Software used */
+  software?: Maybe<Array<Scalars['String']['output']>>;
+  /** The source of this repository */
+  source: RepositorySource;
+  /** Subject areas covered by the repository */
+  subjects?: Maybe<Array<Scalars['String']['output']>>;
+  /** Upload types supported */
+  uploadTypes?: Maybe<Array<Scalars['String']['output']>>;
+  /** The taxonomy URL of the repository */
+  uri?: Maybe<Scalars['String']['output']>;
+  /** The website URL */
+  website?: Maybe<Scalars['String']['output']>;
+};
+
+/** A repository type from re3data with optional count */
+export type Re3RepositoryType = {
+  __typename?: 'Re3RepositoryType';
+  /** The count of repositories with this type (if requested) */
+  count?: Maybe<Scalars['Int']['output']>;
+  /** The repository type string */
+  type: Scalars['String']['output'];
+};
+
+export type Re3RepositoryTypesListInput = {
+  /** Whether to include the count of repositories for each type */
+  includeCount?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Maximum number of distinct types to return (default: 100) */
+  maxResults?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** Results from re3data repository types list query */
+export type Re3RepositoryTypesListResults = {
+  __typename?: 'Re3RepositoryTypesListResults';
+  /** The total number of distinct repository types found */
+  totalCount: Scalars['Int']['output'];
+  /** The list of distinct repository types from re3data */
+  types: Array<Re3RepositoryType>;
+};
+
+/** A subject area from re3data with optional count */
+export type Re3Subject = {
+  __typename?: 'Re3Subject';
+  /** The count of repositories with this subject (if requested) */
+  count?: Maybe<Scalars['Int']['output']>;
+  /** The subject string */
+  subject: Scalars['String']['output'];
+};
+
+export type Re3SubjectListInput = {
+  /** Whether to include the count of repositories for each subject */
+  includeCount?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Maximum number of distinct subjects to return (default: 100) */
+  maxResults?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** Results from re3data subject list query */
+export type Re3SubjectListResults = {
+  __typename?: 'Re3SubjectListResults';
+  /** The list of distinct subjects from re3data */
+  subjects: Array<Re3Subject>;
+  /** The total number of distinct subjects found */
+  totalCount: Scalars['Int']['output'];
+};
+
 /** The confidence of the related work match */
 export enum RelatedWorkConfidence {
   /** High confidence */
@@ -3892,36 +4053,8 @@ export type ReorderSectionsResult = {
   sections?: Maybe<Array<Section>>;
 };
 
-/** A repository where research outputs are preserved */
-export type Repository = {
-  __typename?: 'Repository';
-  /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['String']['output']>;
-  /** The user who created the Object */
-  createdById?: Maybe<Scalars['Int']['output']>;
-  /** A description of the repository */
-  description?: Maybe<Scalars['String']['output']>;
-  /** Errors associated with the Object */
-  errors?: Maybe<RepositoryErrors>;
-  /** The unique identifer for the Object */
-  id?: Maybe<Scalars['Int']['output']>;
-  /** Keywords to assist in finding the repository */
-  keywords?: Maybe<Array<Scalars['String']['output']>>;
-  /** The timestamp when the Object was last modifed */
-  modified?: Maybe<Scalars['String']['output']>;
-  /** The user who last modified the Object */
-  modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The name of the repository */
-  name: Scalars['String']['output'];
-  /** The Categories/Types of the repository */
-  repositoryTypes?: Maybe<Array<RepositoryType>>;
-  /** Research domains associated with the repository */
-  researchDomains?: Maybe<Array<ResearchDomain>>;
-  /** The taxonomy URL of the repository */
-  uri: Scalars['String']['output'];
-  /** The website URL */
-  website?: Maybe<Scalars['String']['output']>;
-};
+/** Union type for repository search results (can be custom or re3data) */
+export type Repository = CustomRepository | Re3DataRepository;
 
 /** A collection of errors related to the Repository */
 export type RepositoryErrors = {
@@ -3931,6 +4064,7 @@ export type RepositoryErrors = {
   general?: Maybe<Scalars['String']['output']>;
   keywords?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
+  re3dataId?: Maybe<Scalars['String']['output']>;
   repositoryTypes?: Maybe<Scalars['String']['output']>;
   researchDomainIds?: Maybe<Scalars['String']['output']>;
   uri?: Maybe<Scalars['String']['output']>;
@@ -3938,14 +4072,14 @@ export type RepositoryErrors = {
 };
 
 export type RepositorySearchInput = {
-  /** The subject area keyword associated with the repository */
+  /** The keyword to filter custom repositories by */
   keyword?: InputMaybe<Scalars['String']['input']>;
   /** The pagination options */
   paginationOptions?: InputMaybe<PaginationOptions>;
-  /** The repository category/type */
-  repositoryType?: InputMaybe<RepositoryType>;
-  /** The research domain associated with the repository */
-  researchDomainId?: InputMaybe<Scalars['Int']['input']>;
+  /** The repository category/type (for custom and re3data repositories). Accepts values: disciplinary, institutional, other, multidisciplinary, project-related, governmental */
+  repositoryType?: InputMaybe<Scalars['String']['input']>;
+  /** The subject areas from re3data (for re3data repositories). Repositories matching ANY of the provided subjects will be returned. Custom repositories have no subject matching. */
+  subjects?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The search term */
   term?: InputMaybe<Scalars['String']['input']>;
 };
@@ -3970,21 +4104,11 @@ export type RepositorySearchResults = PaginatedQueryResults & {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
-export enum RepositoryType {
-  /** A discipline specific repository (e.g. GeneCards, Arctic Data Centre, etc.) */
-  Disciplinary = 'DISCIPLINARY',
-  /** A generalist repository (e.g. Zenodo, Dryad) */
-  Generalist = 'GENERALIST',
-  /** A repository owned and managed by a government entity (e.g. NCBI, NASA) */
-  Governmental = 'GOVERNMENTAL',
-  /** An institution specific repository (e.g. ASU Library Research Data Repository, etc.) */
-  Institutional = 'INSTITUTIONAL',
-  /** A repository that accepts any type of dataset, from any discipline. Often used when no disciplinary repository exists. */
-  MultiDisciplinary = 'MULTI_DISCIPLINARY',
-  /** A repository that doesn't fit into any of the other categories */
-  Other = 'OTHER',
-  /** A repository created to support a specific project or initiative (e.g. Human Genome Project) */
-  ProjectRelated = 'PROJECT_RELATED'
+export enum RepositorySource {
+  /** A custom repository managed in this system */
+  Custom = 'CUSTOM',
+  /** A preset repository from re3data */
+  Re3Data = 'RE3DATA'
 }
 
 /** An aread of research (e.g. Electrical Engineering, Cellular biology, etc.) */
@@ -4682,6 +4806,8 @@ export type UpdateRepositoryInput = {
   keywords?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The name of the repository */
   name: Scalars['String']['input'];
+  /** The re3data identifier if this is a local copy of re3data information (e.g. 'r3d100014782') */
+  re3dataId?: InputMaybe<Scalars['String']['input']>;
   /** The Categories/Types of the repository */
   repositoryTypes?: InputMaybe<Array<Scalars['String']['input']>>;
   /** Research domains associated with the repository */
@@ -5811,7 +5937,7 @@ export type AddRepositoryMutationVariables = Exact<{
 }>;
 
 
-export type AddRepositoryMutation = { __typename?: 'Mutation', addRepository?: { __typename?: 'Repository', id?: number | null, name: string, keywords?: Array<string> | null, uri: string, website?: string | null, description?: string | null, errors?: { __typename?: 'RepositoryErrors', general?: string | null, name?: string | null, description?: string | null, repositoryTypes?: string | null, website?: string | null } | null } | null };
+export type AddRepositoryMutation = { __typename?: 'Mutation', addRepository?: { __typename?: 'CustomRepository', id: string, name: string, keywords?: Array<string> | null, uri?: string | null, website?: string | null, description?: string | null, errors?: { __typename?: 'RepositoryErrors', general?: string | null, name?: string | null, description?: string | null, repositoryTypes?: string | null, website?: string | null } | null } | null };
 
 export type MoveCustomSectionMutationVariables = Exact<{
   input: MoveCustomSectionInput;
@@ -6264,7 +6390,10 @@ export type RepositoriesQueryVariables = Exact<{
 }>;
 
 
-export type RepositoriesQuery = { __typename?: 'Query', repositories?: { __typename?: 'RepositorySearchResults', hasPreviousPage?: boolean | null, hasNextPage?: boolean | null, currentOffset?: number | null, availableSortFields?: Array<string | null> | null, totalCount?: number | null, nextCursor?: string | null, limit?: number | null, items?: Array<{ __typename?: 'Repository', keywords?: Array<string> | null, id?: number | null, name: string, description?: string | null, uri: string, website?: string | null, repositoryTypes?: Array<RepositoryType> | null, errors?: { __typename?: 'RepositoryErrors', general?: string | null, uri?: string | null } | null } | null> | null } | null };
+export type RepositoriesQuery = { __typename?: 'Query', repositories?: { __typename?: 'RepositorySearchResults', hasPreviousPage?: boolean | null, hasNextPage?: boolean | null, currentOffset?: number | null, availableSortFields?: Array<string | null> | null, totalCount?: number | null, nextCursor?: string | null, limit?: number | null, items?: Array<
+      | { __typename?: 'CustomRepository', name: string, description?: string | null, uri?: string | null, website?: string | null, repositoryTypes?: Array<string> | null, keywords?: Array<string> | null, id: string, errors?: { __typename?: 'RepositoryErrors', general?: string | null, uri?: string | null } | null }
+      | { __typename?: 'Re3DataRepository', keywords?: Array<string> | null, id: string, name: string, description?: string | null, uri?: string | null, website?: string | null, repositoryTypes?: Array<string> | null }
+     | null> | null } | null };
 
 export type RepositorySubjectAreasQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -6276,7 +6405,24 @@ export type RepositoriesByUrIsQueryVariables = Exact<{
 }>;
 
 
-export type RepositoriesByUrIsQuery = { __typename?: 'Query', repositoriesByURIs?: Array<{ __typename?: 'Repository', keywords?: Array<string> | null, id?: number | null, name: string, description?: string | null, uri: string, website?: string | null, repositoryTypes?: Array<RepositoryType> | null, errors?: { __typename?: 'RepositoryErrors', general?: string | null, uri?: string | null } | null }> | null };
+export type RepositoriesByUrIsQuery = { __typename?: 'Query', repositoriesByURIs?: Array<{ __typename?: 'CustomRepository', keywords?: Array<string> | null, id: string, name: string, description?: string | null, uri?: string | null, website?: string | null, repositoryTypes?: Array<string> | null, errors?: { __typename?: 'RepositoryErrors', general?: string | null, uri?: string | null } | null }> | null };
+
+export type Re3RepositoryTypesListQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type Re3RepositoryTypesListQuery = { __typename?: 'Query', re3RepositoryTypesList: { __typename?: 'Re3RepositoryTypesListResults', totalCount: number, types: Array<{ __typename?: 'Re3RepositoryType', count?: number | null, type: string }> } };
+
+export type Re3SubjectListQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type Re3SubjectListQuery = { __typename?: 'Query', re3SubjectList: { __typename?: 'Re3SubjectListResults', totalCount: number, subjects: Array<{ __typename?: 'Re3Subject', subject: string, count?: number | null }> } };
+
+export type Re3byUrIsQueryVariables = Exact<{
+  uris: Array<Scalars['String']['input']> | Scalars['String']['input'];
+}>;
+
+
+export type Re3byUrIsQuery = { __typename?: 'Query', re3byURIs?: Array<{ __typename?: 'Re3DataRepository', name: string, id: string, description?: string | null, keywords?: Array<string> | null, uri?: string | null, website?: string | null, repositoryTypes?: Array<string> | null }> | null };
 
 export type TopLevelResearchDomainsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -6548,9 +6694,12 @@ export const RelatedWorksDocument = {"kind":"Document","definitions":[{"kind":"O
 export const FindWorkByIdentifierDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindWorkByIdentifier"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"planId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"doi"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"findWorkByIdentifier"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"planId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"planId"}}},{"kind":"Argument","name":{"kind":"Name","value":"doi"},"value":{"kind":"Variable","name":{"kind":"Name","value":"doi"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"planId"}},{"kind":"Field","name":{"kind":"Name","value":"planTitle"}},{"kind":"Field","name":{"kind":"Name","value":"workVersion"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"work"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"doi"}}]}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"hash"}},{"kind":"Field","name":{"kind":"Name","value":"workType"}},{"kind":"Field","name":{"kind":"Name","value":"publicationDate"}},{"kind":"Field","name":{"kind":"Name","value":"publicationVenue"}},{"kind":"Field","name":{"kind":"Name","value":"authors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"orcid"}},{"kind":"Field","name":{"kind":"Name","value":"firstInitial"}},{"kind":"Field","name":{"kind":"Name","value":"givenName"}},{"kind":"Field","name":{"kind":"Name","value":"surname"}},{"kind":"Field","name":{"kind":"Name","value":"full"}}]}},{"kind":"Field","name":{"kind":"Name","value":"sourceName"}},{"kind":"Field","name":{"kind":"Name","value":"sourceUrl"}}]}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"sourceType"}},{"kind":"Field","name":{"kind":"Name","value":"modified"}}]}}]}}]}}]} as unknown as DocumentNode<FindWorkByIdentifierQuery, FindWorkByIdentifierQueryVariables>;
 export const RelatedWorksByPlanStatsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"RelatedWorksByPlanStats"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"planId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"relatedWorksByPlanStats"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"planId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"planId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"hasPublishedPlan"}},{"kind":"Field","name":{"kind":"Name","value":"acceptedCount"}},{"kind":"Field","name":{"kind":"Name","value":"pendingCount"}},{"kind":"Field","name":{"kind":"Name","value":"rejectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"totalCount"}}]}}]}}]} as unknown as DocumentNode<RelatedWorksByPlanStatsQuery, RelatedWorksByPlanStatsQueryVariables>;
 export const RelatedWorksByProjectStatsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"RelatedWorksByProjectStats"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"relatedWorksByProjectStats"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"projectId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"hasPublishedPlan"}},{"kind":"Field","name":{"kind":"Name","value":"acceptedCount"}},{"kind":"Field","name":{"kind":"Name","value":"pendingCount"}},{"kind":"Field","name":{"kind":"Name","value":"rejectedCount"}},{"kind":"Field","name":{"kind":"Name","value":"totalCount"}}]}}]}}]} as unknown as DocumentNode<RelatedWorksByProjectStatsQuery, RelatedWorksByProjectStatsQueryVariables>;
-export const RepositoriesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Repositories"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"RepositorySearchInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"repositories"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"hasPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"currentOffset"}},{"kind":"Field","name":{"kind":"Name","value":"availableSortFields"}},{"kind":"Field","name":{"kind":"Name","value":"totalCount"}},{"kind":"Field","name":{"kind":"Name","value":"nextCursor"}},{"kind":"Field","name":{"kind":"Name","value":"limit"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"keywords"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}}]}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}},{"kind":"Field","name":{"kind":"Name","value":"website"}},{"kind":"Field","name":{"kind":"Name","value":"repositoryTypes"}}]}}]}}]}}]} as unknown as DocumentNode<RepositoriesQuery, RepositoriesQueryVariables>;
+export const RepositoriesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Repositories"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"RepositorySearchInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"repositories"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"hasPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"currentOffset"}},{"kind":"Field","name":{"kind":"Name","value":"availableSortFields"}},{"kind":"Field","name":{"kind":"Name","value":"totalCount"}},{"kind":"Field","name":{"kind":"Name","value":"nextCursor"}},{"kind":"Field","name":{"kind":"Name","value":"limit"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CustomRepository"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}},{"kind":"Field","name":{"kind":"Name","value":"website"}},{"kind":"Field","name":{"kind":"Name","value":"repositoryTypes"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}}]}},{"kind":"Field","name":{"kind":"Name","value":"keywords"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Re3DataRepository"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"keywords"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}},{"kind":"Field","name":{"kind":"Name","value":"website"}},{"kind":"Field","name":{"kind":"Name","value":"repositoryTypes"}}]}}]}}]}}]}}]} as unknown as DocumentNode<RepositoriesQuery, RepositoriesQueryVariables>;
 export const RepositorySubjectAreasDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"RepositorySubjectAreas"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"repositorySubjectAreas"}}]}}]} as unknown as DocumentNode<RepositorySubjectAreasQuery, RepositorySubjectAreasQueryVariables>;
 export const RepositoriesByUrIsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"RepositoriesByURIs"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"uris"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"repositoriesByURIs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"uris"},"value":{"kind":"Variable","name":{"kind":"Name","value":"uris"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"keywords"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}}]}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}},{"kind":"Field","name":{"kind":"Name","value":"website"}},{"kind":"Field","name":{"kind":"Name","value":"repositoryTypes"}}]}}]}}]} as unknown as DocumentNode<RepositoriesByUrIsQuery, RepositoriesByUrIsQueryVariables>;
+export const Re3RepositoryTypesListDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Re3RepositoryTypesList"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"re3RepositoryTypesList"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"totalCount"}},{"kind":"Field","name":{"kind":"Name","value":"types"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}},{"kind":"Field","name":{"kind":"Name","value":"type"}}]}}]}}]}}]} as unknown as DocumentNode<Re3RepositoryTypesListQuery, Re3RepositoryTypesListQueryVariables>;
+export const Re3SubjectListDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Re3SubjectList"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"re3SubjectList"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"totalCount"}},{"kind":"Field","name":{"kind":"Name","value":"subjects"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"subject"}},{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}}]}}]} as unknown as DocumentNode<Re3SubjectListQuery, Re3SubjectListQueryVariables>;
+export const Re3byUrIsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Re3byURIs"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"uris"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"re3byURIs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"uris"},"value":{"kind":"Variable","name":{"kind":"Name","value":"uris"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"keywords"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}},{"kind":"Field","name":{"kind":"Name","value":"website"}},{"kind":"Field","name":{"kind":"Name","value":"repositoryTypes"}}]}}]}}]} as unknown as DocumentNode<Re3byUrIsQuery, Re3byUrIsQueryVariables>;
 export const TopLevelResearchDomainsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"TopLevelResearchDomains"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"topLevelResearchDomains"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<TopLevelResearchDomainsQuery, TopLevelResearchDomainsQueryVariables>;
 export const ChildResearchDomainsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ChildResearchDomains"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"parentResearchDomainId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"childResearchDomains"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"parentResearchDomainId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"parentResearchDomainId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]}}]} as unknown as DocumentNode<ChildResearchDomainsQuery, ChildResearchDomainsQueryVariables>;
 export const DefaultResearchOutputTypesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"DefaultResearchOutputTypes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"defaultResearchOutputTypes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]}}]} as unknown as DocumentNode<DefaultResearchOutputTypesQuery, DefaultResearchOutputTypesQueryVariables>;
