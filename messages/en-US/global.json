@@ -766,7 +766,9 @@
       "applyFilterSingular": "Apply filter",
       "moreInfo": "More info",
       "lessInfo": "Less info",
-      "createNewPlan": "Create New DMP"
+      "createNewPlan": "Create New DMP",
+      "deletingCustomization": "Deleting customization...",
+      "deleteCustomization": "Delete customization"
     },
     "labels": {
       "required": "required",

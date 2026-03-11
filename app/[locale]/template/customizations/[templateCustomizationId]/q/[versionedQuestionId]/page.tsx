@@ -363,14 +363,18 @@ const QuestionCustomizePage: React.FC = () => {
                       richText={true}
                       label={QuestionCustomize('labels.additionalSampleText')}
                       helpMessage={QuestionCustomize('helpText.additionalSampleText')}
-                      value={baseQuestion?.sampleText}
+                      value={customQuestionData?.sampleText}
                       onChange={(value) => updateCustomQuestionContent('sampleText', value)}
                     />
                   </div>
                 </>
               )}
 
-              <Button type="submit" aria-disabled={isSubmitting}>
+              <Button
+                type="submit"
+                aria-disabled={isSubmitting}
+                isDisabled={isSubmitting}
+              >
                 {isSubmitting ? Global('buttons.saving') : Global('buttons.saveAndUpdate')}
               </Button>
             </Form>

@@ -110,7 +110,7 @@ const routes = {
   'template.customSection': '/template/customizations/:templateCustomizationId/customSection/:customSectionId',
   'template.customize.section.create': '/template/customizations/:templateCustomizationId/section/create',
   'template.customize.question.create': '/template/customizations/:templateCustomizationId/q/new',
-  'template.customQuestion': '/template/customizations/:templateCustomizationId/q/:customQuestionId',
+  'template.customQuestion': '/template/customizations/:templateCustomizationId/customQuestion/:customQuestionId',
 
   // account/profile
   'account.index': '/account',

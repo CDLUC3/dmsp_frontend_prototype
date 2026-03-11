@@ -31,6 +31,7 @@ import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import QuestionAdd from '@/components/QuestionAdd';
 import QuestionTypeCard from '@/components/QuestionTypeCard';
 import ErrorMessages from '@/components/ErrorMessages';
+import Loading from '@/components/Loading';
 
 //Other
 import { scrollToTop } from '@/utils/general';
@@ -86,6 +87,9 @@ const CustomQuestionNew: React.FC = () => {
     variables: { templateCustomizationId: Number(templateCustomizationId) },
   });
 
+  if (templateQueryErrors) {
+    return <ErrorMessages errors={templateQueryErrors.message ? [templateQueryErrors.message] : [Global('messaging.somethingWentWrong')]} />;
+  }
 
   // Query request for questions to calculate max displayOrder
   const { data: questionDisplayOrders } = useQuery(QuestionsDisplayOrderDocument, {
@@ -131,7 +135,7 @@ const CustomQuestionNew: React.FC = () => {
       //If the user came from editing an existing question, we want to return them to that page with the new questionTypeId
       // We need to use a full page reload to ensure all state is reset so that 'beforeunload' events are properly handled in the next page
       // to display unsaved changes warning if needed
-      window.location.href = routePath('template.customize', { templateCustomizationId });
+      window.location.href = routePath('template.customQuestion', { templateCustomizationId, customQuestionId }, { section_id: sectionId, step: 1, questionType, questionName: questionTypeName, questionJSON });
 
     } else {
       // redirect to the Question Edit page if a user is adding a new question
@@ -237,6 +241,10 @@ const CustomQuestionNew: React.FC = () => {
     setLastQuestionType(lastQuestion?.questionType as CustomizableObjectOwnership ?? null);
 
   }, [data, sectionId]);
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <>

@@ -120,11 +120,10 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
 
 
   return (
-    <ContentContainer
+    <div
       id={id}
       className={`${styles.QuestionPreview} ${className}`}
     >
-      {/**Key the inert div so it remounts when preview closes */}
       <DialogTrigger onOpenChange={(isOpen) => { setOpen(isOpen); onOpenChange?.(isOpen) }}>
         <Button
           onPress={() => setOpen(true)}
@@ -167,7 +166,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
           </div>
         )}
       </DialogTrigger>
-    </ContentContainer >
+    </div >
   )
 }
 

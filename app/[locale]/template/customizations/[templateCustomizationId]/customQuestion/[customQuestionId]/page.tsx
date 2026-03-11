@@ -18,10 +18,6 @@ import {
   Modal,
   ModalOverlay,
   Radio,
-  Tab,
-  TabList,
-  TabPanel,
-  Tabs,
   Text,
   TextField
 } from "react-aria-components";
@@ -40,8 +36,6 @@ import {
   QuestionOption,
   QuestionOptions,
   QuestionFormatInterface,
-  RemoveQuestionErrors,
-  UpdateQuestionErrors,
 } from '@/app/types';
 
 // Components
@@ -61,6 +55,11 @@ import ErrorMessages from '@/components/ErrorMessages';
 import QuestionView from '@/components/QuestionView';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 import Loading from '@/components/Loading';
+import {
+  ContentContainer,
+  LayoutWithPanel,
+  SidebarPanel
+} from '@/components/Container';
 
 //Utils and Other
 import { useResearchOutputTable } from '@/app/hooks/useResearchOutputTable';
@@ -68,7 +67,6 @@ import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
-import { extractErrors } from "@/utils/errorHandler";
 import {
   getQuestionFormatInfo,
   getQuestionTypes,
@@ -137,7 +135,7 @@ const CustomQuestionEdit = () => {
   const Global = useTranslations('Global');
   const t = useTranslations('QuestionEdit');
   const QuestionAdd = useTranslations('QuestionAdd');
-  const QuestionEdit = useTranslations("EditQuestion");
+  const QuestionEdit = useTranslations("QuestionEdit");
 
   // Set URLs
   const TEMPLATE_URL = routePath('template.customize', { templateCustomizationId });
@@ -198,7 +196,9 @@ const CustomQuestionEdit = () => {
     skip: isBeingDeletedRef.current,
   });
 
-
+  if (selectedQuestionQueryError) {
+    return <ErrorMessages errors={[selectedQuestionQueryError.message]} />;
+  }
   // Update rows state and question.json when options change
   const updateRows = (newRows: QuestionOptions[]) => {
     setRows(newRows);
@@ -358,7 +358,7 @@ const CustomQuestionEdit = () => {
   // Make GraphQL mutation request to update the custom question
   const handleUpdateCustomQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isSubmitting) return;
+    if (isSubmitting) return; // Prevent double submissions
     setIsSubmitting(true);
     setFormSubmitted(true);
 
@@ -418,6 +418,7 @@ const CustomQuestionEdit = () => {
   };
 
   const handleDeleteCustomQuestion = async () => {
+    if (isDeleting) return; // Prevent double-clicks
     isBeingDeletedRef.current = true;
     setIsDeleting(true);
     try {
@@ -445,18 +446,6 @@ const CustomQuestionEdit = () => {
       setIsSubmitting(false);
     }
   };
-
-
-  // Saves any query errors to errors state
-  useEffect(() => {
-    const allErrors = [];
-
-    if (selectedQuestionQueryError) {
-      allErrors.push(selectedQuestionQueryError.message);
-    }
-
-    setErrors(allErrors);
-  }, [selectedQuestionQueryError]);
 
   // Set question details in state when data is loaded
   useEffect(() => {
@@ -657,298 +646,294 @@ const CustomQuestionEdit = () => {
         {announcement}
       </div>
       <ErrorMessages errors={errors} ref={errorRef} />
+      <LayoutWithPanel>
+        <ContentContainer>
+          <div className={styles.questionContainer}>
+            <Form onSubmit={handleUpdateCustomQuestion}>
+              <TextField
+                name="type"
+                type="text"
+                className={`${styles.searchField} react-aria-TextField`}
+                isRequired
+              >
+                <Label
+                  className={`${styles.searchLabel} react-aria-Label`}>{t('labels.type')}</Label>
+                <Input
+                  value={questionTypeName}
+                  className={`${styles.searchInput} react-aria-Input`}
+                  disabled />
+                <Button className={`${styles.searchButton} react-aria-Button`}
+                  type="button"
+                  onPress={redirectToQuestionTypes}>{t('buttons.changeType')}</Button>
+                <Text slot="description"
+                  className={`${styles.searchHelpText} help-text`}>
+                  {t('helpText.textField')}
+                </Text>
+              </TextField>
 
-      <div className="template-editor-container">
-        <div className="main-content">
-          <Tabs>
-            <TabList aria-label="Question editing">
-              <Tab id="edit">{Global('tabs.editQuestion')}</Tab>
-              <Tab id="options">{Global('tabs.options')}</Tab>
-              <Tab id="logic">{Global('tabs.logic')}</Tab>
-            </TabList>
+              <FormInput
+                name="question_text"
+                type="text"
+                isRequired={true}
+                label={t('labels.questionText')}
+                value={question?.questionText ? question.questionText : ''}
+                onChange={(e) => handleQuestionTextChange(e.target.value)}
+                helpMessage={t('helpText.questionText')}
+                isInvalid={!question?.questionText}
+                errorMessage={t('messages.errors.questionTextRequired')}
+              />
 
-            <TabPanel id="edit">
-              <Form onSubmit={handleUpdateCustomQuestion}>
-                <TextField
-                  name="type"
-                  type="text"
-                  className={`${styles.searchField} react-aria-TextField`}
-                  isRequired
-                >
-                  <Label
-                    className={`${styles.searchLabel} react-aria-Label`}>{t('labels.type')}</Label>
-                  <Input
-                    value={questionTypeName}
-                    className={`${styles.searchInput} react-aria-Input`}
-                    disabled />
-                  <Button className={`${styles.searchButton} react-aria-Button`}
-                    type="button"
-                    onPress={redirectToQuestionTypes}>{t('buttons.changeType')}</Button>
-                  <Text slot="description"
-                    className={`${styles.searchHelpText} help-text`}>
-                    {t('helpText.textField')}
-                  </Text>
-                </TextField>
+              {/**Question type fields here */}
+              {hasOptions && (
+                <div className={styles.optionsWrapper}>
+                  <p
+                    className={styles.optionsDescription}>{t('helpText.questionOptions', { questionType })}</p>
+                  <QuestionOptionsComponent
+                    rows={rows}
+                    setRows={updateRows}
+                    questionJSON={(() => {
+                      if (!question) return undefined;
+                      const result = getParsedQuestionJSON(question, routePath('template.customize', { templateCustomizationId }), Global);
+                      return result.parsed ? JSON.stringify(result.parsed) : undefined;
+                    })()}
+                    formSubmitted={formSubmitted}
+                    setFormSubmitted={setFormSubmitted} />
+                </div>
+              )}
 
-                <FormInput
-                  name="question_text"
-                  type="text"
-                  isRequired={true}
-                  label={t('labels.questionText')}
-                  value={question?.questionText ? question.questionText : ''}
-                  onChange={(e) => handleQuestionTextChange(e.target.value)}
-                  helpMessage={t('helpText.questionText')}
-                  isInvalid={!question?.questionText}
-                  errorMessage={t('messages.errors.questionTextRequired')}
+              {/**Date and Number range question types */}
+              {questionType && RANGE_QUESTION_TYPE.includes(questionType) && (
+                <RangeComponent
+                  startLabel={dateRangeLabels.start}
+                  endLabel={dateRangeLabels.end}
+                  handleRangeLabelChange={handleRangeLabelChange}
                 />
+              )}
 
-                {/**Question type fields here */}
-                {hasOptions && (
-                  <div className={styles.optionsWrapper}>
-                    <p
-                      className={styles.optionsDescription}>{t('helpText.questionOptions', { questionType })}</p>
-                    <QuestionOptionsComponent
-                      rows={rows}
-                      setRows={updateRows}
-                      questionJSON={(() => {
-                        if (!question) return undefined;
-                        const result = getParsedQuestionJSON(question, routePath('template.customize', { templateCustomizationId }), Global);
-                        return result.parsed ? JSON.stringify(result.parsed) : undefined;
-                      })()}
-                      formSubmitted={formSubmitted}
-                      setFormSubmitted={setFormSubmitted} />
-                  </div>
-                )}
-
-                {/**Date and Number range question types */}
-                {questionType && RANGE_QUESTION_TYPE.includes(questionType) && (
-                  <RangeComponent
-                    startLabel={dateRangeLabels.start}
-                    endLabel={dateRangeLabels.end}
-                    handleRangeLabelChange={handleRangeLabelChange}
-                  />
-                )}
-
-                {/**Typeahead search question type */}
-                {questionType && (questionType === TYPEAHEAD_QUESTION_TYPE) && (
-                  <TypeAheadSearch
-                    typeaheadSearchLabel={typeaheadSearchLabel}
-                    typeaheadHelpText={typeaheadHelpText}
-                    handleTypeAheadSearchLabelChange={handleTypeAheadSearchLabelChange}
-                    handleTypeAheadHelpTextChange={handleTypeAheadHelpTextChange}
-                  />
-                )}
-
-                {!QUESTION_TYPES_EXCLUDED_FROM_COMMENT_FIELD.includes(questionType ?? '') && (
-                  <RadioGroupComponent
-                    name="radioGroup"
-                    value={question?.showCommentField ? 'yes' : 'no'}
-                    radioGroupLabel={QuestionAdd('labels.additionalCommentBox')}
-                    onChange={(value) => handleInputChange('showCommentField', value === 'yes')}
-                  >
-                    <div>
-                      <Radio value="yes">{QuestionAdd('labels.showCommentField')}</Radio>
-                    </div>
-
-                    <div>
-                      <Radio value="no">{QuestionAdd('labels.doNotShowCommentField')}</Radio>
-                    </div>
-                  </RadioGroupComponent>
-                )}
-
-                <FormTextArea
-                  name="question_requirements"
-                  isRequired={false}
-                  richText={true}
-                  helpMessage={t('helpText.requirementText')}
-                  textAreaClasses={styles.questionFormField}
-                  label={t('labels.requirementText')}
-                  value={question?.requirementText ? question.requirementText : ''}
-                  onChange={(newValue) => {
-                    setQuestion(prev => ({
-                      ...prev,
-                      requirementText: newValue
-                    }));
-                    setHasUnsavedChanges(true);
-                  }}
+              {/**Typeahead search question type */}
+              {questionType && (questionType === TYPEAHEAD_QUESTION_TYPE) && (
+                <TypeAheadSearch
+                  typeaheadSearchLabel={typeaheadSearchLabel}
+                  typeaheadHelpText={typeaheadHelpText}
+                  handleTypeAheadSearchLabelChange={handleTypeAheadSearchLabelChange}
+                  handleTypeAheadHelpTextChange={handleTypeAheadHelpTextChange}
                 />
+              )}
 
-
-                <FormTextArea
-                  name="question_guidance"
-                  isRequired={false}
-                  richText={true}
-                  textAreaClasses={styles.questionFormField}
-                  label={t('labels.guidanceText')}
-                  value={question?.guidanceText ? question?.guidanceText : ''}
-                  onChange={(newValue) => {
-                    setQuestion(prev => ({
-                      ...prev,
-                      guidanceText: newValue
-                    }));
-                    setHasUnsavedChanges(true);
-                  }}
-                  helpMessage={t('helpText.guidanceText')}
-                />
-
-                {questionType === TEXT_AREA_QUESTION_TYPE && (
-                  <FormTextArea
-                    name="sample_text"
-                    isRequired={false}
-                    richText={true}
-                    description={t('descriptions.sampleText')}
-                    textAreaClasses={styles.questionFormField}
-                    label={t('labels.sampleText')}
-                    value={question?.sampleText ? question?.sampleText : ''}
-                    onChange={(newValue) => {
-                      setQuestion(prev => ({
-                        ...prev,
-                        sampleText: newValue
-                      }));
-                      setHasUnsavedChanges(true);
-                    }}
-                  />
-                )}
-
-                {questionType === TEXT_AREA_QUESTION_TYPE && (
-                  <Checkbox
-                    onChange={() => {
-                      setQuestion({
-                        ...question,
-                        useSampleTextAsDefault: !question?.useSampleTextAsDefault
-                      });
-                      setHasUnsavedChanges(true);
-                    }}
-                    isSelected={question?.useSampleTextAsDefault || false}
-                  >
-                    <div className="checkbox">
-                      <svg viewBox="0 0 18 18" aria-hidden="true">
-                        <polyline points="1 9 7 14 15 4" />
-                      </svg>
-                    </div>
-                    {t('descriptions.sampleTextAsDefault')}
-
-                  </Checkbox>
-                )}
-
-                {questionType === RESEARCH_OUTPUT_QUESTION_TYPE && (
-                  <ResearchOutputComponent
-                    standardFields={standardFields}
-                    additionalFields={additionalFields}
-                    expandedFields={expandedFields}
-                    nonCustomizableFieldIds={nonCustomizableFieldIds}
-                    newOutputType={newOutputType}
-                    setNewOutputType={setNewOutputType}
-                    newLicenseType={newLicenseType}
-                    setNewLicenseType={setNewLicenseType}
-                    defaultResearchOutputTypesData={defaultResearchOutputTypesData}
-                    licensesData={licensesData}
-                    onStandardFieldChange={handleStandardFieldChange}
-                    onCustomizeField={handleCustomizeField}
-                    onUpdateStandardFieldProperty={updateStandardFieldProperty}
-                    onTogglePreferredRepositories={handleTogglePreferredRepositories}
-                    onRepositoriesChange={handleRepositoriesChange}
-                    onToggleMetaDataStandards={handleToggleMetaDataStandards}
-                    onMetaDataStandardsChange={handleMetaDataStandardsChange}
-                    onOutputTypeModeChange={handleOutputTypeModeChange}
-                    onAddCustomOutputType={handleAddCustomOutputType}
-                    onRemoveCustomOutputType={handleRemoveCustomOutputType}
-                    onLicenseModeChange={handleLicenseModeChange}
-                    onAddCustomLicenseType={handleAddCustomLicenseType}
-                    onRemoveCustomLicenseType={handleRemoveCustomLicenseType}
-                    onDeleteAdditionalField={handleDeleteAdditionalField}
-                    onUpdateAdditionalField={handleUpdateAdditionalField}
-                    onAddAdditionalField={addAdditionalField}
-                  />
-                )}
-
+              {!QUESTION_TYPES_EXCLUDED_FROM_COMMENT_FIELD.includes(questionType ?? '') && (
                 <RadioGroupComponent
                   name="radioGroup"
-                  value={question?.required ? 'yes' : 'no'}
-                  radioGroupLabel={Global('labels.requiredField')}
-                  description={Global('descriptions.requiredFieldDescription')}
-                  onChange={handleRadioChange}
+                  value={question?.showCommentField ? 'yes' : 'no'}
+                  radioGroupLabel={QuestionAdd('labels.additionalCommentBox')}
+                  onChange={(value) => handleInputChange('showCommentField', value === 'yes')}
                 >
                   <div>
-                    <Radio value="yes">{Global('form.yesLabel')}</Radio>
+                    <Radio value="yes">{QuestionAdd('labels.showCommentField')}</Radio>
                   </div>
 
                   <div>
-                    <Radio value="no">{Global('form.noLabel')}</Radio>
+                    <Radio value="no">{QuestionAdd('labels.doNotShowCommentField')}</Radio>
                   </div>
                 </RadioGroupComponent>
+              )}
+
+              <FormTextArea
+                name="question_requirements"
+                isRequired={false}
+                richText={true}
+                helpMessage={t('helpText.requirementText')}
+                textAreaClasses={styles.questionFormField}
+                label={t('labels.requirementText')}
+                value={question?.requirementText ? question.requirementText : ''}
+                onChange={(newValue) => {
+                  setQuestion(prev => ({
+                    ...prev,
+                    requirementText: newValue
+                  }));
+                  setHasUnsavedChanges(true);
+                }}
+              />
 
 
-                <Button
-                  type="submit"
-                  aria-disabled={isSubmitting}
-                  onPress={() => setFormSubmitted(true)}
+              <FormTextArea
+                name="question_guidance"
+                isRequired={false}
+                richText={true}
+                textAreaClasses={styles.questionFormField}
+                label={t('labels.guidanceText')}
+                value={question?.guidanceText ? question?.guidanceText : ''}
+                onChange={(newValue) => {
+                  setQuestion(prev => ({
+                    ...prev,
+                    guidanceText: newValue
+                  }));
+                  setHasUnsavedChanges(true);
+                }}
+                helpMessage={t('helpText.guidanceText')}
+              />
+
+              {questionType === TEXT_AREA_QUESTION_TYPE && (
+                <FormTextArea
+                  name="sample_text"
+                  isRequired={false}
+                  richText={true}
+                  description={t('descriptions.sampleText')}
+                  textAreaClasses={styles.questionFormField}
+                  label={t('labels.sampleText')}
+                  value={question?.sampleText ? question?.sampleText : ''}
+                  onChange={(newValue) => {
+                    setQuestion(prev => ({
+                      ...prev,
+                      sampleText: newValue
+                    }));
+                    setHasUnsavedChanges(true);
+                  }}
+                />
+              )}
+
+              {questionType === TEXT_AREA_QUESTION_TYPE && (
+                <Checkbox
+                  onChange={() => {
+                    setQuestion({
+                      ...question,
+                      useSampleTextAsDefault: !question?.useSampleTextAsDefault
+                    });
+                    setHasUnsavedChanges(true);
+                  }}
+                  isSelected={question?.useSampleTextAsDefault || false}
                 >
-                  {isSubmitting ? Global('buttons.saving') : Global('buttons.saveAndUpdate')}
+                  <div className="checkbox">
+                    <svg viewBox="0 0 18 18" aria-hidden="true">
+                      <polyline points="1 9 7 14 15 4" />
+                    </svg>
+                  </div>
+                  {t('descriptions.sampleTextAsDefault')}
+
+                </Checkbox>
+              )}
+
+              {questionType === RESEARCH_OUTPUT_QUESTION_TYPE && (
+                <ResearchOutputComponent
+                  standardFields={standardFields}
+                  additionalFields={additionalFields}
+                  expandedFields={expandedFields}
+                  nonCustomizableFieldIds={nonCustomizableFieldIds}
+                  newOutputType={newOutputType}
+                  setNewOutputType={setNewOutputType}
+                  newLicenseType={newLicenseType}
+                  setNewLicenseType={setNewLicenseType}
+                  defaultResearchOutputTypesData={defaultResearchOutputTypesData}
+                  licensesData={licensesData}
+                  onStandardFieldChange={handleStandardFieldChange}
+                  onCustomizeField={handleCustomizeField}
+                  onUpdateStandardFieldProperty={updateStandardFieldProperty}
+                  onTogglePreferredRepositories={handleTogglePreferredRepositories}
+                  onRepositoriesChange={handleRepositoriesChange}
+                  onToggleMetaDataStandards={handleToggleMetaDataStandards}
+                  onMetaDataStandardsChange={handleMetaDataStandardsChange}
+                  onOutputTypeModeChange={handleOutputTypeModeChange}
+                  onAddCustomOutputType={handleAddCustomOutputType}
+                  onRemoveCustomOutputType={handleRemoveCustomOutputType}
+                  onLicenseModeChange={handleLicenseModeChange}
+                  onAddCustomLicenseType={handleAddCustomLicenseType}
+                  onRemoveCustomLicenseType={handleRemoveCustomLicenseType}
+                  onDeleteAdditionalField={handleDeleteAdditionalField}
+                  onUpdateAdditionalField={handleUpdateAdditionalField}
+                  onAddAdditionalField={addAdditionalField}
+                />
+              )}
+
+              <RadioGroupComponent
+                name="radioGroup"
+                value={question?.required ? 'yes' : 'no'}
+                radioGroupLabel={Global('labels.requiredField')}
+                description={Global('descriptions.requiredFieldDescription')}
+                onChange={handleRadioChange}
+              >
+                <div>
+                  <Radio value="yes">{Global('form.yesLabel')}</Radio>
+                </div>
+
+                <div>
+                  <Radio value="no">{Global('form.noLabel')}</Radio>
+                </div>
+              </RadioGroupComponent>
+
+
+              <Button
+                type="submit"
+                aria-disabled={isSubmitting}
+                onPress={() => setFormSubmitted(true)}
+              >
+                {isSubmitting ? Global('buttons.saving') : Global('buttons.saveAndUpdate')}
+              </Button>
+            </Form>
+
+
+
+
+            <div className={styles.deleteZone}>
+              <h2>{t('headings.deleteQuestion')}</h2>
+              <p>{t('descriptions.deleteWarning')}</p>
+              <DialogTrigger isOpen={isConfirmOpen} onOpenChange={setConfirmOpen}>
+                <Button
+                  className={`danger`}
+                  isDisabled={isDeleting}
+                >
+                  {isDeleting ? Global('buttons.deletingCustomization') : Global('buttons.deleteCustomization')}
                 </Button>
-              </Form>
-
-
-            </TabPanel>
-            <TabPanel id="options">
-              <h2>{Global('tabs.options')}</h2>
-            </TabPanel>
-            <TabPanel id="logic">
-              <h2>{Global('tabs.logic')}</h2>
-            </TabPanel>
-          </Tabs>
-
-          <div className={styles.deleteZone}>
-            <h2>{t('headings.deleteQuestion')}</h2>
-            <p>{t('descriptions.deleteWarning')}</p>
-            <DialogTrigger isOpen={isConfirmOpen} onOpenChange={setConfirmOpen}>
-              <Button className={`danger`}>{t('buttons.deleteQuestion')}</Button>
-              <ModalOverlay>
-                <Modal>
-                  <Dialog>
-                    {({ close }) => (
-                      <>
-                        <h3>{t('headings.confirmDelete')}</h3>
-                        <p>{t('descriptions.deleteWarning')}</p>
-                        <div className={styles.deleteConfirmButtons}>
-                          <Button className='react-aria-Button' autoFocus onPress={close}>{Global('buttons.cancel')}</Button>
-                          <Button className={`danger `} onPress={() => {
-                            handleDeleteCustomQuestion();
-                            close();
-                          }}>{Global('buttons.confirm')}</Button>
-                        </div>
-                      </>
-                    )}
-                  </Dialog>
-                </Modal>
-              </ModalOverlay>
-            </DialogTrigger>
+                <ModalOverlay>
+                  <Modal>
+                    <Dialog>
+                      {({ close }) => (
+                        <>
+                          <h3>{t('headings.confirmDelete')}</h3>
+                          <p>{t('descriptions.deleteWarning')}</p>
+                          <div className={styles.deleteConfirmButtons}>
+                            <Button className='react-aria-Button' autoFocus onPress={close}>{Global('buttons.cancel')}</Button>
+                            <Button
+                              className={`danger `}
+                              onPress={() => {
+                                handleDeleteCustomQuestion();
+                                close();
+                              }}>
+                              {Global('buttons.confirm')}
+                            </Button>
+                          </div>
+                        </>
+                      )}
+                    </Dialog>
+                  </Modal>
+                </ModalOverlay>
+              </DialogTrigger>
+            </div>
           </div>
+        </ContentContainer>
+        <SidebarPanel>
+          <>
+            <h2>{Global('headings.preview')}</h2>
+            <p>{QuestionEdit('descriptions.previewText')}</p>
+            <QuestionPreview
+              buttonLabel={QuestionEdit('buttons.previewQuestion')}
+              previewDisabled={question ? false : true}
+            >
+              <QuestionView
+                isPreview={true}
+                question={question}
+                path={routePath('template.customQuestion', {
+                  templateCustomizationId,
+                  customQuestionId,
+                })}
+              />
+            </QuestionPreview>
 
-        </div>
-
-
-
-        <div className="sidebar">
-          <h2>{Global('headings.preview')}</h2>
-          <p>{t('descriptions.previewText')}</p>
-          <QuestionPreview
-            buttonLabel={t('buttons.previewQuestion')}
-            previewDisabled={question ? false : true}
-          >
-            <QuestionView
-              isPreview={true}
-              question={question}
-              path={routePath('template.customize', { templateCustomizationId })}
-            />
-          </QuestionPreview>
-
-          <h3>{t('headings.bestPractice')}</h3>
-          <p>{t('descriptions.bestPracticePara1')}</p>
-          <p>{t('descriptions.bestPracticePara2')}</p>
-          <p>{t('descriptions.bestPracticePara3')}</p>
-        </div>
-      </div >
+            <h3>{QuestionEdit('headings.bestPractice')}</h3>
+            <p>{QuestionEdit('descriptions.bestPracticePara1')}</p>
+            <p>{QuestionEdit('descriptions.bestPracticePara2')}</p>
+            <p>{QuestionEdit('descriptions.bestPracticePara3')}</p>
+          </>
+        </SidebarPanel>
+      </LayoutWithPanel>
     </>
 
   );
