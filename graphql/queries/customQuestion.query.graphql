@@ -1,0 +1,35 @@
+query CustomQuestion($customQuestionId: Int!) {
+  customQuestion(customQuestionId: $customQuestionId) {
+    id
+    json
+    modified
+    sampleText
+    requirementText
+    questionText
+    guidanceText
+    errors {
+      general
+      guidanceText
+      json
+      migrationStatus
+      pinnedQuestionId
+      pinnedQuestionType
+      questionText
+      required
+      requirementText
+      sampleText
+      sectionId
+      sectionType
+      templateCustomizationId
+      useSampleTextAsDefault
+    }
+    migrationStatus
+    pinnedQuestionId
+    pinnedQuestionType
+    required
+    sectionId
+    sectionType
+    templateCustomizationId
+    useSampleTextAsDefault
+  }
+}

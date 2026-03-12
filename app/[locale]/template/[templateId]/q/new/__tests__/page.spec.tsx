@@ -5,8 +5,16 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useQueryStep } from '@/app/[locale]/template/[templateId]/q/new/utils';
 import QuestionTypeSelectPage from "../page";
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
-
+import { useMutation, useQuery } from '@apollo/client/react';
 expect.extend(toHaveNoViolations);
+
+jest.mock('@apollo/client/react', () => ({
+  useQuery: jest.fn(),
+  useMutation: jest.fn(),
+}));
+
+const mockUseQuery = jest.mocked(useQuery);
+const mockUseMutation = jest.mocked(useMutation);
 
 jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
@@ -76,6 +84,23 @@ describe("QuestionTypeSelectPage", () => {
       } as unknown as ReturnType<typeof useSearchParams>;
     });
 
+    mockUseMutation.mockImplementation(() => [
+      jest.fn().mockResolvedValue({ data: {} }),
+      { loading: false, error: undefined }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ] as any);
+
+    mockUseQuery.mockImplementation(() => ({
+      data: {
+        questions: [
+          { displayOrder: 1 },
+          { displayOrder: 2 },
+        ]
+      },
+      loading: false,
+      error: undefined,
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+    }) as any);
 
   });
 

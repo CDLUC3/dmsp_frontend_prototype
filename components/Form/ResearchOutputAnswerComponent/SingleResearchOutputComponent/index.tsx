@@ -63,6 +63,7 @@ type ResearchOutputAnswerComponentProps = {
   showButtons?: boolean;
   isNewEntry?: boolean; // Determines if this is a new entry or editing existing
   hasOtherRows?: boolean; // Indicates if there are other rows in the list so we know whether to show back to list button
+  isDisabled?: boolean; // Whether the form fields should be disabled (e.g., for preview mode or if question is disabled)
 };
 
 // Use the answer type directly from @dmptool/types
@@ -76,7 +77,8 @@ const SingleResearchOutputComponent = ({
   onCancel,
   showButtons = false,
   isNewEntry = false,
-  hasOtherRows = false
+  hasOtherRows = false,
+  isDisabled = false,
 }: ResearchOutputAnswerComponentProps) => {
 
   const textAreaFirstUpdate = useRef<{ [key: number]: boolean }>({});
@@ -441,6 +443,7 @@ const SingleResearchOutputComponent = ({
                   onChange={e => {
                     handleCellChange(colIndex, e.target.value)
                   }}
+                  disabled={isDisabled}
                 />
               </div>
             );
@@ -467,6 +470,7 @@ const SingleResearchOutputComponent = ({
                     }
                     handleCellChange(colIndex, newContent);
                   }}
+                  disabled={isDisabled}
                 />
               </div>
             );
@@ -506,6 +510,7 @@ const SingleResearchOutputComponent = ({
                   errorMessage={fieldError}
                   helpMessage={col.content.attributes?.help || col?.help}
                   onChange={val => handleCellChange(colIndex, val)}
+                  isDisabled={isDisabled}
                 />
               </div>
             );
@@ -539,6 +544,7 @@ const SingleResearchOutputComponent = ({
                   errorMessage={fieldError}
                   helpMessage={col.content.attributes?.help || col?.help}
                   onChange={val => handleCellChange(colIndex, val)}
+                  isDisabled={isDisabled}
                 />
               </div>
             );
@@ -596,6 +602,7 @@ const SingleResearchOutputComponent = ({
                     }}
                     checkboxGroupLabel={translatedLabel}
                     checkboxGroupDescription={colHelp}
+                    isDisabled={isDisabled}
                   >
                     {options.map(opt => (
                       <Checkbox key={opt.value} value={opt.value}>
@@ -820,6 +827,7 @@ const SingleResearchOutputComponent = ({
                       : null;
                     handleCellChange(colIndex, licenseObj ? [licenseObj] : []);
                   }}
+                  isDisabled={isDisabled}
                 />
               </div>
             );
@@ -840,6 +848,7 @@ const SingleResearchOutputComponent = ({
             handleCellChange(releaseDateColIndex, dateString);
           }}
           label={Global('labels.anticipatedReleaseDate')}
+          isDisabled={isDisabled}
         />
       </div>
 
@@ -861,6 +870,7 @@ const SingleResearchOutputComponent = ({
 
           }}
           maxLength={10}
+          disabled={isDisabled}
         />
 
         <FormSelect
@@ -884,6 +894,7 @@ const SingleResearchOutputComponent = ({
               context: val
             });
           }}
+          isDisabled={isDisabled}
         >
           {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
         </FormSelect>
@@ -896,6 +907,7 @@ const SingleResearchOutputComponent = ({
             <Button
               className={`${styles.editBtn} small secondary`}
               onPress={handleCancelClick}
+              isDisabled={isDisabled}
             >
               &lt; {Global('buttons.backToList')}
             </Button>
@@ -903,6 +915,7 @@ const SingleResearchOutputComponent = ({
           <Button
             className="primary"
             onPress={handleOnSave}
+            isDisabled={isDisabled}
           >
             {isNewEntry ? Global('buttons.save') : Global('buttons.update')}
           </Button>

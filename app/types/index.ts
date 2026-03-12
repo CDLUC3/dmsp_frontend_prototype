@@ -354,6 +354,7 @@ export interface RadioGroupProps {
   onChange?: (value: string) => void;
   isRequired?: boolean;
   isRequiredVisualOnly?: boolean;
+  isDisabled?: boolean;
   children?: ReactNode; // allow any Radio buttons or JSX
 }
 
@@ -373,6 +374,7 @@ export interface CheckboxGroupProps {
   onChange?: ((value: string[]) => void),
   isRequired?: boolean;
   isRequiredVisualOnly?: boolean;
+  isDisabled?: boolean;
   children?: ReactNode; // allow any Checkboxes or JSX
 }
 
@@ -573,6 +575,7 @@ export interface AffiliationSearchQuestionProps {
   affiliationData: { affiliationName: string, affiliationId: string };
   otherAffiliationName?: string;
   otherField?: boolean;
+  isDisabled?: boolean;
   setOtherField: (value: boolean) => void;
   handleAffiliationChange: (id: string, value: string) => Promise<void>
   handleOtherAffiliationChange: (e: React.ChangeEvent<HTMLInputElement>) => void;

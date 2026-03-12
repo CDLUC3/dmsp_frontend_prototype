@@ -94,6 +94,7 @@ const createMockMeQuery = (overrides = {}) => ({
     affiliation: {
       id: 1,
       name: "Test Organization",
+      displayName: "Test Organization",
       searchName: "test-organization",
       uri: "https://test.org"
     },

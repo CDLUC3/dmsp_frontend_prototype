@@ -58,7 +58,7 @@ const CreateCustomSectionPage: React.FC = () => {
   // Get templateCustomizationId param
   const params = useParams();
   const router = useRouter();
-  const { templateCustomizationId } = params; // From route /template/customizations/:templateCustomizationId/section/create
+  const templateCustomizationId = String(params.templateCustomizationId);
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -108,8 +108,6 @@ const CreateCustomSectionPage: React.FC = () => {
   } = useQuery(TemplateCustomizationOverviewDocument, {
     variables: { templateCustomizationId: Number(templateCustomizationId) },
   });
-
-
   // Update form fields in state when fields are edited
   const updateSectionContent = (key: string, value: string) => {
     clearAllFieldErrors();
@@ -141,37 +139,32 @@ const CreateCustomSectionPage: React.FC = () => {
       ...prevErrors,
       [name]: error
     }));
-    if (error.length > 1) {
-      setErrors(prev => [...prev, error]);
-    }
 
     return error;
   }
 
   // Check whether form is valid before submitting
   const isFormValid = (): boolean => {
-    // Initialize a flag for form validity
+    const newErrors: string[] = [];
+    const newFieldErrors = { ...fieldErrors };
     let isValid = true;
-    const errors: SectionFormInterface = {
-      sectionName: '',
-      sectionIntroduction: '',
-      sectionRequirements: '',
-      sectionGuidance: '',
-    };
 
-    // Iterate over formData to validate each field
     Object.keys(formData).forEach((key) => {
       const name = key as keyof SectionFormErrorsInterface;
       const value = formData[name];
-      // Call validateField to update errors for each field
       const error = validateField(name, value);
       if (error) {
         isValid = false;
-        errors[name] = error;
+        newFieldErrors[name] = error;
+        newErrors.push(error);
       }
     });
+
+    setFieldErrors(newFieldErrors);
+    setErrors(newErrors);
     return isValid;
   };
+
 
   const clearAllFieldErrors = () => {
     //Remove all field errors
@@ -266,11 +259,12 @@ const CreateCustomSectionPage: React.FC = () => {
 
         setIsSubmitting(false);
       } else {
+        isSubmittingRef.current = false;
         setIsSubmitting(false);
         setHasUnsavedChanges(false);
         showSuccessToast();
         // Redirect to the template customization page
-        router.push(`/template/customizations/${templateCustomizationId}`)
+        router.push(routePath('template.customize', { templateCustomizationId }))
       }
 
       scrollToTop(topRef);
@@ -340,7 +334,7 @@ const CreateCustomSectionPage: React.FC = () => {
           <Breadcrumbs>
             <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('template.customizations')}>{Global('breadcrumbs.templateCustomizations')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/template/customizations/${templateCustomizationId}`}>{Global('breadcrumbs.template')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.customize', { templateCustomizationId })}>{Global('breadcrumbs.template')}</Link></Breadcrumb>
             <Breadcrumb>{CreateSectionPage('title')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -409,6 +403,7 @@ const CreateCustomSectionPage: React.FC = () => {
                     <Button
                       type="submit"
                       aria-disabled={isSubmitting}
+                      isDisabled={isSubmitting}
                     >
                       {isSubmitting ? CreateSectionPage('button.creatingSection') : CreateSectionPage('button.createSection')}
                     </Button>

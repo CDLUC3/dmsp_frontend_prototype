@@ -269,7 +269,7 @@ describe("CreateCustomSectionPage", () => {
       });
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/template/customizations/16');
+        expect(mockPush).toHaveBeenCalledWith('/en-US/template/customizations/16');
       });
     });
 

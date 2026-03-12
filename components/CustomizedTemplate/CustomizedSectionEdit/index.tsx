@@ -34,6 +34,7 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
   onMoveUp,
   onMoveDown,
 }) => {
+
   const toastState = useToast();
   const t = useTranslations('Sections');
 
@@ -48,7 +49,6 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
   const isBaseSection = section.sectionType === 'BASE';
 
   const [moveCustomQuestionMutation] = useMutation(MoveCustomQuestionDocument);
-
 
   // Memoize the sorted questions to prevent unnecessary re-renders
   const sortedQuestionsFromData = useMemo(() => {
@@ -182,7 +182,7 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
   // Construct the edit URL based on section type
   const editUrl = section.sectionType === "CUSTOM"
     ? `/template/customizations/${templateCustomizationId}/customSection/${section.id}`// Custom Section
-    : `/template/customizations/${templateCustomizationId}/section/${section.id}`; // Section Customization
+    : `/template/customizations/${templateCustomizationId}/section/${section.id}`; // Section Customization    
 
   return (
     <>
@@ -204,7 +204,11 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
             <CustomizedQuestionEdit
               id={question.id.toString()}
               text={question.questionText ?? ''}
-              link={`/template/customizations/${templateCustomizationId}/q/${question.id}`}
+              link={
+                question.questionType === 'BASE'
+                  ? `/template/customizations/${templateCustomizationId}/q/${question.id}`
+                  : `/template/customizations/${templateCustomizationId}/customQuestion/${question.id}`
+              }
               displayOrder={Number(question.displayOrder)}
               questionType={question.questionType as 'BASE' | 'CUSTOM'}
               hasCustomGuidance={question.hasCustomGuidance || false}

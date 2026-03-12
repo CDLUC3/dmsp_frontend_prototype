@@ -6,6 +6,7 @@ interface CurrencyQuestionProps {
   inputCurrencyValue: number | null;
   currencyLabel?: string;
   placeholder?: string;
+  isDisabled?: boolean;
   handleCurrencyChange: (value: number | null) => void;
 }
 
@@ -14,6 +15,7 @@ const CurrencyQuestionComponent: React.FC<CurrencyQuestionProps> = ({
   inputCurrencyValue,
   currencyLabel,
   placeholder,
+  isDisabled = false,
   handleCurrencyChange,
 }) => {
   const minValue = (parsedQuestion?.attributes as { min?: number }).min;
@@ -33,6 +35,7 @@ const CurrencyQuestionComponent: React.FC<CurrencyQuestionProps> = ({
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }}
+      disabled={isDisabled}
     />
   );
 };

@@ -6,15 +6,13 @@ import {
   Button,
   DialogTrigger,
 } from "react-aria-components";
-
-import { ContentContainer } from '@/components/Container';
-
 import styles from './QuestionPreview.module.scss';
 
 
 interface QuestionPreviewProps extends React.HTMLAttributes<HTMLDivElement> {
   buttonLabel?: string,
   previewDisabled?: boolean,
+  onOpenChange?: (isOpen: boolean) => void,
 }
 
 
@@ -24,6 +22,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   className = '',
   buttonLabel = 'Preview',
   previewDisabled = true,
+  onOpenChange
 }) => {
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -117,8 +116,12 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   }, [isOpen]);
 
 
+  useEffect(() => {
+    onOpenChange?.(isOpen);
+  }, [isOpen]);
+
   return (
-    <ContentContainer
+    <div
       id={id}
       className={`${styles.QuestionPreview} ${className}`}
     >
@@ -164,7 +167,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
           </div>
         )}
       </DialogTrigger>
-    </ContentContainer >
+    </div >
   )
 }
 

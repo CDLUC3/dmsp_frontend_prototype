@@ -1,0 +1,92 @@
+mutation AddCustomQuestion($input: AddCustomQuestionInput!) {
+  addCustomQuestion(input: $input) {
+    errors {
+      general
+      guidanceText
+      json
+      migrationStatus
+      pinnedQuestionId
+      pinnedQuestionType
+      questionText
+      required
+      requirementText
+      sampleText
+      templateCustomizationId
+      useSampleTextAsDefault
+      sectionType
+    }
+    guidanceText
+    id
+    json
+    migrationStatus
+    modified
+    pinnedQuestionId
+    pinnedQuestionType
+    questionText
+    required
+    requirementText
+    sampleText
+    sectionType
+    templateCustomizationId
+    useSampleTextAsDefault
+  }
+}
+
+mutation UpdateCustomQuestion($input: UpdateCustomQuestionInput!) {
+  updateCustomQuestion(input: $input) {
+    id
+    guidanceText
+    errors {
+      general
+      guidanceText
+      questionText
+      sampleText
+      requirementText
+      useSampleTextAsDefault
+    }
+    json
+    migrationStatus
+    modified
+    pinnedQuestionId
+    pinnedQuestionType
+    questionText
+    required
+    requirementText
+    sampleText
+    sectionId
+    sectionType
+    templateCustomizationId
+    useSampleTextAsDefault
+  }
+}
+
+mutation RemoveCustomQuestion($customQuestionId: Int!) {
+  removeCustomQuestion(customQuestionId: $customQuestionId) {
+    id
+    guidanceText
+    errors {
+      guidanceText
+      general
+      json
+      migrationStatus
+      pinnedQuestionId
+      pinnedQuestionType
+      questionText
+      requirementText
+      sampleText
+      useSampleTextAsDefault
+    }
+    json
+    migrationStatus
+    modified
+    pinnedQuestionId
+    pinnedQuestionType
+    questionText
+    required
+    requirementText
+    sampleText
+    useSampleTextAsDefault
+    templateCustomizationId
+    sectionId
+  }
+}

@@ -105,6 +105,7 @@ const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
             content={value}
             setContent={handleEditorContentChange}
             id={inputId}
+            disabled={disabled}
           />
 
         </div>

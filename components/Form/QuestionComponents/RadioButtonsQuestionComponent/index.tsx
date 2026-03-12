@@ -7,6 +7,7 @@ interface RadioButtonQuestionTypeProps {
   selectedRadioValue: string | undefined;
   name?: string;
   radioGroupLabel?: string;
+  isDisabled?: boolean;
   handleRadioChange: (value: string) => void;
 }
 
@@ -15,6 +16,7 @@ const RadioButtonsQuestionComponent: React.FC<RadioButtonQuestionTypeProps> = ({
   selectedRadioValue,
   name = 'radio-buttons-question',
   radioGroupLabel = '',
+  isDisabled = false,
   handleRadioChange
 }) => {
   const radioButtonData = parsedQuestion.options?.map((opt: RadioButtonsQuestionType['options'][number]) => ({
@@ -32,6 +34,7 @@ const RadioButtonsQuestionComponent: React.FC<RadioButtonQuestionTypeProps> = ({
         value={value ?? ''}
         radioGroupLabel={radioGroupLabel}
         onChange={handleRadioChange}
+        isDisabled={isDisabled}
       >
         {radioButtonData.map((radioButton, index) => (
           <div key={index}>
