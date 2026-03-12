@@ -52,7 +52,6 @@ import {
 import { defaultAccessLevels } from '@/utils/researchOutputTable';
 import { getCalendarDateValue } from '@/utils/dateUtils';
 import styles from '../researchOutputAnswer.module.scss';
-import { isDisabled } from '@testing-library/user-event/dist/cjs/utils/index.js';
 
 type ResearchOutputAnswerComponentProps = {
   columns: ResearchOutputTableQuestionType['columns'];

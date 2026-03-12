@@ -24,8 +24,6 @@ import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
 import mockMetaDataStandards from '../__mocks__/mockMetaDataStandards.json';
 import mockSubjectAreas from '../__mocks__/mockSubjectAreas.json';
 import mockRepositories from '../__mocks__/mockRepositories.json';
-import mockRadioButtonQuestionJSON from '@/__mocks__/common/mockPublishedQuestionDataForRadioButton.json';
-import { set } from "zod";
 
 expect.extend(toHaveNoViolations);
 

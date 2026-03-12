@@ -1,18 +1,15 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 import {
-  Breadcrumb,
-  Breadcrumbs,
   Button,
   Checkbox,
   Form,
   Input,
   Label,
-  Link,
   Radio,
   Tab,
   TabList,
@@ -23,12 +20,6 @@ import {
 } from "react-aria-components";
 
 // GraphQL
-import { useMutation, useQuery } from '@apollo/client/react';
-import {
-  AddQuestionDocument,
-  QuestionsDisplayOrderDocument,
-} from '@/generated/graphql';
-
 import {
   Question,
   QuestionOptions,

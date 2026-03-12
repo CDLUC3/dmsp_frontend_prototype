@@ -19,7 +19,6 @@ import {
 import { useMutation, useQuery } from '@apollo/client/react';
 import {
   AddCustomQuestionDocument,
-  QuestionsDisplayOrderDocument,
   CustomizableObjectOwnership,
   TemplateCustomizationOverviewDocument
 } from '@/generated/graphql';
@@ -85,7 +84,7 @@ const CustomQuestionNew: React.FC = () => {
 
   // Initialize add and update question mutations
   const [addCustomQuestionMutation] = useMutation(AddCustomQuestionDocument, {
-    refetchQueries: [TemplateCustomizationOverviewDocument, QuestionsDisplayOrderDocument],
+    refetchQueries: [TemplateCustomizationOverviewDocument],
   });
 
   // Run template query to get all sections and questions under the given templateCustomizationId
@@ -95,14 +94,6 @@ const CustomQuestionNew: React.FC = () => {
     error: templateQueryErrors,
   } = useQuery(TemplateCustomizationOverviewDocument, {
     variables: { templateCustomizationId: Number(templateCustomizationId) },
-  });
-
-  // Query request for questions to calculate max displayOrder
-  const { data: questionDisplayOrders } = useQuery(QuestionsDisplayOrderDocument, {
-    variables: {
-      sectionId: Number(sectionId)
-    },
-    skip: !sectionId
   });
 
   // Handle the selection of a question type

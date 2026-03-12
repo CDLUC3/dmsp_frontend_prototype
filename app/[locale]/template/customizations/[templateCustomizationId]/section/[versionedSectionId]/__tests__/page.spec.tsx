@@ -163,6 +163,7 @@ describe('SectionCustomizePage', () => {
     it('should show a loading state while published section data is loading', async () => {
       mockUseQuery.mockImplementation((document) => {
         if (document === PublishedSectionDocument) {
+          /* eslint-disable @typescript-eslint/no-explicit-any */
           return { data: undefined, loading: true, error: null } as any;
         }
         return { data: null, loading: false, error: undefined };
@@ -282,11 +283,14 @@ describe('SectionCustomizePage', () => {
           ] as any;
         }
         if (document === AddSectionCustomizationDocument) {
+          /* eslint-disable @typescript-eslint/no-explicit-any */
           return [mockAddSectionCustomizationFn, { loading: false, error: undefined }] as any;
         }
         if (document === RemoveSectionCustomizationDocument) {
+          /* eslint-disable @typescript-eslint/no-explicit-any */
           return [mockRemoveSectionCustomizationFn, { loading: false, error: undefined }] as any;
         }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
@@ -320,14 +324,18 @@ describe('SectionCustomizePage', () => {
               },
             }),
             { loading: false, error: undefined },
+            /* eslint-disable @typescript-eslint/no-explicit-any */
           ] as any;
         }
         if (document === AddSectionCustomizationDocument) {
+          /* eslint-disable @typescript-eslint/no-explicit-any */
           return [mockAddSectionCustomizationFn, { loading: false, error: undefined }] as any;
         }
         if (document === RemoveSectionCustomizationDocument) {
+          /* eslint-disable @typescript-eslint/no-explicit-any */
           return [mockRemoveSectionCustomizationFn, { loading: false, error: undefined }] as any;
         }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
@@ -456,14 +464,18 @@ describe('SectionCustomizePage', () => {
           return [
             jest.fn().mockRejectedValueOnce(new Error('Delete failed')),
             { loading: false, error: undefined },
+            /* eslint-disable @typescript-eslint/no-explicit-any */
           ] as any;
         }
         if (document === AddSectionCustomizationDocument) {
+          /* eslint-disable @typescript-eslint/no-explicit-any */
           return [mockAddSectionCustomizationFn, { loading: false, error: undefined }] as any;
         }
         if (document === UpdateSectionCustomizationDocument) {
+          /* eslint-disable @typescript-eslint/no-explicit-any */
           return [mockUpdateSectionCustomizationFn, { loading: false, error: undefined }] as any;
         }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 
@@ -500,14 +512,18 @@ describe('SectionCustomizePage', () => {
               () => new Promise(resolve => setTimeout(() => resolve({ data: { removeSectionCustomization: { errors: {} } } }), 200))
             ),
             { loading: false, error: undefined },
+            /* eslint-disable @typescript-eslint/no-explicit-any */
           ] as any;
         }
         if (document === AddSectionCustomizationDocument) {
+          /* eslint-disable @typescript-eslint/no-explicit-any */
           return [mockAddSectionCustomizationFn, { loading: false, error: undefined }] as any;
         }
         if (document === UpdateSectionCustomizationDocument) {
+          /* eslint-disable @typescript-eslint/no-explicit-any */
           return [mockUpdateSectionCustomizationFn, { loading: false, error: undefined }] as any;
         }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [jest.fn(), { loading: false, error: undefined }] as any;
       });
 

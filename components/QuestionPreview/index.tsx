@@ -6,9 +6,6 @@ import {
   Button,
   DialogTrigger,
 } from "react-aria-components";
-
-import { ContentContainer } from '@/components/Container';
-
 import styles from './QuestionPreview.module.scss';
 
 

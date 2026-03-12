@@ -2,7 +2,6 @@ import React from 'react';
 import { CheckboxesQuestionType } from '@dmptool/types';
 import { CheckboxGroupComponent } from '@/components/Form';
 import { Checkbox } from "react-aria-components";
-import { is } from 'zod/v4/locales';
 
 interface CheckboxesQuestionProps {
   parsedQuestion: CheckboxesQuestionType;

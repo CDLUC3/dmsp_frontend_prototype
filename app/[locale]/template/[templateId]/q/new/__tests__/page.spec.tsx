@@ -6,10 +6,6 @@ import { useQueryStep } from '@/app/[locale]/template/[templateId]/q/new/utils';
 import QuestionTypeSelectPage from "../page";
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 import { useMutation, useQuery } from '@apollo/client/react';
-import {
-  AddQuestionDocument,
-  QuestionsDisplayOrderDocument,
-} from '@/generated/graphql';
 expect.extend(toHaveNoViolations);
 
 jest.mock('@apollo/client/react', () => ({
@@ -91,6 +87,7 @@ describe("QuestionTypeSelectPage", () => {
     mockUseMutation.mockImplementation(() => [
       jest.fn().mockResolvedValue({ data: {} }),
       { loading: false, error: undefined }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ] as any);
 
     mockUseQuery.mockImplementation(() => ({
@@ -102,13 +99,12 @@ describe("QuestionTypeSelectPage", () => {
       },
       loading: false,
       error: undefined,
+      /* eslint-disable @typescript-eslint/no-explicit-any */
     }) as any);
 
   });
 
   it("should render data returned from template query correctly", async () => {
-    const mockOnSave = jest.fn().mockResolvedValue(undefined);
-
     await act(async () => {
       render(
         <QuestionTypeSelectPage />

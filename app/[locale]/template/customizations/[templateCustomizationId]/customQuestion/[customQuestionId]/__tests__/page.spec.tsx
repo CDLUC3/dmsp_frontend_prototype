@@ -172,6 +172,7 @@ let mockRemoveCustomQuestionFn: jest.Mock;
 const setupMocks = (questionData = mockRadioButtonQuestion) => {
   mockUseQuery.mockImplementation((document) => {
     if (document === CustomQuestionDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return { data: questionData, loading: false, error: null } as any;
     }
     return { data: null, loading: false, error: undefined };
@@ -187,11 +188,14 @@ const setupMocks = (questionData = mockRadioButtonQuestion) => {
 
   mockUseMutation.mockImplementation((document) => {
     if (document === UpdateCustomQuestionDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [mockUpdateCustomQuestionFn, { loading: false, error: undefined }] as any;
     }
     if (document === RemoveCustomQuestionDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [mockRemoveCustomQuestionFn, { loading: false, error: undefined }] as any;
     }
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     return [jest.fn(), { loading: false, error: undefined }] as any;
   });
 };
@@ -466,8 +470,10 @@ describe("CustomQuestionEdit", () => {
     // Then override the mutation AFTER setupMocks
     mockUseMutation.mockImplementation((document) => {
       if (document === UpdateCustomQuestionDocument) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [jest.fn().mockRejectedValueOnce(new Error("Network error")), { loading: false }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [mockRemoveCustomQuestionFn, { loading: false }] as any;
     });
 
@@ -499,8 +505,10 @@ describe("CustomQuestionEdit", () => {
               errors: { general: 'Server validation error', questionText: null },
             },
           },
+          /* eslint-disable @typescript-eslint/no-explicit-any */
         }), { loading: false }] as any;
       }
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [mockRemoveCustomQuestionFn, { loading: false }] as any;
     });
 
@@ -631,8 +639,10 @@ describe("CustomQuestionEdit", () => {
 
       mockUseMutation.mockImplementation((document) => {
         if (document === RemoveCustomQuestionDocument) {
+          /* eslint-disable @typescript-eslint/no-explicit-any */
           return [mockRemove, { loading: false }] as any;
         }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateCustomQuestionFn, { loading: false }] as any;
       });
 
@@ -663,8 +673,10 @@ describe("CustomQuestionEdit", () => {
     it("should display error message when deletion throws", async () => {
       mockUseMutation.mockImplementation((document) => {
         if (document === RemoveCustomQuestionDocument) {
+          /* eslint-disable @typescript-eslint/no-explicit-any */
           return [jest.fn().mockRejectedValueOnce(new Error("Delete failed")), { loading: false }] as any;
         }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateCustomQuestionFn, { loading: false }] as any;
       });
 
@@ -688,8 +700,10 @@ describe("CustomQuestionEdit", () => {
     it("should call logECS when deletion throws an error", async () => {
       mockUseMutation.mockImplementation((document) => {
         if (document === RemoveCustomQuestionDocument) {
+          /* eslint-disable @typescript-eslint/no-explicit-any */
           return [jest.fn().mockRejectedValueOnce(new Error("Delete failed")), { loading: false }] as any;
         }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateCustomQuestionFn, { loading: false }] as any;
       });
 
@@ -726,8 +740,10 @@ describe("CustomQuestionEdit", () => {
                 errors: { general: 'Server deletion error' },
               },
             },
+            /* eslint-disable @typescript-eslint/no-explicit-any */
           }), { loading: false }] as any;
         }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateCustomQuestionFn, { loading: false }] as any;
       });
 
@@ -758,8 +774,10 @@ describe("CustomQuestionEdit", () => {
               )
             ),
             { loading: false },
+            /* eslint-disable @typescript-eslint/no-explicit-any */
           ] as any;
         }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return [mockUpdateCustomQuestionFn, { loading: false }] as any;
       });
 

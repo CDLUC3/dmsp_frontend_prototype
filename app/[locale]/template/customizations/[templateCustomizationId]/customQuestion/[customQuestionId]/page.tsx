@@ -69,7 +69,6 @@ import { stripHtmlTags } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
 import {
   getQuestionFormatInfo,
-  getQuestionTypes,
   questionTypeHandlers
 } from '@/utils/questionTypeHandlers';
 

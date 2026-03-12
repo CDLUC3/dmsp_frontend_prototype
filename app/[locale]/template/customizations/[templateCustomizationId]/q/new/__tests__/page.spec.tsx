@@ -36,6 +36,7 @@ jest.mock('@/utils/questionTypeHandlers', () => ({
 // Simplify child components to keep tests focused on page-level behaviour
 jest.mock('@/components/QuestionTypeCard', () => ({
   __esModule: true,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   default: ({ questionType, handleSelect }: { questionType: any; handleSelect: Function }) => (
     <button
       data-testid={`question-type-card-${questionType.type}`}
@@ -125,6 +126,7 @@ let mockAddCustomQuestionFn: jest.Mock;
 const setupMocks = () => {
   mockUseQuery.mockImplementation((document) => {
     if (document === TemplateCustomizationOverviewDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return { data: mockTemplateOverviewData, loading: false, error: null } as any;
     }
     if (document === QuestionsDisplayOrderDocument) {
@@ -132,6 +134,7 @@ const setupMocks = () => {
         data: { questions: [{ displayOrder: 1 }, { displayOrder: 2 }, { displayOrder: 3 }] },
         loading: false,
         error: null,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } as any;
     }
     return { data: null, loading: false, error: undefined };
@@ -143,11 +146,14 @@ const setupMocks = () => {
 
   mockUseMutation.mockImplementation((document) => {
     if (document === AddCustomQuestionDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       return [mockAddCustomQuestionFn, { loading: false, error: undefined }] as any;
     }
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     return [jest.fn(), { loading: false, error: undefined }] as any;
   });
 
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   mockGetQuestionTypes.mockReturnValue(mockQuestionTypes as any);
   mockUseQueryStep.mockReturnValue(1);
 };

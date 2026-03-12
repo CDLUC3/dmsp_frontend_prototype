@@ -106,17 +106,22 @@ let mockUpdateCustomizationFn: jest.Mock;
 let mockRemoveCustomizationFn: jest.Mock;
 
 const setupMocks = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   customizationData: { questionCustomizationByVersionedQuestion: any } = mockExistingCustomization,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   publishedQuestionData: { publishedQuestion: any } = mockPublishedQuestion
 ) => {
   mockUseQuery.mockImplementation((document) => {
     if (document === PublishedQuestionDocument) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return { data: publishedQuestionData, loading: false, error: undefined } as any;
     }
     if (document === MeDocument) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return { data: mockMeData, loading: false, error: undefined } as any;
     }
     if (document === QuestionCustomizationByVersionedQuestionDocument) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return { data: customizationData, loading: false, error: undefined } as any;
     }
     return { data: null, loading: false, error: undefined };
@@ -136,14 +141,18 @@ const setupMocks = (
 
   mockUseMutation.mockImplementation((document) => {
     if (document === AddQuestionCustomizationDocument) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return [mockAddCustomizationFn, { loading: false }] as any;
     }
     if (document === UpdateQuestionCustomizationDocument) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return [mockUpdateCustomizationFn, { loading: false }] as any;
     }
     if (document === RemoveQuestionCustomizationDocument) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return [mockRemoveCustomizationFn, { loading: false }] as any;
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return [jest.fn(), { loading: false }] as any;
   });
 };
@@ -205,6 +214,7 @@ describe("QuestionCustomizePage", () => {
     it("should show loading spinner while publishedQuestion query is in flight", async () => {
       mockUseQuery.mockImplementation((document) => {
         if (document === PublishedQuestionDocument) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           return { data: undefined, loading: true, error: undefined } as any;
         }
         return { data: null, loading: false, error: undefined };
@@ -375,8 +385,10 @@ describe("QuestionCustomizePage", () => {
               )
             ),
             { loading: false },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ] as any;
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return [jest.fn(), { loading: false }] as any;
       });
 
@@ -401,8 +413,10 @@ describe("QuestionCustomizePage", () => {
               )
             ),
             { loading: false },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ] as any;
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return [jest.fn(), { loading: false }] as any;
       });
 
@@ -423,8 +437,10 @@ describe("QuestionCustomizePage", () => {
           return [
             jest.fn().mockRejectedValueOnce(new Error("Network error")),
             { loading: false }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ] as any;
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return [jest.fn(), { loading: false }] as any;
       });
 
@@ -447,8 +463,10 @@ describe("QuestionCustomizePage", () => {
           return [
             jest.fn().mockRejectedValueOnce(new Error("Network error")),
             { loading: false }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ] as any;
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return [jest.fn(), { loading: false }] as any;
       });
 
@@ -483,8 +501,10 @@ describe("QuestionCustomizePage", () => {
               },
             }),
             { loading: false },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ] as any;
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return [jest.fn(), { loading: false }] as any;
       });
 
@@ -586,8 +606,10 @@ describe("QuestionCustomizePage", () => {
           return [
             jest.fn().mockRejectedValueOnce(new Error("Delete failed")),
             { loading: false }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ] as any;
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return [mockUpdateCustomizationFn, { loading: false }] as any;
       });
 
@@ -612,8 +634,10 @@ describe("QuestionCustomizePage", () => {
           return [
             jest.fn().mockRejectedValueOnce(new Error("Delete failed")),
             { loading: false }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ] as any;
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return [mockUpdateCustomizationFn, { loading: false }] as any;
       });
 
@@ -651,8 +675,10 @@ describe("QuestionCustomizePage", () => {
               },
             }),
             { loading: false },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ] as any;
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return [mockUpdateCustomizationFn, { loading: false }] as any;
       });
 
@@ -683,8 +709,10 @@ describe("QuestionCustomizePage", () => {
               )
             ),
             { loading: false },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ] as any;
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return [mockUpdateCustomizationFn, { loading: false }] as any;
       });
 
@@ -712,8 +740,10 @@ describe("QuestionCustomizePage", () => {
       setupMocks();
       mockUseMutation.mockImplementation((document) => {
         if (document === RemoveQuestionCustomizationDocument) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           return [mockRemove, { loading: false }] as any;
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return [mockUpdateCustomizationFn, { loading: false }] as any;
       });
 
