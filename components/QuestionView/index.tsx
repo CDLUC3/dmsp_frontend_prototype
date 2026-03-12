@@ -537,8 +537,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       className={`${styles.QuestionView} ${className}`}
     >
       <ContentContainer className={`${styles.QuestionView}__content-container`}>
-        {/* <h2>{question?.questionText}</h2> */}
-
         {(question?.requirementText) && (
           <div className={styles.Requirements}>
             <h3 className={`h4 ${styles.heading3}`}>{Global('headings.requirements')}</h3>

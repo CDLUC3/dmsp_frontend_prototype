@@ -41,6 +41,16 @@ import { QuestionFormatInterface } from '@/app/types';
 import styles from './newCustomQuestion.module.scss';
 import { getQuestionTypes } from "@/utils/questionTypeHandlers";
 
+const CustomQuestionBreadcrumbs = ({ templateCustomizationId, Global }: { templateCustomizationId: string; Global: (key: string, values?: Record<string, string | number>) => string }) => {
+  return (
+    <Breadcrumbs>
+      <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+      <Breadcrumb><Link href={routePath('template.customizations')}>{Global('breadcrumbs.templateCustomizations')}</Link></Breadcrumb>
+      <Breadcrumb><Link href={routePath('template.customize', { templateCustomizationId })}>{Global('breadcrumbs.template')}</Link></Breadcrumb>
+      <Breadcrumb>{Global('breadcrumbs.selectQuestionType')}</Breadcrumb>
+    </Breadcrumbs>
+  )
+}
 
 const CustomQuestionNew: React.FC = () => {
   // Get templateId param
@@ -87,37 +97,13 @@ const CustomQuestionNew: React.FC = () => {
     variables: { templateCustomizationId: Number(templateCustomizationId) },
   });
 
-  if (templateQueryErrors) {
-    return <ErrorMessages errors={templateQueryErrors.message ? [templateQueryErrors.message] : [Global('messaging.somethingWentWrong')]} />;
-  }
-
   // Query request for questions to calculate max displayOrder
   const { data: questionDisplayOrders } = useQuery(QuestionsDisplayOrderDocument, {
     variables: {
       sectionId: Number(sectionId)
     },
     skip: !sectionId
-  })
-
-  // Calculate the display order of the new question based on the last displayOrder number
-  const getDisplayOrder = useCallback(() => {
-    if (!questionDisplayOrders?.questions?.length) {
-      return 1;
-    }
-
-    // Filter out null/undefined questions and handle missing displayOrder
-    const validDisplayOrders = questionDisplayOrders.questions
-      .map(q => q?.displayOrder)
-      .filter((order): order is number => typeof order === 'number');
-
-    if (validDisplayOrders.length === 0) {
-      return 1;
-    }
-
-    const maxDisplayOrder = Math.max(...validDisplayOrders);
-    return maxDisplayOrder + 1;
-  }, [questionDisplayOrders]);
-
+  });
 
   // Handle the selection of a question type
   const handleSelect = (
@@ -167,9 +153,8 @@ const CustomQuestionNew: React.FC = () => {
       const lowerTerm = term.toLowerCase();
       const nameMatch = qt.title?.toLowerCase().includes(lowerTerm);
       const usageDescriptionMatch = qt.usageDescription?.toLowerCase().includes(lowerTerm);
-      const jsonMatch = qt.usageDescription?.toLowerCase().includes(lowerTerm);
 
-      return nameMatch || jsonMatch || usageDescriptionMatch;
+      return nameMatch || usageDescriptionMatch;
     });
 
   // Filter results when a user enters a search term and clicks "Search" button
@@ -181,19 +166,8 @@ const CustomQuestionNew: React.FC = () => {
     const filteredQuestionTypes = filterQuestionTypes(questionTypes, term);
 
     if (filteredQuestionTypes.length > 0) {
-      setFilteredQuestionTypes(filteredQuestionTypes.length > 0 ? filteredQuestionTypes : null);
+      setFilteredQuestionTypes(filteredQuestionTypes.length > 0 ? filteredQuestionTypes : []);
     }
-  }
-
-  const CustomQuestionBreadcrumbs = () => {
-    return (
-      <Breadcrumbs>
-        <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
-        <Breadcrumb><Link href={routePath('template.customizations')}>{Global('breadcrumbs.templateCustomizations')}</Link></Breadcrumb>
-        <Breadcrumb><Link href={routePath('template.customize', { templateCustomizationId })}>{Global('breadcrumbs.template')}</Link></Breadcrumb>
-        <Breadcrumb>{Global('breadcrumbs.selectQuestionType')}</Breadcrumb>
-      </Breadcrumbs>
-    )
   }
 
   useEffect(() => {
@@ -246,6 +220,9 @@ const CustomQuestionNew: React.FC = () => {
     return <Loading />;
   }
 
+  if (templateQueryErrors) {
+    return <ErrorMessages errors={templateQueryErrors.message ? [templateQueryErrors.message] : [Global('messaging.somethingWentWrong')]} />;
+  }
   return (
     <>
       {step === 1 && (
@@ -254,7 +231,7 @@ const CustomQuestionNew: React.FC = () => {
             title={QuestionTypeSelect('title')}
             description={QuestionTypeSelect('description')}
             showBackButton={false}
-            breadcrumbs={<CustomQuestionBreadcrumbs />}
+            breadcrumbs={<CustomQuestionBreadcrumbs templateCustomizationId={String(templateCustomizationId)} Global={Global} />}
             actions={null}
             className=""
           />
@@ -343,7 +320,7 @@ const CustomQuestionNew: React.FC = () => {
             questionName={selectedQuestionType?.questionName ?? null}
             questionJSON={selectedQuestionType?.questionJSON ?? ''}
             sectionId={sectionId ? sectionId : ''}
-            breadcrumbs={<CustomQuestionBreadcrumbs />}
+            breadcrumbs={<CustomQuestionBreadcrumbs templateCustomizationId={String(templateCustomizationId)} Global={Global} />}
             backUrl={routePath('template.customize.question.create', { templateCustomizationId }, { section_id: sectionId, step: 1 })}
             successUrl={routePath('template.customize', { templateCustomizationId })}
             onSave={async (commonFields) => {

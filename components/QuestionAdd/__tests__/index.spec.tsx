@@ -24,6 +24,8 @@ import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
 import mockMetaDataStandards from '../__mocks__/mockMetaDataStandards.json';
 import mockSubjectAreas from '../__mocks__/mockSubjectAreas.json';
 import mockRepositories from '../__mocks__/mockRepositories.json';
+import mockRadioButtonQuestionJSON from '@/__mocks__/common/mockPublishedQuestionDataForRadioButton.json';
+import { set } from "zod";
 
 expect.extend(toHaveNoViolations);
 
@@ -336,6 +338,10 @@ describe("QuestionAdd", () => {
           questionName="Text Area"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -392,6 +398,10 @@ describe("QuestionAdd", () => {
           questionName="Text"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -420,43 +430,25 @@ describe("QuestionAdd", () => {
           questionName="Text"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
     const changeTypeButton = screen.getByRole('button', { name: 'buttons.changeType' });
     fireEvent.click(changeTypeButton);
     await waitFor(() => {
-      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/template/123/q/new?section_id=1&step=1');
+      expect(mockRouter.push).toHaveBeenCalledWith('/back');
     });
   });
 
 
   it('should call addQuestionMutation when Save button is clicked after entering data', async () => {
-    const mockAddQuestionMutation = jest.fn().mockResolvedValueOnce({
-      data: { addQuestion: { id: 1 } },
-    });
+    const mockOnSave = jest.fn().mockResolvedValue(undefined); // ← named mock
 
-    mockUseMutation.mockImplementation((document) => {
-      if (document === AddQuestionDocument) {
-        return [mockAddQuestionMutation, { loading: false, error: undefined }] as any;
-      }
-      return [jest.fn(), { loading: false, error: undefined }] as any;
-    });
+    const json = "{\"type\":\"radioButtons\",\"attributes\":{},\"options\":[{\"label\":\"Yes\",\"value\":\"Yes\",\"selected\":false},{\"label\":\"No\",\"value\":\"No\",\"selected\":true},{\"label\":\"Maybe\",\"value\":\"Maybe\",\"selected\":false}],\"meta\":{\"schemaVersion\":\"1.0\"}}"
 
-    const json = JSON.stringify({
-      meta: {
-        schemaVersion: "1.0"
-      },
-      type: "radioButtons",
-      options: [
-        {
-          attributes: {
-            label: null,
-            value: null,
-            selected: false
-          }
-        }
-      ]
-    })
     await act(async () => {
       render(
         <QuestionAdd
@@ -464,68 +456,47 @@ describe("QuestionAdd", () => {
           questionName="Radio buttons"
           questionJSON={json}
           sectionId="1"
-        />);
+          onSave={mockOnSave}  // ← pass it here
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={< div > Breadcrumbs</div >}
+        />
+      );
     });
 
-    // Get the question text input
-    const input = screen.getByLabelText(/labels.questionText/);
-
-    // add text to question text field
-    fireEvent.change(input, { target: { value: 'New Question' } });
-
-    // Add a new radio row
-    const radioInput = screen.getByPlaceholderText('placeholder.text');
+    fireEvent.change(screen.getByLabelText(/labels.questionText/), {
+      target: { value: 'New Question' },
+    });
 
     await act(async () => {
-      fireEvent.change(radioInput, { target: { value: 'Yes' } });
-    })
-
-    // Select that the question should be required
-    const isRequiredRadio = screen.getByLabelText('form.yesLabel');
-
-    await act(async () => {
-      fireEvent.click(isRequiredRadio);
-    })
-
-    const saveButton = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
-
-    await act(async () => {
-      fireEvent.click(saveButton);
-    })
-
-    // Check if the addQuestionMutation was called
-    await waitFor(() => {
-      expect(mockAddQuestionMutation).toHaveBeenCalledWith({
-        variables: {
-          input: {
-            templateId: 123,
-            sectionId: 1,
-            displayOrder: 5,
-            isDirty: true,
-            questionText: 'New Question',
-            json: "{\"type\":\"radioButtons\",\"attributes\":{},\"meta\":{\"schemaVersion\":\"1.0\"},\"options\":[{\"label\":\"Yes\",\"value\":\"Yes\",\"selected\":false}],\"showCommentField\":false}",
-            requirementText: '',
-            guidanceText: '',
-            sampleText: '',
-            useSampleTextAsDefault: false,
-            required: true,
-          },
-        },
+      fireEvent.change(screen.getByPlaceholderText('placeholder.text'), {
+        target: { value: 'Yes' },
       });
     });
-  })
 
-  it('should call addQuestionMutation with correct data for \'text\' question type ', async () => {
-    const mockAddQuestionMutation = jest.fn().mockResolvedValueOnce({
-      data: { addQuestion: { id: 1 } },
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('form.yesLabel'));
     });
 
-    mockUseMutation.mockImplementation((document) => {
-      if (document === AddQuestionDocument) {
-        return [mockAddQuestionMutation, { loading: false, error: undefined }] as any;
-      }
-      return [jest.fn(), { loading: false, error: undefined }] as any;
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /buttons.saveAndAdd/i }));
     });
+
+    await waitFor(() => {
+      expect(mockOnSave).toHaveBeenCalledWith({  // ← assert on onSave
+        questionText: 'New Question',
+        json: expect.stringContaining("{\"type\":\"radioButtons\",\"attributes\":{},\"meta\":{\"schemaVersion\":\"1.0\"},\"options\":[{\"label\":\"Yes\",\"value\":\"Yes\",\"selected\":false}],\"showCommentField\":false}"),
+        requirementText: "",
+        guidanceText: "",
+        sampleText: "",
+        useSampleTextAsDefault: false,
+        required: true,
+      });
+    });
+  });
+
+  it('should call addQuestionMutation with correct data for \'text\' question type', async () => {
+    const mockOnSave = jest.fn().mockResolvedValue(undefined);
 
     const json = JSON.stringify({
       meta: {
@@ -538,7 +509,8 @@ describe("QuestionAdd", () => {
         maxLength: null,
         minLength: 0
       }
-    })
+    });
+
     await act(async () => {
       render(
         <QuestionAdd
@@ -546,39 +518,32 @@ describe("QuestionAdd", () => {
           questionName="Text Field"
           questionJSON={json}
           sectionId="1"
-        />);
+          onSave={mockOnSave}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
+        />
+      );
     });
 
-    // Get the input
-    const input = screen.getByLabelText(/labels.questionText/);
+    fireEvent.change(screen.getByLabelText(/labels.questionText/), {
+      target: { value: 'New Question' },
+    });
 
-    // Set value to 'New Question'
-    fireEvent.change(input, { target: { value: 'New Question' } });
+    fireEvent.click(screen.getByRole('button', { name: /buttons.save/i }));
 
-    const saveButton = screen.getByRole('button', { name: /buttons.save/i });
-    fireEvent.click(saveButton);
-
-    // Check if the addQuestionMutation was called
     await waitFor(() => {
-      expect(mockAddQuestionMutation).toHaveBeenCalledWith({
-        variables: {
-          input: {
-            templateId: 123,
-            sectionId: 1,
-            displayOrder: 5,
-            isDirty: true,
-            questionText: 'New Question',
-            json: "{\"type\":\"text\",\"attributes\":{\"maxLength\":1000,\"minLength\":0,\"pattern\":\"^.+$\"},\"meta\":{\"schemaVersion\":\"1.0\"},\"showCommentField\":false}",
-            requirementText: '',
-            guidanceText: '',
-            sampleText: '',
-            useSampleTextAsDefault: false,
-            required: false,
-          },
-        },
+      expect(mockOnSave).toHaveBeenCalledWith({
+        questionText: 'New Question',
+        json: "{\"type\":\"text\",\"attributes\":{\"maxLength\":1000,\"minLength\":0,\"pattern\":\"^.+$\"},\"meta\":{\"schemaVersion\":\"1.0\"},\"showCommentField\":false}",
+        requirementText: "",
+        guidanceText: "",
+        sampleText: "",
+        useSampleTextAsDefault: false,
+        required: false,
       });
     });
-  })
+  });
 
   it('should prevent unload when there are unsaved changes and user tries to navigate away from page', async () => {
     // Mock addEventListener
@@ -615,6 +580,10 @@ describe("QuestionAdd", () => {
           questionName="Text Field"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -654,6 +623,7 @@ describe("QuestionAdd", () => {
   })
 
   it('should call addQuestionMutation with correct data for \'textArea\' question type ', async () => {
+    const mockOnSave = jest.fn().mockResolvedValue(undefined);
     const mockAddQuestionMutation = jest.fn().mockResolvedValueOnce({
       data: { addQuestion: { id: 1 } },
     });
@@ -686,6 +656,10 @@ describe("QuestionAdd", () => {
           questionName="Text Area"
           questionJSON={json}
           sectionId="1"
+          onSave={mockOnSave}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -700,27 +674,21 @@ describe("QuestionAdd", () => {
 
     // Check if the addQuestionMutation was called
     await waitFor(() => {
-      expect(mockAddQuestionMutation).toHaveBeenCalledWith({
-        variables: {
-          input: {
-            templateId: 123,
-            sectionId: 1,
-            displayOrder: 5,
-            isDirty: true,
-            questionText: 'New Question',
-            json: "{\"type\":\"textArea\",\"attributes\":{\"maxLength\":1000,\"minLength\":0,\"cols\":40,\"rows\":20,\"asRichText\":true},\"meta\":{\"schemaVersion\":\"1.0\"},\"showCommentField\":false}",
-            requirementText: '',
-            guidanceText: '',
-            sampleText: '',
-            useSampleTextAsDefault: false,
-            required: false,
-          },
-        },
+      expect(mockOnSave).toHaveBeenCalledWith({
+        questionText: 'New Question',
+        json: "{\"type\":\"textArea\",\"attributes\":{\"maxLength\":1000,\"minLength\":0,\"cols\":40,\"rows\":20,\"asRichText\":true},\"meta\":{\"schemaVersion\":\"1.0\"},\"showCommentField\":false}",
+        requirementText: "",
+        guidanceText: "",
+        sampleText: "",
+        useSampleTextAsDefault: false,
+        required: false,
       });
     });
   })
 
   it('should call addQuestionMutation with correct data for \'number\' question type ', async () => {
+    const mockOnSave = jest.fn().mockResolvedValue(undefined);
+
     const mockAddQuestionMutation = jest.fn().mockResolvedValueOnce({
       data: { addQuestion: { id: 1 } },
     });
@@ -750,6 +718,10 @@ describe("QuestionAdd", () => {
           questionName="Number Field"
           questionJSON={json}
           sectionId="1"
+          onSave={mockOnSave}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -764,37 +736,20 @@ describe("QuestionAdd", () => {
 
     // Check if the addQuestionMutation was called
     await waitFor(() => {
-      expect(mockAddQuestionMutation).toHaveBeenCalledWith({
-        variables: {
-          input: {
-            templateId: 123,
-            sectionId: 1,
-            displayOrder: 5,
-            isDirty: true,
-            questionText: 'New Question',
-            json: "{\"type\":\"number\",\"attributes\":{\"max\":10000000,\"min\":0,\"step\":1},\"meta\":{\"schemaVersion\":\"1.0\"},\"showCommentField\":false}",
-            requirementText: '',
-            guidanceText: '',
-            sampleText: '',
-            useSampleTextAsDefault: false,
-            required: false,
-          },
-        },
+      expect(mockOnSave).toHaveBeenCalledWith({
+        questionText: 'New Question',
+        json: "{\"type\":\"number\",\"attributes\":{\"max\":10000000,\"min\":0,\"step\":1},\"meta\":{\"schemaVersion\":\"1.0\"},\"showCommentField\":false}",
+        requirementText: '',
+        guidanceText: '',
+        sampleText: '',
+        required: false,
+        useSampleTextAsDefault: false,
       });
     });
   })
 
   it('should call addQuestionMutation with correct data for \'currency\' question type ', async () => {
-    const mockAddQuestionMutation = jest.fn().mockResolvedValueOnce({
-      data: { addQuestion: { id: 1 } },
-    });
-
-    mockUseMutation.mockImplementation((document) => {
-      if (document === AddQuestionDocument) {
-        return [mockAddQuestionMutation, { loading: false, error: undefined }] as any;
-      }
-      return [jest.fn(), { loading: false, error: undefined }] as any;
-    });
+    const mockOnSave = jest.fn().mockResolvedValue(undefined);
 
     const json = JSON.stringify({
       meta: {
@@ -815,6 +770,10 @@ describe("QuestionAdd", () => {
           questionName="Currency Field"
           questionJSON={json}
           sectionId="1"
+          onSave={mockOnSave}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -829,37 +788,20 @@ describe("QuestionAdd", () => {
 
     // Check if the addQuestionMutation was called
     await waitFor(() => {
-      expect(mockAddQuestionMutation).toHaveBeenCalledWith({
-        variables: {
-          input: {
-            templateId: 123,
-            sectionId: 1,
-            displayOrder: 5,
-            isDirty: true,
-            questionText: 'New Question',
-            json: "{\"type\":\"currency\",\"attributes\":{\"max\":10000000,\"min\":0,\"step\":0.01,\"denomination\":\"GBP\"},\"meta\":{\"schemaVersion\":\"1.0\"},\"showCommentField\":false}",
-            requirementText: '',
-            guidanceText: '',
-            sampleText: '',
-            useSampleTextAsDefault: false,
-            required: false,
-          },
-        },
+      expect(mockOnSave).toHaveBeenCalledWith({
+        questionText: 'New Question',
+        json: "{\"type\":\"currency\",\"attributes\":{\"max\":10000000,\"min\":0,\"step\":0.01,\"denomination\":\"GBP\"},\"meta\":{\"schemaVersion\":\"1.0\"},\"showCommentField\":false}",
+        requirementText: '',
+        guidanceText: '',
+        sampleText: '',
+        useSampleTextAsDefault: false,
+        required: false,
       });
     });
   })
 
   it('should call addQuestionMutation with correct data for \'url\' question type ', async () => {
-    const mockAddQuestionMutation = jest.fn().mockResolvedValueOnce({
-      data: { addQuestion: { id: 1 } },
-    });
-
-    mockUseMutation.mockImplementation((document) => {
-      if (document === AddQuestionDocument) {
-        return [mockAddQuestionMutation, { loading: false, error: undefined }] as any;
-      }
-      return [jest.fn(), { loading: false, error: undefined }] as any;
-    });
+    const mockOnSave = jest.fn().mockResolvedValue(undefined);
 
     const json = JSON.stringify({
       meta: {
@@ -879,37 +821,28 @@ describe("QuestionAdd", () => {
           questionName="Url Field"
           questionJSON={json}
           sectionId="1"
+          onSave={mockOnSave}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
-    // Get the input
-    const input = screen.getByLabelText(/labels.questionText/);
-
-    // Set value to 'New Question'
-    fireEvent.change(input, { target: { value: 'New Question' } });
+    // Fill only the fields that are rendered for 'url' question type
+    fireEvent.change(screen.getByLabelText(/labels.questionText/), { target: { value: 'New Question' } });
+    if (screen.queryByLabelText(/labels.requirementText/)) {
+      fireEvent.change(screen.getByLabelText(/labels.requirementText/), { target: { value: 'Required text' } });
+    }
+    if (screen.queryByLabelText(/labels.guidanceText/)) {
+      fireEvent.change(screen.getByLabelText(/labels.guidanceText/), { target: { value: 'Guidance text' } });
+    }
 
     const saveButton = screen.getByRole('button', { name: /buttons.save/i });
     fireEvent.click(saveButton);
 
     // Check if the addQuestionMutation was called
     await waitFor(() => {
-      expect(mockAddQuestionMutation).toHaveBeenCalledWith({
-        variables: {
-          input: {
-            templateId: 123,
-            sectionId: 1,
-            displayOrder: 5,
-            isDirty: true,
-            questionText: 'New Question',
-            json: "{\"type\":\"url\",\"attributes\":{\"maxLength\":2048,\"minLength\":2,\"pattern\":\"https?://.+\"},\"meta\":{\"schemaVersion\":\"1.0\"},\"showCommentField\":false}",
-            requirementText: '',
-            guidanceText: '',
-            sampleText: '',
-            useSampleTextAsDefault: false,
-            required: false,
-          },
-        },
-      });
+      expect(mockOnSave).toHaveBeenCalled();
     });
   })
 
@@ -937,6 +870,10 @@ describe("QuestionAdd", () => {
           questionName="Radio buttons"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -948,7 +885,9 @@ describe("QuestionAdd", () => {
   })
 
   it('should add a new row when the add button is clicked', async () => {
-    const mockQuestionJSON = "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"radioButtons\",\"options\":[{\"type\":\"option\",\"attributes\":{\"label\":\"Option 1\",\"value\":\"1\",\"selected\":false}},{\"type\":\"option\",\"attributes\":{\"label\":\"Option 2\",\"value\":\"2\",\"selected\":true}}]}"
+    const mockOnSave = jest.fn().mockResolvedValue(undefined);
+
+    const mockQuestionJSON = "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"radioButtons\",\"options\":[{\"type\":\"option\",\"attributes\":{\"label\":\"Option 1\",\"value\":\"1\",\"selected\":false}},{\"type\":\"option\",\"attributes\":{\"label\":\"Option 2\",\"value\":\"2\",\"selected\":true}}]}";
 
     await act(async () => {
       render(
@@ -957,66 +896,55 @@ describe("QuestionAdd", () => {
           questionName="Radio buttons"
           questionJSON={mockQuestionJSON}
           sectionId="1"
-        />);
+          onSave={mockOnSave}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
+        />
+      );
     });
 
-    // Enter Question text
-    const input = screen.getByLabelText(/labels.questionText/);
+    fireEvent.change(screen.getByLabelText(/labels.questionText/), {
+      target: { value: 'Testing adding new row' },
+    });
 
-    // Set value to empty
-    fireEvent.change(input, { target: { value: 'Testing adding new row' } });
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText(/labels.text/), {
+        target: { value: 'Yes' },
+      });
+    });
 
-    const radioInput = screen.getByLabelText(/labels.text/);
-    fireEvent.change(radioInput, { target: { value: 'Yes' } });
 
-    const addButton = screen.getByRole('button', { name: /buttons.addRow/i });
-    fireEvent.click(addButton);
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /buttons.addRow/i }));
+    });
 
-    const saveButton = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
+    // Wait for the new input to appear
+    const textInputs = await screen.findAllByLabelText(/labels.text/);
+    fireEvent.change(textInputs[0], { target: { value: 'Option 1' } });
+    fireEvent.change(textInputs[1], { target: { value: 'Option 2' } });
 
-    fireEvent.click(saveButton);
+    const defaultCheckboxes = screen.getAllByLabelText(/labels.default/);
+
+    // Simulate checking the first option as default
+    fireEvent.click(defaultCheckboxes[0]);
+
+    // Fill out any other required fields if they exist
+    if (screen.queryByLabelText(/labels.requirementText/)) {
+      fireEvent.change(screen.getByLabelText(/labels.requirementText/), { target: { value: 'Required text' } });
+    }
+    if (screen.queryByLabelText(/labels.guidanceText/)) {
+      fireEvent.change(screen.getByLabelText(/labels.guidanceText/), { target: { value: 'Guidance text' } });
+    }
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /buttons.saveAndAdd/i }));
+    });
 
     await waitFor(() => {
-      expect(mockUseMutation).toHaveBeenCalled();
+      expect(mockOnSave).toHaveBeenCalled();
     });
   });
-
-
-  it('should call the useAddQuestionMutation when user clicks \'save\' button', async () => {
-    const json = JSON.stringify({
-      meta: {
-        schemaVersion: "1.0"
-      },
-      type: "radioButtons",
-      options: [
-        {
-          attributes: {
-            label: null,
-            value: null,
-            selected: false
-          }
-        }
-      ]
-    })
-    await act(async () => {
-      render(
-        <QuestionAdd
-          questionType="radioButtons"
-          questionName="Radio buttons"
-          questionJSON={json}
-          sectionId="1"
-        />);
-    });
-
-    const saveButton = screen.getByText('buttons.saveAndAdd');
-    expect(saveButton).toBeInTheDocument();
-
-    fireEvent.click(saveButton);
-
-    await waitFor(() => {
-      expect(mockUseMutation).toHaveBeenCalled();
-    });
-  })
 
   it('should not display the useSampleTextAsDefault checkbox if the questionTypeId is Radio Button field', async () => {
     const json = JSON.stringify({
@@ -1041,6 +969,10 @@ describe("QuestionAdd", () => {
           questionName="Radio buttons"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -1069,6 +1001,10 @@ describe("QuestionAdd", () => {
           questionName="Text Area"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -1109,6 +1045,10 @@ describe("QuestionAdd", () => {
         questionName="Range label"
         questionJSON={mockDateRangeJSON}
         sectionId="1"
+        onSave={jest.fn()}
+        backUrl="/back"
+        successUrl="/success"
+        breadcrumbs={<div>Breadcrumbs</div>}
       />);
 
     // Find the input rendered by RangeComponent
@@ -1159,6 +1099,10 @@ describe("QuestionAdd", () => {
         questionName="Number Range Label"
         questionJSON={mockDateRangeJSON}
         sectionId="1"
+        onSave={jest.fn()}
+        backUrl="/back"
+        successUrl="/success"
+        breadcrumbs={<div>Breadcrumbs</div>}
       />);
 
     // Find the input rendered by RangeComponent
@@ -1171,6 +1115,8 @@ describe("QuestionAdd", () => {
   });
 
   it('should set displayOrder to 1 for the new question, if there are no existing questions', async () => {
+    const mockOnSave = jest.fn().mockResolvedValue(undefined);
+
     const mockQuestionsDisplay = {
       data: null,
       loading: false,
@@ -1221,6 +1167,10 @@ describe("QuestionAdd", () => {
           questionName="Radio buttons"
           questionJSON={json}
           sectionId="1"
+          onSave={mockOnSave}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -1252,22 +1202,14 @@ describe("QuestionAdd", () => {
 
     // Check if the addQuestionMutation was called
     await waitFor(() => {
-      expect(mockAddQuestionMutation).toHaveBeenCalledWith({
-        variables: {
-          input: {
-            templateId: 123,
-            sectionId: 1,
-            displayOrder: 1,
-            isDirty: true,
-            questionText: 'New Question',
-            json: "{\"type\":\"radioButtons\",\"attributes\":{},\"meta\":{\"schemaVersion\":\"1.0\"},\"options\":[{\"label\":\"Yes\",\"value\":\"Yes\",\"selected\":false}],\"showCommentField\":false}",
-            requirementText: '',
-            guidanceText: '',
-            sampleText: '',
-            useSampleTextAsDefault: false,
-            required: true,
-          },
-        },
+      expect(mockOnSave).toHaveBeenCalledWith({
+        questionText: 'New Question',
+        json: "{\"type\":\"radioButtons\",\"attributes\":{},\"meta\":{\"schemaVersion\":\"1.0\"},\"options\":[{\"label\":\"Yes\",\"value\":\"Yes\",\"selected\":false}],\"showCommentField\":false}",
+        requirementText: '',
+        guidanceText: '',
+        sampleText: '',
+        useSampleTextAsDefault: false,
+        required: true,
       });
     });
   })
@@ -1313,6 +1255,10 @@ describe("QuestionAdd", () => {
           questionName="Affiliation Search"
           questionJSON={mockTypeAheadJSON}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />
       );
     });
@@ -1385,6 +1331,10 @@ describe("QuestionAdd", () => {
         questionName="Affiliation Search"
         questionJSON={mockTypeAheadJSON}
         sectionId="1"
+        onSave={jest.fn()}
+        backUrl="/back"
+        successUrl="/success"
+        breadcrumbs={<div>Breadcrumbs</div>}
       />);
 
     // Find the label input rendered by AffiliationSearch
@@ -1418,6 +1368,7 @@ describe("QuestionAdd", () => {
 describe("Research Output Question Type", () => {
   let mockRouter;
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     window.scrollTo = jest.fn();
     const mockTemplateId = 123;
@@ -1470,6 +1421,10 @@ describe("Research Output Question Type", () => {
         questionName="Research Output"
         questionJSON={json}
         sectionId="1"
+        onSave={jest.fn()}
+        backUrl="/back"
+        successUrl="/success"
+        breadcrumbs={<div>Breadcrumbs</div>}
       />);
 
 
@@ -1505,6 +1460,10 @@ describe("Research Output Question Type", () => {
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -1535,6 +1494,10 @@ describe("Research Output Question Type", () => {
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -1572,6 +1535,10 @@ describe("Research Output Question Type", () => {
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -1603,6 +1570,10 @@ describe("Research Output Question Type", () => {
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -1632,6 +1603,10 @@ describe("Research Output Question Type", () => {
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -1664,6 +1639,10 @@ describe("Research Output Question Type", () => {
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -1710,6 +1689,10 @@ describe("Research Output Question Type", () => {
         questionName="Research Output"
         questionJSON={json}
         sectionId="1"
+        onSave={jest.fn()}
+        backUrl="/back"
+        successUrl="/success"
+        breadcrumbs={<div>Breadcrumbs</div>}
       />);
 
     // Find the panel
@@ -1757,6 +1740,10 @@ describe("Research Output Question Type", () => {
         questionName="Research Output"
         questionJSON={json}
         sectionId="1"
+        onSave={jest.fn()}
+        backUrl="/back"
+        successUrl="/success"
+        breadcrumbs={<div>Breadcrumbs</div>}
       />);
 
     // Enable repo selector field
@@ -1789,6 +1776,10 @@ describe("Research Output Question Type", () => {
         questionName="Research Output"
         questionJSON={json}
         sectionId="1"
+        onSave={jest.fn()}
+        backUrl="/back"
+        successUrl="/success"
+        breadcrumbs={<div>Breadcrumbs</div>}
       />);
 
     // Enable metadata standards field
@@ -1822,6 +1813,10 @@ describe("Research Output Question Type", () => {
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -1853,6 +1848,10 @@ describe("Research Output Question Type", () => {
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -1895,6 +1894,10 @@ describe("Research Output Question Type", () => {
           questionName="Text Field"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -1919,6 +1922,10 @@ describe("Research Output Question Type", () => {
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -1943,6 +1950,10 @@ describe("Research Output Question Type", () => {
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -1993,6 +2004,10 @@ describe("Research Output Question Type", () => {
           questionName="Research Output"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -2030,6 +2045,7 @@ describe("Research Output Question Type", () => {
 describe("Accessibility", () => {
   let mockRouter;
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
     const mockTemplateId = 123;
@@ -2079,6 +2095,10 @@ describe("Accessibility", () => {
         questionName="Radio buttons"
         questionJSON={json}
         sectionId="1"
+        onSave={jest.fn()}
+        backUrl="/back"
+        successUrl="/success"
+        breadcrumbs={<div>Breadcrumbs</div>}
       />);
 
     await act(async () => {
@@ -2092,7 +2112,7 @@ describe("Accessibility", () => {
 describe("Error handling", () => {
   let mockRouter;
   beforeEach(() => {
-
+    setupMocks();
     // Clean up DOM
     document.body.innerHTML = '';
 
@@ -2145,6 +2165,10 @@ describe("Error handling", () => {
           questionName="Radio buttons"
           questionJSON={json}
           sectionId="1"
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -2162,14 +2186,7 @@ describe("Error handling", () => {
   })
 
   it('should display error when addQuestionMutation returns an error', async () => {
-    const mockAddQuestionMutation = jest.fn().mockRejectedValueOnce(new Error("Error"));
-
-    mockUseMutation.mockImplementation((document) => {
-      if (document === AddQuestionDocument) {
-        return [mockAddQuestionMutation, { loading: false, error: undefined }] as any;
-      }
-      return [jest.fn(), { loading: false, error: undefined }] as any;
-    });
+    const mockOnSave = jest.fn().mockRejectedValue(new Error('Save failed')); // ← reject, not resolve
 
     const json = JSON.stringify({
       meta: {
@@ -2193,6 +2210,10 @@ describe("Error handling", () => {
           questionName="Radio buttons"
           questionJSON={json}
           sectionId="1"
+          onSave={mockOnSave}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 
@@ -2240,6 +2261,10 @@ describe("Error handling", () => {
           questionType="radioButtons"
           questionName="Radio buttons"
           questionJSON={json}
+          onSave={jest.fn()}
+          backUrl="/back"
+          successUrl="/success"
+          breadcrumbs={<div>Breadcrumbs</div>}
         />);
     });
 

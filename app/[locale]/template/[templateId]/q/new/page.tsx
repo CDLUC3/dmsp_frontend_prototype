@@ -39,6 +39,17 @@ import { QuestionFormatInterface } from '@/app/types';
 import styles from './newQuestion.module.scss';
 import { getQuestionTypes } from "@/utils/questionTypeHandlers";
 
+const TemplateQuestionBreadcrumbs = ({ templateId, sectionId, Global }: { templateId: string; sectionId: string; Global: (key: string, values?: Record<string, string | number>) => string }) => {
+  return (
+    <Breadcrumbs>
+      <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+      <Breadcrumb><Link href={routePath('template.index', { templateId })}>{Global('breadcrumbs.templates')}</Link></Breadcrumb>
+      <Breadcrumb><Link href={routePath('template.show', { templateId })}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
+      <Breadcrumb><Link href={routePath('template.q.new', { templateId }, { section_id: sectionId, step: 1 })}>{Global('breadcrumbs.selectQuestionType')}</Link></Breadcrumb>
+      <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
+    </Breadcrumbs >
+  )
+}
 
 const QuestionTypeSelectPage: React.FC = () => {
   // Get templateId param
@@ -183,17 +194,6 @@ const QuestionTypeSelectPage: React.FC = () => {
     }
   }, [stepQueryValue])
 
-  const TemplateQuestionBreadcrumbs = () => {
-    return (
-      <Breadcrumbs>
-        <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
-        <Breadcrumb><Link href={routePath('template.index', { templateId })}>{Global('breadcrumbs.templates')}</Link></Breadcrumb>
-        <Breadcrumb><Link href={routePath('template.show', { templateId })}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
-        <Breadcrumb><Link href={routePath('template.q.new', { templateId }, { section_id: sectionId, step: 1 })}>{Global('breadcrumbs.selectQuestionType')}</Link></Breadcrumb>
-        <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
-      </Breadcrumbs >
-    )
-  }
   return (
     <>
       {step === 1 && (
@@ -298,7 +298,7 @@ const QuestionTypeSelectPage: React.FC = () => {
             questionName={selectedQuestionType?.questionName ?? null}
             questionJSON={selectedQuestionType?.questionJSON ?? ''}
             sectionId={sectionId ? sectionId : ''}
-            breadcrumbs={<TemplateQuestionBreadcrumbs />}
+            breadcrumbs={<TemplateQuestionBreadcrumbs templateId={templateId} sectionId={sectionId} Global={Global} />}
             backUrl={routePath('template.q.new', { templateId }, { section_id: sectionId, step: 1 })}
             successUrl={routePath('template.show', { templateId })}
             onSave={async (commonFields) => {

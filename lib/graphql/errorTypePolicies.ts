@@ -16,13 +16,15 @@ export const TYPES_WITH_ERRORS = [
   'Template',
   'CustomSection',
   'CustomQuestion',
-  'VersionedSection'
+  'VersionedSection',
+  'SectionCustomizationOverview', // Added for cache policy
 ] as const;
 
 // Map of typeName to additional fields needing merge: false
 const EXTRA_FIELDS: Record<string, string[]> = {
   Section: ['questions'],
-  Template: ['sections']
+  Template: ['sections'],
+  SectionCustomizationOverview: ['questions'], // Added for cache policy
 };
 
 // Typed read function

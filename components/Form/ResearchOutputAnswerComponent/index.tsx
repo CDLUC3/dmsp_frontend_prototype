@@ -35,13 +35,18 @@ const ResearchOutputAnswerComponent: React.FC<ResearchOutputAnswerComponentProps
   isDisabled = false,
   onEditingStateChange,
 }) => {
-
   // State to track which row is being edited (null means showing list view)
-  const [editingRowIndex, setEditingRowIndex] = useState<number | null>(null);
+  // If preview mode, start in form view immediately (no flash)
+  const [editingRowIndex, setEditingRowIndex] = useState<number | null>(() => {
+    if (initialViewMode === 'form') {
+      return 0;
+    }
+    return null;
+  });
   // To track that the page was rendered once
   const hasInitialized = useRef(false);
   // State to track if we're adding a new entry
-  const [isAddingNew, setIsAddingNew] = useState(false);
+  const [isAddingNew, setIsAddingNew] = useState(initialViewMode === 'form');
 
   // Localization
   const Global = useTranslations('Global');
@@ -144,33 +149,37 @@ const ResearchOutputAnswerComponent: React.FC<ResearchOutputAnswerComponentProps
   }, [editingRowIndex, rows.length]);
 
   // Automatically show form when there are no rows (i.e., first time adding an answer)
-  // OR when initialViewMode is 'form' (for preview mode)
+  // Only use delayed effect for normal list mode
   useEffect(() => {
-    // Skip if already initialized
     if (hasInitialized.current) return;
 
-    // If rows already exist (data loaded) and we're not forcing form view, just mark as initialized
+    if (initialViewMode === 'form') {
+      // If preview mode and no rows, add an empty row immediately
+      if (rows.length === 0) {
+        const emptyRow = createEmptyResearchOutputRow(columns);
+        setRows([emptyRow]);
+      }
+      hasInitialized.current = true;
+      return;
+    }
+
+    // For list mode, wait briefly for async data to load before deciding to show form
     if (rows.length > 0 && initialViewMode === 'list') {
       hasInitialized.current = true;
       return;
     }
 
-    // Wait briefly for async data to load before deciding to show form
     const timer = setTimeout(() => {
       if (!hasInitialized.current && editingRowIndex === null) {
         hasInitialized.current = true;
-        // For preview mode or when no rows exist, show the form
-        if (initialViewMode === 'form' || rows.length === 0) {
-          // Create and add empty row if needed, then set editing state
-          if (rows.length === 0) {
-            const emptyRow = createEmptyResearchOutputRow(columns);
-            setRows([emptyRow]);
-          }
-          setEditingRowIndex(0);
-          setIsAddingNew(true);
+        if (rows.length === 0) {
+          const emptyRow = createEmptyResearchOutputRow(columns);
+          setRows([emptyRow]);
         }
+        setEditingRowIndex(0);
+        setIsAddingNew(true);
       }
-    }, 50); // Small delay to let data load
+    }, 50);
 
     return () => clearTimeout(timer);
   }, [rows.length, editingRowIndex, columns, initialViewMode]);

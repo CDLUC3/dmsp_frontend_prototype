@@ -119,12 +119,16 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   }, [isOpen]);
 
 
+  useEffect(() => {
+    onOpenChange?.(isOpen);
+  }, [isOpen]);
+
   return (
     <div
       id={id}
       className={`${styles.QuestionPreview} ${className}`}
     >
-      <DialogTrigger onOpenChange={(isOpen) => { setOpen(isOpen); onOpenChange?.(isOpen) }}>
+      <DialogTrigger>
         <Button
           onPress={() => setOpen(true)}
           data-testid="preview-button"

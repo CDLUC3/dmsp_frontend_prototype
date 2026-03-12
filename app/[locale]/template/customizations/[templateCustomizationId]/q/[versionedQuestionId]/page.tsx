@@ -128,6 +128,7 @@ const QuestionCustomizePage: React.FC = () => {
             sampleText: customQuestionData.sampleText,
           },
         },
+        refetchQueries: [QuestionCustomizationByVersionedQuestionDocument]
       });
 
       const responseErrors = response.data?.updateQuestionCustomization?.errors;
@@ -141,7 +142,7 @@ const QuestionCustomizePage: React.FC = () => {
         error,
         url: { path: UPDATE_QUESTION_URL },
       });
-      setErrorMessages(prev => [...prev, QuestionCustomize('messages.error.errorUpdatingCustomization')]);
+      setErrorMessages([QuestionCustomize('messages.error.errorUpdatingCustomization')]);
       return [{}, false];
     }
   };
@@ -272,7 +273,7 @@ const QuestionCustomizePage: React.FC = () => {
   }, [publishedQuestion]);
 
 
-  if (publishedQuestionLoading) return <Loading />;
+  if (publishedQuestionLoading || meLoading || questionCustomizationLoading) return <Loading />;
   if (isRedirecting) return <Loading />;
 
   return (
@@ -349,12 +350,10 @@ const QuestionCustomizePage: React.FC = () => {
 
               {baseQuestion?.sampleText && (
                 <>
-                  {baseQuestion?.sampleText && (
-                    <div className="field-display">
-                      <h2>{QuestionCustomize('labels.sampleText')}</h2>
-                      <SanitizeHTML html={baseQuestion?.sampleText} />
-                    </div>
-                  )}
+                  <div className="field-display">
+                    <h2>{QuestionCustomize('labels.sampleText')}</h2>
+                    <SanitizeHTML html={baseQuestion?.sampleText} />
+                  </div>
 
                   <div className={styles.additionalSampleText}>
                     <FormTextArea
@@ -404,7 +403,7 @@ const QuestionCustomizePage: React.FC = () => {
                             <Button className="secondary" autoFocus onPress={close}>
                               {Global('buttons.cancel')}
                             </Button>
-                            <Button className="danger" onPress={() => { handleDeleteQuestionCustomization(); close(); }}>
+                            <Button className="danger" onPress={() => { handleDeleteQuestionCustomization(); }}>
                               {Global('buttons.delete')}
                             </Button>
                           </div>

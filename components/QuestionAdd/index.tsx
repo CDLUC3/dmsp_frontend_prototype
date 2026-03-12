@@ -151,17 +151,6 @@ const QuestionAdd = ({
   const Global = useTranslations('Global');
   const QuestionAdd = useTranslations('QuestionAdd');
 
-  // Initialize add and update question mutations
-  const [addQuestionMutation] = useMutation(AddQuestionDocument);
-
-  // Query request for questions to calculate max displayOrder
-  const { data: questionDisplayOrders } = useQuery(QuestionsDisplayOrderDocument, {
-    variables: {
-      sectionId: Number(sectionId)
-    },
-    skip: !sectionId
-  })
-
   // Helper function to make announcements
   const announce = (message: string) => {
     setAnnouncement(message);

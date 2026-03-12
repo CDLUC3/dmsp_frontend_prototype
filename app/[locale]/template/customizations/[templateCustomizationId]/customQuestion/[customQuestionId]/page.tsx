@@ -110,8 +110,6 @@ const CustomQuestionEdit = () => {
   /*To be able to show a loading state when redirecting after successful update because otherwise there is a 
   bit of a stutter where the page reloads before redirecting*/
   const [isRedirecting, setIsRedirecting] = useState(false);
-  // State for delete confirmation modal
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   // State for managing form inputs
@@ -196,9 +194,6 @@ const CustomQuestionEdit = () => {
     skip: isBeingDeletedRef.current,
   });
 
-  if (selectedQuestionQueryError) {
-    return <ErrorMessages errors={[selectedQuestionQueryError.message]} />;
-  }
   // Update rows state and question.json when options change
   const updateRows = (newRows: QuestionOptions[]) => {
     setRows(newRows);
@@ -325,7 +320,7 @@ const CustomQuestionEdit = () => {
 
     if (!parsed) {
       if (error) {
-        setErrors(prev => [...prev, error])
+        setErrors([error]);
       }
       return;
     }
@@ -345,7 +340,7 @@ const CustomQuestionEdit = () => {
 
     if (!parsed) {
       if (error) {
-        setErrors(prev => [...prev, error])
+        setErrors([error]);
       }
       return;
     }
@@ -372,7 +367,7 @@ const CustomQuestionEdit = () => {
 
     if (!success || error) {
       const errorMessage = error ?? t('messages.errors.questionUpdateError');
-      setErrors(prev => [...prev, errorMessage]);
+      setErrors([errorMessage]);
       announce(QuestionAdd('researchOutput.announcements.errorOccurred') || 'An error occurred.');
       setIsSubmitting(false);
       return;
@@ -413,7 +408,7 @@ const CustomQuestionEdit = () => {
         error,
         url: { path: TEMPLATE_URL }
       });
-      setErrors(prev => [...prev, t('messages.errors.questionUpdateError')]);
+      setErrors([t('messages.errors.questionUpdateError')]);
     }
   };
 
@@ -442,8 +437,7 @@ const CustomQuestionEdit = () => {
       setErrors([QuestionEdit('messages.error.errorDeletingQuestion')]);
     } finally {
       setIsDeleting(false);
-      setIsDeleteModalOpen(false);
-      setIsSubmitting(false);
+      setConfirmOpen(false);
     }
   };
 
@@ -463,7 +457,7 @@ const CustomQuestionEdit = () => {
               url: { path: routePath('template.customize', { templateCustomizationId }) }
             });
 
-            setErrors(prev => [...prev, error])
+            setErrors([error])
           }
           return;
         }
@@ -504,7 +498,7 @@ const CustomQuestionEdit = () => {
           error,
           url: { path: routePath('template.customize', { templateCustomizationId }) }
         });
-        setErrors(prev => [...prev, 'Error parsing question data']);
+        setErrors([Global('messaging.errors.errorParsingData')]);
       }
     }
   }, [selectedQuestion]);
@@ -547,14 +541,6 @@ const CustomQuestionEdit = () => {
     }
   }, [parsedQuestionJSON, hydrateFromJSON]);
 
-  // If a user changes their question type, then we need to fetch the question types to set the new json schema
-  useEffect(() => {
-    // Only fetch question types if we have a questionType query param present
-    if (questionTypeIdQueryParam) {
-      getQuestionTypes();
-    }
-  }, [questionTypeIdQueryParam]);
-
 
   // If a user passes in a questionType query param we will find the matching questionTypes 
   // json schema and update the question with it
@@ -591,7 +577,7 @@ const CustomQuestionEdit = () => {
       const { parsed, error } = getParsedQuestionJSON(question, routePath('template.customize', { templateCustomizationId }), Global);
       if (!parsed) {
         if (error) {
-          setErrors(prev => [...prev, error])
+          setErrors([error])
         }
         return;
       }
@@ -616,6 +602,10 @@ const CustomQuestionEdit = () => {
 
   if (loading || isRedirecting) {
     return <Loading />;
+  }
+
+  if (selectedQuestionQueryError) {
+    return <ErrorMessages errors={[selectedQuestionQueryError.message]} />;
   }
 
   return (
@@ -691,11 +681,7 @@ const CustomQuestionEdit = () => {
                   <QuestionOptionsComponent
                     rows={rows}
                     setRows={updateRows}
-                    questionJSON={(() => {
-                      if (!question) return undefined;
-                      const result = getParsedQuestionJSON(question, routePath('template.customize', { templateCustomizationId }), Global);
-                      return result.parsed ? JSON.stringify(result.parsed) : undefined;
-                    })()}
+                    questionJSON={parsedQuestionJSON ? JSON.stringify(parsedQuestionJSON) : undefined}
                     formSubmitted={formSubmitted}
                     setFormSubmitted={setFormSubmitted} />
                 </div>
@@ -722,7 +708,7 @@ const CustomQuestionEdit = () => {
 
               {!QUESTION_TYPES_EXCLUDED_FROM_COMMENT_FIELD.includes(questionType ?? '') && (
                 <RadioGroupComponent
-                  name="radioGroup"
+                  name="radioGroupShowCommentField"
                   value={question?.showCommentField ? 'yes' : 'no'}
                   radioGroupLabel={QuestionAdd('labels.additionalCommentBox')}
                   onChange={(value) => handleInputChange('showCommentField', value === 'yes')}
@@ -844,7 +830,7 @@ const CustomQuestionEdit = () => {
               )}
 
               <RadioGroupComponent
-                name="radioGroup"
+                name="radioGroupRequired"
                 value={question?.required ? 'yes' : 'no'}
                 radioGroupLabel={Global('labels.requiredField')}
                 description={Global('descriptions.requiredFieldDescription')}
@@ -895,7 +881,6 @@ const CustomQuestionEdit = () => {
                               className={`danger `}
                               onPress={() => {
                                 handleDeleteCustomQuestion();
-                                close();
                               }}>
                               {Global('buttons.confirm')}
                             </Button>
