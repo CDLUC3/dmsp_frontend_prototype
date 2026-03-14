@@ -1,5 +1,5 @@
 networks:
-  dmsp_backend_prototype_dmptool-network:
+  dmptool-apollo-server_dmptool-network:
     external: true
 
 services:
@@ -11,7 +11,7 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - dmsp_backend_prototype_dmptool-network
+      - dmptool-apollo-server_dmptool-network
     env_file:
       - .env.local
     environment:

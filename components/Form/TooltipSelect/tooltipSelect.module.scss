@@ -1,0 +1,138 @@
+/* Select */
+.mySelect {
+  &[data-invalid] button[class*="react-aria-Button"] {
+  border: 1px solid red;
+}
+}
+
+/* Individual option row */
+.tsItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  cursor: pointer;
+
+  &[data-hovered],
+  &[data-focused] {
+    .tsInfoTrigger {
+      color: white;
+      border-color: white;
+      svg, svg * {
+        fill: currentColor !important;
+      }
+
+    }
+  }
+}
+
+.tsItemBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tsBadge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.tsInfoTrigger {
+  position: relative; /* anchor for the tooltip */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 0.5px solid #D3D1C7;
+  font-size: 10px;
+  color: #B4B2A9;
+  flex-shrink: 0;
+  cursor: default;
+  transition: border-color 0.1s, color 0.1s;
+
+  &:hover, &:focus-visible {
+    border-color: #888780;
+    color: #5F5E5A;
+    outline: none;
+  }
+}
+
+.tsTooltip {
+  position: absolute;   /* anchored to ts-info-trigger */
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: auto !important; // ensure the tooltip can receive pointer events even if the trigger is inside a pointer-events:none container
+  z-index: 100001 !important;// Must be higher than the popover
+
+  background: #fff;
+  border: 0.5px solid #888780;
+  max-width: 400px;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.tsTooltipTitle {
+  font-size: 12px;
+  font-weight: 500;
+  color: #2C2C2A;
+  margin: 0 0 4px;
+}
+
+.tsTooltipBody {
+  font-size: 12px;
+  color: #5F5E5A;
+  line-height: 1.55;
+  margin: 0 0 8px;
+}
+
+.tsTooltip .tsBadge {
+  margin-top: 0;
+}
+
+/* Entering/exiting animation */
+.tsTooltip[data-entering] {
+  opacity: 0;
+}
+
+.tsTooltip[data-exiting] {
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.tsTooltipHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tsTooltipClose {
+  display: none;  // hidden on desktop
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #888780;
+  flex-shrink: 0;
+  line-height: 1;
+  pointer-events: auto !important; // ensure the button can receive pointer events even if the tooltip is inside a pointer-events:none container
+
+  &:hover {
+    color: #2C2C2A;
+  }
+
+  @media (max-width: 768px) {
+    display: flex;  // only visible on mobile
+    align-items: center;
+    justify-content: center;
+  }
+}
