@@ -85,6 +85,7 @@ query PublishedQuestion($versionedQuestionId: Int!) {
       displayName
       uri
       name
+      id
     }
   }
 }

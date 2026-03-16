@@ -12,16 +12,18 @@ interface MultiSelectProps {
   options: Option[];
   defaultSelected?: string[];
   selectedKeys?: Set<string>;
-  onSelectionChange?: (selected: Set<string>) => void;
   label?: string;
+  isDisabled?: boolean;
+  onSelectionChange?: (selected: Set<string>) => void;
 }
 
 function MultiSelect({
   options,
   defaultSelected = [],
   selectedKeys,
-  onSelectionChange,
   label = "Select Items (Multiple)",
+  isDisabled = false,
+  onSelectionChange,
 }: MultiSelectProps) {
   const isControlled = selectedKeys !== undefined;
   const [internalSelected, setInternalSelected] = React.useState<Set<string>>(new Set(defaultSelected));
@@ -55,6 +57,7 @@ function MultiSelect({
             id={option.name}
             textValue={option.name}
             className={styles.multiselectItem}
+            isDisabled={isDisabled}
           >
             {({ isSelected }) => (
               <>

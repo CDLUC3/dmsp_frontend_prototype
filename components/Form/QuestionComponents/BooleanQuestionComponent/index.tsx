@@ -7,12 +7,14 @@ import { Radio } from 'react-aria-components';
 interface BooleanQuestionProps {
   parsedQuestion: BooleanQuestionType;
   selectedValue?: string;
+  isDisabled?: boolean;
   handleRadioChange: (value: string) => void;
 }
 
 const BooleanQuestionComponent: React.FC<BooleanQuestionProps> = ({
   parsedQuestion,
   selectedValue,
+  isDisabled = false,
   handleRadioChange
 }) => {
   // Localization keys
@@ -30,6 +32,7 @@ const BooleanQuestionComponent: React.FC<BooleanQuestionProps> = ({
       value={value}
       radioGroupLabel=""
       onChange={handleRadioChange}
+      isDisabled={isDisabled}
     >
       <div>
         <Radio value="yes">{Global('form.yesLabel')}</Radio>

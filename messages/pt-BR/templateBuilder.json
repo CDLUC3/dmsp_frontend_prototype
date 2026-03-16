@@ -394,7 +394,8 @@
       },
       "success": {
         "questionUpdated": "A pergunta foi atualizada com sucesso",
-        "questionRemoved": "A pergunta foi removida com sucesso"
+        "questionRemoved": "A pergunta foi removida com sucesso",
+        "successDeletingQuestion": "Pergunta excluída com sucesso"
       }
     },
     "headings": {

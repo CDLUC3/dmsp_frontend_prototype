@@ -92,7 +92,7 @@ describe("CommentList", () => {
         role: UserRole.Admin,
         emails: [],
         errors: {},
-        affiliation: { id: 1, name: "Test Org", searchName: "test-org", uri: "https://test.org" }
+        affiliation: { id: 1, name: "Test Org", searchName: "test-org", uri: "https://test.org", displayName: "Test Org" }
       }
     },
     planOwners: [1, 7], // Current user and admin are plan owners
@@ -178,7 +178,7 @@ describe("CommentList", () => {
       role: UserRole.Admin,
       emails: [],
       errors: {},
-      affiliation: { id: 1, name: "Test Org", searchName: "test-org", uri: "https://test.org" }
+      affiliation: { id: 1, name: "Test Org", searchName: "test-org", uri: "https://test.org", displayName: "Test Org" }
     };
 
     const props = {

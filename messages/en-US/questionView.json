@@ -1,7 +1,7 @@
 {
   "QuestionView": {
     "cardType": "Question",
-    "requirements": "These are requirements by {orgName}",
+    "requirements": "Requirements by {orgName}",
     "guidanceLink": "Jump to additional guidance",
     "guidanceBy": "Guidance by {orgName}",
     "backToSection": "Back to Section",

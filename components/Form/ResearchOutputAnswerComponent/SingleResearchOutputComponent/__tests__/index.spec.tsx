@@ -165,7 +165,7 @@ jest.mock('@/components/Form', () => ({
     );
 
   },
-  FormTextArea: ({ label, value, onChange, richText, isInvalid, errorMessage, isRequired, helpMessage, maxLength, minLength, ...props }: any) => {
+  FormTextArea: ({ label, value, onChange, richText, isInvalid, errorMessage, isRequired, helpMessage, maxLength, minLength, isDisabled, disabled, ...props }: any) => {
     // Simulate rich text editor initialization
     React.useEffect(() => {
       if (richText && onChange) {
@@ -185,6 +185,7 @@ jest.mock('@/components/Form', () => ({
           maxLength={maxLength}
           minLength={minLength}
           required={isRequired}
+          disabled={isDisabled || disabled}
           {...props}
         />
         {helpMessage && <span className="help-text">{helpMessage}</span>}
@@ -192,7 +193,7 @@ jest.mock('@/components/Form', () => ({
       </div>
     );
   },
-  FormSelect: ({ label, items, selectedKey, onChange, isInvalid, errorMessage, selectClasses, ariaLabel, isRequired, helpMessage, ...props }: any) => (
+  FormSelect: ({ label, items, selectedKey, onChange, isInvalid, errorMessage, selectClasses, ariaLabel, isRequired, helpMessage, isDisabled, disabled, ...props }: any) => (
     <div data-testid={`form-select-${props.name}`} className={selectClasses}>
       <label>{label}</label>
       <select
@@ -201,6 +202,7 @@ jest.mock('@/components/Form', () => ({
         data-invalid={isInvalid}
         aria-label={ariaLabel || label}
         required={isRequired}
+        disabled={isDisabled || disabled}
         {...props}
       >
         <option value="">Select...</option>

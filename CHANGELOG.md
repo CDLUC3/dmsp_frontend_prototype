@@ -1,5 +1,12 @@
 ## Added
 - Added new `TooltipSelect` component, which allows us to include descriptions with each `Select` option [#32]
+- `Custom Question` additions [#929]
+  - Added new `CustomQuestionEdit` page
+  - Added new `QuestionCustomize` page
+  - Added new `CustomQuestionNew` page
+  - Added new `AddCustomQuestion`, `UpdateCustomQuestion`, `RemoveCustomQuestion`, `AddQuestionCustomization`, `UpdateQuestionCustomization`, `RemoveQuestionCustomization` mutations
+  - Added `CustomQuestion` and `QuestionCustomizationByVersionedQuestion` mutations
+  - Added new routes for Custom Queries to `utils/routes.ts`
 - Added `CustomSectionEdit`, and `CreateCustomSectionPage` for adding and editing Custom Sections [#928]
 - Added new `/template/customizations/[templateCustomizationOverview]` page [#927]
 - Added new `CustomizedTemplate` components directory and new `CustomizedQuestionEdit` and `CustomizedSectionEdit` components [#927]
@@ -14,7 +21,14 @@
 - Added related works project overview page [#700]
 
 ## Updated
-- Updated `SingleResearchOutputComponent` to use the new `TooltipSelect` to display info about each `output type` [#32]
+- `Custom Question` updates [#929]
+- Moved `addQuestionMutation` out of `QuestionView` so that `QuestionView` can be shared for both `BASE` and `CUSTOM` questions
+  - Updated `QuestionTypeSelectPage` to include the `addQuestionMutation` and `getDisplayOrder` and pass those to `QuestionAdd`
+  - Added use of `Loading` component in `TemplateCreatePage`
+  - Added `fetchPolicy` of `cache-and-network` to `TemplateCustomiationOverview` query so that we get updated data when user returns from editing section or question
+  - Updated form components with `isDisabled` prop so that users customizing existing questions can see a disabled version of the form fields
+  - Updated `QuestionAdd` to accept more props and be more flexible for shared use with Custom Questions
+  - Updated `QuestionView` to accept more props like `orgGuidance` so it can be shared with Custom Questions
 - Updated `ReposSelector` and `RepoSelectorForAnswer` components to use the new `Re3RepositoryTypesListDocument`, `Re3SubjectListDocument`, and `Re3byUrIsDocument` queries [#113]
 - Updated `ResearchOutputAnswerComponent` so that we don't get a duplicate `save` CTAs when on the `SingleResearchOutputComponent` page [#113]
 - Updated `SectionCustomizePage` component for customizing existing sections [#928]

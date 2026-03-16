@@ -67,7 +67,7 @@ const mockUserData = {
   me: {
     givenName: 'John',
     surName: 'Doe',
-    affiliation: { name: 'Test Institution', uri: 'test-uri' },
+    affiliation: { name: 'Test Institution', uri: 'test-uri', displayName: 'Test Institution' },
     emails: [{ id: '1', email: 'test@example.com', isPrimary: true, isConfirmed: true }],
     languageId: 'en',
   },
@@ -222,7 +222,7 @@ describe('ProfilePage', () => {
       me: {
         givenName: 'John',
         surName: 'Doe',
-        affiliation: { name: '', uri: '' },
+        affiliation: { name: '', uri: '', displayName: '' },
         emails: [{ id: '1', email: 'test@example.com', isPrimary: true, isConfirmed: true }],
         languageId: 'en',
       },
