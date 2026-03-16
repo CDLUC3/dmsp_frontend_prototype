@@ -56,11 +56,14 @@ jest.mock("react-aria-components", () => {
   return {
     ...actual,
     // Mock Popover to render children directly — avoids overlay/inert issues in jsdom
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     Popover: ({ children }: any) => <div data-testid="popover">{children}</div>,
     // Mock ListBox to render a plain ul with keys
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     ListBox: ({ children, items, ...props }: any) => (
       <ul role="listbox" {...props}>
         {items
+          /* eslint-disable @typescript-eslint/no-explicit-any */
           ? [...items].map((item: any) => (
             <React.Fragment key={item.id}>{children(item)}</React.Fragment>
           ))
@@ -68,7 +71,7 @@ jest.mock("react-aria-components", () => {
       </ul>
     ),
     // Mock ListBoxItem — strip textValue to avoid DOM warning, add key
-    ListBoxItem: ({ children, id, className, textValue, ...props }: any) => (
+    ListBoxItem: ({ children, id, className, ...props }: any) => (
       <div role="option" data-key={id} className={className} {...props}>
         {typeof children === "function"
           ? children({ isSelected: false })

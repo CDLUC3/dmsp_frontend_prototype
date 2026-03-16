@@ -1,4 +1,5 @@
 ## Added
+- Added new `TooltipSelect` component, which allows us to include descriptions with each `Select` option [#32]
 - Added `CustomSectionEdit`, and `CreateCustomSectionPage` for adding and editing Custom Sections [#928]
 - Added new `/template/customizations/[templateCustomizationOverview]` page [#927]
 - Added new `CustomizedTemplate` components directory and new `CustomizedQuestionEdit` and `CustomizedSectionEdit` components [#927]
@@ -13,6 +14,7 @@
 - Added related works project overview page [#700]
 
 ## Updated
+- Updated `SingleResearchOutputComponent` to use the new `TooltipSelect` to display info about each `output type` [#32]
 - Updated `ReposSelector` and `RepoSelectorForAnswer` components to use the new `Re3RepositoryTypesListDocument`, `Re3SubjectListDocument`, and `Re3byUrIsDocument` queries [#113]
 - Updated `ResearchOutputAnswerComponent` so that we don't get a duplicate `save` CTAs when on the `SingleResearchOutputComponent` page [#113]
 - Updated `SectionCustomizePage` component for customizing existing sections [#928]

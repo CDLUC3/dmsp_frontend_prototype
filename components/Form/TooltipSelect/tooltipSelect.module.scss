@@ -1,3 +1,5 @@
+@use '@/styles/responsive' as r;
+
 /* Select */
 .mySelect {
   &[data-invalid] button[class*="react-aria-Button"] {
@@ -116,7 +118,9 @@
 }
 
 .tsTooltipClose {
-  display: none;  // hidden on desktop
+  display: flex;  // visible on mobile by default
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   padding: 0;
@@ -130,9 +134,7 @@
     color: #2C2C2A;
   }
 
-  @media (max-width: 768px) {
-    display: flex;  // only visible on mobile
-    align-items: center;
-    justify-content: center;
+  @include r.device('md') {
+    display: none;  // hidden on desktop (768px and up)
   }
 }

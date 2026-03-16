@@ -47,13 +47,19 @@ export interface TooltipSelectProps {
   defaultSelectedKey?: string;
 }
 
+const dummyElement = typeof document !== "undefined"
+  ? document.createElement("div")
+  : null;
+
 const getPortalTarget = (): HTMLElement => {
   if (typeof window === "undefined" || typeof document === "undefined") {
-    // In SSR, return a dummy element or document.body if available
-    return (typeof document !== "undefined" ? document.body : ({} as HTMLElement));
+    // In SSR, return a dummy element or null (if even document is not available)
+    return dummyElement as HTMLElement;
   }
-  return document.querySelector('body > div[style*="display: contents"]') as HTMLElement
-    ?? document.body;
+  return (
+    (document.querySelector('body > div[style*="display: contents"]') as HTMLElement) ??
+    document.body
+  );
 };
 
 export default function TooltipSelect({
