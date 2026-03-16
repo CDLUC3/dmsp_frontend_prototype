@@ -1,4 +1,5 @@
 ## Added
+- Added new `TooltipSelect` component, which allows us to include descriptions with each `Select` option [#32]
 - `Custom Question` additions [#929]
   - Added new `CustomQuestionEdit` page
   - Added new `QuestionCustomize` page

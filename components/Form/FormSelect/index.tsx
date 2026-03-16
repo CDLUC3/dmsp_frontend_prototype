@@ -74,7 +74,7 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
       className={`${selectClasses} ${styles.mySelect} react-aria-Select`}
       aria-label={ariaLabel}
       aria-required={isRequired}
-      onSelectionChange={handleSelectionChange}
+      onChange={handleSelectionChange}
       placeholder={placeholder}
       isDisabled={isDisabled}
     >

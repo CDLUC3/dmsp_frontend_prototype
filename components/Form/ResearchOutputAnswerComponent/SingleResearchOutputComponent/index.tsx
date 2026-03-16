@@ -3,9 +3,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslations } from "next-intl";
 import {
+  Button,
   Checkbox,
+  Key,
   ListBoxItem,
-  Button
 } from "react-aria-components";
 import {
   ResearchOutputTableQuestionType,
@@ -32,6 +33,7 @@ import {
   FormInput,
   FormSelect,
   FormTextArea,
+  TooltipSelect
 } from '@/components/Form';
 import RepoSelectorForAnswer from '@/components/RepoSelectorForAnswer';
 import MetaDataStandardsForAnswer from '@/components/MetaDataStandardForAnswer';
@@ -51,6 +53,7 @@ import {
 } from '@/lib/constants';
 import { defaultAccessLevels } from '@/utils/researchOutputTable';
 import { getCalendarDateValue } from '@/utils/dateUtils';
+import { TooltipSelectOption } from '../../TooltipSelect';
 import styles from '../researchOutputAnswer.module.scss';
 
 type ResearchOutputAnswerComponentProps = {
@@ -478,19 +481,29 @@ const SingleResearchOutputComponent = ({
             const isOutputTypeField = col.heading === 'Output Type';
             const hasNoOptions = !col.content.options || col.content.options.length === 0;
 
-            let selectItems: { id: string; name: string }[] = [];
+            let tooltipSelectItems: TooltipSelectOption[] = [];
+            let formSelectItems: { id: string; name: string }[] = [];
             if (isOutputTypeField && hasNoOptions && defaultResearchOutputTypesData?.defaultResearchOutputTypes) {
-              selectItems = defaultResearchOutputTypesData.defaultResearchOutputTypes
+              formSelectItems = defaultResearchOutputTypesData.defaultResearchOutputTypes
                 .filter((type): type is NonNullable<typeof type> => type !== null)
                 .map((type) => ({
                   id: type.value,
-                  name: type.name
+                  name: type.name,
+                }));
+            } else if (isOutputTypeField && !hasNoOptions && defaultResearchOutputTypesData?.defaultResearchOutputTypes) {
+              tooltipSelectItems = defaultResearchOutputTypesData.defaultResearchOutputTypes
+                .filter((type): type is NonNullable<typeof type> => type !== null)
+                .map((type) => ({
+                  id: type.value,
+                  name: type.name,
+                  label: type.name,
+                  tooltip: type.description || undefined
                 }));
             } else {
               const options = col.content.options || [];
-              selectItems = options.map(option => ({
+              formSelectItems = options.map(option => ({
                 id: option.value,
-                name: option.label
+                name: option.label,
               }));
             }
 
@@ -499,19 +512,34 @@ const SingleResearchOutputComponent = ({
                 key={col.heading}
                 ref={(el) => { fieldRefs.current[`col-${colIndex}`] = el; }}
               >
-                <FormSelect
-                  label={translatedLabel}
-                  ariaLabel={translatedLabel}
-                  isRequired={col.required}
-                  name={name}
-                  items={selectItems}
-                  selectedKey={String(value)}
-                  isInvalid={!!fieldError}
-                  errorMessage={fieldError}
-                  helpMessage={col.content.attributes?.help || col?.help}
-                  onChange={val => handleCellChange(colIndex, val)}
-                  isDisabled={isDisabled}
-                />
+                {isOutputTypeField && !hasNoOptions ? (
+                  <TooltipSelect
+                    label={translatedLabel}
+                    ariaLabel={translatedLabel}
+                    isRequired={col.required}
+                    name={name}
+                    options={tooltipSelectItems}
+                    defaultSelectedKey={String(value)}
+                    errorMessage={fieldError}
+                    helpMessage={col.content.attributes?.help || col?.help}
+                    onSelectionChange={(val: Key | null) => {
+                      if (val !== null) handleCellChange(colIndex, val);
+                    }}
+                  />
+                ) : (
+                  <FormSelect
+                    label={translatedLabel}
+                    ariaLabel={translatedLabel}
+                    isRequired={col.required}
+                    name={name}
+                    items={formSelectItems}
+                    selectedKey={String(value)}
+                    isInvalid={!!fieldError}
+                    errorMessage={fieldError}
+                    helpMessage={col.content.attributes?.help || col?.help}
+                    onChange={val => handleCellChange(colIndex, val)}
+                  />
+                )}
               </div>
             );
 
