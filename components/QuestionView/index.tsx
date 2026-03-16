@@ -89,7 +89,12 @@ interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
    * NOTE: We pass this explicitly, as we cannot predict or infer if the
    * templateId will be available in the question object.
    */
-  templateId: number,
+  templateId?: number,
+  isDisabled?: boolean; // This is used to disable the question for use in question customizations
+  cardOnly?: boolean // If true, only render the question card without surrounding layout and guidance sections
+  org?: string // This is used to pass the organization name to the question view, so that it can be displayed in the requirements and guidance sections. 
+  // We pass this as a separate prop because the organization name is not always available in the question data, but we still want to display it if we have it.
+  orgGuidance?: string // This is used to pass the organization-specific guidance to the question view, so that it can be displayed in the guidance section. We pass this as a separate prop because the organization-specific guidance is not always available in the question data, but we still want to display it if we have it.
 }
 
 //This component is meant to work with the QuestionAdd and QuestionEdit components, to display
@@ -100,7 +105,11 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   isPreview = false,
   question,
   templateId,
-  path = ''
+  isDisabled = false,
+  path = '',
+  cardOnly = false,
+  org = '',
+  orgGuidance = '',
 }) => {
 
   const trans = useTranslations('QuestionView');
@@ -108,8 +117,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   const { data: qtData } = { data: getQuestionTypes() };
   const { data: templateData } = useQuery(TemplateDocument, {
     variables: {
-      templateId,
+      templateId: templateId ?? 0
     },
+    skip: !templateId, // Skip the query if templateId is not provided. We don't need to templateId for Custom Questions, since it's only used for owner's display name
     notifyOnNetworkStatusChange: true
   });
 
@@ -280,6 +290,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               selectedRadioValue={selectedRadioValue}
               name='radio-buttons'
               handleRadioChange={handleRadioChange}
+              isDisabled={isDisabled}
             />
           )
         }
@@ -291,6 +302,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               parsedQuestion={parsed}
               selectedCheckboxValues={selectedCheckboxValues}
               handleCheckboxGroupChange={handleCheckboxGroupChange}
+              isDisabled={isDisabled}
             />
           )
         }
@@ -302,6 +314,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               parsedQuestion={parsed}
               selectedMultiSelectValues={selectedMultiSelectValues}
               handleMultiSelectChange={handleMultiSelectChange}
+              isDisabled={isDisabled}
             />
           );
         }
@@ -313,6 +326,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               parsedQuestion={parsed}
               selectedSelectValue={selectedSelectValue}
               handleSelectChange={handleSelectChange}
+              isDisabled={isDisabled}
             />
           );
         }
@@ -333,6 +347,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               onChange={e => handleTextChange(e)}
               minLength={minLength}
               maxLength={maxLength}
+              disabled={isDisabled}
             />
           )
         }
@@ -343,6 +358,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               id="question-text-editor"
               content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
               setContent={() => { }}
+              disabled={isDisabled}
             />
           );
         }
@@ -358,7 +374,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               label="Date"
               minValue={dateMinValue}
               maxValue={dateMaxValue}
-
+              isDisabled={isDisabled}
             />
           )
         }
@@ -369,6 +385,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               parsedQuestion={parsed}
               dateRange={dateRange}
               handleDateChange={handleDateRangeChange}
+              isDisabled={isDisabled}
             />
           )
         }
@@ -386,6 +403,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               minValue={minValue}
               {...(typeof maxValue === 'number' ? { maxValue } : {})} //if maxValue is null, we don't want to set it
               step={step}
+              disabled={isDisabled}
             />
           )
         }
@@ -399,6 +417,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               handleNumberChange={handleNumberChange}
               startPlaceholder="start"
               endPlaceholder="end"
+              isDisabled={isDisabled}
             />
           )
         }
@@ -409,6 +428,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               parsedQuestion={parsed}
               inputCurrencyValue={inputCurrencyValue}
               handleCurrencyChange={setInputCurrencyValue}
+              isDisabled={isDisabled}
             />
           )
         }
@@ -428,6 +448,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               minLength={urlMinLength}
               maxLength={urlMaxLength}
               pattern={urlPattern}
+              disabled={isDisabled}
             />
           )
         }
@@ -447,6 +468,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               minLength={emailMinLength}
               maxLength={emailMaxLength}
               pattern={emailPattern}
+              disabled={isDisabled}
             />
           )
         }
@@ -458,6 +480,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               parsedQuestion={parsed}
               selectedValue={yesNoValue}
               handleRadioChange={handleBooleanChange}
+              isDisabled={isDisabled}
             />
           )
         }
@@ -473,6 +496,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               setOtherField={setOtherField}
               handleAffiliationChange={(handleAffiliationChange)}
               handleOtherAffiliationChange={handleOtherAffiliationChange}
+              isDisabled={isDisabled}
             />
           )
         }
@@ -485,6 +509,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               setRows={setResearchOutputRows}
               onSave={handleResearchOutputChange}
               initialViewMode="form"
+              isDisabled={isDisabled}
             />
           )
         }
@@ -493,28 +518,36 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     }
   };
 
+  // Only return the question card if cardOnly is true. This allows us to reuse this component in other places where we just want to show the question card without the surrounding layout and guidance sections
+  if (cardOnly) {
+    return (
+      <Card className={styles.noBorder} data-testid='question-card'>
+        <CardEyebrow>{trans('cardType')}</CardEyebrow>
+        <CardHeading>{question?.questionText}</CardHeading>
+        <CardBody data-testid="card-body">
+          {renderQuestionField()}
+        </CardBody>
+      </Card>
+    );
+  }
+
   return (
     <LayoutWithPanel
       id={id}
       className={`${styles.QuestionView} ${className}`}
     >
       <ContentContainer className={`${styles.QuestionView}__content-container`}>
-        <h2>{question?.questionText}</h2>
-
         {(question?.requirementText) && (
           <div className={styles.Requirements}>
-            <p className={styles.ByLine}>
-              {trans('requirements', { orgName: templateData?.template?.owner?.displayName || '' })}
-            </p>
+            <h3 className={`h4 ${styles.heading3}`}>{Global('headings.requirements')}</h3>
+            {templateData?.template?.owner && (
+              <p className={styles.ByLine}>
+                {trans('requirements', { orgName: templateData?.template?.owner?.displayName || '' })}
+              </p>
+            )}
             <div dangerouslySetInnerHTML={{ __html: question.requirementText || '' }}></div>
           </div>
         )}
-
-        <p>
-          <a className={styles.JumpLink} href="#_guidance">
-            &darr; {trans('guidanceLink')}
-          </a>
-        </p>
 
         <Card data-testid='question-card'>
           <CardEyebrow>{trans('cardType')}</CardEyebrow>
@@ -534,11 +567,24 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         </Card>
 
         {(question?.guidanceText) && (
-          <div className="guidance">
-            <p className={styles.ByLine}>
-              {trans('guidanceBy', { orgName: templateData?.template?.owner?.displayName ?? '' })}
-            </p>
+          <div className={styles.guidance}>
+            <h3 className={`h4 ${styles.heading3}`}>{Global('headings.guidance')}</h3>
+            {templateData?.template?.owner && (
+              <p className={styles.ByLine}>
+                {trans('guidanceBy', { orgName: templateData?.template?.owner?.displayName ?? '' })}
+              </p>)}
             <div dangerouslySetInnerHTML={{ __html: question.guidanceText }}></div>
+          </div>
+        )}
+
+        {(orgGuidance) && (
+          <div className={styles.guidance}>
+            <h3 className={`h4 ${styles.heading3}`}>{Global('headings.guidanceFromOrg', { org: org ?? '' })}</h3>
+            {templateData?.template?.owner && (
+              <p className={styles.ByLine}>TEST
+                {trans('guidanceBy', { orgName: org })}
+              </p>)}
+            <p dangerouslySetInnerHTML={{ __html: orgGuidance }}></p>
           </div>
         )}
 

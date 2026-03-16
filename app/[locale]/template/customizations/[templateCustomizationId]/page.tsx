@@ -91,6 +91,7 @@ const TemplateCustomizationOverview: React.FC = () => {
     refetch
   } = useQuery(TemplateCustomizationOverviewDocument, {
     variables: { templateCustomizationId: Number(templateCustomizationId) },
+    fetchPolicy: 'cache-and-network', // User sees cached data imediately while a fresh fetch runs to get latest updates from editing
   });
 
   // Mutations
@@ -355,7 +356,6 @@ const TemplateCustomizationOverview: React.FC = () => {
       setLocalSections(sorted);
     }
   }, [data]);
-
 
   if (loading) {
     return <Loading />;

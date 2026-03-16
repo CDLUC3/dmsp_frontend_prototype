@@ -1,18 +1,15 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 import {
-  Breadcrumb,
-  Breadcrumbs,
   Button,
   Checkbox,
   Form,
   Input,
   Label,
-  Link,
   Radio,
   Tab,
   TabList,
@@ -23,12 +20,6 @@ import {
 } from "react-aria-components";
 
 // GraphQL
-import { useMutation, useQuery } from '@apollo/client/react';
-import {
-  AddQuestionDocument,
-  QuestionsDisplayOrderDocument,
-} from '@/generated/graphql';
-
 import {
   Question,
   QuestionOptions,
@@ -81,16 +72,37 @@ const defaultQuestion = {
   showCommentField: false,
 };
 
+export interface QuestionCommonFields {
+  questionText: string;
+  json: string;
+  requirementText?: string | null;
+  guidanceText?: string | null;
+  sampleText?: string | null;
+  useSampleTextAsDefault?: boolean;
+  required?: boolean;
+}
+
+
 const QuestionAdd = ({
   questionType,
   questionName,
   questionJSON,
-  sectionId }:
+  sectionId,
+  onSave,
+  backUrl,
+  successUrl,
+  breadcrumbs
+}:
   {
     questionType?: string | null,
     questionName?: string | null,
     questionJSON: string,
-    sectionId?: string
+    sectionId?: string,
+    onSave: (commonFields: QuestionCommonFields) => Promise<void>;
+    backUrl: string;        // where "Change Type" and breadcrumbs point
+    successUrl: string;     // where to redirect on save success
+    breadcrumbs: React.ReactNode;
+
   }) => {
 
   const params = useParams();
@@ -129,17 +141,6 @@ const QuestionAdd = ({
   // localization keys
   const Global = useTranslations('Global');
   const QuestionAdd = useTranslations('QuestionAdd');
-
-  // Initialize add and update question mutations
-  const [addQuestionMutation] = useMutation(AddQuestionDocument);
-
-  // Query request for questions to calculate max displayOrder
-  const { data: questionDisplayOrders } = useQuery(QuestionsDisplayOrderDocument, {
-    variables: {
-      sectionId: Number(sectionId)
-    },
-    skip: !sectionId
-  })
 
   // Helper function to make announcements
   const announce = (message: string) => {
@@ -193,27 +194,8 @@ const QuestionAdd = ({
 
   // Send user back to the selection of question types
   const redirectToQuestionTypes = () => {
-    router.push(step1Url)
+    router.push(backUrl)
   }
-
-  // Calculate the display order of the new question based on the last displayOrder number
-  const getDisplayOrder = useCallback(() => {
-    if (!questionDisplayOrders?.questions?.length) {
-      return 1;
-    }
-
-    // Filter out null/undefined questions and handle missing displayOrder
-    const validDisplayOrders = questionDisplayOrders.questions
-      .map(q => q?.displayOrder)
-      .filter((order): order is number => typeof order === 'number');
-
-    if (validDisplayOrders.length === 0) {
-      return 1;
-    }
-
-    const maxDisplayOrder = Math.max(...validDisplayOrders);
-    return maxDisplayOrder + 1;
-  }, [questionDisplayOrders]);
 
   // Update rows state and question.json when options change
   const updateRows = (newRows: QuestionOptions[]) => {
@@ -382,58 +364,37 @@ const QuestionAdd = ({
     if (isSubmitting) return;
     setIsSubmitting(true);
 
-    const displayOrder = getDisplayOrder();
-
     const updatedJSON = buildUpdatedJSON(question);
-
     const { success, error } = updatedJSON ?? {};
-    if (success && !error) {
-      // Strip all tags from questionText before sending to backend
-      const cleanedQuestionText = stripHtmlTags(question?.questionText ?? '');
 
-      const input = {
-        templateId: Number(templateId),
-        sectionId: Number(sectionId),
-        displayOrder,
-        isDirty: true,
-        questionText: cleanedQuestionText,
-        json: JSON.stringify(updatedJSON ? updatedJSON.data : ''),
-        requirementText: question?.requirementText,
-        guidanceText: question?.guidanceText,
-        sampleText: question?.sampleText,
-        useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
-        required: question?.required,
-      };
-
-      try {
-        const response = await addQuestionMutation({ variables: { input } });
-
-        if (response?.data) {
-          setIsSubmitting(false);
-          setHasUnsavedChanges(false);
-          toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
-          // Redirect user to the Edit Question view with their new question id after successfully adding the new question
-          router.push(routePath('template.show', { templateId }));
-        }
-      } catch (error) {
-        // Handle errors
-        setErrors(prevErrors => [
-          ...prevErrors,
-          QuestionAdd('messages.errors.questionAddingError'),
-        ]);
-        logECS('error', 'Adding Question in QuestionAdd', {
-          error,
-        });
-      }
-    } else {
-      const errorMessage = error ?? QuestionAdd('messages.errors.questionAddingError');
-      setErrors(prevErrors => [
-        ...prevErrors,
-        errorMessage,
-      ]);
-      announce(QuestionAdd('researchOutput.announcements.errorOccurred') || 'An error occurred. Please check the form.');
+    if (!success || error) {
+      setErrors(prev => [...prev, error ?? QuestionAdd('messages.errors.questionAddingError')]);
+      announce(QuestionAdd('researchOutput.announcements.errorOccurred'));
+      setIsSubmitting(false);
+      return;
     }
 
+    const commonFields: QuestionCommonFields = {
+      questionText: stripHtmlTags(question?.questionText ?? ''),
+      json: JSON.stringify(updatedJSON ? updatedJSON.data : ''),
+      requirementText: question?.requirementText,
+      guidanceText: question?.guidanceText,
+      sampleText: question?.sampleText,
+      useSampleTextAsDefault: question?.useSampleTextAsDefault ?? false,
+      required: question?.required,
+    };
+
+    try {
+      await onSave(commonFields);
+      setHasUnsavedChanges(false);
+      toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
+      router.push(successUrl);
+    } catch (error) {
+      setErrors(prev => [...prev, QuestionAdd('messages.errors.questionAddingError')]);
+      logECS('error', 'Adding Question in QuestionAdd', { error });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // If questionType is missing, return user to the Question Types selection page
@@ -517,15 +478,7 @@ const QuestionAdd = ({
         title={QuestionAdd('title')}
         description=""
         showBackButton={false}
-        breadcrumbs={
-          <Breadcrumbs>
-            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('template.index', { templateId })}>{Global('breadcrumbs.templates')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('template.show', { templateId })}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={step1Url}>{Global('breadcrumbs.selectQuestionType')}</Link></Breadcrumb>
-            <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
-          </Breadcrumbs>
-        }
+        breadcrumbs={breadcrumbs}
         actions={null}
         className=""
       />

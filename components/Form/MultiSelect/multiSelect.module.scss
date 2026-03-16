@@ -55,6 +55,11 @@
   font-weight: 400;
   color: #374151;
   background-color: transparent;
+
+  &[data-disabled][data-selected] {
+    background-color: rgb(from var(--highlight-background) r g b / 0.5);
+  }
+
 }
 
 /* Hovered but not selected */

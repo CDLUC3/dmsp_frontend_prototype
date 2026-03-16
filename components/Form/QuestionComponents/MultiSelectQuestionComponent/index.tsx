@@ -6,6 +6,7 @@ interface MultiselectboxQuestionProps {
   parsedQuestion: MultiselectBoxQuestionType;
   selectedMultiSelectValues?: Set<string>;
   selectBoxLabel?: string;
+  isDisabled?: boolean;
   handleMultiSelectChange: (values: Set<string>) => void;
 }
 
@@ -13,6 +14,7 @@ const MultiSelectQuestionComponent: React.FC<MultiselectboxQuestionProps> = ({
   parsedQuestion,
   selectedMultiSelectValues,
   selectBoxLabel,
+  isDisabled = false,
   handleMultiSelectChange
 }) => {
   // Transform options to items for FormSelect/MultiSelect
@@ -45,6 +47,7 @@ const MultiSelectQuestionComponent: React.FC<MultiselectboxQuestionProps> = ({
       label={selectBoxLabel}
       aria-label={selectBoxLabel}
       defaultSelected={defaultSelected}
+      isDisabled={isDisabled}
     />
   );
 };

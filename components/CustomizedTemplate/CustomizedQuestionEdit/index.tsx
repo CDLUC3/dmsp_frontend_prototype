@@ -31,7 +31,6 @@ const CustomizedQuestionEdit: React.FC<CustomizedQuestionEditProps> = ({
   hasCustomSampleAnswer,
 }) => {
 
-
   const questionText = stripHtml(text);
   const questionId = Number(id);
   const questionDisplayOrder = Number(displayOrder);

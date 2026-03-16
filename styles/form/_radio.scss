@@ -62,6 +62,15 @@
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 2px;
   }
+
+  &[data-disabled] {
+    cursor: not-allowed;
+    pointer-events: none;
+
+    &:before {
+      opacity: 0.5;
+    }
+  }
 }
 
 .react-aria-RadioGroup .react-aria-Radio+.react-aria-Text[slot="description"] {
