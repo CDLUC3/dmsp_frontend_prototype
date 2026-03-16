@@ -71,7 +71,7 @@ jest.mock("react-aria-components", () => {
       </ul>
     ),
     // Mock ListBoxItem — strip textValue to avoid DOM warning, add key
-    ListBoxItem: ({ children, id, className, ...props }: any) => (
+    ListBoxItem: ({ children, id, textValue: _textValue, className, ...props }: any) => (
       <div role="option" data-key={id} className={className} {...props}>
         {typeof children === "function"
           ? children({ isSelected: false })
