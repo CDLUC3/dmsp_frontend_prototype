@@ -204,8 +204,7 @@ const PlanOverviewSectionPage: React.FC = () => {
           <div className={styles.contentWrapper}>
             {/* Subtle plan navigation for very large screens */}
             <nav
-              className={styles.planNavigation}
-              style={{ display: showNavigation ? 'block' : 'none' }}
+              className={`${styles.planNavigation} ${!showNavigation ? styles.planNavigationHidden : ''}`}
               aria-labelledby="plan-nav-title"
             >
               <h2 id="plan-nav-title" className={"hidden-accessibly"}>{Section('navigation.planNavigation')}</h2>
@@ -244,7 +243,7 @@ const PlanOverviewSectionPage: React.FC = () => {
               <section aria-label={"Requirements"}>
                 {sectionData?.publishedSection?.requirements && (
                   <>
-                    <h4>{t('headings.requirementsBy', { funder: plan.funder_name })}</h4>
+                    <h3 className="h4">{t('headings.requirementsBy', { funder: plan.funder_name })}</h3>
                     <SafeHtml html={sectionData?.publishedSection?.requirements} />
                   </>
                 )}
