@@ -22,6 +22,8 @@
 
 ## Updated
 - Updated `PlanOverviewSectionPage` left nav to appear only for large screens over `1800px` for now, because it was overlapping with the content for smaller devices [#34]
+- `Custom Questi
+- Updated Research Output standardFields config so that only `title` field is required when answering question [#33]
 - `Custom Question` updates [#929]
 - Moved `addQuestionMutation` out of `QuestionView` so that `QuestionView` can be shared for both `BASE` and `CUSTOM` questions
   - Updated `QuestionTypeSelectPage` to include the `addQuestionMutation` and `getDisplayOrder` and pass those to `QuestionAdd`
