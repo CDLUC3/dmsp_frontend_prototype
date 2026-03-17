@@ -1,17 +1,17 @@
 networks:
-  dmsp_backend_prototype_dmptool-network:
+  dmptool-apollo-server_dmptool-network:
     external: true
 
 services:
   dmsp-frontend-prototype:
-    container_name: dmsp_frontend
+    container_name: dmptool-ui
     build:
       context: .
       dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
     networks:
-      - dmsp_backend_prototype_dmptool-network
+      - dmptool-apollo-server_dmptool-network
     env_file:
       - .env.local
     environment:

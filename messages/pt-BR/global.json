@@ -835,7 +835,8 @@
         "invalidQuestionType": "Tipo de questão inválido encontrado.",
         "questionUnexpectedFormat": "Formato inesperado para question.json.",
         "questionJSONFParseFailed": "JSON.parse falhou.",
-        "requiredField": "{field} é obrigatório"
+        "requiredField": "{field} é obrigatório",
+        "errorParsingData": "Erro ao analisar dados"
       },
       "numDisplaying": "Mostrando {num} de {total}",
       "unsavedChangesWarning": "Você tem alterações não salvas. Tem certeza que deseja sair desta página?"
@@ -871,7 +872,8 @@
     "status": {
       "published": "Publicado",
       "draft": "Rascunho",
-      "unpublishedChanges": "Alterações não publicadas"
+      "unpublishedChanges": "Alterações não publicadas",
+      "notStarted": "Não iniciado"
     }
   },
   "OrganizationTemplates": {

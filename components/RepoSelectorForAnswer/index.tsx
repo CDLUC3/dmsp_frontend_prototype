@@ -30,10 +30,10 @@ import { handleApolloError } from '@/utils/apolloErrorHandler';
 import { useQuery, useLazyQuery } from '@apollo/client/react';
 import {
   Repository,
-  RepositoryType,
+  Re3RepositoryTypesListDocument,
   RepositoriesDocument,
-  RepositorySubjectAreasDocument,
-  RepositoriesByUrIsDocument,
+  Re3SubjectListDocument,
+  Re3byUrIsDocument,
 } from '@/generated/graphql';
 
 import {
@@ -146,26 +146,32 @@ const RepoSelectorForAnswer = ({
   const [hasPreviousPage, setHasPreviousPage] = useState<boolean | null>(false);
   // Filtered repositories state - can be either local mock data or GraphQL data
   const [repositories, setRepositories] = useState<Repository[]>([]);
+  // Track whether a search has been performed (to avoid showing 'no matches' before searching)
+  const [hasSearched, setHasSearched] = useState(false);
 
   // Repository types for dropdown
-  const repositoryTypes = useMemo(() =>
-    Object.entries(RepositoryType).map(([key, value]) => ({
-      id: value,
-      name: key.replace(/([A-Z])/g, ' $1').trim() // Convert camelCase to spaced text
-    }))
-    , []);
+  const { data: repositoryTypesData } = useQuery(Re3RepositoryTypesListDocument);
+
+  // Transform repository types data for FormSelect - add empty option for deselection
+  const repositoryTypes = [
+    { id: 'none', name: '-- None --' },
+    ...(repositoryTypesData?.re3RepositoryTypesList?.types?.map(typeObj => ({
+      id: typeObj.type,
+      name: typeObj.type
+    })) || [])
+  ];
 
   // Get Repository Subject Areas
-  const { data: subjectAreasData } = useQuery(RepositorySubjectAreasDocument);
+  const { data: subjectAreasData } = useQuery(Re3SubjectListDocument);
 
   // Transform subject areas data for FormSelect - add empty option for deselection
   const subjectAreas = [
     { id: 'none', name: '-- None --' },
-    ...(subjectAreasData?.repositorySubjectAreas?.map(area => toSubjectAreaObject(area)) || [])
+    ...(subjectAreasData?.re3SubjectList?.subjects?.map(s => toSubjectAreaObject(s.subject)) || [])
   ];
 
   // Get repositories by the preferred URIs to display initially on first load
-  const { data: preferredRepositoriesData } = useQuery(RepositoriesByUrIsDocument, {
+  const { data: preferredRepositoriesData } = useQuery(Re3byUrIsDocument, {
     variables: {
       uris: preferredReposURIs || []
     },
@@ -199,14 +205,22 @@ const RepoSelectorForAnswer = ({
               sortDir: "DESC",
             },
             term: searchTerm,
-            repositoryType: repoType as RepositoryType || null,
-            keyword: subjectArea || null,
+            repositoryType: repoType as string || null,
+            subjects: subjectArea ? [subjectArea] : null,
           }
         }
       });
       // Process the data immediately after fetching
       if (data?.repositories?.items) {
-        const validRepos = data.repositories.items.filter(item => item !== null);
+        // Filter out null items and CustomRepository items with actual errors
+        const validRepos = data.repositories.items.filter((item): item is Repository => {
+          if (!item) return false;
+          // Check if it's a CustomRepository with actual error values
+          if ('errors' in item && item.errors && (item.errors.general || item.errors.uri)) {
+            return false;
+          }
+          return true;
+        });
         setRepositories(validRepos);
         setTotalCount(data.repositories.totalCount ?? 0);
         setTotalPages(Math.ceil((data.repositories.totalCount ?? 0) / LIMIT));
@@ -215,6 +229,7 @@ const RepoSelectorForAnswer = ({
       } else {
         setRepositories([]);
       }
+      setHasSearched(true);
     } catch (err) {
       handleApolloError(err, 'repoSelectorForAnswer.fetchRepositories');
     }
@@ -231,6 +246,7 @@ const RepoSelectorForAnswer = ({
   // Update search term state on input change
   const handleSearchInput = (term: string) => {
     setSearchTerm(term);
+    setHasSearched(false);
   };
 
   // Handle search for repositories
@@ -242,27 +258,30 @@ const RepoSelectorForAnswer = ({
     setCurrentPage(1);
 
     // If showing preferred only, filter the preferred repos locally
-    if (showPreferredOnly && preferredRepositoriesData?.repositoriesByURIs) {
-      const filtered = preferredRepositoriesData.repositoriesByURIs.filter(repo => {
+    if (showPreferredOnly && preferredRepositoriesData?.re3byURIs) {
+      const filtered = preferredRepositoriesData.re3byURIs.filter(repo => {
+        if (!repo) return false;
+
         const matchesSearch = !term ||
           repo.name?.toLowerCase().includes(term.toLowerCase()) ||
           repo.description?.toLowerCase().includes(term.toLowerCase()) ||
-          repo.keywords?.some(k => k.toLowerCase().includes(term.toLowerCase()));
+          (repo.keywords?.some(k => k.toLowerCase().includes(term.toLowerCase())) ?? false);
 
         const matchesSubject = !subjectArea ||
-          repo.keywords?.some(k => k.toLowerCase().includes(subjectArea.toLowerCase()));
+          (repo.keywords?.some(k => k.toLowerCase().includes(subjectArea.toLowerCase())) ?? false);
 
         const matchesType = !repoType ||
-          repo.repositoryTypes?.includes(repoType as RepositoryType);
+          (repo.repositoryTypes?.includes(repoType as string) ?? false);
 
         return matchesSearch && matchesSubject && matchesType;
-      });
+      }) as Repository[];
 
       setRepositories(filtered);
       setTotalCount(filtered.length);
       setTotalPages(1);
       setHasNextPage(false);
       setHasPreviousPage(false);
+      setHasSearched(true);
     } else {
       // Fetch all repositories with filters from API
       await fetchRepositories({ page: 1, searchTerm: term });
@@ -272,11 +291,13 @@ const RepoSelectorForAnswer = ({
   // Set selected subject area
   const searchOnSubjectArea = (subject: string) => {
     setSubjectArea(subject === 'none' ? null : subject);
+    setHasSearched(false);
   };
 
   // Set selected repository type
   const searchOnRepositoryType = (type: string) => {
     setRepoType(type === 'none' ? null : type);
+    setHasSearched(false);
   };
 
   // Handle add/removal of repository selections in modal view and display confirmation toasts
@@ -398,13 +419,14 @@ const RepoSelectorForAnswer = ({
     if (isModalOpen &&
       preferredReposURIs &&
       preferredReposURIs.length > 0 &&
-      preferredRepositoriesData?.repositoriesByURIs &&
+      preferredRepositoriesData?.re3byURIs &&
       showPreferredOnly) {
-      setRepositories(preferredRepositoriesData.repositoriesByURIs);
-      setTotalCount(preferredRepositoriesData.repositoriesByURIs.length);
+      setRepositories(preferredRepositoriesData.re3byURIs as Repository[]);
+      setTotalCount(preferredRepositoriesData.re3byURIs.length);
       setTotalPages(1);
       setHasNextPage(false);
       setHasPreviousPage(false);
+      setHasSearched(true);
     }
   }, [isModalOpen, preferredReposURIs, preferredRepositoriesData]);
 
@@ -416,9 +438,26 @@ const RepoSelectorForAnswer = ({
   }, [isModalOpen, preferredReposURIs]);
 
   useEffect(() => {
-    // On initial page load, fetch all metadata standards
-    handleSearch('');
+    // On initial page load, only fetch all repositories if not in preferred-only mode
+    if (!showPreferredOnly) {
+      handleSearch('');
+    }
   }, []);
+
+  // When preferred data loads and we're in preferred-only mode, set it
+  // When switching away from preferred-only, fetch all repositories
+  useEffect(() => {
+    if (showPreferredOnly && preferredRepositoriesData?.re3byURIs) {
+      setRepositories(preferredRepositoriesData.re3byURIs as Repository[]);
+      setTotalCount(preferredRepositoriesData.re3byURIs.length);
+      setTotalPages(1);
+      setHasNextPage(false);
+      setHasPreviousPage(false);
+      setHasSearched(true);
+    } else if (!showPreferredOnly) {
+      fetchRepositories({ page: 1, searchTerm });
+    }
+  }, [showPreferredOnly, preferredRepositoriesData]);
 
   const selectedCount = Object.keys(selectedRepos).length;
   const selectedArray = Object.values(selectedRepos);
@@ -682,25 +721,34 @@ const RepoSelectorForAnswer = ({
                       </div>
                     )}
 
+                    {/** Show "NO matches" text if no repositories found */}
                     <div className={styles.searchResults}>
-                      <div className={styles.paginationWrapper}>
-                        <span className={styles.paginationInfo}>
-                          {QuestionAdd('headings.displayingRepositoriesStatus', { current: repositories.length, total: totalCount })}
-                        </span>
-                        <Pagination
-                          currentPage={currentPage}
-                          totalPages={totalPages}
-                          hasPreviousPage={hasPreviousPage}
-                          hasNextPage={hasNextPage}
-                          handlePageClick={handlePageClick}
-                        />
-                      </div>
+                      {repositories.length === 0 && hasSearched ? (
+                        <div className={styles.paginationWrapper}>
+                          <span className={styles.paginationInfo}>
+                            {QuestionAdd('headings.noMatchesFound')}
+                          </span>
+                        </div>
+                      ) : repositories.length > 0 ? (
+                        <div className={styles.paginationWrapper}>
+                          <span className={styles.paginationInfo}>
+                            {QuestionAdd('headings.displayingRepositoriesStatus', { current: repositories.length, total: totalCount })}
+                          </span>
+                          <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            hasPreviousPage={hasPreviousPage}
+                            hasNextPage={hasNextPage}
+                            handlePageClick={handlePageClick}
+                          />
+                        </div>
+                      ) : null}
 
                       {repositories
                         .filter((repo): repo is Repository & { id: number } => repo.id != null)
                         .map((repo) => {
                           const repoInterface: RepositoryInterface = {
-                            id: repo.uri,
+                            id: repo.uri || '',
                             name: repo.name ?? '',
                             description: repo.description ?? '',
                             uri: repo.uri ?? '',
@@ -743,7 +791,7 @@ const RepoSelectorForAnswer = ({
                                   <dl>
                                     <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.repoTitle')}</dt>
                                     <dd>
-                                      <a href={repo.uri} target="_blank" rel="noopener noreferrer">
+                                      <a href={repo.uri ?? ''} target="_blank" rel="noopener noreferrer">
                                         {repo.uri}
                                       </a>
                                     </dd>

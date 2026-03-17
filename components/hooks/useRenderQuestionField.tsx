@@ -153,6 +153,7 @@ export interface RenderQuestionFieldProps {
     rows: ResearchOutputTable[];
     setRows: Dispatch<SetStateAction<ResearchOutputTable[]>>
     onSave?: (rows: ResearchOutputTable[], type?: string) => Promise<void>;
+    onEditingStateChange?: (isEditing: boolean) => void;
   };
 }
 
@@ -416,6 +417,7 @@ export function useRenderQuestionField({
             rows={researchOutputTableAnswerProps?.rows}
             setRows={researchOutputTableAnswerProps?.setRows}
             onSave={researchOutputTableAnswerProps?.onSave}
+            onEditingStateChange={researchOutputTableAnswerProps?.onEditingStateChange}
           />
         );
       }

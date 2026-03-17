@@ -6,14 +6,16 @@ import RepoSelectorForAnswer from '../index';
 import { useToast } from '@/context/ToastContext';
 import { useQuery, useLazyQuery } from '@apollo/client/react';
 import {
+  Re3RepositoryTypesListDocument,
+  Re3SubjectListDocument,
+  Re3byUrIsDocument,
   RepositoriesDocument,
-  RepositorySubjectAreasDocument,
-  RepositoriesByUrIsDocument
 } from '@/generated/graphql';
 import { addRepositoryAction } from '@/app/actions/addRepositoryAction';
 import mockRepositoriesData from '../__mocks__/mockRepositoriesData.json';
 import mockSubjectAreasData from '../__mocks__/mockRepoSubjectAreasData.json';
 import mockPreferredRepositoriesData from '../__mocks__/mockPreferredRepositoriesData.json';
+import mockRepositoryTypesData from '../__mocks__/mockRepositoryTypesData.json';
 import mockValue from '../__mocks__/mockValue.json';
 
 // Mocks
@@ -80,15 +82,25 @@ const setupMocks = () => {
     error: null,
   };
 
+  const stableRepositoryTypesReturn = {
+    data: mockRepositoryTypesData,
+    loading: false,
+    error: null,
+  };
   mockUseQuery.mockImplementation((document) => {
-    if (document === RepositorySubjectAreasDocument) {
+    if (document === Re3SubjectListDocument) {
       /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableRepositoriesSubjectAreasReturn as any;
     }
 
-    if (document === RepositoriesByUrIsDocument) {
+    if (document === Re3byUrIsDocument) {
       /* eslint-disable @typescript-eslint/no-explicit-any */
       return stableRepositoriesURIsReturn as any;
+    }
+
+    if (document === Re3RepositoryTypesListDocument) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      return stableRepositoryTypesReturn as any;
     }
     return {
       data: null,
@@ -181,7 +193,7 @@ describe('RepoSelectorForAnswer', () => {
               },
               term: '',
               repositoryType: null,
-              keyword: null,
+              subjects: null,
             }
           }
         });
@@ -213,7 +225,7 @@ describe('RepoSelectorForAnswer', () => {
 
       // Count the number of "buttons.moreInfo" to test # of preferred repositories that display
       const moreInfoButtons = screen.getAllByText('buttons.moreInfo');
-      expect(moreInfoButtons).toHaveLength(1);
+      expect(moreInfoButtons).toHaveLength(2);
       expect(screen.getByText('Zenodo')).toBeInTheDocument();
 
       // Check that the preferredOnly checkbox is present and checked

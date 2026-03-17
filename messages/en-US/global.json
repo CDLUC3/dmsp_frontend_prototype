@@ -674,10 +674,12 @@
       "admin": "Admin",
       "templates": "Templates",
       "template": "Template",
+      "templateCustomizations": "Customizable templates",
       "createTemplate": "Create a template",
       "selectExistingTemplate": "Select an existing template",
       "templateHistory": "Template history",
       "section": "Section",
+      "customizeSection": "Customize section",
       "addNewSection": "Add a new section",
       "updateSection": "Update Section",
       "editSection": "Edit Section",
@@ -764,7 +766,9 @@
       "applyFilterSingular": "Apply filter",
       "moreInfo": "More info",
       "lessInfo": "Less info",
-      "createNewPlan": "Create New DMP"
+      "createNewPlan": "Create New DMP",
+      "deletingCustomization": "Deleting customization...",
+      "deleteCustomization": "Delete customization"
     },
     "labels": {
       "required": "required",
@@ -837,7 +841,8 @@
         "invalidQuestionType": "Invalid question type found.",
         "questionUnexpectedFormat": "Unexpected format for question.json.",
         "questionJSONFParseFailed": "JSON.parse failed.",
-        "requiredField": "{field} is required"
+        "requiredField": "{field} is required",
+        "errorParsingData": "Error parsing data"
       },
       "numDisplaying": "Showing {num} of {total}",
       "unsavedChangesWarning": "You have unsaved changes. Are you sure you want to leave this page?"
@@ -848,7 +853,11 @@
       "logic": "Logic"
     },
     "headings": {
-      "preview": "Preview"
+      "preview": "Preview",
+      "requirementsByFunder": "Requirements by {funder}",
+      "guidanceFromOrg": "Guidance from {org}",
+      "requirements": "Requirements",
+      "guidance": "Guidance"
     },
     "version": "Version",
     "questionTypes": {
@@ -874,7 +883,8 @@
     "status": {
       "published": "Published",
       "draft": "Draft",
-      "unpublishedChanges": "Unpublished changes"
+      "unpublishedChanges": "Unpublished changes",
+      "notStarted": "Not started"
     }
   },
   "OrganizationTemplates": {

@@ -1,0 +1,40 @@
+{
+  "repositoryTypesData": {
+    "re3RepositoryTypesList": {
+      "__typename": "Re3RepositoryTypesListResults",
+      "totalCount": 6,
+      "types": [
+        {
+          "__typename": "Re3RepositoryType",
+          "count": null,
+          "type": "disciplinary"
+        },
+        {
+          "__typename": "Re3RepositoryType",
+          "count": null,
+          "type": "institutional"
+        },
+        {
+          "__typename": "Re3RepositoryType",
+          "count": null,
+          "type": "other"
+        },
+        {
+          "__typename": "Re3RepositoryType",
+          "count": null,
+          "type": "multidisciplinary"
+        },
+        {
+          "__typename": "Re3RepositoryType",
+          "count": null,
+          "type": "governmental"
+        },
+        {
+          "__typename": "Re3RepositoryType",
+          "count": null,
+          "type": "project-related"
+        }
+      ]
+    }
+  }
+}

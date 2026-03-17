@@ -19,6 +19,7 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
   onChange,
   isRequired = false,
   isRequiredVisualOnly = false,
+  isDisabled = false,
   children,
 }) => {
   const showRequired = isRequired || isRequiredVisualOnly;
@@ -35,6 +36,7 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
         isRequired={isRequired}
         isInvalid={isInvalid}
         aria-required={isRequired}
+        isDisabled={isDisabled}
       >
         <Label>
           {checkboxGroupLabel}{showRequired && <span className="is-required" aria-hidden="true"> ({t('required')})</span>}

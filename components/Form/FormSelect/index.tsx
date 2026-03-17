@@ -31,6 +31,7 @@ interface MySelectProps<T extends SelectItem>
   selectClasses?: string;
   isRequired?: boolean;
   isRequiredVisualOnly?: boolean;
+  isDisabled?: boolean;
   onChange?: (value: string) => void;
   items?: T[];
   placeHolder?: string;
@@ -48,6 +49,7 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
     selectClasses,
     isRequired = false,
     isRequiredVisualOnly = false,
+    isDisabled = false,
     onChange,
     items,
     placeholder,
@@ -72,8 +74,9 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
       className={`${selectClasses} ${styles.mySelect} react-aria-Select`}
       aria-label={ariaLabel}
       aria-required={isRequired}
-      onSelectionChange={handleSelectionChange}
+      onChange={handleSelectionChange}
       placeholder={placeholder}
+      isDisabled={isDisabled}
     >
       {(state) => (
         <>
@@ -84,7 +87,11 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
             <Text slot="description" className="help">
               {description}</Text>
           )}
-          <Button className='react-aria-Button selectButton' ref={ref} data-testid="select-button">
+          <Button
+            className='react-aria-Button selectButton'
+            ref={ref}
+            data-testid="select-button"
+            isDisabled={isDisabled}>
             <SelectValue />
             <span
               aria-hidden="true"

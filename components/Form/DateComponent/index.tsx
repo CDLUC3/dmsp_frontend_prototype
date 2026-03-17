@@ -26,6 +26,7 @@ interface DateComponentProps {
   label: string;
   minValue?: DateValue | string;
   maxValue?: DateValue | string;
+  isDisabled?: boolean;
 }
 
 function toDateValue(value?: string | DateValue) {
@@ -42,6 +43,7 @@ const DateComponent: React.FC<DateComponentProps> = ({
   label,
   minValue,
   maxValue,
+  isDisabled = false,
 }) => (
   <DatePicker
     name={name}
@@ -50,7 +52,7 @@ const DateComponent: React.FC<DateComponentProps> = ({
     onChange={onChange}
     minValue={toDateValue(minValue)}
     maxValue={toDateValue(maxValue)}
-
+    isDisabled={isDisabled}
   >
     <Label>{label}</Label>
     <Group>

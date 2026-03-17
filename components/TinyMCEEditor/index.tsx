@@ -25,9 +25,19 @@ interface TinyMCEEditorProps {
   error?: string;
   labelId?: string;
   helpText?: string;
+  disabled?: boolean;
 }
 
-const TinyMCEEditor = ({ content, setContent, onChange, error, id, labelId, helpText }: TinyMCEEditorProps) => {
+const TinyMCEEditor = ({
+  content,
+  setContent,
+  onChange,
+  error,
+  id,
+  labelId,
+  helpText,
+  disabled = false,
+}: TinyMCEEditorProps) => {
   const editorRef = useRef<TinyMCEEditorType | null>(null); // Update the type here
   const elementId = id || 'tiny-editor';
   const [isEditorReady, setIsEditorReady] = useState(false);
@@ -75,6 +85,17 @@ const TinyMCEEditor = ({ content, setContent, onChange, error, id, labelId, help
       editorRef.current.setContent(content);
     }
   }, [content, isEditorReady]);
+
+  // If disabled, render content as static HTML
+  if (disabled) {
+    return (
+      <div
+        className={styles['tinyMCE-editor-container']}
+        dangerouslySetInnerHTML={{ __html: content }}
+      />
+
+    )
+  }
 
   return (
     <div className={styles['tinyMCE-editor-container']}>

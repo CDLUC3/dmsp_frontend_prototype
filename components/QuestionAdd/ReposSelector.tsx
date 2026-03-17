@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -21,9 +21,9 @@ import { useQuery, useLazyQuery } from '@apollo/client/react';
 
 import {
   Repository,
-  RepositoryType,
+  Re3RepositoryTypesListDocument,
   RepositoriesDocument,
-  RepositorySubjectAreasDocument
+  Re3SubjectListDocument,
 } from '@/generated/graphql';
 
 import {
@@ -132,24 +132,30 @@ const RepositorySelectionSystem = ({
   const [totalCount, setTotalCount] = useState<number>(0);
   const [hasNextPage, setHasNextPage] = useState<boolean | null>(false);
   const [hasPreviousPage, setHasPreviousPage] = useState<boolean | null>(false);
+  // Track whether a search has been performed (to avoid showing 'no matches' before searching)
+  const [hasSearched, setHasSearched] = useState(false);
   // Filtered repositories state - can be either local mock data or GraphQL data
   const [repositories, setRepositories] = useState<Repository[]>([]);
 
   // Repository types for dropdown
-  const repositoryTypes = useMemo(() =>
-    Object.entries(RepositoryType).map(([key, value]) => ({
-      id: value,
-      name: key.replace(/([A-Z])/g, ' $1').trim() // Convert camelCase to spaced text
-    }))
-    , []);
+  const { data: repositoryTypesData } = useQuery(Re3RepositoryTypesListDocument);
+
+  // Transform repository types data for FormSelect - add empty option for deselection
+  const repositoryTypes = [
+    { id: 'none', name: '-- None --' },
+    ...(repositoryTypesData?.re3RepositoryTypesList?.types?.map(typeObj => ({
+      id: typeObj.type,
+      name: typeObj.type
+    })) || [])
+  ];
 
   // Get Repository Subject Areas - for future dynamic subject area fetching
-  const { data: subjectAreasData } = useQuery(RepositorySubjectAreasDocument);
+  const { data: subjectAreasData } = useQuery(Re3SubjectListDocument);
 
   // Transform subject areas data for FormSelect - add empty option for deselection
   const subjectAreas = [
     { id: 'none', name: '-- None --' },
-    ...(subjectAreasData?.repositorySubjectAreas?.map(area => toSubjectAreaObject(area)) || [])
+    ...(subjectAreasData?.re3SubjectList?.subjects?.map(area => toSubjectAreaObject(area.subject)) || [])
   ];
 
   // Repositories lazy query
@@ -180,8 +186,8 @@ const RepositorySelectionSystem = ({
               sortDir: "DESC",
             },
             term: searchTerm,
-            repositoryType: repoType as RepositoryType || null,
-            keyword: subjectArea || null,
+            repositoryType: repoType as string || null,
+            subjects: subjectArea ? [subjectArea] : null,
           }
         }
       })
@@ -201,6 +207,7 @@ const RepositorySelectionSystem = ({
 
   const handleSearchInput = (term: string) => {
     setSearchTerm(term);
+    setHasSearched(false);
   };
 
   // Handle search for repositories
@@ -212,16 +219,19 @@ const RepositorySelectionSystem = ({
     setCurrentPage(1);
 
     await fetchRepositories({ searchTerm: term });
+    setHasSearched(true);
   }
 
   // Set selected subject area
   const searchOnSubjectArea = (subject: string) => {
     setSubjectArea(subject === 'none' ? null : subject);
+    setHasSearched(false);
   };
 
   // Set selected repository type
   const searchOnRepositoryType = (type: string) => {
     setRepoType(type === 'none' ? null : type);
+    setHasSearched(false);
   };
 
   // Handle add/removal of repository selections in modal view and display confirmation toasts
@@ -353,17 +363,26 @@ const RepositorySelectionSystem = ({
     const processRepoData = () => {
       if (repositoriesData?.repositories?.items) {
         if (isMounted) {
-          // Filter out null items
-          const validRepos = repositoriesData.repositories.items.filter(item => item !== null);
+          // Filter out null items and CustomRepository items with actual errors
+          const validRepos = repositoriesData.repositories.items.filter((item): item is Repository => {
+            if (!item) return false;
+            // Check if it's a CustomRepository with actual error values
+            if ('errors' in item && item.errors && (item.errors.general || item.errors.uri)) {
+              return false;
+            }
+            return true;
+          });
           setRepositories(validRepos);
           setTotalCount(repositoriesData.repositories.totalCount ?? 0);
           setTotalPages(Math.ceil((repositoriesData.repositories.totalCount ?? 0) / LIMIT));
           setHasNextPage(repositoriesData.repositories.hasNextPage ?? false);
           setHasPreviousPage(repositoriesData.repositories.hasPreviousPage ?? false);
+          setHasSearched(true);
         }
       } else {
         if (isMounted) {
           setRepositories([]);
+          setHasSearched(true);
         }
       }
     };
@@ -613,25 +632,34 @@ const RepositorySelectionSystem = ({
                       </div>
                     )}
 
+                    {/** Show "NO matches" text if no repositories found */}
                     <div className={styles.searchResults}>
-                      <div className={styles.paginationWrapper}>
-                        <span className={styles.paginationInfo}>
-                          Displaying repositories {repositories.length} of {totalCount} in total
-                        </span>
-                        <Pagination
-                          currentPage={currentPage}
-                          totalPages={totalPages}
-                          hasPreviousPage={hasPreviousPage}
-                          hasNextPage={hasNextPage}
-                          handlePageClick={handlePageClick}
-                        />
-                      </div>
+                      {repositories.length === 0 && hasSearched ? (
+                        <div className={styles.paginationWrapper}>
+                          <span className={styles.paginationInfo}>
+                            {QuestionAdd('headings.noMatchesFound')}
+                          </span>
+                        </div>
+                      ) : repositories.length > 0 ? (
+                        <div className={styles.paginationWrapper}>
+                          <span className={styles.paginationInfo}>
+                            {QuestionAdd('headings.displayingRepositoriesStatus', { current: repositories.length, total: totalCount })}
+                          </span>
+                          <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            hasPreviousPage={hasPreviousPage}
+                            hasNextPage={hasNextPage}
+                            handlePageClick={handlePageClick}
+                          />
+                        </div>
+                      ) : null}
 
                       {repositories
-                        .filter((repo): repo is Repository & { id: number } => repo.id != null)
+                        .filter((repo): repo is Repository & { id: string } => repo.id != null)
                         .map((repo) => {
                           const repoInterface: RepositoryInterface = {
-                            id: repo.uri,
+                            id: repo.uri ?? '',
                             name: repo.name ?? '',
                             description: repo.description ?? '',
                             uri: repo.uri ?? '',
@@ -674,7 +702,7 @@ const RepositorySelectionSystem = ({
                                   <dl>
                                     <dt>{QuestionAdd('researchOutput.repoSelector.descriptions.repoTitle')}</dt>
                                     <dd>
-                                      <a href={repo.uri} target="_blank" rel="noopener noreferrer">
+                                      <a href={repo.uri ?? ''} target="_blank" rel="noopener noreferrer">
                                         {repo.uri}
                                       </a>
                                     </dd>

@@ -913,18 +913,6 @@ describe("QuestionView", () => {
     // Check that the research output table component is rendered
     const cardBody = screen.getByTestId('card-body');
     expect(cardBody).toBeInTheDocument();
-
-    // Check for the add button text that's shown in the initial empty state
-    expect(cardBody.textContent).toContain('buttons.addOutput');
-
-    // Click the add button to display the form fields
-    const addButton = screen.getByRole('button', { name: '+ buttons.addOutput' });
-    expect(addButton).toBeInTheDocument();
-
-    await act(async () => {
-      fireEvent.click(addButton);
-    });
-
     // Check that the form fields are rendered
     expect(screen.getByText('Title')).toBeInTheDocument();
     expect(screen.getByText('headings.addResearchOutput')).toBeInTheDocument();

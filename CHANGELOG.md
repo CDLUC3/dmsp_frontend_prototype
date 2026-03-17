@@ -1,4 +1,16 @@
 ## Added
+- Added new `TooltipSelect` component, which allows us to include descriptions with each `Select` option [#32]
+- `Custom Question` additions [#929]
+  - Added new `CustomQuestionEdit` page
+  - Added new `QuestionCustomize` page
+  - Added new `CustomQuestionNew` page
+  - Added new `AddCustomQuestion`, `UpdateCustomQuestion`, `RemoveCustomQuestion`, `AddQuestionCustomization`, `UpdateQuestionCustomization`, `RemoveQuestionCustomization` mutations
+  - Added `CustomQuestion` and `QuestionCustomizationByVersionedQuestion` mutations
+  - Added new routes for Custom Queries to `utils/routes.ts`
+- Added `CustomSectionEdit`, and `CreateCustomSectionPage` for adding and editing Custom Sections [#928]
+- Added new `/template/customizations/[templateCustomizationOverview]` page [#927]
+- Added new `CustomizedTemplate` components directory and new `CustomizedQuestionEdit` and `CustomizedSectionEdit` components [#927]
+- Added `MoveCustomQuestion`, `MoveCustomSection`, `UpdateSectionCustomization`, `RemoveSectionCustomization`, `UpdateCustomSection`, `AddTemplateCustomization` mutations and `SectionCustomization` and `TemplateCustomizationOverview` queries [#927]
 - Added new `/template/customizations` page and associated `CustomizedTemplateListItem` component [#43]
 - Added new `warning` icon to `iconset.svg` [#43]
 - Added new `clearAuthData` and `clearCache` to `AuthProvider` so that we can clear cache on `/login` and `/logout` [#55]
@@ -9,18 +21,32 @@
 - Added related works project overview page [#700]
 
 ## Updated
+- `Custom Question` updates [#929]
+- Moved `addQuestionMutation` out of `QuestionView` so that `QuestionView` can be shared for both `BASE` and `CUSTOM` questions
+  - Updated `QuestionTypeSelectPage` to include the `addQuestionMutation` and `getDisplayOrder` and pass those to `QuestionAdd`
+  - Added use of `Loading` component in `TemplateCreatePage`
+  - Added `fetchPolicy` of `cache-and-network` to `TemplateCustomiationOverview` query so that we get updated data when user returns from editing section or question
+  - Updated form components with `isDisabled` prop so that users customizing existing questions can see a disabled version of the form fields
+  - Updated `QuestionAdd` to accept more props and be more flexible for shared use with Custom Questions
+  - Updated `QuestionView` to accept more props like `orgGuidance` so it can be shared with Custom Questions
+- Updated `ReposSelector` and `RepoSelectorForAnswer` components to use the new `Re3RepositoryTypesListDocument`, `Re3SubjectListDocument`, and `Re3byUrIsDocument` queries [#113]
+- Updated `ResearchOutputAnswerComponent` so that we don't get a duplicate `save` CTAs when on the `SingleResearchOutputComponent` page [#113]
+- Updated `SectionCustomizePage` component for customizing existing sections [#928]
 - Updated `TemplateSelectTemplatePage` component to pass `versionedTemplateId` to `addTemplate` mutation when the template being cloned is not in the user's organization [#1006]
 - Update `addTemplate` query to include `copyFromVersionedTemplateId` variable [#1006]
 - Updated `useResearchOutputTable`'s `updateStandardFieldProperty` method to `enable` a Research Output Table field when any content or config changes for that field [#943]
 - Updated `/login` page step=email to include a "Back" button so user can go back to Step 1 [#997]
 
 ## Fixed
+- Fixed issue with missing `as builder` in `Dockerfile.prod`
 - Fixed bug where user's org was not displaying as a filter option, and Best practice was displaying instead [#62]
 - Fixed issue with default `sampleText` appearing again in textArea question, after the user overrides it, saves, and then deletes their answer [#7]
 - Updated "Back" button on /login page to have `type=button` instead of `type=submit`
 - Fixed bug where the published status on `/template/[templateId]` did not match that on the template cards at `/template` for the `unpublished changes` state. Added a shared hook for determining the correct status text [#875]
 
 ## Chore
+- Updated version of `dompurify` to `v3.3.2` due to security vulnerability, and included updates to`test-exclude` to v7.0.2, `sanitize-html` to v2.17.1, `tinymce` to v7.9.2, `next-intl` to v4.8.3, `html-react-parser` to v5.2.17, `@types/node` to v24.12.0, and `@types/react to v18.3.28.
+- Updated version of `minimatch` to `10.2.4` to address vulnerabilities
 - Updated version of `@dmptool/types` to `3.1.2` and `zod` to match package version to `4.3.6`
 - Added override for `minimatch` dependency and removed them for `prismjs` and `qs`.
   - Added override for transient dependency `@eslint/plugin-kit (0.3.4)` and `test-exclude` due to vulnerabilities. `test-exclude` override was necessary because `minimatch 10.x` changed its API. Older test-exclude version expects older minimatch API, which called minimatch as a function. This caused errors.
