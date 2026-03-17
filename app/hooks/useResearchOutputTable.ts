@@ -85,7 +85,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
       placeholder: '',
       helpText: '',
       maxLength: '',
-      required: true,
+      required: false,
       value: ''
     },
     {
@@ -94,7 +94,7 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
       languageTranslationKey: 'labels.outputType',
       enabled: true,
       helpText: '',
-      required: true,
+      required: false,
       outputTypeConfig: {
         mode: 'defaults' as 'defaults' | 'mine',
         selectedDefaults: [] as string[],
@@ -213,6 +213,8 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
       }
       : undefined;
 
+    console.log("***standardFields in buildResearchOutputFormState:", standardFields);
+    console.log("***Transformed data from buildResearchOutputFormState:", transformedData);
     return stateToJSON(standardFields, additionalFields, transformedData);
   }, [standardFields, additionalFields, defaultResearchOutputTypesData]);
 
