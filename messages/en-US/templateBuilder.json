@@ -17,6 +17,54 @@
     "additionalInfo": "Additional information goes here...",
     "templateList": "List of templates"
   },
+  "CustomizableTemplates": {
+    "title": "Customizable templates",
+    "description": "Select a template that you can customize with additional guidance or questions.",
+    "templateStatus": {
+      "hasChanged": "Funder template has changed",
+      "notCustomized": "Not customized",
+      "published": "Published",
+      "unPublished": "Unpublished",
+      "notCustomizable": "Not customizable",
+      "lastCustomized": "Last customized date",
+      "lastCustomizedBy": "Last customized by",
+      "customizationStatus": "Customization status",
+      "templateLastUpdated": "Template last updated"
+    },
+    "heading": {
+      "deleteCustomization": "Delete customization"
+    },
+    "descriptions": {
+      "deleteCustomization": "<strong>Your customizations to this template will be removed from the template. </strong>  This is not reversible."
+    },
+    "buttons": {
+      "deleteCustomization": "Delete customization",
+      "deletingCustomizations": "Deleting customizations...",
+      "publishCustomization": "Publish customization",
+      "publishStatus": "Publish status",
+      "publishChanges": "Publish changes"
+    },
+    "messages": {
+      "success": {
+        "templateAddedSuccessfully": "Template {title} added successfully",
+        "successfullyDeletedCustomizations": "Successfully deleted the template customizations",
+        "sectionMoved": "Section successfully moved",
+        "successfullyUnpublishedCustomization": "Successfully unpublished the template customization"
+      },
+      "error": {
+        "deleteCustomizationError": "Error when deleting template customizations",
+        "saveCustomizationError": "Error when saving template customizations",
+        "updatingSectionMoveError": "Error when reordering sections",
+        "unpublishCustomizationError": "Error when unpublishing template customizations"
+      }
+    },
+    "status": {
+      "completed": "Completed",
+      "notCompleted": "Not completed",
+      "added": "Added",
+      "notAdded": "Not added"
+    }
+  },
   "EditTemplates": {
     "title": "Edit template",
     "templateTitleLabel": "Template title",
@@ -103,7 +151,6 @@
     },
     "links": {
       "editQuestion": "Edit question",
-      "customizeQuestion": "Customize",
       "addQuestion": "Add question"
     },
     "buttons": {
@@ -111,6 +158,12 @@
       "moveDown": "Move question down {name}"
     },
     "messages": {
+      "error": {
+        "errorDeletingQuestion": "Error when deleting question"
+      },
+      "success": {
+        "successDeletingQuestion": "Question deleted successfully"
+      },
       "questionMoved": "Question moved to position {displayOrder}"
     },
     "checklist": {
@@ -191,6 +244,74 @@
       "sectionIntroduction": "Enter a short, concise introduction to the section.",
       "sectionRequirements": "Outline the requirements that a user must consider in this section.",
       "sectionGuidance": "Provide users with helpful guidance to help them answer the questions in the section."
+    }
+  },
+  "SectionCustomize": {
+    "title": "Customize section",
+    "breadcrumbs": {
+      "customizationTemplates": "Customization templates",
+      "customizeTemplate": "Customize template"
+    },
+    "buttons": {
+      "deleteCustomization": "Delete customization",
+      "deletingCustomizations": "Deleting customizations..."
+    },
+    "heading": {
+      "deleteCustomSection": "Delete custom section",
+      "deleteCustomization": "Delete section customization"
+    },
+    "descriptions": {
+      "deleteCustomization": "<strong>Your customizations will be removed from this section. </strong>  This is not reversible.",
+      "deleteCustomSection": "<strong>Your custom section will be removed. This is not reversible.</strong>",
+      "tagDescription": "Tags are used to pull in your organization’s best practice information and will show for each question in this section. Tags are set by DMP Tool or the Funder that created this template originally and cannot be changed.",
+      "editGuidanceForTags": "Edit your Guidance for tags"
+    },
+    "messages": {
+      "noContent": "Funder didn't add {label}",
+      "success": {
+        "successfullyDeletedSectionCustomization": "Successfully deleted the section customizations"
+      },
+      "error": {
+        "errorDeletingSectionCustomization": "Error deleting section customization"
+      }
+    },
+    "labels": {
+      "bestPracticeTags": "Best practice tags"
+    }
+  },
+  "QuestionCustomize": {
+    "title": "Customize question",
+    "messages": {
+      "noContent": "Funder didn't add {label}",
+      "success": {
+        "successfullyDeletedCustomization": "Successfully deleted the question customizations",
+        "successfullyUpdatedCustomization": "Successfully updated the question customizations"
+      },
+      "error": {
+        "errorDeletingCustomization": "Error deleting question customization",
+        "errorUpdatingCustomization": "Error updating question customization"
+      }
+    },
+    "labels": {
+      "additionalGuidanceText": "Additional guidance text",
+      "additionalSampleText": "Additional sample text",
+      "requirements": "Requirements",
+      "guidance": "Guidance",
+      "sampleText": "Sample text"
+    },
+    "helpText": {
+      "additionalGuidanceText": "Outline the guidance that a user should consider for this question.",
+      "additionalSampleText": "We will allow users to copy the same text into the Text field this will allow users to speed up content entry."
+    },
+    "heading": {
+      "deleteCustomization": "Delete customization"
+    },
+    "descriptions": {
+      "deleteCustomization": "<strong>Your customizations to this template will be removed from the question. </strong>  This is not reversible."
+    },
+    "buttons": {
+      "deleteCustomization": "Delete customization",
+      "deletingCustomization": "Deleting customizations..."
     }
   },
   "CreateSectionPage": {
@@ -314,7 +435,8 @@
       },
       "success": {
         "questionUpdated": "Question was successfully updated",
-        "questionRemoved": "Question was successfully removed"
+        "questionRemoved": "Question was successfully removed",
+        "successDeletingQuestion": "Question deleted successfully"
       }
     },
     "headings": {
@@ -411,7 +533,8 @@
     },
     "headings": {
       "bestPractice": "Best practice by DMP Tool",
-      "displayingRepositoriesStatus": "Displaying repositories {current} of {total}"
+      "displayingRepositoriesStatus": "Displaying repositories {current} of {total}",
+      "noMatchesFound": "No matches found"
     },
     "messages": {
       "errors": {

@@ -8,6 +8,7 @@ interface NumberRangeQuestionProps {
     startNumber: number | null;
     endNumber: number | null;
   };
+  isDisabled?: boolean;
   handleNumberChange: (
     key: string,
     value: number | null
@@ -19,6 +20,7 @@ interface NumberRangeQuestionProps {
 const NumberRangeQuestionComponent: React.FC<NumberRangeQuestionProps> = ({
   parsedQuestion,
   numberRange,
+  isDisabled = false,
   handleNumberChange,
   startPlaceholder,
   endPlaceholder,
@@ -41,6 +43,7 @@ const NumberRangeQuestionComponent: React.FC<NumberRangeQuestionProps> = ({
         placeholder={startPlaceholder}
         minValue={startNumberMin}
         maxValue={startNumberMax ?? undefined}
+        disabled={isDisabled}
       />
 
       <NumberComponent
@@ -50,6 +53,7 @@ const NumberRangeQuestionComponent: React.FC<NumberRangeQuestionProps> = ({
         placeholder={endPlaceholder}
         minValue={endNumberMin}
         maxValue={endNumberMax ?? undefined}
+        disabled={isDisabled}
       />
     </div>
   )

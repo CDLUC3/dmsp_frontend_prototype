@@ -1,0 +1,65 @@
+mutation AddCustomSection($input: AddCustomSectionInput!) {
+  addCustomSection(input: $input) {
+    id
+    guidance
+    errors {
+      general
+      guidance
+      introduction
+      name
+      requirements
+      pinnedSectionId
+      pinnedSectionType
+      templateCustomizationId
+    }
+    introduction
+    migrationStatus
+    modified
+    name
+    pinnedSectionId
+    pinnedSectionType
+    requirements
+    templateCustomizationId
+  }
+}
+
+
+mutation UpdateCustomSection($input: UpdateCustomSectionInput!) {
+  updateCustomSection(input: $input) {
+    id
+    guidance
+    errors {
+      general
+      guidance
+      introduction
+      name
+      requirements
+    }
+    introduction
+    migrationStatus
+    modified
+    name
+    pinnedSectionId
+    pinnedSectionType
+    requirements
+    templateCustomizationId
+  }
+}
+
+mutation RemoveCustomSection($customSectionId: Int!) {
+  removeCustomSection(customSectionId: $customSectionId) {
+    id
+    guidance
+    introduction
+    migrationStatus
+    modified
+    name
+    pinnedSectionId
+    pinnedSectionType
+    requirements
+    templateCustomizationId
+    errors {
+      general
+    }
+  }
+}

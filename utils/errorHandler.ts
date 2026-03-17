@@ -97,7 +97,7 @@ export const handleErrors = async (
  * @param keys - (Optional)- The keys to extract errors from
  * @returns Array of error messages (non-empty strings)
  */
-export function extractErrors<T extends Record<string, string | undefined>>(
+export function extractErrors<T extends Record<string, string | null | undefined>>(
   errs: T,
   keys?: (keyof T)[]
 ): string[] {

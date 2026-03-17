@@ -20,11 +20,11 @@ const RadioGroupComponent: React.FC<RadioGroupProps> = ({
   onChange,
   isRequired = false,
   isRequiredVisualOnly = false,
+  isDisabled = false,
   children,
 }) => {
   const showRequired = isRequired || isRequiredVisualOnly;
   const t = useTranslations('Global.labels');
-
   return (
     <>
       <RadioGroup
@@ -36,6 +36,7 @@ const RadioGroupComponent: React.FC<RadioGroupProps> = ({
         isRequired={isRequired}
         isInvalid={isInvalid}
         aria-required={isRequired}
+        isDisabled={isDisabled}
       >
         <Label>
           {radioGroupLabel}{showRequired && <span className="is-required" aria-hidden="true"> ({t('required')})</span>}

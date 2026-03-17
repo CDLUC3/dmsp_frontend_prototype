@@ -1,9 +1,7 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import ToastRegion from '../index';
 import { useToast } from '@/context/ToastContext';
 
-/* eslint-disable react/display-name */
 // Mock the Toast component
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 jest.mock('@/components/Toast', () => ({ toast }: any) => (

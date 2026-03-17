@@ -3,11 +3,11 @@ import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { useParams, useRouter } from "next/navigation";
 import { axe, toHaveNoViolations } from "jest-axe";
-import RelatedWorks from "../page";
+import RelatedWorksPlanPage from "../page";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { useQuery } from '@apollo/client/react';
-import { RelatedWorksByPlanDocument } from "@/generated/graphql";
+import { RelatedWorksDocument } from "@/generated/graphql";
 import {
   MOCK_ACCEPTED_WORKS,
   MOCK_PENDING_WORKS,
@@ -36,10 +36,10 @@ const mockUseQuery = jest.mocked(useQuery);
 
 const setupMocks = () => {
   mockUseQuery.mockImplementation((document) => {
-    if (document === RelatedWorksByPlanDocument) {
+    if (document === RelatedWorksDocument) {
       return {
         data: {
-          relatedWorksByPlan: {
+          relatedWorks: {
             items: MOCK_PENDING_WORKS,
           },
         },
@@ -67,12 +67,12 @@ function RelatedWorksHarness() {
       timeZone={"UTC"}
       messages={{}}
     >
-      <RelatedWorks />
+      <RelatedWorksPlanPage />
     </NextIntlClientProvider>
   );
 }
 
-describe("RelatedWorks", () => {
+describe("RelatedWorksPlanPage", () => {
   beforeEach(() => {
     setupMocks();
     window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
@@ -115,10 +115,10 @@ describe("RelatedWorks", () => {
 
   it("should render related research outputs", async () => {
     mockUseQuery.mockImplementation((document) => {
-      if (document === RelatedWorksByPlanDocument) {
+      if (document === RelatedWorksDocument) {
         return {
           data: {
-            relatedWorksByPlan: {
+            relatedWorks: {
               items: MOCK_ACCEPTED_WORKS,
             },
           },
@@ -147,10 +147,10 @@ describe("RelatedWorks", () => {
 
   it("should render discarded research outputs", async () => {
     mockUseQuery.mockImplementation((document) => {
-      if (document === RelatedWorksByPlanDocument) {
+      if (document === RelatedWorksDocument) {
         return {
           data: {
-            relatedWorksByPlan: {
+            relatedWorks: {
               items: MOCK_REJECTED_WORKS,
             },
           },
@@ -180,10 +180,10 @@ describe("RelatedWorks", () => {
 
   it("should render the add related work button", () => {
     mockUseQuery.mockImplementation((document) => {
-      if (document === RelatedWorksByPlanDocument) {
+      if (document === RelatedWorksDocument) {
         return {
           data: {
-            relatedWorksByPlan: {
+            relatedWorks: {
               items: MOCK_PENDING_WORKS,
             },
           },
@@ -208,10 +208,10 @@ describe("RelatedWorks", () => {
 
   it("should pass accessibility tests", async () => {
     mockUseQuery.mockImplementation((document) => {
-      if (document === RelatedWorksByPlanDocument) {
+      if (document === RelatedWorksDocument) {
         return {
           data: {
-            relatedWorksByPlan: {
+            relatedWorks: {
               items: MOCK_PENDING_WORKS,
             },
           },

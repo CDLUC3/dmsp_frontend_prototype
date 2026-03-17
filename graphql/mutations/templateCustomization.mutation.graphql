@@ -1,0 +1,119 @@
+mutation AddTemplateCustomization($input: AddTemplateCustomizationInput!) {
+  addTemplateCustomization(input: $input) {
+    customizationId
+    errors {
+      general
+    }
+    customizationIsDirty
+    versionedTemplateId
+    versionedTemplateAffiliationId
+    customizationStatus
+    customizationMigrationStatus
+  }
+}
+
+
+
+mutation PublishTemplateCustomization($templateCustomizationId: Int!) {
+  publishTemplateCustomization(templateCustomizationId: $templateCustomizationId) {
+    customizationId
+    customizationIsDirty
+    customizationLastCustomized
+    customizationLastCustomizedById
+    customizationLastCustomizedByName
+    customizationMigrationStatus
+    customizationStatus
+    errors {
+      affiliationId
+      currentVersionedTemplateId
+      general
+      templateId
+    }
+    sections {
+      name
+      id
+      hasCustomGuidance
+      displayOrder
+      questions {
+        id
+        hasCustomSampleAnswer
+        displayOrder
+        hasCustomGuidance
+        questionText
+        migrationStatus
+        questionType
+      }
+      sectionType
+      migrationStatus
+    }
+    versionedTemplateAffiliationId
+    versionedTemplateAffiliationName
+    versionedTemplateDescription
+    versionedTemplateId
+    versionedTemplateLastModified
+    versionedTemplateName
+    versionedTemplateVersion
+  }
+}
+
+mutation UnpublishTemplateCustomization($templateCustomizationId: Int!) {
+  unpublishTemplateCustomization(templateCustomizationId: $templateCustomizationId) {
+    customizationId
+    customizationIsDirty
+    customizationLastCustomized
+    customizationLastCustomizedById
+    customizationLastCustomizedByName
+    customizationLastPublishedDate
+    customizationMigrationStatus
+    customizationStatus
+    errors {
+      affiliationId
+      currentVersionedTemplateId
+      general
+      templateId
+    }
+    sections {
+      id
+      hasCustomGuidance
+      name
+      migrationStatus
+      questions {
+        id
+        hasCustomSampleAnswer
+        hasCustomGuidance
+        displayOrder
+        questionCustomizationId
+        questionText
+        questionType
+      }
+      sectionCustomizationId
+      sectionType
+    }
+    versionedTemplateAffiliationId
+    versionedTemplateAffiliationName
+    versionedTemplateDescription
+    versionedTemplateId
+    versionedTemplateLastModified
+    versionedTemplateName
+    versionedTemplateVersion
+  }
+}
+
+mutation RemoveTemplateCustomization($templateCustomizationId: Int!) {
+  removeTemplateCustomization(templateCustomizationId: $templateCustomizationId) {
+    id
+    currentVersionedTemplateId
+    affiliationId
+    errors {
+      affiliationId
+      currentVersionedTemplateId
+      general
+      templateId
+    }
+    isDirty
+    latestPublishedDate
+    migrationStatus
+    modified
+    status
+  }
+}

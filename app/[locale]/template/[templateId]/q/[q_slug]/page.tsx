@@ -88,7 +88,7 @@ import {
 import {
   isOptionsType,
   getOverrides,
-} from './hooks/useEditQuestion';
+} from '@/app/hooks/useEditQuestion';
 import styles from './questionEdit.module.scss';
 
 const QuestionEdit = () => {

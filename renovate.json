@@ -18,5 +18,5 @@
     "Dockerfile*",
     "docker-compose.yml",
     ".nvmrc"
-  ],
+  ]
 }

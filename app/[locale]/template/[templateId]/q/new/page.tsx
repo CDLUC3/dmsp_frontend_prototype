@@ -15,6 +15,15 @@ import {
   Text
 } from "react-aria-components";
 
+
+// GraphQL
+import { useMutation, useQuery } from '@apollo/client/react';
+import {
+  AddQuestionDocument,
+  QuestionsDisplayOrderDocument,
+} from '@/generated/graphql';
+
+
 // Components
 import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
@@ -30,6 +39,17 @@ import { QuestionFormatInterface } from '@/app/types';
 import styles from './newQuestion.module.scss';
 import { getQuestionTypes } from "@/utils/questionTypeHandlers";
 
+const TemplateQuestionBreadcrumbs = ({ templateId, sectionId, Global }: { templateId: string; sectionId: string; Global: (key: string, values?: Record<string, string | number>) => string }) => {
+  return (
+    <Breadcrumbs>
+      <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+      <Breadcrumb><Link href={routePath('template.index', { templateId })}>{Global('breadcrumbs.templates')}</Link></Breadcrumb>
+      <Breadcrumb><Link href={routePath('template.show', { templateId })}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
+      <Breadcrumb><Link href={routePath('template.q.new', { templateId }, { section_id: sectionId, step: 1 })}>{Global('breadcrumbs.selectQuestionType')}</Link></Breadcrumb>
+      <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
+    </Breadcrumbs >
+  )
+}
 
 const QuestionTypeSelectPage: React.FC = () => {
   // Get templateId param
@@ -57,6 +77,37 @@ const QuestionTypeSelectPage: React.FC = () => {
   //Localization keys
   const Global = useTranslations('Global');
   const QuestionTypeSelect = useTranslations('QuestionTypeSelectPage');
+
+  // Initialize add and update question mutations
+  const [addQuestionMutation] = useMutation(AddQuestionDocument);
+
+  // Query request for questions to calculate max displayOrder
+  const { data: questionDisplayOrders } = useQuery(QuestionsDisplayOrderDocument, {
+    variables: {
+      sectionId: Number(sectionId)
+    },
+    skip: !sectionId
+  })
+
+  // Calculate the display order of the new question based on the last displayOrder number
+  const getDisplayOrder = useCallback(() => {
+    if (!questionDisplayOrders?.questions?.length) {
+      return 1;
+    }
+
+    // Filter out null/undefined questions and handle missing displayOrder
+    const validDisplayOrders = questionDisplayOrders.questions
+      .map(q => q?.displayOrder)
+      .filter((order): order is number => typeof order === 'number');
+
+    if (validDisplayOrders.length === 0) {
+      return 1;
+    }
+
+    const maxDisplayOrder = Math.max(...validDisplayOrders);
+    return maxDisplayOrder + 1;
+  }, [questionDisplayOrders]);
+
 
   // Handle the selection of a question type
   const handleSelect = (
@@ -153,7 +204,7 @@ const QuestionTypeSelectPage: React.FC = () => {
             showBackButton={false}
             breadcrumbs={
               <Breadcrumbs>
-                <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+                <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
                 <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
                 <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
                 <Breadcrumb>{Global('breadcrumbs.selectQuestionType')}</Breadcrumb>
@@ -247,6 +298,19 @@ const QuestionTypeSelectPage: React.FC = () => {
             questionName={selectedQuestionType?.questionName ?? null}
             questionJSON={selectedQuestionType?.questionJSON ?? ''}
             sectionId={sectionId ? sectionId : ''}
+            breadcrumbs={<TemplateQuestionBreadcrumbs templateId={templateId} sectionId={sectionId} Global={Global} />}
+            backUrl={routePath('template.q.new', { templateId }, { section_id: sectionId, step: 1 })}
+            successUrl={routePath('template.show', { templateId })}
+            onSave={async (commonFields) => {
+              const input = {
+                templateId: Number(templateId),
+                sectionId: Number(sectionId),
+                displayOrder: getDisplayOrder(),
+                isDirty: true,
+                ...commonFields,
+              };
+              await addQuestionMutation({ variables: { input } });
+            }}
           />
         </>
       )}

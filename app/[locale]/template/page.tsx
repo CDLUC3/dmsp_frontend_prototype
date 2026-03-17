@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -8,7 +9,6 @@ import {
   FieldError,
   Input,
   Label,
-  Link,
   SearchField,
   Text
 } from 'react-aria-components';
@@ -27,6 +27,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 // Hooks
 import { useScrollToTop } from '@/hooks/scrollToTop';
 import { useFormatDate } from '@/hooks/useFormatDate';
+import { useTemplateStatus } from './hooks/useTemplateStatus';
 
 // Utils and other
 import { toSentenceCase } from '@/utils/general';
@@ -71,6 +72,9 @@ const TemplateListPage: React.FC = () => {
   const t = useTranslations('OrganizationTemplates');
   const Global = useTranslations('Global');
   const SelectTemplate = useTranslations('TemplateSelectTemplatePage');
+
+  // Template status hook
+  const { getPublishStatusText } = useTemplateStatus();
 
   // Set URLs
   const TEMPLATE_CREATE_URL = routePath('template.create');
@@ -216,7 +220,7 @@ const TemplateListPage: React.FC = () => {
             funder: template?.ownerDisplayName,
             lastUpdated: (template?.modified) ? formatDate(template?.modified) : null,
             lastRevisedBy: template?.modifiedByName,
-            publishStatus: (template?.isDirty) ? Global('notPublished') : Global('published'),
+            publishStatus: getPublishStatusText(template?.isDirty ?? false, template?.latestPublishDate),
             publishDate: (template?.latestPublishDate) ? formatDate(template?.latestPublishDate) : null,
             defaultExpanded: false,
             latestPublishVisibility: toSentenceCase(template?.latestPublishVisibility ? template?.latestPublishVisibility?.toString() : '')
@@ -295,8 +299,10 @@ const TemplateListPage: React.FC = () => {
         }
         actions={
           <>
-            <Link href={TEMPLATE_CREATE_URL}
-              className="button-link button--primary">{t('actionCreate')}</Link>
+            <Link
+              href={TEMPLATE_CREATE_URL}
+              className="button-link button--primary">{t('actionCreate')}
+            </Link>
           </>
         }
         className="page-template-list"

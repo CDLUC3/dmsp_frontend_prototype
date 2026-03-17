@@ -1,0 +1,110 @@
+mutation MoveCustomQuestion($input: MoveCustomQuestionInput!) {
+  moveCustomQuestion(input: $input) {
+    id
+    guidanceText
+    errors {
+      general
+    }
+    json
+    migrationStatus
+    modified
+    pinnedQuestionId
+    pinnedQuestionType
+    questionText
+    required
+    requirementText
+    sampleText
+    sectionId
+    sectionType
+    templateCustomizationId
+    useSampleTextAsDefault
+  }
+}
+
+mutation AddQuestionCustomization($input: AddQuestionCustomizationInput!) {
+  addQuestionCustomization(input: $input) {
+    id
+    guidanceText
+    errors {
+      general
+      guidanceText
+      migrationStatus
+      questionId
+      sampleText
+      templateCustomizationId
+    }
+    migrationStatus
+    modified
+    questionId
+    sampleText
+    templateCustomizationId
+    versionedQuestion {
+      id
+      guidanceText
+      displayOrder
+      modified
+      questionId
+      ownerAffiliation {
+        displayName
+        id
+      }
+    }
+  }
+}
+
+mutation UpdateQuestionCustomization($input: UpdateQuestionCustomizationInput!) {
+  updateQuestionCustomization(input: $input) {
+    guidanceText
+    errors {
+      general
+      guidanceText
+      migrationStatus
+      questionId
+      sampleText
+      templateCustomizationId
+    }
+    id
+    migrationStatus
+    modified
+    questionId
+    sampleText
+    templateCustomizationId
+    versionedQuestion {
+      id
+      guidanceText
+      ownerAffiliation {
+        displayName
+        id
+      }
+    }
+  }
+}
+
+mutation RemoveQuestionCustomization($questionCustomizationId: Int!) {
+  removeQuestionCustomization(questionCustomizationId: $questionCustomizationId) {
+    id
+    guidanceText
+    migrationStatus
+    modified
+    questionId
+    sampleText
+    templateCustomizationId
+    versionedQuestion {
+      id
+      guidanceText
+      json
+      ownerAffiliation {
+        displayName
+        id
+      }
+    }
+    errors {
+      general
+      guidanceText
+      migrationStatus
+      questionId
+      sampleText
+      templateCustomizationId
+    }
+  }
+}

@@ -8,7 +8,8 @@ import { useParams } from "next/navigation";
 import { useQuery, useLazyQuery } from '@apollo/client/react';
 import {
   RepositoriesDocument,
-  RepositorySubjectAreasDocument
+  Re3SubjectListDocument,
+  Re3RepositoryTypesListDocument
 } from '@/generated/graphql';
 import RepositorySelectionSystem from '../ReposSelector';
 import {
@@ -17,6 +18,7 @@ import {
 import { addRepositoryAction } from '@/app/actions';
 import mockRepositories from '../__mocks__/mockRepositories.json';
 import mockSubjectAreas from '../__mocks__/mockSubjectAreas.json';
+import mockRepositoryTypes from '../__mocks__/mockRepositoryTypes.json';
 
 expect.extend(toHaveNoViolations);
 
@@ -79,10 +81,19 @@ const setupMocks = () => {
     error: null,
   };
 
+  const stableRepositoryTypesReturn = {
+    data: mockRepositoryTypes,
+    loading: false,
+    error: null,
+  };
   mockUseQuery.mockImplementation((document) => {
-    if (document === RepositorySubjectAreasDocument) {
+    if (document === Re3SubjectListDocument) {
       /* eslint-disable-next-line @typescript-eslint/no-explicit-any*/
       return stableRepositoriesSubjectAreasReturn as any;
+    }
+    if (document === Re3RepositoryTypesListDocument) {
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any*/
+      return stableRepositoryTypesReturn as any;
     }
 
     return {
@@ -467,10 +478,12 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.click(applyFilterBtn);
 
       // Should display only Protein Data Bank
-      expect(screen.getByText('Zenodo')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Zenodo')).toBeInTheDocument();
+      })
     });
 
-    it('searches in name, description, and tags fields', () => {
+    it('searches in name, description, and tags fields', async () => {
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -489,7 +502,9 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.click(applyFilterBtn);
 
       // Should find repositories with "biology" in tags or description
-      expect(screen.getByText('Zenodo')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Zenodo')).toBeInTheDocument();
+      });
     });
 
     it('clears search and resets to all repositories', async () => {
@@ -515,8 +530,10 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.click(applyFilterBtn);
 
       // All repositories should be visible again
-      expect(screen.getByText('Zenodo')).toBeInTheDocument();
-      expect(screen.getByText('University of Opole Knowledge Base')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Zenodo')).toBeInTheDocument();
+        expect(screen.getByText('University of Opole Knowledge Base')).toBeInTheDocument();
+      })
     });
   });
 
@@ -999,7 +1016,7 @@ describe('RepositorySelectionSystem', () => {
         expect(screen.getByText('Zenodo')).toBeInTheDocument();
       });
 
-      expect(screen.getByText(/Displaying repositories\s+5\s+of\s+53\s+in total/i)).toBeInTheDocument();
+      expect(screen.getByText("headings.displayingRepositoriesStatus")).toBeInTheDocument();
     });
   });
 
@@ -1183,7 +1200,7 @@ describe('RepositorySelectionSystem', () => {
       });
     });
 
-    it('handles empty search results gracefully', () => {
+    it('handles empty search results gracefully', async () => {
       render(
         <RepositorySelectionSystem
           field={mockField}
@@ -1202,7 +1219,10 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.click(applyFilterBtn);
 
       // Search results section should still be visible
-      expect(screen.getByText(/Displaying repositories/)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText("headings.displayingRepositoriesStatus")).toBeInTheDocument();
+
+      })
     });
 
     it('case-insensitive search works correctly', async () => {
@@ -1224,7 +1244,9 @@ describe('RepositorySelectionSystem', () => {
       fireEvent.click(applyFilterBtn);
 
       // Should find results even with lowercase search
-      expect(screen.getByText('Zenodo')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Zenodo')).toBeInTheDocument();
+      })
     });
 
     it('handles very long repository names and descriptions', async () => {

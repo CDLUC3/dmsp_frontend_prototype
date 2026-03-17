@@ -2,6 +2,7 @@
 
 .tinyMCE-editor-container {
   max-width: 600px;
+  //margin-bottom: var(--space-5);
 
 
   // Because TinyMCE has it's own classes that we have to overwrite, we need to use the :global selector for it to work properly

@@ -11,4 +11,5 @@ export { default as QuestionOptionsComponent } from './QuestionOptionsComponent'
 export { default as TypeAheadSearch } from './AffiliationSearch';
 export { default as ResearchOutputComponent } from './ResearchOutputQuestionComponent';
 export { default as ResearchOutputAnswerComponent } from './ResearchOutputAnswerComponent';
+export { default as TooltipSelect } from './TooltipSelect';
 

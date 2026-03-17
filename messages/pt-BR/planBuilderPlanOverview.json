@@ -49,7 +49,7 @@
       "pendingCount": "{count} pending outputs",
       "acceptedCount": "{count} accepted outputs",
       "edit": "Ajustar para este plano",
-      "publish": "Publish your plan to start adding related outputs to your DMP"
+      "publish": "Publish your plan to start adding published outputs to your DMP"
     },
     "question": {
       "answered": "Respondido",
@@ -325,9 +325,14 @@
     "ariaLabels": {
       "showMoreGuidance": "Mostrar mais fontes de orientação",
       "showLessGuidance": "Mostrar menos fontes de orientação"
+    },
+    "headings": {
+      "addMore": "Adicione mais",
+      "customizeBestPractice": "Personalize as melhores práticas",
+      "currentlyDisplaying": "Atualmente exibindo"
     }
   },
-    "SectionPage": {
+  "SectionPage": {
     "errors": {
       "errorLoadingSections": "Erro ao carregar as perguntas: {message}"
     },

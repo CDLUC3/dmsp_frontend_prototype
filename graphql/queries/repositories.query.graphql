@@ -7,18 +7,29 @@ query Repositories($input: RepositorySearchInput!) {
     totalCount
     nextCursor
     limit
-    items {
-      keywords
-      id
-      errors {
-        general
+     items {
+      ... on CustomRepository {
+        name
+        description
         uri
+        website
+        repositoryTypes
+        errors {
+          general
+          uri
+        }
+        keywords
+        id
       }
-      name
-      description
-      uri
-      website
-      repositoryTypes
+      ... on Re3DataRepository {
+        keywords
+        id
+        name
+        description
+        uri
+        website
+        repositoryTypes
+      }
     }
   }
 }
@@ -37,6 +48,38 @@ query RepositoriesByURIs($uris: [String!]!) {
     }
     name
     description
+    uri
+    website
+    repositoryTypes
+  }
+}
+
+query Re3RepositoryTypesList {
+  re3RepositoryTypesList {
+    totalCount
+    types {
+      count
+      type
+    }
+  }
+}
+
+query Re3SubjectList {
+  re3SubjectList {
+    totalCount
+    subjects {
+      subject
+      count
+    }
+  }
+}
+
+query Re3byURIs($uris: [String!]!) {
+  re3byURIs(uris: $uris) {
+    name
+    id
+    description
+    keywords
     uri
     website
     repositoryTypes

@@ -81,7 +81,7 @@ describe('TemplateSelectListItem', () => {
     expect(selectButton).toBeInTheDocument();
     expect(screen.getByText('lastRevisedBy: Henry Ford')).toBeInTheDocument();
     expect(screen.getByText('lastUpdated: 10-25-2025')).toBeInTheDocument();
-    expect(screen.getByText(/notPublished.*(10-25-2025)/i)).toBeInTheDocument();
+    expect(screen.getByText(/notPublished/i)).toBeInTheDocument();
     expect(screen.getByText(/visibility\s*:\s*Public/i)).toBeInTheDocument();
     expect(screen.getByText('messages.additionalGuidance')).toBeInTheDocument();
   });

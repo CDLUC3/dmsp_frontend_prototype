@@ -427,7 +427,7 @@ describe("GuidanceGroupIndexPage", () => {
     fireEvent.click(saveBtn);
 
     await waitFor(() => {
-      expect(mockRouter.push).not.toHaveBeenCalledWith('/en-US/admin/guidance/groups/2397/some-redirect-page')
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/admin/guidance/groups/2397/some-redirect-page')
     });
   });
 
@@ -540,7 +540,7 @@ describe("GuidanceGroupIndexPage", () => {
 
 
     await waitFor(() => {
-      expect(mockRouter.push).not.toHaveBeenCalledWith('/en-US/admin/guidance/groups/2397/some-redirect-page')
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/admin/guidance/groups/2397/some-redirect-page')
     });
   });
 
@@ -628,7 +628,7 @@ describe("GuidanceGroupIndexPage", () => {
     (unPublishGuidanceGroupAction as jest.Mock).mockResolvedValue({
       success: true,
       data: {
-        id: 2397,
+        id: 2398,
         name: "CDL Guidance Group",
         errors: {
           affiliationId: null,
@@ -652,6 +652,7 @@ describe("GuidanceGroupIndexPage", () => {
     const sidebar = screen.getByTestId("sidebar-panel");
     const inSidebar = within(sidebar);
     const unPublishBtn = inSidebar.getByRole("button", { name: "Global.buttons.unpublish" });
+
     fireEvent.click(unPublishBtn);
 
     await waitFor(() => {
@@ -691,10 +692,13 @@ describe("GuidanceGroupIndexPage", () => {
     const sidebar = screen.getByTestId("sidebar-panel");
     const inSidebar = within(sidebar);
     const unPublishBtn = inSidebar.getByRole("button", { name: "Global.buttons.unpublish" });
-    fireEvent.click(unPublishBtn);
+
+    await act(async () => {
+      fireEvent.click(unPublishBtn);
+    });
 
     await waitFor(() => {
-      expect(mockRouter.push).not.toHaveBeenCalledWith('/en-US/admin/guidance/redirect-page')
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/admin/guidance/redirect-page')
     });
   });
 
@@ -715,7 +719,10 @@ describe("GuidanceGroupIndexPage", () => {
     const sidebar = screen.getByTestId("sidebar-panel");
     const inSidebar = within(sidebar);
     const unPublishBtn = inSidebar.getByRole("button", { name: "Global.buttons.unpublish" });
-    fireEvent.click(unPublishBtn);
+
+    await act(async () => {
+      fireEvent.click(unPublishBtn);
+    });
 
     // Since guidanceGroupId is undefined, we expect an inline error message and no side effects
     await waitFor(() => {
@@ -759,7 +766,10 @@ describe("GuidanceGroupIndexPage", () => {
     const sidebar = screen.getByTestId("sidebar-panel");
     const inSidebar = within(sidebar);
     const unPublishBtn = inSidebar.getByRole("button", { name: "Global.buttons.unpublish" });
-    fireEvent.click(unPublishBtn);
+
+    await act(async () => {
+      fireEvent.click(unPublishBtn);
+    });
 
     await waitFor(() => {
       expect(screen.getByText('There was a general error')).toBeInTheDocument();
@@ -803,7 +813,10 @@ describe("GuidanceGroupIndexPage", () => {
     const sidebar = screen.getByTestId("sidebar-panel");
     const inSidebar = within(sidebar);
     const publishBtn = inSidebar.getByRole("button", { name: "Global.buttons.publish" });
-    fireEvent.click(publishBtn);
+
+    await act(async () => {
+      fireEvent.click(publishBtn);
+    });
 
     await waitFor(() => {
       expect(mockToast.add).toHaveBeenCalledWith('Guidance.messages.success.guidanceGroupPublished', { type: 'success' });
@@ -847,53 +860,65 @@ describe("GuidanceGroupIndexPage", () => {
     const sidebar = screen.getByTestId("sidebar-panel");
     const inSidebar = within(sidebar);
     const publishBtn = inSidebar.getByRole("button", { name: "Global.buttons.publish" });
-    fireEvent.click(publishBtn);
 
-    // Since guidanceGroupId is undefined, we expect an inline error message and no side effects
+    await act(async () => {
+      fireEvent.click(publishBtn);
+    });
+
     await waitFor(() => {
-      expect(mockRouter.push).not.toHaveBeenCalledWith('/en-US/admin/guidance/redirect-page')
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/admin/guidance/redirect-page')
     });
   });
 
   it('should handle handlepublish when response is not successful', async () => {
-  (publishGuidanceGroupAction as jest.Mock).mockResolvedValue({
-    success: false,
-    errors: ['Some error occurred'],
-  });
-  
-  render(
-    <MockedProvider mocks={inactiveGroupMocks}>
-      <GuidanceGroupIndexPage />
-    </MockedProvider>,
-  );
+    (publishGuidanceGroupAction as jest.Mock).mockResolvedValue({
+      success: false,
+      errors: ['Some error occurred'],
+    });
 
-  // Wait for loading to be gone (tagsLoading and guidanceLoading both false)
-  await waitForElementToBeRemoved(() => screen.getByText("Global.messaging.loading"));
+    render(
+      <MockedProvider mocks={inactiveGroupMocks}>
+        <GuidanceGroupIndexPage />
+      </MockedProvider>,
+    );
 
-  const sidebar = screen.getByTestId("sidebar-panel");
-  const inSidebar = within(sidebar);
-  const publishBtn = inSidebar.getByRole("button", { name: "Global.buttons.publish" });
-  
-  // Use act to wrap the state update
-  await act(async () => {
+    // Wait for loading to be gone (tagsLoading and guidanceLoading both false)
+    await waitForElementToBeRemoved(() => screen.getByText("Global.messaging.loading"));
+
+    const sidebar = screen.getByTestId("sidebar-panel");
+    const inSidebar = within(sidebar);
+    const publishBtn = inSidebar.getByRole("button", { name: "Global.buttons.publish" });
+
+    // Click the button
     fireEvent.click(publishBtn);
+
+    // Wait for the publish action to be called
+    await waitFor(() => {
+      expect(publishGuidanceGroupAction).toHaveBeenCalled();
+    });
+
+    // Wait for the async action to complete and error to be displayed
+    await waitFor(() => {
+      const errorContainer = screen.getByRole('alert');
+      expect(errorContainer).toBeInTheDocument();
+      expect(within(errorContainer).getByText('Some error occurred')).toBeInTheDocument();
+    }, { timeout: 3000 });
+
+    // Check that error logged
+    expect(logECS).toHaveBeenCalledWith(
+      'error',
+      'publishing Guidance Group',
+      expect.objectContaining({
+        errors: expect.anything(),
+        url: { path: '/en-US/admin/guidance/groups/create' },
+      })
+    );
+
+    // Flush any pending act warnings
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
   });
-
-  // Wait for the async action to complete and error to be displayed
-  await waitFor(() => {
-    expect(screen.getByText('Some error occurred')).toBeInTheDocument();
-  }, { timeout: 3000 });
-
-  // Check that error logged
-  expect(logECS).toHaveBeenCalledWith(
-    'error',
-    'publishing Guidance Group',
-    expect.objectContaining({
-      errors: expect.anything(),
-      url: { path: '/en-US/admin/guidance/groups/create' },
-    })
-  );
-});
 
   it('should display error if field-level errors returned from handlepublish', async () => {
     (publishGuidanceGroupAction as jest.Mock).mockResolvedValue({
@@ -917,7 +942,7 @@ describe("GuidanceGroupIndexPage", () => {
     );
 
     // Wait for loading to be gone (tagsLoading and guidanceLoading both false)
-    await waitForElementToBeRemoved(() => screen.getByText("Global.messaging.loading"), { timeout: 5000 });
+    await waitForElementToBeRemoved(() => screen.getByText("Global.messaging.loading"));
 
     const sidebar = screen.getByTestId("sidebar-panel");
     const inSidebar = within(sidebar);

@@ -3,9 +3,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslations } from "next-intl";
 import {
+  Button,
   Checkbox,
+  Key,
   ListBoxItem,
-  Button
 } from "react-aria-components";
 import {
   ResearchOutputTableQuestionType,
@@ -32,6 +33,7 @@ import {
   FormInput,
   FormSelect,
   FormTextArea,
+  TooltipSelect
 } from '@/components/Form';
 import RepoSelectorForAnswer from '@/components/RepoSelectorForAnswer';
 import MetaDataStandardsForAnswer from '@/components/MetaDataStandardForAnswer';
@@ -51,6 +53,7 @@ import {
 } from '@/lib/constants';
 import { defaultAccessLevels } from '@/utils/researchOutputTable';
 import { getCalendarDateValue } from '@/utils/dateUtils';
+import { TooltipSelectOption } from '../../TooltipSelect';
 import styles from '../researchOutputAnswer.module.scss';
 
 type ResearchOutputAnswerComponentProps = {
@@ -63,6 +66,7 @@ type ResearchOutputAnswerComponentProps = {
   showButtons?: boolean;
   isNewEntry?: boolean; // Determines if this is a new entry or editing existing
   hasOtherRows?: boolean; // Indicates if there are other rows in the list so we know whether to show back to list button
+  isDisabled?: boolean; // Whether the form fields should be disabled (e.g., for preview mode or if question is disabled)
 };
 
 // Use the answer type directly from @dmptool/types
@@ -76,7 +80,8 @@ const SingleResearchOutputComponent = ({
   onCancel,
   showButtons = false,
   isNewEntry = false,
-  hasOtherRows = false
+  hasOtherRows = false,
+  isDisabled = false,
 }: ResearchOutputAnswerComponentProps) => {
 
   const textAreaFirstUpdate = useRef<{ [key: number]: boolean }>({});
@@ -441,6 +446,7 @@ const SingleResearchOutputComponent = ({
                   onChange={e => {
                     handleCellChange(colIndex, e.target.value)
                   }}
+                  disabled={isDisabled}
                 />
               </div>
             );
@@ -467,6 +473,7 @@ const SingleResearchOutputComponent = ({
                     }
                     handleCellChange(colIndex, newContent);
                   }}
+                  disabled={isDisabled}
                 />
               </div>
             );
@@ -474,19 +481,29 @@ const SingleResearchOutputComponent = ({
             const isOutputTypeField = col.heading === 'Output Type';
             const hasNoOptions = !col.content.options || col.content.options.length === 0;
 
-            let selectItems: { id: string; name: string }[] = [];
+            let tooltipSelectItems: TooltipSelectOption[] = [];
+            let formSelectItems: { id: string; name: string }[] = [];
             if (isOutputTypeField && hasNoOptions && defaultResearchOutputTypesData?.defaultResearchOutputTypes) {
-              selectItems = defaultResearchOutputTypesData.defaultResearchOutputTypes
+              formSelectItems = defaultResearchOutputTypesData.defaultResearchOutputTypes
                 .filter((type): type is NonNullable<typeof type> => type !== null)
                 .map((type) => ({
                   id: type.value,
-                  name: type.name
+                  name: type.name,
+                }));
+            } else if (isOutputTypeField && !hasNoOptions && defaultResearchOutputTypesData?.defaultResearchOutputTypes) {
+              tooltipSelectItems = defaultResearchOutputTypesData.defaultResearchOutputTypes
+                .filter((type): type is NonNullable<typeof type> => type !== null)
+                .map((type) => ({
+                  id: type.value,
+                  name: type.name,
+                  label: type.name,
+                  tooltip: type.description || undefined
                 }));
             } else {
               const options = col.content.options || [];
-              selectItems = options.map(option => ({
+              formSelectItems = options.map(option => ({
                 id: option.value,
-                name: option.label
+                name: option.label,
               }));
             }
 
@@ -495,18 +512,34 @@ const SingleResearchOutputComponent = ({
                 key={col.heading}
                 ref={(el) => { fieldRefs.current[`col-${colIndex}`] = el; }}
               >
-                <FormSelect
-                  label={translatedLabel}
-                  ariaLabel={translatedLabel}
-                  isRequired={col.required}
-                  name={name}
-                  items={selectItems}
-                  selectedKey={String(value)}
-                  isInvalid={!!fieldError}
-                  errorMessage={fieldError}
-                  helpMessage={col.content.attributes?.help || col?.help}
-                  onChange={val => handleCellChange(colIndex, val)}
-                />
+                {isOutputTypeField && !hasNoOptions ? (
+                  <TooltipSelect
+                    label={translatedLabel}
+                    ariaLabel={translatedLabel}
+                    isRequired={col.required}
+                    name={name}
+                    options={tooltipSelectItems}
+                    defaultSelectedKey={String(value)}
+                    errorMessage={fieldError}
+                    helpMessage={col.content.attributes?.help || col?.help}
+                    onSelectionChange={(val: Key | null) => {
+                      if (val !== null) handleCellChange(colIndex, val);
+                    }}
+                  />
+                ) : (
+                  <FormSelect
+                    label={translatedLabel}
+                    ariaLabel={translatedLabel}
+                    isRequired={col.required}
+                    name={name}
+                    items={formSelectItems}
+                    selectedKey={String(value)}
+                    isInvalid={!!fieldError}
+                    errorMessage={fieldError}
+                    helpMessage={col.content.attributes?.help || col?.help}
+                    onChange={val => handleCellChange(colIndex, val)}
+                  />
+                )}
               </div>
             );
 
@@ -539,6 +572,7 @@ const SingleResearchOutputComponent = ({
                   errorMessage={fieldError}
                   helpMessage={col.content.attributes?.help || col?.help}
                   onChange={val => handleCellChange(colIndex, val)}
+                  isDisabled={isDisabled}
                 />
               </div>
             );
@@ -596,6 +630,7 @@ const SingleResearchOutputComponent = ({
                     }}
                     checkboxGroupLabel={translatedLabel}
                     checkboxGroupDescription={colHelp}
+                    isDisabled={isDisabled}
                   >
                     {options.map(opt => (
                       <Checkbox key={opt.value} value={opt.value}>
@@ -820,6 +855,7 @@ const SingleResearchOutputComponent = ({
                       : null;
                     handleCellChange(colIndex, licenseObj ? [licenseObj] : []);
                   }}
+                  isDisabled={isDisabled}
                 />
               </div>
             );
@@ -840,6 +876,7 @@ const SingleResearchOutputComponent = ({
             handleCellChange(releaseDateColIndex, dateString);
           }}
           label={Global('labels.anticipatedReleaseDate')}
+          isDisabled={isDisabled}
         />
       </div>
 
@@ -861,6 +898,7 @@ const SingleResearchOutputComponent = ({
 
           }}
           maxLength={10}
+          disabled={isDisabled}
         />
 
         <FormSelect
@@ -884,6 +922,7 @@ const SingleResearchOutputComponent = ({
               context: val
             });
           }}
+          isDisabled={isDisabled}
         >
           {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
         </FormSelect>
@@ -896,6 +935,7 @@ const SingleResearchOutputComponent = ({
             <Button
               className={`${styles.editBtn} small secondary`}
               onPress={handleCancelClick}
+              isDisabled={isDisabled}
             >
               &lt; {Global('buttons.backToList')}
             </Button>
@@ -903,6 +943,7 @@ const SingleResearchOutputComponent = ({
           <Button
             className="primary"
             onPress={handleOnSave}
+            isDisabled={isDisabled}
           >
             {isNewEntry ? Global('buttons.save') : Global('buttons.update')}
           </Button>

@@ -8,7 +8,7 @@
       "general": null,
       "questionText": null,
       "requirementText": null,
-      "sampleText": null,
+      "sampleText": "This is my sample text",
       "displayOrder": null,
       "questionConditionIds": null,
       "versionedSectionId": null,

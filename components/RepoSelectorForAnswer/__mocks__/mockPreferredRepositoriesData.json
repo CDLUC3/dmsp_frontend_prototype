@@ -1,23 +1,36 @@
 {
-  "repositoriesByURIs": [
+  "re3byURIs": [
     {
-      "__typename": "Repository",
+      "__typename": "Re3DataRepository",
+      "name": "UNC Dataverse",
+      "id": "r3d100000005",
+      "description": "UNC Dataverse is a FAIR-aligned repository for archiving, sharing, and accessing research data of all kinds.\nEach dataverse within the larger repository contains a multitude of datasets, and each dataset contains descriptive metadata, data, and documentation.\nUNC Dataverse is hosted and managed by the Research Data Management Core, University of North Carolina at Chapel Hill.",
+      "keywords": [
+        "FAIR",
+        "census",
+        "curated collections",
+        "multidisciplinary",
+        "public opinion polls"
+      ],
+      "uri": "https://www.re3data.org/repository/r3d100000005",
+      "website": "https://dataverse.unc.edu/",
+      "repositoryTypes": [
+        "institutional"
+      ]
+    },
+    {
+      "__typename": "Re3DataRepository",
+      "name": "Zenodo",
+      "id": "r3d100010468",
+      "description": "ZENODO builds and operates a simple and innovative service that enables researchers, scientists, EU projects and institutions to share and showcase multidisciplinary research results (data and publications) that are not part of the existing institutional or subject-based repositories of the research communities.\nZENODO enables researchers, scientists, EU projects and institutions to:\neasily share the long tail of small research results in a wide variety of formats including text, spreadsheets, audio, video, and images across all fields of science.\ndisplay their research results and get credited by making the research results citable and integrate them into existing reporting lines to funding agencies like the European Commission.\neasily access and reuse shared research results.",
       "keywords": [
         "FAIR",
         "multidisciplinary"
       ],
-      "id": 3,
-      "errors": {
-        "__typename": "RepositoryErrors",
-        "general": null,
-        "uri": null
-      },
-      "name": "Zenodo",
-      "description": "ZENODO builds and operates a simple and innovative service that enables researchers, scientists, EU projects and institutions to share and showcase multidisciplinary research results (data and publications) that are not part of the existing institutional ",
-      "uri": "https://www.re3data.org/repository/https://www.re3data.org/api/v1/repository/r3d100010468",
+      "uri": "https://www.re3data.org/repository/r3d100010468",
       "website": "https://zenodo.org/",
       "repositoryTypes": [
-        "OTHER"
+        "other"
       ]
     }
   ]

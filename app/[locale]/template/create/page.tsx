@@ -20,6 +20,7 @@ import FormInput from '@/components/Form/FormInput';
 
 import { debounce } from '@/hooks/debounce';
 import { useQueryStep } from '@/app/[locale]/template/create/useQueryStep';
+import Loading from '@/components/Loading';
 
 const TemplateCreatePage: React.FC = () => {
   const router = useRouter();
@@ -68,7 +69,7 @@ const TemplateCreatePage: React.FC = () => {
 
   // TODO: Need to implement a shared loading component
   if (step === null) {
-    return <div>...{Global('messaging.loading')}</div>
+    return <Loading />;
   }
 
   return (

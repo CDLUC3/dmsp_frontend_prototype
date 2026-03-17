@@ -1,0 +1,31 @@
+query QuestionCustomizationByVersionedQuestion($templateCustomizationId: Int!, $versionedQuestionId: Int!) {
+  questionCustomizationByVersionedQuestion(templateCustomizationId: $templateCustomizationId, versionedQuestionId: $versionedQuestionId) {
+    id
+    guidanceText
+    migrationStatus
+    modified
+    questionId
+    sampleText
+    templateCustomizationId
+    errors {
+      general
+      guidanceText
+      migrationStatus
+      questionId
+      sampleText
+      templateCustomizationId
+    }
+    versionedQuestion {
+      id
+      guidanceText
+      questionText
+      requirementText
+      required
+      sampleText
+      ownerAffiliation {
+        displayName
+        id
+      }
+    }
+  }
+}

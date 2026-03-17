@@ -1,0 +1,46 @@
+query SectionCustomization($sectionCustomizationId: Int!) {
+  sectionCustomization(sectionCustomizationId: $sectionCustomizationId) {
+    id
+    errors {
+      general
+      guidance
+      migrationStatus
+      sectionId
+      templateCustomizationId
+    }
+    guidance
+    migrationStatus
+    modified
+    sectionId
+    templateCustomizationId
+    versionedSection {
+      id
+      guidance
+      name
+      modified
+      introduction
+      requirements
+      displayOrder
+    }
+  }
+}
+
+query SectionCustomizationByVersionedSection($templateCustomizationId: Int!, $versionedSectionId: Int!) {
+  sectionCustomizationByVersionedSection(templateCustomizationId: $templateCustomizationId, versionedSectionId: $versionedSectionId) {
+    id
+    guidance
+    sectionId
+    templateCustomizationId
+    versionedSection {
+      id
+      name
+    }
+    errors {
+      guidance
+      migrationStatus
+      sectionId
+      templateCustomizationId
+      general
+    }
+  }
+}

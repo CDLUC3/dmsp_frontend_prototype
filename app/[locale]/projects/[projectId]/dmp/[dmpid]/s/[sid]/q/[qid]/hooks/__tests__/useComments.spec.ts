@@ -63,7 +63,8 @@ describe('useComments', () => {
         id: 1,
         name: "Test Organization",
         searchName: "test-organization",
-        uri: "https://test.org"
+        uri: "https://test.org",
+        displayName: "Test Organization"
       },
     }
   };

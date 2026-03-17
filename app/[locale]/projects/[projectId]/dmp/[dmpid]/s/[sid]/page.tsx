@@ -11,7 +11,7 @@ import {
   PublishedQuestionsDocument,
   PublishedSectionDocument,
   PlanDocument,
-  MeDocument
+  MeDocument,
 } from '@/generated/graphql';
 
 // Components
@@ -30,9 +30,9 @@ import Loading from '@/components/Loading';
 // Utils and other
 import { stripHtml } from '@/utils/general';
 import { routePath } from '@/utils/routes';
-import { GuidanceItemInterface } from '@/app/types';
 import styles from './PlanOverviewSectionPage.module.scss';
 import { useGuidanceData } from '@/app/hooks/useGuidanceData';
+import { useGuidanceMutations } from "@/app/hooks/useGuidanceMutations";
 
 interface VersionedQuestion {
   id: string;
@@ -55,7 +55,6 @@ const PlanOverviewSectionPage: React.FC = () => {
 
   // State for navigation visibility
   const [showNavigation, setShowNavigation] = useState(true);
-  const [guidanceItems, setGuidanceItems] = useState<GuidanceItemInterface[]>([]);
 
   // Validate that dmpId is a valid number
   const planId = parseInt(dmpId);
@@ -68,74 +67,39 @@ const PlanOverviewSectionPage: React.FC = () => {
     skip: !versionedSectionId
   });
 
-  const { data: sectionData, loading: sectionLoading } = useQuery(PublishedSectionDocument, {
-    variables: { versionedSectionId },
-    skip: !versionedSectionId
-  });
-
   const { data: planData, loading: planLoading } = useQuery(PlanDocument, {
     variables: { planId },
     skip: !planId
   });
 
-  // Use the guidance data hook to get section tags and matched guidance
-  const { sectionTagsMap, matchedGuidanceByOrg } = useGuidanceData({
-    userAffiliationUri: me?.me?.affiliation?.uri,
-    userAffiliationName: me?.me?.affiliation?.name,
-    userAffiliationAcronyms: me?.me?.affiliation?.acronyms,
-    planData,
-    versionedSectionId: String(versionedSectionId)
+  const { data: sectionData, loading: sectionLoading } = useQuery(PublishedSectionDocument, {
+    variables: { versionedSectionId },
+    skip: !versionedSectionId
   });
 
-  // Handlers for guidance panel
-  const handleAddGuidanceOrganization = () => {
-    console.log('Add guidance organization');
-  };
+  // versionedTemplateId for guidance filtering
+  const versionedTemplateId = planData?.plan?.versionedTemplate?.id;
 
-  const handleRemoveGuidanceOrganization = (orgId: string) => {
-    console.log('Remove guidance organization:', orgId);
-  };
+  // Use the guidance data hook to get section tags and matched guidance
+  // as well as handlers for adding/removing guidance organizations
+  const {
+    sectionTagsMap,
+    guidanceItems,
+  } = useGuidanceData({
+    planId: parseInt(dmpId),
+    versionedSectionId
+  });
 
-  // Combine section guidance with user's matched guidance
-  useEffect(() => {
-    if (sectionData?.publishedSection) {
-      const section = sectionData.publishedSection;
-
-      // Section's own guidance
-      const sectionGuidance: GuidanceItemInterface = {
-        orgURI: planData?.plan?.versionedTemplate?.owner?.uri ?? '',
-        orgName: planData?.plan?.versionedTemplate?.owner?.name ?? '',
-        orgShortname: planData?.plan?.versionedTemplate?.owner?.acronyms?.[0] || '',
-        items: section.guidance ? [
-          {
-            title: planData?.plan?.versionedTemplate?.owner?.name || '',
-            guidanceText: section.guidance
-          }
-        ] : []
-      };
-
-      // Consolidate guidance by orgURI
-      const guidanceMap = new Map<string, GuidanceItemInterface>();
-
-      // Add section guidance if it has items
-      if (sectionGuidance.items.length > 0) {
-        guidanceMap.set(sectionGuidance.orgURI, sectionGuidance);
-      }
-
-      // Add or merge matched guidance from user's affiliation
-      matchedGuidanceByOrg.forEach(guidance => {
-        if (guidanceMap.has(guidance.orgURI)) {
-          // Merge items if orgURI already exists
-          const existing = guidanceMap.get(guidance.orgURI)!;
-          existing.items = [...existing.items, ...guidance.items];
-        } else {
-          guidanceMap.set(guidance.orgURI, guidance);
-        }
-      });
-
-      setGuidanceItems(Array.from(guidanceMap.values()));
-    }
-  }, [sectionData, matchedGuidanceByOrg]);
+  // Use guidance mutations hook (mutations only, no data)
+  const {
+    addGuidanceOrganization,
+    removeGuidanceOrganization,
+    clearError,
+    guidanceError,
+  } = useGuidanceMutations({
+    planId: parseInt(dmpId),
+    versionedSectionId
+  });
 
   // Hide navigation when close to footer
   useEffect(() => {
@@ -351,10 +315,13 @@ const PlanOverviewSectionPage: React.FC = () => {
             <GuidancePanel
               userAffiliationId={me?.me?.affiliation?.uri}
               ownerAffiliationId={planData?.plan?.versionedTemplate?.owner?.uri}
+              versionedTemplateId={versionedTemplateId!}
               guidanceItems={guidanceItems}
               sectionTags={sectionTagsMap}
-              onAddOrganization={handleAddGuidanceOrganization}
-              onRemoveOrganization={handleRemoveGuidanceOrganization}
+              guidanceError={guidanceError}
+              onAddOrganization={addGuidanceOrganization}
+              onRemoveOrganization={removeGuidanceOrganization}
+              onClearError={clearError}
             />
           </div>
         </SidebarPanel>

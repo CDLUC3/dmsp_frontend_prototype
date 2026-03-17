@@ -1,4 +1,65 @@
 ## Added
+- Added new `TooltipSelect` component, which allows us to include descriptions with each `Select` option [#32]
+- `Custom Question` additions [#929]
+  - Added new `CustomQuestionEdit` page
+  - Added new `QuestionCustomize` page
+  - Added new `CustomQuestionNew` page
+  - Added new `AddCustomQuestion`, `UpdateCustomQuestion`, `RemoveCustomQuestion`, `AddQuestionCustomization`, `UpdateQuestionCustomization`, `RemoveQuestionCustomization` mutations
+  - Added `CustomQuestion` and `QuestionCustomizationByVersionedQuestion` mutations
+  - Added new routes for Custom Queries to `utils/routes.ts`
+- Added `CustomSectionEdit`, and `CreateCustomSectionPage` for adding and editing Custom Sections [#928]
+- Added new `/template/customizations/[templateCustomizationOverview]` page [#927]
+- Added new `CustomizedTemplate` components directory and new `CustomizedQuestionEdit` and `CustomizedSectionEdit` components [#927]
+- Added `MoveCustomQuestion`, `MoveCustomSection`, `UpdateSectionCustomization`, `RemoveSectionCustomization`, `UpdateCustomSection`, `AddTemplateCustomization` mutations and `SectionCustomization` and `TemplateCustomizationOverview` queries [#927]
+- Added new `/template/customizations` page and associated `CustomizedTemplateListItem` component [#43]
+- Added new `warning` icon to `iconset.svg` [#43]
+- Added new `clearAuthData` and `clearCache` to `AuthProvider` so that we can clear cache on `/login` and `/logout` [#55]
+- Added new `useGuidanceMutation` hook for adding and removing guidance from right sidebar [#15]
+- Added new queries `GuidanceSourcesForPlan`, `AddPlanGuidance`, `RemovePlanGuidance` and `ManagedAffiliationsWithGuidance` [#15]
+- Added new component `AffiliationSearchForGuidance` to be used for the custom guidance search modal [#15]
+- Added a new type policy `guidanceTypePolicies` for Apollo Client [#15]
+- Added related works project overview page [#700]
+
+## Updated
+- `Custom Question` updates [#929]
+- Moved `addQuestionMutation` out of `QuestionView` so that `QuestionView` can be shared for both `BASE` and `CUSTOM` questions
+  - Updated `QuestionTypeSelectPage` to include the `addQuestionMutation` and `getDisplayOrder` and pass those to `QuestionAdd`
+  - Added use of `Loading` component in `TemplateCreatePage`
+  - Added `fetchPolicy` of `cache-and-network` to `TemplateCustomiationOverview` query so that we get updated data when user returns from editing section or question
+  - Updated form components with `isDisabled` prop so that users customizing existing questions can see a disabled version of the form fields
+  - Updated `QuestionAdd` to accept more props and be more flexible for shared use with Custom Questions
+  - Updated `QuestionView` to accept more props like `orgGuidance` so it can be shared with Custom Questions
+- Updated `ReposSelector` and `RepoSelectorForAnswer` components to use the new `Re3RepositoryTypesListDocument`, `Re3SubjectListDocument`, and `Re3byUrIsDocument` queries [#113]
+- Updated `ResearchOutputAnswerComponent` so that we don't get a duplicate `save` CTAs when on the `SingleResearchOutputComponent` page [#113]
+- Updated `SectionCustomizePage` component for customizing existing sections [#928]
+- Updated `TemplateSelectTemplatePage` component to pass `versionedTemplateId` to `addTemplate` mutation when the template being cloned is not in the user's organization [#1006]
+- Update `addTemplate` query to include `copyFromVersionedTemplateId` variable [#1006]
+- Updated `useResearchOutputTable`'s `updateStandardFieldProperty` method to `enable` a Research Output Table field when any content or config changes for that field [#943]
+- Updated `/login` page step=email to include a "Back" button so user can go back to Step 1 [#997]
+
+## Fixed
+- Fixed issue with missing `as builder` in `Dockerfile.prod`
+- Fixed bug where user's org was not displaying as a filter option, and Best practice was displaying instead [#62]
+- Fixed issue with default `sampleText` appearing again in textArea question, after the user overrides it, saves, and then deletes their answer [#7]
+- Updated "Back" button on /login page to have `type=button` instead of `type=submit`
+- Fixed bug where the published status on `/template/[templateId]` did not match that on the template cards at `/template` for the `unpublished changes` state. Added a shared hook for determining the correct status text [#875]
+
+## Chore
+- Updated version of `dompurify` to `v3.3.2` due to security vulnerability, and included updates to`test-exclude` to v7.0.2, `sanitize-html` to v2.17.1, `tinymce` to v7.9.2, `next-intl` to v4.8.3, `html-react-parser` to v5.2.17, `@types/node` to v24.12.0, and `@types/react to v18.3.28.
+- Updated version of `minimatch` to `10.2.4` to address vulnerabilities
+- Updated version of `@dmptool/types` to `3.1.2` and `zod` to match package version to `4.3.6`
+- Added override for `minimatch` dependency and removed them for `prismjs` and `qs`.
+  - Added override for transient dependency `@eslint/plugin-kit (0.3.4)` and `test-exclude` due to vulnerabilities. `test-exclude` override was necessary because `minimatch 10.x` changed its API. Older test-exclude version expects older minimatch API, which called minimatch as a function. This caused errors.
+  - Updated versions of `@graphql-codegen/cli (6.1.2)`, `@graphql-codegen/client-preset (5.2.3)`, `@graphql-codegen/typed-document-ndoe (6.1.6)`, `@graphql-codegen/typescript (5.0.8)`, `@graphql-codegen/typescript-operations (5.0.8)`, `@typescript-eslint/eslint-plugin (8.56.1)`, `@typescript-eslint/parser (8.56.1)`, `eslint (9.18.0)`, `eslint-config-next (16.1.6)` so that we can remove vulnerabilities.
+  - Updated `eslint.config.js` to accomodate new eslint updates
+- Updated `middleware.ts` to `proxy.ts` per `middleware` being deprecated in `next v16` [#51]
+- Updated `eslint` to `v8.57.1`, `cypress` to `v15.10.0`, `eslint-config-next` to `v15.5.11`, `next` to `16.1.6`, `html-react-parser` to `v5.2.16`, `next-intl` to `v4.8.2`, `react` to `v19.2.4`, `react-dom` to `v19.2.4` and `jose` to `v6.1.3`
+- Updated version of `next` to `v16.1.5` due to vulnerability and `next-intl` to `4.8.0` due to dependency
+- Updated version of `@dmptool/types` to `v3.1.1` because it has a fix for the 'fs' errors
+==========================================================================================
+## All changes above the line happened after the merge to the main branch on Jan 27, 2026
+==========================================================================================
+## Added
 - Added new `GuidancePanel` component for the tabbed guidance in the right sidebar [#12]
 - Added `BestPracticeGuidance` query [#12]
 - Added ability to show if there are pending related works and the number of accepted works [#981]
@@ -10,6 +71,11 @@
 - Added new `ResearchOutputAnswerComponent`, `SingleResearchOutputComponent`, `RepoSelectorForAnswer` and `MetaDataStandardForAnswer` components for the rendering of `researchOutputTable` question type answer form [#787]
 - Added `utils/researchOutputTransformations.ts` to group utilities for `researchOutputTable` [#787]
 ### Updated
+- Updated `PlanOverviewSectionPage` and `PlanOverviewQuestionPage` to use the new `useGuidanceMutations` hook to add and remove guidance from the sidebar [#15]
+- Updated existing `useGuidanceData` to use the new `GuidanceSourcesForPlanDocument` query [#15]
+- Updated the `GuidancePanel` with the new `Modal` for searching for managed affiliations [#15]
+- Added new icon for a `cancel-reverse` that inverts the typical `cancel` icon color [#15]
+- Added a shared `unstyled` button [#15]
 - Updated `ExpandableContentSection` component to work with new `GuidancePanel` [#12]
 - Updated queries for`GuidanceGroups`, `Me` and `PublishedQuestion` queries [#12]
 - Updated to `dmptool/types` version `3.1.0` and ran `npm run generate` to update the GraphQL types [#1129]

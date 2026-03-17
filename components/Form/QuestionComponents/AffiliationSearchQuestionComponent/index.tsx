@@ -10,6 +10,7 @@ const AffiliationSearchQuestionComponent: React.FC<AffiliationSearchQuestionProp
   affiliationData,
   otherAffiliationName = '',
   otherField = false,
+  isDisabled = false,
   setOtherField,
   handleAffiliationChange,
   handleOtherAffiliationChange
@@ -30,6 +31,7 @@ const AffiliationSearchQuestionComponent: React.FC<AffiliationSearchQuestionProp
         value={affiliationData?.affiliationName || ''}
         suggestions={suggestions}
         onSearch={handleSearch}
+        isDisabled={isDisabled}
       />
       {otherField && (
         <div className="form-row">

@@ -67,6 +67,8 @@ const routes = {
   'projects.outputs.index': '/projects/:projectId/research-outputs',
   'projects.outputs.edit': '/projects/:projectId/research-outputs/edit',
   'projects.share.index': '/projects/:projectId/share',
+  'projects.related-works.index': '/projects/:projectId/related-works',
+  'projects.related-works.add': '/projects/:projectId/related-works/add',
 
   // DMP (Data Management Plan) routes
   'projects.dmp.index': '/projects/:projectId/dmp',
@@ -84,8 +86,8 @@ const routes = {
   'projects.dmp.feedback': '/projects/:projectId/dmp/:dmpId/feedback',
   'projects.collaboration': '/projects/:projectId/collaboration',
   'projects.collaboration.invite': '/projects/:projectId/collaboration/invite',
-  'projects.dmp.relatedWorks': '/projects/:projectId/dmp/:dmpId/related-works',
-  'projects.dmp.relatedWorks.add': '/projects/:projectId/dmp/:dmpId/related-works/add',
+  'projects.dmp.related-works': '/projects/:projectId/dmp/:dmpId/related-works',
+  'projects.dmp.related-works.add': '/projects/:projectId/dmp/:dmpId/related-works/add',
 
   // Template
   'template.index': '/template',
@@ -101,6 +103,14 @@ const routes = {
   'template.section.new': '/template/:templateId/section/new',
   'template.create': '/template/create',
   'template.edit': '/template/:templateId/edit',
+  'template.customizations': '/template/customizations',
+  'template.customize': '/template/customizations/:templateCustomizationId',
+  'template.customize.sectionId': '/template/customizations/:templateCustomizationId/section/:versionedSectionId',
+  'template.customize.question': '/template/customizations/:templateCustomizationId/q/:versionedQuestionId',
+  'template.customSection': '/template/customizations/:templateCustomizationId/customSection/:customSectionId',
+  'template.customize.section.create': '/template/customizations/:templateCustomizationId/section/create',
+  'template.customize.question.create': '/template/customizations/:templateCustomizationId/q/new',
+  'template.customQuestion': '/template/customizations/:templateCustomizationId/customQuestion/:customQuestionId',
 
   // account/profile
   'account.index': '/account',
@@ -113,7 +123,6 @@ const routes = {
   'admin.index': '/admin/',
   'admin.notifications': '/admin/notifications',
   'admin.templates': '/admin/templates',
-  'admin.templateCustomizations': '/admin/template-customizations',
 
   // Guidance routes
   'admin.guidance.index': '/admin/guidance',

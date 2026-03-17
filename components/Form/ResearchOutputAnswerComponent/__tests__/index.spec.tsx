@@ -1153,7 +1153,7 @@ describe('ResearchOutputAnswerComponent', () => {
       });
     });
 
-    it.only('should remove row with empty array answers when canceled', async () => {
+    it('should remove row with empty array answers when canceled', async () => {
       // Create a truly empty row without using createMockRow
       const emptyRow: ResearchOutputTable = {
         columns: mockColumns.map(col => createEmptyAnswer(col.content.type)) as ResearchOutputTable['columns'],

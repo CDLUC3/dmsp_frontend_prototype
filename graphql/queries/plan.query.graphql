@@ -2,6 +2,7 @@ query Plan($planId: Int!) {
   plan(planId: $planId) {
     id
     versionedTemplate {
+      id
       template {
         id
         name
