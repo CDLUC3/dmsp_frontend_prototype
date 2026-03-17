@@ -213,8 +213,6 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
       }
       : undefined;
 
-    console.log("***standardFields in buildResearchOutputFormState:", standardFields);
-    console.log("***Transformed data from buildResearchOutputFormState:", transformedData);
     return stateToJSON(standardFields, additionalFields, transformedData);
   }, [standardFields, additionalFields, defaultResearchOutputTypesData]);
 
