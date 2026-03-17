@@ -4,7 +4,7 @@ networks:
 
 services:
   dmsp-frontend-prototype:
-    container_name: dmsp_frontend
+    container_name: dmptool-ui
     build:
       context: .
       dockerfile: Dockerfile.dev
