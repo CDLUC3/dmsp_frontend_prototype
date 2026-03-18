@@ -518,11 +518,18 @@ const SingleResearchOutputComponent = ({
                     isRequired={col.required}
                     name={name}
                     options={tooltipSelectItems}
-                    defaultSelectedKey={String(value)}
+                    defaultSelectedKey={
+                      tooltipSelectItems.find(opt => opt.label === String(value))?.id ?? String(value)
+                    }
                     errorMessage={fieldError}
                     helpMessage={col.content.attributes?.help || col?.help}
                     onSelectionChange={(val: Key | null) => {
-                      if (val !== null) handleCellChange(colIndex, val);
+                      if (val !== null) {
+                        // Use label instead of id for output type
+                        const selectedOption = tooltipSelectItems.find(opt => opt.id === String(val));
+                        handleCellChange(colIndex, selectedOption?.label ?? String(val));
+                      }
+
                     }}
                   />
                 ) : (
@@ -532,11 +539,21 @@ const SingleResearchOutputComponent = ({
                     isRequired={col.required}
                     name={name}
                     items={formSelectItems}
-                    selectedKey={String(value)}
+                    selectedKey={
+                      formSelectItems.find(item => item.name === String(value))?.id ?? String(value)
+                    }
                     isInvalid={!!fieldError}
                     errorMessage={fieldError}
                     helpMessage={col.content.attributes?.help || col?.help}
-                    onChange={val => handleCellChange(colIndex, val)}
+                    onChange={val => {
+                      if (isOutputTypeField) {
+                        // Use label instead of id for output type
+                        const selectedItem = formSelectItems.find(item => item.id === val);
+                        handleCellChange(colIndex, selectedItem?.name ?? val);
+                      } else {
+                        handleCellChange(colIndex, val);
+                      }
+                    }}
                   />
                 )}
               </div>
