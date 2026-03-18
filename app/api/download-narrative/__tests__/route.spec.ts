@@ -8,16 +8,20 @@ import { cookies } from 'next/headers';
 // Mock the logger
 jest.mock('@/utils/server/logger', () => {
   const mockError: jest.Mock = jest.fn();
+  const mockInfo: jest.Mock = jest.fn();
 
   return {
     __esModule: true,
     createLogger: jest.fn(() => ({
       error: mockError,
+      info: mockInfo,
     })),
     default: {
       error: mockError,
+      info: mockInfo,
     },
     mockError,
+    mockInfo,
   };
 });
 

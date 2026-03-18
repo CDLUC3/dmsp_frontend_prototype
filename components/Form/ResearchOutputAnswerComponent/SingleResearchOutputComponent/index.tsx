@@ -371,6 +371,7 @@ const SingleResearchOutputComponent = ({
       // Don't stringify complex types
       if (colType === REPOSITORY_SEARCH_ID ||
         colType === METADATA_STANDARD_SEARCH_ID ||
+        colType === CHECKBOXES_QUESTION_TYPE ||
         colType === LICENSE_SEARCH_ID) {
         // Store complex types as-is
         /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -490,15 +491,13 @@ const SingleResearchOutputComponent = ({
                   id: type.value,
                   name: type.name,
                 }));
-            } else if (isOutputTypeField && !hasNoOptions && defaultResearchOutputTypesData?.defaultResearchOutputTypes) {
-              tooltipSelectItems = defaultResearchOutputTypesData.defaultResearchOutputTypes
-                .filter((type): type is NonNullable<typeof type> => type !== null)
-                .map((type) => ({
-                  id: type.value,
-                  name: type.name,
-                  label: type.name,
-                  tooltip: type.description || undefined
-                }));
+            } else if (isOutputTypeField && !hasNoOptions) {
+              tooltipSelectItems = (col.content.options || []).map((option) => ({
+                id: option.value,
+                name: option.label,
+                label: option.label,
+                tooltip: option.description || undefined
+              }));
             } else {
               const options = col.content.options || [];
               formSelectItems = options.map(option => ({
@@ -581,7 +580,7 @@ const SingleResearchOutputComponent = ({
             const isDataFlags = col.heading === "Data Flags";
             let colHelp = col.help;
 
-            let allOptions: { value: string; label: string; checked?: boolean }[] = [];
+            let allOptions: { value: string; label: string; selected?: boolean }[] = [];
 
             if (isDataFlags) {
               colHelp = Global('helpText.dataFlags');
@@ -606,13 +605,15 @@ const SingleResearchOutputComponent = ({
 
             // Filter to only show checked options if this is Data Flags
             const options = isDataFlags
-              ? allOptions.filter(opt => opt.checked === true)
+              ? allOptions.filter(opt => opt.selected === true)
               : allOptions;
 
             // Type guard to ensure value is a string array for checkboxes
-            const selectedValues: string[] = Array.isArray(value) && value.every(v => typeof v === 'string')
-              ? value as string[]
-              : [];
+            const selectedValues: string[] = Array.isArray(value)
+              ? value.filter((v): v is string => typeof v === 'string')
+              : typeof value === 'string' && value.length > 0
+                ? [value]   // normalize legacy single-string answer to array
+                : [];
 
             return (
               options.length > 0 && (

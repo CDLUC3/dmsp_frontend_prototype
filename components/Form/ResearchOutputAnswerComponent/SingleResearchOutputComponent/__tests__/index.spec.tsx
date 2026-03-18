@@ -358,8 +358,8 @@ const mockColumns: typeof DefaultResearchOutputTableQuestion['columns'] = [
       type: 'checkBoxes',
       meta: { schemaVersion: '1.0' },
       options: [
-        { label: 'May contain sensitive data?', value: 'sensitive', checked: true },
-        { label: 'May contain personal data?', value: 'personal', checked: true },
+        { label: 'May contain sensitive data?', value: 'sensitive', selected: true },
+        { label: 'May contain personal data?', value: 'personal', selected: true },
       ],
       attributes: {
         labelTranslationKey: 'labels.dataFlags',
