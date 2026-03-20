@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { useTranslations } from "next-intl";
 import Spinner from "@/components/Spinner";
 import "./loading.scss";
 
@@ -42,13 +41,10 @@ const Loading: React.FC<LoadingProps> = ({
   isActive = true,
   variant = "page",
 }) => {
-  const Global = useTranslations("Global");
 
   if (!isActive) {
     return null;
   }
-
-  const loadingMessage = message || Global("messaging.loading");
 
   // Build className with appropriate variant
   const loadingClassName = ["loading-component", `loading-${variant}`, className].filter(Boolean).join(" ");
@@ -66,7 +62,7 @@ const Loading: React.FC<LoadingProps> = ({
           className="loading-spinner"
         />
       )}
-      <span className="loading-message">{loadingMessage}</span>
+      <span className="loading-message">{message}</span>
     </div>
   );
 };

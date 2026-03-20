@@ -31,6 +31,7 @@ import {
   CreateTemplateVersionDocument,
   TemplateDocument,
 } from "@/generated/graphql";
+import Loading from "@/components/Loading";
 import { updateTemplateAction, updateSectionDisplayOrderAction } from "./actions";
 
 // Components
@@ -43,6 +44,7 @@ import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
 import AddSectionButton from "@/components/AddSectionButton";
 import ErrorMessages from "@/components/ErrorMessages";
 import SectionEditContainer from "@/components/SectionEditContainer";
+import { TransitionButton, TransitionLink } from "@/components/Form";
 
 // Hooks
 import { useFormatDate } from "@/hooks/useFormatDate";
@@ -75,6 +77,13 @@ const TemplateEditPage: React.FC = () => {
     templateId: null,
     name: "",
   });
+  const [modalErrorMessages, setModalErrorMessages] = useState<string[]>([]);
+
+  // Track saving state to prevent multiple concurrent saves and provide user feedback if needed
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [isArchving, setIsArchiving] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+
   //Track local section order - using optimistic rendering
   const [localSections, setLocalSections] = useState<Section[]>([]);
   const [isReordering, setIsReordering] = useState(false);
@@ -102,8 +111,10 @@ const TemplateEditPage: React.FC = () => {
   //const { templateId } = params; // From route /template/:templateId
   const templateId = String(params.templateId);
 
-  //For scrolling to error in modal window
+  //For scrolling to error in page or modal
   const errorRef = useRef<HTMLDivElement | null>(null);
+  const modalErrorRef = useRef<HTMLDivElement | null>(null);
+
 
   // Initialize publish mutation
   const [createTemplateVersionMutation] = useMutation(CreateTemplateVersionDocument);
@@ -149,8 +160,9 @@ const TemplateEditPage: React.FC = () => {
           setErrorMessages((prev) => [...prev, message]);
         }
       } else {
+        console.log("***Successfully archived template with id:", templateId);
         showSuccessArchiveToast();
-        router.push(routePath("template.show", { templateId }));
+        router.push(routePath("template.index"));
       }
     } catch (err) {
       setErrorMessages((prevErrors) => [...prevErrors, EditTemplate("errors.archiveTemplateError")]);
@@ -161,16 +173,25 @@ const TemplateEditPage: React.FC = () => {
     }
   };
 
+  // Save as draft handler - calls saveTemplate with versionType 'DRAFT' and organization visibility, 
+  // since drafts are only visible to the creator and admins
+  const handleSaveAsDraft = async () => {
+    setIsSavingDraft(true);
+    await saveTemplate(TemplateVersionType.Draft, "", TemplateVisibility.Organization, setErrorMessages);
+    setIsSavingDraft(false);
+  };
+
   // Save either 'DRAFT' or 'PUBLISHED' based on versionType passed into function
   const saveTemplate = async (
     versionType: TemplateVersionType,
     comment: string | undefined,
     latestPublishVisibility: TemplateVisibility,
+    setErrors: (errors: string[]) => void
   ) => {
-    setErrorMessages([]); // Clear previous errors
+    setErrors([]); // Clear previous errors
 
     if (!latestPublishVisibility) {
-      setErrorMessages([EditTemplate("errors.saveTemplateError")]);
+      setErrors([EditTemplate("errors.saveTemplateError")]);
       return;
     }
 
@@ -187,12 +208,12 @@ const TemplateEditPage: React.FC = () => {
       const result = response?.data?.createTemplateVersion;
 
       if (!result) {
-        setErrorMessages([EditTemplate("errors.saveTemplateError")]);
+        setErrors([EditTemplate("errors.saveTemplateError")]);
         return;
       }
 
       if (result.errors?.general) {
-        setErrorMessages([result.errors.general]);
+        setErrors([result.errors.general]);
         return;
       }
 
@@ -201,7 +222,7 @@ const TemplateEditPage: React.FC = () => {
       showSuccessToast();
       await refetch();
     } catch (err) {
-      setErrorMessages([EditTemplate("errors.saveTemplateError")]);
+      setErrors([EditTemplate("errors.saveTemplateError")]);
 
       logECS("error", "saveTemplate", {
         error: err,
@@ -212,6 +233,9 @@ const TemplateEditPage: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    console.log("***Handle Submit called");
+    setModalErrorMessages([]); // Clear previous errors
+    setIsPublishing(true);
 
     const form = event.target as HTMLFormElement;
     const formData = new FormData(form);
@@ -220,7 +244,8 @@ const TemplateEditPage: React.FC = () => {
     const latestPublishVisibility = formData.get("visibility")?.toString().toUpperCase() as TemplateVisibility;
     const changeLog = formData.get("change_log")?.toString();
 
-    await saveTemplate(TemplateVersionType.Published, changeLog, latestPublishVisibility);
+    await saveTemplate(TemplateVersionType.Published, changeLog, latestPublishVisibility, setModalErrorMessages);
+    setIsPublishing(false);
   };
 
   const handlePressPublishTemplate = () => {
@@ -464,11 +489,11 @@ const TemplateEditPage: React.FC = () => {
   }, [data]);
 
   if (loading) {
-    return <div>{Global("messaging.loading")}...</div>;
+    return <Loading message={Global("messaging.loading")} variant="fullscreen" />;
   }
 
   if (templateQueryErrors) {
-    return <div>{EditTemplate("errors.getTemplatesError")}</div>;
+    return <ErrorMessages errors={[EditTemplate("errors.getTemplatesError")]} />;
   }
 
   const template = data?.template;
@@ -501,12 +526,12 @@ const TemplateEditPage: React.FC = () => {
         descriptionAppend={
           <>
             -{" "}
-            <Link
+            <TransitionLink
               className={styles.templateHistoryLink}
               href={routePath("template.history", { templateId })}
             >
               {Global("links.viewHistory")}
-            </Link>
+            </TransitionLink>
           </>
         }
         linkText={EditTemplate("links.editTemplateTitle")}
@@ -565,13 +590,15 @@ const TemplateEditPage: React.FC = () => {
         <SidebarPanel className="sidebar">
           <div className="status-panel-content side-panel">
             <div className="buttonContainer withBorder mb-5">
-              <Button
+              <TransitionButton
                 data-secondary
                 className="secondary"
-                onPress={() => saveTemplate(TemplateVersionType.Draft, "", TemplateVisibility.Organization)}
+                onPress={handleSaveAsDraft}
+                isDisabled={isSavingDraft}
+                loadingLabel={EditTemplate("button.savingDraft")}
               >
                 {EditTemplate("button.saveAsDraft")}
-              </Button>
+              </TransitionButton>
               <Button onPress={() => handlePressPublishTemplate()}>{EditTemplate("button.publishTemplate")}</Button>
             </div>
 
@@ -624,24 +651,24 @@ const TemplateEditPage: React.FC = () => {
                   <h3>{EditTemplate("heading.feedbackAndCollaboration")}</h3>
                   <p>{EditTemplate("allowAccess")}</p>
                 </div>
-                <Link
+                <TransitionLink
                   href={`/template/${templateId}/access`}
                   className="side-panel-link"
                 >
                   {EditTemplate("links.manageAccess")}
-                </Link>
+                </TransitionLink>
               </div>
 
               <div className="panelRow mb-5">
                 <div>
                   <h3>{EditTemplate("heading.history")}</h3>
                 </div>
-                <Link
+                <TransitionLink
                   href={`/template/${templateId}/history`}
                   className="side-panel-link"
                 >
                   {EditTemplate("links.templateHistory")}
-                </Link>
+                </TransitionLink>
               </div>
             </div>
           </div>
@@ -651,14 +678,16 @@ const TemplateEditPage: React.FC = () => {
             <h2>{EditTemplate("heading.archiveTemplate")}</h2>
             <p>{EditTemplate("description.archiveTemplate")}</p>
             <Form>
-              <Button
-                className="my-3"
+              <TransitionButton
                 data-tertiary
+                className="secondary my-3"
                 data-testid="archive-template"
                 onPress={handleArchiveTemplate}
+                isDisabled={isArchving}
+                loadingLabel={EditTemplate("button.archiving")}
               >
                 {EditTemplate("button.archiveTemplate")}
-              </Button>
+              </TransitionButton>
             </Form>
           </div>
         </div>
@@ -670,11 +699,14 @@ const TemplateEditPage: React.FC = () => {
           data-testid="modal"
         >
           <Dialog>
-            <div>
+            <div ref={modalErrorRef}>
               <Form
                 onSubmit={(e) => handleSubmit(e)}
                 data-testid="publishForm"
               >
+                {modalErrorMessages.length > 0 && (
+                  <ErrorMessages errors={modalErrorMessages} ref={modalErrorRef} />
+                )}
                 <Heading slot="title">{PublishTemplate("heading.publish")}</Heading>
 
                 <RadioGroup
@@ -758,7 +790,16 @@ const TemplateEditPage: React.FC = () => {
                     </Button>
                   </div>
                   <div className="">
-                    <Button type="submit">{PublishTemplate("button.saveAndPublish")}</Button>
+                    <TransitionButton
+                      type="submit"
+                      isDisabled={isPublishing}
+                      loadingLabel={PublishTemplate("button.publishing")}
+                      loadingVariant="inline"
+                      showLoading={false}
+                    >
+                      {PublishTemplate("button.saveAndPublish")}
+                    </TransitionButton>
+
                   </div>
                 </div>
               </Form>

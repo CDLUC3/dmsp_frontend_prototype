@@ -22,6 +22,7 @@ import {
   TabPanel,
   Tabs,
 } from "react-aria-components";
+
 // GraphQL queries and mutations
 import {
   SectionErrors,
@@ -29,6 +30,11 @@ import {
   AddSectionDocument,
   TagsDocument
 } from '@/generated/graphql';
+import {
+  SectionFormErrorsInterface,
+  SectionFormInterface,
+  TagsInterface
+} from '@/app/types';
 
 //Components
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
@@ -37,14 +43,11 @@ import PageHeader from "@/components/PageHeader";
 import TinyMCEEditor from "@/components/TinyMCEEditor";
 import ErrorMessages from '@/components/ErrorMessages';
 import FormInput from '@/components/Form/FormInput';
+import { TransitionButton } from '@/components/Form';
+
+// Utils and other
 import { stripHtmlTags } from '@/utils/general';
 import { scrollToTop } from '@/utils/general';
-
-import {
-  SectionFormErrorsInterface,
-  SectionFormInterface,
-  TagsInterface
-} from '@/app/types';
 import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
 
@@ -464,12 +467,15 @@ const CreateSectionPage: React.FC = () => {
                         })}
                       </div>
                     </CheckboxGroup>
-                    <Button
+                    <TransitionButton
                       type="submit"
+                      isDisabled={isSubmitting}
+                      loadingLabel={CreateSectionPage('button.creatingSection')}
+                      showLoading={false}
                       aria-disabled={isSubmitting}
                     >
-                      {isSubmitting ? CreateSectionPage('button.creatingSection') : CreateSectionPage('button.createSection')}
-                    </Button>
+                      {CreateSectionPage('button.createSection')}
+                    </TransitionButton>
                   </Form>
                 </TabPanel>
                 <TabPanel id="options">

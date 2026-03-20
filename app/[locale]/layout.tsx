@@ -50,20 +50,20 @@ export default async function LocaleLayout({
       <body className={font_sans_serif.className}>
         <a href="#mainContent" className="skip-nav">Skip to main content</a>
         <NextIntlClientProvider messages={messages}>
-            <CsrfProvider>
-              <ApolloWrapper>
-                <AuthProvider>
-                  <Header />
-                  <SubHeader />
-                  <ToastProviderWrapper>
-                    <div id="App">
-                      {children}
-                    </div>
-                  </ToastProviderWrapper>
-                  <Footer />
-                </AuthProvider>
-              </ApolloWrapper>
-            </CsrfProvider>
+          <CsrfProvider>
+            <ApolloWrapper>
+              <AuthProvider>
+                <Header />
+                <SubHeader />
+                <ToastProviderWrapper>
+                  <div id="App">
+                    {children}
+                  </div>
+                </ToastProviderWrapper>
+                <Footer />
+              </AuthProvider>
+            </ApolloWrapper>
+          </CsrfProvider>
         </NextIntlClientProvider>
       </body>
     </html>

@@ -62,6 +62,8 @@ import FormTextArea from '@/components/Form/FormTextArea';
 import ErrorMessages from '@/components/ErrorMessages';
 import QuestionView from '@/components/QuestionView';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
+import { TransitionButton } from "@/components/Form";
+import Loading from '@/components/Loading';
 
 //Utils and Other
 import { useResearchOutputTable } from '@/app/hooks/useResearchOutputTable';
@@ -108,6 +110,8 @@ const QuestionEdit = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   // Form state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  // State for delete confirmation modal
 
   // State for managing form inputs
   const [question, setQuestion] = useState<Question>();
@@ -343,6 +347,8 @@ const QuestionEdit = () => {
   // Handle form submission to update the question
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormSubmitted(true);
+
     // Prevent double submission
     if (isSubmitting) return;
     setIsSubmitting(true);
@@ -377,6 +383,7 @@ const QuestionEdit = () => {
 
         if (!response.success) {
           const errors = response.errors;
+          setIsSubmitting(false);
           // Announcement for screen readers
           announce(QuestionAdd('researchOutput.announcements.errorOccurred') || 'An error occurred. Please check the form.');
 
@@ -389,13 +396,12 @@ const QuestionEdit = () => {
           if (response?.data?.errors) {
             const errs = extractErrors<UpdateQuestionErrors>(response?.data?.errors, ["general", "questionText"]);
             if (errs.length > 0) {
+              setIsSubmitting(false);
               setErrors(errs);
             }
           }
-          setIsSubmitting(false);
           setHasUnsavedChanges(false);
           toastState.add(QuestionAdd('messages.success.questionUpdated'), { type: 'success' });
-
           // Redirect user to the Edit Question view with their new question id after successfully adding the new question
           router.push(TEMPLATE_URL);
         }
@@ -615,7 +621,7 @@ const QuestionEdit = () => {
   }, [hasUnsavedChanges]);
 
   if (loading) {
-    return <div>{Global('messaging.loading')}...</div>;
+    return <Loading />;
   }
 
   return (
@@ -867,14 +873,14 @@ const QuestionEdit = () => {
                   </div>
                 </RadioGroupComponent>
 
-
-                <Button
+                <TransitionButton
                   type="submit"
-                  aria-disabled={isSubmitting}
-                  onPress={() => setFormSubmitted(true)}
+                  isDisabled={isSubmitting}
+                  loadingLabel={Global('buttons.saving')}
+                  showLoading={false}
                 >
-                  {isSubmitting ? Global('buttons.saving') : Global('buttons.saveAndUpdate')}
-                </Button>
+                  {Global('buttons.saveAndUpdate')}
+                </TransitionButton>
               </Form>
 
 

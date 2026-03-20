@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Button } from "react-aria-components";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import styles from "./TemplateSelectListItem.module.scss";
+import { TransitionButton, TransitionLink } from "@/components/Form";
 import { useToast } from "@/context/ToastContext";
 import { toTitleCase } from "@/utils/general";
 interface TemplateSelectListItemProps {
@@ -27,6 +29,7 @@ interface TemplateSelectListItemProps {
 
 function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps) {
   const toastState = useToast();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   //Localization keys
   const SelectListItem = useTranslations("TemplateSelectListItem");
@@ -94,7 +97,7 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
           </div>
 
           {onSelect ? (
-            <Button
+            <TransitionButton
               className="primary"
               onPress={async () => {
                 if (typeof item?.id === "number") {
@@ -107,17 +110,18 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
               data-versioned-template-id={item?.id}
             >
               {Global("buttons.select")}
-            </Button>
+            </TransitionButton>
           ) : (
             <div className={styles.TemplateItemActions}>
               {item.link && (
-                <Link
+                <TransitionLink
                   href={item.link}
                   aria-label={`${Global("links.update")} ${item.title}`}
                   className="button-link button--primary"
+                  onClick={() => setIsNavigating(true)}
                 >
-                  {Global("links.update")}
-                </Link>
+                  {isNavigating ? Global("buttons.loading") : Global("links.update")}
+                </TransitionLink>
               )}
             </div>
           )}
