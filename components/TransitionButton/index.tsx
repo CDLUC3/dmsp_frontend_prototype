@@ -39,9 +39,10 @@ const TransitionButton: React.FC<TransitionButtonProps> = ({
     <>
       {showLoading && <Loading variant={loadingVariant} isActive={activeLoading} />}
       <Button
-        {...props}
         isDisabled={isDisabled || activeLoading}
-        {...(onPress ? { onPress: handlePress, "aria-busy": activeLoading } : {})}
+        onPress={onPress ? handlePress : undefined}
+        aria-busy={activeLoading ? "true" : undefined}
+        {...props}
       >
         {activeLoading ? loadingLabel : children}
       </Button>

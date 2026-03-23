@@ -33,11 +33,16 @@ export default function TransitionLink({
 
     const url = typeof href === 'string' ? href : (href.pathname ?? '/')
 
+    // prevent duplicate timers if user clicks multiple times rapidly
+    if (progressTimer.current) {
+      clearTimeout(progressTimer.current)
+    }
+
     // Delay NProgress slightly to avoid flicker on instant navigations,
     // but cancel it if the transition finishes before it fires
     progressTimer.current = setTimeout(() => {
       NProgress.start()
-      window.dispatchEvent(new CustomEvent('navigation:start'))
+      window.dispatchEvent(new CustomEvent('app:navigation:start'))
     }, 100)
 
     startTransition(() => {
