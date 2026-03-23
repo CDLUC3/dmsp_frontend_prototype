@@ -148,7 +148,7 @@ const ProjectOverviewPage: React.FC = () => {
   }, [data]);
 
   if (loading) {
-    return <Loading variant="page" />;
+    return <Loading variant="page" message={Global("messaging.loading")} />;
   }
 
   if (error) {

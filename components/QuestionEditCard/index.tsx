@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button } from "react-aria-components";
 

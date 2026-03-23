@@ -7,7 +7,6 @@ import { useMutation, useQuery } from '@apollo/client/react';
 import {
   Breadcrumb,
   Breadcrumbs,
-  Button,
   Form,
   Link,
 } from 'react-aria-components';
@@ -34,7 +33,6 @@ import { isValidEmail } from '@/utils/validation';
 import { scrollToTop } from '@/utils/general';
 import { useToast } from '@/context/ToastContext';
 import styles from './TemplateAccessPage.module.scss';
-import { set } from 'zod';
 
 const GET_COLLABORATORS = TemplateCollaboratorsDocument;
 

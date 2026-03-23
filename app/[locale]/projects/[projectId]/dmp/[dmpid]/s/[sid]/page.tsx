@@ -46,6 +46,7 @@ const PlanOverviewSectionPage: React.FC = () => {
   const t = useTranslations('PlanOverview');
   const Guidance = useTranslations('Guidance');
   const Section = useTranslations('SectionPage');
+  const Global = useTranslations('Global');
 
   // Get route params
   const params = useParams();
@@ -127,7 +128,7 @@ const PlanOverviewSectionPage: React.FC = () => {
 
   // Loading states
   if (questionsLoading || sectionLoading || planLoading) {
-    return <Loading />;
+    return <Loading message={Global("messaging.loading")} />;
   }
 
   if (questionsError) {

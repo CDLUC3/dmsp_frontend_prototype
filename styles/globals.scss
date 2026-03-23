@@ -556,7 +556,7 @@ button.button-as-link {
 }
 
 #nprogress .bar {
-  background: #29d; // change to your brand color
+  background: var(--blue-300);
   position: fixed;
   z-index: 209999;
   top: 0;

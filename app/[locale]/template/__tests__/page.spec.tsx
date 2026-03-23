@@ -103,10 +103,11 @@ describe('TemplateListPage', () => {
   it('should render the search field with correct label and help text', async () => {
 
     renderPage();
-    // MockedProvider requires await for requests to resolve
-    // Searching for translation keys since cannot run next-intl for unit tests
+    await screen.findByLabelText('searchLabel');
+
     expect(screen.getByLabelText('searchLabel')).toBeInTheDocument();
     expect(screen.getByText('searchHelpText')).toBeInTheDocument();
+
   });
 
   it('should render the template list with correct number of items', async () => {

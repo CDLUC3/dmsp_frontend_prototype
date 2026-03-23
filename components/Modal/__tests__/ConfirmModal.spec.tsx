@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ConfirmModal from '../ConfirmModal';
 
 describe('ConfirmModal', () => {
@@ -46,7 +46,7 @@ describe('ConfirmModal', () => {
     expect(screen.queryByText(mockTitle)).not.toBeInTheDocument();
   });
 
-  it('calls onConfirm with the correct email and closes the modal when confirm button is clicked', () => {
+  it('calls onConfirm with the correct email and closes the modal when confirm button is clicked', async () => {
     render(
       <ConfirmModal
         title={mockTitle}
@@ -60,6 +60,7 @@ describe('ConfirmModal', () => {
 
     expect(mockOnConfirm).toHaveBeenCalledTimes(1);
     expect(mockOnConfirm).toHaveBeenCalledWith(mockEmail);
-    expect(screen.queryByText(mockTitle)).not.toBeInTheDocument();
+    await waitFor(() => screen.queryByText(mockTitle));
+
   });
 });

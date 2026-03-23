@@ -111,8 +111,6 @@ const QuestionEdit = () => {
   // Form state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  // State for delete confirmation modal
-
   // State for managing form inputs
   const [question, setQuestion] = useState<Question>();
   const [rows, setRows] = useState<QuestionOptions[]>([{ id: 0, text: "", isSelected: false }]);

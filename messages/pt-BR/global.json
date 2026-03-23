@@ -726,6 +726,7 @@
     "noGuidanceAvailable": "A organização selecionada não tem orientação para esta pergunta",
     "buttons": {
       "search": "Buscar",
+      "searching": "Pesquisando",
       "lookup": "Procurar",
       "select": "Select",
       "next": "Seguinte",
@@ -738,6 +739,7 @@
       "remove": "Remover",
       "removeAll": "Remover todos os",
       "confirm": "Confirmação",
+      "confirming": "Confirmando",
       "change": "Mudança",
       "cancel": "Cancelar",
       "linkUpdate": "Atualização",
@@ -754,6 +756,7 @@
       "close": "Fechar",
       "closeModal": "Fechar modal",
       "loadMore": "Carregar mais",
+      "loading": "Carregando",
       "addAnother": "Adicionar mais",
       "goToProject": "Ir para o projeto",
       "back": "Voltar",
@@ -822,6 +825,8 @@
     },
     "messaging": {
       "loading": "Baixar",
+      "loadingPage": "Carregando página...",
+      "pageLoaded": "Página carregada",
       "noItemsFound": "Nenhum item encontrado",
       "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
       "resultsText": "Os resultados {name} correspondem à sua pesquisa",

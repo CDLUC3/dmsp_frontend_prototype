@@ -23,7 +23,7 @@ export default function TransitionLink({
     // Let the browser handle modified clicks natively
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
 
-    // Prevent default link behavior to handle it with Next.js router
+    // Prevent default link behavior to prevent native navigation with multiple rapid clicks
     e.preventDefault();
 
     // Ignore if already navigating

@@ -23,7 +23,7 @@ const font_sans_serif = Poppins({
   subsets: ["latin"],
   weight: ['400', '600'],
   variable: '--font-sans-serif',
-  preload: false, // ← stops Next.js injecting preload hints, since adding warnings in browser, and font should be cached anyways after first page
+  preload: false, // ← stops Next.js injecting preload hints, since preloading is adding warnings in browser, and font should be cached anyways after first page
 });
 
 export default async function LocaleLayout({

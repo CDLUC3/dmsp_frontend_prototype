@@ -651,16 +651,15 @@ describe("ProjectsListPage", () => {
   });
 
   it("should show filtered list when user clicks Search button", async () => {
-    await act(async () => {
-      render(
-        <MockedProvider
-          mocks={mocks}
-        >
-          <ProjectsListPage />
-        </MockedProvider>,
-      );
-    });
+    render(
+      <MockedProvider
+        mocks={mocks}
+      >
+        <ProjectsListPage />
+      </MockedProvider>,
+    );
 
+    await screen.findByLabelText("Global.labels.searchByKeyword");
     const searchInput = screen.getByLabelText("Global.labels.searchByKeyword");
     fireEvent.change(searchInput, { target: { value: "reef" } });
 
@@ -683,6 +682,8 @@ describe("ProjectsListPage", () => {
         </MockedProvider>,
       );
     });
+
+    await screen.findByLabelText("Global.labels.searchByKeyword");
 
     const searchInput = screen.getByLabelText("Global.labels.searchByKeyword");
     fireEvent.change(searchInput, { target: { value: "reef" } });
@@ -738,6 +739,8 @@ describe("ProjectsListPage", () => {
       );
     });
 
+    await screen.findByLabelText("Global.labels.searchByKeyword");
+
     const searchInput = screen.getByLabelText("Global.labels.searchByKeyword");
     fireEvent.change(searchInput, { target: { value: "reef" } });
 
@@ -770,6 +773,8 @@ describe("ProjectsListPage", () => {
         </MockedProvider>,
       );
     });
+
+    await screen.findByLabelText("Global.labels.searchByKeyword");
 
     const searchInput = screen.getByLabelText("Global.labels.searchByKeyword");
     fireEvent.change(searchInput, { target: { value: "Nonexistent Project" } });

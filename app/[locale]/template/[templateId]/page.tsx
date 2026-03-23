@@ -81,7 +81,6 @@ const TemplateEditPage: React.FC = () => {
 
   // Track saving state to prevent multiple concurrent saves and provide user feedback if needed
   const [isSavingDraft, setIsSavingDraft] = useState(false);
-  const [isArchving, setIsArchiving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
 
   //Track local section order - using optimistic rendering
@@ -160,7 +159,6 @@ const TemplateEditPage: React.FC = () => {
           setErrorMessages((prev) => [...prev, message]);
         }
       } else {
-        console.log("***Successfully archived template with id:", templateId);
         showSuccessArchiveToast();
         router.push(routePath("template.index"));
       }
@@ -233,7 +231,6 @@ const TemplateEditPage: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("***Handle Submit called");
     setModalErrorMessages([]); // Clear previous errors
     setIsPublishing(true);
 
@@ -683,7 +680,6 @@ const TemplateEditPage: React.FC = () => {
                 className="secondary my-3"
                 data-testid="archive-template"
                 onPress={handleArchiveTemplate}
-                isDisabled={isArchving}
                 loadingLabel={EditTemplate("button.archiving")}
               >
                 {EditTemplate("button.archiveTemplate")}

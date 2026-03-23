@@ -63,9 +63,6 @@ const TemplateListPage: React.FC = () => {
   const [searchResults, setSearchResults] = useState<TemplateItemProps[]>([]);
   const [isSearchFetch, setIsSearchFetch] = useState(false);
   const [firstNewIndex, setFirstNewIndex] = useState<number | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [isSearchLoadingMore, setIsSearchLoadingMore] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   // Add separate state for search pagination
@@ -132,7 +129,6 @@ const TemplateListPage: React.FC = () => {
     setSearchButtonClicked(true);
     setErrors([]);
     setIsSearchFetch(true);
-    setIsSearching(true); // Used to disable search button
     setSearchResults([]); // Clear previous search results
     setSearchNextCursor(null); // Reset search cursor
 
@@ -150,7 +146,6 @@ const TemplateListPage: React.FC = () => {
   // Handler for search "Load more"
   const handleSearchLoadMore = async () => {
     if (!searchNextCursor) return;
-    setIsSearchLoadingMore(true);
     setFirstNewIndex(searchResults.length);
 
     await fetchTemplates({
@@ -163,13 +158,11 @@ const TemplateListPage: React.FC = () => {
         term: searchTerm.toLowerCase(),
       },
     });
-    setIsSearchLoadingMore(false);
   };
 
 
   const handleLoadMore = async () => {
     if (!nextCursor) return;
-    setIsLoadingMore(true);
     setFirstNewIndex(templates.length);
 
     await fetchTemplates({
@@ -181,7 +174,6 @@ const TemplateListPage: React.FC = () => {
         },
       },
     });
-    setIsLoadingMore(false);
   };
 
   // If page-level errors, scroll them into view
@@ -244,7 +236,6 @@ const TemplateListPage: React.FC = () => {
         }
         setSearchNextCursor(templateData?.myTemplates?.nextCursor ?? null);
         setSearchTotalCount(templateData?.myTemplates?.totalCount ?? null);
-        setIsSearching(false); // Re-enable search button
       } else {
         // Handle regular pagination - backend returns only new items for cursor pagination
         if (items.length === 0) {
@@ -382,7 +373,6 @@ const TemplateListPage: React.FC = () => {
                     {Global('messaging.numDisplaying', { num: searchResults.length, total: searchTotalCount || '' })}
                   </div>
                   <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}> {Global('links.clearFilter')}</Button>
-
                 </div>
               )}
             </div>
