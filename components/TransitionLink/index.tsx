@@ -29,8 +29,6 @@ export default function TransitionLink({
     // Ignore if already navigating
     if (isPending) return
 
-    e.preventDefault()
-
     const url = typeof href === 'string' ? href : (href.pathname ?? '/')
 
     // prevent duplicate timers if user clicks multiple times rapidly

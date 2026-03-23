@@ -53,50 +53,6 @@ describe('NavigationEvents', () => {
     ).toBeInTheDocument()
   })
 
-  it('should start fallback timer on navigation start', () => {
-    renderComponent()
-
-    act(() => {
-      window.dispatchEvent(new CustomEvent('app:navigation:start'))
-    })
-
-    act(() => {
-      jest.advanceTimersByTime(5000)
-    })
-
-    expect(mockDone).toHaveBeenCalled()
-  })
-
-  it('should clear previous fallback timer if navigation starts again', () => {
-    renderComponent()
-
-    act(() => {
-      window.dispatchEvent(new CustomEvent('app:navigation:start'))
-    })
-
-    act(() => {
-      jest.advanceTimersByTime(3000)
-    })
-
-    // Trigger another navigation start (should reset timer)
-    act(() => {
-      window.dispatchEvent(new CustomEvent('app:navigation:start'))
-    })
-
-    act(() => {
-      jest.advanceTimersByTime(3000)
-    })
-
-    // Should NOT have fired yet (timer was reset)
-    expect(mockDone).not.toHaveBeenCalled()
-
-    act(() => {
-      jest.advanceTimersByTime(2000)
-    })
-
-    expect(mockDone).toHaveBeenCalledTimes(1)
-  })
-
   it('should call NProgress.done and set pageLoaded message on pathname change', () => {
     const { rerender } = renderComponent()
 

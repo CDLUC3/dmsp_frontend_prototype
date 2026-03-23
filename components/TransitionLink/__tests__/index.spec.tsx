@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, fireEvent, act, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import TransitionLink from '../index';
 
@@ -184,7 +184,7 @@ describe('TransitionLink', () => {
   })
 
   describe('modified key clicks (open in new tab / window)', () => {
-    const modifiers: Array<[string, Partial<MouseEventInit>]> = [
+    const modifiers: [string, Partial<MouseEventInit>][] = [
       ['metaKey', { metaKey: true }],
       ['ctrlKey', { ctrlKey: true }],
       ['shiftKey', { shiftKey: true }],
