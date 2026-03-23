@@ -517,7 +517,6 @@ const SectionUpdatePage: React.FC = () => {
                               </Button>
                               <TransitionButton
                                 className="danger"
-                                isDisabled={isDeleting}
                                 loadingLabel={SectionUpdatePage('buttons.deletingSection')}
                                 onPress={async () => { await handleDeleteSection(close); }}
                               >

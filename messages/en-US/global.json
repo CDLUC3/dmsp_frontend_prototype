@@ -831,6 +831,8 @@
     },
     "messaging": {
       "loading": "Loading",
+      "loadingPage": "Loading page...",
+      "pageLoaded": "Page loaded",
       "noItemsFound": "No items found",
       "somethingWentWrong": "Something went wrong. Please try again.",
       "resultsText": "{name} results match your search",

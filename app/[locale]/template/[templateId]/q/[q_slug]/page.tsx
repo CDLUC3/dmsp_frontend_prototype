@@ -907,10 +907,17 @@ const QuestionEdit = () => {
                         <p>{t('descriptions.deleteWarning')}</p>
                         <div className={styles.deleteConfirmButtons}>
                           <Button className='react-aria-Button' autoFocus onPress={close}>{Global('buttons.cancel')}</Button>
-                          <Button className={`danger `} onPress={() => {
-                            handleDelete();
-                            close();
-                          }}>{Global('buttons.confirm')}</Button>
+                          <TransitionButton
+                            className="danger"
+                            onPress={async () => {
+                              await handleDelete();
+                              close();
+                            }}
+                            loadingLabel={Global('buttons.confirming')}
+                            showLoading={false}
+                          >
+                            {Global('buttons.confirm')}
+                          </TransitionButton>
                         </div>
                       </>
                     )}

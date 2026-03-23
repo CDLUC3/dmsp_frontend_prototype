@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { Button } from "react-aria-components";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import styles from "./TemplateSelectListItem.module.scss";
@@ -29,7 +27,6 @@ interface TemplateSelectListItemProps {
 
 function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps) {
   const toastState = useToast();
-  const [isNavigating, setIsNavigating] = useState(false);
 
   //Localization keys
   const SelectListItem = useTranslations("TemplateSelectListItem");
@@ -118,9 +115,8 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
                   href={item.link}
                   aria-label={`${Global("links.update")} ${item.title}`}
                   className="button-link button--primary"
-                  onClick={() => setIsNavigating(true)}
                 >
-                  {isNavigating ? Global("buttons.loading") : Global("links.update")}
+                  {Global("links.update")}
                 </TransitionLink>
               )}
             </div>
