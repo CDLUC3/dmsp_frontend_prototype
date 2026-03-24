@@ -836,7 +836,7 @@ const PlanOverviewPage: React.FC = () => {
                     type="submit"
                     onPress={() => setStep(2)}
                   >
-                    {t("publishModal.publish.buttonNext")} &gt;
+                    {t("publishModal.publish.buttonNext")}{' '}&gt;
                   </Button>
                 </div>
                 <div>

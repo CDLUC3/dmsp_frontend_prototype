@@ -834,7 +834,7 @@ describe('PlanOverviewPage', () => {
     render(<PlanOverviewPage />);
 
     // Click the Publish button to open the modal
-    const publishButton = screen.getByText(/buttons.publish/i);
+    const publishButton = screen.getByText("buttons.publish");
     fireEvent.click(publishButton);
 
     const nextButton = screen.getByRole('button', { name: 'publishModal.publish.buttonNext >' });
