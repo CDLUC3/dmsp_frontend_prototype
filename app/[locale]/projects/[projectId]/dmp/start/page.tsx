@@ -70,7 +70,7 @@ const ProjectsProjectPlanNew = () => {
   return (
     <>
       {isLoading ? (
-        <Loading />
+        <Loading message={Global('messages.loading')} />
       ) : (
         <>
           <PageHeader

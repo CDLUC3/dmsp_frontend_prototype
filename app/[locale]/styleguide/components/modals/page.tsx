@@ -72,7 +72,7 @@ export default function ModalsPage() {
                 <ConfirmModal
                   title="Remove User Access"
                   email="user@example.com"
-                  onConfirm={(email) => {
+                  onConfirm={async (email) => {
                     console.log("Confirmed removal for:", email);
                   }}
                 />

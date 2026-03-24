@@ -29,7 +29,7 @@ describe("Loading Component", () => {
   });
 
   it("renders with default props", () => {
-    render(<Loading />);
+    render(<Loading message="Loading" />);
 
     expect(screen.getByRole("status")).toBeInTheDocument();
     expect(screen.getByText("Loading")).toBeInTheDocument();
@@ -69,7 +69,7 @@ describe("Loading Component", () => {
   });
 
   it("hides spinner when showSpinner is false", () => {
-    render(<Loading showSpinner={false} />);
+    render(<Loading showSpinner={false} message="Loading" />);
 
     expect(screen.queryByTestId("spinner")).not.toBeInTheDocument();
     expect(screen.getByText("Loading")).toBeInTheDocument();

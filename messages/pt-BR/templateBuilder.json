@@ -85,7 +85,9 @@
     },
     "button": {
       "archiveTemplate": "Template de arquivo",
+      "archving": "Arquivando template...",
       "saveAsDraft": "Salvar como rascunho",
+      "savingDraft": "Salvando rascunho...",
       "previewTemplate": "Pré-visualizar template",
       "publishTemplate": "Publicar template"
     },
@@ -136,7 +138,8 @@
     "descChangeLog": "Insira uma breve descrição do que foi alterado. Isto só será visível para pessoas de sua organização.",
     "button": {
       "close": "Fechar",
-      "saveAndPublish": "Guardar e publicar"
+      "saveAndPublish": "Guardar e publicar",
+      "publishing": "Publicando..."
     }
   },
   "Breadcrumbs": {
@@ -289,7 +292,8 @@
   "SectionUpdatePage": {
     "title": "Seção de atualização",
     "buttons": {
-      "deleteSection": "Excluir seção"
+      "deleteSection": "Excluir seção",
+      "deletingSection": "Excluindo seção..."
     },
     "messages": {
       "fieldLengthValidation": "O nome precisa ter pelo menos 3 caracteres",

@@ -85,7 +85,9 @@
     },
     "button": {
       "archiveTemplate": "Archive template",
+      "archiving": "Archiving template...",
       "saveAsDraft": "Save as draft",
+      "savingDraft": "Saving draft...",
       "previewTemplate": "Preview template",
       "publishTemplate": "Publish template"
     },
@@ -136,7 +138,8 @@
     "descChangeLog": "Enter a short description of what has been changed. This will only be visible to people in your organization.",
     "button": {
       "close": "Close",
-      "saveAndPublish": "Save and publish"
+      "saveAndPublish": "Save and publish",
+      "publishing": "Publishing..."
     }
   },
   "Breadcrumbs": {
@@ -329,7 +332,8 @@
   "SectionUpdatePage": {
     "title": "Update section",
     "buttons": {
-      "deleteSection": "Delete section"
+      "deleteSection": "Delete section",
+      "deletingSection": "Deleting section..."
     },
     "messages": {
       "fieldLengthValidation": "Name must be at least 2 characters.",

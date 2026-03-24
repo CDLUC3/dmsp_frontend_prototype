@@ -1,4 +1,7 @@
 ## Added
+- Added new `NavigationEvent` and `TransitionLink` to prevent multiple clicks on a link while loading, and to provide feedback to user with a progress bar [#149]
+- Added a new `TransitionButton` component to disable button when in progress, and to change button text when loading [#149]
+- Added `loading.tsx` at `app` directory root, instead of in `app/[locale]` because it wasn't working in the `[locale]` directory [#149]
 - Added new `TooltipSelect` component, which allows us to include descriptions with each `Select` option [#32]
 - `Custom Question` additions [#929]
   - Added new `CustomQuestionEdit` page
@@ -21,6 +24,8 @@
 - Added related works project overview page [#700]
 
 ## Updated
+- Updated `layout.tsx` to include the progress bar navigation for custom links [#149]
+- Updated buttons and links in template builder flow to use the new `TransitionButton` and `TransitionLink` components [#149]
 - Updated `PlanOverviewSectionPage` left nav to appear only for large screens over `1800px` for now, because it was overlapping with the content for smaller devices [#34]
 - `Custom Questi
 - Updated Research Output standardFields config so that only `title` field is required when answering question [#33]

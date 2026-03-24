@@ -41,6 +41,7 @@ import { useQuery, useMutation } from '@apollo/client/react';
 
 const ProfilePage: React.FC = () => {
   const t = useTranslations("UserProfile");
+  const Global = useTranslations("Global");
   const toastState = useToast(); // Access the toast state from context
   const pathname = usePathname();
   const currentLocale = useLocale();
@@ -372,7 +373,7 @@ const ProfilePage: React.FC = () => {
   // Show loading message on first page load when getting user
   const loading = queryLoading;
   if (loading) {
-    return <Loading variant="page" />;
+    return <Loading variant="page" message={Global("messaging.loading")} />;
   }
 
   return (

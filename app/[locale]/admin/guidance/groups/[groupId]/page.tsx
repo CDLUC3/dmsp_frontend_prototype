@@ -589,7 +589,7 @@ const GuidanceGroupIndexPage: React.FC = () => {
       <LayoutWithPanel>
         <ContentContainer>
           {tagsLoading || guidanceLoading ? (
-            <Loading />
+            <Loading message={Global("messaging.loading")} />
           ) : (
             <Card data-testid='guidance-card'>
               {tagGuidanceList

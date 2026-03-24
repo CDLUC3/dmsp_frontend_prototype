@@ -1,6 +1,6 @@
 import React from 'react';
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { TransitionLink } from '@/components/Form';
 import styles from './AddQuestionButton.module.scss';
 
 interface AddQuestionButtonProps {
@@ -23,7 +23,7 @@ const AddQuestionButton: React.FC<AddQuestionButtonProps> = ({
 
   return (
     <div className={`${styles.container} ${className}`.trim()}>
-      <Link
+      <TransitionLink
         href={href}
         className={styles.link}
         onClick={handleClick}
@@ -42,7 +42,7 @@ const AddQuestionButton: React.FC<AddQuestionButtonProps> = ({
           <line x1="5" y1="12" x2="19" y2="12" />
         </svg>
         <span>{EditQuestion('links.addQuestion')}</span>
-      </Link>
+      </TransitionLink>
     </div>
   );
 };

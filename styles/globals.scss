@@ -6,6 +6,7 @@
 @use "forms";
 @use "variables" as *;
 @use 'spacing' as spacing;
+@import 'nprogress/nprogress.css';
 
 *,
 *:before,
@@ -546,4 +547,25 @@ button.button-as-link {
     color: var(--bg-white) !important;
     //background-color: var(--yellow-200) !important;
   }
+}
+
+/* NProgress custom styles */
+
+#nprogress {
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  background: var(--blue-300);
+  position: fixed;
+  z-index: 209999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+}
+
+/* Optional spinner (usually disabled) */
+#nprogress .spinner {
+  display: none;
 }
