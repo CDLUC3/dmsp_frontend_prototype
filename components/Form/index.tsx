@@ -12,4 +12,6 @@ export { default as TypeAheadSearch } from './AffiliationSearch';
 export { default as ResearchOutputComponent } from './ResearchOutputQuestionComponent';
 export { default as ResearchOutputAnswerComponent } from './ResearchOutputAnswerComponent';
 export { default as TooltipSelect } from './TooltipSelect';
+export { default as TransitionButton } from '../TransitionButton';
+export { default as TransitionLink } from '../TransitionLink';
 

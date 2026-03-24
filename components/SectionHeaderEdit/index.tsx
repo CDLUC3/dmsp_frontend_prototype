@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslations } from "next-intl";
 import styles from "./SectionHeaderEdit.module.scss";
 import { Button } from "react-aria-components";
+import { TransitionLink } from "@/components/Form";
 
 interface SectionChecklist {
   requirements: boolean;
@@ -119,14 +120,14 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
       </div>
 
       <div className={styles.buttonGroup}>
-        <a
+        <TransitionLink
           href={editUrl}
           className={styles.editButton}
         >
           {isCustomizationTemplate && sectionAuthorType === "funder"
             ? Global("buttons.customize")
             : Sections("links.editSection")}
-        </a>
+        </TransitionLink>
 
 
         <div className={styles.orderButtons}>

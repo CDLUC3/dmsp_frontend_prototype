@@ -9,6 +9,7 @@ import { ToastProviderWrapper } from '@/context/ToastContext';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SubHeader from "@/components/SubHeader";
+import NavigationEvents from '@/components/NavigationEvents'
 
 import { ApolloWrapper } from "@/lib/graphql/apollo-wrapper";
 import { AuthProvider } from "@/context/AuthContext";
@@ -22,6 +23,7 @@ const font_sans_serif = Poppins({
   subsets: ["latin"],
   weight: ['400', '600'],
   variable: '--font-sans-serif',
+  preload: false, // ← stops Next.js injecting preload hints, since preloading is adding warnings in browser, and font should be cached anyways after first page
 });
 
 export default async function LocaleLayout({
@@ -50,20 +52,21 @@ export default async function LocaleLayout({
       <body className={font_sans_serif.className}>
         <a href="#mainContent" className="skip-nav">Skip to main content</a>
         <NextIntlClientProvider messages={messages}>
-            <CsrfProvider>
-              <ApolloWrapper>
-                <AuthProvider>
-                  <Header />
-                  <SubHeader />
-                  <ToastProviderWrapper>
-                    <div id="App">
-                      {children}
-                    </div>
-                  </ToastProviderWrapper>
-                  <Footer />
-                </AuthProvider>
-              </ApolloWrapper>
-            </CsrfProvider>
+          <CsrfProvider>
+            <ApolloWrapper>
+              <AuthProvider>
+                <Header />
+                <SubHeader />
+                <ToastProviderWrapper>
+                  <div id="App">
+                    <NavigationEvents />
+                    {children}
+                  </div>
+                </ToastProviderWrapper>
+                <Footer />
+              </AuthProvider>
+            </ApolloWrapper>
+          </CsrfProvider>
         </NextIntlClientProvider>
       </body>
     </html>

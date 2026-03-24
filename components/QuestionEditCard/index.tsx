@@ -1,8 +1,8 @@
 import React from "react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button } from "react-aria-components";
 
+import { TransitionLink } from "@/components/Form";
 // Utils
 import { stripHtml } from "@/utils/general";
 //Other
@@ -183,13 +183,13 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
         role="group"
         aria-label="Question actions"
       >
-        <Link
+        <TransitionLink
           href={link}
           className={styles.questionEditCard__link}
           aria-label={`${getLinkText()}: ${name}`}
         >
           {getLinkText()}
-        </Link>
+        </TransitionLink>
         <div className={styles.orderButtons}>
           <Button
             className={`${styles.btnDefault} ${styles.orderButton}`}

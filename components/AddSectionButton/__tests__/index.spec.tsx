@@ -3,6 +3,20 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 import AddSectionButton from '../index';
 expect.extend(toHaveNoViolations);
 
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    prefetch: jest.fn(),
+    replace: jest.fn(),
+    pathname: '/',
+    route: '/',
+    query: {},
+    asPath: '/',
+  }),
+  usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 describe('AddSectionButton', () => {
   const mockOnClick = jest.fn();
   const mockHref = '/add-section';

@@ -349,11 +349,11 @@ const CustomSectionEdit: React.FC = () => {
 
   // We need this so that the page waits to render until data is available
   if (loading) {
-    return <Loading />;
+    return <Loading message={Global('messages.loading')} />;
   }
 
   if (isRedirecting) {
-    return <Loading />;
+    return <Loading message={Global('messages.loading')} />;
   }
   return (
     <>

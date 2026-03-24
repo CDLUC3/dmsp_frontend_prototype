@@ -1,7 +1,7 @@
-import { Button } from "react-aria-components";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import styles from "./TemplateSelectListItem.module.scss";
+import { TransitionButton, TransitionLink } from "@/components/Form";
 import { useToast } from "@/context/ToastContext";
 import { toTitleCase } from "@/utils/general";
 interface TemplateSelectListItemProps {
@@ -94,7 +94,7 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
           </div>
 
           {onSelect ? (
-            <Button
+            <TransitionButton
               className="primary"
               onPress={async () => {
                 if (typeof item?.id === "number") {
@@ -103,21 +103,22 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
                   toastState.add("Invalid template", { type: "error" });
                 }
               }}
+              loadingLabel={Global("buttons.selecting")}
               aria-label={`Select ${item.title}`}
               data-versioned-template-id={item?.id}
             >
               {Global("buttons.select")}
-            </Button>
+            </TransitionButton>
           ) : (
             <div className={styles.TemplateItemActions}>
               {item.link && (
-                <Link
+                <TransitionLink
                   href={item.link}
                   aria-label={`${Global("links.update")} ${item.title}`}
                   className="button-link button--primary"
                 >
                   {Global("links.update")}
-                </Link>
+                </TransitionLink>
               )}
             </div>
           )}
