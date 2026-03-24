@@ -358,7 +358,7 @@ const TemplateCustomizationOverview: React.FC = () => {
   }, [data]);
 
   if (loading) {
-    return <Loading />;
+    return <Loading message={Global("messages.loading")} />;
   }
 
   if (templateQueryErrors) {

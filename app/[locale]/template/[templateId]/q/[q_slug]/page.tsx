@@ -619,7 +619,7 @@ const QuestionEdit = () => {
   }, [hasUnsavedChanges]);
 
   if (loading) {
-    return <Loading />;
+    return <Loading message={Global('messages.loading')} />;
   }
 
   return (

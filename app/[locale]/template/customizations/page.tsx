@@ -410,7 +410,7 @@ const TemplateListCustomizationsPage: React.FC = () => {
   if (isLoading || loading) {
     return (
       <div>
-        <Loading />
+        <Loading message={Global('messages.loading')} />
       </div>
     );
   }

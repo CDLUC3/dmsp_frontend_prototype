@@ -305,7 +305,7 @@ const ProjectsListPage: React.FC = () => {
   }, [projects, searchResults, firstNewIndex]);
 
   if (isPageLoading) {
-    return <Loading />;
+    return <Loading message={Global('messages.loading')} />;
   }
 
   return (

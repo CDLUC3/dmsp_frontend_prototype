@@ -103,6 +103,7 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
                   toastState.add("Invalid template", { type: "error" });
                 }
               }}
+              loadingLabel={Global("buttons.selecting")}
               aria-label={`Select ${item.title}`}
               data-versioned-template-id={item?.id}
             >
