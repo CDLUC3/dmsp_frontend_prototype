@@ -1358,7 +1358,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   });
 
   if (versionedQuestionLoading || planQueryLoading || answerLoading) {
-    return <Loading message={Global('messages.loading')} />;
+    return <Loading message={Global('messaging.loading')} />;
   }
 
   if (versionedQuestionError || planQueryError || answerError) {

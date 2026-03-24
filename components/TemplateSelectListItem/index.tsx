@@ -4,6 +4,7 @@ import styles from "./TemplateSelectListItem.module.scss";
 import { TransitionButton, TransitionLink } from "@/components/Form";
 import { useToast } from "@/context/ToastContext";
 import { toTitleCase } from "@/utils/general";
+import { DmpIcon } from "@/components/Icons";
 interface TemplateSelectListItemProps {
   onSelect?: (versionedTemplateId: number) => Promise<void>;
   item: {
@@ -27,7 +28,6 @@ interface TemplateSelectListItemProps {
 
 function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps) {
   const toastState = useToast();
-
   //Localization keys
   const SelectListItem = useTranslations("TemplateSelectListItem");
   const Global = useTranslations("Global");
@@ -91,6 +91,7 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
                 </span>
               ) : null}
             </div>
+
           </div>
 
           {onSelect ? (
@@ -127,24 +128,7 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
 
       {item.hasAdditionalGuidance && (
         <div className={styles.guidance}>
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-          >
-            <circle
-              cx="10"
-              cy="10"
-              r="7.5"
-              stroke="currentColor"
-            />
-            <path
-              d="M6.5 10L9 12.5L13.5 8"
-              stroke="currentColor"
-              strokeLinecap="round"
-            />
-          </svg>
+          <DmpIcon icon="check_circle" aria-hidden="true" />
           {SelectListItem("messages.additionalGuidance")}
         </div>
       )}

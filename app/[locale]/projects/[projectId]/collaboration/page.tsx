@@ -332,7 +332,7 @@ const ProjectsProjectCollaboration = () => {
   }, [queryError])
 
   if (loading) {
-    return <Loading message={Global('messages.loading')} />
+    return <Loading message={Global('messaging.loading')} />
   }
 
   return (

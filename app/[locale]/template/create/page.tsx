@@ -69,7 +69,7 @@ const TemplateCreatePage: React.FC = () => {
 
   // TODO: Need to implement a shared loading component
   if (step === null) {
-    return <Loading message={Global('messages.loading')} />;
+    return <Loading message={Global('messaging.loading')} />;
   }
 
   return (

@@ -345,11 +345,11 @@ const SectionUpdatePage: React.FC = () => {
 
   // We need this so that the page waits to render until data is available
   if (loading) {
-    return <Loading message={Global('messages.loading')} />;
+    return <Loading message={Global('messaging.loading')} />;
   }
 
   if (isRedirecting) {
-    return <Loading message={Global('messages.loading')} />;
+    return <Loading message={Global('messaging.loading')} />;
   }
   return (
     <>

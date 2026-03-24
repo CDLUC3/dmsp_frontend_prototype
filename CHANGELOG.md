@@ -24,6 +24,7 @@
 - Added related works project overview page [#700]
 
 ## Updated
+- Updated `PlanCreate` page to use the `versionedTemplateCustomizationId` to determine whether the template has customizations [#165]
 - Updated `layout.tsx` to include the progress bar navigation for custom links [#149]
 - Updated buttons and links in template builder flow to use the new `TransitionButton` and `TransitionLink` components [#149]
 - Updated `PlanOverviewSectionPage` left nav to appear only for large screens over `1800px` for now, because it was overlapping with the content for smaller devices [#34]
@@ -46,6 +47,7 @@
 - Updated `/login` page step=email to include a "Back" button so user can go back to Step 1 [#997]
 
 ## Fixed
+- Fixed some broken translation keys for Loading message [#165]
 - Fixed some issues in `Research Output` question answer form, where data flags checkboxes were not displaying and output types was missing the custom output
 - Fixed issue with missing `as builder` in `Dockerfile.prod`
 - Fixed bug where user's org was not displaying as a filter option, and Best practice was displaying instead [#62]

@@ -321,7 +321,7 @@ const CreateCustomSectionPage: React.FC = () => {
 
 
   if (loading) {
-    return <Loading message={Global('messages.loading')} />;
+    return <Loading message={Global('messaging.loading')} />;
   }
 
   return (
