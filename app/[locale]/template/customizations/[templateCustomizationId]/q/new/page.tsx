@@ -208,7 +208,7 @@ const CustomQuestionNew: React.FC = () => {
   }, [data, sectionId]);
 
   if (loading) {
-    return <Loading message={Global('messages.loading')} />;
+    return <Loading message={Global('messaging.loading')} />;
   }
 
   if (templateQueryErrors) {

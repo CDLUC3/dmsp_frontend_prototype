@@ -260,7 +260,8 @@ const publishedTemplatesMocks = [
               ownerId: 100 + count,
               version: "v5",
               templateId: 10 + count,
-              ownerSearchName: `Owner ${count} Search`
+              ownerSearchName: `Owner ${count} Search`,
+              versionedTemplateCustomizationId: null
             }
           }),
         },
@@ -310,7 +311,8 @@ const publishedTemplatesMocks = [
               ownerId: 100 + count,
               version: "v5",
               templateId: 10 + count,
-              ownerSearchName: `Owner ${count} Search`
+              ownerSearchName: `Owner ${count} Search`,
+              versionedTemplateCustomizationId: null
             }
           }),
         },
@@ -365,7 +367,8 @@ const publishedTemplatesMocks = [
               ownerId: 100 + count,
               version: "v5",
               templateId: 10 + count,
-              ownerSearchName: `Owner ${count} Search`
+              ownerSearchName: `Owner ${count} Search`,
+              versionedTemplateCustomizationId: null
             }
           }),
         },
@@ -417,7 +420,8 @@ const publishedTemplatesMocks = [
             ownerId: 101,
             version: "v5",
             templateId: 11,
-            ownerSearchName: "Owner Search Name"
+            ownerSearchName: "Owner Search Name",
+            versionedTemplateCustomizationId: null
           }],
         },
       },
@@ -471,7 +475,8 @@ const publishedTemplatesMocks = [
               ownerId: 100 + count,
               version: "v5",
               templateId: 10 + count,
-              ownerSearchName: `Owner ${count} Search`
+              ownerSearchName: `Owner ${count} Search`,
+              versionedTemplateCustomizationId: null
             }
           }),
         },
@@ -557,7 +562,8 @@ const publishedTemplatesMocks = [
               ownerId: 122,
               version: "v5",
               templateId: 4,
-              ownerSearchName: "National Science Foundation | nsf.gov | NSF"
+              ownerSearchName: "National Science Foundation | nsf.gov | NSF",
+              versionedTemplateCustomizationId: null
             },
           ]
         },
@@ -608,7 +614,8 @@ const publishedTemplatesMocks = [
               ownerId: 200,
               version: "v1",
               templateId: 50,
-              ownerSearchName: "Best Practice Owner Search"
+              ownerSearchName: "Best Practice Owner Search",
+              versionedTemplateCustomizationId: null
             },
           ]
         },
@@ -659,7 +666,8 @@ const publishedTemplatesMocks = [
               ownerId: 100 + count,
               version: "v5",
               templateId: 10 + count,
-              ownerSearchName: `Owner ${count} Search`
+              ownerSearchName: `Owner ${count} Search`,
+              versionedTemplateCustomizationId: null
             }
           }),
         },
@@ -709,7 +717,8 @@ const publishedTemplatesMocks = [
               ownerId: 122,
               version: "v5",
               templateId: 4,
-              ownerSearchName: "National Science Foundation | nsf.gov | NSF"
+              ownerSearchName: "National Science Foundation | nsf.gov | NSF",
+              versionedTemplateCustomizationId: null
             },
           ]
         },
@@ -763,7 +772,8 @@ const publishedTemplatesMocks = [
               ownerId: 100 + count,
               version: "v5",
               templateId: 10 + count,
-              ownerSearchName: `Owner ${count} Search`
+              ownerSearchName: `Owner ${count} Search`,
+              versionedTemplateCustomizationId: null
             }
           }),
         },

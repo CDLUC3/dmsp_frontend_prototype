@@ -139,3 +139,12 @@
     flex-shrink: 0;
   }
 }
+
+
+.customizationNote {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--green-700);
+  font-size: var(--fs-small);
+}

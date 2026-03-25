@@ -273,8 +273,8 @@ const QuestionCustomizePage: React.FC = () => {
   }, [publishedQuestion]);
 
 
-  if (publishedQuestionLoading || meLoading || questionCustomizationLoading) return <Loading message={Global('messages.loading')} />;
-  if (isRedirecting) return <Loading message={Global('messages.loading')} />;
+  if (publishedQuestionLoading || meLoading || questionCustomizationLoading) return <Loading message={Global('messaging.loading')} />;
+  if (isRedirecting) return <Loading message={Global('messaging.loading')} />;
 
   return (
     <>

@@ -600,7 +600,7 @@ const CustomQuestionEdit = () => {
   }, [hasUnsavedChanges]);
 
   if (loading || isRedirecting) {
-    return <Loading message={Global("messages.loading")} />;
+    return <Loading message={Global("messaging.loading")} />;
   }
 
   if (selectedQuestionQueryError) {

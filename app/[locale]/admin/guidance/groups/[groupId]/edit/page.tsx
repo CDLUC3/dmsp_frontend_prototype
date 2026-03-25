@@ -138,7 +138,7 @@ const GuidanceGroupEditPage: React.FC = () => {
   }, [guidanceGroupData]);
 
   if (loading) {
-    return <Loading message={Global("messages.loading")} />;
+    return <Loading message={Global("messaging.loading")} />;
   }
   return (
     <>
