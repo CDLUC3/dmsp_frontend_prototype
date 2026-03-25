@@ -920,7 +920,7 @@ describe("QuestionView", () => {
     expect(screen.getByText('labels.description')).toBeInTheDocument();
     expect(screen.getByText('Enter a brief description of this research output')).toBeInTheDocument();
     expect(screen.getByText('labels.outputType')).toBeInTheDocument();
-    expect(screen.getAllByText('Select the type of this research output')).toHaveLength(2); // once for label, once for help text
+    expect(screen.getAllByText('Select the type of this research output')).toHaveLength(1);
     expect(screen.getByText('labels.anticipatedReleaseDate')).toBeInTheDocument();
     expect(screen.getByText('labels.anticipatedFileSize')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'buttons.save' })).toBeInTheDocument();

@@ -56,6 +56,7 @@
 - Fixed bug where the published status on `/template/[templateId]` did not match that on the template cards at `/template` for the `unpublished changes` state. Added a shared hook for determining the correct status text [#875]
 
 ## Chore
+- Updated version of `next` to `v16.2.0`, `sanitize-html` to `v2.17.2`, `react-aria/toast` to `v3.0.11`, `@react-stately/toast` to `3.1.3` and `react-aria-components` to `v1.16.0`. Fixed some unit tests related to the updates, and updated header logo `Image` and related `css` to remove warnings related to resizing.
 - Updated version of `next` to `16.1.7` due to security vulnerability
 - Updated version of `dompurify` to `v3.3.2` due to security vulnerability, and included updates to`test-exclude` to v7.0.2, `sanitize-html` to v2.17.1, `tinymce` to v7.9.2, `next-intl` to v4.8.3, `html-react-parser` to v5.2.17, `@types/node` to v24.12.0, and `@types/react to v18.3.28.
 - Updated version of `minimatch` to `10.2.4` to address vulnerabilities
