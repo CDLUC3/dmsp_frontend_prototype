@@ -180,8 +180,8 @@ const PlanCreate: React.FC = () => {
         funderUri: template?.ownerURI || "",
         lastUpdated: template?.modified ? formatDate(template?.modified) : null,
         lastRevisedBy: template?.modifiedByName || null,
-        // Only show customization message if template affiliation equals user's affiliation and there is a versionedTemplateCustomizationId, which indicates that there is a customized version of the template for the user
-        hasAdditionalGuidance: template?.ownerURI === userAffiliation?.uri && template?.versionedTemplateCustomizationId != null,
+        // Only show customization message if there is a versionedTemplateCustomizationId, which indicates that there is a customized version of the template for the user
+        hasAdditionalGuidance: template?.versionedTemplateCustomizationId != null,
         defaultExpanded: false,
         visibility: template?.visibility,
         bestPractices: template?.bestPractice || false,
