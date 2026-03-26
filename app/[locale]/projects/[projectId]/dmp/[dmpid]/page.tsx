@@ -185,6 +185,8 @@ const PlanOverviewPage: React.FC = () => {
     notifyOnNetworkStatusChange: true,
   });
 
+  console.log("***Plan Data from GraphQL Query:", data);
+
   // Query data
   const {
     data: relatedWorksByPlanStats,
@@ -617,9 +619,9 @@ const PlanOverviewPage: React.FC = () => {
               </OverviewSection>
             </div>
 
-            {planData.versionedSections.map((versionedSection) => (
+            {planData.versionedSections.map((versionedSection, idx) => (
               <section
-                key={versionedSection.versionedSectionId}
+                key={versionedSection.versionedSectionId ?? `section-${idx}`} // Fallback key if versionedSectionId is missing
                 className={styles.planSectionsList}
                 aria-labelledby={`section-title-${versionedSection.versionedSectionId}`}
               >
