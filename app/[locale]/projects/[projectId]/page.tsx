@@ -121,7 +121,6 @@ const ProjectOverviewPage: React.FC = () => {
   useEffect(() => {
     // When data from backend changes, set project data in state
     if (data && data.project) {
-      console.log("***Project data", data);
       setProject({
         title: data.project.title ?? "",
         startDate: data.project?.startDate ? data.project.startDate : "",
