@@ -57,6 +57,8 @@ query Project($projectId: Int!) {
     }
      plans {
       versionedSections {
+        sectionType
+        customSectionId
         answeredQuestions
         displayOrder
         versionedSectionId

@@ -67,14 +67,18 @@ export const mockPlanData = {
         displayOrder: 1,
         versionedSectionId: 7,
         title: "Roles & Responsibilities",
-        totalQuestions: 1
+        totalQuestions: 1,
+        customSectionId: null,
+        sectionType: "BASE"
       },
       {
         answeredQuestions: 2,
         displayOrder: 2,
-        versionedSectionId: 8,
+        versionedSectionId: null,
         title: "Metadata",
-        totalQuestions: 5
+        totalQuestions: 5,
+        customSectionId: 1,
+        sectionType: "CUSTOM"
       },
       {
         answeredQuestions: 0,

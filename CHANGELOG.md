@@ -24,6 +24,9 @@
 - Added related works project overview page [#700]
 
 ## Updated
+- Updated `ProjectOverviewPage` to display both `BASE` and `CUSTOM` sections in the card [#168]
+- Updated `PlanOverviewPage` to display both the `BASE` and `CUSTOM` sections in the list [#168]
+- Updated `project` and `plan` queries to include the new `customSectionId` and `sectionType` fields [#168]
 - Updated `PlanCreate` page to use the `versionedTemplateCustomizationId` to determine whether the template has customizations [#165]
 - Updated `layout.tsx` to include the progress bar navigation for custom links [#149]
 - Updated buttons and links in template builder flow to use the new `TransitionButton` and `TransitionLink` components [#149]

@@ -121,11 +121,19 @@ const ProjectOverviewPage: React.FC = () => {
   useEffect(() => {
     // When data from backend changes, set project data in state
     if (data && data.project) {
+      console.log("***Project data", data);
       setProject({
         title: data.project.title ?? "",
         startDate: data.project?.startDate ? data.project.startDate : "",
         endDate: data.project?.endDate ? data.project.endDate : "",
-        plans: data.project?.plans ?? [],
+        plans: data.project?.plans?.map(plan => ({
+          ...plan,
+          versionedSections: plan.versionedSections?.map(section => ({
+            ...section,
+            // add sectionType if missing
+            sectionType: section.sectionType ?? "BASE",
+          }))
+        })) ?? [],
         fundings:
           data.project.fundings
             ?.filter((funding) => funding !== null) // Filter out null
@@ -318,29 +326,36 @@ const ProjectOverviewPage: React.FC = () => {
                       className="plan-sections-list"
                       aria-label={ProjectOverview("planSections")}
                     >
-                      {sortedSections.map((section) => (
-                        <li
-                          key={section.versionedSectionId}
-                          className="plan-sections-list-item"
-                        >
-                          <Link
-                            href={routePath("projects.dmp.versionedSection", {
-                              projectId: String(projectId),
-                              dmpId: planId,
-                              versionedSectionId: section.versionedSectionId,
-                            })}
-                            className="text-link"
+                      {sortedSections.map((section, idx) => {
+                        const sectionId = section.versionedSectionId ?? section.customSectionId;
+                        return (
+                          <li
+                            key={sectionId ?? `section-${idx}`}
+                            className="plan-sections-list-item"
                           >
-                            {section.title}
-                          </Link>
-                          <span className="plan-sections-list-item-progress">
-                            {ProjectOverview("progress", {
-                              current: section.answeredQuestions,
-                              total: section.totalQuestions,
-                            })}
-                          </span>
-                        </li>
-                      ))}
+                            {sectionId != null ? (
+                              <Link
+                                href={routePath("projects.dmp.versionedSection", {
+                                  projectId: String(projectId),
+                                  dmpId: planId,
+                                  versionedSectionId: Number(sectionId),
+                                }, { sectionType: section.sectionType })}
+                                className="text-link"
+                              >
+                                {section.title}
+                              </Link>
+                            ) : (
+                              <span>{section.title}</span>
+                            )}
+                            <span className="plan-sections-list-item-progress">
+                              {ProjectOverview("progress", {
+                                current: section.answeredQuestions,
+                                total: section.totalQuestions,
+                              })}
+                            </span>
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                   <div className="plan-meta">
