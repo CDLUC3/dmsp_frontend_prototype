@@ -26,7 +26,6 @@ import {
   PlanDocument,
   PlanFeedbackStatusDocument,
   RelatedWorksByPlanStatsDocument,
-  CustomizableObjectOwnership
 } from "@/generated/graphql";
 import {
   publishPlanAction,
