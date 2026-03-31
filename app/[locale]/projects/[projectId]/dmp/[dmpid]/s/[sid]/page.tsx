@@ -48,7 +48,6 @@ const PlanOverviewSectionPage: React.FC = () => {
   const t = useTranslations('PlanOverview');
   const Guidance = useTranslations('Guidance');
   const Section = useTranslations('SectionPage');
-  const Global = useTranslations('Global');
 
   // Get route params
   const params = useParams();
@@ -78,21 +77,19 @@ const PlanOverviewSectionPage: React.FC = () => {
       planId,
       versionedSectionId: sectionId
     },
-    skip: !sectionId
+    skip: !sectionId || sectionType === 'CUSTOM' // Skip if it's a custom section, as it uses a different query
   });
 
   // Add the custom questions query
   const { data: customQuestionsData, loading: customQuestionsLoading } = useQuery(PublishedCustomQuestionsDocument, {
     variables: { planId, versionedCustomSectionId: sectionId },
-    skip: sectionType !== 'CUSTOM'
+    skip: !sectionId || sectionType !== 'CUSTOM'
   });
 
   const { data: planData, loading: planLoading } = useQuery(PlanDocument, {
     variables: { planId },
     skip: !planId
   });
-
-  console.log("***PLan Data***", planData);
 
   const { data: sectionData, loading: sectionLoading } = useQuery(PublishedSectionDocument, {
     variables: {
@@ -147,9 +144,6 @@ const PlanOverviewSectionPage: React.FC = () => {
       })) || [];
   }, [sectionType, questionsData, customQuestionsData]);
 
-
-
-  console.log("***Section Data***", sectionData);
   // versionedTemplateId for guidance filtering
   const versionedTemplateId = planData?.plan?.versionedTemplate?.id;
 
@@ -198,7 +192,6 @@ const PlanOverviewSectionPage: React.FC = () => {
     return <ErrorMessages errors={[t('errors.invalidDmpId')]} />;
   }
 
-  // Then your early returns / guards
   if (questionsLoading || customQuestionsLoading || sectionLoading || customSectionLoading || planLoading) {
     return <Loading />;
   }

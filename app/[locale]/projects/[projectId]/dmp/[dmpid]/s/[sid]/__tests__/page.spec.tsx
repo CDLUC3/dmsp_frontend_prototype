@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing/react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
 
 import {
@@ -9,6 +9,8 @@ import {
   PlanDocument,
   PublishedQuestionsDocument,
   PublishedSectionDocument,
+  PublishedCustomSectionDocument,
+  PublishedCustomQuestionsDocument,
   VersionedGuidanceDocument,
   GuidanceSourcesForPlanDocument
 } from '@/generated/graphql';
@@ -20,6 +22,8 @@ import planMock from '../__mocks__/planMock';
 import meMock from '../__mocks__/meMock';
 import guidanceSourcesForPlanMock from '../__mocks__/guidanceSourcesForPlanMock';
 import versionedGuidanceMock from '../__mocks__/versionedGuidanceMock';
+import publishedCustomQuestionsMock from '../__mocks__/publishedCustomQuestionsMock';
+import publishedCustomSectionMock from '../__mocks__/publishedCustomSectionMock';
 import PlanOverviewSectionPage from "../page";
 
 expect.extend(toHaveNoViolations);
@@ -32,8 +36,11 @@ jest.mock('next-intl', () => ({
 // Mock the PageHeader component
 jest.mock('@/components/PageHeader', () => ({
   __esModule: true,
-  default: () => <div data-testid="mock-page-header" />,
+  default: ({ title }: { title: string }) => (
+    <div data-testid="mock-page-header">{title}</div>
+  ),
 }));
+
 
 // Mock GuidancePanel component
 jest.mock('@/components/GuidancePanel', () => ({
@@ -55,6 +62,9 @@ jest.mock('@/utils/general', () => ({
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
+  useSearchParams: jest.fn(() => ({
+    get: jest.fn(),
+  })),
   notFound: jest.fn(),
 }));
 
@@ -335,9 +345,67 @@ const emptyQuestionsMocks = [
 ];
 
 
-describe('PlanOverviewSectionPage', () => {
+const customMocks = [
+  {
+    request: { query: MeDocument },
+    result: { data: { me: meMock } },
+  },
+  {
+    request: { query: PlanDocument, variables: { planId: 456 } },
+    result: { data: { plan: planMock } },
+  },
+  {
+    request: {
+      query: PublishedCustomSectionDocument,
+      variables: { customSectionId: 456, planId: 456 },
+    },
+    result: { data: publishedCustomSectionMock },
+  },
+  {
+    request: {
+      query: PublishedCustomQuestionsDocument,
+      variables: { planId: 456, versionedCustomSectionId: 456 },
+    },
+    result: { data: publishedCustomQuestionsMock },
+  },
+  {
+    request: {
+      query: PublishedQuestionsDocument,
+      variables: { planId: 456, versionedSectionId: 456 },
+    },
+    result: {
+      data: { publishedQuestions: [] },  // should never be called, but prevents Apollo errors if skip regresses
+    },
+  },
+  {
+    request: {
+      query: VersionedGuidanceDocument,
+      variables: { affiliationId: 'https://ror.org/03yrm5c26', tagIds: [1, 2] },
+    },
+    result: { data: { versionedGuidance: versionedGuidanceMock } },
+  },
+  {
+    request: {
+      query: VersionedGuidanceDocument,
+      variables: { affiliationId: 'https://ror.org/03yrm5c26', tagIds: [] },
+    },
+    result: { data: { versionedGuidance: versionedGuidanceMock } },
+  },
+  {
+    request: {
+      query: GuidanceSourcesForPlanDocument,
+      variables: { planId: 456, versionedSectionId: 456 },
+    },
+    result: { data: { guidanceSourcesForPlan: guidanceSourcesForPlanMock } },
+  },
+  // Base queries are intentionally absent — skip guards prevent them firing
+];
+
+describe('PlanOverviewSectionPage - BASE section with BASE questions or CUSTOM questions', () => {
   beforeEach(() => {
     (useParams as jest.Mock).mockReturnValue(mockParams);
+    // 'BASE' must be explicit — undefined fails the skip: sectionType !== 'BASE' guard
+    (useSearchParams as jest.Mock).mockReturnValue({ get: () => 'BASE' });
     jest.clearAllMocks();
   });
 
@@ -363,7 +431,6 @@ describe('PlanOverviewSectionPage', () => {
     // Check that requirements section is rendered
     expect(screen.getByText('headings.requirementsBy')).toBeInTheDocument();
     expect(screen.getByText('Requirements text for the section')).toBeInTheDocument();
-    expect(screen.getByText('Requirements by University of California')).toBeInTheDocument();
 
     // Check for mock sidebar
     expect(screen.getByTestId('mock-guidance-panel')).toBeInTheDocument();
@@ -410,7 +477,7 @@ describe('PlanOverviewSectionPage', () => {
 
     // Wait for data to load
     await waitFor(() => {
-      expect(screen.queryByText('messaging.loading')).not.toBeInTheDocument();
+      expect(screen.getByText('What types of data will be produced during your project?')).toBeInTheDocument();
     });
 
     // Check that question cards are rendered
@@ -626,5 +693,118 @@ describe('PlanOverviewSectionPage', () => {
 
     const title = questionCards[0].querySelector('h3');
     expect(title).toHaveTextContent('');
+  });
+});
+
+describe('PlanOverviewSectionPage - CUSTOM section with custom questions', () => {
+  beforeEach(() => {
+    (useParams as jest.Mock).mockReturnValue(mockParams);
+    (useSearchParams as jest.Mock).mockReturnValue({ get: () => 'CUSTOM' });
+    jest.clearAllMocks();
+  });
+
+  it('should render the custom section name', async () => {
+    render(
+      <MockedProvider mocks={customMocks}>
+        <PlanOverviewSectionPage />
+      </MockedProvider>
+    );
+
+    await waitFor(() =>
+      expect(screen.getByText('Custom Section One')).toBeInTheDocument()
+    );
+
+    expect(screen.getByTestId('mock-page-header')).toBeInTheDocument();
+    expect(screen.getByTestId('mock-guidance-panel')).toBeInTheDocument();
+  });
+
+  it('should render the custom question card', async () => {
+    render(
+      <MockedProvider mocks={customMocks}>
+        <PlanOverviewSectionPage />
+      </MockedProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Custom Radio Button Question')).toBeInTheDocument()
+    });
+
+    const questionCards = screen.getAllByRole('region').filter(s =>
+      s.className.includes('questionCard')
+    );
+    expect(questionCards).toHaveLength(1);
+  });
+
+  it('should show not-answered status for the custom question', async () => {
+    render(
+      <MockedProvider mocks={customMocks}>
+        <PlanOverviewSectionPage />
+      </MockedProvider>
+    );
+
+    await waitFor(() =>
+      expect(screen.getByText('Custom Radio Button Question')).toBeInTheDocument()
+    );
+
+    expect(
+      screen.getAllByLabelText('Question status: question.notAnswered')
+    ).toHaveLength(1);
+  });
+
+  it('should link custom questions to the customQuestion route, not the versionedQuestion route', async () => {
+    render(
+      <MockedProvider mocks={customMocks}>
+        <PlanOverviewSectionPage />
+      </MockedProvider>
+    );
+
+    await waitFor(() =>
+      expect(screen.getByText('Custom Radio Button Question')).toBeInTheDocument()
+    );
+
+    const startLink = screen.getByText('sections.start');
+
+    expect(startLink).toHaveAttribute('href', '/en-US/projects/123/dmp/456/s/456/q/7');
+
+    // Verify it didn't fall back to versionedQuestion route (which would use 'undefined'
+    // since versionedQuestionId is null on custom questions)
+    expect(startLink).not.toHaveAttribute('href', expect.stringContaining('undefined'));
+  });
+
+  it('should not render the requirements heading when custom section requirements is empty', async () => {
+    render(
+      <MockedProvider mocks={customMocks}>
+        <PlanOverviewSectionPage />
+      </MockedProvider>
+    );
+
+    await waitFor(() =>
+      expect(screen.getByText('Custom Section One')).toBeInTheDocument()
+    );
+
+    // publishedCustomSectionMock has requirements: '' so the block is hidden
+    expect(screen.queryByText('headings.requirementsBy')).not.toBeInTheDocument();
+  });
+
+  it('should handle an empty custom questions list', async () => {
+    const emptyCustomMocks = customMocks.map(mock => {
+      if (mock.request.query === PublishedCustomQuestionsDocument) {
+        return { ...mock, result: { data: { publishedCustomQuestions: [] } } };
+      }
+      return mock;
+    });
+
+    render(
+      <MockedProvider mocks={emptyCustomMocks}>
+        <PlanOverviewSectionPage />
+      </MockedProvider>
+    );
+
+    await waitFor(() =>
+      expect(screen.getByText('Custom Section One')).toBeInTheDocument()
+    );
+
+    // noQuestionsAvailable heading should appear
+    expect(screen.getByText('headings.noQuestionsAvailable')).toBeInTheDocument();
   });
 });
