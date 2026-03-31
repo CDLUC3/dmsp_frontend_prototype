@@ -93,7 +93,6 @@ const TemplateCustomizationOverview: React.FC = () => {
     variables: { templateCustomizationId: Number(templateCustomizationId) },
     fetchPolicy: 'cache-and-network', // User sees cached data imediately while a fresh fetch runs to get latest updates from editing
   });
-  console.log("***Template Customization Overview Data***", data);
 
   // Mutations
   const [publishTemplateCustomization] = useMutation(PublishTemplateCustomizationDocument);
