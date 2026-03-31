@@ -11,6 +11,7 @@ import {
   PublishedQuestionsDocument,
   PublishedSectionDocument,
   PublishedCustomSectionDocument,
+  PublishedCustomQuestionsDocument,
   PlanDocument,
   MeDocument,
 } from '@/generated/graphql';
@@ -80,6 +81,12 @@ const PlanOverviewSectionPage: React.FC = () => {
     skip: !sectionId
   });
 
+  // Add the custom questions query
+  const { data: customQuestionsData, loading: customQuestionsLoading } = useQuery(PublishedCustomQuestionsDocument, {
+    variables: { planId, versionedCustomSectionId: sectionId },
+    skip: sectionType !== 'CUSTOM'
+  });
+
   const { data: planData, loading: planLoading } = useQuery(PlanDocument, {
     variables: { planId },
     skip: !planId
@@ -117,6 +124,30 @@ const PlanOverviewSectionPage: React.FC = () => {
     }
     return null;
   }, [sectionType, sectionData, customSectionData]);
+
+
+  const questions: VersionedQuestion[] = useMemo(() => {
+    const source = sectionType === 'CUSTOM'
+      ? customQuestionsData?.publishedCustomQuestions
+      : questionsData?.publishedQuestions;
+
+    return source
+      ?.filter((q): q is NonNullable<typeof q> => q !== null)
+      .map((q) => ({
+        id: q.id?.toString() || '',
+        title: q.questionText || '',
+        link: q.questionType === 'CUSTOM'
+          ? routePath('projects.dmp.customQuestion.detail', {
+            projectId, dmpId, customSectionId: sectionId, customQuestionId: String(q.customQuestionId)
+          })
+          : routePath('projects.dmp.versionedQuestion.detail', {
+            projectId, dmpId, versionedSectionId: sectionId, versionedQuestionId: String(q.versionedQuestionId)
+          }),
+        hasAnswer: q.hasAnswer || false
+      })) || [];
+  }, [sectionType, questionsData, customQuestionsData]);
+
+
 
   console.log("***Section Data***", sectionData);
   // versionedTemplateId for guidance filtering
@@ -168,9 +199,10 @@ const PlanOverviewSectionPage: React.FC = () => {
   }
 
   // Then your early returns / guards
-  if (questionsLoading || sectionLoading || customSectionLoading || planLoading) {
+  if (questionsLoading || customQuestionsLoading || sectionLoading || customSectionLoading || planLoading) {
     return <Loading />;
   }
+
 
   if (questionsError) {
     return <div>{Section('errors.errorLoadingSections', { message: questionsError.message })}</div>;
@@ -185,16 +217,6 @@ const PlanOverviewSectionPage: React.FC = () => {
   if (!sectionBelongsToPlan) {
     return <ErrorMessages errors={[t('errors.sectionNotFound')]} />;
   }
-
-  // Check for questions - show message if none
-  const questions: VersionedQuestion[] = questionsData?.publishedQuestions?.filter((question): question is NonNullable<typeof question> => question !== null).map((question) => ({
-    id: question.id?.toString() || '',
-    title: question.questionText || '',
-    link: routePath('projects.dmp.versionedQuestion.detail', {
-      projectId, dmpId, versionedSectionId: sectionId, versionedQuestionId: String(question.id)
-    }),
-    hasAnswer: question.hasAnswer || false
-  })) || [];
 
   const plan = {
     id: planData?.plan?.id?.toString() || '',
