@@ -68,6 +68,8 @@ query Plan($planId: Int!) {
         slug
         description
       }
+      sectionType
+      customSectionId
     }
     progress {
       answeredQuestions
