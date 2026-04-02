@@ -9,6 +9,7 @@
   "baseBranches": [
     "development"
   ],
+  "rebaseWhen": "behind-base-branch",
   "ignorePaths": [
     "public/**",
     "Dockerfile*",
