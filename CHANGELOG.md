@@ -24,6 +24,7 @@
 - Added related works project overview page [#700]
 
 ## Updated
+- Updated renovate config to rebase when a PR is behind the base branch
 - Updated `ProjectOverviewPage` to display both `BASE` and `CUSTOM` sections in the card [#168]
 - Updated `PlanOverviewPage` to display both the `BASE` and `CUSTOM` sections in the list [#168]
 - Updated `project` and `plan` queries to include the new `customSectionId` and `sectionType` fields [#168]
