@@ -113,11 +113,21 @@ const PlanOverviewSectionPage: React.FC = () => {
   const section = useMemo(() => {
     if (sectionType === 'CUSTOM' && customSectionData?.publishedCustomSection) {
       const s = customSectionData.publishedCustomSection;
-      return { name: s.name ?? '', requirements: s.requirements ?? null };
+      return {
+        name: s.name ?? '',
+        requirements: s.requirements ?? null,
+        introduction: s.introduction ?? null,
+        guidance: s.guidance ?? null,
+      };
     }
     if (sectionData?.publishedSection) {
       const s = sectionData.publishedSection;
-      return { name: s.name ?? '', requirements: s.requirements ?? null };
+      return {
+        name: s.name ?? '',
+        requirements: s.requirements ?? null,
+        introduction: s.introduction ?? null,
+        guidance: s.guidance ?? null,
+      };
     }
     return null;
   }, [sectionType, sectionData, customSectionData]);
@@ -154,7 +164,8 @@ const PlanOverviewSectionPage: React.FC = () => {
     guidanceItems,
   } = useGuidanceData({
     planId: parseInt(dmpId),
-    versionedSectionId: sectionId
+    versionedSectionId: sectionId,
+    sectionType: sectionType || 'BASE' // Default to 'BASE' if not provided, to avoid breaking existing functionality
   });
 
   // Use guidance mutations hook (mutations only, no data)
@@ -165,7 +176,8 @@ const PlanOverviewSectionPage: React.FC = () => {
     guidanceError,
   } = useGuidanceMutations({
     planId: parseInt(dmpId),
-    versionedSectionId: sectionId
+    versionedSectionId: sectionId,
+    customSectionId: sectionType === 'CUSTOM' ? sectionId : undefined
   });
 
   // Hide navigation when close to footer
@@ -298,6 +310,12 @@ const PlanOverviewSectionPage: React.FC = () => {
             </nav>
 
             <div className="container">
+              {section?.introduction && (
+                <section aria-label={t('headings.introduction')}>
+                  <h3 className="h4">{t('headings.introduction')}</h3>
+                  <SafeHtml html={section.introduction} />
+                </section>
+              )}
               <section aria-label={"Requirements"}>
                 {section?.requirements && (
                   <>

@@ -1318,10 +1318,20 @@ export type MetadataStandardSearchResults = PaginatedQueryResults & {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
+/** Direction to move a custom question relative to the pinned question */
+export enum MoveCustomQuestionDirection {
+  /** Move the question below the pinned question */
+  Down = 'DOWN',
+  /** Move the question above the pinned question */
+  Up = 'UP'
+}
+
 /** Move a custom question to a different position within the section (null means move to the top of the section) */
 export type MoveCustomQuestionInput = {
   /** the id of the custom question to move */
   customQuestionId: Scalars['Int']['input'];
+  /** Direction to move the question relative to the pinnedQuestion (UP or DOWN) */
+  direction: MoveCustomQuestionDirection;
   /** The identifier of the question this new custom question should appear after (null means it is the first question in the section) */
   pinnedQuestionId?: InputMaybe<Scalars['Int']['input']>;
   /** The type of the question this new custom question should appear after (null means it is the first question in the section) */
@@ -3373,6 +3383,7 @@ export type QueryGuidanceGroupsArgs = {
 
 
 export type QueryGuidanceSourcesForPlanArgs = {
+  customSectionId?: InputMaybe<Scalars['Int']['input']>;
   planId: Scalars['Int']['input'];
   versionedQuestionId?: InputMaybe<Scalars['Int']['input']>;
   versionedSectionId?: InputMaybe<Scalars['Int']['input']>;
@@ -5163,51 +5174,6 @@ export type VersionedCustomQuestionErrors = {
   versionedTemplateCustomizationId?: Maybe<Scalars['String']['output']>;
 };
 
-/** A snapshot of a CustomQuestion when published, includes whether an answer has been filled. */
-export type VersionedCustomQuestionWithFilled = {
-  __typename?: 'VersionedCustomQuestionWithFilled';
-  /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['String']['output']>;
-  /** The user who created the Object */
-  createdById?: Maybe<Scalars['Int']['output']>;
-  /** The CustomQuestion this is a snapshot of */
-  customQuestionId: Scalars['Int']['output'];
-  /** Errors associated with the Object */
-  errors?: Maybe<VersionedCustomQuestionErrors>;
-  /** Guidance to help the user answer this question */
-  guidanceText?: Maybe<Scalars['String']['output']>;
-  /** Indicates whether the question has an answer */
-  hasAnswer?: Maybe<Scalars['Boolean']['output']>;
-  /** The unique identifier for the Object */
-  id?: Maybe<Scalars['Int']['output']>;
-  /** The question JSON schema definition */
-  json: Scalars['String']['output'];
-  /** The timestamp when the Object was last modified */
-  modified?: Maybe<Scalars['String']['output']>;
-  /** The user who last modified the Object */
-  modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The id of the question this custom question is pinned after */
-  pinnedVersionedQuestionId?: Maybe<Scalars['Int']['output']>;
-  /** The type of question this custom question is pinned after (null = first question in section) */
-  pinnedVersionedQuestionType?: Maybe<Scalars['String']['output']>;
-  /** The question text */
-  questionText: Scalars['String']['output'];
-  /** Whether this question is required */
-  required?: Maybe<Scalars['Boolean']['output']>;
-  /** The requirement text for this question */
-  requirementText?: Maybe<Scalars['String']['output']>;
-  /** A sample answer for this question */
-  sampleText?: Maybe<Scalars['String']['output']>;
-  /** Whether the sample text should be pre-populated as the default answer */
-  useSampleTextAsDefault?: Maybe<Scalars['Boolean']['output']>;
-  /** The id of the section this question belongs to */
-  versionedSectionId: Scalars['Int']['output'];
-  /** Whether this question is pinned inside a BASE or CUSTOM section */
-  versionedSectionType: Scalars['String']['output'];
-  /** The VersionedTemplateCustomization this snapshot belongs to */
-  versionedTemplateCustomizationId: Scalars['Int']['output'];
-};
-
 /** A snapshot of a CustomSection when the template customization was published. */
 export type VersionedCustomSection = {
   __typename?: 'VersionedCustomSection';
@@ -5461,49 +5427,6 @@ export type VersionedQuestionErrors = {
   versionedQuestionConditionIds?: Maybe<Scalars['String']['output']>;
   versionedSectionId?: Maybe<Scalars['String']['output']>;
   versionedTemplateId?: Maybe<Scalars['String']['output']>;
-};
-
-/** A snapshot of a Question when it became published, but includes extra information about if answer is filled. */
-export type VersionedQuestionWithFilled = {
-  __typename?: 'VersionedQuestionWithFilled';
-  /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['String']['output']>;
-  /** The user who created the Object */
-  createdById?: Maybe<Scalars['Int']['output']>;
-  /** The display order of the VersionedQuestion */
-  displayOrder?: Maybe<Scalars['Int']['output']>;
-  /** Errors associated with the Object */
-  errors?: Maybe<VersionedQuestionErrors>;
-  /** Guidance to complete the question */
-  guidanceText?: Maybe<Scalars['String']['output']>;
-  /** Indicates whether the question has an answer */
-  hasAnswer?: Maybe<Scalars['Boolean']['output']>;
-  /** The unique identifer for the Object */
-  id?: Maybe<Scalars['Int']['output']>;
-  /** The JSON representation of the question type */
-  json?: Maybe<Scalars['String']['output']>;
-  /** The timestamp when the Object was last modifed */
-  modified?: Maybe<Scalars['String']['output']>;
-  /** The user who last modified the Object */
-  modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** Id of the original question that was versioned */
-  questionId: Scalars['Int']['output'];
-  /** This will be used as a sort of title for the Question */
-  questionText?: Maybe<Scalars['String']['output']>;
-  /** To indicate whether the question is required to be completed */
-  required?: Maybe<Scalars['Boolean']['output']>;
-  /** Requirements associated with the Question */
-  requirementText?: Maybe<Scalars['String']['output']>;
-  /** Sample text to possibly provide a starting point or example to answer question */
-  sampleText?: Maybe<Scalars['String']['output']>;
-  /** Whether or not the sample text should be used as the default answer for this question */
-  useSampleTextAsDefault?: Maybe<Scalars['Boolean']['output']>;
-  /** The conditional logic associated with this VersionedQuestion */
-  versionedQuestionConditions?: Maybe<Array<VersionedQuestionCondition>>;
-  /** The unique id of the VersionedSection that the VersionedQuestion belongs to */
-  versionedSectionId: Scalars['Int']['output'];
-  /** The unique id of the VersionedTemplate that the VersionedQuestion belongs to */
-  versionedTemplateId: Scalars['Int']['output'];
 };
 
 /** A snapshot of a Section when it became published. */
@@ -6475,6 +6398,7 @@ export type GuidanceSourcesForPlanQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
   versionedSectionId?: InputMaybe<Scalars['Int']['input']>;
   versionedQuestionId?: InputMaybe<Scalars['Int']['input']>;
+  customSectionId?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
@@ -6977,7 +6901,7 @@ export const PlanFundingsDocument = {"kind":"Document","definitions":[{"kind":"O
 export const PopularFundersDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PopularFunders"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"popularFunders"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"nbrPlans"}},{"kind":"Field","name":{"kind":"Name","value":"uri"}},{"kind":"Field","name":{"kind":"Name","value":"apiTarget"}}]}}]}}]} as unknown as DocumentNode<PopularFundersQuery, PopularFundersQueryVariables>;
 export const GuidanceByGroupDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GuidanceByGroup"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"guidanceGroupId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"guidanceByGroup"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"guidanceGroupId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"guidanceGroupId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"modifiedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"givenName"}},{"kind":"Field","name":{"kind":"Name","value":"surName"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"guidanceText"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"tagId"}},{"kind":"Field","name":{"kind":"Name","value":"errors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"general"}},{"kind":"Field","name":{"kind":"Name","value":"tagId"}},{"kind":"Field","name":{"kind":"Name","value":"guidanceText"}},{"kind":"Field","name":{"kind":"Name","value":"guidanceGroupId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"modified"}}]}}]}}]} as unknown as DocumentNode<GuidanceByGroupQuery, GuidanceByGroupQueryVariables>;
 export const GuidanceDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Guidance"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"guidanceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"guidance"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"guidanceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"guidanceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"guidanceText"}},{"kind":"Field","name":{"kind":"Name","value":"tagId"}}]}}]}}]} as unknown as DocumentNode<GuidanceQuery, GuidanceQueryVariables>;
-export const GuidanceSourcesForPlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GuidanceSourcesForPlan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"planId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"versionedSectionId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"versionedQuestionId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"guidanceSourcesForPlan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"planId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"planId"}}},{"kind":"Argument","name":{"kind":"Name","value":"versionedSectionId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"versionedSectionId"}}},{"kind":"Argument","name":{"kind":"Name","value":"versionedQuestionId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"versionedQuestionId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"shortName"}},{"kind":"Field","name":{"kind":"Name","value":"orgURI"}},{"kind":"Field","name":{"kind":"Name","value":"hasGuidance"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"guidanceText"}}]}}]}}]}}]} as unknown as DocumentNode<GuidanceSourcesForPlanQuery, GuidanceSourcesForPlanQueryVariables>;
+export const GuidanceSourcesForPlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GuidanceSourcesForPlan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"planId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"versionedSectionId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"versionedQuestionId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"customSectionId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"guidanceSourcesForPlan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"planId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"planId"}}},{"kind":"Argument","name":{"kind":"Name","value":"versionedSectionId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"versionedSectionId"}}},{"kind":"Argument","name":{"kind":"Name","value":"versionedQuestionId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"versionedQuestionId"}}},{"kind":"Argument","name":{"kind":"Name","value":"customSectionId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"customSectionId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"shortName"}},{"kind":"Field","name":{"kind":"Name","value":"orgURI"}},{"kind":"Field","name":{"kind":"Name","value":"hasGuidance"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"guidanceText"}}]}}]}}]}}]} as unknown as DocumentNode<GuidanceSourcesForPlanQuery, GuidanceSourcesForPlanQueryVariables>;
 export const GuidanceGroupsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GuidanceGroups"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"affiliationId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"guidanceGroups"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"affiliationId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"affiliationId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"affiliationId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"latestPublishedVersion"}},{"kind":"Field","name":{"kind":"Name","value":"latestPublishedDate"}},{"kind":"Field","name":{"kind":"Name","value":"guidance"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tagId"}},{"kind":"Field","name":{"kind":"Name","value":"guidanceText"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"modifiedBy"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"givenName"}},{"kind":"Field","name":{"kind":"Name","value":"surName"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"modified"}},{"kind":"Field","name":{"kind":"Name","value":"isDirty"}},{"kind":"Field","name":{"kind":"Name","value":"versionedGuidanceGroup"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"active"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"version"}}]}}]}}]}}]} as unknown as DocumentNode<GuidanceGroupsQuery, GuidanceGroupsQueryVariables>;
 export const GuidanceGroupDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GuidanceGroup"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"guidanceGroupId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"guidanceGroup"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"guidanceGroupId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"guidanceGroupId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"bestPractice"}},{"kind":"Field","name":{"kind":"Name","value":"latestPublishedVersion"}},{"kind":"Field","name":{"kind":"Name","value":"latestPublishedDate"}},{"kind":"Field","name":{"kind":"Name","value":"isDirty"}},{"kind":"Field","name":{"kind":"Name","value":"guidance"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"guidanceText"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"tagId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"versionedGuidanceGroup"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"active"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"version"}}]}},{"kind":"Field","name":{"kind":"Name","value":"optionalSubset"}}]}}]}}]} as unknown as DocumentNode<GuidanceGroupQuery, GuidanceGroupQueryVariables>;
 export const LanguagesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Languages"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"languages"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"isDefault"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<LanguagesQuery, LanguagesQueryVariables>;
