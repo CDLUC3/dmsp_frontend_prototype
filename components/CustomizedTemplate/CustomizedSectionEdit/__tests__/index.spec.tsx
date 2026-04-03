@@ -6,6 +6,7 @@ import { useToast } from '@/context/ToastContext';
 import CustomizedSectionEdit from '../index';
 import {
   CustomizableObjectOwnership,
+  MoveCustomQuestionDirection,
   MoveCustomQuestionDocument,
   SectionCustomizationOverview,
 } from '@/generated/graphql';
@@ -132,6 +133,7 @@ const moveQuestionSuccessMock = {
         sectionType: CustomizableObjectOwnership.Custom,
         pinnedQuestionId: null,
         pinnedQuestionType: null,
+        direction: MoveCustomQuestionDirection.Up,
       },
     },
   },
@@ -173,6 +175,7 @@ const moveQuestionErrorMock = {
         sectionType: CustomizableObjectOwnership.Custom,
         pinnedQuestionId: null,
         pinnedQuestionType: null,
+        direction: MoveCustomQuestionDirection.Up,
       },
     },
   },
@@ -214,6 +217,7 @@ const moveQuestionNetworkErrorMock = {
         sectionType: CustomizableObjectOwnership.Custom,
         pinnedQuestionId: null,
         pinnedQuestionType: null,
+        direction: MoveCustomQuestionDirection.Up,
       },
     },
   },

@@ -1,4 +1,6 @@
 ## Added
+- Added new `projects.dmp.customSection` and `projects.dmp.customQuestion.detail` routes to routePath [#169]
+- Added `PublishedCustomSection` query [#169]
 - Added new `NavigationEvent` and `TransitionLink` to prevent multiple clicks on a link while loading, and to provide feedback to user with a progress bar [#149]
 - Added a new `TransitionButton` component to disable button when in progress, and to change button text when loading [#149]
 - Added `loading.tsx` at `app` directory root, instead of in `app/[locale]` because it wasn't working in the `[locale]` directory [#149]
@@ -27,6 +29,8 @@
 - Updated `PlanOverviewSectionPage` to get `sectionType` from query param and added `PublishedCustomSectionDocument` and `PublishedCustomQuestionsDocument` queries to get custom sections and questions to list on the page. set correct `section` or `questions` values based on `BASE` and `CUSTOM` sectionTypes [#169]
 - Updated `CustomQuestionNew` to pass `sectionType` to `QuestionAdd` component [#169]
 - Updated `PublishedQuestions` query fields, and added `PublishedCustomQuestions` query [#169]
+- Updated `useGuidanceData` to use the correct sectionId for custom sections, and updated `useGuidanceMutation` hook to do the same using the new `customSectionId` prop [#169]
+- Updated `CustomizedSectionEdit` to pass the new `direction` prop to `moveCustomQuestion` mutation [#169] 
 - Updated `ProjectOverviewPage` to display both `BASE` and `CUSTOM` sections in the card [#168]
 - Updated `PlanOverviewPage` to display both the `BASE` and `CUSTOM` sections in the list [#168]
 - Updated `project` and `plan` queries to include the new `customSectionId` and `sectionType` fields [#168]
