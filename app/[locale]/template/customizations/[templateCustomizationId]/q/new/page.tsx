@@ -75,6 +75,7 @@ const CustomQuestionNew: React.FC = () => {
   const [searchButtonClicked, setSearchButtonClicked] = useState(false);
   const [selectedQuestionType, setSelectedQuestionType] = useState<{ questionType: string, questionName: string, questionJSON: string }>();
   const [errors, setErrors] = useState<string[]>([]);
+  const [sectionType, setSectionType] = useState<CustomizableObjectOwnership>(CustomizableObjectOwnership.Custom);
 
   const stepQueryValue = useQueryStep();
 
@@ -188,6 +189,14 @@ const CustomQuestionNew: React.FC = () => {
     const section = data.templateCustomizationOverview.sections.find(
       s => s?.id === Number(sectionId)
     );
+
+    // Derive sectionType from the actual parent section
+    setSectionType(
+      section?.sectionType === 'CUSTOM'
+        ? CustomizableObjectOwnership.Custom
+        : CustomizableObjectOwnership.Base
+    );
+
 
     if (!section?.questions?.length) {
       setLastQuestionId(null);
@@ -318,7 +327,7 @@ const CustomQuestionNew: React.FC = () => {
               const input = {
                 templateCustomizationId: Number(templateCustomizationId),
                 sectionId: Number(sectionId),
-                sectionType: CustomizableObjectOwnership.Custom,
+                sectionType,
                 pinnedQuestionId: lastQuestionId,
                 pinnedQuestionType: lastQuestionType ?? null,
                 ...commonFields,

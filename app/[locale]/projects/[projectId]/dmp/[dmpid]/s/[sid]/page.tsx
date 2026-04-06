@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useTranslations } from "next-intl";
 
 // GraphQL
@@ -10,6 +10,8 @@ import { useQuery } from '@apollo/client/react';
 import {
   PublishedQuestionsDocument,
   PublishedSectionDocument,
+  PublishedCustomSectionDocument,
+  PublishedCustomQuestionsDocument,
   PlanDocument,
   MeDocument,
 } from '@/generated/graphql';
@@ -46,13 +48,20 @@ const PlanOverviewSectionPage: React.FC = () => {
   const t = useTranslations('PlanOverview');
   const Guidance = useTranslations('Guidance');
   const Section = useTranslations('SectionPage');
-  const Global = useTranslations('Global');
 
   // Get route params
   const params = useParams();
-  const versionedSectionId = Number(params.sid);
-  const dmpId = params.dmpid as string;
+  const searchParams = useSearchParams();
+  const sectionId = Number(params.sid);
+  const dmpId = params.dmpid as string; // plan id
   const projectId = params.projectId as string;
+  const sectionType = searchParams.get('sectionType'); // 'BASE' or 'CUSTOM'
+
+
+  // Validate that sectionId is present
+  if (!sectionId) {
+    return <ErrorMessages errors={[t('errors.invalidSectionId')]} />;
+  }
 
   // State for navigation visibility
   const [showNavigation, setShowNavigation] = useState(true);
@@ -64,8 +73,17 @@ const PlanOverviewSectionPage: React.FC = () => {
   const { data: me } = useQuery(MeDocument);
 
   const { data: questionsData, loading: questionsLoading, error: questionsError } = useQuery(PublishedQuestionsDocument, {
-    variables: { planId, versionedSectionId },
-    skip: !versionedSectionId
+    variables: {
+      planId,
+      versionedSectionId: sectionId
+    },
+    skip: !sectionId || sectionType === 'CUSTOM' // Skip if it's a custom section, as it uses a different query
+  });
+
+  // Add the custom questions query
+  const { data: customQuestionsData, loading: customQuestionsLoading } = useQuery(PublishedCustomQuestionsDocument, {
+    variables: { planId, versionedCustomSectionId: sectionId },
+    skip: !sectionId || sectionType !== 'CUSTOM'
   });
 
   const { data: planData, loading: planLoading } = useQuery(PlanDocument, {
@@ -74,9 +92,67 @@ const PlanOverviewSectionPage: React.FC = () => {
   });
 
   const { data: sectionData, loading: sectionLoading } = useQuery(PublishedSectionDocument, {
-    variables: { versionedSectionId },
-    skip: !versionedSectionId
+    variables: {
+      versionedSectionId: sectionId
+    },
+    skip: !sectionId || sectionType !== 'BASE' // Only fetch if it's a base section
   });
+
+  const { data: customSectionData, loading: customSectionLoading } = useQuery(
+    PublishedCustomSectionDocument,
+    {
+      variables: {
+        customSectionId: sectionId,
+        planId,
+      },
+      skip: sectionType !== 'CUSTOM', // Only fetch if it's a custom section
+    }
+  );
+
+  // Derive unified section shape here, after all queries have run
+  const section = useMemo(() => {
+    if (sectionType === 'CUSTOM' && customSectionData?.publishedCustomSection) {
+      const s = customSectionData.publishedCustomSection;
+      return {
+        name: s.name ?? '',
+        requirements: s.requirements ?? null,
+        introduction: s.introduction ?? null,
+        guidance: s.guidance ?? null,
+      };
+    }
+    if (sectionData?.publishedSection) {
+      const s = sectionData.publishedSection;
+      return {
+        name: s.name ?? '',
+        requirements: s.requirements ?? null,
+        introduction: s.introduction ?? null,
+        guidance: s.guidance ?? null,
+      };
+    }
+    return null;
+  }, [sectionType, sectionData, customSectionData]);
+
+
+  const questions: VersionedQuestion[] = useMemo(() => {
+    const source = sectionType === 'CUSTOM'
+      ? customQuestionsData?.publishedCustomQuestions
+      : questionsData?.publishedQuestions;
+
+    return source
+      ?.filter((q): q is NonNullable<typeof q> => q !== null)
+      .map((q) => ({
+        id: q.id?.toString() || '',
+        title: q.questionText || '',
+        link: q.questionType === 'CUSTOM'
+          ? routePath('projects.dmp.customQuestion.detail', {
+            projectId, dmpId, customSectionId: sectionId, customQuestionId: String(q.customQuestionId)
+          })
+          : routePath('projects.dmp.versionedQuestion.detail', {
+            projectId, dmpId, versionedSectionId: sectionId, versionedQuestionId: String(q.versionedQuestionId)
+          }),
+        hasAnswer: q.hasAnswer || false
+      })) || [];
+  }, [sectionType, questionsData, customQuestionsData]);
 
   // versionedTemplateId for guidance filtering
   const versionedTemplateId = planData?.plan?.versionedTemplate?.id;
@@ -88,7 +164,8 @@ const PlanOverviewSectionPage: React.FC = () => {
     guidanceItems,
   } = useGuidanceData({
     planId: parseInt(dmpId),
-    versionedSectionId
+    versionedSectionId: sectionId,
+    sectionType: sectionType || 'BASE' // Default to 'BASE' if not provided, to avoid breaking existing functionality
   });
 
   // Use guidance mutations hook (mutations only, no data)
@@ -99,7 +176,8 @@ const PlanOverviewSectionPage: React.FC = () => {
     guidanceError,
   } = useGuidanceMutations({
     planId: parseInt(dmpId),
-    versionedSectionId
+    versionedSectionId: sectionId,
+    customSectionId: sectionType === 'CUSTOM' ? sectionId : undefined
   });
 
   // Hide navigation when close to footer
@@ -126,10 +204,10 @@ const PlanOverviewSectionPage: React.FC = () => {
     return <ErrorMessages errors={[t('errors.invalidDmpId')]} />;
   }
 
-  // Loading states
-  if (questionsLoading || sectionLoading || planLoading) {
-    return <Loading message={Global("messaging.loading")} />;
+  if (questionsLoading || customQuestionsLoading || sectionLoading || customSectionLoading || planLoading) {
+    return <Loading />;
   }
+
 
   if (questionsError) {
     return <div>{Section('errors.errorLoadingSections', { message: questionsError.message })}</div>;
@@ -137,22 +215,13 @@ const PlanOverviewSectionPage: React.FC = () => {
 
   // Plan sections data for rendering
   const planSections = planData?.plan?.versionedSections || [];
-  const sectionBelongsToPlan = planSections.some(section => section.versionedSectionId === versionedSectionId);
-
+  const sectionBelongsToPlan = planSections.some(
+    (s) => s.versionedSectionId === sectionId || s.customSectionId === sectionId
+  );
   // Check if section belongs to this plan
   if (!sectionBelongsToPlan) {
     return <ErrorMessages errors={[t('errors.sectionNotFound')]} />;
   }
-
-  // Check for questions - show message if none
-  const questions: VersionedQuestion[] = questionsData?.publishedQuestions?.filter((question): question is NonNullable<typeof question> => question !== null).map((question) => ({
-    id: question.id?.toString() || '',
-    title: question.questionText || '',
-    link: routePath('projects.dmp.versionedQuestion.detail', {
-      projectId, dmpId, versionedSectionId, versionedQuestionId: String(question.id)
-    }),
-    hasAnswer: question.hasAnswer || false
-  })) || [];
 
   const plan = {
     id: planData?.plan?.id?.toString() || '',
@@ -163,7 +232,7 @@ const PlanOverviewSectionPage: React.FC = () => {
   return (
     <>
       <PageHeader
-        title={sectionData?.publishedSection?.name || "Data and Metadata Formats"}
+        title={section?.name || "Section"}
         description=""
         showBackButton={true}
         breadcrumbs={
@@ -192,7 +261,7 @@ const PlanOverviewSectionPage: React.FC = () => {
               </Link>
             </Breadcrumb>
             <Breadcrumb>
-              {sectionData?.publishedSection?.name || "Data and Metadata Formats"}
+              {sectionData?.publishedSection?.name || "Section"}
             </Breadcrumb>
           </Breadcrumbs>
         }
@@ -221,16 +290,16 @@ const PlanOverviewSectionPage: React.FC = () => {
               {planSections.length > 0 && (
                 <ul className={styles.sectionsList} role="list" aria-label="Plan sections">
                   {planSections.map((section) => (
-                    <li key={section.versionedSectionId}>
+                    <li key={section.versionedSectionId ?? `custom-${section.customSectionId}`}>
                       <Link
                         href={routePath('projects.dmp.show', {
                           projectId,
                           dmpId
                         })}
-                        className={`${styles.sectionLink} ${section.versionedSectionId === versionedSectionId ? styles.currentSection : ''
+                        className={`${styles.sectionLink} ${section.versionedSectionId === sectionId ? styles.currentSection : ''
                           }`}
                         aria-label={`Go to ${section.title} section`}
-                        aria-current={section.versionedSectionId === versionedSectionId ? 'page' : undefined}
+                        aria-current={(section.versionedSectionId ?? section.customSectionId) === sectionId}
                       >
                         {section.title}
                       </Link>
@@ -241,24 +310,19 @@ const PlanOverviewSectionPage: React.FC = () => {
             </nav>
 
             <div className="container">
+              {section?.introduction && (
+                <section aria-label={t('headings.introduction')}>
+                  <h3 className="h4">{t('headings.introduction')}</h3>
+                  <SafeHtml html={section.introduction} />
+                </section>
+              )}
               <section aria-label={"Requirements"}>
-                {sectionData?.publishedSection?.requirements && (
+                {section?.requirements && (
                   <>
                     <h3 className="h4">{t('headings.requirementsBy', { funder: plan.funder_name })}</h3>
-                    <SafeHtml html={sectionData?.publishedSection?.requirements} />
+                    <SafeHtml html={section?.requirements} />
                   </>
                 )}
-
-                <h4>Requirements by University of California</h4>
-                <p>
-                  (DUMMY DATA) The management of data and metadata is essential for supporting
-                  research integrity, reproducibility and collaboration. This
-                  section seeks to document the types and formats of data and
-                  metadata that will be generated in your project. Properly
-                  formatted and well-documented data enhance the visibility of
-                  your research, promote collaboration among users and ensure
-                  compliance with institutional policies and guidelines.
-                </p>
               </section>
 
               {questions.length === 0 ? (

@@ -13,6 +13,7 @@ import {
   MoveCustomQuestionDocument,
   SectionCustomizationOverview,
   QuestionCustomizationOverview,
+  MoveCustomQuestionDirection
 } from '@/generated/graphql';
 import CustomizedQuestionEdit from '../CustomizedQuestionEdit';
 
@@ -154,6 +155,7 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
             sectionType: section.sectionType as CustomizableObjectOwnership,
             pinnedQuestionId,
             pinnedQuestionType,
+            direction: direction.toUpperCase() as MoveCustomQuestionDirection.Up | MoveCustomQuestionDirection.Down,
           },
         },
       });

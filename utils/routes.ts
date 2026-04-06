@@ -80,6 +80,8 @@ const routes = {
   'projects.dmp.versionedQuestion': '/projects/:projectId/dmp/:dmpId/q',
   'projects.dmp.versionedQuestion.detail': '/projects/:projectId/dmp/:dmpId/s/:versionedSectionId/q/:versionedQuestionId',
   'projects.dmp.versionedSection': '/projects/:projectId/dmp/:dmpId/s/:versionedSectionId',
+  'projects.dmp.customSection': '/projects/:projectId/dmp/:dmpId/s/:customSectionId',
+  'projects.dmp.customQuestion.detail': '/projects/:projectId/dmp/:dmpId/s/:customSectionId/q/:customQuestionId',
   'projects.dmp.create': '/projects/:projectId/dmp/create',
   'projects.dmp.upload': '/projects/:projectId/dmp/upload',
 

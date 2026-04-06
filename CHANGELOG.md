@@ -1,4 +1,6 @@
 ## Added
+- Added new `projects.dmp.customSection` and `projects.dmp.customQuestion.detail` routes to routePath [#169]
+- Added `PublishedCustomSection` query [#169]
 - Added new `NavigationEvent` and `TransitionLink` to prevent multiple clicks on a link while loading, and to provide feedback to user with a progress bar [#149]
 - Added a new `TransitionButton` component to disable button when in progress, and to change button text when loading [#149]
 - Added `loading.tsx` at `app` directory root, instead of in `app/[locale]` because it wasn't working in the `[locale]` directory [#149]
@@ -24,6 +26,11 @@
 - Added related works project overview page [#700]
 
 ## Updated
+- Updated `PlanOverviewSectionPage` to get `sectionType` from query param and added `PublishedCustomSectionDocument` and `PublishedCustomQuestionsDocument` queries to get custom sections and questions to list on the page. set correct `section` or `questions` values based on `BASE` and `CUSTOM` sectionTypes [#169]
+- Updated `CustomQuestionNew` to pass `sectionType` to `QuestionAdd` component [#169]
+- Updated `PublishedQuestions` query fields, and added `PublishedCustomQuestions` query [#169]
+- Updated `useGuidanceData` to use the correct sectionId for custom sections, and updated `useGuidanceMutation` hook to do the same using the new `customSectionId` prop [#169]
+- Updated `CustomizedSectionEdit` to pass the new `direction` prop to `moveCustomQuestion` mutation [#169] 
 - Updated renovate config to rebase when a PR is behind the base branch
 - Updated `ProjectOverviewPage` to display both `BASE` and `CUSTOM` sections in the card [#168]
 - Updated `PlanOverviewPage` to display both the `BASE` and `CUSTOM` sections in the list [#168]
@@ -60,6 +67,7 @@
 - Fixed bug where the published status on `/template/[templateId]` did not match that on the template cards at `/template` for the `unpublished changes` state. Added a shared hook for determining the correct status text [#875]
 
 ## Chore
+- Addressed `picomatch` package vulnerability [#169]
 - Updated version of `next` to `v16.2.0`, `sanitize-html` to `v2.17.2`, `react-aria/toast` to `v3.0.11`, `@react-stately/toast` to `3.1.3` and `react-aria-components` to `v1.16.0`. Fixed some unit tests related to the updates, and updated header logo `Image` and related `css` to remove warnings related to resizing.
 - Updated version of `next` to `16.1.7` due to security vulnerability
 - Updated version of `dompurify` to `v3.3.2` due to security vulnerability, and included updates to`test-exclude` to v7.0.2, `sanitize-html` to v2.17.1, `tinymce` to v7.9.2, `next-intl` to v4.8.3, `html-react-parser` to v5.2.17, `@types/node` to v24.12.0, and `@types/react to v18.3.28.

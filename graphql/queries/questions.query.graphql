@@ -49,15 +49,36 @@ query PublishedQuestions($planId: Int!, $versionedSectionId: Int!) {
   publishedQuestions(planId: $planId, versionedSectionId: $versionedSectionId) {
     id
     questionText
-    displayOrder
     guidanceText
     requirementText
     sampleText
-    versionedSectionId
-    versionedTemplateId
+    useSampleTextAsDefault
+    required
     hasAnswer
+    questionType
+    versionedQuestionId
+    customQuestionId
+    json
   }
 }
+
+query PublishedCustomQuestions($planId: Int!, $versionedCustomSectionId: Int!) {
+  publishedCustomQuestions(planId: $planId, versionedCustomSectionId: $versionedCustomSectionId) {
+    id
+    questionText
+    guidanceText
+    requirementText
+    sampleText
+    useSampleTextAsDefault
+    required
+    hasAnswer
+    questionType
+    versionedQuestionId
+    customQuestionId
+    json
+  }
+}
+
 
 query PublishedQuestion($versionedQuestionId: Int!) {
   publishedQuestion(versionedQuestionId: $versionedQuestionId) {

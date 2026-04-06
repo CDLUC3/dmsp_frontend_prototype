@@ -95,3 +95,19 @@ query Section($sectionId: Int!) {
     }
   }
 }
+
+query PublishedCustomSection($customSectionId: Int!, $planId: Int!) {
+  publishedCustomSection(customSectionId: $customSectionId, planId: $planId) {
+        id
+    guidance
+    name
+    introduction
+    requirements
+    pinnedVersionedSectionType
+    pinnedVersionedSectionId
+    errors {
+      name
+      general
+    }
+  }
+}

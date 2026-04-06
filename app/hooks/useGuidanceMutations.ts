@@ -15,6 +15,7 @@ interface UseGuidanceMutationsProps {
   planId: number;
   versionedSectionId?: number;
   versionedQuestionId?: number;
+  customSectionId?: number;
 }
 
 /**
@@ -25,6 +26,7 @@ export const useGuidanceMutations = ({
   planId,
   versionedSectionId,
   versionedQuestionId,
+  customSectionId
 }: UseGuidanceMutationsProps) => {
 
   const Guidance = useTranslations('Guidance');
@@ -32,16 +34,22 @@ export const useGuidanceMutations = ({
   // Local error state
   const [guidanceError, setGuidanceError] = useState<string | null>(null);
 
+  const resolvedVersionedSectionId = customSectionId ? undefined : versionedSectionId;
+  const resolvedCustomSectionId = customSectionId ?? undefined;
+
+  const refetchVariables = {
+    planId,
+    versionedSectionId: resolvedVersionedSectionId ? Number(resolvedVersionedSectionId) : undefined,
+    versionedQuestionId: versionedQuestionId ? Number(versionedQuestionId) : undefined,
+    customSectionId: resolvedCustomSectionId ? Number(resolvedCustomSectionId) : undefined,
+  };
+
   // Mutation for adding guidance organizations
   const [addPlanGuidanceMutation, { loading: isAdding }] = useMutation(AddPlanGuidanceDocument, {
     refetchQueries: [
       {
         query: GuidanceSourcesForPlanDocument,
-        variables: {
-          planId,
-          versionedSectionId: versionedSectionId ? Number(versionedSectionId) : undefined,
-          versionedQuestionId: versionedQuestionId ? Number(versionedQuestionId) : undefined
-        }
+        variables: refetchVariables
       }
     ],
     awaitRefetchQueries: true, // Wait for refetch to complete
@@ -52,11 +60,7 @@ export const useGuidanceMutations = ({
     refetchQueries: [
       {
         query: GuidanceSourcesForPlanDocument,
-        variables: {
-          planId,
-          versionedSectionId: versionedSectionId ? Number(versionedSectionId) : undefined,
-          versionedQuestionId: versionedQuestionId ? Number(versionedQuestionId) : undefined
-        }
+        variables: refetchVariables
       }
     ],
     awaitRefetchQueries: true, // Wait for refetch to complete

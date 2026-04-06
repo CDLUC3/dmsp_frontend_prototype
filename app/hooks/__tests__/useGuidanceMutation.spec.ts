@@ -93,6 +93,7 @@ describe('useGuidanceMutations', () => {
                 planId: 123,
                 versionedSectionId: 456,
                 versionedQuestionId: undefined,
+                customSectionId: undefined,
               },
             },
           ],
@@ -111,6 +112,7 @@ describe('useGuidanceMutations', () => {
                 planId: 123,
                 versionedSectionId: 456,
                 versionedQuestionId: undefined,
+                customSectionId: undefined,
               },
             },
           ],
@@ -137,6 +139,51 @@ describe('useGuidanceMutations', () => {
                 planId: 123,
                 versionedSectionId: undefined,
                 versionedQuestionId: 789,
+                customSectionId: undefined,
+              },
+            },
+          ],
+        })
+      );
+    });
+
+    it('should pass customSectionId and clear versionedSectionId when customSectionId is provided', () => {
+      const props = {
+        planId: 123,
+        versionedSectionId: 456,
+        customSectionId: 789,
+      };
+
+      renderHook(() => useGuidanceMutations(props));
+
+      expect(mockUseMutation).toHaveBeenCalledWith(
+        AddPlanGuidanceDocument,
+        expect.objectContaining({
+          refetchQueries: [
+            {
+              query: expect.anything(),
+              variables: {
+                planId: 123,
+                versionedSectionId: undefined,
+                versionedQuestionId: undefined,
+                customSectionId: 789,
+              },
+            },
+          ],
+        })
+      );
+
+      expect(mockUseMutation).toHaveBeenCalledWith(
+        RemovePlanGuidanceDocument,
+        expect.objectContaining({
+          refetchQueries: [
+            {
+              query: expect.anything(),
+              variables: {
+                planId: 123,
+                versionedSectionId: undefined,
+                versionedQuestionId: undefined,
+                customSectionId: 789,
               },
             },
           ],
