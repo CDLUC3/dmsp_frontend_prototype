@@ -31,6 +31,7 @@
 - Updated `PublishedQuestions` query fields, and added `PublishedCustomQuestions` query [#169]
 - Updated `useGuidanceData` to use the correct sectionId for custom sections, and updated `useGuidanceMutation` hook to do the same using the new `customSectionId` prop [#169]
 - Updated `CustomizedSectionEdit` to pass the new `direction` prop to `moveCustomQuestion` mutation [#169] 
+- Updated renovate config to rebase when a PR is behind the base branch
 - Updated `ProjectOverviewPage` to display both `BASE` and `CUSTOM` sections in the card [#168]
 - Updated `PlanOverviewPage` to display both the `BASE` and `CUSTOM` sections in the list [#168]
 - Updated `project` and `plan` queries to include the new `customSectionId` and `sectionType` fields [#168]
