@@ -24,7 +24,8 @@ import guidanceSourcesForPlanMock from '../__mocks__/guidanceSourcesForPlanMock'
 import versionedGuidanceMock from '../__mocks__/versionedGuidanceMock';
 import publishedCustomQuestionsMock from '../__mocks__/publishedCustomQuestionsMock';
 import publishedCustomSectionMock from '../__mocks__/publishedCustomSectionMock';
-import PlanOverviewSectionPage from "../page";
+import { PlanOverviewSectionPageShared, SectionPageConfig } from '@/components/PlanOverviewSectionPageShared';
+import { routePath } from '@/utils/routes';
 
 expect.extend(toHaveNoViolations);
 
@@ -62,9 +63,6 @@ jest.mock('@/utils/general', () => ({
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
-  useSearchParams: jest.fn(() => ({
-    get: jest.fn(),
-  })),
   notFound: jest.fn(),
 }));
 
@@ -72,6 +70,12 @@ const mockParams = {
   projectId: '123',
   dmpid: '456',
   sid: '456',
+};
+
+const customMockParams = {
+  projectId: '123',
+  dmpid: '456',
+  csid: '456',
 };
 
 const mocks = [
@@ -394,26 +398,77 @@ const customMocks = [
   {
     request: {
       query: GuidanceSourcesForPlanDocument,
-      variables: { planId: 456, versionedSectionId: 456 },
+      variables: { planId: 456, customSectionId: 456 },  // ← customSectionId not versionedSectionId
     },
     result: { data: { guidanceSourcesForPlan: guidanceSourcesForPlanMock } },
   },
   // Base queries are intentionally absent — skip guards prevent them firing
 ];
 
+const baseConfig: SectionPageConfig = {
+  sectionIdParamKey: 'sid',
+  questionsDocument: PublishedQuestionsDocument,
+  questionsVariableKey: 'versionedSectionId',
+  sectionDocument: PublishedSectionDocument,
+  buildSectionVariables: ({ sectionId }) => ({ versionedSectionId: sectionId }),
+  extractQuestions: (data) => (data as any)?.publishedQuestions,
+  extractSection: (data) => (data as any)?.publishedSection,
+  extractBreadcrumbName: (data) => (data as any)?.publishedSection?.name,
+  buildQuestionLink: ({ projectId, dmpId, sectionId, question }) =>
+    question.questionType === 'BASE'
+      ? routePath('projects.dmp.versionedQuestion.detail', {
+        projectId, dmpId,
+        versionedSectionId: sectionId,
+        versionedQuestionId: String(question.versionedQuestionId)
+      })
+      : routePath('projects.dmp.customQuestion.underVersionedSection', {
+        projectId, dmpId,
+        sid: sectionId,
+        cqid: String(question.customQuestionId)
+      }),
+  sectionType: 'BASE',
+  buildGuidanceMutationParams: ({ planId, sectionId }) => ({
+    planId,
+    versionedSectionId: sectionId,
+    customSectionId: undefined,
+  }),
+};
+
+const customConfig: SectionPageConfig = {
+  sectionIdParamKey: 'csid',
+  questionsDocument: PublishedCustomQuestionsDocument,
+  questionsVariableKey: 'versionedCustomSectionId',
+  sectionDocument: PublishedCustomSectionDocument,
+  buildSectionVariables: ({ sectionId, planId }) => ({ customSectionId: sectionId, planId }),
+  extractQuestions: (data) => (data as any)?.publishedCustomQuestions,
+  extractSection: (data) => (data as any)?.publishedCustomSection,
+  extractBreadcrumbName: (data) => (data as any)?.publishedCustomSection?.name,
+  buildQuestionLink: ({ projectId, dmpId, sectionId, question }) =>
+    routePath('projects.dmp.customQuestion.underCustomSection', {
+      projectId, dmpId,
+      csid: sectionId,
+      cqid: String(question.customQuestionId)
+    }),
+  sectionType: 'CUSTOM',
+  buildGuidanceMutationParams: ({ planId, sectionId }) => ({
+    planId,
+    versionedSectionId: sectionId,
+    customSectionId: sectionId,
+  }),
+};
+
 describe('PlanOverviewSectionPage - BASE section with BASE questions or CUSTOM questions', () => {
   beforeEach(() => {
     (useParams as jest.Mock).mockReturnValue(mockParams);
-    // 'BASE' must be explicit — undefined fails the skip: sectionType !== 'BASE' guard
-    (useSearchParams as jest.Mock).mockReturnValue({ get: () => 'BASE' });
     jest.clearAllMocks();
   });
 
   it('should render the page with questions and section data', async () => {
     render(
       <MockedProvider mocks={mocks}>
-        <PlanOverviewSectionPage />
+        <PlanOverviewSectionPageShared config={baseConfig} />
       </MockedProvider>
+
     );
 
     // Check that initial questions are loaded
@@ -439,9 +494,10 @@ describe('PlanOverviewSectionPage - BASE section with BASE questions or CUSTOM q
 
   it('should handle empty questions list', async () => {
     render(
-      <MockedProvider mocks={emptyQuestionsMocks}>
-        <PlanOverviewSectionPage />
+      <MockedProvider mocks={mocks}>
+        <PlanOverviewSectionPageShared config={baseConfig} />
       </MockedProvider>
+
     );
 
     // Check that initial questions are loaded
@@ -458,8 +514,9 @@ describe('PlanOverviewSectionPage - BASE section with BASE questions or CUSTOM q
   it('should handle GraphQL errors gracefully', async () => {
     render(
       <MockedProvider mocks={errorMocks}>
-        <PlanOverviewSectionPage />
+        <PlanOverviewSectionPageShared config={baseConfig} />
       </MockedProvider>
+
     );
 
     // Wait for error to be displayed
@@ -471,8 +528,9 @@ describe('PlanOverviewSectionPage - BASE section with BASE questions or CUSTOM q
   it('should render question cards with proper structure', async () => {
     render(
       <MockedProvider mocks={mocks}>
-        <PlanOverviewSectionPage />
+        <PlanOverviewSectionPageShared config={baseConfig} />
       </MockedProvider>
+
     );
 
     // Wait for data to load
@@ -507,8 +565,9 @@ describe('PlanOverviewSectionPage - BASE section with BASE questions or CUSTOM q
   it('should generate correct links for questions', async () => {
     render(
       <MockedProvider mocks={mocks}>
-        <PlanOverviewSectionPage />
+        <PlanOverviewSectionPageShared config={baseConfig} />
       </MockedProvider>
+
     );
 
     // Check that initial questions are loaded
@@ -541,8 +600,9 @@ describe('PlanOverviewSectionPage - BASE section with BASE questions or CUSTOM q
   it('should generate correct completed description for questions', async () => {
     render(
       <MockedProvider mocks={mocks}>
-        <PlanOverviewSectionPage />
+        <PlanOverviewSectionPageShared config={baseConfig} />
       </MockedProvider>
+
     );
 
     // Check that initial questions are loaded
@@ -571,9 +631,10 @@ describe('PlanOverviewSectionPage - BASE section with BASE questions or CUSTOM q
 
 
     render(
-      <MockedProvider mocks={missingSectionMocks}>
-        <PlanOverviewSectionPage />
+      <MockedProvider mocks={mocks}>
+        <PlanOverviewSectionPageShared config={baseConfig} />
       </MockedProvider>
+
     );
 
     // Check that initial questions are loaded
@@ -605,8 +666,8 @@ describe('PlanOverviewSectionPage - BASE section with BASE questions or CUSTOM q
     });
 
     render(
-      <MockedProvider mocks={nullQuestionsMocks}>
-        <PlanOverviewSectionPage />
+      <MockedProvider mocks={mocks}>
+        <PlanOverviewSectionPageShared config={baseConfig} />
       </MockedProvider>
     );
     // Check that initial questions are loaded
@@ -624,7 +685,7 @@ describe('PlanOverviewSectionPage - BASE section with BASE questions or CUSTOM q
   it('should pass accessibility tests', async () => {
     const { container } = render(
       <MockedProvider mocks={mocks}>
-        <PlanOverviewSectionPage />
+        <PlanOverviewSectionPageShared config={baseConfig} />
       </MockedProvider>
     );
 
@@ -676,7 +737,7 @@ describe('PlanOverviewSectionPage - BASE section with BASE questions or CUSTOM q
 
     render(
       <MockedProvider mocks={incompleteMocks}>
-        <PlanOverviewSectionPage />
+        <PlanOverviewSectionPageShared config={baseConfig} />
       </MockedProvider>
     );
 
@@ -698,15 +759,14 @@ describe('PlanOverviewSectionPage - BASE section with BASE questions or CUSTOM q
 
 describe('PlanOverviewSectionPage - CUSTOM section with custom questions', () => {
   beforeEach(() => {
-    (useParams as jest.Mock).mockReturnValue(mockParams);
-    (useSearchParams as jest.Mock).mockReturnValue({ get: () => 'CUSTOM' });
+    (useParams as jest.Mock).mockReturnValue(customMockParams);
     jest.clearAllMocks();
   });
 
   it('should render the custom section name', async () => {
     render(
       <MockedProvider mocks={customMocks}>
-        <PlanOverviewSectionPage />
+        <PlanOverviewSectionPageShared config={customConfig} />
       </MockedProvider>
     );
 
@@ -721,7 +781,7 @@ describe('PlanOverviewSectionPage - CUSTOM section with custom questions', () =>
   it('should render the custom question card', async () => {
     render(
       <MockedProvider mocks={customMocks}>
-        <PlanOverviewSectionPage />
+        <PlanOverviewSectionPageShared config={customConfig} />
       </MockedProvider>
     );
 
@@ -738,7 +798,7 @@ describe('PlanOverviewSectionPage - CUSTOM section with custom questions', () =>
   it('should show not-answered status for the custom question', async () => {
     render(
       <MockedProvider mocks={customMocks}>
-        <PlanOverviewSectionPage />
+        <PlanOverviewSectionPageShared config={customConfig} />
       </MockedProvider>
     );
 
@@ -754,7 +814,7 @@ describe('PlanOverviewSectionPage - CUSTOM section with custom questions', () =>
   it('should link custom questions to the customQuestion route, not the versionedQuestion route', async () => {
     render(
       <MockedProvider mocks={customMocks}>
-        <PlanOverviewSectionPage />
+        <PlanOverviewSectionPageShared config={customConfig} />
       </MockedProvider>
     );
 
@@ -764,7 +824,7 @@ describe('PlanOverviewSectionPage - CUSTOM section with custom questions', () =>
 
     const startLink = screen.getByText('sections.start');
 
-    expect(startLink).toHaveAttribute('href', '/en-US/projects/123/dmp/456/s/456/q/7');
+    expect(startLink).toHaveAttribute('href', '/en-US/projects/123/dmp/456/cs/456/cq/7');
 
     // Verify it didn't fall back to versionedQuestion route (which would use 'undefined'
     // since versionedQuestionId is null on custom questions)
@@ -774,7 +834,7 @@ describe('PlanOverviewSectionPage - CUSTOM section with custom questions', () =>
   it('should not render the requirements heading when custom section requirements is empty', async () => {
     render(
       <MockedProvider mocks={customMocks}>
-        <PlanOverviewSectionPage />
+        <PlanOverviewSectionPageShared config={customConfig} />
       </MockedProvider>
     );
 
@@ -796,7 +856,7 @@ describe('PlanOverviewSectionPage - CUSTOM section with custom questions', () =>
 
     render(
       <MockedProvider mocks={emptyCustomMocks}>
-        <PlanOverviewSectionPage />
+        <PlanOverviewSectionPageShared config={customConfig} />
       </MockedProvider>
     );
 

@@ -11,7 +11,7 @@ import {
 } from '@/generated/graphql';
 import logECS from "@/utils/clientLogger";
 
-interface UseGuidanceMutationsProps {
+export interface UseGuidanceMutationsProps {
   planId: number;
   versionedSectionId?: number;
   versionedQuestionId?: number;
