@@ -10,7 +10,7 @@ const config: QuestionPageConfig = {
   sectionIdField: 'customSectionId',              // ← checks section.customSectionId
   questionDocument: PublishedCustomQuestionDocument,
   questionVariableKey: 'versionedCustomQuestionId',
-  extractQuestion: (data) => (data as any)?.publishedCustomQuestion,
+  extractQuestion: (data) => data?.publishedCustomQuestion,
   sectionType: 'CUSTOM',
   buildGuidanceMutationParams: ({ planId, versionedSectionId, versionedQuestionId }) => ({
     planId,

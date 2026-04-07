@@ -11,9 +11,9 @@ const config: SectionPageConfig = {
   questionsVariableKey: 'versionedSectionId',
   sectionDocument: PublishedSectionDocument,
   buildSectionVariables: ({ sectionId }) => ({ versionedSectionId: sectionId }),
-  extractQuestions: (data) => (data as any)?.publishedQuestions,
-  extractSection: (data) => (data as any)?.publishedSection,
-  extractBreadcrumbName: (data) => (data as any)?.publishedSection?.name,
+  extractQuestions: (data) => data?.publishedQuestions,
+  extractSection: (data) => data?.publishedSection,
+  extractBreadcrumbName: (data) => data?.publishedSection?.name,
   buildQuestionLink: ({ projectId, dmpId, sectionId, question }) =>
     question.questionType === 'BASE'
       ? routePath('projects.dmp.versionedQuestion.detail', {

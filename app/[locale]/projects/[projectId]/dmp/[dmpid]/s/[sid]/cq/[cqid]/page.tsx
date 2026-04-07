@@ -3,7 +3,6 @@
 // CUSTOM variant
 import { PlanOverviewQuestionPageShared, QuestionPageConfig } from '@/components/PlanOverviewQuestionPageShared';
 import { PublishedCustomQuestionDocument } from '@/generated/graphql';
-import { routePath } from '@/utils/routes';
 
 const config: QuestionPageConfig = {
   questionIdParamKey: 'cqid',
@@ -11,7 +10,7 @@ const config: QuestionPageConfig = {
   sectionIdField: 'versionedSectionId',
   questionDocument: PublishedCustomQuestionDocument,
   questionVariableKey: 'versionedCustomQuestionId',
-  extractQuestion: (data) => (data as any)?.publishedCustomQuestion,
+  extractQuestion: (data) => data?.publishedCustomQuestion,
   sectionType: 'CUSTOM',
   buildGuidanceMutationParams: ({ planId, versionedSectionId, versionedQuestionId }) => ({
     planId,

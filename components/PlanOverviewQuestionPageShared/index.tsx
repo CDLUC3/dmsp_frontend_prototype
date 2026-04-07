@@ -119,7 +119,7 @@ export interface QuestionPageConfig {
   /** The variable key expected by the document ("versionedQuestionId" | "versionedCustomQuestionId"). */
   questionVariableKey: string;
   /** Pull the question object out of the raw query result. */
-  extractQuestion: (data: unknown) => RawQuestion | null | undefined;
+  extractQuestion: (data: Record<string, RawQuestion | null | undefined>) => RawQuestion | null | undefined;
   /** Whether this is a BASE template question or a CUSTOM one. */
   sectionType: SectionType;
   /**
@@ -227,7 +227,6 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
     extractQuestion,
     sectionType,
     buildGuidanceMutationParams,
-    buildRouteParams,
   } = config;
 
 
@@ -1169,7 +1168,7 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
   // Get parsed JSON from question, and set parsed, question and questionType in state
   useEffect(() => {
     if (questionData) {
-      const q = extractQuestion(questionData);
+      const q = extractQuestion(questionData as Record<string, RawQuestion | null | undefined>);
       if (!q) {
         return;
       }

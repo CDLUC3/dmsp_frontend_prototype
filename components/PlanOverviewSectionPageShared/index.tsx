@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useMemo, use } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
 import { useParams } from 'next/navigation';
 import { useTranslations } from "next-intl";
@@ -40,7 +40,6 @@ interface VersionedQuestion {
   hasAnswer: boolean;
 }
 
-type RouteName = Parameters<typeof routePath>[0];
 type SectionType = 'BASE' | 'CUSTOM';
 
 interface RawSection {
@@ -68,11 +67,11 @@ export interface SectionPageConfig {
   /** Variable key(s) for the section query — shape differs between BASE and CUSTOM. */
   buildSectionVariables: (ids: { sectionId: number; planId: number }) => Record<string, number>;
   /** Extract questions array from the questions query result. */
-  extractQuestions: (data: unknown) => RawQuestion[] | null | undefined;
+  extractQuestions: (data: Record<string, RawQuestion[] | null | undefined>) => RawQuestion[] | null | undefined;
   /** Extract section object from the section query result. */
-  extractSection: (data: unknown) => RawSection | null | undefined;
+  extractSection: (data: Record<string, RawSection | null | undefined>) => RawSection | null | undefined;
   /** Extract the section name for the breadcrumb from the section query result. */
-  extractBreadcrumbName: (data: unknown) => string | null | undefined;
+  extractBreadcrumbName: (data: Record<string, RawSection | null | undefined>) => string | null | undefined;
   /** Build the route link for an individual question. */
   buildQuestionLink: (ids: {
     projectId: string;
@@ -154,7 +153,7 @@ export const PlanOverviewSectionPageShared: React.FC<{ config: SectionPageConfig
 
   // Derive unified section shape here, after all queries have run
   const section = useMemo(() => {
-    const raw = extractSection(sectionData);
+    const raw = extractSection(sectionData as Record<string, RawSection | null | undefined>);
     if (!raw) return null;
     return {
       name: raw.name ?? '',
@@ -167,7 +166,7 @@ export const PlanOverviewSectionPageShared: React.FC<{ config: SectionPageConfig
 
 
   const questions: VersionedQuestion[] = useMemo(() => {
-    const source = extractQuestions(questionsData);
+    const source = extractQuestions(questionsData as Record<string, RawQuestion[] | null | undefined>);
     return source
       ?.filter((q): q is NonNullable<typeof q> => q !== null)
       .map((q) => ({
@@ -259,7 +258,7 @@ export const PlanOverviewSectionPageShared: React.FC<{ config: SectionPageConfig
             <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.dmp.show', { projectId, dmpId })}>{Global('breadcrumbs.planOverview')}</Link></Breadcrumb>
             <Breadcrumb>
-              {extractBreadcrumbName(sectionData) || "Section"}
+              {extractBreadcrumbName(sectionData as Record<string, RawSection | null | undefined>) || "Section"}
 
             </Breadcrumb>
           </Breadcrumbs>

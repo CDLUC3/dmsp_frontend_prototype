@@ -1,7 +1,6 @@
-import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing/react';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
 
 import {
@@ -256,98 +255,6 @@ const errorMocks = [
     },
   },
 ];
-
-const emptyQuestionsMocks = [
-  // Empty questions query
-  {
-    request: {
-      query: PublishedQuestionsDocument,
-      variables: { planId: 456, versionedSectionId: 456 },
-    },
-    result: {
-      data: {
-        publishedQuestions: [],
-      },
-    },
-  },
-  // Section query success
-  {
-    request: {
-      query: PublishedSectionDocument,
-      variables: { versionedSectionId: 456 },
-    },
-    result: {
-      data: {
-        publishedSection: versionedSectionMock,
-      },
-    },
-  },
-  // Plan query success
-  {
-    request: {
-      query: PlanDocument,
-      variables: { planId: 456 },
-    },
-    result: {
-      data: {
-        plan: planMock,
-      },
-    },
-  },
-  {
-    request: {
-      query: MeDocument,
-    },
-    result: {
-      data: {
-        me: meMock,
-      },
-    },
-  },
-  {
-    request: {
-      query: VersionedGuidanceDocument,
-      variables: {
-        affiliationId: 'https://ror.org/03yrm5c26',
-        tagIds: [1, 2],
-      },
-    },
-    result: {
-      data: {
-        versionedGuidance: versionedGuidanceMock,
-      },
-    },
-  },
-  {
-    request: {
-      query: VersionedGuidanceDocument,
-      variables: {
-        affiliationId: 'https://ror.org/03yrm5c26',
-        tagIds: [],
-      },
-    },
-    result: {
-      data: {
-        versionedGuidance: versionedGuidanceMock,
-      },
-    },
-  },
-  {
-    request: {
-      query: GuidanceSourcesForPlanDocument,
-      variables: {
-        planId: 456,
-        versionedSectionId: 456,
-      },
-    },
-    result: {
-      data: {
-        guidanceSourcesForPlan: guidanceSourcesForPlanMock,
-      },
-    },
-  },
-];
-
 
 const customMocks = [
   {
@@ -631,7 +538,7 @@ describe('PlanOverviewSectionPage - BASE section with BASE questions or CUSTOM q
 
 
     render(
-      <MockedProvider mocks={mocks}>
+      <MockedProvider mocks={missingSectionMocks}>
         <PlanOverviewSectionPageShared config={baseConfig} />
       </MockedProvider>
 
@@ -666,7 +573,7 @@ describe('PlanOverviewSectionPage - BASE section with BASE questions or CUSTOM q
     });
 
     render(
-      <MockedProvider mocks={mocks}>
+      <MockedProvider mocks={nullQuestionsMocks}>
         <PlanOverviewSectionPageShared config={baseConfig} />
       </MockedProvider>
     );

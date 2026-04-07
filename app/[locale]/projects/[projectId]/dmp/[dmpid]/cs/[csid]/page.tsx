@@ -15,9 +15,9 @@ const config: SectionPageConfig = {
     customSectionId: sectionId,
     planId, // custom section query needs planId to determine if section is answered or not
   }),
-  extractQuestions: (data) => (data as any)?.publishedCustomQuestions,
-  extractSection: (data) => (data as any)?.publishedCustomSection,
-  extractBreadcrumbName: (data) => (data as any)?.publishedCustomSection?.name,
+  extractQuestions: (data) => data?.publishedCustomQuestions,
+  extractSection: (data) => data?.publishedCustomSection,
+  extractBreadcrumbName: (data) => data?.publishedCustomSection?.name,
   buildQuestionLink: ({ projectId, dmpId, sectionId, question }) =>
     routePath('projects.dmp.customQuestion.underCustomSection', {
       projectId, dmpId,
