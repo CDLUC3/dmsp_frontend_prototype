@@ -46,6 +46,7 @@ const PlanOverviewCustomSectionPage: React.FC = () => {
   const t = useTranslations('PlanOverview');
   const Guidance = useTranslations('Guidance');
   const Section = useTranslations('SectionPage');
+  const Global = useTranslations('Global');
 
   // Get route params
   const params = useParams();
@@ -203,29 +204,10 @@ const PlanOverviewCustomSectionPage: React.FC = () => {
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs aria-label={t('navigation.navigation')}>
-            <Breadcrumb>
-              <Link href={routePath('app.home')}>
-                {t('navigation.home')}
-              </Link>
-            </Breadcrumb>
-            <Breadcrumb>
-              <Link href={routePath('projects.index')}>
-                {t('navigation.projects')}
-              </Link>
-            </Breadcrumb>
-            <Breadcrumb>
-              <Link href={routePath('projects.show', { projectId })}>
-                {planData?.plan?.project?.title || 'Project'}
-              </Link>
-            </Breadcrumb>
-            <Breadcrumb>
-              <Link href={routePath('projects.dmp.show', {
-                projectId,
-                dmpId
-              })}>
-                {plan.title}
-              </Link>
-            </Breadcrumb>
+            <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.dmp.show', { projectId, dmpId })}>{Global('breadcrumbs.planOverview')}</Link></Breadcrumb>
             <Breadcrumb>
               {customSectionData?.publishedCustomSection?.name || "Section"}
             </Breadcrumb>
