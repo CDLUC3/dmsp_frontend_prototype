@@ -27,8 +27,8 @@ query Guidance($guidanceId: Int!) {
 }
 
 
-query GuidanceSourcesForPlan($planId: Int!, $versionedSectionId: Int, $versionedQuestionId: Int, $customSectionId: Int) {
-  guidanceSourcesForPlan(planId: $planId, versionedSectionId: $versionedSectionId, versionedQuestionId: $versionedQuestionId, customSectionId: $customSectionId) {
+query GuidanceSourcesForPlan($planId: Int!, $versionedSectionId: Int, $versionedQuestionId: Int, $customSectionId: Int, $customQuestionId: Int) {
+  guidanceSourcesForPlan(planId: $planId, versionedSectionId: $versionedSectionId, versionedQuestionId: $versionedQuestionId, customSectionId: $customSectionId, customQuestionId: $customQuestionId) {
     id
     type
     label

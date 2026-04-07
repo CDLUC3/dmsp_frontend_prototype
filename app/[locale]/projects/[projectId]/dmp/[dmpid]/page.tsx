@@ -619,6 +619,9 @@ const PlanOverviewPage: React.FC = () => {
 
             {planData.versionedSections.map((versionedSection, idx) => {
               const sectionId = versionedSection.versionedSectionId ?? versionedSection.customSectionId;
+              const sectionRoute = versionedSection.sectionType === "BASE"
+                ? routePath("projects.dmp.versionedSection", { projectId, dmpId: planId, versionedSectionId: Number(sectionId) })
+                : routePath("projects.dmp.customSection", { projectId, dmpId: planId, csid: String(sectionId) });
 
               return (
                 <section
@@ -653,11 +656,7 @@ const PlanOverviewPage: React.FC = () => {
                       </p>
                     </div>
                     <Link
-                      href={routePath("projects.dmp.versionedSection", {
-                        projectId,
-                        dmpId: planId,
-                        versionedSectionId: Number(sectionId)
-                      }, { sectionType: versionedSection.sectionType })}
+                      href={sectionRoute}
                       aria-label={t("sections.updateSection", {
                         title: versionedSection.title,
                       })}

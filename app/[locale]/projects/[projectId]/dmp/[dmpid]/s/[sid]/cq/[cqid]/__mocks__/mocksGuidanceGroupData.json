@@ -1,0 +1,29 @@
+{
+  "guidanceGroups": [
+    {
+      "id": 2,
+      "guidance": [
+        {
+          "tagId": 1,
+          "guidanceText": "Use the active voice whenever possible",
+          "id": 3
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "guidance": [
+        {
+          "tagId": 2,
+          "guidanceText": "Make sure to double check your entries",
+          "id": 1
+        },
+        {
+          "tagId": 1,
+          "guidanceText": "Dot your i's and cross your t's",
+          "id": 2
+        }
+      ]
+    }
+  ]
+}

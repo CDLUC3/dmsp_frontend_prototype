@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useTranslations } from "next-intl";
 
 // GraphQL
@@ -51,11 +51,9 @@ const PlanOverviewSectionPage: React.FC = () => {
 
   // Get route params
   const params = useParams();
-  const searchParams = useSearchParams();
   const sectionId = Number(params.sid);
   const dmpId = params.dmpid as string; // plan id
   const projectId = params.projectId as string;
-  const sectionType = searchParams.get('sectionType'); // 'BASE' or 'CUSTOM'
 
 
   // Validate that sectionId is present
@@ -77,13 +75,7 @@ const PlanOverviewSectionPage: React.FC = () => {
       planId,
       versionedSectionId: sectionId
     },
-    skip: !sectionId || sectionType === 'CUSTOM' // Skip if it's a custom section, as it uses a different query
-  });
-
-  // Add the custom questions query
-  const { data: customQuestionsData, loading: customQuestionsLoading } = useQuery(PublishedCustomQuestionsDocument, {
-    variables: { planId, versionedCustomSectionId: sectionId },
-    skip: !sectionId || sectionType !== 'CUSTOM'
+    skip: !sectionId
   });
 
   const { data: planData, loading: planLoading } = useQuery(PlanDocument, {
@@ -95,31 +87,11 @@ const PlanOverviewSectionPage: React.FC = () => {
     variables: {
       versionedSectionId: sectionId
     },
-    skip: !sectionId || sectionType !== 'BASE' // Only fetch if it's a base section
+    skip: !sectionId
   });
-
-  const { data: customSectionData, loading: customSectionLoading } = useQuery(
-    PublishedCustomSectionDocument,
-    {
-      variables: {
-        customSectionId: sectionId,
-        planId,
-      },
-      skip: sectionType !== 'CUSTOM', // Only fetch if it's a custom section
-    }
-  );
 
   // Derive unified section shape here, after all queries have run
   const section = useMemo(() => {
-    if (sectionType === 'CUSTOM' && customSectionData?.publishedCustomSection) {
-      const s = customSectionData.publishedCustomSection;
-      return {
-        name: s.name ?? '',
-        requirements: s.requirements ?? null,
-        introduction: s.introduction ?? null,
-        guidance: s.guidance ?? null,
-      };
-    }
     if (sectionData?.publishedSection) {
       const s = sectionData.publishedSection;
       return {
@@ -130,29 +102,27 @@ const PlanOverviewSectionPage: React.FC = () => {
       };
     }
     return null;
-  }, [sectionType, sectionData, customSectionData]);
+  }, [sectionData]);
 
 
   const questions: VersionedQuestion[] = useMemo(() => {
-    const source = sectionType === 'CUSTOM'
-      ? customQuestionsData?.publishedCustomQuestions
-      : questionsData?.publishedQuestions;
-
+    const source = questionsData?.publishedQuestions;
+    console.log("***SOurce", source);
     return source
       ?.filter((q): q is NonNullable<typeof q> => q !== null)
       .map((q) => ({
         id: q.id?.toString() || '',
         title: q.questionText || '',
-        link: q.questionType === 'CUSTOM'
-          ? routePath('projects.dmp.customQuestion.detail', {
-            projectId, dmpId, customSectionId: sectionId, customQuestionId: String(q.customQuestionId)
-          })
-          : routePath('projects.dmp.versionedQuestion.detail', {
+        link: q.questionType === 'BASE'
+          ? routePath('projects.dmp.versionedQuestion.detail', {
             projectId, dmpId, versionedSectionId: sectionId, versionedQuestionId: String(q.versionedQuestionId)
+          })
+          : routePath('projects.dmp.customQuestion.underVersionedSection', {
+            projectId, dmpId, sid: sectionId, cqid: String(q.customQuestionId)
           }),
-        hasAnswer: q.hasAnswer || false
+        hasAnswer: q.hasAnswer || false,
       })) || [];
-  }, [sectionType, questionsData, customQuestionsData]);
+  }, [questionsData]);
 
   // versionedTemplateId for guidance filtering
   const versionedTemplateId = planData?.plan?.versionedTemplate?.id;
@@ -165,7 +135,7 @@ const PlanOverviewSectionPage: React.FC = () => {
   } = useGuidanceData({
     planId: parseInt(dmpId),
     versionedSectionId: sectionId,
-    sectionType: sectionType || 'BASE' // Default to 'BASE' if not provided, to avoid breaking existing functionality
+    sectionType: 'BASE'
   });
 
   // Use guidance mutations hook (mutations only, no data)
@@ -177,7 +147,7 @@ const PlanOverviewSectionPage: React.FC = () => {
   } = useGuidanceMutations({
     planId: parseInt(dmpId),
     versionedSectionId: sectionId,
-    customSectionId: sectionType === 'CUSTOM' ? sectionId : undefined
+    customSectionId: undefined
   });
 
   // Hide navigation when close to footer
@@ -204,7 +174,7 @@ const PlanOverviewSectionPage: React.FC = () => {
     return <ErrorMessages errors={[t('errors.invalidDmpId')]} />;
   }
 
-  if (questionsLoading || customQuestionsLoading || sectionLoading || customSectionLoading || planLoading) {
+  if (questionsLoading || sectionLoading || planLoading) {
     return <Loading />;
   }
 

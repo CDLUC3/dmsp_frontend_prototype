@@ -26,6 +26,7 @@ import {
   PlanDocument,
   PublishedQuestionDocument,
   AnswerByVersionedQuestionIdDocument,
+  PublishedCustomQuestionDocument,
 } from '@/generated/graphql';
 import {
   addAnswerAction,
@@ -155,6 +156,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const versionedSectionId = params.sid as string;
   const versionedQuestionId = params.qid as string;
   const locale = params.locale as string;
+
+
   const toastState = useToast(); // Access the toast state from context
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -235,7 +238,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
     {
       variables: {
         versionedQuestionId: Number(versionedQuestionId)
-      }
+      },
+      skip: !versionedQuestionId
     }
   );
 
@@ -261,7 +265,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
   } = useGuidanceData({
     planId: parseInt(dmpId),
     versionedSectionId: Number(versionedSectionId),
-    versionedQuestionId: Number(versionedQuestionId)
+    versionedQuestionId: Number(versionedQuestionId),
+    sectionType: 'BASE'
   });
 
   // Use guidance mutations hook (mutations only, no data)
@@ -274,6 +279,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     planId: parseInt(dmpId),
     versionedSectionId: Number(versionedSectionId),
     versionedQuestionId: Number(versionedQuestionId),
+
   });
 
   // Get answer data

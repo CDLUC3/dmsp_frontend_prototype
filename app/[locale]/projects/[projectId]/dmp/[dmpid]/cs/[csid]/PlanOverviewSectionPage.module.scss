@@ -1,0 +1,140 @@
+@use '@/styles/responsive' as r;
+
+// PlanOverviewSectionPage.module.scss
+.questionCard {
+  background: var(--gray-50);
+  border-radius: var(--border-radius-lg);
+  margin-bottom: var(--space-4);
+  box-shadow: var(--card-shadow);
+  padding: var(--card-padding);
+}
+
+.questionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.questionTitle {
+  h3 {
+    font-size: var(--fs-base);
+    font-weight: 400;
+    margin: 0 0 var(--space-2);
+    padding: 0 var(--space-3) 0 0;
+  }
+
+  p {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.progressIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--gray-500);
+  font-size: var(--fs-sm);
+  font-weight: 400;
+}
+
+.progressIcon {
+  color: var(--success-600);
+  flex-shrink: 0;
+}
+
+.questionCard+.questionCard {
+  margin-top: var(--space-4);
+}
+
+.progressIconInactive {
+  opacity: 0.5;
+}
+
+/* Best Practices Sidebar Style */
+.headerWithLogo {
+  display: flex;
+  align-items: center; // vertically center the image and text
+  gap: 0.5rem;
+}
+
+
+/* Plan Navigation - Subtle sidebar for very large screens only */
+.planNavigation {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  position: fixed;
+  left: 20px;
+  top: 20%;
+  width: 180px;
+  font-size: 13px;
+  z-index: 1000;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+
+  /* Show when centered container (1200px) + both margins fit beside nav:
+     2 × (nav_left(20px) + nav_width(180px) + gap(100px)) + container(1200px) = 1800px */
+  @include r.device(xxxxl) {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+
+    &.planNavigationHidden {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+}
+
+
+/* Content wrapper with relative positioning for the absolute nav */
+.contentWrapper {
+  position: relative;
+  overflow: visible;
+}
+
+.planOverviewLink {
+  display: block;
+  color: var(--gray-700);
+  text-decoration: none;
+  font-weight: 500;
+  margin-bottom: var(--space-3);
+  padding: var(--space-1) 0;
+  font-size: 13px;
+
+  &:hover {
+    color: var(--blue-600);
+    text-decoration: underline;
+  }
+}
+
+.sectionsList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    margin-bottom: var(--space-1);
+  }
+}
+
+.sectionLink {
+  display: block;
+  color: var(--gray-600);
+  text-decoration: none;
+  padding: var(--space-1) 0;
+  font-size: 13px;
+  line-height: 1.4;
+
+  &:hover {
+    color: var(--blue-600);
+    text-decoration: underline;
+  }
+}
+
+.currentSection {
+  color: var(--blue-600);
+  font-weight: 700;
+  text-decoration: underline;
+}

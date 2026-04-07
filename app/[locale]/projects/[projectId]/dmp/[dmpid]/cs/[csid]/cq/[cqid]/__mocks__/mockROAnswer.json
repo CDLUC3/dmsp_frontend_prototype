@@ -1,0 +1,9 @@
+{
+  "answerByVersionedQuestionId": {
+    "id": 25,
+    "json": "{\"type\":\"researchOutputTable\",\"columnHeadings\":[\"Title\",\"Description\",\"Anticipated Release Date\",\"Anticipated file size\"],\"answer\":[{\"columns\":[{\"type\":\"text\",\"answer\":\"My Dataset\",\"meta\":{\"schemaVersion\":\"1.0\"}},{\"type\":\"textArea\",\"answer\":\"Description of dataset\",\"meta\":{\"schemaVersion\":\"1.0\"}},{\"type\":\"date\",\"answer\":\"2025-12-31\",\"meta\":{\"schemaVersion\":\"1.0\"}},{\"type\":\"numberWithContext\",\"answer\":\"100 mb\",\"meta\":{\"schemaVersion\":\"1.0\"}}]}]}",
+    "modified": "1735000000000",
+    "comments": [],
+    "feedbackComments": []
+  }
+}

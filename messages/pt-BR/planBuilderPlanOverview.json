@@ -66,6 +66,7 @@
     },
     "errors": {
       "invalidDmpId": "ID DMP inválido: O ID de DMP fornecido não é válido.",
+      "invalidSectionId": "ID de seção inválido: O ID de seção fornecido não é válido.",
       "sectionNotFound": "Seção não encontrada: Esta seção não pertence ao plano atual."
     },
     "status": {
