@@ -165,8 +165,30 @@ export interface QuestionPageConfig {
     dmpId: string;
     versionedSectionId: string;
   }) => { route: RouteName; params: Record<string, string> };
-}
+  /** For building the variables for the answer query */
+  buildAnswerQueryVariables: (ids: {
+    projectId: number;
+    planId: number;
+    questionId: number;
+  }) => { projectId: number; planId: number; versionedQuestionId?: number; versionedCustomQuestionId?: number };
 
+  /**
+   * Build the payload for addAnswerAction (the first-time create call).
+   * BASE:   { planId, versionedSectionId, versionedQuestionId, json }
+   * CUSTOM: { planId, versionedCustomSectionId, versionedCustomQuestionId, json }
+   */
+  buildAddAnswerParams: (ids: {
+    planId: number;
+    sectionId: number;
+    questionId: number;
+  }) => {
+    planId: number;
+    versionedSectionId?: number;
+    versionedQuestionId?: number;
+    versionedCustomSectionId?: number;
+    versionedCustomQuestionId?: number;
+  };
+}
 
 interface FormDataInterface {
   affiliationData: { affiliationName: string; affiliationId: string };
@@ -235,6 +257,9 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
     extractQuestion,
     sectionType,
     buildGuidanceMutationParams,
+    buildAnswerQueryVariables,
+    buildAddAnswerParams,
+    buildBackRoute,
   } = config;
 
 
@@ -368,12 +393,12 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
   const { data: answerData, loading: answerLoading, error: answerError } = useQuery(
     AnswerByVersionedQuestionIdDocument,
     {
-      variables: {
+      variables: buildAnswerQueryVariables({
         projectId: Number(projectId),
         planId: Number(dmpId),
-        versionedQuestionId: Number(versionedQuestionId)
-      },
-      notifyOnNetworkStatusChange: true
+        questionId: Number(versionedQuestionId),
+      }) as { projectId: number; planId: number; versionedQuestionId: number; versionedCustomQuestionId?: number },
+      notifyOnNetworkStatusChange: true,
     }
   );
 
@@ -659,7 +684,7 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
   };
 
   const handleBackToSection = () => {
-    const { route, params: backParams } = config.buildBackRoute({
+    const { route, params: backParams } = buildBackRoute({
       projectId, dmpId, versionedSectionId,
     });
     router.push(routePath(route, backParams));
@@ -1055,17 +1080,23 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
 
     if (questionData && planData?.plan) {
       try {
+        type AddAnswerParams = Parameters<typeof addAnswerAction>[0];
+
+        const addParams: AddAnswerParams = {
+          ...buildAddAnswerParams({
+            planId: Number(dmpId),
+            sectionId: Number(versionedSectionId),
+            questionId: Number(versionedQuestionId),
+          }),
+          json: JSON.stringify(jsonPayload),
+        };
+
         const response = isUpdate
           ? await updateAnswerAction({
             answerId: Number(currentAnswerId),
             json: JSON.stringify(jsonPayload),
           })
-          : await addAnswerAction({
-            planId: Number(dmpId),
-            versionedSectionId: Number(versionedSectionId),
-            versionedQuestionId: Number(versionedQuestionId),
-            json: JSON.stringify(jsonPayload),
-          });
+          : await addAnswerAction(addParams);
 
         if (response.redirect) {
           router.push(response.redirect);

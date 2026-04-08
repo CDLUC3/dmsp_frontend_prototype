@@ -2,7 +2,9 @@
 
 // BASE variant
 import { PlanOverviewQuestionPageShared, QuestionPageConfig } from '@/components/PlanOverviewQuestionPageShared';
-import { PublishedQuestionDocument } from '@/generated/graphql';
+import {
+  PublishedQuestionDocument
+} from '@/generated/graphql';
 
 const config: QuestionPageConfig = {
   questionIdParamKey: 'qid',
@@ -21,6 +23,16 @@ const config: QuestionPageConfig = {
   buildBackRoute: ({ projectId, dmpId, versionedSectionId }) => ({
     route: 'projects.dmp.versionedSection',
     params: { projectId, dmpId, versionedSectionId },
+  }),
+  buildAnswerQueryVariables: ({ projectId, planId, questionId }) => ({
+    projectId,
+    planId,
+    versionedQuestionId: questionId,
+  }),
+  buildAddAnswerParams: ({ planId, sectionId, questionId }) => ({
+    planId,
+    versionedSectionId: sectionId,
+    versionedQuestionId: questionId,
   }),
 };
 

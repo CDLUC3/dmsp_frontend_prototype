@@ -347,6 +347,16 @@ const config: QuestionPageConfig = {
     route: 'projects.dmp.versionedSection',
     params: { projectId, dmpId, versionedSectionId },
   }),
+  buildAnswerQueryVariables: ({ projectId, planId, questionId }) => ({
+    projectId,
+    planId,
+    versionedQuestionId: questionId,
+  }),
+  buildAddAnswerParams: ({ planId, sectionId, questionId }) => ({
+    planId,
+    versionedSectionId: sectionId,
+    versionedQuestionId: questionId,
+  }),
 };
 
 
