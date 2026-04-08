@@ -2932,6 +2932,202 @@ describe('DrawerPanel', () => {
     const sidebarPanel2 = screen.queryByTestId('sidebar-panel');
     expect(sidebarPanel2).toBeInTheDocument();
   })
+
+  it('should show both sampleText and customizationSampleText sections in the drawer when both are present', async () => {
+    const mockQuestionWithCustomization = {
+      publishedQuestion: {
+        ...mockQuestionDataForTextArea.publishedQuestion,
+        customizationSampleText: '<p>Customization sample text from CDL</p>',
+        customizationOwnerAffiliation: {
+          id: 99,
+          name: 'California Digital Library',
+          displayName: 'California Digital Library (cdlib.org)',
+          uri: 'https://ror.org/03yrm5c28',
+        },
+      },
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionWithCustomization,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
+    });
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPageShared config={config} />
+      );
+    });
+
+    const viewSampleTextBtn = screen.getByRole('button', { name: 'page.viewSampleAnswer' });
+
+    // Open the drawer
+    await act(async () => {
+      fireEvent.click(viewSampleTextBtn);
+    });
+
+    // Both funder and org sample text headings should be visible
+    expect(screen.getAllByText('page.organizationSampleText')).toHaveLength(2); // should be two organization sample text headings - one for sampleText and one for customizationSampleText
+    // Both sample text contents should be present
+    expect(screen.getByText((content) => content.includes('Sample text'))).toBeInTheDocument();
+    expect(screen.getByText((content) => content.includes('Customization sample text from CDL'))).toBeInTheDocument();
+
+    // There should be two 'use answer' buttons (one per text block)
+    const useAnswerBtns = screen.getAllByRole('button', { name: 'buttons.useAnswer' });
+    expect(useAnswerBtns).toHaveLength(2);
+  })
+
+  it('should transfer customizationSampleText into the textArea field when user clicks on the second \'use answer\' button', async () => {
+    const mockQuestionWithCustomization = {
+      publishedQuestion: {
+        ...mockQuestionDataForTextArea.publishedQuestion,
+        customizationSampleText: '<p>Customization sample text from CDL</p>',
+        customizationOwnerAffiliation: {
+          id: 99,
+          name: 'California Digital Library',
+          displayName: 'California Digital Library (cdlib.org)',
+          uri: 'https://ror.org/03yrm5c28',
+        },
+      },
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionWithCustomization,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
+    });
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPageShared config={config} />
+      );
+    });
+
+    const viewSampleTextBtn = screen.getByRole('button', { name: 'page.viewSampleAnswer' });
+
+    // Open the drawer
+    await act(async () => {
+      fireEvent.click(viewSampleTextBtn);
+    });
+
+    // Click the second 'use answer' button (for customizationSampleText)
+    const useAnswerBtns = screen.getAllByRole('button', { name: 'buttons.useAnswer' });
+    expect(useAnswerBtns).toHaveLength(2);
+    await userEvent.click(useAnswerBtns[1]);
+
+    // Drawer should be closed after clicking 'use answer'
+    const allDrawerPanels = screen.getAllByTestId('drawer-panel');
+    const visibleDrawerPanel = allDrawerPanels.find(
+      panel => panel.getAttribute('aria-hidden') !== 'true'
+    );
+    expect(visibleDrawerPanel).toBeUndefined();
+
+    // The customization sample text should now be in the textarea
+    expect(screen.getByText((content) => content.includes('Customization sample text from CDL'))).toBeInTheDocument();
+  })
+
+  it('should show only customizationSampleText section in the drawer when only customizationSampleText is present', async () => {
+    const mockQuestionWithCustomizationOnly = {
+      publishedQuestion: {
+        ...mockQuestionDataForTextArea.publishedQuestion,
+        sampleText: null,
+        customizationSampleText: '<p>Customization only sample text</p>',
+        customizationOwnerAffiliation: {
+          id: 99,
+          name: 'California Digital Library',
+          displayName: 'California Digital Library (cdlib.org)',
+          uri: 'https://ror.org/03yrm5c28',
+        },
+      },
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PublishedQuestionDocument) {
+        return {
+          data: mockQuestionWithCustomizationOnly,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+
+      if (document === AnswerByVersionedQuestionIdDocument) {
+        return {
+          data: mockAnswerDataForTextArea,
+          loading: false,
+          error: undefined,
+          refetch: jest.fn()
+        } as any;
+      }
+      return {
+        data: null,
+        loading: false,
+        error: undefined
+      } as any;
+    });
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPageShared config={config} />
+      );
+    });
+
+    const viewSampleTextBtn = screen.getByRole('button', { name: 'page.viewSampleAnswer' });
+
+    // Open the drawer
+    await act(async () => {
+      fireEvent.click(viewSampleTextBtn);
+    });
+
+    // Only org sample text heading should be visible
+    expect(screen.queryByText('page.funderSampleText')).not.toBeInTheDocument();
+    expect(screen.getByText('page.organizationSampleText')).toBeInTheDocument();
+
+    // Only customization text should be present
+    expect(screen.getByText((content) => content.includes('Customization only sample text'))).toBeInTheDocument();
+
+    // Only one 'use answer' button
+    const useAnswerBtns = screen.getAllByRole('button', { name: 'buttons.useAnswer' });
+    expect(useAnswerBtns).toHaveLength(1);
+  })
 });
 
 describe('Prevent unload when user has unsaved changes', () => {

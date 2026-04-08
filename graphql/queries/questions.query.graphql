@@ -108,6 +108,15 @@ query PublishedQuestion($versionedQuestionId: Int!) {
       name
       id
     }
+    customizationSampleText
+    customizationId
+    customizationGuidanceText
+    customizationOwnerAffiliation {
+      name
+      id
+      uri
+      displayName
+    }
   }
 }
 

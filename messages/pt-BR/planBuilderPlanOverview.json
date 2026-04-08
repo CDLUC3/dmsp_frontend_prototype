@@ -33,6 +33,7 @@
       "commentTooltip": "Você precisa salvar uma resposta antes que os usuários possam comentar.",
       "guidanceBy": "Guia por {name}",
       "funderSampleText": "{funder} texto de exemplo",
+      "organizationSampleText": "{org} texto de exemplo",
       "participantsWillBeNotified": "Os participantes serão notificados assim que submetidos.",
       "planTitlePlaceholder": "Inserir título do plano"
     },
