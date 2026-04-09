@@ -1289,7 +1289,7 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
       const planInfo = {
         funder: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
         funderName: planData?.plan?.project?.fundings?.[0]?.affiliation?.name ?? '',
-        orgName: planData?.plan?.versionedTemplate?.owner?.name ?? 'TEST ORG NAME',
+        orgName: planData?.plan?.versionedTemplate?.owner?.name ?? '',
         title: planData?.plan?.project?.title ?? '',
         openFeedbackRounds: planData?.plan?.feedback?.some(f => f.completed == null) ?? false, // If any of the feedback rounds have not yet been completed
         feedbackId: planData?.plan?.feedback?.find(item => item.completed === null)?.id, //Get first feedback id where it has not yet been completed
