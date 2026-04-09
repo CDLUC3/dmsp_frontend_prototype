@@ -192,6 +192,22 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
     }
   }, [stateOpen]);
 
+  // Prevent scrolling of body when drawer panel is open on desktop
+  // otherwise we see two sets of scrollbars (one for the drawer and one for the body)
+  // Doesn't happen with mobile, since the drawer panel takes up whole screen and body scroll is naturally hidden
+  useEffect(() => {
+    if (!isMobile && stateOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [stateOpen, isMobile]);
+
+
   useEffect(() => {
     const keyDownHandler = (ev: KeyboardEvent) => {
       if (ev.key == 'Escape' && stateOpen) {

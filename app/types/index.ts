@@ -234,6 +234,13 @@ export interface Question {
   requirementText?: string | null;
   guidanceText?: string | null;
   sampleText?: string | null;
+  customizationSampleText?: string | null;
+  customizationOwnerAffiliation?: {
+    name?: string | null;
+    id?: number | null;
+    uri?: string | null;
+    displayName?: string | null;
+  } | null;
   useSampleTextAsDefault?: boolean | null;
   showCommentField?: boolean | null;
   required?: boolean;

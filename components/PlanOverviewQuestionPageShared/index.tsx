@@ -104,6 +104,13 @@ interface RawQuestion {
   requirementText?: string | null;
   guidanceText?: string | null;
   sampleText?: string | null;
+  customizationSampleText?: string | null;
+  customizationOwnerAffiliation?: {
+    name?: string | null,
+    uri?: string | null,
+    id?: number | null,
+    displayName?: string | null
+  } | null;
   useSampleTextAsDefault?: boolean | null;
   required?: boolean;
   ownerAffiliation?: { uri?: string | null } | null;
@@ -158,8 +165,30 @@ export interface QuestionPageConfig {
     dmpId: string;
     versionedSectionId: string;
   }) => { route: RouteName; params: Record<string, string> };
-}
+  /** For building the variables for the answer query */
+  buildAnswerQueryVariables: (ids: {
+    projectId: number;
+    planId: number;
+    questionId: number;
+  }) => { projectId: number; planId: number; versionedQuestionId?: number; versionedCustomQuestionId?: number };
 
+  /**
+   * Build the payload for addAnswerAction (the first-time create call).
+   * BASE:   { planId, versionedSectionId, versionedQuestionId, json }
+   * CUSTOM: { planId, versionedCustomSectionId, versionedCustomQuestionId, json }
+   */
+  buildAddAnswerParams: (ids: {
+    planId: number;
+    sectionId: number;
+    questionId: number;
+  }) => {
+    planId: number;
+    versionedSectionId?: number;
+    versionedQuestionId?: number;
+    versionedCustomSectionId?: number;
+    versionedCustomQuestionId?: number;
+  };
+}
 
 interface FormDataInterface {
   affiliationData: { affiliationName: string; affiliationId: string };
@@ -211,6 +240,7 @@ interface MutationErrorsInterface {
 interface PlanData {
   funder: string;
   funderName: string;
+  orgName: string;
   title: string;
   openFeedbackRounds: boolean;
   feedbackId?: number | null;
@@ -227,6 +257,9 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
     extractQuestion,
     sectionType,
     buildGuidanceMutationParams,
+    buildAnswerQueryVariables,
+    buildAddAnswerParams,
+    buildBackRoute,
   } = config;
 
 
@@ -360,12 +393,12 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
   const { data: answerData, loading: answerLoading, error: answerError } = useQuery(
     AnswerByVersionedQuestionIdDocument,
     {
-      variables: {
+      variables: buildAnswerQueryVariables({
         projectId: Number(projectId),
         planId: Number(dmpId),
-        versionedQuestionId: Number(versionedQuestionId)
-      },
-      notifyOnNetworkStatusChange: true
+        questionId: Number(versionedQuestionId),
+      }) as { projectId: number; planId: number; versionedQuestionId: number; versionedCustomQuestionId?: number },
+      notifyOnNetworkStatusChange: true,
     }
   );
 
@@ -651,7 +684,7 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
   };
 
   const handleBackToSection = () => {
-    const { route, params: backParams } = config.buildBackRoute({
+    const { route, params: backParams } = buildBackRoute({
       projectId, dmpId, versionedSectionId,
     });
     router.push(routePath(route, backParams));
@@ -1047,17 +1080,23 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
 
     if (questionData && planData?.plan) {
       try {
+        type AddAnswerParams = Parameters<typeof addAnswerAction>[0];
+
+        const addParams: AddAnswerParams = {
+          ...buildAddAnswerParams({
+            planId: Number(dmpId),
+            sectionId: Number(versionedSectionId),
+            questionId: Number(versionedQuestionId),
+          }),
+          json: JSON.stringify(jsonPayload),
+        };
+
         const response = isUpdate
           ? await updateAnswerAction({
             answerId: Number(currentAnswerId),
             json: JSON.stringify(jsonPayload),
           })
-          : await addAnswerAction({
-            planId: Number(dmpId),
-            versionedSectionId: Number(versionedSectionId),
-            versionedQuestionId: Number(versionedQuestionId),
-            json: JSON.stringify(jsonPayload),
-          });
+          : await addAnswerAction(addParams);
 
         if (response.redirect) {
           router.push(response.redirect);
@@ -1183,6 +1222,8 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
         requirementText: q.requirementText,
         guidanceText: q.guidanceText,
         sampleText: q.sampleText,
+        customizationSampleText: q.customizationSampleText,
+        customizationOwnerAffiliation: q.customizationOwnerAffiliation ?? null,
         useSampleTextAsDefault: q.useSampleTextAsDefault,
         required: q.required ?? undefined,
         ownerAffiliation: q.ownerAffiliation as Question['ownerAffiliation'] ?? null,
@@ -1248,6 +1289,7 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
       const planInfo = {
         funder: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
         funderName: planData?.plan?.project?.fundings?.[0]?.affiliation?.name ?? '',
+        orgName: planData?.plan?.versionedTemplate?.owner?.name ?? '',
         title: planData?.plan?.project?.title ?? '',
         openFeedbackRounds: planData?.plan?.feedback?.some(f => f.completed == null) ?? false, // If any of the feedback rounds have not yet been completed
         feedbackId: planData?.plan?.feedback?.find(item => item.completed === null)?.id, //Get first feedback id where it has not yet been completed
@@ -1544,7 +1586,7 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
                 <div>
                   <div className={styles.buttonsRow}>
                     {/**Only include sample text button for textArea question types and if sampleText is not empty */}
-                    {(questionType === TEXT_AREA_QUESTION_TYPE && question?.sampleText) && (
+                    {(questionType === TEXT_AREA_QUESTION_TYPE && (question?.sampleText || question?.customizationSampleText)) && (
                       <Button
                         ref={openSampleTextButtonRef}
                         className="tertiary small"
@@ -1658,13 +1700,28 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
               className={styles.drawerPanelWrapper}
             >
               <h3>{question?.questionText}</h3>
-              <h4 className={`${styles.deEmphasize} h5`}>{PlanOverview('page.funderSampleText', { funder: plan?.funderName ?? '' })}</h4>
-              <div className={styles.sampleText}>
-                <SafeHtml html={question?.sampleText} />
-              </div>
-              <div className="">
-                <Button className="small" onPress={() => handleUseAnswer(question?.sampleText)}>{PlanOverview('buttons.useAnswer')}</Button>
-              </div>
+              {question?.sampleText && (
+                <div>
+                  <h4 className={`${styles.deEmphasize} h5`}>{PlanOverview('page.organizationSampleText', { org: plan?.orgName ?? '' })}</h4>
+                  <div className={styles.sampleText}>
+                    <SafeHtml html={question?.sampleText} />
+                  </div>
+                  <div className="">
+                    <Button className="small" onPress={() => handleUseAnswer(question?.sampleText)}>{PlanOverview('buttons.useAnswer')}</Button>
+                  </div>
+                </div>
+              )}
+              {question?.customizationSampleText && (
+                <>
+                  <h4 className={`${styles.deEmphasize} h5`}>{PlanOverview('page.organizationSampleText', { org: question?.customizationOwnerAffiliation?.name ?? '' })}</h4>
+                  <div className={styles.sampleText}>
+                    <SafeHtml html={question?.customizationSampleText} />
+                  </div>
+                  <div className="">
+                    <Button className="small" onPress={() => handleUseAnswer(question?.customizationSampleText)}>{PlanOverview('buttons.useAnswer')}</Button>
+                  </div>
+                </>
+              )}
             </DrawerPanel>
           )
         }

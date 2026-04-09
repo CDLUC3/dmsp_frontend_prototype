@@ -33,6 +33,7 @@
       "commentTooltip": "You need to save an answer before users can comment.",
       "guidanceBy": "Guidance by {name}",
       "funderSampleText": "{funder} sample text",
+      "organizationSampleText": "{org} sample text",
       "participantsWillBeNotified": "Participants will be notified once submitted.",
       "planTitlePlaceholder": "Enter plan title"
     },

@@ -96,7 +96,7 @@
     background-color: white;
     display: flex;
     flex-direction: column;
-    overflow: hidden; // Prevent the container itself from scrolling
+    overflow-y: auto; // Allow the drawer content to scroll
   }
 
   &.state-closed {
@@ -165,6 +165,7 @@
   transform: translateX(100%); // hide offscreen
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 
   &.state-open {
     transform: translateX(0);
