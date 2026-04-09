@@ -110,3 +110,33 @@ query PublishedQuestion($versionedQuestionId: Int!) {
     }
   }
 }
+
+query PublishedCustomQuestion($versionedCustomQuestionId: Int!) {
+  publishedCustomQuestion(versionedCustomQuestionId: $versionedCustomQuestionId) {
+    id
+    guidanceText
+    errors {
+      questionText
+      general
+      json
+    }
+    pinnedVersionedQuestionType
+    pinnedVersionedQuestionId
+    ownerAffiliation {
+      id
+      name
+      displayName
+      acronyms
+      uri
+    }
+    questionText
+    json
+    requirementText
+    sampleText
+    useSampleTextAsDefault
+    versionedSectionId
+    versionedSectionType
+    versionedTemplateCustomizationId
+    required
+  }
+}

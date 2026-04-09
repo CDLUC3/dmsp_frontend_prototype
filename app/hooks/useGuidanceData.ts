@@ -30,6 +30,9 @@ export const useGuidanceData = ({
   const resolvedVersionedSectionId = sectionType === 'CUSTOM' ? undefined : versionedSectionId;
   const resolvedCustomSectionId = sectionType === 'CUSTOM' ? versionedSectionId : undefined;
 
+  const resolvedVersionedQuestionId = sectionType === 'CUSTOM' ? undefined : versionedQuestionId;
+  const resolvedCustomQuestionId = sectionType === 'CUSTOM' ? versionedQuestionId : undefined;
+
   // Fetch all guidance sources from backend (includes matched guidance and tags)
   const { data: guidanceData, loading: guidanceLoading, refetch } = useQuery(
     GuidanceSourcesForPlanDocument,
@@ -37,8 +40,9 @@ export const useGuidanceData = ({
       variables: {
         planId,
         versionedSectionId: resolvedVersionedSectionId,
-        versionedQuestionId: versionedQuestionId ? Number(versionedQuestionId) : undefined,
+        versionedQuestionId: resolvedVersionedQuestionId,
         customSectionId: resolvedCustomSectionId,
+        customQuestionId: resolvedCustomQuestionId
       },
       skip: !planId,
       notifyOnNetworkStatusChange: true,

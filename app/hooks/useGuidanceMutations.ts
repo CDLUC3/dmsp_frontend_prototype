@@ -11,11 +11,12 @@ import {
 } from '@/generated/graphql';
 import logECS from "@/utils/clientLogger";
 
-interface UseGuidanceMutationsProps {
+export interface UseGuidanceMutationsProps {
   planId: number;
   versionedSectionId?: number;
   versionedQuestionId?: number;
   customSectionId?: number;
+  customQuestionId?: number;
 }
 
 /**
@@ -26,7 +27,8 @@ export const useGuidanceMutations = ({
   planId,
   versionedSectionId,
   versionedQuestionId,
-  customSectionId
+  customSectionId,
+  customQuestionId
 }: UseGuidanceMutationsProps) => {
 
   const Guidance = useTranslations('Guidance');
@@ -36,12 +38,15 @@ export const useGuidanceMutations = ({
 
   const resolvedVersionedSectionId = customSectionId ? undefined : versionedSectionId;
   const resolvedCustomSectionId = customSectionId ?? undefined;
+  const resolvedVersionedQuestionId = customQuestionId ? undefined : versionedQuestionId;
+  const resolvedCustomQuestionId = customQuestionId ?? undefined;
 
   const refetchVariables = {
     planId,
     versionedSectionId: resolvedVersionedSectionId ? Number(resolvedVersionedSectionId) : undefined,
-    versionedQuestionId: versionedQuestionId ? Number(versionedQuestionId) : undefined,
+    versionedQuestionId: resolvedVersionedQuestionId ? Number(resolvedVersionedQuestionId) : undefined,
     customSectionId: resolvedCustomSectionId ? Number(resolvedCustomSectionId) : undefined,
+    customQuestionId: resolvedCustomQuestionId ? Number(resolvedCustomQuestionId) : undefined,
   };
 
   // Mutation for adding guidance organizations

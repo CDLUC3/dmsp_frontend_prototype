@@ -6,10 +6,11 @@ WORKDIR /app
 # Copy dependencies from deps stage
 COPY package*.json ./
 RUN npm ci
+RUN npm audit --omit=dev --audit-level=high
 
 COPY . .
 # Set production environment
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
 # Set environment variables
@@ -22,7 +23,7 @@ RUN npm run build
 RUN npm prune --omit=dev
 
 # Stage 2: Runner
-FROM public.ecr.aws/docker/library/node:22.1.0-alpine3.19 AS runner
+FROM public.ecr.aws/docker/library/node:22.22-alpine3.23 AS runner
 WORKDIR /app
 
 # Install bash so we can use session manager to attach to the container
@@ -30,7 +31,7 @@ WORKDIR /app
 RUN apk add --no-cache bash curl
 
 # Set production environment
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
 # Create non-root user

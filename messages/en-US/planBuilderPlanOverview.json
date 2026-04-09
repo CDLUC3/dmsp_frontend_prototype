@@ -66,6 +66,7 @@
     },
     "errors": {
       "invalidDmpId": "Invalid DMP ID: The DMP ID provided is not valid.",
+      "invalidSectionId": "Invalid section ID: The section ID provided is not valid.",
       "sectionNotFound": "Section not found: This section does not belong to the current plan."
     },
     "status": {

@@ -1,22 +1,26 @@
 'use client';
 
-// BASE variant
+// CUSTOM variant
 import { PlanOverviewQuestionPageShared, QuestionPageConfig } from '@/components/PlanOverviewQuestionPageShared';
-import { PublishedQuestionDocument } from '@/generated/graphql';
+import { PublishedCustomQuestionDocument } from '@/generated/graphql';
 
 const config: QuestionPageConfig = {
-  questionIdParamKey: 'qid',
+  questionIdParamKey: 'cqid',
   sectionIdParamKey: 'sid',
   sectionIdField: 'versionedSectionId',
-  questionDocument: PublishedQuestionDocument,
-  questionVariableKey: 'versionedQuestionId',
-  extractQuestion: (data) => data?.publishedQuestion,
-  sectionType: 'BASE',
+  questionDocument: PublishedCustomQuestionDocument,
+  questionVariableKey: 'versionedCustomQuestionId',
+  extractQuestion: (data) => data?.publishedCustomQuestion,
+  sectionType: 'CUSTOM',
   buildGuidanceMutationParams: ({ planId, versionedSectionId, versionedQuestionId }) => ({
-    planId, versionedSectionId, versionedQuestionId,
+    planId,
+    customSectionId: versionedSectionId,
+    customQuestionId: versionedQuestionId,
   }),
   buildRouteParams: ({ projectId, dmpId, versionedSectionId, versionedQuestionId }) => ({
-    projectId, dmpId, versionedSectionId, qid: versionedQuestionId,
+    projectId, dmpId,
+    sid: versionedSectionId,
+    cqid: versionedQuestionId,
   }),
   buildBackRoute: ({ projectId, dmpId, versionedSectionId }) => ({
     route: 'projects.dmp.versionedSection',
@@ -24,8 +28,8 @@ const config: QuestionPageConfig = {
   }),
 };
 
-const PlanOverviewQuestionPage: React.FC = () => (
+const PlanOverviewCustomQuestionUnderVersionedSectionPage: React.FC = () => (
   <PlanOverviewQuestionPageShared config={config} />
 );
 
-export default PlanOverviewQuestionPage;
+export default PlanOverviewCustomQuestionUnderVersionedSectionPage;

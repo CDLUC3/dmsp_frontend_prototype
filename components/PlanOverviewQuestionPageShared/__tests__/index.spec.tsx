@@ -17,7 +17,7 @@ import {
 import {
   addAnswerAction,
   updateAnswerAction
-} from '../actions';
+} from '@/app/actions';
 import mockAnswerData from '../__mocks__/mockAnswerData.json';
 import mockPlanData from '../__mocks__/mockPlanData.json';
 import mockPublishedQuestion from '../__mocks__/mockPublishedQuestion.json';
@@ -60,14 +60,14 @@ import mockAnswerDataForTextArea from '@/__mocks__/common/mockAnswerDataForTextA
 import mockCheckboxAnswer from '../__mocks__/mockCheckboxAnswer.json';
 import mockOtherAnswerData from '../__mocks__/mockOtherAnswerData.json'
 import mockAnswerDataForResearchOutput from '../__mocks__/mockROAnswer.json';
-import mockGuidanceSourcesForPlanMock from '../../../__mocks__/guidanceSourcesForPlanMock';
+import mockGuidanceSourcesForPlanMock from '../__mocks__/guidanceSourcesForPlanMock';
 
 import { mockScrollIntoView } from "@/__mocks__/common";
-import PlanOverviewQuestionPage from "../page";
+import { PlanOverviewQuestionPageShared, QuestionPageConfig } from '@/components/PlanOverviewQuestionPageShared';
 import { AffiliationSearchQuestionType } from "@dmptool/types";
 
 // Mock for useComments hook
-import { mockUseComments, defaultMockReturn } from '../hooks/__mocks__/useComments';
+import { mockUseComments, defaultMockReturn } from '@/app/hooks/__mocks__/useComments';
 import { TypeAheadInputProps } from '@/components/Form/TypeAheadWithOther/TypeAheadWithOther';
 import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
 
@@ -107,8 +107,8 @@ jest.mock('@/components/Form/TypeAheadWithOther', () => ({
   },
 }));
 
-jest.mock('../hooks/useComments', () => {
-  const { mockUseComments } = jest.requireActual('../hooks/__mocks__/useComments');
+jest.mock('@/app/hooks/useComments', () => {
+  const { mockUseComments } = jest.requireActual('@/app/hooks/__mocks__/useComments');
   return {
     useComments: mockUseComments,
   };
@@ -204,7 +204,7 @@ jest.mock('@apollo/client/react', () => ({
 
 
 // Mock actions
-jest.mock('../actions/index', () => ({
+jest.mock('@/app/actions/index', () => ({
   addAnswerAction: jest.fn(),
   updateAnswerAction: jest.fn(),
 }));
@@ -329,6 +329,26 @@ const setupMocks = () => {
   });
 };
 
+const config: QuestionPageConfig = {
+  questionIdParamKey: 'qid',
+  sectionIdParamKey: 'sid',
+  sectionIdField: 'versionedSectionId',
+  questionDocument: PublishedQuestionDocument,
+  questionVariableKey: 'versionedQuestionId',
+  extractQuestion: (data) => (data as any)?.publishedQuestion,
+  sectionType: 'BASE',
+  buildGuidanceMutationParams: ({ planId, versionedSectionId, versionedQuestionId }) => ({
+    planId, versionedSectionId, versionedQuestionId,
+  }),
+  buildRouteParams: ({ projectId, dmpId, versionedSectionId, versionedQuestionId }) => ({
+    projectId, dmpId, versionedSectionId, qid: versionedQuestionId,
+  }),
+  buildBackRoute: ({ projectId, dmpId, versionedSectionId }) => ({
+    route: 'projects.dmp.versionedSection',
+    params: { projectId, dmpId, versionedSectionId },
+  }),
+};
+
 
 describe('PlanOverviewQuestionPage render of questions', () => {
   beforeEach(() => {
@@ -394,8 +414,9 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
+
     });
 
 
@@ -461,8 +482,9 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
+
     });
 
     // check for comment button
@@ -499,8 +521,9 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
+
     });
 
     // Check that the textArea question field is in page
@@ -553,8 +576,9 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
+
     });
 
     // Check that the textArea question field is in page
@@ -595,8 +619,9 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     });
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
+
     });
 
     // Check that question card is in the page with correct question details
@@ -646,8 +671,9 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
+
     });
 
     // Check that question card is in the page with correct question details
@@ -700,8 +726,9 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
+
     });
 
     expect(screen.getByRole('heading', { level: 2, name: "Testing" })).toBeInTheDocument();
@@ -743,8 +770,9 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
+
     });
     expect(screen.getByRole('heading', { level: 2, name: 'Affiliation search question' }))
     // View sample text button should not display when the question is not a textArea question type
@@ -784,7 +812,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -847,7 +875,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -897,7 +925,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -943,7 +971,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -985,7 +1013,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -1027,7 +1055,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -1074,7 +1102,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -1125,7 +1153,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -1173,7 +1201,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -1226,7 +1254,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -1273,7 +1301,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -1289,6 +1317,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
 describe('accessibility', () => {
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
 
     // Mock window.tinymce
@@ -1305,7 +1334,7 @@ describe('accessibility', () => {
   })
 
   it('should pass accessibility tests', async () => {
-    const { container } = render(<PlanOverviewQuestionPage />);
+    const { container } = render(<PlanOverviewQuestionPageShared config={config} />);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -1314,6 +1343,7 @@ describe('accessibility', () => {
 
 describe('Call to updateAnswerAction', () => {
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
 
     // Mock window.tinymce
@@ -1350,6 +1380,15 @@ describe('Call to updateAnswerAction', () => {
           refetch: jest.fn()
         } as any;
       }
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -1360,7 +1399,7 @@ describe('Call to updateAnswerAction', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -1399,6 +1438,15 @@ describe('Call to updateAnswerAction', () => {
           refetch: jest.fn()
         } as any;
       }
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -1423,7 +1471,7 @@ describe('Call to updateAnswerAction', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -1467,6 +1515,13 @@ describe('Call to updateAnswerAction', () => {
           refetch: jest.fn()
         } as any;
       }
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
       return {
         data: null,
         loading: false,
@@ -1476,7 +1531,7 @@ describe('Call to updateAnswerAction', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -1517,6 +1572,16 @@ describe('Call to updateAnswerAction', () => {
           refetch: jest.fn()
         } as any;
       }
+
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -1526,7 +1591,7 @@ describe('Call to updateAnswerAction', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -1570,6 +1635,15 @@ describe('Call to updateAnswerAction', () => {
           refetch: jest.fn()
         } as any;
       }
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -1578,7 +1652,7 @@ describe('Call to updateAnswerAction', () => {
     });
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -1622,6 +1696,16 @@ describe('Call to updateAnswerAction', () => {
           refetch: jest.fn()
         } as any;
       }
+
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -1631,7 +1715,7 @@ describe('Call to updateAnswerAction', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -1675,6 +1759,15 @@ describe('Call to updateAnswerAction', () => {
           refetch: jest.fn()
         } as any;
       }
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -1684,7 +1777,7 @@ describe('Call to updateAnswerAction', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -1729,6 +1822,15 @@ describe('Call to updateAnswerAction', () => {
           refetch: jest.fn()
         } as any;
       }
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -1738,7 +1840,7 @@ describe('Call to updateAnswerAction', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -1778,6 +1880,15 @@ describe('Call to updateAnswerAction', () => {
           refetch: jest.fn()
         } as any;
       }
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -1786,7 +1897,7 @@ describe('Call to updateAnswerAction', () => {
     });
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
     const emailInput = screen.getByPlaceholderText('email');
@@ -1825,6 +1936,15 @@ describe('Call to updateAnswerAction', () => {
           refetch: jest.fn()
         } as any;
       }
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -1858,7 +1978,7 @@ describe('Call to updateAnswerAction', () => {
     });
 
     await act(async () => {
-      render(<PlanOverviewQuestionPage />);
+      render(<PlanOverviewQuestionPageShared config={config} />);
     });
 
     // Wait for initialization
@@ -1902,6 +2022,15 @@ describe('Call to updateAnswerAction', () => {
           refetch: jest.fn()
         } as any;
       }
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -1911,7 +2040,7 @@ describe('Call to updateAnswerAction', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -1953,6 +2082,15 @@ describe('Call to updateAnswerAction', () => {
           refetch: jest.fn()
         } as any;
       }
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -1962,7 +2100,7 @@ describe('Call to updateAnswerAction', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -2003,6 +2141,15 @@ describe('Call to updateAnswerAction', () => {
           refetch: jest.fn()
         } as any;
       }
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -2012,7 +2159,7 @@ describe('Call to updateAnswerAction', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
     const startInput = screen.getByPlaceholderText('number');
@@ -2052,6 +2199,15 @@ describe('Call to updateAnswerAction', () => {
           refetch: jest.fn()
         } as any;
       }
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -2060,7 +2216,7 @@ describe('Call to updateAnswerAction', () => {
     });
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -2100,6 +2256,15 @@ describe('Call to updateAnswerAction', () => {
           refetch: jest.fn()
         } as any;
       }
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -2108,7 +2273,7 @@ describe('Call to updateAnswerAction', () => {
     });
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -2151,6 +2316,15 @@ describe('Call to updateAnswerAction', () => {
           refetch: jest.fn()
         } as any;
       }
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -2195,7 +2369,7 @@ describe('Call to updateAnswerAction', () => {
     });
 
     await act(async () => {
-      render(<PlanOverviewQuestionPage />);
+      render(<PlanOverviewQuestionPageShared config={config} />);
     });
 
     // Wait for the simulated TinyMCE 'Change' event to propagate
@@ -2232,6 +2406,15 @@ describe('Call to updateAnswerAction', () => {
           refetch: jest.fn()
         } as any;
       }
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -2276,7 +2459,7 @@ describe('Call to updateAnswerAction', () => {
     });
 
     await act(async () => {
-      render(<PlanOverviewQuestionPage />);
+      render(<PlanOverviewQuestionPageShared config={config} />);
     });
 
     // Wait for the simulated TinyMCE 'Change' event to propagate
@@ -2318,6 +2501,15 @@ describe('Call to updateAnswerAction', () => {
           redirect: '/projects/1/dmp/1/s/22'
         } as any;
       }
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -2342,7 +2534,7 @@ describe('Call to updateAnswerAction', () => {
     });
 
     await act(async () => {
-      render(<PlanOverviewQuestionPage />);
+      render(<PlanOverviewQuestionPageShared config={config} />);
     });
 
     expect(screen.getByText('messaging.errors.questionUnexpectedFormat')).toBeInTheDocument();
@@ -2351,6 +2543,7 @@ describe('Call to updateAnswerAction', () => {
 
 describe('Call to addAnswerAction', () => {
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
 
     // Mock window.tinymce
@@ -2385,6 +2578,15 @@ describe('Call to addAnswerAction', () => {
           refetch: jest.fn()
         } as any;
       }
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -2409,7 +2611,7 @@ describe('Call to addAnswerAction', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -2439,6 +2641,7 @@ describe('Call to addAnswerAction', () => {
 
 describe('DrawerPanel', () => {
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
 
     window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
@@ -2487,7 +2690,7 @@ describe('DrawerPanel', () => {
 
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -2568,7 +2771,7 @@ describe('DrawerPanel', () => {
     });
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -2625,8 +2828,9 @@ describe('DrawerPanel', () => {
     });
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
+
     });
 
     // sidebar panel
@@ -2707,7 +2911,7 @@ describe('DrawerPanel', () => {
     });
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -2734,6 +2938,7 @@ describe('Prevent unload when user has unsaved changes', () => {
   let addEventListenerSpy: jest.SpyInstance;
   let removeEventListenerSpy: jest.SpyInstance;
   beforeEach(() => {
+    setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
 
     // Mock window.tinymce
@@ -2777,6 +2982,15 @@ describe('Prevent unload when user has unsaved changes', () => {
           refetch: jest.fn()
         } as any;
       }
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -2799,7 +3013,7 @@ describe('Prevent unload when user has unsaved changes', () => {
     });
 
     render(
-      <PlanOverviewQuestionPage />
+      <PlanOverviewQuestionPageShared config={config} />
     );
 
     // Make checkbox change
@@ -2836,6 +3050,23 @@ describe('Prevent unload when user has unsaved changes', () => {
 });
 
 describe('Auto save', () => {
+  beforeEach(() => {
+    setupMocks();
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+
+    // Mock window.tinymce
+    window.tinymce = {
+      init: jest.fn(),
+      remove: jest.fn(),
+    };
+
+    // Mock the return value of useParams
+    mockUseParams.mockReturnValue({ projectId: 1, dmpid: 1, sid: 22, qid: 344 });
+    mockUseRouter.mockReturnValue({
+      push: jest.fn(),
+    });
+  })
+
   it('should show saved message after auto-saving changes', async () => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
 
@@ -2868,6 +3099,15 @@ describe('Auto save', () => {
           refetch: jest.fn()
         } as any;
       }
+
+      if (document === PlanDocument) {
+        return {
+          data: mockPlanData,
+          loading: false,
+          refetch: mockRefetch
+        } as any;
+      }
+
       return {
         data: null,
         loading: false,
@@ -2879,7 +3119,7 @@ describe('Auto save', () => {
     const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
     await act(async () => {
       render(
-        <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPageShared config={config} />
       );
     });
 
@@ -2902,6 +3142,7 @@ describe('Auto save', () => {
 
   describe('PlanOverviewQuestionPage - Research Output Table', () => {
     beforeEach(() => {
+      setupMocks();
       jest.clearAllMocks();
       HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
 
@@ -2937,6 +3178,14 @@ describe('Auto save', () => {
             refetch: jest.fn()
           } as any;
         }
+        if (document === PlanDocument) {
+          return {
+            data: mockPlanData,
+            loading: false,
+            refetch: mockRefetch
+          } as any;
+        }
+
         return {
           data: null,
           loading: false,
@@ -2945,7 +3194,7 @@ describe('Auto save', () => {
       });
 
       await act(async () => {
-        render(<PlanOverviewQuestionPage />);
+        render(<PlanOverviewQuestionPageShared config={config} />);
       });
 
       expect(screen.getByRole('heading', { level: 2, name: 'Research Output Table question' })).toBeInTheDocument();
@@ -2978,6 +3227,14 @@ describe('Auto save', () => {
             refetch: jest.fn()
           } as any;
         }
+        if (document === PlanDocument) {
+          return {
+            data: mockPlanData,
+            loading: false,
+            refetch: mockRefetch
+          } as any;
+        }
+
         return {
           data: null,
           loading: false,
@@ -3000,7 +3257,7 @@ describe('Auto save', () => {
       });
 
       await act(async () => {
-        render(<PlanOverviewQuestionPage />);
+        render(<PlanOverviewQuestionPageShared config={config} />);
       });
 
       // Simulate adding a row
@@ -3045,6 +3302,14 @@ describe('Auto save', () => {
             refetch: jest.fn()
           } as any;
         }
+        if (document === PlanDocument) {
+          return {
+            data: mockPlanData,
+            loading: false,
+            refetch: mockRefetch
+          } as any;
+        }
+
         return {
           data: null,
           loading: false,
@@ -3066,7 +3331,7 @@ describe('Auto save', () => {
       });
 
       await act(async () => {
-        render(<PlanOverviewQuestionPage />);
+        render(<PlanOverviewQuestionPageShared config={config} />);
       });
 
       const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
@@ -3103,6 +3368,14 @@ describe('Auto save', () => {
             refetch: jest.fn()
           } as any;
         }
+        if (document === PlanDocument) {
+          return {
+            data: mockPlanData,
+            loading: false,
+            refetch: mockRefetch
+          } as any;
+        }
+
         return {
           data: null,
           loading: false,
@@ -3119,7 +3392,7 @@ describe('Auto save', () => {
       });
 
       await act(async () => {
-        render(<PlanOverviewQuestionPage />);
+        render(<PlanOverviewQuestionPageShared config={config} />);
       });
 
       // Click the internal save button in the research output component
