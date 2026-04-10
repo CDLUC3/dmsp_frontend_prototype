@@ -18,11 +18,19 @@ import { useTranslations } from 'next-intl';
 import { useLazyQuery } from '@apollo/client/react';
 import { TemplatesDocument, TemplatesQuery } from '@/generated/graphql';
 
+import {
+  TemplateSearchResultInterface,
+  TemplateItemProps,
+  PaginatedTemplateSearchResultsInterface
+} from '@/app/types';
+
 // Components
 import PageHeader from '@/components/PageHeader';
 import TemplateSelectListItem from '@/components/TemplateSelectListItem';
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
+import Loading from '@/components/Loading';
+import { TransitionButton, TransitionLink } from "@/components/Form";
 
 // Hooks
 import { useScrollToTop } from '@/hooks/scrollToTop';
@@ -32,11 +40,7 @@ import { useTemplateStatus } from './hooks/useTemplateStatus';
 // Utils and other
 import { toSentenceCase } from '@/utils/general';
 import { logECS, routePath } from '@/utils/index';
-import {
-  TemplateSearchResultInterface,
-  TemplateItemProps,
-  PaginatedTemplateSearchResultsInterface
-} from '@/app/types';
+
 import styles from './orgTemplates.module.scss';
 
 // # of templates displayed per section type
@@ -59,7 +63,7 @@ const TemplateListPage: React.FC = () => {
   const [searchResults, setSearchResults] = useState<TemplateItemProps[]>([]);
   const [isSearchFetch, setIsSearchFetch] = useState(false);
   const [firstNewIndex, setFirstNewIndex] = useState<number | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   // Add separate state for search pagination
   const [searchNextCursor, setSearchNextCursor] = useState<string | null>(null);
@@ -106,10 +110,10 @@ const TemplateListPage: React.FC = () => {
   }
 
   // Handle search input
-  const handleSearchInput = async (term: string) => {
+  const handleSearchInput = (term: string) => {
     setSearchTerm(term);
     if (term === '') {
-      await resetSearch();
+      resetSearch();
       return;
     }
     setErrors([]);
@@ -125,7 +129,6 @@ const TemplateListPage: React.FC = () => {
     setSearchButtonClicked(true);
     setErrors([]);
     setIsSearchFetch(true);
-    setIsSearching(true); // Used to disable search button
     setSearchResults([]); // Clear previous search results
     setSearchNextCursor(null); // Reset search cursor
 
@@ -144,6 +147,7 @@ const TemplateListPage: React.FC = () => {
   const handleSearchLoadMore = async () => {
     if (!searchNextCursor) return;
     setFirstNewIndex(searchResults.length);
+
     await fetchTemplates({
       variables: {
         paginationOptions: {
@@ -160,6 +164,7 @@ const TemplateListPage: React.FC = () => {
   const handleLoadMore = async () => {
     if (!nextCursor) return;
     setFirstNewIndex(templates.length);
+
     await fetchTemplates({
       variables: {
         paginationOptions: {
@@ -170,13 +175,6 @@ const TemplateListPage: React.FC = () => {
       },
     });
   };
-
-  useEffect(() => {
-    // Need this to set list of projects back to original, full list after filtering
-    if (searchTerm === '') {
-      setSearchButtonClicked(false);
-    }
-  }, [searchTerm])
 
   // If page-level errors, scroll them into view
   useEffect(() => {
@@ -238,7 +236,6 @@ const TemplateListPage: React.FC = () => {
         }
         setSearchNextCursor(templateData?.myTemplates?.nextCursor ?? null);
         setSearchTotalCount(templateData?.myTemplates?.totalCount ?? null);
-        setIsSearching(false); // Re-enable search button
       } else {
         // Handle regular pagination - backend returns only new items for cursor pagination
         if (items.length === 0) {
@@ -258,6 +255,8 @@ const TemplateListPage: React.FC = () => {
       items: (templateData.myTemplates.items ?? []).filter((item): item is TemplateSearchResultInterface => item !== null),
     });
 
+    // Mark initial load as done
+    setIsInitialLoading(false);
   }, [templateData, isSearchFetch]);
 
   // Load templates when page loads
@@ -269,13 +268,14 @@ const TemplateListPage: React.FC = () => {
         },
       },
     });
-  }, []);
+  }, [fetchTemplates]);
 
 
   useEffect(() => {
     // Log query errors and avoid duplicates
     if (queryError && !errors.includes(queryError.message)) {
       setErrors(prev => [...prev, queryError.message]);
+      setIsInitialLoading(false);
 
       logECS('error', 'fetchTemplates', {
         errors: queryError,
@@ -284,6 +284,9 @@ const TemplateListPage: React.FC = () => {
     }
   }, [queryError]);
 
+  if (isInitialLoading) {
+    return <Loading message={Global('messaging.loading')} />;
+  }
   return (
     <>
       <PageHeader
@@ -299,10 +302,10 @@ const TemplateListPage: React.FC = () => {
         }
         actions={
           <>
-            <Link
+            <TransitionLink
               href={TEMPLATE_CREATE_URL}
               className="button-link button--primary">{t('actionCreate')}
-            </Link>
+            </TransitionLink>
           </>
         }
         className="page-template-list"
@@ -315,14 +318,15 @@ const TemplateListPage: React.FC = () => {
             <SearchField>
               <Label>{t('searchLabel')}</Label>
               <Input value={searchTerm} onChange={e => handleSearchInput(e.target.value)} />
-              <Button
-                onPress={() => {
-                  handleSearch();
+              <TransitionButton
+                onPress={async () => {
+                  await handleSearch();
                 }}
-                isDisabled={isSearching}
+                loadingLabel={Global('buttons.searching')}
+                showLoading={false}
               >
                 {Global('buttons.search')}
-              </Button>
+              </TransitionButton>
               <FieldError />
               <Text slot="description" className="help">
                 {t('searchHelpText')}
@@ -333,7 +337,12 @@ const TemplateListPage: React.FC = () => {
           {loading && <p>{Global('messaging.loading')}</p>}
 
           {isSearchFetch && (
-            <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}> {Global('links.clearFilter')}</Button>
+            <Button
+              onPress={resetSearch}
+              className={`${styles.searchMatchText} link`}
+            >
+              {Global('links.clearFilter')}
+            </Button>
           )}
           {isSearchFetch && searchResults.length > 0 ? (
             <div className="template-list" role="list" aria-label={t('templateList')}>
@@ -350,19 +359,20 @@ const TemplateListPage: React.FC = () => {
 
               {searchNextCursor && (
                 <div className={styles.loadBtnContainer}>
-                  <Button
+                  <TransitionButton
                     type="button"
                     data-testid="search-load-more-btn"
-                    onPress={handleSearchLoadMore}
+                    onPress={async () => await handleSearchLoadMore()}
+                    loadingLabel={Global('buttons.loading')}
+                    showLoading={false}
                     aria-label={SelectTemplate('loadMoreSearchResults')}
                   >
                     {Global('buttons.loadMore')}
-                  </Button>
+                  </TransitionButton>
                   <div>
                     {Global('messaging.numDisplaying', { num: searchResults.length, total: searchTotalCount || '' })}
                   </div>
                   <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}> {Global('links.clearFilter')}</Button>
-
                 </div>
               )}
             </div>
@@ -384,14 +394,17 @@ const TemplateListPage: React.FC = () => {
                     ))}
                     {nextCursor && (
                       <div className={styles.loadBtnContainer}>
-                        <Button
+                        <TransitionButton
                           type="button"
                           data-testid="load-more-btn"
-                          onPress={handleLoadMore}
+                          isDisabled={!nextCursor}
+                          onPress={async () => await handleLoadMore()}
+                          loadingLabel={Global('buttons.loading')}
+                          showLoading={false}
                           aria-label={SelectTemplate('loadMoreTemplates')}
                         >
                           {Global('buttons.loadMore')}
-                        </Button>
+                        </TransitionButton>
                         <div className={styles.remainingText}>
                           {Global('messaging.numDisplaying', { num: templates.length, total: totalCount || '' })}
                         </div>

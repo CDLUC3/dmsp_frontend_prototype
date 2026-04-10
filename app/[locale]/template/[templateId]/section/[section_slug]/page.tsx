@@ -41,6 +41,7 @@ import TinyMCEEditor from "@/components/TinyMCEEditor";
 import ErrorMessages from '@/components/ErrorMessages';
 import FormInput from '@/components/Form/FormInput';
 import Loading from '@/components/Loading';
+import { TransitionButton } from '@/components/Form';
 
 import {
   SectionFormErrorsInterface,
@@ -74,10 +75,13 @@ const SectionUpdatePage: React.FC = () => {
   const errorRef = useRef<HTMLDivElement | null>(null);
   // Track whether there are unsaved changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
-  // Form state
+  // Form state for submitting Section form
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   // To be able to show a loading state when redirecting after successful update because otherwise there is a bit of a stutter where the page reloads before redirecting
   const [isRedirecting, setIsRedirecting] = useState(false);
+  // State for delete confirmation modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   //For scrolling to top of page
   const topRef = useRef<HTMLDivElement | null>(null);
@@ -119,10 +123,6 @@ const SectionUpdatePage: React.FC = () => {
 
   // Initialize remove section mutation
   const [removeSectionMutation] = useMutation(RemoveSectionDocument);
-
-  // State for delete confirmation modal
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   // Query for all tags
   const { data: tagsData } = useQuery(TagsDocument);
@@ -230,7 +230,7 @@ const SectionUpdatePage: React.FC = () => {
   };
 
   // Handle section deletion
-  const handleDeleteSection = async () => {
+  const handleDeleteSection = async (close: () => void) => {
     setIsDeleting(true);
     try {
       await removeSectionMutation({
@@ -240,6 +240,7 @@ const SectionUpdatePage: React.FC = () => {
       });
       // Show success message and redirect to template page
       toastState.add(SectionUpdatePage('messages.successDeletingSection'), { type: 'success' });
+      close(); // Close the modal
       router.push(TEMPLATE_URL);
     } catch (error) {
       logECS('error', 'deleteSection', {
@@ -344,11 +345,11 @@ const SectionUpdatePage: React.FC = () => {
 
   // We need this so that the page waits to render until data is available
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading message={Global('messaging.loading')} />;
   }
 
   if (isRedirecting) {
-    return <Loading />;
+    return <Loading message={Global('messaging.loading')} />;
   }
   return (
     <>
@@ -473,12 +474,13 @@ const SectionUpdatePage: React.FC = () => {
                         })}
                       </div>
                     </CheckboxGroup>
-                    <Button
+                    <TransitionButton
                       type="submit"
-                      aria-disabled={isSubmitting}
+                      isDisabled={isSubmitting}
+                      loadingLabel={Global('buttons.saving')}
                     >
-                      {isSubmitting ? Global('buttons.saving') : Global('buttons.saveAndUpdate')}
-                    </Button>
+                      {Global('buttons.saveAndUpdate')}
+                    </TransitionButton>
                   </Form>
                 </TabPanel>
                 <TabPanel id="options">
@@ -513,15 +515,13 @@ const SectionUpdatePage: React.FC = () => {
                               <Button className='react-aria-Button' autoFocus onPress={close}>
                                 {SectionUpdatePage('deleteModal.cancelButton')}
                               </Button>
-                              <Button
-                                className={`danger`}
-                                onPress={() => {
-                                  handleDeleteSection();
-                                  close();
-                                }}
+                              <TransitionButton
+                                className="danger"
+                                loadingLabel={SectionUpdatePage('buttons.deletingSection')}
+                                onPress={async () => { await handleDeleteSection(close); }}
                               >
                                 {SectionUpdatePage('deleteModal.deleteButton')}
-                              </Button>
+                              </TransitionButton>
                             </div>
                           </>
                         )}

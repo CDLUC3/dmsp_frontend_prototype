@@ -82,6 +82,8 @@ function Header() {
               width={200}
               height={28}
               alt="DMP Tool"
+              loading="eager" // tell the browser to load this immediately for better performance
+              priority // Next.js 13+ way to indicate high priority for this image
             />
           </Link>
         </div>

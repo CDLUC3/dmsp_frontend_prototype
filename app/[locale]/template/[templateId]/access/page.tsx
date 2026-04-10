@@ -7,7 +7,6 @@ import { useMutation, useQuery } from '@apollo/client/react';
 import {
   Breadcrumb,
   Breadcrumbs,
-  Button,
   Form,
   Link,
 } from 'react-aria-components';
@@ -25,6 +24,8 @@ import FormInput from '@/components/Form/FormInput';
 import ConfirmModal from '@/components/Modal/ConfirmModal';
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
+import { TransitionButton } from "@/components/Form";
+import Loading from '@/components/Loading';
 
 //Utils and other
 import logECS from '@/utils/clientLogger';
@@ -57,6 +58,8 @@ const TemplateAccessPage: React.FC = () => {
   const [addCollaboratorEmail, setAddCollaboratorEmail] = useState<string>('');
   const [organization, setOrganization] = useState<OrganizationInterface>();
 
+  // Form state
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // localization keys
   const Global = useTranslations('Global');
@@ -111,7 +114,7 @@ const TemplateAccessPage: React.FC = () => {
   // Add new collaborator email
   const handleAddingEmail = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
+    setIsSubmitting(true);
     clearErrors();
 
     try {
@@ -132,8 +135,11 @@ const TemplateAccessPage: React.FC = () => {
       const emailData = response?.data?.addTemplateCollaborator;
       if (emailData?.errors && Object.values(emailData?.errors).filter((err) => err && err !== 'TemplateCollaboratorErrors').length > 0) {
         setErrorMessages([emailData?.errors.general || AccessPage('messages.errors.errorAddingCollaborator')]);
+        setIsSubmitting(false);
+        return;
       }
       setAddCollaboratorEmail('');
+      setIsSubmitting(false);
 
       // Show success message
       const successMessage = AccessPage('messages.success.emailInviteSent');
@@ -141,6 +147,7 @@ const TemplateAccessPage: React.FC = () => {
     } catch (err) {
       setErrorMessages(prevErrors => [...prevErrors, AccessPage('messages.errors.errorAddingCollaborator')]);
       setAddCollaboratorEmail('');
+      setIsSubmitting(false);
       logECS('error', 'handleAddingEmail', {
         error: err,
         url: { path: '/template/[templateId]/access' }
@@ -230,6 +237,9 @@ const TemplateAccessPage: React.FC = () => {
     }
   }, [templateCollaboratorData]);
 
+  if (loading) {
+    return <Loading message={Global('messaging.loading')} />;
+  }
   return (
     <div>
       <PageHeader
@@ -299,7 +309,15 @@ const TemplateAccessPage: React.FC = () => {
                         isInvalid={!isValidEmail(addCollaboratorEmail) && addCollaboratorEmail !== ''}
                         errorMessage="Please enter a valid email address"
                       />
-                      <Button type="submit" className="react-aria-Button mt-0">{AccessPage('buttons.invite')}</Button>
+                      <TransitionButton
+                        type="submit"
+                        isDisabled={isSubmitting}
+                        loadingLabel={Global('buttons.loading')}
+                        className="react-aria-Button mt-0"
+                        showLoading={false}
+                      >
+                        {AccessPage('buttons.invite')}
+                      </TransitionButton>
                     </div>
                   </Form>
                 </div>

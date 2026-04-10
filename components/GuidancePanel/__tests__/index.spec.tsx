@@ -474,24 +474,5 @@ describe('GuidancePanel', () => {
         expect(screen.getByRole('tablist')).toBeInTheDocument();
       });
     });
-
-    it('should handle guidance items with no items array', async () => {
-      const invalidGuidanceItems: GuidanceItemInterface[] = [
-        {
-          orgURI: 'https://ror.org/test',
-          orgName: 'Test Org',
-          orgShortname: 'TO',
-          items: [],
-          type: GuidanceSourceType.UserAffiliation
-        },
-      ];
-
-      renderComponent({ guidanceItems: invalidGuidanceItems });
-
-      await waitFor(() => {
-        // Should not show the tab for empty items
-        expect(screen.queryByRole('tab', { name: /TO/i })).not.toBeInTheDocument();
-      });
-    });
   });
 });

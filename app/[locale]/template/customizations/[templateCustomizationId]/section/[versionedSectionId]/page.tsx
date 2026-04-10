@@ -399,11 +399,11 @@ const SectionCustomizePage: React.FC = () => {
 
   // We need this so that the page waits to render until data is available
   if (publishedSectionLoading) {
-    return <Loading />;
+    return <Loading message={Global('messaging.loading')} />;
   }
 
   if (isRedirecting) {
-    return <Loading />;
+    return <Loading message={Global('messaging.loading')} />;
   }
   return (
     <>

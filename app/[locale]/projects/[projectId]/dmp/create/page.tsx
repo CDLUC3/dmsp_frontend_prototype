@@ -66,6 +66,7 @@ interface PublicTemplatesInterface {
   visibility?: string | null;
   ownerDisplayName?: string | null;
   ownerURI?: string | null;
+  versionedTemplateCustomizationId?: number | null;
 }
 
 const PlanCreate: React.FC = () => {
@@ -113,6 +114,8 @@ const PlanCreate: React.FC = () => {
 
   // User's data for user's affiliation
   const { data: userData, loading: userLoading, error: userError } = useQuery(MeDocument);
+
+  const userAffiliation = userData?.me?.affiliation;
 
   // Get meta data about the available published templates
   const { data: templateMetaData, loading: templatesMetaDataLoading, error: templatesMetaDataError } = useQuery(PublishedTemplatesMetaDataDocument, {
@@ -177,7 +180,8 @@ const PlanCreate: React.FC = () => {
         funderUri: template?.ownerURI || "",
         lastUpdated: template?.modified ? formatDate(template?.modified) : null,
         lastRevisedBy: template?.modifiedByName || null,
-        hasAdditionalGuidance: false,
+        // Only show customization message if there is a versionedTemplateCustomizationId, which indicates that there is a customized version of the template for the user
+        hasAdditionalGuidance: template?.versionedTemplateCustomizationId != null,
         defaultExpanded: false,
         visibility: template?.visibility,
         bestPractices: template?.bestPractice || false,
@@ -435,8 +439,6 @@ const PlanCreate: React.FC = () => {
         .filter((funder): funder is { name: string; uri: string } => funder.name !== null);
     }
 
-    // Add user affiliation if it matches and isn't already included
-    const userAffiliation = userData?.me?.affiliation;
     if (userAffiliation?.uri && uniqueAffiliations.includes(userAffiliation.uri)) {
       const funderURIs = result.map(f => f.uri);
       if (!funderURIs.includes(userAffiliation.uri)) {

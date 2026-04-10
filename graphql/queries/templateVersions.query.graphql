@@ -61,6 +61,7 @@ query PublishedTemplates($paginationOptions: PaginationOptions, $term: String) {
       ownerURI
       ownerDisplayName
       ownerSearchName
+      versionedTemplateCustomizationId
     }
   }
 }

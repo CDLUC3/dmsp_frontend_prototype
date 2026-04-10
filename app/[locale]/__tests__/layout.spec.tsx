@@ -71,6 +71,12 @@ jest.mock('next-intl', () => ({
   NextIntlClientProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
+jest.mock('@/components/NavigationEvents', () => {
+  const MockNavigationEvents = () => <div>Mock NavigationEvents</div>;
+  MockNavigationEvents.displayName = 'MockNavigationEvents';
+  return MockNavigationEvents;
+});
+
 describe('LocaleLayout', () => {
   it('renders layout with valid locale', async () => {
     const TestComponent = await LocaleLayout({

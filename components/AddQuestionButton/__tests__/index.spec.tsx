@@ -3,6 +3,19 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 import AddQuestionButton from '../index';
 expect.extend(toHaveNoViolations);
 
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    prefetch: jest.fn(),
+    replace: jest.fn(),
+    pathname: '/',
+    route: '/',
+    query: {},
+    asPath: '/',
+  }),
+  usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 describe('AddQuestionButton', () => {
   const mockOnClick = jest.fn();

@@ -20,6 +20,8 @@ import PageHeader from "@/components/PageHeader";
 import ProjectListItem from "@/components/ProjectListItem";
 import { ContentContainer, LayoutContainer } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
+import Loading from '@/components/Loading';
+import { TransitionLink } from "@/components/Form";
 
 //GraphQL
 import { MyProjectsDocument } from '@/generated/graphql';
@@ -46,6 +48,8 @@ const ProjectsListPage: React.FC = () => {
   const { scrollToTop } = useScrollToTop();
   const [projects, setProjects] = useState<(ProjectItemProps)[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
+  // Initializing isPageLoading to true to show loading state until we have results or an error
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [searchButtonClicked, setSearchButtonClicked] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
@@ -238,6 +242,7 @@ const ProjectsListPage: React.FC = () => {
         if (projects.length === 0) {
           // First load - set all results
           setProjects(transformed);
+          setIsPageLoading(false); // Data loaded, stop showing loading state
         } else {
           // Subsequent loads - append new items (backend sends only new items)
           setProjects(prev => [...prev, ...transformed]);
@@ -299,6 +304,10 @@ const ProjectsListPage: React.FC = () => {
     }
   }, [projects, searchResults, firstNewIndex]);
 
+  if (isPageLoading) {
+    return <Loading message={Global('messaging.loading')} />;
+  }
+
   return (
     <>
       <PageHeader
@@ -314,8 +323,12 @@ const ProjectsListPage: React.FC = () => {
         }
         actions={
           <>
-            <Link href="/projects/create-project"
-              className={"button-link button--primary"}>{Global('buttons.createNewPlan')}</Link>
+            <TransitionLink
+              href={routePath('projects.create')}
+              className="button-link button--primary"
+            >
+              {Global('buttons.createNewPlan')}
+            </TransitionLink>
           </>
         }
         className="page-project-list"

@@ -271,7 +271,7 @@ describe("TemplateEditPage", () => {
 
     render(<TemplateEditPage />);
 
-    expect(screen.getByText(/loading.../i)).toBeInTheDocument();
+    expect(screen.getByText("messaging.loading")).toBeInTheDocument();
   });
 
   it("should render data returned from template query correctly", async () => {
@@ -725,7 +725,7 @@ describe("TemplateEditPage", () => {
     });
 
     await waitFor(() => {
-      expect(mockUseRouter().push).toHaveBeenCalledWith("/en-US/template/123");
+      expect(mockUseRouter().push).toHaveBeenCalledWith("/en-US/template");
     });
   });
 

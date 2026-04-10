@@ -6,6 +6,7 @@
 @use "forms";
 @use "variables" as *;
 @use 'spacing' as spacing;
+@import 'nprogress/nprogress.css';
 
 *,
 *:before,
@@ -211,8 +212,24 @@ body {
 }
 
 .skip-nav {
-  position: fixed;
-  left: -10000px;
+  position: absolute;
+  left: -999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 100;
+}
+.skip-nav:focus {
+  left: 0;
+  top: 0;
+  width: auto;
+  height: auto;
+  background: #fff;
+  color: #000;
+  padding: 1rem;
+  font-size: 1.2rem;
+  text-decoration: underline;
 }
 
 .hidden-accessibly {
@@ -546,4 +563,25 @@ button.button-as-link {
     color: var(--bg-white) !important;
     //background-color: var(--yellow-200) !important;
   }
+}
+
+/* NProgress custom styles */
+
+#nprogress {
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  background: var(--blue-300);
+  position: fixed;
+  z-index: 209999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+}
+
+/* Optional spinner (usually disabled) */
+#nprogress .spinner {
+  display: none;
 }

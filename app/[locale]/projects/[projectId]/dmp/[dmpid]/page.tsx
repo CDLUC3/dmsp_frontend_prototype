@@ -617,54 +617,57 @@ const PlanOverviewPage: React.FC = () => {
               </OverviewSection>
             </div>
 
-            {planData.versionedSections.map((versionedSection) => (
-              <section
-                key={versionedSection.versionedSectionId}
-                className={styles.planSectionsList}
-                aria-labelledby={`section-title-${versionedSection.versionedSectionId}`}
-              >
-                <div className={styles.planSectionsHeader}>
-                  <div className={styles.planSectionsTitle}>
-                    <h3 id={`section-title-${versionedSection.versionedSectionId}`}>{versionedSection.title}</h3>
-                    <p
-                      aria-label={`${versionedSection.answeredQuestions} out of ${versionedSection.totalQuestions} questions answered for ${versionedSection.title}`}
+            {planData.versionedSections.map((versionedSection, idx) => {
+              const sectionId = versionedSection.versionedSectionId ?? versionedSection.customSectionId;
+              const sectionRoute = versionedSection.sectionType === "BASE"
+                ? routePath("projects.dmp.versionedSection", { projectId, dmpId: planId, versionedSectionId: Number(sectionId) })
+                : routePath("projects.dmp.customSection", { projectId, dmpId: planId, csid: String(sectionId) });
+
+              return (
+                <section
+                  key={versionedSection.versionedSectionId ?? `section-${idx}`}
+                  className={styles.planSectionsList}
+                  aria-labelledby={`section-title-${versionedSection.versionedSectionId}`}
+                >
+                  <div className={styles.planSectionsHeader}>
+                    <div className={styles.planSectionsTitle}>
+                      <h3 id={`section-title-${versionedSection.versionedSectionId}`}>{versionedSection.title}</h3>
+                      <p
+                        aria-label={`${versionedSection.answeredQuestions} out of ${versionedSection.totalQuestions} questions answered for ${versionedSection.title}`}
+                      >
+                        <span className={styles.progressIndicator}>
+                          <svg
+                            className={styles.progressIcon}
+                            width="18"
+                            height="18"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 -960 960 960"
+                            fill="currentColor"
+                            aria-hidden="true"
+                          >
+                            <path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q65 0 123 19t107 53l-58 59q-38-24-81-37.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q133 0 226.5-93.5T800-480q0-18-2-36t-6-35l65-65q11 32 17 66t6 70q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-56-216L254-466l56-56 114 114 400-401 56 56-456 457Z" />
+                          </svg>
+                          {t("sections.progress", {
+                            current: versionedSection.answeredQuestions,
+                            total: versionedSection.totalQuestions,
+                          })}{" "}
+                          {t("sections.questionsAnswered")}
+                        </span>
+                      </p>
+                    </div>
+                    <Link
+                      href={sectionRoute}
+                      aria-label={t("sections.updateSection", {
+                        title: versionedSection.title,
+                      })}
+                      className={"react-aria-Button react-aria-Button--secondary"}
                     >
-                      <span className={styles.progressIndicator}>
-                        <svg
-                          className={styles.progressIcon}
-                          width="18"
-                          height="18"
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 -960 960 960"
-                          fill="currentColor"
-                          aria-hidden="true"
-                        >
-                          <path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q65 0 123 19t107 53l-58 59q-38-24-81-37.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q133 0 226.5-93.5T800-480q0-18-2-36t-6-35l65-65q11 32 17 66t6 70q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-56-216L254-466l56-56 114 114 400-401 56 56-456 457Z" />
-                        </svg>
-                        {t("sections.progress", {
-                          current: versionedSection.answeredQuestions,
-                          total: versionedSection.totalQuestions,
-                        })}{" "}
-                        {t("sections.questionsAnswered")}
-                      </span>
-                    </p>
+                      {versionedSection.answeredQuestions === 0 ? t("sections.start") : t("sections.update")}
+                    </Link>
                   </div>
-                  <Link
-                    href={routePath("projects.dmp.versionedSection", {
-                      projectId,
-                      dmpId: planId,
-                      versionedSectionId: versionedSection.versionedSectionId,
-                    })}
-                    aria-label={t("sections.updateSection", {
-                      title: versionedSection.title,
-                    })}
-                    className={"react-aria-Button react-aria-Button--secondary"}
-                  >
-                    {versionedSection.answeredQuestions === 0 ? t("sections.start") : t("sections.update")}
-                  </Link>
-                </div>
-              </section>
-            ))}
+                </section>
+              )
+            })}
           </div>
         </ContentContainer>
 
@@ -836,7 +839,7 @@ const PlanOverviewPage: React.FC = () => {
                     type="submit"
                     onPress={() => setStep(2)}
                   >
-                    {t("publishModal.publish.buttonNext")} &gt;
+                    {t("publishModal.publish.buttonNext")}{' '}&gt;
                   </Button>
                 </div>
                 <div>

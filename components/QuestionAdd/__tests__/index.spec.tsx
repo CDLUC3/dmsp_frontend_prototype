@@ -1,4 +1,3 @@
-import React from "react";
 import { act, fireEvent, render, screen, waitFor, within } from '@/utils/test-utils';
 import { useMutation, useQuery, useLazyQuery } from '@apollo/client/react';
 import {
@@ -2176,11 +2175,11 @@ describe("Error handling", () => {
     // Set value to empty
     fireEvent.change(input, { target: { value: '' } });
 
-    const saveButton = screen.getByRole('button', { name: /buttons.save/i });
-    fireEvent.click(saveButton);
+    fireEvent.submit(document.querySelector('form')!);
 
-    const errorMessage = screen.getByText('messages.errors.questionTextRequired');
-    expect(errorMessage).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('messages.errors.questionTextRequired')).toBeInTheDocument();
+    })
   })
 
   it('should display error when addQuestionMutation returns an error', async () => {

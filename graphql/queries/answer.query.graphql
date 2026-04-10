@@ -1,5 +1,5 @@
-query AnswerByVersionedQuestionId($projectId: Int!, $planId: Int!, $versionedQuestionId: Int!) {
-  answerByVersionedQuestionId(projectId: $projectId, planId: $planId, versionedQuestionId: $versionedQuestionId) {
+query AnswerByVersionedQuestionId($projectId: Int!, $planId: Int!, $versionedQuestionId: Int, $versionedCustomQuestionId: Int) {
+  answerByVersionedQuestionId(projectId: $projectId, planId: $planId, versionedQuestionId: $versionedQuestionId, versionedCustomQuestionId: $versionedCustomQuestionId) {
     id
     json
     versionedQuestion {

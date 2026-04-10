@@ -133,7 +133,7 @@ const GuidanceGroupCreatePage: React.FC = () => {
   }, [me, guidanceGroup]);
 
   if (loading) {
-    return <Loading />;
+    return <Loading message={Global('messaging.loading')} />;
   }
 
   return (

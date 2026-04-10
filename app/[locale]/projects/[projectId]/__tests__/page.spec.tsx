@@ -100,7 +100,18 @@ const mockProjectData = {
           displayOrder: 1,
           versionedSectionId: 7,
           title: "Roles & Responsibilities",
-          totalQuestions: 1
+          totalQuestions: 1,
+          customSectionId: null,
+          sectionType: "BASE"
+        },
+        {
+          answeredQuestions: 0,
+          displayOrder: 2,
+          versionedSectionId: null,
+          title: "Custom section",
+          totalQuestions: 1,
+          customSectionId: 2,
+          sectionType: "CUSTOM"
         }
       ],
       templateTitle: "NSF DMP Template",

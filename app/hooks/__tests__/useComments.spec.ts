@@ -17,7 +17,7 @@ jest.mock('next-intl', () => ({
 const mockToast = { add: jest.fn() };
 
 // Mock Server Actions
-jest.mock('../../actions', () => ({
+jest.mock('@/app/actions', () => ({
   addAnswerCommentAction: jest.fn().mockResolvedValue({ success: true, errors: [], data: { id: 123 } }),
   addFeedbackCommentAction: jest.fn().mockResolvedValue({ success: true, errors: [], data: { id: 456 } }),
   removeAnswerCommentAction: jest.fn().mockResolvedValue({ success: true, errors: [], data: {} }),

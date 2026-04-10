@@ -1,4 +1,11 @@
 ## Added
+- Added new `PlanOverviewCustomQuestionUnderCustomSectionPage` at `/projects/[projectId]/dmp/[dmpid]/cs/[csid/cq/[cqid]`, `PlanOverviewCustomSectionPage` at `projects/[projectId]/dmp/[dmpid]/cs/[csid]`, and `PlanOverviewCustomQuestionUnderVersionedSectionPage` at `projects/[projectId]/dmp/[dmpid]/s/[sid]/cq/[cqid]` [#172]
+- Added new routes for `projects.dmp.customSection`, `projects.dmp.customQuestion.underVersionedSection`, `projects.dmp.customQuestion.underCustomSection` [#172]
+- Added new `projects.dmp.customSection` and `projects.dmp.customQuestion.detail` routes to routePath [#169]
+- Added `PublishedCustomSection` query [#169]
+- Added new `NavigationEvent` and `TransitionLink` to prevent multiple clicks on a link while loading, and to provide feedback to user with a progress bar [#149]
+- Added a new `TransitionButton` component to disable button when in progress, and to change button text when loading [#149]
+- Added `loading.tsx` at `app` directory root, instead of in `app/[locale]` because it wasn't working in the `[locale]` directory [#149]
 - Added new `TooltipSelect` component, which allows us to include descriptions with each `Select` option [#32]
 - `Custom Question` additions [#929]
   - Added new `CustomQuestionEdit` page
@@ -21,6 +28,26 @@
 - Added related works project overview page [#700]
 
 ## Updated
+- Updated `AnswerByVersionedQuestionId` query and `addAnswer` mutation schemas to pass in `versionedCustomSectionId` and `versionedCustomQuestionId` so that we can get answers to custom questions and save them accordingly [#174]
+- Updated `PublishedQuestion` query to include customization fields, and updated `PlanOverviewQuestionPageShared` component to use the new customization sample text and org info [#174]
+- Moved shared `actions` from `project/[projectId]/dmp/[dmpid]/s/[sid]/q/[qid]` to `@/app/actions` since they will be shared between the three question pages [#172]
+- Moved the `__mocks__`, `__tests__` directories to the new shared `PlanOverviewQuestionPageShared` and `PlanOverviewSectionPageShared` components and `hooks` to `@/app/hooks` for `useComments.tsx`. Also moved shared `Comments` files to `components/Comments` [#172]
+- Updated `useGuidanceMutations` and `useGuidanceData` hooks to include custom questions [#172]
+- Updated `PlanOverviewSectionPage` to get `sectionType` from query param and added `PublishedCustomSectionDocument` and `PublishedCustomQuestionsDocument` queries to get custom sections and questions to list on the page. set correct `section` or `questions` values based on `BASE` and `CUSTOM` sectionTypes [#169]
+- Updated `CustomQuestionNew` to pass `sectionType` to `QuestionAdd` component [#169]
+- Updated `PublishedQuestions` query fields, and added `PublishedCustomQuestions` query [#169]
+- Updated `useGuidanceData` to use the correct sectionId for custom sections, and updated `useGuidanceMutation` hook to do the same using the new `customSectionId` prop [#169]
+- Updated `CustomizedSectionEdit` to pass the new `direction` prop to `moveCustomQuestion` mutation [#169] 
+- Updated renovate config to rebase when a PR is behind the base branch
+- Updated `ProjectOverviewPage` to display both `BASE` and `CUSTOM` sections in the card [#168]
+- Updated `PlanOverviewPage` to display both the `BASE` and `CUSTOM` sections in the list [#168]
+- Updated `project` and `plan` queries to include the new `customSectionId` and `sectionType` fields [#168]
+- Updated `PlanCreate` page to use the `versionedTemplateCustomizationId` to determine whether the template has customizations [#165]
+- Updated `layout.tsx` to include the progress bar navigation for custom links [#149]
+- Updated buttons and links in template builder flow to use the new `TransitionButton` and `TransitionLink` components [#149]
+- Updated `PlanOverviewSectionPage` left nav to appear only for large screens over `1800px` for now, because it was overlapping with the content for smaller devices [#34]
+- `Custom Questi
+- Updated Research Output standardFields config so that only `title` field is required when answering question [#33]
 - `Custom Question` updates [#929]
 - Moved `addQuestionMutation` out of `QuestionView` so that `QuestionView` can be shared for both `BASE` and `CUSTOM` questions
   - Updated `QuestionTypeSelectPage` to include the `addQuestionMutation` and `getDisplayOrder` and pass those to `QuestionAdd`
@@ -38,6 +65,8 @@
 - Updated `/login` page step=email to include a "Back" button so user can go back to Step 1 [#997]
 
 ## Fixed
+- Fixed some broken translation keys for Loading message [#165]
+- Fixed some issues in `Research Output` question answer form, where data flags checkboxes were not displaying and output types was missing the custom output
 - Fixed issue with missing `as builder` in `Dockerfile.prod`
 - Fixed bug where user's org was not displaying as a filter option, and Best practice was displaying instead [#62]
 - Fixed issue with default `sampleText` appearing again in textArea question, after the user overrides it, saves, and then deletes their answer [#7]
@@ -45,6 +74,10 @@
 - Fixed bug where the published status on `/template/[templateId]` did not match that on the template cards at `/template` for the `unpublished changes` state. Added a shared hook for determining the correct status text [#875]
 
 ## Chore
+- Addressed `lodash` vulnerability by adding it as an `override` at v4.18.0 in `package.json` [#172]
+- Addressed `picomatch` package vulnerability [#169]
+- Updated version of `next` to `v16.2.0`, `sanitize-html` to `v2.17.2`, `react-aria/toast` to `v3.0.11`, `@react-stately/toast` to `3.1.3` and `react-aria-components` to `v1.16.0`. Fixed some unit tests related to the updates, and updated header logo `Image` and related `css` to remove warnings related to resizing.
+- Updated version of `next` to `16.1.7` due to security vulnerability
 - Updated version of `dompurify` to `v3.3.2` due to security vulnerability, and included updates to`test-exclude` to v7.0.2, `sanitize-html` to v2.17.1, `tinymce` to v7.9.2, `next-intl` to v4.8.3, `html-react-parser` to v5.2.17, `@types/node` to v24.12.0, and `@types/react to v18.3.28.
 - Updated version of `minimatch` to `10.2.4` to address vulnerabilities
 - Updated version of `@dmptool/types` to `3.1.2` and `zod` to match package version to `4.3.6`

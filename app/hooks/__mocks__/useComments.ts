@@ -1,4 +1,4 @@
-import mockMergedComments from '../../__mocks__/mockMergedComments.json'
+import mockMergedComments from '@/components/PlanOverviewQuestionPageShared/__mocks__/mockMergedComments.json'
 
 export const mockUseComments = jest.fn();
 
