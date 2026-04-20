@@ -15,6 +15,7 @@
       "comments": "Comments",
       "leaveAComment": "Deixar uma foto",
       "requirementsBy": "Requisitos de {funder}",
+      "introduction": "Introdução",
       "question": "Pergunta"
     },
     "labels": {
@@ -32,6 +33,7 @@
       "commentTooltip": "Você precisa salvar uma resposta antes que os usuários possam comentar.",
       "guidanceBy": "Guia por {name}",
       "funderSampleText": "{funder} texto de exemplo",
+      "organizationSampleText": "{org} texto de exemplo",
       "participantsWillBeNotified": "Os participantes serão notificados assim que submetidos.",
       "planTitlePlaceholder": "Inserir título do plano"
     },
@@ -65,6 +67,7 @@
     },
     "errors": {
       "invalidDmpId": "ID DMP inválido: O ID de DMP fornecido não é válido.",
+      "invalidSectionId": "ID de seção inválido: O ID de seção fornecido não é válido.",
       "sectionNotFound": "Seção não encontrada: Esta seção não pertence ao plano atual."
     },
     "status": {

@@ -11,6 +11,7 @@ interface UseGuidanceDataProps {
   planId: number;
   versionedSectionId?: number;
   versionedQuestionId?: number;
+  sectionType?: string; // Optional, in case we want to conditionally fetch based on section type in the future
 }
 
 /**
@@ -20,8 +21,17 @@ interface UseGuidanceDataProps {
 export const useGuidanceData = ({
   planId,
   versionedSectionId,
-  versionedQuestionId
+  versionedQuestionId,
+  sectionType,
 }: UseGuidanceDataProps) => {
+
+  // Only pass versionedSectionId to the backend when it's actually a base section.
+  // Custom section IDs are not versioned section IDs and would return wrong results.
+  const resolvedVersionedSectionId = sectionType === 'CUSTOM' ? undefined : versionedSectionId;
+  const resolvedCustomSectionId = sectionType === 'CUSTOM' ? versionedSectionId : undefined;
+
+  const resolvedVersionedQuestionId = sectionType === 'CUSTOM' ? undefined : versionedQuestionId;
+  const resolvedCustomQuestionId = sectionType === 'CUSTOM' ? versionedQuestionId : undefined;
 
   // Fetch all guidance sources from backend (includes matched guidance and tags)
   const { data: guidanceData, loading: guidanceLoading, refetch } = useQuery(
@@ -29,8 +39,10 @@ export const useGuidanceData = ({
     {
       variables: {
         planId,
-        versionedSectionId: versionedSectionId ? Number(versionedSectionId) : undefined,
-        versionedQuestionId: versionedQuestionId ? Number(versionedQuestionId) : undefined
+        versionedSectionId: resolvedVersionedSectionId,
+        versionedQuestionId: resolvedVersionedQuestionId,
+        customSectionId: resolvedCustomSectionId,
+        customQuestionId: resolvedCustomQuestionId
       },
       skip: !planId,
       notifyOnNetworkStatusChange: true,

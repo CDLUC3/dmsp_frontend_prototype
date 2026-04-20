@@ -1,5 +1,5 @@
-mutation AddAnswer($planId: Int!, $versionedSectionId: Int!, $versionedQuestionId: Int!, $json: String!) {
-  addAnswer(planId: $planId, versionedSectionId: $versionedSectionId, versionedQuestionId: $versionedQuestionId, json: $json) {
+mutation AddAnswer($planId: Int!, $versionedSectionId: Int, $versionedQuestionId: Int, $versionedCustomSectionId: Int, $versionedCustomQuestionId: Int, $json: String!) {
+  addAnswer(planId: $planId, versionedSectionId: $versionedSectionId, versionedQuestionId: $versionedQuestionId, versionedCustomSectionId: $versionedCustomSectionId, versionedCustomQuestionId: $versionedCustomQuestionId, json: $json) {
     id
     json
     modified

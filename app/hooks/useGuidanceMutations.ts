@@ -11,10 +11,12 @@ import {
 } from '@/generated/graphql';
 import logECS from "@/utils/clientLogger";
 
-interface UseGuidanceMutationsProps {
+export interface UseGuidanceMutationsProps {
   planId: number;
   versionedSectionId?: number;
   versionedQuestionId?: number;
+  customSectionId?: number;
+  customQuestionId?: number;
 }
 
 /**
@@ -25,6 +27,8 @@ export const useGuidanceMutations = ({
   planId,
   versionedSectionId,
   versionedQuestionId,
+  customSectionId,
+  customQuestionId
 }: UseGuidanceMutationsProps) => {
 
   const Guidance = useTranslations('Guidance');
@@ -32,16 +36,25 @@ export const useGuidanceMutations = ({
   // Local error state
   const [guidanceError, setGuidanceError] = useState<string | null>(null);
 
+  const resolvedVersionedSectionId = customSectionId ? undefined : versionedSectionId;
+  const resolvedCustomSectionId = customSectionId ?? undefined;
+  const resolvedVersionedQuestionId = customQuestionId ? undefined : versionedQuestionId;
+  const resolvedCustomQuestionId = customQuestionId ?? undefined;
+
+  const refetchVariables = {
+    planId,
+    versionedSectionId: resolvedVersionedSectionId ? Number(resolvedVersionedSectionId) : undefined,
+    versionedQuestionId: resolvedVersionedQuestionId ? Number(resolvedVersionedQuestionId) : undefined,
+    customSectionId: resolvedCustomSectionId ? Number(resolvedCustomSectionId) : undefined,
+    customQuestionId: resolvedCustomQuestionId ? Number(resolvedCustomQuestionId) : undefined,
+  };
+
   // Mutation for adding guidance organizations
   const [addPlanGuidanceMutation, { loading: isAdding }] = useMutation(AddPlanGuidanceDocument, {
     refetchQueries: [
       {
         query: GuidanceSourcesForPlanDocument,
-        variables: {
-          planId,
-          versionedSectionId: versionedSectionId ? Number(versionedSectionId) : undefined,
-          versionedQuestionId: versionedQuestionId ? Number(versionedQuestionId) : undefined
-        }
+        variables: refetchVariables
       }
     ],
     awaitRefetchQueries: true, // Wait for refetch to complete
@@ -52,11 +65,7 @@ export const useGuidanceMutations = ({
     refetchQueries: [
       {
         query: GuidanceSourcesForPlanDocument,
-        variables: {
-          planId,
-          versionedSectionId: versionedSectionId ? Number(versionedSectionId) : undefined,
-          versionedQuestionId: versionedQuestionId ? Number(versionedQuestionId) : undefined
-        }
+        variables: refetchVariables
       }
     ],
     awaitRefetchQueries: true, // Wait for refetch to complete

@@ -39,7 +39,7 @@ describe('TemplateCreatePage', () => {
     (useQueryStep as jest.Mock).mockReturnValue(null); // No step in query initially
 
     render(<TemplateCreatePage />);
-    expect(screen.getByText('messaging.loading')).toBeInTheDocument();
+    expect(screen.getByTestId('loading-component')).toBeInTheDocument();
   });
 
   it('should render step 1 form when step is 1', () => {

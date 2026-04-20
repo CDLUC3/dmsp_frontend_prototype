@@ -232,6 +232,7 @@ describe('useGuidanceData', () => {
             planId: 123,
             versionedSectionId: 456,
             versionedQuestionId: undefined,
+            customSectionId: undefined,
           },
         })
       );
@@ -253,6 +254,53 @@ describe('useGuidanceData', () => {
             planId: 123,
             versionedSectionId: undefined,
             versionedQuestionId: 789,
+            customSectionId: undefined,
+          },
+        })
+      );
+    });
+
+    it('should pass versionedSectionId as customSectionId when sectionType is CUSTOM', () => {
+      setupMocks();
+      renderHook(() =>
+        useGuidanceData({
+          planId: 123,
+          versionedSectionId: 456,
+          sectionType: 'CUSTOM',
+        })
+      );
+
+      expect(mockUseQuery).toHaveBeenCalledWith(
+        GuidanceSourcesForPlanDocument,
+        expect.objectContaining({
+          variables: {
+            planId: 123,
+            versionedSectionId: undefined,
+            versionedQuestionId: undefined,
+            customSectionId: 456,
+          },
+        })
+      );
+    });
+
+    it('should pass versionedSectionId normally when sectionType is not CUSTOM', () => {
+      setupMocks();
+      renderHook(() =>
+        useGuidanceData({
+          planId: 123,
+          versionedSectionId: 456,
+          sectionType: 'BASE',
+        })
+      );
+
+      expect(mockUseQuery).toHaveBeenCalledWith(
+        GuidanceSourcesForPlanDocument,
+        expect.objectContaining({
+          variables: {
+            planId: 123,
+            versionedSectionId: 456,
+            versionedQuestionId: undefined,
+            customSectionId: undefined,
           },
         })
       );

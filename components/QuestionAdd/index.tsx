@@ -41,6 +41,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 import QuestionPreview from '@/components/QuestionPreview';
 import QuestionView from '@/components/QuestionView';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
+import { TransitionButton } from '@/components/Form';
 
 //Other
 import { useResearchOutputTable } from '@/app/hooks/useResearchOutputTable';
@@ -360,8 +361,9 @@ const QuestionAdd = ({
 
   // Function to add and save the new question
   const handleAdd = async (e: React.FormEvent) => {
-    e.preventDefault();    // Prevent double submission
-    if (isSubmitting) return;
+    e.preventDefault();
+    setFormSubmitted(true);
+    if (isSubmitting) return;// Prevent double submission
     setIsSubmitting(true);
 
     const updatedJSON = buildUpdatedJSON(question);
@@ -682,14 +684,15 @@ const QuestionAdd = ({
                   </div>
                 </RadioGroupComponent>
 
-                {/**We need to set formSubmitted here, so that it is passed down to the child component QuestionOptionsComponent */}
-                <Button
+                <TransitionButton
                   type="submit"
-                  onPress={() => setFormSubmitted(true)}
+                  isDisabled={isSubmitting}
+                  loadingLabel={Global('buttons.saving')}
+                  showLoading={false}
                   aria-disabled={isSubmitting}
                 >
-                  {isSubmitting ? Global('buttons.saving') : Global('buttons.saveAndAdd')}
-                </Button>
+                  {Global('buttons.saveAndAdd')}
+                </TransitionButton>
               </Form>
 
             </TabPanel>

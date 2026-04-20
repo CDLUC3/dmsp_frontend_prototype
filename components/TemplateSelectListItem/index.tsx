@@ -1,9 +1,10 @@
-import { Button } from "react-aria-components";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import styles from "./TemplateSelectListItem.module.scss";
+import { TransitionButton, TransitionLink } from "@/components/Form";
 import { useToast } from "@/context/ToastContext";
 import { toTitleCase } from "@/utils/general";
+import { DmpIcon } from "@/components/Icons";
 interface TemplateSelectListItemProps {
   onSelect?: (versionedTemplateId: number) => Promise<void>;
   item: {
@@ -27,7 +28,6 @@ interface TemplateSelectListItemProps {
 
 function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps) {
   const toastState = useToast();
-
   //Localization keys
   const SelectListItem = useTranslations("TemplateSelectListItem");
   const Global = useTranslations("Global");
@@ -91,10 +91,11 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
                 </span>
               ) : null}
             </div>
+
           </div>
 
           {onSelect ? (
-            <Button
+            <TransitionButton
               className="primary"
               onPress={async () => {
                 if (typeof item?.id === "number") {
@@ -103,21 +104,22 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
                   toastState.add("Invalid template", { type: "error" });
                 }
               }}
+              loadingLabel={Global("buttons.selecting")}
               aria-label={`Select ${item.title}`}
               data-versioned-template-id={item?.id}
             >
               {Global("buttons.select")}
-            </Button>
+            </TransitionButton>
           ) : (
             <div className={styles.TemplateItemActions}>
               {item.link && (
-                <Link
+                <TransitionLink
                   href={item.link}
                   aria-label={`${Global("links.update")} ${item.title}`}
                   className="button-link button--primary"
                 >
                   {Global("links.update")}
-                </Link>
+                </TransitionLink>
               )}
             </div>
           )}
@@ -126,24 +128,7 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
 
       {item.hasAdditionalGuidance && (
         <div className={styles.guidance}>
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-          >
-            <circle
-              cx="10"
-              cy="10"
-              r="7.5"
-              stroke="currentColor"
-            />
-            <path
-              d="M6.5 10L9 12.5L13.5 8"
-              stroke="currentColor"
-              strokeLinecap="round"
-            />
-          </svg>
+          <DmpIcon icon="check_circle" aria-hidden="true" />
           {SelectListItem("messages.additionalGuidance")}
         </div>
       )}

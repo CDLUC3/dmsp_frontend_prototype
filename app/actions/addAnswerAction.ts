@@ -8,17 +8,21 @@ export async function addAnswerAction({
   planId,
   versionedSectionId,
   versionedQuestionId,
+  versionedCustomSectionId,
+  versionedCustomQuestionId,
   json
 }: {
   planId: number;
-  versionedSectionId: number;
-  versionedQuestionId: number;
+  versionedSectionId?: number;
+  versionedQuestionId?: number;
+  versionedCustomSectionId?: number;
+  versionedCustomQuestionId?: number;
   json: string;
 }): Promise<ActionResponse> {
   // Execute the mutation using the shared handler
   return await executeGraphQLMutation({
     document: AddAnswerDocument,
-    variables: { planId, versionedSectionId, versionedQuestionId, json },
+    variables: { planId, versionedSectionId, versionedQuestionId, versionedCustomSectionId, versionedCustomQuestionId, json },
     dataPath: "addAnswer"
   });
 }

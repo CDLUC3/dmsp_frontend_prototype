@@ -9,12 +9,13 @@ import {
   Modal,
   ModalOverlay
 } from 'react-aria-components';
+import { TransitionButton } from "@/components/Form";
 
 
 const ConfirmModal: React.FC<{
   title: string,
   email: string,
-  onConfirm: (email: string) => void
+  onConfirm: (email: string) => Promise<void>
 }
 > = ({ title, email, onConfirm }) => {
   const [isOpen, setOpen] = useState(false);
@@ -32,7 +33,17 @@ const ConfirmModal: React.FC<{
             <p>{AccessPage('paragraphs.modalPara1', { email })}</p>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
               <Button onPress={() => setOpen(false)}>{Global('buttons.cancel')}</Button>
-              <Button onPress={() => { onConfirm(email); setOpen(false); }} autoFocus>{Global('buttons.confirm')}</Button>
+              <TransitionButton
+                onPress={async () => {
+                  await onConfirm(email);
+                  setOpen(false);//Only close after onConfirm completes
+                }}
+                loadingLabel={Global('buttons.confirming')}
+                showLoading={false}
+                autoFocus
+              >
+                {Global('buttons.confirm')}
+              </TransitionButton>
             </div>
           </Dialog>
         </Modal>

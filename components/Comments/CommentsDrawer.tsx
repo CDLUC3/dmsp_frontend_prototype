@@ -12,7 +12,7 @@ import {
 import {
   MeQuery
 } from '@/generated/graphql';
-import styles from './PlanOverviewQuestionPage.module.scss';
+import styles from './comments.module.scss';
 import { useTranslations } from "next-intl";
 import { DrawerPanel } from "@/components/Container";
 import CommentList from './CommentList';

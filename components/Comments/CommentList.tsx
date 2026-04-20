@@ -9,7 +9,7 @@ import { MeQuery } from '@/generated/graphql';
 import { formatRelativeFromTimestamp } from '@/utils/dateUtils';
 import ExpandableContentSection from '@/components/ExpandableContentSection';
 
-import styles from './PlanOverviewQuestionPage.module.scss';
+import styles from './comments.module.scss';
 
 
 interface CommentListProps {

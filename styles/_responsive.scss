@@ -11,7 +11,9 @@ $breakpoints: (
   'md': 768px,
   'lg': 1024px,
   'xl': 1200px,
-  'xxl': 1440px
+  'xxl': 1440px,
+  'xxxl': 1600px,
+  'xxxxl': 1800px
 );
 
 // A quick helper to create a media query block for a named device

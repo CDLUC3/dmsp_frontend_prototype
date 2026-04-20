@@ -98,16 +98,14 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
     guidanceItems
       .filter(item => item.type !== GuidanceSourceType.BestPractice)
       .forEach((org, index) => {
-        if (org.items.length > 0) {
-          sources.push({
-            id: `org-${index}`,
-            type: 'organization',
-            label: org.orgName,
-            shortName: org.orgShortname || null,
-            items: org.items || [],
-            orgURI: org.orgURI
-          });
-        }
+        sources.push({
+          id: `org-${index}`,
+          type: 'organization',
+          label: org.orgName,
+          shortName: org.orgShortname || null,
+          items: org.items || [],
+          orgURI: org.orgURI
+        });
       });
     return sources;
   }, [guidanceItems]);
@@ -511,14 +509,6 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
                           <div
                             key={source.id}
                             className={`${styles.pill} ${styles.pillVisible}`}
-                            onClick={() => handleRemoveOrganization(source.id, source.orgURI)}
-                            role="button"
-                            tabIndex={0}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                handleRemoveOrganization(source.id, source.orgURI);
-                              }
-                            }}
                           >
 
                             <div className={`${styles.pillCustomize} ${styles.pillInner}`}>
@@ -526,6 +516,7 @@ const GuidancePanel: React.FC<GuidancePanelProps> = ({
                               <Button
                                 className={"unstyled"}
                                 aria-label={`Remove ${source.label}`}
+                                onPress={() => handleRemoveOrganization(source.id, source.orgURI)}
                               >
                                 <DmpIcon icon="cancel-reverse" />
                               </Button>

@@ -49,15 +49,36 @@ query PublishedQuestions($planId: Int!, $versionedSectionId: Int!) {
   publishedQuestions(planId: $planId, versionedSectionId: $versionedSectionId) {
     id
     questionText
-    displayOrder
     guidanceText
     requirementText
     sampleText
-    versionedSectionId
-    versionedTemplateId
+    useSampleTextAsDefault
+    required
     hasAnswer
+    questionType
+    versionedQuestionId
+    customQuestionId
+    json
   }
 }
+
+query PublishedCustomQuestions($planId: Int!, $versionedCustomSectionId: Int!) {
+  publishedCustomQuestions(planId: $planId, versionedCustomSectionId: $versionedCustomSectionId) {
+    id
+    questionText
+    guidanceText
+    requirementText
+    sampleText
+    useSampleTextAsDefault
+    required
+    hasAnswer
+    questionType
+    versionedQuestionId
+    customQuestionId
+    json
+  }
+}
+
 
 query PublishedQuestion($versionedQuestionId: Int!) {
   publishedQuestion(versionedQuestionId: $versionedQuestionId) {
@@ -87,5 +108,44 @@ query PublishedQuestion($versionedQuestionId: Int!) {
       name
       id
     }
+    customizationSampleText
+    customizationId
+    customizationGuidanceText
+    customizationOwnerAffiliation {
+      name
+      id
+      uri
+      displayName
+    }
+  }
+}
+
+query PublishedCustomQuestion($versionedCustomQuestionId: Int!) {
+  publishedCustomQuestion(versionedCustomQuestionId: $versionedCustomQuestionId) {
+    id
+    guidanceText
+    errors {
+      questionText
+      general
+      json
+    }
+    pinnedVersionedQuestionType
+    pinnedVersionedQuestionId
+    ownerAffiliation {
+      id
+      name
+      displayName
+      acronyms
+      uri
+    }
+    questionText
+    json
+    requirementText
+    sampleText
+    useSampleTextAsDefault
+    versionedSectionId
+    versionedSectionType
+    versionedTemplateCustomizationId
+    required
   }
 }

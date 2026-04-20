@@ -1,7 +1,8 @@
 import React from 'react';
-import {useTranslations} from 'next-intl';
+import { useTranslations } from 'next-intl';
 import styles from './AddSectionButton.module.scss';
-import {Button} from "react-aria-components";
+import { Button } from "react-aria-components";
+import { TransitionLink } from "@/components/Form";
 
 interface AddSectionButtonProps {
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void;
@@ -24,7 +25,7 @@ const AddSectionButton: React.FC<AddSectionButtonProps> = ({
 
   return (
     <div className={`${styles.container} ${className}`.trim()}>
-      <a
+      <TransitionLink
         href={href}
         className={styles.link}
         onClick={handleClick}
@@ -43,7 +44,7 @@ const AddSectionButton: React.FC<AddSectionButtonProps> = ({
           <line x1="5" y1="12" x2="19" y2="12" />
         </svg>
         <span>{Sections('links.addSection')}</span>
-      </a>
+      </TransitionLink>
     </div>
   );
 };

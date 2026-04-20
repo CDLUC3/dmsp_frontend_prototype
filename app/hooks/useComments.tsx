@@ -10,7 +10,7 @@ import {
   removeFeedbackCommentAction,
   updateAnswerCommentAction,
   updateFeedbackCommentAction
-} from '../actions';
+} from '@/app/actions';
 
 import { MergedComment } from '@/app/types';
 import { MeQuery } from '@/generated/graphql';
