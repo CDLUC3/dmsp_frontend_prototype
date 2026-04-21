@@ -56,6 +56,14 @@ jest.mock('next-intl', () => ({
   }),
 }));
 
+jest.mock('next/link', () => ({
+  __esModule: true,
+  default: ({ href, children, ...props }: { href: string; children: React.ReactNode;[key: string]: unknown }) => (
+    <a href={href} {...props}>{children}</a>
+  ),
+}));
+
+
 // Mock the graphql hooks
 jest.mock("@/generated/graphql", () => ({
   ...jest.requireActual("@/generated/graphql"),
@@ -338,7 +346,7 @@ describe('PlanOverviewPage', () => {
     // Check sidebar items
     const sidebar = screen.getByTestId('sidebar-panel');
     expect(sidebar).toBeInTheDocument();
-    expect(within(sidebar).getByRole('link', { name: 'buttons.preview' })).toBeInTheDocument();
+    expect(within(sidebar).queryByRole('link', { name: 'buttons.preview' })).not.toBeInTheDocument();
     expect(within(sidebar).getByRole('button', { name: 'buttons.publish' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('heading', { name: 'status.feedback.title' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('link', { name: 'links.request' })).toBeInTheDocument();
