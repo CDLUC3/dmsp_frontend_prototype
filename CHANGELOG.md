@@ -1,3 +1,10 @@
+
+## Chore
+- Updated `sanitize-html` to `v2.17.3` and `dompurify` to `v3.4.0` due to security issues. Also, updated `prettier` to `v3.8.3` and `@dmptool/types` to `v3.1.4`, and `lodash` override to `v.4.18.1`. Removed overrides for `minimatch` and `test-exclude`.
+
+==========================================================================================
+## All changes above the line happened after the merge to the main branch on April 20, 2026
+==========================================================================================
 ## Added
 - Added new `RequestFeedback` mutation [#568]
 - Added new `PlanOverviewCustomQuestionUnderCustomSectionPage` at `/projects/[projectId]/dmp/[dmpid]/cs/[csid/cq/[cqid]`, `PlanOverviewCustomSectionPage` at `projects/[projectId]/dmp/[dmpid]/cs/[csid]`, and `PlanOverviewCustomQuestionUnderVersionedSectionPage` at `projects/[projectId]/dmp/[dmpid]/s/[sid]/cq/[cqid]` [#172]
