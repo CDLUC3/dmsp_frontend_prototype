@@ -507,8 +507,9 @@
         }
       },
       "feedbackEmail": {
-        "label": "Feedback email address",
+        "label": "Feedback email addresses",
         "placeholder": "Enter feedback email address",
+        "description": "Enter emails separated by commas",
         "helpText": "By default this is the organisations contact email address, However, you may change the feedback email address"
       },
       "feedbackText": {
@@ -522,6 +523,11 @@
     "screenReader": {
       "feedbackEnabled": "Feedback options are now enabled. Additional fields are available below.",
       "feedbackDisabled": "Feedback options are now disabled. Additional fields are hidden."
+    },
+    "messages": {
+      "success": {
+        "feedbackOptionsUpdated": "Feedback options updated successfully"
+      }
     }
   },
   "Account": {
@@ -835,6 +841,8 @@
       "loadingPage": "Loading page...",
       "submitting": "Submitting...",
       "submittingSROnly": "Submitting feedback request...",
+      "save": "Save",
+      "saving": "Saving...",
       "pageLoaded": "Page loaded",
       "noItemsFound": "No items found",
       "somethingWentWrong": "Something went wrong. Please try again.",
