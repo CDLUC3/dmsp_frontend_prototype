@@ -25,6 +25,13 @@ jest.mock("@apollo/client/react", () => ({
 const mockUseQuery = jest.mocked(useQuery);
 const mockUseMutation = jest.mocked(useMutation);
 
+jest.mock('next/link', () => ({
+  __esModule: true,
+  default: ({ href, children, ...props }: { href: string; children: React.ReactNode;[key: string]: unknown }) => (
+    <a href={href} {...props}>{children}</a>
+  ),
+}));
+
 jest.mock("@/components/Form", () => ({
   /*eslint-disable @typescript-eslint/no-explicit-any */
   FormInput: ({ label, onChange, value }: any) => (
