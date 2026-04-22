@@ -98,12 +98,12 @@ const FeedbackOptions: React.FC = () => {
     try {
       const response = await UpdateAffiliationMutation({
         variables: {
-          "input": {
-            "id": Number(affiliationData?.affiliationById?.id),
-            "name": affiliationData?.affiliationById?.name ?? "",
-            "feedbackEnabled": feedbackForm.feedbackEnabled === "on",
-            "feedbackMessage": feedbackForm.feedbackMessage,
-            "feedbackEmails": feedbackForm.feedbackEmails.split(",").map(email => email.trim()).filter(email => email !== "")
+          input: {
+            id: Number(affiliationData?.affiliationById?.id),
+            name: affiliationData?.affiliationById?.name ?? "",
+            feedbackEnabled: feedbackForm.feedbackEnabled === "on",
+            feedbackMessage: feedbackForm.feedbackMessage,
+            feedbackEmails: feedbackForm.feedbackEmails.split(",").map(email => email.trim()).filter(email => email !== "")
 
           },
         }

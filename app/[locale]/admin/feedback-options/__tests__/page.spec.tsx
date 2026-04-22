@@ -26,9 +26,11 @@ const mockUseQuery = jest.mocked(useQuery);
 const mockUseMutation = jest.mocked(useMutation);
 
 jest.mock("@/components/Form", () => ({
-  FormInput: ({ label, onChange, value, ...props }: any) => (
+  /*eslint-disable @typescript-eslint/no-explicit-any */
+  FormInput: ({ label, onChange, value }: any) => (
     <input aria-label={label} value={value} onChange={onChange} />
   ),
+  /*eslint-disable @typescript-eslint/no-explicit-any */
   FormTextArea: ({ label, onChange, value }: any) => (
     <textarea aria-label={label} value={value} onChange={(e) => onChange(e.target.value)} />
   ),
@@ -103,8 +105,6 @@ const mockAffiliationData = {
   },
 };
 
-const mockAffiliationDataMutation = jest.fn();
-
 const setupApolloMocks = ({
   meLoading = false,
   affiliationLoading = false,
@@ -117,6 +117,7 @@ const setupApolloMocks = ({
   affiliationLoading?: boolean;
   meError?: Error;
   affiliationError?: Error;
+  /*eslint-disable @typescript-eslint/no-explicit-any */
   updateAffiliationResult?: any;
   updateAffiliationError?: Error;
 } = {}) => {
@@ -135,14 +136,21 @@ const setupApolloMocks = ({
     }),
   };
 
+  const defaultQueryReturn = {
+    data: null,
+    loading: false,
+    error: undefined
+  } as any;
+
   mockUseQuery.mockImplementation((document) => {
     if (document === MeDocument) {
       return meQueryReturn as ReturnType<typeof useQuery>;
     }
     if (document === AffiliationByIdDocument) {
+      /*eslint-disable @typescript-eslint/no-explicit-any */
       return affiliationByIdQueryReturn as any;
     }
-    return { data: null, loading: false, error: undefined } as ReturnType<typeof useQuery>;
+    return defaultQueryReturn;
   });
 
   mockUseMutation.mockImplementation((document) => {
@@ -151,8 +159,10 @@ const setupApolloMocks = ({
         ? jest.fn().mockRejectedValue(updateAffiliationError)
         : jest.fn().mockResolvedValue(updateAffiliationResult ?? { data: { updateAffiliation: { errors: null } } });
 
+      /*eslint-disable @typescript-eslint/no-explicit-any */
       return [mutationFn, { loading: false }] as any;
     }
+    /*eslint-disable @typescript-eslint/no-explicit-any */
     return [jest.fn(), { loading: false }] as any;
   });
 };

@@ -149,20 +149,33 @@ const setupMocks = ({
     }),
   };
 
+  const defaultQueryReturn: ReturnType<typeof useQuery> = {
+    data: null,
+    loading: false,
+    error: undefined
+    /*eslint-disable @typescript-eslint/no-explicit-any */
+  } as any;
+
+
   mockUseQuery.mockImplementation((document) => {
     if (document === MeDocument) {
       return meQueryReturn as ReturnType<typeof useQuery>;
     }
     if (document === PlanFeedbackStatusDocument) {
+      /*eslint-disable @typescript-eslint/no-explicit-any */
       return feedbackQueryReturn as any;
     }
-    return { data: null, loading: false, error: undefined } as ReturnType<typeof useQuery>;
+    return defaultQueryReturn;
   });
 
   mockUseMutation.mockImplementation((document) => {
     if (document === RequestFeedbackDocument) {
+      /*eslint-disable @typescript-eslint/no-explicit-any */
+
       return [mockRequestFeedbackMutation, { loading: false }] as any;
     }
+    /*eslint-disable @typescript-eslint/no-explicit-any */
+
     return [jest.fn(), { loading: false }] as any;
   });
 };
