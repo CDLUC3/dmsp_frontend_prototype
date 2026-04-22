@@ -2,7 +2,9 @@
 
 import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useFormatter, useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from "next-intl";
+// next/link is faster for basic links
+import NextLink from "next/link";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -674,14 +676,17 @@ const PlanOverviewPage: React.FC = () => {
         <SidebarPanel>
           <div className="status-panel-content side-panel">
             <div className={`buttonContainer withBorder  mb-5`}>
-              <Link
-                href={getNarrativeUrl(planData.dmpId)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="button-secondary"
-              >
-                {Global("buttons.preview")}
-              </Link>
+              {planData.dmpId && (
+                <NextLink
+                  href={getNarrativeUrl(planData.dmpId)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="button-secondary"
+                >
+                  {Global("buttons.preview")}
+                </NextLink>
+              )}
+
               <Button onPress={() => setIsModalOpen(true)}>
                 {Global("buttons.publish")}
               </Button>
@@ -701,12 +706,13 @@ const PlanOverviewPage: React.FC = () => {
                     }
                   </p>
                 </div>
-                <Link
+                <NextLink
                   href={FEEDBACK_URL}
+                  className="side-panel-link"
                   aria-label={Global("links.request")}
                 >
                   {Global("links.request")}
-                </Link>
+                </NextLink>
               </div>
               {isEditingPlanStatus ? (
                 <div>
@@ -752,6 +758,7 @@ const PlanOverviewPage: React.FC = () => {
                 </div>
                 <Link
                   href="#"
+                  className="side-panel-link"
                   onPress={() => setIsModalOpen(true)}
                   aria-label={t("status.publish.label")}
                 >
@@ -762,12 +769,13 @@ const PlanOverviewPage: React.FC = () => {
                 <div>
                   <h3>{t("status.download.title")}</h3>
                 </div>
-                <Link
+                <NextLink
                   href={DOWNLOAD_URL}
+                  className="side-panel-link"
                   aria-label="download"
                 >
                   {t("status.download.title")}
-                </Link>
+                </NextLink>
               </div>
             </div>
           </div>

@@ -1,4 +1,5 @@
 ## Added
+- Added new `RequestFeedback` mutation [#568]
 - Added new `PlanOverviewCustomQuestionUnderCustomSectionPage` at `/projects/[projectId]/dmp/[dmpid]/cs/[csid/cq/[cqid]`, `PlanOverviewCustomSectionPage` at `projects/[projectId]/dmp/[dmpid]/cs/[csid]`, and `PlanOverviewCustomQuestionUnderVersionedSectionPage` at `projects/[projectId]/dmp/[dmpid]/s/[sid]/cq/[cqid]` [#172]
 - Added new routes for `projects.dmp.customSection`, `projects.dmp.customQuestion.underVersionedSection`, `projects.dmp.customQuestion.underCustomSection` [#172]
 - Added new `projects.dmp.customSection` and `projects.dmp.customQuestion.detail` routes to routePath [#169]
@@ -28,6 +29,8 @@
 - Added related works project overview page [#700]
 
 ## Updated
+- Updated `users` query to include `feedbackEmails` [#568]
+- Updated `ProjectsProjectPlanFeedback` Request Feedback page. Hooked up the page to data and adjusted layout [#568]
 - Updated `ResearchOutputComponent` so that it disables checkboxes on the research output template builder form for all fields that are required [#33]
 - Updated `AnswerByVersionedQuestionId` query and `addAnswer` mutation schemas to pass in `versionedCustomSectionId` and `versionedCustomQuestionId` so that we can get answers to custom questions and save them accordingly [#174]
 - Updated `PublishedQuestion` query to include customization fields, and updated `PlanOverviewQuestionPageShared` component to use the new customization sample text and org info [#174]
@@ -66,6 +69,7 @@
 - Updated `/login` page step=email to include a "Back" button so user can go back to Step 1 [#997]
 
 ## Fixed
+- Fixed the sidebar panel links in `PlanOverviewPage` because they did not match or function consistently [#568]
 - Fixed some broken translation keys for Loading message [#165]
 - Fixed some issues in `Research Output` question answer form, where data flags checkboxes were not displaying and output types was missing the custom output
 - Fixed issue with missing `as builder` in `Dockerfile.prod`

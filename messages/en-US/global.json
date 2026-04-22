@@ -833,6 +833,8 @@
     "messaging": {
       "loading": "Loading",
       "loadingPage": "Loading page...",
+      "submitting": "Submitting...",
+      "submittingSROnly": "Submitting feedback request...",
       "pageLoaded": "Page loaded",
       "noItemsFound": "No items found",
       "somethingWentWrong": "Something went wrong. Please try again.",

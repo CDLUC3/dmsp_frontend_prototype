@@ -232,12 +232,18 @@
   },
   "ProjectsProjectPlanFeedback": {
     "title": "Request feedback",
-    "description": "You can get feedback from University of California support team, please read the following message from the team.",
+    "anonymousOrgName": "your institution",
+    "description": "You can get feedback from {orgName} support team, please read the following message from the team.",
     "form": {
-      "label": "Send message to University of California support team",
+      "label": "Send message to {orgName} support team",
       "placeholder": "Can you review my plan for any mistakes",
       "submitButton": "Request Feedback",
       "successMessage": "Request sent"
+    },
+    "messages": {
+      "success": {
+        "feedbackRequested": "Feedback successfully requested"
+      }
     },
     "teamFeedback": {
       "title": "Feedback from team members",
