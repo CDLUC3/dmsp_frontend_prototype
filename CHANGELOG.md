@@ -1,3 +1,5 @@
+## Added
+- Added `UpdateAffiliation` and `AffiliationById` queries [#203]
 
 ## Updated
 - Updated `FeedbackOptions` component to use real data [#203]

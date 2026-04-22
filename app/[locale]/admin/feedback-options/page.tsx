@@ -82,7 +82,7 @@ const FeedbackOptions: React.FC = () => {
     },
   ];
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: keyof typeof feedbackForm, value: string) => {
     setFeedbackForm((prev) => ({
       ...prev,
       [field]: value,
@@ -96,6 +96,17 @@ const FeedbackOptions: React.FC = () => {
 
 
     try {
+      const emails = feedbackForm.feedbackEmails
+        .split(",")
+        .map(email => email.trim())
+        .filter(email => email !== "");
+
+      const invalidEmails = emails.filter(email => !email.includes("@"));
+      if (invalidEmails.length > 0) {
+        setErrorMessages([t("fields.feedbackEmail.invalidEmail")]);
+        return;
+      }
+
       const response = await UpdateAffiliationMutation({
         variables: {
           input: {
@@ -103,7 +114,7 @@ const FeedbackOptions: React.FC = () => {
             name: affiliationData?.affiliationById?.name ?? "",
             feedbackEnabled: feedbackForm.feedbackEnabled === "on",
             feedbackMessage: feedbackForm.feedbackMessage,
-            feedbackEmails: feedbackForm.feedbackEmails.split(",").map(email => email.trim()).filter(email => email !== "")
+            feedbackEmails: emails,
 
           },
         }
@@ -124,10 +135,17 @@ const FeedbackOptions: React.FC = () => {
         return;
       }
 
-      // Success so refetch feedback status to update UI
-      await refetchFeedbackStatus();
-
-      toastState.add(t('messages.success.feedbackOptionsUpdated'), { type: 'success' });
+      // Success so try and refetch feedback status to update UI
+      try {
+        await refetchFeedbackStatus();
+        toastState.add(t('messages.success.feedbackOptionsUpdated'), { type: 'success' });
+      } catch (error) {
+        setErrorMessages([Global('messaging.somethingWentWrong')]);
+        logECS('error', 'requestFeedback', {
+          error,
+          url: { path: routePath('admin.feedbackOptions') }
+        });
+      }
     } catch (error) {
       setErrorMessages([Global('messaging.somethingWentWrong')]);
       logECS('error', 'requestFeedback', {
