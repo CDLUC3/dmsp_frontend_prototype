@@ -2,6 +2,7 @@
 - Added `UpdateAffiliation` and `AffiliationById` queries [#203]
 
 ## Updated
+- Enhanced condition in `RepoSelectorForAnswer` to display the preferred Repositories checkbox [#118]
 - Updated `FeedbackOptions` component to use real data [#203]
 
 ## Updated
