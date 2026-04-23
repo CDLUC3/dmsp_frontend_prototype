@@ -605,7 +605,7 @@ const RepoSelectorForAnswer = ({
                                 placeholder='e.g. DNA, titanium, FAIR, etc.'
                               />
                             </SearchField>
-                            {preferredReposURIs && preferredReposURIs.length > 0 && (
+                            {preferredReposURIs && preferredReposURIs.length > 0 && repositories.length > 0 && (
                               <div className={styles.checkboxWrapper}>
                                 <Checkbox
                                   value='preferredOnly'
