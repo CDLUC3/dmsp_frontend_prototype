@@ -175,6 +175,7 @@ const RepoSelectorForAnswer = ({
     variables: {
       uris: preferredReposURIs || []
     },
+    skip: !preferredReposURIs || preferredReposURIs.length === 0
   });
 
   // Repositories lazy query
