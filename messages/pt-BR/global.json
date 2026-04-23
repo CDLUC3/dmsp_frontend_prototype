@@ -507,8 +507,9 @@
         }
       },
       "feedbackEmail": {
-        "label": "E-mail de feedback",
+        "label": "E-mail de feedbacks",
         "placeholder": "Digite o e-mail de feedback",
+        "description": "Insira os e-mails separados por vírgulas.",
         "helpText": "Por padrão este é o endereço de e-mail do contato organizações, mas você pode alterar o endereço de e-mail de feedback"
       },
       "feedbackText": {
@@ -522,6 +523,11 @@
     "screenReader": {
       "feedbackEnabled": "As opções do feedback agora estão ativadas. Campos adicionais estão disponíveis abaixo.",
       "feedbackDisabled": "As opções do feedback agora estão desativadas. Campos adicionais estão ocultos."
+    },
+    "messages": {
+      "success": {
+        "feedbackOptionsUpdated": "Opções de feedback atualizadas com sucesso"
+      }
     }
   },
   "Account": {
