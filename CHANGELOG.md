@@ -2,6 +2,7 @@
 - Added `UpdateAffiliation` and `AffiliationById` queries [#203]
 
 ## Updated
+- Updated `ReposSelector.tsx` to fix some issues with subject area searches [#118]
 - Updated `FeedbackOptions` component to use real data [#203]
 
 ## Updated
