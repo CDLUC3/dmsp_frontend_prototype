@@ -170,13 +170,6 @@ const RepositorySelectionSystem = ({
       setCurrentPage(page);
       offsetLimit = (page - 1) * LIMIT;
     }
-    // Clear stale results immediately so UI doesn't show old data
-    setRepositories([]);
-    setTotalCount(0);
-    setTotalPages(0);
-    setHasNextPage(false);
-    setHasPreviousPage(false);
-    setHasSearched(false); // prevent "no matches" flash before response arrives
 
     try {
       await fetchRepositoriesData({

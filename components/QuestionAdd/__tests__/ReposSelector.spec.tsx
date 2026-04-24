@@ -1303,7 +1303,7 @@ describe('RepositorySelectionSystem', () => {
   });
 
   describe('State Management', () => {
-    it.only('maintains selected repositories across modal open/close cycles', async () => {
+    it('maintains selected repositories across modal open/close cycles', async () => {
       render(
         <RepositorySelectionSystem
           field={mockField}
