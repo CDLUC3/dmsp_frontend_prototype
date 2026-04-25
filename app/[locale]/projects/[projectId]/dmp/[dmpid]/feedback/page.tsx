@@ -135,7 +135,7 @@ const ProjectsProjectPlanFeedback = () => {
     return <Loading message={Global('messaging.loading')} />;
   }
 
-  const feedbackRequested = feedbackData?.planFeedbackStatus === 'REQUESTED';
+  const feedbackRequested = feedbackData?.planFeedbackStatus?.status === 'REQUESTED';
 
   return (
     <>

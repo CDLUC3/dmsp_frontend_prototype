@@ -9,7 +9,6 @@ import {
   updatePlanStatusAction,
   updatePlanTitleAction
 } from '../actions';
-import { useQuery } from '@apollo/client/react';
 import {
   PlanDocument,
   PlanFeedbackStatusDocument,
@@ -25,7 +24,9 @@ const mockUseQuery = jest.fn();
 jest.mock('@apollo/client/react', () => {
   return {
     ...jest.requireActual('@apollo/client/react'),
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     useQuery: (...args: any[]) => mockUseQuery(...args),
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     useMutation: (...args: any[]) => mockUseMutation(...args),
   };
 });

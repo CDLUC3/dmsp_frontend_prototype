@@ -1,5 +1,5 @@
 ## Added
-- Added new `Notification` component for displaying notifications at top of page [#191]
+- Added new `Notification` component for displaying notifications at top of page. Added new `CompleteFeedback` mutation [#191]
 - Added `UpdateAffiliation` and `AffiliationById` queries [#203]
 
 ## Updated

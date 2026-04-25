@@ -48,7 +48,7 @@ import NotificationHeader from "@/components/Notification";
 // Utils and other
 import { routePath } from "@/utils/routes";
 import { toTitleCase } from "@/utils/general";
-import { checkErrors, extractErrors } from "@/utils/errorHandler";
+import { extractErrors } from "@/utils/errorHandler";
 import { useToast } from "@/context/ToastContext";
 import {
   PlanMember,
