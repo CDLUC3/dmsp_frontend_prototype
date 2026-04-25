@@ -51,3 +51,12 @@ mutation RequestFeedback($planId: Int!, $messageToOrg: String) {
     messageToOrg
   }
 }
+
+mutation CompleteFeedback($planId: Int!, $planFeedbackId: Int!) {
+  completeFeedback(planId: $planId, planFeedbackId: $planFeedbackId) {
+    id
+    errors {
+      general
+    }
+  }
+}

@@ -20,8 +20,9 @@ import {
 } from "react-aria-components";
 
 // GraphQL
-import { useQuery } from '@apollo/client/react';
+import { useQuery, useMutation } from '@apollo/client/react';
 import {
+  CompleteFeedbackDocument,
   PlanSectionProgress,
   PlanStatus,
   PlanVisibility,
@@ -42,11 +43,12 @@ import { DmpIcon } from "@/components/Icons";
 import { FormSelect, RadioGroupComponent } from "@/components/Form";
 import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
 import OverviewSection from "@/components/OverviewSection";
+import NotificationHeader from "@/components/Notification";
 
 // Utils and other
 import { routePath } from "@/utils/routes";
 import { toTitleCase } from "@/utils/general";
-import { extractErrors } from "@/utils/errorHandler";
+import { checkErrors, extractErrors } from "@/utils/errorHandler";
 import { useToast } from "@/context/ToastContext";
 import {
   PlanMember,
@@ -54,6 +56,7 @@ import {
 } from "@/app/types";
 import { DOI_REGEX } from "@/lib/constants";
 import styles from "./PlanOverviewPage.module.scss";
+import { logECS } from "@/utils/index";
 
 const PUBLISHED = "Published";
 const UNPUBLISHED = "Unpublished";
@@ -139,6 +142,7 @@ const PlanOverviewPage: React.FC = () => {
   // State hooks
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [planVisibility, setPlanVisibility] = useState<PlanVisibility>(PlanVisibility.Private);
   const [planStatus, setPlanStatus] = useState<PlanStatus | null>(null);
@@ -202,16 +206,24 @@ const PlanOverviewPage: React.FC = () => {
     data: feedbackData,
     loading: feedbackLoading,
     error: feedbackError,
+    refetch: refetchFeedbackStatus
   } = useQuery(PlanFeedbackStatusDocument, {
     variables: { planId: Number(planId) },
     skip: isNaN(planId),
   });
 
+  // Initialize completed feedbackmutation
+  const [completeFeedbackMutation, { error: completeFeedbackError }] = useMutation(CompleteFeedbackDocument);
+
+  // Check for returned GraphQL errors from feedback queries and mutations, and set error messages in state to be displayed in UI 
   useEffect(() => {
-    if (feedbackError) {
-      setErrorMessages(prev => [...prev, feedbackError.message]);
+    const newErrors: string[] = [];
+    if (feedbackError) newErrors.push(feedbackError.message);
+    if (completeFeedbackError) newErrors.push(completeFeedbackError.message);
+    if (newErrors.length > 0) {
+      setErrorMessages(prev => [...prev, ...newErrors]);
     }
-  }, [feedbackError]);
+  }, [feedbackError, completeFeedbackError]);
 
   // Memoize URLs to prevent unnecessary recalculations
   const urls = useMemo(() => ({
@@ -406,6 +418,41 @@ const PlanOverviewPage: React.FC = () => {
     }
   }, [updateTitle, t, toastState]);
 
+
+  const markFeedbackAsDone = async () => {
+    setErrorMessages([]);
+    setIsSubmitting(true);
+
+    try {
+      await completeFeedbackMutation({
+        variables: {
+          planId: Number(planId),
+          planFeedbackId: Number(feedbackData?.planFeedbackStatus?.id)
+        }
+      });
+      // Success so try and refetch feedback status to update UI
+      try {
+        await refetchFeedbackStatus();
+        const successMessage = t("feedbackNotification.markAsDoneSuccess");
+        toastState.add(successMessage, { type: "success" });
+      } catch (error) {
+        setErrorMessages([Global('messaging.somethingWentWrong')]);
+        logECS('error', 'markFeedbackAsDone', {
+          error,
+          url: { path: routePath('projects.dmp.show', { projectId, planId }) }
+        });
+      }
+    } catch (error) {
+      setErrorMessages([Global('messaging.somethingWentWrong')]);
+      logECS('error', 'markFeedbackAsDone', {
+        error,
+        url: { path: routePath('projects.dmp.show', { projectId, planId }) }
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     // When data from backend changes, set project data in state
     if (data && data.plan) {
@@ -571,7 +618,36 @@ const PlanOverviewPage: React.FC = () => {
         errors={errorMessages}
         ref={errorRef}
       />
+
       <LayoutWithPanel>
+        {feedbackData?.planFeedbackStatus?.status === "REQUESTED" && (
+          <NotificationHeader
+            title={t("feedbackNotification.title")}
+            actionButtonText={t("feedbackNotification.markAsDone")}
+            modal={{
+              title: t("feedbackNotification.confirmModal.title"),
+              content: (
+                <>
+                  {t("feedbackNotification.confirmModal.description1")}
+                  <ul>
+                    <li>{t("feedbackNotification.confirmModal.description2")}</li>
+                    <li>{t("feedbackNotification.confirmModal.description3")}</li>
+                  </ul>
+
+                </>
+              ),
+              cancelButtonText: Global("buttons.close"),
+              confirmButtonText: t("feedbackNotification.markAsDone"),
+              isSubmitting,
+              submittingText: Global('buttons.saving')
+            }}
+            onMarkAsDone={markFeedbackAsDone}
+          >
+            <p>{t("feedbackNotification.description1")}</p>
+            <p>{t("feedbackNotification.description2")}</p>
+          </NotificationHeader>
+        )}
+
         <ContentContainer>
           <div className={"container"}>
             <div className={styles.planOverview}>
@@ -687,7 +763,9 @@ const PlanOverviewPage: React.FC = () => {
                 </NextLink>
               )}
 
-              <Button onPress={() => setIsModalOpen(true)}>
+              <Button
+                onPress={() => setIsModalOpen(true)}
+                isDisabled={feedbackData?.planFeedbackStatus?.status === "REQUESTED"}>
                 {Global("buttons.publish")}
               </Button>
             </div>
@@ -699,7 +777,7 @@ const PlanOverviewPage: React.FC = () => {
                     {feedbackLoading
                       ? `${Global("messaging.loading")}...`
                       : (() => {
-                        const raw = feedbackData?.planFeedbackStatus ?? "NONE";
+                        const raw = feedbackData?.planFeedbackStatus?.status ?? "NONE";
                         const key = `status.feedback.${String(raw).toLowerCase()}`;
                         return t(key);
                       })()
