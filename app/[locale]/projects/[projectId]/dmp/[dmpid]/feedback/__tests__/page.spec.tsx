@@ -121,6 +121,7 @@ const mockMeData = {
 
 const mockRequestFeedbackMutation = jest.fn();
 
+type FeedbackStatusType = string | { status: string; id: number };
 const setupMocks = ({
   feedbackStatus = 'NONE',
   meLoading = false,
@@ -128,7 +129,7 @@ const setupMocks = ({
   meError = undefined,
   feedbackError = undefined,
 }: {
-  feedbackStatus?: string;
+  feedbackStatus?: FeedbackStatusType;
   meLoading?: boolean;
   feedbackLoading?: boolean;
   meError?: { message: string };
@@ -211,7 +212,7 @@ describe('ProjectsProjectPlanFeedback', () => {
   });
 
   it('should hide form and show success message when feedback already requested', () => {
-    setupMocks({ feedbackStatus: 'REQUESTED' });
+    setupMocks({ feedbackStatus: { status: 'REQUESTED', id: 1 } });
     render(<ProjectsProjectPlanFeedback />);
 
     expect(screen.queryByRole('textbox', { name: 'form.label' })).not.toBeInTheDocument();

@@ -1,8 +1,11 @@
 ## Added
+- Added new `Notification` component for displaying notifications at top of page. Added new `CompleteFeedback` mutation [#191]
 - Added `UpdateAffiliation` and `AffiliationById` queries [#203]
 
 ## Updated
 - Updated `ReposSelector.tsx` to fix some issues with subject area searches [#118]
+- Updated `PlanOverviewPage` component to display a feedback mode notification at top of page when one has status=REQUESTED [#191]
+- Enhanced condition in `RepoSelectorForAnswer` to display the preferred Repositories checkbox [#118]
 - Updated `FeedbackOptions` component to use real data [#203]
 
 ## Updated

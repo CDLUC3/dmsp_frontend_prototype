@@ -140,6 +140,19 @@
     },
     "links": {
       "editTitle": "Editar título do plano"
+    },
+    "feedbackNotification": {
+      "title": "Modo de feedback",
+      "description1": "Você pode visualizar este plano e deixar comentários. Quando terminar, clique em Marcar como concluído.",
+      "description2": "Concluir irá remover seu acesso e notificar o autor do plano que seu feedback está completo.",
+      "markAsDone": "Marcar como concluído",
+      "confirmModal": {
+        "title": "Tem certeza de que deseja concluir seu feedback?",
+        "description1": "O seguinte acontecerá:",
+        "description2": "Você não poderá mais comentar",
+        "description3": "O autor do plano será notificado que você completou seu feedback"
+      },
+      "markAsDoneSuccess": "Você completou seu feedback com sucesso."
     }
   },
   "PlanCreate": {
