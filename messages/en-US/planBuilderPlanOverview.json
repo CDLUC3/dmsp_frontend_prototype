@@ -231,7 +231,11 @@
     },
     "you": "you",
     "admin": "Admin",
-    "edited": "edited"
+    "edited": "edited",
+    "feedbackNotification": {
+      "title": "Feedback mode",
+      "description": "You can view this plan and leave comments."
+    }
   },
   "ProjectsProjectFunding": {
     "buttons": {
