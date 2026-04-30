@@ -23,12 +23,14 @@ import {
 import { useQuery, useMutation } from '@apollo/client/react';
 import {
   CompleteFeedbackDocument,
+  MeDocument,
   PlanSectionProgress,
   PlanStatus,
   PlanVisibility,
   PlanDocument,
   PlanFeedbackStatusDocument,
   RelatedWorksByPlanStatsDocument,
+  UserRole,
 } from "@/generated/graphql";
 import {
   publishPlanAction,
@@ -148,6 +150,8 @@ const PlanOverviewPage: React.FC = () => {
   const [planStatus, setPlanStatus] = useState<PlanStatus | null>(null);
   const [step, setStep] = useState(1);
   const [isEditingPlanStatus, setIsEditingPlanStatus] = useState(false);
+  // Track whether the question should be read-only based on plan status and user role
+  const [isReadOnly, setIsReadOnly] = useState<boolean>(false);
   const [planData, setPlanData] = useState<PlanOverviewInterface>({
     id: null,
     dmpId: "",
@@ -211,6 +215,9 @@ const PlanOverviewPage: React.FC = () => {
     variables: { planId: Number(planId) },
     skip: isNaN(planId),
   });
+
+  // Run me query to get user's name
+  const { data: me } = useQuery(MeDocument);
 
   // Initialize completed feedbackmutation
   const [completeFeedbackMutation, { error: completeFeedbackError }] = useMutation(CompleteFeedbackDocument);
@@ -488,6 +495,8 @@ const PlanOverviewPage: React.FC = () => {
         templateVersion: data?.plan?.versionedTemplate?.version ?? "",
         templatePublished: data?.plan?.versionedTemplate?.created ?? "",
         percentageAnswered: data?.plan?.progress?.percentComplete ?? 0,
+        orgId: data?.plan?.versionedTemplate?.owner?.uri ?? "",
+        feedbackStatus: data?.plan?.feedbackStatus?.status ?? "NONE",
       });
       setPlanVisibility(data.plan.visibility as PlanVisibility);
     }
@@ -498,6 +507,16 @@ const PlanOverviewPage: React.FC = () => {
       setErrorMessages(prev => [...prev, queryError.message]);
     }
   }, [queryError]);
+
+  useEffect(() => {
+    const adminStatus =
+      !!(me?.me?.affiliation?.uri &&
+        me.me.affiliation.uri === planData?.orgId &&
+        (me.me.role === UserRole.Admin || me.me.role === UserRole.Superadmin));
+
+    setIsReadOnly(planData?.feedbackStatus === 'REQUESTED' && adminStatus);
+  }, [me?.me?.affiliation?.uri, me?.me?.role, planData, planData?.orgId]);
+
 
   // Memoize checklist items to prevent unnecessary recalculations
   const checkListItems = useMemo(() => [
@@ -622,7 +641,7 @@ const PlanOverviewPage: React.FC = () => {
       />
 
       <LayoutWithPanel>
-        {hasFeedbackRequest && (
+        {hasFeedbackRequest && isReadOnly && (
           <NotificationHeader
             title={t("feedbackNotification.title")}
             actionButtonText={t("feedbackNotification.markAsDone")}
@@ -704,7 +723,7 @@ const PlanOverviewPage: React.FC = () => {
                 : routePath("projects.dmp.customSection", { projectId, dmpId: planId, csid: String(sectionId) });
 
               // Determine the action label for the section button
-              const sectionActionLabel = hasFeedbackRequest
+              const sectionActionLabel = (hasFeedbackRequest && isReadOnly)
                 ? t("sections.view")
                 : versionedSection.answeredQuestions === 0
                   ? t("sections.start")
@@ -774,7 +793,8 @@ const PlanOverviewPage: React.FC = () => {
 
               <Button
                 onPress={() => setIsModalOpen(true)}
-                isDisabled={feedbackData?.planFeedbackStatus?.status === "REQUESTED"}>
+                isDisabled={hasFeedbackRequest && isReadOnly}
+              >
                 {Global("buttons.publish")}
               </Button>
             </div>

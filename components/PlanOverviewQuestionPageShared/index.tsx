@@ -1549,7 +1549,7 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
       <ErrorMessages errors={errors} ref={errorRef} />
 
       <LayoutWithPanel>
-        {plan?.feedbackStatus === "REQUESTED" && (
+        {plan?.feedbackStatus === "REQUESTED" && isReadOnly && (
           <NotificationHeader
             title={t("feedbackNotification.title")}
           >
