@@ -588,6 +588,8 @@ const PlanOverviewPage: React.FC = () => {
   if (loading) {
     return <div>{Global("messaging.loading")}...</div>;
   }
+
+  const hasFeedbackRequest = feedbackData?.planFeedbackStatus?.status === "REQUESTED";
   return (
     <>
       <PageHeaderWithTitleChange
@@ -620,7 +622,7 @@ const PlanOverviewPage: React.FC = () => {
       />
 
       <LayoutWithPanel>
-        {feedbackData?.planFeedbackStatus?.status === "REQUESTED" && (
+        {hasFeedbackRequest && (
           <NotificationHeader
             title={t("feedbackNotification.title")}
             actionButtonText={t("feedbackNotification.markAsDone")}
@@ -701,6 +703,13 @@ const PlanOverviewPage: React.FC = () => {
                 ? routePath("projects.dmp.versionedSection", { projectId, dmpId: planId, versionedSectionId: Number(sectionId) })
                 : routePath("projects.dmp.customSection", { projectId, dmpId: planId, csid: String(sectionId) });
 
+              // Determine the action label for the section button
+              const sectionActionLabel = hasFeedbackRequest
+                ? t("sections.view")
+                : versionedSection.answeredQuestions === 0
+                  ? t("sections.start")
+                  : t("sections.update");
+
               return (
                 <section
                   key={versionedSection.versionedSectionId ?? `section-${idx}`}
@@ -740,7 +749,7 @@ const PlanOverviewPage: React.FC = () => {
                       })}
                       className={"react-aria-Button react-aria-Button--secondary"}
                     >
-                      {versionedSection.answeredQuestions === 0 ? t("sections.start") : t("sections.update")}
+                      {sectionActionLabel}
                     </Link>
                   </div>
                 </section>

@@ -63,7 +63,8 @@
       "progress": "{current} of {total}",
       "questionsAnswered": "question(s) answered",
       "update": "Update",
-      "updateSection": "Update {title}"
+      "updateSection": "Update {title}",
+      "view": "View"
     },
     "errors": {
       "invalidDmpId": "Invalid DMP ID: The DMP ID provided is not valid.",
