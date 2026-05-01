@@ -444,6 +444,8 @@ export interface PlanOverviewInterface {
   sourceTemplate?: string;
   templateVersion?: string;
   templatePublished?: string;
+  orgId?: string;
+  feedbackStatus?: string;
 }
 
 export interface ActionResponse {
