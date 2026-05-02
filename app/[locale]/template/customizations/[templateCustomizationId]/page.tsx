@@ -223,6 +223,7 @@ const TemplateCustomizationOverview: React.FC = () => {
         });
       } else {
         showSuccessMoveSection();
+        await refetch();
       }
     } catch (err) {
       setLocalSections(previousSections); // revert
@@ -424,6 +425,7 @@ const TemplateCustomizationOverview: React.FC = () => {
                   displayOrder={section.displayOrder!}
                   templateCustomizationId={templateCustomizationId}
                   setErrorMessages={setErrorMessages}
+                  refetch={refetch}
                   onMoveUp={
                     section.sectionType === 'CUSTOM'
                       ? () => handleSectionMove(section.id!, 'up')

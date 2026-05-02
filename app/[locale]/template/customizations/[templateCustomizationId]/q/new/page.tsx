@@ -324,13 +324,14 @@ const CustomQuestionNew: React.FC = () => {
             backUrl={routePath('template.customize.question.create', { templateCustomizationId }, { section_id: sectionId, step: 1 })}
             successUrl={routePath('template.customize', { templateCustomizationId })}
             onSave={async (commonFields) => {
+              const { displayOrder: _ignored, ...questionFields } = commonFields;
               const input = {
                 templateCustomizationId: Number(templateCustomizationId),
                 sectionId: Number(sectionId),
                 sectionType,
                 pinnedQuestionId: lastQuestionId,
                 pinnedQuestionType: lastQuestionType ?? null,
-                ...commonFields,
+                ...questionFields,
               };
               await addCustomQuestionMutation({ variables: { input } });
             }}
@@ -342,3 +343,4 @@ const CustomQuestionNew: React.FC = () => {
 }
 
 export default CustomQuestionNew;
+

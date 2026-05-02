@@ -231,6 +231,7 @@ const TemplateEditPage: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setErrorMessages([]); // Clear previous errors
     setModalErrorMessages([]); // Clear previous errors
     setIsPublishing(true);
 
