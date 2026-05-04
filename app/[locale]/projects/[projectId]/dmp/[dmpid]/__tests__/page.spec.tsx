@@ -13,9 +13,9 @@ import {
   PlanDocument,
   PlanFeedbackStatusDocument,
   RelatedWorksByPlanStatsDocument,
+  MeDocument,
 } from '@/generated/graphql';
 import { useToast } from '@/context/ToastContext';
-
 
 // --- Apollo Client Mocks ---
 let mockUseMutation: jest.Mock;
@@ -113,7 +113,7 @@ const mockToast = {
 
 expect.extend(toHaveNoViolations);
 
-const setupMocks = () => {
+const setupMocks = (meData = null) => {
   // Create references OUTSIDE mockImplementation to prevent maximum update depth exceeded error
   const planQueryReturn = {
     data: { plan: mockPlanData.plan },
@@ -126,6 +126,13 @@ const setupMocks = () => {
     data: null,
     loading: false,
     error: undefined,
+  };
+
+  const meQueryReturn = {
+    data: meData,
+    loading: false,
+    error: null,
+    refetch: jest.fn(),
   };
 
   const relatedWorksStatsQueryReturn = {
@@ -154,6 +161,10 @@ const setupMocks = () => {
       return relatedWorksStatsQueryReturn;
     }
 
+    if (document === MeDocument) {
+      return meQueryReturn;
+    }
+
     return {
       data: null,
       loading: false,
@@ -161,6 +172,13 @@ const setupMocks = () => {
       /* eslint-disable @typescript-eslint/no-explicit-any */
     } as any;
   });
+};
+
+const adminMe = {
+  me: {
+    affiliation: { uri: 'mock-org-id' },
+    role: 'ADMIN',
+  },
 };
 
 describe('PlanOverviewPage', () => {
@@ -192,7 +210,16 @@ describe('PlanOverviewPage', () => {
 
   it('should render NotificationHeader when planFeedbackStatus.status is REQUESTED', async () => {
     const planQueryReturn = {
-      data: { plan: mockPlanData.plan },
+      data: {
+        plan: {
+          ...mockPlanData.plan,
+          feedbackStatus: { status: 'REQUESTED' },
+          versionedTemplate: {
+            ...mockPlanData.plan.versionedTemplate,
+            owner: { ...mockPlanData.plan.versionedTemplate?.owner, uri: 'mock-org-id' },
+          },
+        },
+      },
       loading: false,
       error: null,
       refetch: jest.fn(),
@@ -202,14 +229,20 @@ describe('PlanOverviewPage', () => {
       loading: false,
       error: undefined,
     };
+    const meQueryReturn = {
+      data: adminMe,
+      loading: false,
+      error: null,
+    };
+
     mockUseQuery.mockImplementation((document) => {
       if (document === PlanDocument) return planQueryReturn;
       if (document === PlanFeedbackStatusDocument) return feedbackQueryReturn;
+      if (document === MeDocument) return meQueryReturn;
       return { data: null, loading: false, error: undefined } as any;
     });
 
     render(<PlanOverviewPage />);
-    // NotificationHeader should be rendered with the correct title and action button
     await waitFor(() => {
       expect(screen.getByText('feedbackNotification.title')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'feedbackNotification.markAsDone' })).toBeInTheDocument();
@@ -219,12 +252,20 @@ describe('PlanOverviewPage', () => {
 
   it('should call completeFeedbackMutation and show toast when mark as done is confirmed', async () => {
     const planQueryReturn = {
-      data: { plan: mockPlanData.plan },
+      data: {
+        plan: {
+          ...mockPlanData.plan,
+          feedbackStatus: { status: 'REQUESTED' },
+          versionedTemplate: {
+            ...mockPlanData.plan.versionedTemplate,
+            owner: { ...mockPlanData.plan.versionedTemplate?.owner, uri: 'mock-org-id' },
+          },
+        },
+      },
       loading: false,
       error: null,
       refetch: jest.fn(),
     };
-    // Provide a mock refetchFeedbackStatus that resolves
     const mockRefetchFeedbackStatus = jest.fn().mockResolvedValue({});
     const feedbackQueryReturn = {
       data: { planFeedbackStatus: { status: 'REQUESTED', id: 123 } },
@@ -232,9 +273,16 @@ describe('PlanOverviewPage', () => {
       error: undefined,
       refetch: mockRefetchFeedbackStatus,
     };
+    const meQueryReturn = {
+      data: adminMe,
+      loading: false,
+      error: null,
+    };
+
     mockUseQuery.mockImplementation((document) => {
       if (document === PlanDocument) return planQueryReturn;
       if (document === PlanFeedbackStatusDocument) return feedbackQueryReturn;
+      if (document === MeDocument) return meQueryReturn;
       return { data: null, loading: false, error: undefined } as any;
     });
 
@@ -243,17 +291,14 @@ describe('PlanOverviewPage', () => {
 
     render(<PlanOverviewPage />);
 
-    // Open the NotificationHeader modal
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'feedbackNotification.markAsDone' })).toBeInTheDocument();
     });
     fireEvent.click(screen.getByRole('button', { name: 'feedbackNotification.markAsDone' }));
 
-    // Confirm in modal
     const confirmButton = await screen.findByRole('button', { name: 'feedbackNotification.markAsDone' });
     fireEvent.click(confirmButton);
 
-    // Wait for mutation and toast
     await waitFor(() => {
       expect(mockCompleteFeedback).toHaveBeenCalled();
       expect(mockRefetchFeedbackStatus).toHaveBeenCalled();

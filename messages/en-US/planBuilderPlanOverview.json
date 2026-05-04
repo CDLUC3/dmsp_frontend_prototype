@@ -63,7 +63,8 @@
       "progress": "{current} of {total}",
       "questionsAnswered": "question(s) answered",
       "update": "Update",
-      "updateSection": "Update {title}"
+      "updateSection": "Update {title}",
+      "view": "View"
     },
     "errors": {
       "invalidDmpId": "Invalid DMP ID: The DMP ID provided is not valid.",
@@ -231,7 +232,11 @@
     },
     "you": "you",
     "admin": "Admin",
-    "edited": "edited"
+    "edited": "edited",
+    "feedbackNotification": {
+      "title": "Feedback mode",
+      "description": "You can view this plan and leave comments."
+    }
   },
   "ProjectsProjectFunding": {
     "buttons": {

@@ -4,6 +4,8 @@
 
 ## Updated
 - Updated the `jsonToState` function in `researchOutputTransformations` to set `enabled === false` for `outputTypes` when there is no value saved in the question `json`. This makes sure that checkbox remains unchecked when RO question form is edited [#201]
+- Updated `PlanOverviewQuestionPageShared` to display feedback notification when user is Org Admin, and feedback has been requested. Also, made updates to `useRenderQuestionField.tsx` to disable fields when in that mode [#196]
+- Updated `PlanOverviewPage` section buttons to display `View` button text when in feedback mode [#196]
 - Updated `ReposSelector.tsx` to fix some issues with subject area searches [#118]
 - Updated `PlanOverviewPage` component to display a feedback mode notification at top of page when one has status=REQUESTED [#191]
 - Enhanced condition in `RepoSelectorForAnswer` to display the preferred Repositories checkbox [#118]
