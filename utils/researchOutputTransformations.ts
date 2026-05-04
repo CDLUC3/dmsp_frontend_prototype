@@ -600,6 +600,10 @@ export const jsonToState = (
             };
           }
           // If no custom options, it's using defaults mode - just update helpText
+        } else {
+          // Column absent from JSON means it was explicitly disabled when saved
+          // (stateToJSON omits disabled fields, so absence = disabled)
+          updated.enabled = false;
         }
         break;
       }
