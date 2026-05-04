@@ -3,6 +3,7 @@
 - Added `UpdateAffiliation` and `AffiliationById` queries [#203]
 
 ## Updated
+- Updated `RepoSelectorForAnswer` to fix the issue with repositories not displaying in repositories search modal. Main change was to place the repositoriesData handling into a useEffect, since fetchRepositoriesData is async [#224]
 - Updated `PlanOverviewQuestionPageShared` to display feedback notification when user is Org Admin, and feedback has been requested. Also, made updates to `useRenderQuestionField.tsx` to disable fields when in that mode [#196]
 - Updated `PlanOverviewPage` section buttons to display `View` button text when in feedback mode [#196]
 - Updated `ReposSelector.tsx` to fix some issues with subject area searches [#118]
