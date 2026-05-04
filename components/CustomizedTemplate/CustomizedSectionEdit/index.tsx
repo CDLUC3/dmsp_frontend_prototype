@@ -172,6 +172,7 @@ const CustomizedSectionEdit: React.FC<CustomizedSectionEditProps> = ({
         ]);
       } else {
         setAnnouncement(t('messages.questionMoved', { displayOrder: newDisplayOrder }));
+        // Refetch so that "Publish changes" button displays correctly based on whether there are unpublished changes after the move
         await refetch();
       }
     } catch {

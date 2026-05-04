@@ -709,6 +709,7 @@ const TemplateEditPage: React.FC = () => {
                 <RadioGroup
                   name="visibility"
                   onChange={handleVisibilityChange}
+                  isRequired
                   defaultValue={
                     template.latestPublishDate
                       ? template.latestPublishVisibility === "PUBLIC"
@@ -746,6 +747,7 @@ const TemplateEditPage: React.FC = () => {
                       <p className="text-gray-600 text-sm">{PublishTemplate("radioBtn.orgOnlyHelpText")}</p>
                     </div>
                   </Radio>
+                  <FieldError>{PublishTemplate("messages.errors.selectVisibilityError")}</FieldError>
                 </RadioGroup>
 
                 <p>

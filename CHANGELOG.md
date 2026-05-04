@@ -3,6 +3,10 @@
 - Added `UpdateAffiliation` and `AffiliationById` queries [#203]
 
 ## Updated
+- Updated `TemplateCustomizationOverview` to `refetch` data after a section reordering so that we know to display the "Publish changes" button. Also, updated `CustomSectionEdit` to `refetch` data after reordering questions for the same reason. [#200]
+- Updated `CustomQuestionNew` to filter out the `displayOrder` field from shared `commonFields` since it's not needed for the custom question mutation [#200]
+- Updated `TemplateEditPage` to clear errors when `handleSubmit` called [#200]
+- Updated back the `displayOrder` field and `QuestionDisplayOrderDocument` and `getDisplayOrder` function to `QuestionAdd` for calculating displayOrder, since cached data was somehow being used with the previous changes [#200]
 - Updated `PlanOverviewQuestionPageShared` to display feedback notification when user is Org Admin, and feedback has been requested. Also, made updates to `useRenderQuestionField.tsx` to disable fields when in that mode [#196]
 - Updated `PlanOverviewPage` section buttons to display `View` button text when in feedback mode [#196]
 - Updated `ReposSelector.tsx` to fix some issues with subject area searches [#118]
