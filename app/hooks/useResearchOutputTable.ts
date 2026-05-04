@@ -339,7 +339,6 @@ export const useResearchOutputTable = ({ setHasUnsavedChanges, announce, initial
     if (enabled === true) {
       setExpandedFields(prev => [...prev, fieldId]); //expanded
     }
-    // Do NOT auto-collapse when unchecked
 
     // Announce the change
     const field = standardFields.find(f => f.id === fieldId);
