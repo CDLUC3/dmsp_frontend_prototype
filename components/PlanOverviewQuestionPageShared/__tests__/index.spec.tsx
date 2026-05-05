@@ -3679,7 +3679,7 @@ describe('PlanOverviewQuestionPageShared isAdmin/isReadOnly and feedback notific
 
   it('disables form submit and hides Save button when isReadOnly is true', async () => {
     // Simulate feedbackStatus REQUESTED and user is not admin
-    const planWithRequested = { ...mockPlanData, plan: { ...mockPlanData.plan, feedbackStatus: { status: 'REQUESTED' }, versionedTemplate: { ...mockPlanData.plan.versionedTemplate, owner: { ...mockPlanData.plan.versionedTemplate.owner, uri: 'https://ror.org/03yrm5c26' } } } };
+    const planWithRequested = { ...mockPlanData, plan: { ...mockPlanData.plan, feedbackStatus: { status: 'REQUESTED' }, planCreator: { ...mockPlanData.plan.planCreator, affiliation: { uri: 'https://ror.org/03yrm5c26' } } } };
     const meAdmin = { ...mockMeData, me: { ...mockMeData.me, affiliation: { uri: 'https://ror.org/03yrm5c26' }, role: UserRole.Admin } };
     mockUseQuery.mockImplementation((document) => {
       if (document === PublishedQuestionDocument) {

@@ -347,6 +347,12 @@
         "totalQuestions": 1
       }
     ],
+    "planCreator": {
+      "id": 3,
+      "affiliation": {
+        "uri": "https://ror.org/03yrm5c26"
+      }
+    },
     "created": "1751501354000",
     "modified": "1751501354000",
     "dmpId": "https://doi.org/10.11111/2A3B4C",

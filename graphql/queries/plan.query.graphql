@@ -90,7 +90,7 @@ query Plan($planId: Int!) {
       id
       status
     }
-    planOwner {
+    planCreator {
       id
       affiliation {
         uri

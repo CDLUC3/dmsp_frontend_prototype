@@ -102,7 +102,7 @@ export const mockPlanData = {
         totalQuestions: 1
       }
     ],
-    "planOwner": {
+    "planCreator": {
       "id": 3,
       "affiliation": {
         "uri": "https://ror.org/03yrm5c26"

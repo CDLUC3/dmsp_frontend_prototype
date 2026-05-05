@@ -215,7 +215,7 @@ describe('PlanOverviewPage', () => {
         plan: {
           ...mockPlanData.plan,
           feedbackStatus: { status: 'REQUESTED' },
-          planOwner: { ...mockPlanData.plan?.planOwner, affiliation: { uri: 'mock-org-id' } },
+          planCreator: { ...mockPlanData.plan?.planCreator, affiliation: { uri: 'mock-org-id' } },
         },
       },
       loading: false,
@@ -254,7 +254,7 @@ describe('PlanOverviewPage', () => {
         plan: {
           ...mockPlanData.plan,
           feedbackStatus: { status: 'REQUESTED' },
-          planOwner: { ...mockPlanData.plan?.planOwner, affiliation: { uri: 'mock-org-id' } },
+          planCreator: { ...mockPlanData.plan?.planCreator, affiliation: { uri: 'mock-org-id' } },
         },
       },
       loading: false,

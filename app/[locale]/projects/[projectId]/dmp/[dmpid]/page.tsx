@@ -511,7 +511,7 @@ const PlanOverviewPage: React.FC = () => {
   useEffect(() => {
     const adminStatus =
       !!(me?.me?.affiliation?.uri &&
-        me.me.affiliation.uri === data?.plan?.planOwner?.affiliation?.uri &&
+        me.me.affiliation.uri === data?.plan?.planCreator?.affiliation?.uri &&
         (me.me.role === UserRole.Admin || me.me.role === UserRole.Superadmin));
 
     setIsReadOnly(planData?.feedbackStatus === 'REQUESTED' && adminStatus);
