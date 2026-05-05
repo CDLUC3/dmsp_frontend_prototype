@@ -1820,7 +1820,6 @@ export type MutationArchiveTemplateArgs = {
 export type MutationCompleteFeedbackArgs = {
   planFeedbackId: Scalars['Int']['input'];
   planId: Scalars['Int']['input'];
-  sendEmail?: InputMaybe<Scalars['Boolean']['input']>;
   summaryText?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -2397,8 +2396,6 @@ export type Plan = {
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The user who created the plan */
-  planCreator?: Maybe<User>;
   /** The progress the user has made within the plan */
   progress?: Maybe<PlanProgress>;
   /** The project the plan is associated with */
