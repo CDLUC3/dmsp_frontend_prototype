@@ -3,6 +3,7 @@
 - Added `UpdateAffiliation` and `AffiliationById` queries [#203]
 
 ## Updated
+- Updated `PlanOverviewPage` and `plan` schema to include the `planOwner` field now passed as part of `plan` query response, and fixed bug in determining `read-only` [#198]
 - Updated `TemplateCustomizationOverview` to `refetch` data after a section reordering so that we know to display the "Publish changes" button. Also, updated `CustomSectionEdit` to `refetch` data after reordering questions for the same reason. [#200]
 - Updated `CustomQuestionNew` to filter out the `displayOrder` field from shared `commonFields` since it's not needed for the custom question mutation [#200]
 - Updated `TemplateEditPage` to clear errors when `handleSubmit` called [#200]

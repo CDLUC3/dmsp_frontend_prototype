@@ -102,6 +102,12 @@ export const mockPlanData = {
         totalQuestions: 1
       }
     ],
+    "planOwner": {
+      "id": 3,
+      "affiliation": {
+        "uri": "https://ror.org/03yrm5c26"
+      }
+    },
     created: "1741308996000",
     modified: "1741308996000",
     dmpId: "https://doi.org/10.2312/abc123",

@@ -14,6 +14,7 @@ import {
   PlanFeedbackStatusDocument,
   RelatedWorksByPlanStatsDocument,
   MeDocument,
+  UserRole,
 } from '@/generated/graphql';
 import { useToast } from '@/context/ToastContext';
 
@@ -177,7 +178,7 @@ const setupMocks = (meData = null) => {
 const adminMe = {
   me: {
     affiliation: { uri: 'mock-org-id' },
-    role: 'ADMIN',
+    role: UserRole.Admin,
   },
 };
 
@@ -214,10 +215,7 @@ describe('PlanOverviewPage', () => {
         plan: {
           ...mockPlanData.plan,
           feedbackStatus: { status: 'REQUESTED' },
-          versionedTemplate: {
-            ...mockPlanData.plan.versionedTemplate,
-            owner: { ...mockPlanData.plan.versionedTemplate?.owner, uri: 'mock-org-id' },
-          },
+          planOwner: { ...mockPlanData.plan?.planOwner, affiliation: { uri: 'mock-org-id' } },
         },
       },
       loading: false,
@@ -256,10 +254,7 @@ describe('PlanOverviewPage', () => {
         plan: {
           ...mockPlanData.plan,
           feedbackStatus: { status: 'REQUESTED' },
-          versionedTemplate: {
-            ...mockPlanData.plan.versionedTemplate,
-            owner: { ...mockPlanData.plan.versionedTemplate?.owner, uri: 'mock-org-id' },
-          },
+          planOwner: { ...mockPlanData.plan?.planOwner, affiliation: { uri: 'mock-org-id' } },
         },
       },
       loading: false,
