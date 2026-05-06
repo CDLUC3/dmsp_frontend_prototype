@@ -336,13 +336,19 @@
     "title": "Convide pessoas e gerencie o acesso",
     "description": "Quando você convidar uma pessoa, enviaremos um e-mail para essa pessoa convidando-a para visualizar o seu plano.",
     "removeCollaborator": "Remover este membro significa que ele não poderá mais colaborar com este plano.",
-    "canEdit": "Pode editar plano",
-    "canComment": "Comentário somente",
-    "own": "O proprietário",
+    "saveCollaboratorAccess": "A atualização do nível de acesso de {name} alterará as permissões dele para este plano para {accessLevel}.",
+    "primaryDesignationChangeWarning": "Atribuir {name} como Proprietário Primário transferirá seu status de Proprietário Primário para eles. O nível de acesso do Proprietário Primário atual será alterado para Co-Proprietário. Deseja continuar?",
+    "canEdit": "Editora",
+    "canComment": "Comentarista",
+    "own": "Coproprietário",
+    "primary": "Proprietário primário",
     "cancelRemoval": "Cancelar a remoção do colaborador de projeto {name}",
     "deleteCollaborator": "Excluir colaborador do projeto {name}",
     "canEditPlanFor": "Pode editar o plano de {name}",
     "canCommentPlanFor": "Pode comentar no plano {name}",
+    "canCoOwnPlanFor": "Plano de copropriedade para {name}",
+    "canPrimaryOwnPlanFor": "Plano de propriedade primária para {name}",
+    "saveAccessFor": "Salvar acesso para {name}",
     "canOwnPlanFor": "Próprio plano para {name}",
     "revokeAccessFor": "Revogar o acesso para {name}",
     "deleteInviteFor": "Excluir convite para {name}",
@@ -350,12 +356,13 @@
     "headings": {
       "hasAccess": "Estas pessoas atualmente têm acesso a este plano",
       "removeCollaborator": "Remover colaborador do projeto",
+      "saveCollaboratorAccessUpdate": "Salvar atualização de acesso do colaborador",
       "pendingInvites": "Estas pessoas não aceitaram o convite ainda"
     },
     "buttons": {
       "invite": "Convidar colaboradores",
       "isDeleting": "está Apagando...",
-      "revoke": "Revoke",
+      "revoke": "Revogar",
       "deleteInvite": "Convite de exclusão",
       "resend": "Reenviar"
     },
@@ -368,6 +375,10 @@
         "resentInvite": "O convite foi reenviado com sucesso para {name}",
         "revokedAccess": "Acesso Revogado com sucesso para {name}",
         "updatedAccess": "Acesso atualizado com sucesso de {name} para {accessLevel}"
+      },
+      "errors": {
+        "mustBePrimaryOwnerOrSuperAdmin": "Apenas o proprietário principal ou um Super Admin pode atualizar os níveis de acesso do Proprietário Principal.",
+        "cannotRemoveOwnPrimary": "Há sempre um proprietário principal para o projeto. Por favor, atribua outro proprietário principal antes de remover este membro."
       }
     }
   },
