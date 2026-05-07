@@ -513,7 +513,9 @@
         "helpText": "Por padrão este é o endereço de e-mail do contato organizações, mas você pode alterar o endereço de e-mail de feedback"
       },
       "feedbackText": {
-        "label": "Solicitar feedback especializado",
+        "label": "Mensagem exibida aos usuários solicitando feedback",
+        "description": "Forneça informações aos usuários sobre o que esperar ao solicitarem feedback sobre seu DMP",
+        "helpText": "Mensagem de exemplo: Um bibliotecário de dados do Escritório da Presidência da Universidade da Califórnia (ucop.edu) responderá à sua solicitação em até 48 horas. Caso tenha dúvidas relacionadas a esta ação, por favor, entre em contato conosco pelo e-mail <mailtoLink>dmptool@ucop.edu.</mailtoLink>",
         "placeholder": "Digitar texto de feedback"
       }
     },
