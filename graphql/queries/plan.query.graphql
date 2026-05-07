@@ -90,5 +90,11 @@ query Plan($planId: Int!) {
       id
       status
     }
+    planCreator {
+      id
+      affiliation {
+        uri
+      }
+    }
   }
 }

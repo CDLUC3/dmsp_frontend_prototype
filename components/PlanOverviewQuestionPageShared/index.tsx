@@ -1345,7 +1345,7 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
   useEffect(() => {
     const adminStatus =
       !!(me?.me?.affiliation?.uri &&
-        me.me.affiliation.uri === plan?.orgId &&
+        me.me.affiliation.uri === planData?.plan?.planCreator?.affiliation?.uri &&
         (me.me.role === UserRole.Admin || me.me.role === UserRole.Superadmin));
 
     setIsReadOnly(planData?.plan?.feedbackStatus?.status === 'REQUESTED' && adminStatus);
