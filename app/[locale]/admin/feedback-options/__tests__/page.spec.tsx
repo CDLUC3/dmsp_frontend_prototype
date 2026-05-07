@@ -1,5 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { RichTranslationValues } from 'next-intl';
 import "@testing-library/jest-dom";
 import { axe, toHaveNoViolations } from "jest-axe";
 import { useQuery, useMutation } from '@apollo/client/react';
@@ -38,15 +39,36 @@ jest.mock("@/components/Form", () => ({
     <input aria-label={label} value={value} onChange={onChange} />
   ),
   /*eslint-disable @typescript-eslint/no-explicit-any */
-  FormTextArea: ({ label, onChange, value }: any) => (
-    <textarea aria-label={label} value={value} onChange={(e) => onChange(e.target.value)} />
+  FormTextArea: ({ label, onChange, value, description, helpMessage }: any) => (
+    <div>
+      <textarea aria-label={label} value={value} onChange={(e) => onChange(e.target.value)} />
+      {description && <p>{description}</p>}
+      {helpMessage && <p>{helpMessage}</p>}
+    </div>
   ),
 }));
 
 
 // Mock next-intl
+type MockUseTranslations = {
+  (key: string, ...args: unknown[]): string;
+  rich: (key: string, values?: RichTranslationValues) => React.ReactNode;
+};
+
 jest.mock('next-intl', () => ({
-  useTranslations: jest.fn(() => (key: string) => key),
+  useTranslations: jest.fn(() => {
+    const mockUseTranslations: MockUseTranslations = ((key: string) => key) as MockUseTranslations;
+
+    mockUseTranslations.rich = (key, values) => {
+      const p = values?.p;
+      if (typeof p === 'function') {
+        return p(key); // Can return JSX
+      }
+      return key; // fallback
+    };
+
+    return mockUseTranslations;
+  }),
 }));
 
 jest.mock("@/components/PageHeader", () => () => <div data-testid="mock-page-header" />);
@@ -195,6 +217,8 @@ describe("FeedbackOptions", () => {
     expect(screen.getByLabelText("fields.feedbackEnabled.label")).toBeInTheDocument();
     expect(screen.getByLabelText("fields.feedbackEmail.label", { selector: "input" })).toBeInTheDocument();
     expect(screen.getByLabelText("fields.feedbackText.label", { selector: "textarea" })).toBeInTheDocument();
+    expect(screen.getByText("fields.feedbackText.description")).toBeInTheDocument();
+    expect(screen.getByText("fields.feedbackText.helpText")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "actions.save" })).toBeInTheDocument();
   });
 

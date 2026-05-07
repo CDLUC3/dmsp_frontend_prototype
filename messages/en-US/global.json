@@ -514,7 +514,9 @@
         "invalidEmail": "One or more email addresses are invalid. Please check and try again."
       },
       "feedbackText": {
-        "label": "Request Expert Feedback",
+        "label": "Message displayed to users requesting feedback",
+        "description": "Give info to users about what to expect when they request feedback on their DMP",
+        "helpText": "Sample message: A data librarian from University of California, Office of the President (ucop.edu) will respond to your request within 48 hours. If you have questions pertaining to this action please contact us at <mailtoLink>dmptool@ucop.edu.</mailtoLink>",
         "placeholder": "Enter feedback text"
       }
     },

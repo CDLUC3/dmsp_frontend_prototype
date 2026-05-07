@@ -256,6 +256,12 @@ const FeedbackOptions: React.FC = () => {
                     <FormTextArea
                       name="feedbackText"
                       label={t("fields.feedbackText.label")}
+                      description={t("fields.feedbackText.description")}
+                      helpMessage={t.rich('fields.feedbackText.helpText', {
+                        mailtoLink: (chunks) => (
+                          <a href="mailto:dmptool@ucop.edu">{chunks}</a>
+                        ),
+                      })}
                       richText={true}
                       value={feedbackForm.feedbackMessage}
                       onChange={(value) => handleChange("feedbackMessage", value)}
