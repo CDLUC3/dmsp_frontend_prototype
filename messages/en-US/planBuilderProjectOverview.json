@@ -365,9 +365,9 @@
       "comment": "Commenter",
       "own": "Co-Owner",
       "primaryDescription": "The user is able to perform all actions on a Plan (typically restricted to the owner/creator), and their affiliation is the organization associated with the project",
-      "editDescription": "The user is able to edit the plan",
-      "commentDescription": "The user is able to comment on the plan",
-      "ownDescription": "The user is able to co-own the plan"
+      "editDescription": "Has edit-rights to the plans (can write and edit the plans).",
+      "commentDescription": "Has read-rights to the project (can view and comment on the plans).",
+      "ownDescription": "Has admin-rights to the project (can invite other users, edit the plans, and publish them)."
     },
     "buttons": {
       "invite": "Invite Collaborators",

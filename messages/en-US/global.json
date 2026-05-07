@@ -510,7 +510,8 @@
         "label": "Feedback email addresses",
         "placeholder": "Enter feedback email address",
         "description": "Enter emails separated by commas",
-        "helpText": "By default this is the organisations contact email address, However, you may change the feedback email address"
+        "helpText": "By default this is the organisations contact email address, However, you may change the feedback email address",
+        "invalidEmail": "One or more email addresses are invalid. Please check and try again."
       },
       "feedbackText": {
         "label": "Request Expert Feedback",

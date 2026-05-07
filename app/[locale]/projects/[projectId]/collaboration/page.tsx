@@ -448,7 +448,6 @@ const ProjectsProjectCollaboration = () => {
                   <li><strong>{t('accessLevels.own')}</strong> — {t('accessLevels.ownDescription')}</li>
                   <li><strong>{t('accessLevels.comment')}</strong> — {t('accessLevels.commentDescription')}</li>
                   <li><strong>{t('accessLevels.edit')}</strong> — {t('accessLevels.editDescription')}</li>
-                  {/* etc */}
                 </ul>
               </details>
               {hasAccess.length > 0 && hasAccess.map((collaborator) => {

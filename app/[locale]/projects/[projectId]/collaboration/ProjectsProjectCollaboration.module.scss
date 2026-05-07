@@ -101,15 +101,15 @@
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    font-weight: 600;
-    color: var(--color-link, #005ea2);
+    font-weight: var(--fw-semibold);
+    color: var(--link-color, #005ea2);
     user-select: none;
 
     &::-webkit-details-marker {
       display: none;
     }
 
-    &::after {
+    &::after { // Custom arrow indicator to toggle open/closed state
       content: '';
       display: inline-block;
       width: 0.5em;
@@ -122,22 +122,18 @@
     }
   }
 
-  &[open] summary::after {
+  &[open] summary::after { // Need to rotate arrow indicator when details is open and keep it centered
     transform: rotate(-135deg);
     margin-bottom: -0.15em;
   }
 
   ul {
-    margin-top: 0.75rem;
-    padding-left: 1.25rem;
+    margin-top: var(--space-4);
+    padding-left: var(--space-6);
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
   }
-}
-
-.modalOverride {
-  background-color: transparent !important;
 }
 
 .buttonContainer {
