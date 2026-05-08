@@ -114,7 +114,6 @@ const ProjectsProjectCollaboration = () => {
     error: meError
   } = useQuery(MeDocument);
 
-  console.log('***Me data', meData);
   // Call Server Action updateProjectCollaborator to update access level
   const updateAccessLevel = async (accessLevel: string, id: number) => {
     // Don't need a try-catch block here, as the error is handled in the action
