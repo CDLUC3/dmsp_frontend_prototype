@@ -440,8 +440,6 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByRole('heading', { level: 3, name: 'Requirements by University of California' })).toBeInTheDocument();
     const orgRequirements = screen.getByText(/cleared by the ethics committee/i);
     expect(orgRequirements.tagName).toBe('P');
-    // check that the 'Jump to guidance' link is present
-    expect(screen.getByRole('link', { name: /page.jumpToGuidance/i })).toBeInTheDocument();
 
     // Check that question card is in the page with correct question details
     expect(screen.getByTestId('question-card')).toBeInTheDocument();

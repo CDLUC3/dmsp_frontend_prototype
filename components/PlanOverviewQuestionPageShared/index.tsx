@@ -16,8 +16,6 @@ import {
   Link,
   OverlayArrow,
   Popover,
-  Tooltip,
-  TooltipTrigger
 } from "react-aria-components";
 
 // GraphQL 
@@ -1584,10 +1582,6 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
               </p>
             </section>
 
-            <p className={styles.guidanceLinkWrapper}>
-              <DmpIcon icon="down_arrow" />
-              <Link href="#guidance" className={`${styles.guidanceLink} react-aria-Link`}>{PlanOverview('page.jumpToGuidance')}</Link>
-            </p>
             <Form onSubmit={questionIsReadOnly ? (e) => e.preventDefault() : handleSubmit} data-testid="question-form">
               <Card data-testid='question-card'>
                 <span>{PlanOverview('headings.question')}</span>
@@ -1638,21 +1632,21 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
                         {t('buttons.commentWithNumber', { number: mergedComments.length })}
                       </Button>
                     ) : (
-                      <TooltipTrigger delay={0}>
+                      <DialogTrigger>
                         <Button
                           ref={openCommentsButtonRef}
+                          type="button"
                           className={styles.buttonSmallDisabled}
                           aria-disabled={true}
                         >
                           {t('buttons.commentWithNumber', { number: mergedComments.length })}
                         </Button>
-                        <Tooltip
-                          placement="bottom"
-                          className={`${styles.tooltip} py-2 px-2`}
-                        >
-                          {PlanOverview('page.commentTooltip')}
-                        </Tooltip>
-                      </TooltipTrigger>
+                        <Popover placement="bottom" className="popover--inverse">
+                          <Dialog aria-label={PlanOverview('page.commentTooltip')} className="popoverContent">
+                            {PlanOverview('page.commentTooltip')}
+                          </Dialog>
+                        </Popover>
+                      </DialogTrigger>
                     )}
 
                   </div>

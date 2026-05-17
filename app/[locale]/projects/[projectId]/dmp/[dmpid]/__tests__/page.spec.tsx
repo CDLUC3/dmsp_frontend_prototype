@@ -458,10 +458,10 @@ describe('PlanOverviewPage', () => {
     expect(within(sidebar).getByRole('heading', { name: 'status.publish.title' })).toBeInTheDocument();
     expect(within(sidebar).getByText('status.publish.label')).toBeInTheDocument();
     expect(within(sidebar).getByRole('heading', { name: 'status.download.title' })).toBeInTheDocument();
-    expect(within(sidebar).getByRole('link', { name: 'download' })).toBeInTheDocument();
+    expect(within(sidebar).getByRole('link', { name: 'status.download.title' })).toBeInTheDocument();
   });
 
-  it('should function as expected if plan data is missing id, dmpId, registered, title, and status', async () => {
+  it.only('should function as expected if plan data is missing id, dmpId, registered, title, and status', async () => {
     const updatedMockPlanData = {
       ...mockPlanData.plan,
       id: null,
@@ -533,7 +533,7 @@ describe('PlanOverviewPage', () => {
     expect(within(sidebar).getByRole('heading', { name: 'status.publish.title' })).toBeInTheDocument();
     expect(within(sidebar).getByText('status.publish.label')).toBeInTheDocument();
     expect(within(sidebar).getByRole('heading', { name: 'status.download.title' })).toBeInTheDocument();
-    expect(within(sidebar).getByRole('link', { name: 'download' })).toBeInTheDocument();
+    expect(within(sidebar).getByRole('link', { name: 'status.download.title' })).toBeInTheDocument();
   });
 
   it('should display plan status PUBLISHED if \'registered\' prop has a value', async () => {

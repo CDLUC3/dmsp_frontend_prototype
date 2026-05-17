@@ -186,7 +186,7 @@ export const PlanOverviewSectionPageShared: React.FC<{ config: SectionPageConfig
       ?.filter((q): q is NonNullable<typeof q> => q !== null)
       .map((q) => ({
         id: q.id?.toString() || '',
-        title: q.questionText || '',
+        title: stripHtml(q.questionText || ''),
         link: buildQuestionLink({ projectId, dmpId, sectionId: Number(sectionId), question: q }),
         hasAnswer: q.hasAnswer || false,
       })) || [];
@@ -231,7 +231,7 @@ export const PlanOverviewSectionPageShared: React.FC<{ config: SectionPageConfig
 
   useEffect(() => {
     setIsReadOnly(planData?.plan?.readOnly ?? false);
-  },[planData]);
+  }, [planData]);
 
   // Simple error handling - check for invalid DMP ID
   if (isNaN(planId)) {
@@ -241,7 +241,6 @@ export const PlanOverviewSectionPageShared: React.FC<{ config: SectionPageConfig
   if (questionsLoading || sectionLoading || planLoading) {
     return <Loading />;
   }
-
 
   if (questionsError) {
     return <div>{Section('errors.errorLoadingSections', { message: questionsError.message })}</div>;
@@ -323,7 +322,10 @@ export const PlanOverviewSectionPageShared: React.FC<{ config: SectionPageConfig
                         className={`${styles.sectionLink} ${section.versionedSectionId === Number(sectionId) ? styles.currentSection : ''
                           }`}
                         aria-label={`Go to ${section.title} section`}
-                        aria-current={(section.versionedSectionId ?? section.customSectionId) === Number(sectionId)}
+                        aria-current={(section.versionedSectionId ?? section.customSectionId) === Number(sectionId)
+                          ? 'page'
+                          : undefined
+                        }
                       >
                         {section.title}
                       </Link>
@@ -340,14 +342,12 @@ export const PlanOverviewSectionPageShared: React.FC<{ config: SectionPageConfig
                   <SafeHtml html={section.introduction} />
                 </section>
               )}
-              <section aria-label={"Requirements"}>
-                {section?.requirements && (
-                  <>
-                    <h3 className="h4">{t('headings.requirementsBy', { funder: plan.funder_name })}</h3>
-                    <SafeHtml html={section?.requirements} />
-                  </>
-                )}
-              </section>
+              {section?.requirements && (
+                <section aria-label={"Requirements"}>
+                  <h3 className="h4">{t('headings.requirementsBy', { funder: plan.funder_name })}</h3>
+                  <SafeHtml html={section?.requirements} />
+                </section>
+              )}
 
               {questions.length === 0 ? (
                 <section className={styles.noQuestionsMessage}>
@@ -373,7 +373,7 @@ export const PlanOverviewSectionPageShared: React.FC<{ config: SectionPageConfig
                       <div className={styles.questionHeader}>
                         <div className={styles.questionTitle}>
                           <h3 id={`question-title-${question.id}`}>
-                            {stripHtml(question.title)}
+                            {question.title}
                           </h3>
                           <p aria-live="polite">
                             <span

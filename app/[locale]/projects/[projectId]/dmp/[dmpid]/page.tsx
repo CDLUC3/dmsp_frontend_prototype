@@ -50,7 +50,7 @@ import NotificationHeader from "@/components/Notification";
 
 // Utils and other
 import { routePath } from "@/utils/routes";
-import { toTitleCase } from "@/utils/general";
+import { stripHtml, toTitleCase } from "@/utils/general";
 import { extractErrors } from "@/utils/errorHandler";
 import { useToast } from "@/context/ToastContext";
 import {
@@ -716,7 +716,7 @@ const PlanOverviewPage: React.FC = () => {
               >
                 <p>
                   {planData.members.map((member, index) => (
-                    <span key={index}>
+                    <span key={member.email}>
                       {t("members.info", {
                         name: member.fullname,
                         role: member.role.map((role) => role).join(", "),
@@ -760,13 +760,13 @@ const PlanOverviewPage: React.FC = () => {
 
               return (
                 <section
-                  key={versionedSection.versionedSectionId ?? `section-${idx}`}
+                  key={sectionId ?? `section-${idx}`}
                   className={styles.planSectionsList}
-                  aria-labelledby={`section-title-${versionedSection.versionedSectionId}`}
+                  aria-labelledby={`section-title-${sectionId}`}
                 >
                   <div className={styles.planSectionsHeader}>
                     <div className={styles.planSectionsTitle}>
-                      <h3 id={`section-title-${versionedSection.versionedSectionId}`}>{versionedSection.title}</h3>
+                      <h3 id={`section-title-${sectionId}`}>{versionedSection.title}</h3>
                       <p
                         aria-label={`${versionedSection.answeredQuestions} out of ${versionedSection.totalQuestions} questions answered for ${versionedSection.title}`}
                       >
@@ -793,7 +793,7 @@ const PlanOverviewPage: React.FC = () => {
                     <TransitionLink
                       href={sectionRoute}
                       aria-label={t("sections.updateSection", {
-                        title: versionedSection.title,
+                        title: stripHtml(versionedSection.title),
                       })}
                       className={"react-aria-Button react-aria-Button--secondary"}
                     >
@@ -829,12 +829,13 @@ const PlanOverviewPage: React.FC = () => {
                 <DialogTrigger>
                   <Button
                     aria-disabled={isReadOnly}
+                    type="button"
                     className="link-disabled"
                   >
                     {Global("buttons.publish")}
                   </Button>
                   <Popover placement="bottom" className="popover--inverse">
-                    <Dialog className="popoverContent">
+                    <Dialog aria-label={t('messages.readOnlyLinkMessage')} className="popoverContent">
                       {t('messages.readOnlyLinkMessage')}
                     </Dialog>
                   </Popover>
@@ -868,12 +869,13 @@ const PlanOverviewPage: React.FC = () => {
                   <DialogTrigger>
                     <Button
                       className="link-disabled"
+                      type="button"
                       aria-disabled={true}
                     >
                       {Global("links.request")}
                     </Button>
                     <Popover placement="bottom" className="popover--inverse">
-                      <Dialog className="popoverContent">
+                      <Dialog aria-label={t('messages.readOnlyLinkMessage')} className="popoverContent">
                         {t('messages.readOnlyLinkMessage')}
                       </Dialog>
                     </Popover>
@@ -921,12 +923,13 @@ const PlanOverviewPage: React.FC = () => {
                     <DialogTrigger>
                       <Button
                         className="link-disabled"
+                        type="button"
                         aria-disabled={true}
                       >
                         {Global("buttons.linkUpdate")}
                       </Button>
                       <Popover placement="bottom" className="popover--inverse">
-                        <Dialog className="popoverContent">
+                        <Dialog aria-label={t('messages.readOnlyLinkMessage')} className="popoverContent">
                           {t('messages.readOnlyLinkMessage')}
                         </Dialog>
                       </Popover>
@@ -953,12 +956,13 @@ const PlanOverviewPage: React.FC = () => {
                   <DialogTrigger>
                     <Button
                       className="link-disabled"
+                      type="button"
                       aria-disabled={true}
                     >
                       {t("status.publish.label")}
                     </Button>
                     <Popover placement="bottom" className="popover--inverse">
-                      <Dialog className="popoverContent">
+                      <Dialog aria-label={t('messages.readOnlyLinkMessage')} className="popoverContent">
                         {t('messages.readOnlyLinkMessage')}
                       </Dialog>
                     </Popover>
@@ -973,7 +977,7 @@ const PlanOverviewPage: React.FC = () => {
                 <NextLink
                   href={DOWNLOAD_URL}
                   className="side-panel-link"
-                  aria-label="download"
+                  aria-label={t("status.download.title")}
                 >
                   {t("status.download.title")}
                 </NextLink>
@@ -1045,7 +1049,7 @@ const PlanOverviewPage: React.FC = () => {
               <div className="modal-actions">
                 <div>
                   <Button
-                    type="submit"
+                    type="button"
                     onPress={() => setStep(2)}
                   >
                     {t("publishModal.publish.buttonNext")}{' '}&gt;
