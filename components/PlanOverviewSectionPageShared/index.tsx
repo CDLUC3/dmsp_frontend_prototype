@@ -210,12 +210,6 @@ export const PlanOverviewSectionPageShared: React.FC<{ config: SectionPageConfig
       buildGuidanceMutationParams({ planId, sectionId: Number(sectionId) })
     );
 
-
-  // Set read-only state based on plan status and user role
-  useEffect(() => {
-    setIsReadOnly(planData?.plan?.readOnly || true);
-  }, [planData]);
-
   // Hide navigation when close to footer
   useEffect(() => {
     const handleScroll = () => {
@@ -234,6 +228,10 @@ export const PlanOverviewSectionPageShared: React.FC<{ config: SectionPageConfig
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    setIsReadOnly(planData?.plan?.readOnly ?? false);
+  },[planData]);
 
   // Simple error handling - check for invalid DMP ID
   if (isNaN(planId)) {
@@ -289,7 +287,7 @@ export const PlanOverviewSectionPageShared: React.FC<{ config: SectionPageConfig
       />
 
       <LayoutWithPanel>
-        {plan?.feedbackStatus === "REQUESTED" && isReadOnly && (
+        {plan?.feedbackStatus === "REQUESTED" && (
           <NotificationHeader
             title={t("feedbackNotification.title")}
           >

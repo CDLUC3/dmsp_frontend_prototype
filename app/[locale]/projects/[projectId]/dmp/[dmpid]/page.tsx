@@ -857,13 +857,13 @@ const PlanOverviewPage: React.FC = () => {
                   </p>
                 </div>
                 {isPrimaryCollaborator ? (
-                  <NextLink
+                  <TransitionLink
                     href={FEEDBACK_URL}
                     className="side-panel-link"
                     aria-label={Global("links.request")}
                   >
                     {Global("links.request")}
-                  </NextLink>
+                  </TransitionLink>
                 ) : (
                   <DialogTrigger>
                     <Button

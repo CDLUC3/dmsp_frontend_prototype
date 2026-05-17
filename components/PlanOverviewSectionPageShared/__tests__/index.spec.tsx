@@ -512,7 +512,7 @@ describe('PlanOverviewSectionPage - BASE section with BASE questions or CUSTOM q
 
     // Check action button
     const actionButton = firstCard.querySelector('a[href*="/q/1"]');
-    expect(actionButton).toHaveTextContent('sections.view');
+    expect(actionButton).toHaveTextContent('sections.start');
   });
 
   it('should generate correct links for questions', async () => {
@@ -529,22 +529,27 @@ describe('PlanOverviewSectionPage - BASE section with BASE questions or CUSTOM q
     );
 
     // Check that links are generated correctly
-    const questionLinks = screen.getAllByText('sections.view');
-    expect(questionLinks).toHaveLength(3);
+    const questionLinkWithStartText = screen.getAllByText('sections.start');
+    expect(questionLinkWithStartText).toHaveLength(2);
 
-    expect(questionLinks[0]).toHaveAttribute(
+    expect(questionLinkWithStartText[0]).toHaveAttribute(
       'href',
       '/en-US/projects/123/dmp/456/s/456/q/1'
     );
-    expect(questionLinks[1]).toHaveAttribute(
+
+    expect(questionLinkWithStartText[1]).toHaveAttribute(
+      'href',
+      '/en-US/projects/123/dmp/456/s/456/q/3'
+    );
+
+    const questionLinkWithUpdateText = screen.getAllByText('sections.update');
+    expect(questionLinkWithUpdateText).toHaveLength(1);
+
+    expect(questionLinkWithUpdateText[0]).toHaveAttribute(
       'href',
       '/en-US/projects/123/dmp/456/s/456/q/2'
     );
 
-    expect(questionLinks[2]).toHaveAttribute(
-      'href',
-      '/en-US/projects/123/dmp/456/s/456/q/3'
-    );
   });
 
   it('should show view action for all questions when read only and user is not edit collaborator', async () => {
@@ -858,7 +863,7 @@ describe('PlanOverviewSectionPage - CUSTOM section with custom questions', () =>
       expect(screen.getByText('Custom Radio Button Question')).toBeInTheDocument()
     );
 
-    const startLink = screen.getByText('sections.view');
+    const startLink = screen.getByText('sections.start');
 
     expect(startLink).toHaveAttribute('href', '/en-US/projects/123/dmp/456/cs/456/cq/7');
 

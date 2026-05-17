@@ -363,7 +363,8 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
     PlanDocument,
     {
       variables: { planId: Number(dmpId) },
-      notifyOnNetworkStatusChange: true
+      notifyOnNetworkStatusChange: true,
+      fetchPolicy: 'cache-and-network', // Ensure we have latest so that if feedback closed, the user cannot add comments
     }
   );
 
@@ -401,6 +402,7 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
         questionId: Number(versionedQuestionId),
       }) as { projectId: number; planId: number; versionedQuestionId: number; versionedCustomQuestionId?: number },
       notifyOnNetworkStatusChange: true,
+      fetchPolicy: 'cache-and-network',
     }
   );
 
