@@ -1,9 +1,13 @@
 ## Added
+- Added new shared styles `popoverContent`, `popover-inverse`, and `link-disabled` [#225]
+- Added use of `TransitionLink` to some of the buttons in the Plan builder flow, so that it shows a loading transition when the user clicks on links [#225]
 - Added a `SaveCollaboratorAccessModal` to display to user when saving a change to a collaborator's access level [#228]
 - Added new `Notification` component for displaying notifications at top of page. Added new `CompleteFeedback` mutation [#191]
 - Added `UpdateAffiliation` and `AffiliationById` queries [#203]
 
 ## Updated
+- Updated `OverviewSection` component to use `disabled` and `hoverMessage` props so that those links can be disabled with a popover message [#225]
+- Updated `PlanOverviewPage`, `PlanOverviewSectionPageShared`, and `PlanOverviewQuestionPageShared` components to display a `readOnly` mode. Added popover messages to disabled links [#225]
 - Updated `FeedbackOptions` page to properly validate and message user when submitted emails are not valid, and added the use of a save confirmation modal [#228]
 - Updated `AccessLevelRadioGroup` to include `PRIMARY` [#228]
 - Updated `ProjectsProjectCollaboration` component with new functionality to determine whether a user can make certain access level changes [#228]
@@ -26,6 +30,7 @@
 - Updated `RepoSelectorForAnswer` to wait to query `Re3byUrIsDocument` until we have `preferredReposURIs` because preferred repos don't display even though they eventually do to trigger the display of the "preferred repositories" checkbox [#118]
 
 ## Chore
+- Updated version of `sanitize-html` to `v2.17.4` [#225]
 - Updated version of `next-intl` to `v4.9.2` and `icu-minify` to `v4.11.1`, and added `override` of `postcss` to `v8.5.10` to address security vulnerabilities.
 - Updated `sanitize-html` to `v2.17.3` and `dompurify` to `v3.4.0` due to security issues. Also, updated `prettier` to `v3.8.3` and `@dmptool/types` to `v3.1.4`, and `lodash` override to `v.4.18.1`. Removed overrides for `minimatch` and `test-exclude`.
 
