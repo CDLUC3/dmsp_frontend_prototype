@@ -88,6 +88,7 @@ import { useGuidanceData } from '@/app/hooks/useGuidanceData';
 import { useGuidanceMutations } from "@/app/hooks/useGuidanceMutations";
 
 import styles from './PlanOverviewQuestionPage.module.scss';
+import { useIsOrgAdmin } from '@/app/hooks/useIsOrgAdmin';
 
 type RouteName = Parameters<typeof routePath>[0];
 
@@ -447,26 +448,11 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
   }, [me?.me?.id, planData?.plan?.project?.collaborators]);
 
   // Determine if user is an Org Admin that can see feedback request notifications
-  const isOrgAdmin = useMemo(() => {
-    const myRole = me?.me?.role;
-    const myAffiliationId = me?.me?.affiliation?.id;
+  const isOrgAdmin = useIsOrgAdmin(
+    me?.me,
+    planData?.plan?.project?.collaborators
+  );
 
-    // Must have role and affiliation to proceed
-    if (!myRole || !myAffiliationId) return false;
-
-    // Must be ADMIN or SUPERADMIN
-    if (myRole !== "ADMIN" && myRole !== "SUPERADMIN") return false;
-
-    // Find the PRIMARY collaborator on the plan's project
-    const primaryCollaborator = planData?.plan?.project?.collaborators?.find(
-      (collaborator) => collaborator?.accessLevel === "PRIMARY"
-    );
-
-    if (!primaryCollaborator) return false;
-
-    // Admin's affiliation must match the primary collaborator's affiliation
-    return primaryCollaborator.user?.affiliation?.id === myAffiliationId;
-  }, [me?.me?.role, me?.me?.affiliation?.id, planData?.plan?.project?.collaborators]);
 
   // Determine if the question should be read-only based on readOnly value and whether the user is an edit collaborator
   const questionIsReadOnly = useMemo(() => {
