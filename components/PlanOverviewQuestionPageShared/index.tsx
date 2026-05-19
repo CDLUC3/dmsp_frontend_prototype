@@ -88,6 +88,7 @@ import { useGuidanceData } from '@/app/hooks/useGuidanceData';
 import { useGuidanceMutations } from "@/app/hooks/useGuidanceMutations";
 
 import styles from './PlanOverviewQuestionPage.module.scss';
+import { useIsOrgAdmin } from '@/app/hooks/useIsOrgAdmin';
 
 type RouteName = Parameters<typeof routePath>[0];
 
@@ -445,6 +446,13 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
         collaborator?.accessLevel === "EDIT"
     );
   }, [me?.me?.id, planData?.plan?.project?.collaborators]);
+
+  // Determine if user is an Org Admin that can see feedback request notifications
+  const isOrgAdmin = useIsOrgAdmin(
+    me?.me,
+    planData?.plan?.project?.collaborators
+  );
+
 
   // Determine if the question should be read-only based on readOnly value and whether the user is an edit collaborator
   const questionIsReadOnly = useMemo(() => {
@@ -1555,7 +1563,7 @@ export const PlanOverviewQuestionPageShared: React.FC<{ config: QuestionPageConf
       <ErrorMessages errors={errors} ref={errorRef} />
 
       <LayoutWithPanel>
-        {plan?.feedbackStatus === "REQUESTED" && (
+        {plan?.feedbackStatus === "REQUESTED" && isOrgAdmin && (
           <NotificationHeader
             title={t("feedbackNotification.title")}
           >

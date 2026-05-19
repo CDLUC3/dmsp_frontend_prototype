@@ -60,6 +60,7 @@ import {
 import { DOI_REGEX } from "@/lib/constants";
 import styles from "./PlanOverviewPage.module.scss";
 import { logECS } from "@/utils/index";
+import { useIsOrgAdmin } from "@/app/hooks/useIsOrgAdmin";
 
 const PUBLISHED = "Published";
 const UNPUBLISHED = "Unpublished";
@@ -267,6 +268,13 @@ const PlanOverviewPage: React.FC = () => {
         collaborator?.accessLevel === "EDIT"
     );
   }, [me?.me?.id, data?.plan?.project?.collaborators]);
+
+  // Determine if user is an Org Admin that can see feedback request notifications
+  const isOrgAdmin = useIsOrgAdmin(
+    me?.me,
+    data?.plan?.project?.collaborators
+  );
+
 
   const { FUNDINGS_URL, MEMBERS_URL, DOWNLOAD_URL, FEEDBACK_URL, CHANGE_PRIMARY_CONTACT_URL, RELATED_WORKS_URL } = urls;
 
@@ -662,7 +670,7 @@ const PlanOverviewPage: React.FC = () => {
       />
 
       <LayoutWithPanel>
-        {isFeedbackRequested && (
+        {isFeedbackRequested && isOrgAdmin && (
           <NotificationHeader
             title={t("feedbackNotification.title")}
             actionButtonText={t("feedbackNotification.markAsDone")}

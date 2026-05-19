@@ -34,6 +34,7 @@ import { routePath } from '@/utils/routes';
 import styles from './PlanOverviewSectionPage.module.scss';
 import { useGuidanceData } from '@/app/hooks/useGuidanceData';
 import { useGuidanceMutations, UseGuidanceMutationsProps } from "@/app/hooks/useGuidanceMutations";
+import { useIsOrgAdmin } from '@/app/hooks/useIsOrgAdmin';
 
 interface VersionedQuestion {
   id: string;
@@ -179,6 +180,12 @@ export const PlanOverviewSectionPageShared: React.FC<{ config: SectionPageConfig
     );
   }, [me?.me?.id, planData?.plan?.project?.collaborators]);
 
+  // Determine if user is an Org Admin that can see feedback request notifications
+  const isOrgAdmin = useIsOrgAdmin(
+    me?.me,
+    planData?.plan?.project?.collaborators
+  );
+
 
   const questions: VersionedQuestion[] = useMemo(() => {
     const source = extractQuestions(questionsData as Record<string, RawQuestion[] | null | undefined>);
@@ -286,7 +293,7 @@ export const PlanOverviewSectionPageShared: React.FC<{ config: SectionPageConfig
       />
 
       <LayoutWithPanel>
-        {plan?.feedbackStatus === "REQUESTED" && (
+        {plan?.feedbackStatus === "REQUESTED" && isOrgAdmin && (
           <NotificationHeader
             title={t("feedbackNotification.title")}
           >
