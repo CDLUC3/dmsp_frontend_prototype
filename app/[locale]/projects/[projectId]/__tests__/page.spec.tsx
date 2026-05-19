@@ -181,6 +181,7 @@ const setupMocks = (meData: { me: { id: string } } | null = null, projectData: t
       data: null,
       loading: false,
       error: undefined,
+      /* eslint-disable @typescript-eslint/no-explicit-any */
     } as any;
   });
 };
@@ -353,6 +354,55 @@ describe('ProjectOverviewPage', () => {
       expect(screen.getByText('relatedWorks.pendingCount')).toBeInTheDocument();
       expect(screen.getByText('relatedWorks.acceptedCount')).toBeInTheDocument();
       expect(screen.getByRole('link', { name: 'relatedWorks.edit' })).toBeInTheDocument();
+    });
+  });
+
+  it('should display \`relatedWorks.view\` links in read-only mode in place of relatedWorks.edit', async () => {
+    const projectQueryReturn = {
+      data: {
+        project: {
+          ...mockProjectData,
+          readOnly: true,
+        },
+      },
+      loading: false,
+      error: undefined,
+      refetch: jest.fn(),
+    };
+
+    const relatedWorksStatsQueryReturn = {
+      data: {
+        relatedWorksByProjectStats: {
+          hasPublishedPlan: true,
+          pendingCount: 1,
+          acceptedCount: 10,
+        },
+      },
+      loading: false,
+      error: undefined,
+    };
+
+    const meQueryReturn = {
+      data: { me: { id: 'default-user-id' } },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === ProjectDocument) return projectQueryReturn;
+      if (document === RelatedWorksByProjectStatsDocument) return relatedWorksStatsQueryReturn;
+      if (document === MeDocument) return meQueryReturn;
+
+      return { data: null, loading: false, error: undefined } as any;
+    });
+
+    render(<ProjectOverviewPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('relatedWorks.pendingCount')).toBeInTheDocument();
+      expect(screen.getByText('relatedWorks.acceptedCount')).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'relatedWorks.view' })).toBeInTheDocument();
     });
   });
 

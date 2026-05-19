@@ -776,7 +776,8 @@
       "applyFilterSingular": "Aplicar filtro",
       "moreInfo": "Mais informações",
       "lessInfo": "Menos informações",
-      "createNewPlan": "Criar nova DMP"
+      "createNewPlan": "Criar nova DMP",
+      "view": "Ver"
     },
     "labels": {
       "required": "Obrigatório",

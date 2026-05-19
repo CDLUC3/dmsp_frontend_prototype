@@ -3625,19 +3625,25 @@ describe('PlanOverviewQuestionPageShared isAdmin/isReadOnly and feedback notific
 
   it('shows NotificationHeader when feedbackStatus is REQUESTED', async () => {
     const ORG_URI = 'https://ror.org/03yrm5c26';
+    const ORG_AFFILIATION_ID = 99;
 
-    // Ensure the plan's template owner URI matches the admin user's affiliation URI
+    // isOrgAdmin requires a PRIMARY collaborator whose affiliation.id matches me.affiliation.id
     const planWithRequested = {
       ...mockPlanData,
       plan: {
         ...mockPlanData.plan,
         feedbackStatus: { status: 'REQUESTED' },
-        versionedTemplate: {
-          ...mockPlanData.plan.versionedTemplate,
-          owner: {
-            ...mockPlanData.plan.versionedTemplate?.owner,
-            uri: ORG_URI,  // must match meAdmin's affiliation.uri
-          },
+        project: {
+          ...mockPlanData.plan.project,
+          collaborators: [
+            {
+              accessLevel: 'PRIMARY',
+              user: {
+                id: 1,
+                affiliation: { id: ORG_AFFILIATION_ID },
+              },
+            },
+          ],
         },
       },
     };
@@ -3646,7 +3652,11 @@ describe('PlanOverviewQuestionPageShared isAdmin/isReadOnly and feedback notific
       ...mockMeData,
       me: {
         ...mockMeData.me,
-        affiliation: { uri: ORG_URI },  // <-- must match plan owner uri
+        affiliation: {
+          ...mockMeData.me.affiliation,
+          id: ORG_AFFILIATION_ID,
+          uri: ORG_URI,
+        },
         role: UserRole.Admin,
       },
     };
@@ -3671,8 +3681,10 @@ describe('PlanOverviewQuestionPageShared isAdmin/isReadOnly and feedback notific
       render(<PlanOverviewQuestionPageShared config={config} />);
     });
 
-    expect(screen.getByText('feedbackNotification.title')).toBeInTheDocument();
-    expect(screen.getByText('feedbackNotification.description')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('feedbackNotification.title')).toBeInTheDocument();
+      expect(screen.getByText('feedbackNotification.description')).toBeInTheDocument();
+    });
   });
 
   it('disables form submit and hides Save button when isReadOnly is true', async () => {

@@ -617,11 +617,59 @@ describe('PlanOverviewSectionPage - BASE section with BASE questions or CUSTOM q
   });
 
   it('should show feedback notification when feedback is requested and plan is read only', async () => {
-    const feedbackRequestedMocks = withPlanOverride(mocks, {
+    const orgAdminMeMock = {
+      ...meMock,
+      role: 'ADMIN',
+      affiliation: {
+        ...meMock.affiliation,
+        id: 99,
+      },
+    };
+
+    const feedbackRequestedPlanMock = makePlanMock({
       readOnly: true,
       feedbackStatus: {
         status: 'REQUESTED',
       },
+      project: {
+        ...basePlanMock.project,
+        // Cast here because test fixtures infer a narrower collaborator user shape ({ id } only)
+        collaborators: [
+          {
+            accessLevel: 'PRIMARY',
+            user: {
+              id: orgAdminMeMock.id,
+              affiliation: { id: 99 },
+            },
+          },
+        ] as any,
+      },
+    });
+
+    const feedbackRequestedMocks = mocks.map((mock) => {
+      if (mock.request.query === PlanDocument) {
+        return {
+          ...mock,
+          result: {
+            data: {
+              plan: feedbackRequestedPlanMock,
+            },
+          },
+        };
+      }
+
+      if (mock.request.query === MeDocument) {
+        return {
+          ...mock,
+          result: {
+            data: {
+              me: orgAdminMeMock,
+            },
+          },
+        };
+      }
+
+      return mock;
     });
 
     render(

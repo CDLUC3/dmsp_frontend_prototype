@@ -223,8 +223,8 @@ const ProjectOverviewPage: React.FC = () => {
               heading={ProjectOverview("project")}
               headingId="project-title"
               linkHref={routePath("projects.project.info", { projectId }, { fromOverview: 'true' })}
-              linkText={ProjectOverview("edit")}
-              linkAriaLabel={ProjectOverview("editProject")}
+              linkText={isReadOnly ? Global("buttons.view") : ProjectOverview("edit")}
+              linkAriaLabel={isReadOnly ? ProjectOverview("viewProject") : ProjectOverview("editProject")}
             >
               <p>
                 <strong>{project.title}</strong>
@@ -243,8 +243,8 @@ const ProjectOverviewPage: React.FC = () => {
               heading={ProjectOverview("fundings")}
               headingId="fundings-title"
               linkHref={routePath("projects.fundings.index", { projectId })}
-              linkText={ProjectOverview("editFundingDetails")}
-              linkAriaLabel={ProjectOverview("editFundings")}
+              linkText={isReadOnly ? Global("buttons.view") : ProjectOverview("editFundingDetails")}
+              linkAriaLabel={isReadOnly ? ProjectOverview("viewFundingDetails") : ProjectOverview("editFundingDetails")}
             >
               <p>
                 <strong>{ProjectOverview("fundingCount", { count: project.fundings.length })}</strong>
@@ -271,8 +271,8 @@ const ProjectOverviewPage: React.FC = () => {
               heading={ProjectOverview("projectMembers")}
               headingId="members-title"
               linkHref={routePath("projects.members.index", { projectId })}
-              linkText={ProjectOverview("editProjectMembers")}
-              linkAriaLabel={ProjectOverview("editMembers")}
+              linkText={isReadOnly ? Global("buttons.view") : ProjectOverview("editProjectMembers")}
+              linkAriaLabel={isReadOnly ? ProjectOverview("viewProjectMembers") : ProjectOverview("editProjectMembers")}
             >
               <p>
                 <strong>{ProjectOverview("memberCount", { count: project.projectMembers.length })}</strong>
@@ -294,8 +294,8 @@ const ProjectOverviewPage: React.FC = () => {
               heading={ProjectOverview("relatedWorks.title")}
               headingId="related-works-title"
               linkHref={routePath("projects.related-works.index", { projectId })}
-              linkText={ProjectOverview("relatedWorks.edit")}
-              linkAriaLabel={ProjectOverview("relatedWorks.edit")}
+              linkText={isReadOnly ? Global("buttons.view") : ProjectOverview("relatedWorks.edit")}
+              linkAriaLabel={isReadOnly ? ProjectOverview("relatedWorks.view") : ProjectOverview("relatedWorks.edit")}
               includeLink={!!rwProjectStats?.hasPublishedPlan}
             >
               {!rwProjectStats?.hasPublishedPlan && <p>{ProjectOverview("relatedWorks.publish")}</p>}
@@ -482,7 +482,7 @@ const ProjectOverviewPage: React.FC = () => {
                   href={COLLABORATION_URL}
                   aria-label={Global("links.request")}
                 >
-                  {ProjectOverview("status.collaboration.link_text")}
+                  {isReadOnly ? Global("buttons.view") : ProjectOverview("status.collaboration.link_text")}
                 </Link>
               </div>
             </div>
