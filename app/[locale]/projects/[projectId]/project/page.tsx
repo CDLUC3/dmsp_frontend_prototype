@@ -424,7 +424,7 @@ const ProjectsProjectDetail = () => {
             )}
           </Form>
 
-          <div className="form-signpost my-8">
+          {!isReadOnly && (<div className="form-signpost my-8">
             <div className="form-signpost-inner">
               <div className="">
                 <p className="text-sm">
@@ -433,33 +433,18 @@ const ProjectsProjectDetail = () => {
               </div>
               <div className="form-signpost-button">
 
-                {!isReadOnly ? (
-                  <Button
-                    className="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800"
-                    data-testid="search-projects-button"
-                    onPress={() => router.push(PROJECT_SEARCH_REDIRECT_ROUTE)}
-                  >
-                    {ProjectDetail('buttons.searchProjects')}
-                  </Button>
-                ) : (
-                  <DialogTrigger>
-                    <Button
-                      className="disabled-button-look"
-                      type="button"
-                      aria-disabled={true}
-                    >
-                      {ProjectDetail('buttons.searchProjects')}
-                    </Button>
-                    <Popover placement="bottom" className="popover--inverse">
-                      <Dialog aria-label={ProjectDetail("messages.readOnlyLinkMessage")} className="popoverContent">
-                        {ProjectDetail("messages.readOnlyLinkMessage")}
-                      </Dialog>
-                    </Popover>
-                  </DialogTrigger>
-                )}
+                <Button
+                  className="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800"
+                  data-testid="search-projects-button"
+                  onPress={() => router.push(PROJECT_SEARCH_REDIRECT_ROUTE)}
+                >
+                  {ProjectDetail('buttons.searchProjects')}
+                </Button>
+
               </div>
             </div>
           </div>
+          )}
         </ContentContainer>
       </LayoutContainer >
     </>
