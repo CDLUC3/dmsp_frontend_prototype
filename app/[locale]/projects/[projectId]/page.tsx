@@ -1,13 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
-import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
+import {
+  Breadcrumb,
+  Breadcrumbs,
+  Button,
+  Dialog,
+  Popover,
+  DialogTrigger,
+  Link
+} from "react-aria-components";
 
 // GraphQL
 import { useQuery } from '@apollo/client/react';
 import {
+  MeDocument,
   PlanSearchResult,
   PlanSectionProgress,
   ProjectDocument,
@@ -63,6 +72,9 @@ const ProjectOverviewPage: React.FC = () => {
     plans: [],
     projectMembers: [],
   });
+  // Track whether the project should be in read-only mode based on the "readOnly" field 
+  // returned from the backend from ProjectDocument query
+  const [isReadOnly, setIsReadOnly] = useState<boolean>(false);
 
   // Localization keys
   const ProjectOverview = useTranslations("ProjectOverview");
@@ -76,6 +88,9 @@ const ProjectOverviewPage: React.FC = () => {
     variables: { projectId: Number(projectId) },
     notifyOnNetworkStatusChange: true,
   });
+
+  // Run me query to get user's info to determine if they are a collaborator with edit access
+  const { data: me } = useQuery(MeDocument);
 
   // Format date using next-intl date formatter
   const formatDate = (date: string) => {
@@ -119,6 +134,19 @@ const ProjectOverviewPage: React.FC = () => {
   });
   const rwProjectStats = relatedWorksByProjectStats?.relatedWorksByProjectStats;
 
+  // Project collaborators who have 'EDIT' access level will see the "Update" section card button text since they can
+  // edit the question
+  const isEditCollaborator = useMemo(() => {
+    const myId = me?.me?.id;
+    if (!myId || !data?.project?.collaborators) return false;
+
+    return data.project.collaborators.some(
+      (collaborator) =>
+        collaborator?.user?.id === myId &&
+        collaborator?.accessLevel === "EDIT"
+    );
+  }, [me?.me?.id, data?.project?.collaborators]);
+
   useEffect(() => {
     // When data from backend changes, set project data in state
     if (data && data.project) {
@@ -152,6 +180,7 @@ const ProjectOverviewPage: React.FC = () => {
               role: (member.memberRoles ?? []).map((role) => role.label),
             })) ?? [], // Provide a default empty array
       });
+      setIsReadOnly(data.project.readOnly ?? false);
     }
   }, [data]);
 
@@ -288,20 +317,54 @@ const ProjectOverviewPage: React.FC = () => {
                 role="group"
                 aria-label={ProjectOverview("planActions")}
               >
-                <Link
-                  href={`/projects/${projectId}/dmp/upload`}
-                  className="react-aria-Button react-aria-Button--secondary"
-                  aria-label={ProjectOverview("uploadPlan")}
-                >
-                  {ProjectOverview("upload")}
-                </Link>
-                <Link
-                  href={`/projects/${projectId}/dmp/create`}
-                  className="react-aria-Button react-aria-Button--primary"
-                  aria-label={ProjectOverview("createNewPlan")}
-                >
-                  {ProjectOverview("createNew")}
-                </Link>
+                {!isReadOnly ? (
+                  <Link
+                    href={`/projects/${projectId}/dmp/upload`}
+                    className="react-aria-Button react-aria-Button--secondary"
+                    aria-label={ProjectOverview("uploadPlan")}
+                  >
+                    {ProjectOverview("upload")}
+                  </Link>
+                ) : (
+                  <DialogTrigger>
+                    <Button
+                      className="disabled-button-look"
+                      type="button"
+                      aria-disabled={true}
+                    >
+                      {ProjectOverview("upload")}
+                    </Button>
+                    <Popover placement="bottom" className="popover--inverse">
+                      <Dialog aria-label={ProjectOverview("messages.readOnlyLinkMessage")} className="popoverContent">
+                        {ProjectOverview("messages.readOnlyLinkMessage")}
+                      </Dialog>
+                    </Popover>
+                  </DialogTrigger>
+                )}
+                {!isReadOnly ? (
+                  <Link
+                    href={`/projects/${projectId}/dmp/create`}
+                    className="react-aria-Button react-aria-Button--primary"
+                    aria-label={ProjectOverview("createNewPlan")}
+                  >
+                    {ProjectOverview("createNew")}
+                  </Link>
+                ) : (
+                  <DialogTrigger>
+                    <Button
+                      className="disabled-button-look"
+                      type="button"
+                      aria-disabled={true}
+                    >
+                      {ProjectOverview("createNew")}
+                    </Button>
+                    <Popover placement="bottom" className="popover--inverse">
+                      <Dialog aria-label={ProjectOverview("messages.readOnlyLinkMessage")} className="popoverContent">
+                        {ProjectOverview("messages.readOnlyLinkMessage")}
+                      </Dialog>
+                    </Popover>
+                  </DialogTrigger>
+                )}
               </div>
             </div>
             {/** Plans */}
@@ -311,6 +374,13 @@ const ProjectOverviewPage: React.FC = () => {
               const modifiedDate = formatDate(plan?.modified ?? "");
               const createdDate = formatDate(plan?.created ?? "");
               const sortedSections = sortSections(plan.versionedSections ?? []);
+
+              const canEditSections = !isReadOnly || isEditCollaborator;
+              // Determine the action label for the plan card
+              const planActionLabel = !canEditSections
+                ? ProjectOverview("view")
+                : ProjectOverview("update")
+
               return (
                 <Card
                   className="plan-item"
@@ -385,7 +455,7 @@ const ProjectOverviewPage: React.FC = () => {
                         className="react-aria-Button react-aria-Button--primary"
                         aria-label={ProjectOverview("updatePlan")}
                       >
-                        {ProjectOverview("update")}
+                        {planActionLabel}
                       </TransitionLink>
                     </div>
                   </div>

@@ -74,6 +74,13 @@ query Project($projectId: Int!) {
       modified
       created
     }
+    readOnly
+    collaborators {
+      user {
+        id
+      }
+      accessLevel
+    }
   }
 }
 

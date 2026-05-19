@@ -46,10 +46,12 @@
     "sharePlan": "Share plan with others",
     "update": "Update plan",
     "updatePlan": "Update this plan",
+    "view": "View plan",
     "dateRange": "{startDate} to {endDate}",
     "created": "Created",
     "messages": {
-      "errorGettingProject": "Error getting project details"
+      "errorGettingProject": "Error getting project details",
+      "readOnlyLinkMessage": "Only project collaborators can edit this project."
     },
     "status": {
       "collaboration": {
