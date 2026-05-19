@@ -53,7 +53,8 @@
     "dateRange": "{startDate} até {endDate}",
     "created": "Criado",
     "messages": {
-      "errorGettingProject": "Erro ao obter detalhes do projeto"
+      "errorGettingProject": "Erro ao obter detalhes do projeto",
+      "readOnlyLinkMessage": "Apenas colaboradores do projeto podem editar este projeto."
     },
     "status": {
       "collaboration": {

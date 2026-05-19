@@ -1,4 +1,6 @@
 ## Added
+- Added a new `button-disabled` style to shared `_button.scss` [#244]
+- Added `readOnly` and `collaborators` fields to `Project` query schema [#244]
 - Added new shared styles `popoverContent`, `popover-inverse`, and `link-disabled` [#225]
 - Added use of `TransitionLink` to some of the buttons in the Plan builder flow, so that it shows a loading transition when the user clicks on links [#225]
 - Added a `SaveCollaboratorAccessModal` to display to user when saving a change to a collaborator's access level [#228]
@@ -7,6 +9,7 @@
 
 ## Updated
 - Updated `ProjectOverview` page with `readOnly` functionality [#244]
+- Updated `GuidancePanel` with `linkDisabled` prop in order to hide the `Customize guidance tabs` when in `readOnly` mode [#244]
 - Updated `OverviewSection` component to use `disabled` and `hoverMessage` props so that those links can be disabled with a popover message [#225]
 - Updated `PlanOverviewPage`, `PlanOverviewSectionPageShared`, and `PlanOverviewQuestionPageShared` components to display a `readOnly` mode. Added popover messages to disabled links [#225]
 - Updated `FeedbackOptions` page to properly validate and message user when submitted emails are not valid, and added the use of a save confirmation modal [#228]
