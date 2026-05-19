@@ -171,7 +171,8 @@
       },
       "success": {
         "projectUpdated": "Successfully updated project details"
-      }
+      },
+      "readOnlyLinkMessage": "Only project collaborators with Co-Owner or Primary access levels can edit this project."
     }
   },
   "ProjectsProjectFundingEdit": {
@@ -249,7 +250,8 @@
       "errors": {
         "errorGettingMembers": "Error getting members"
       },
-      "noMembers": "No members found"
+      "noMembers": "No members found",
+      "readOnlyLinkMessage": "Only project collaborators with Co-Owner or Primary access levels can edit this project."
     }
   },
   "ProjectsProjectMembersEdit": {
@@ -449,7 +451,7 @@
     "links": {
       "learnMoreAboutCreditTaxonomy": "Learn more about each role"
     },
-    "memberRolesDescription": "<p>Select the role(s) that should be displayed within citations for this project member with the DMP.</p><p>We use an ANSI/NISO standard called CRediT, a community-owned 14 role taxonomy that can be used to describe the key types of contributions typically made to the production and publication of research output such as research articles. </p><p><a href=\"https://credit.niso.org/\" target=\"_blank\">Learn more about CRediT Taxonomy ↗</a></p>"
+    "memberRolesDescription": "<p>Select the role(s) that should be displayed within citations for this project member with the DMP.</p><p>We use an ANSI/NISO standard called CRediT, a community-owned 14 role taxonomy that can be used to describe the key types of contributions typically made to the production and publication of research output such as research articles.</p><p><link>Learn more about CRediT Taxonomy ↗</link></p>"
   },
   "ProjectsProjectMemberCreate": {
     "title": "Add a new project member",
