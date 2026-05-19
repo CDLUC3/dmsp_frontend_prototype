@@ -196,8 +196,15 @@ const setupMocks = (meData = null) => {
 
 const adminMe = {
   me: {
-    affiliation: { uri: 'mock-org-id' },
+    affiliation: { id: 100, uri: 'mock-org-id' },
     role: UserRole.Admin,
+  },
+};
+
+const nonAdminMe = {
+  me: {
+    affiliation: { id: 100, uri: 'mock-org-id' },
+    role: UserRole.Researcher,
   },
 };
 
@@ -228,12 +235,20 @@ describe('PlanOverviewPage', () => {
   });
 
 
-  it('should render NotificationHeader when planFeedbackStatus.status is REQUESTED', async () => {
+  it('should render NotificationHeader when planFeedbackStatus.status is REQUESTED and user is an Org Admin', async () => {
     const planQueryReturn = {
       data: {
         plan: {
           ...mockPlanData.plan,
           feedbackStatus: { status: 'REQUESTED' },
+          project: {
+            collaborators: [
+              {
+                accessLevel: 'PRIMARY',
+                user: { id: 1, affiliation: { id: 100 } },
+              },
+            ],
+          },
           planCreator: { ...mockPlanData.plan?.planCreator, affiliation: { uri: 'mock-org-id' } },
         },
       },
@@ -266,12 +281,66 @@ describe('PlanOverviewPage', () => {
     });
   });
 
+  it('should NOT render NotificationHeader when planFeedbackStatus.status is REQUESTED and but user is NOT an Org Admin', async () => {
+    const planQueryReturn = {
+      data: {
+        plan: {
+          ...mockPlanData.plan,
+          feedbackStatus: { status: 'REQUESTED' },
+          project: {
+            collaborators: [
+              {
+                accessLevel: 'PRIMARY',
+                user: { id: 1, affiliation: { id: 100 } },
+              },
+            ],
+          },
+          planCreator: { ...mockPlanData.plan?.planCreator, affiliation: { uri: 'mock-org-id' } },
+        },
+      },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    };
+    const feedbackQueryReturn = {
+      data: { planFeedbackStatus: { status: 'REQUESTED', id: 123 } },
+      loading: false,
+      error: undefined,
+    };
+    const meQueryReturn = {
+      data: nonAdminMe,
+      loading: false,
+      error: null,
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === PlanDocument) return planQueryReturn;
+      if (document === PlanFeedbackStatusDocument) return feedbackQueryReturn;
+      if (document === MeDocument) return meQueryReturn;
+      return { data: null, loading: false, error: undefined } as any;
+    });
+
+    render(<PlanOverviewPage />);
+    await waitFor(() => {
+      expect(screen.queryByText('feedbackNotification.title')).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'feedbackNotification.markAsDone' })).not.toBeInTheDocument();
+    });
+  });
+
   it('should not render NotificationHeader when plan feedback status is not REQUESTED', async () => {
     const planQueryReturn = {
       data: {
         plan: {
           ...mockPlanData.plan,
           feedbackStatus: { status: 'NONE' },
+          project: {
+            collaborators: [
+              {
+                accessLevel: 'PRIMARY',
+                user: { id: 1, affiliation: { id: 100 } },
+              },
+            ],
+          },
         },
       },
       loading: false,
@@ -306,6 +375,14 @@ describe('PlanOverviewPage', () => {
         plan: {
           ...mockPlanData.plan,
           feedbackStatus: { status: 'REQUESTED' },
+          project: {
+            collaborators: [
+              {
+                accessLevel: 'PRIMARY',
+                user: { id: 1, affiliation: { id: 100 } },
+              },
+            ],
+          },
           planCreator: { ...mockPlanData.plan?.planCreator, affiliation: { uri: 'mock-org-id' } },
         },
       },
@@ -461,7 +538,7 @@ describe('PlanOverviewPage', () => {
     expect(within(sidebar).getByRole('link', { name: 'status.download.title' })).toBeInTheDocument();
   });
 
-  it.only('should function as expected if plan data is missing id, dmpId, registered, title, and status', async () => {
+  it('should function as expected if plan data is missing id, dmpId, registered, title, and status', async () => {
     const updatedMockPlanData = {
       ...mockPlanData.plan,
       id: null,

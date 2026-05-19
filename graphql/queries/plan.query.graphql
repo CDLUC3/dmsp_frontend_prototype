@@ -39,6 +39,10 @@ query Plan($planId: Int!) {
       collaborators {
         user {
           id
+          affiliation {
+            id
+            uri
+          }
         }
         accessLevel
       }

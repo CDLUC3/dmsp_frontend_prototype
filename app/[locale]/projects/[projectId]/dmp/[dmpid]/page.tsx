@@ -268,6 +268,28 @@ const PlanOverviewPage: React.FC = () => {
     );
   }, [me?.me?.id, data?.plan?.project?.collaborators]);
 
+  // Determine if user is an Org Admin that can see feedback request notifications
+  const isOrgAdmin = useMemo(() => {
+    const myRole = me?.me?.role;
+    const myAffiliationId = me?.me?.affiliation?.id;
+
+    // Must have role and affiliation to proceed
+    if (!myRole || !myAffiliationId) return false;
+
+    // Must be ADMIN or SUPERADMIN
+    if (myRole !== "ADMIN" && myRole !== "SUPERADMIN") return false;
+
+    // Find the PRIMARY collaborator on the plan's project
+    const primaryCollaborator = data?.plan?.project?.collaborators?.find(
+      (collaborator) => collaborator?.accessLevel === "PRIMARY"
+    );
+
+    if (!primaryCollaborator) return false;
+
+    // Admin's affiliation must match the primary collaborator's affiliation
+    return primaryCollaborator.user?.affiliation?.id === myAffiliationId;
+  }, [me?.me?.role, me?.me?.affiliation?.id, data?.plan?.project?.collaborators]);
+
   const { FUNDINGS_URL, MEMBERS_URL, DOWNLOAD_URL, FEEDBACK_URL, CHANGE_PRIMARY_CONTACT_URL, RELATED_WORKS_URL } = urls;
 
   // Format the publish date - no memoization needed since date doesn't change after load
@@ -662,7 +684,7 @@ const PlanOverviewPage: React.FC = () => {
       />
 
       <LayoutWithPanel>
-        {isFeedbackRequested && (
+        {isFeedbackRequested && isOrgAdmin && (
           <NotificationHeader
             title={t("feedbackNotification.title")}
             actionButtonText={t("feedbackNotification.markAsDone")}
