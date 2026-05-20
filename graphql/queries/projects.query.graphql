@@ -38,11 +38,7 @@ query Project($projectId: Int!) {
         name
         displayName
         searchName
-        uri
       }
-      funderOpportunityNumber
-      funderProjectNumber
-      status
     }
     members {
       givenName
@@ -54,11 +50,6 @@ query Project($projectId: Int!) {
         uri
       }
       email
-      id
-      affiliation {
-        displayName
-      }
-      orcid
     }
     researchDomain {
       id
@@ -87,11 +78,8 @@ query Project($projectId: Int!) {
     collaborators {
       user {
         id
-        givenName
-        surName
       }
       accessLevel
-      id
     }
   }
 }

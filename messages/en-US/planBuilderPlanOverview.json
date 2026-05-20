@@ -248,8 +248,7 @@
     "messages": {
       "errors": {
         "funderNumberNotFound": "Funder's project number not found."
-      },
-      "readOnlyLinkMessage": "Only plan collaborators with Co-Owner or Primary access levels can edit this project."
+      }
     }
   },
   "ProjectsProjectPlanFeedback": {

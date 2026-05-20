@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@apollo/client/react';
@@ -12,7 +12,7 @@ import {
 } from "react-aria-components";
 
 // GraphQL
-import { ProjectDocument } from '@/generated/graphql';
+import { ProjectFundingsDocument } from '@/generated/graphql';
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -37,11 +37,7 @@ const ProjectsProjectFunding = () => {
   const t = useTranslations('ProjectsProjectFunding');
   const Global = useTranslations('Global');
 
-  // Track whether the project should be in read-only mode based on the "readOnly" field 
-  // returned from the backend from ProjectDocument query
-  const [isReadOnly, setIsReadOnly] = useState<boolean>(false);
-
-  const { data: projectData } = useQuery(ProjectDocument, {
+  const { data: funders } = useQuery(ProjectFundingsDocument, {
     variables: {
       projectId: Number(projectId),
     },
@@ -66,13 +62,6 @@ const ProjectsProjectFunding = () => {
     }
   }
 
-  useEffect(() => {
-    // Update project values from data results
-    if (projectData?.project?.fundings && projectData.project.fundings.length > 0) {
-      setIsReadOnly(projectData.project?.readOnly ?? false);
-    }
-  }, [projectData])
-
   return (
     <>
       <PageHeader
@@ -89,15 +78,13 @@ const ProjectsProjectFunding = () => {
         }
         actions={
           <>
-            {!isReadOnly && (
-              <Button
-                onPress={handleAddFunding}
-                className="secondary"
-                aria-label="Add funding"
-              >
-                {t('buttons.addFundingSource')}
-              </Button>
-            )}
+            <Button
+              onPress={handleAddFunding}
+              className="secondary"
+              aria-label="Add funding"
+            >
+              {t('buttons.addFundingSource')}
+            </Button>
           </>
         }
         className="page-project-fundings"
@@ -105,7 +92,7 @@ const ProjectsProjectFunding = () => {
       <LayoutContainer>
         <ContentContainer>
           <section aria-label="Current fundings">
-            {projectData?.project?.fundings && projectData.project.fundings.map((funder, index) => (
+            {funders?.projectFundings && funders.projectFundings.map((funder, index) => (
               <div
                 key={index}
                 className={styles.fundingResultsList}
@@ -116,16 +103,13 @@ const ProjectsProjectFunding = () => {
                   aria-label="{funder?.affiliation?.displayName}"
                 >
                   <p className="funder-name">{funder?.affiliation?.displayName}</p>
-
-                  {!isReadOnly && (
-                    <Button
-                      onPress={() => handleEditFunding(funder?.id)}
-                      className="secondary"
-                      aria-label={`Edit ${funder?.affiliation?.displayName} details`}
-                    >
-                      {Global('buttons.edit')}
-                    </Button>
-                  )}
+                  <Button
+                    onPress={() => handleEditFunding(funder?.id)}
+                    className="secondary"
+                    aria-label={`Edit ${funder?.affiliation?.displayName} details`}
+                  >
+                    {Global('buttons.edit')}
+                  </Button>
                 </div>
               </div>
             ))}

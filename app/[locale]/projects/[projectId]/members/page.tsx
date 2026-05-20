@@ -3,16 +3,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import {
-  Breadcrumb,
-  Breadcrumbs,
-  Button,
-  Link,
-} from "react-aria-components";
+import { Breadcrumb, Breadcrumbs, Button, Link } from "react-aria-components";
 
 // GraphQL
 import { useQuery } from '@apollo/client/react';
-import { ProjectDocument } from '@/generated/graphql';
+import { ProjectMembersDocument } from '@/generated/graphql';
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -46,12 +41,9 @@ const ProjectsProjectMembers = () => {
 
   const [projectMembers, setProjectMembers] = useState<ProjectMemberInterface[]>();
   const [errors, setErrors] = useState<string[]>([]);
-  // Track whether the project should be in read-only mode based on the "readOnly" field 
-  // returned from the backend from ProjectDocument query
-  const [isReadOnly, setIsReadOnly] = useState<boolean>(false);
 
   // Get project members using projectid
-  const { data, loading, error: queryError } = useQuery(ProjectDocument,
+  const { data, loading, error: queryError } = useQuery(ProjectMembersDocument,
     {
       variables: { projectId: Number(projectId) },
       fetchPolicy: 'network-only',// So that when members are deleted the page refreshes
@@ -75,8 +67,8 @@ const ProjectsProjectMembers = () => {
 
   useEffect(() => {
     // When data from backend changes, set project members data in state
-    if (data && data.project && data.project.members) {
-      const projectMemberData = data.project.members.map((member) => ({
+    if (data && data.projectMembers) {
+      const projectMemberData = data.projectMembers.map((member) => ({
         id: member?.id ?? null,
         fullName: `${member?.givenName} ${member?.surName}`,
         affiliation: member?.affiliation?.displayName ?? '',
@@ -84,7 +76,6 @@ const ProjectsProjectMembers = () => {
         role: (member?.memberRoles && member.memberRoles.length > 0) ? member?.memberRoles?.map((role) => role.label).join(', ') : '',
       }))
       setProjectMembers(projectMemberData);
-      setIsReadOnly(data.project.readOnly ?? false);
     }
   }, [data]);
 
@@ -116,14 +107,12 @@ const ProjectsProjectMembers = () => {
         }
         actions={
           <>
-            {!isReadOnly && (
-              <Button
-                onPress={handleAddMember}
-                className="secondary"
-              >
-                {ProjectMembers('buttons.addMembers')}
-              </Button>
-            )}
+            <Button
+              onPress={handleAddMember}
+              className="secondary"
+            >
+              {ProjectMembers('buttons.addMembers')}
+            </Button>
           </>
         }
         className="page-project-members"
@@ -171,15 +160,13 @@ const ProjectsProjectMembers = () => {
                       <p className={styles.role}>{member.role}</p>
                     </div>
                     <div className={styles.memberActions}>
-                      {!isReadOnly && (
-                        <Button
-                          onPress={() => handleEdit(member.id)}
-                          className="primary"
-                          aria-label={`Edit ${member.fullName}'s details`}
-                        >
-                          {Global('buttons.edit')}
-                        </Button>
-                      )}
+                      <Button
+                        onPress={() => handleEdit(member.id)}
+                        className="primary"
+                        aria-label={`Edit ${member.fullName}'s details`}
+                      >
+                        {Global('buttons.edit')}
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -187,27 +174,24 @@ const ProjectsProjectMembers = () => {
             )}
           </section>
 
-          {!isReadOnly && (
-            <section
-              aria-labelledby="collaborators-heading"
-              className={styles.collaboratorAccess}
+          <section
+            aria-labelledby="collaborators-heading"
+            className={styles.collaboratorAccess}
+          >
+            <h2 id="collaborators-heading">{ProjectMembers('headings.h2AllowCollaborators')}</h2>
+            <p>
+              {ProjectMembers.rich('para.para1AllowCollaborators', {
+                shareWithPeople: (chunks) => <Link href={`/projects/${projectId}/share`}>{chunks}</Link>
+              })}
+            </p>
+            <Link
+              href={collaborationRoute}
+              className="button-link secondary"
+              aria-label={ProjectMembers('buttons.shareWithPeople')}
             >
-              <h2 id="collaborators-heading">{ProjectMembers('headings.h2AllowCollaborators')}</h2>
-              <p>
-                {ProjectMembers.rich('para.para1AllowCollaborators', {
-                  shareWithPeople: (chunks) => <Link href={`/projects/${projectId}/share`}>{chunks}</Link>
-                })}
-              </p>
-
-              <Link
-                href={collaborationRoute}
-                className="button-link secondary"
-                aria-label={ProjectMembers('buttons.shareWithPeople')}
-              >
-                {ProjectMembers('buttons.shareWithPeople')}
-              </Link>
-            </section>
-          )}
+              {ProjectMembers('buttons.shareWithPeople')}
+            </Link>
+          </section>
         </ContentContainer>
       </LayoutContainer >
     </>

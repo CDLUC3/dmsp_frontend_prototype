@@ -248,8 +248,7 @@
     "messages": {
       "errors": {
         "funderNumberNotFound": "Número do projeto fino não encontrado."
-      },
-      "readOnlyLinkMessage": "Apenas colaboradores do plano com níveis de acesso de Coproprietário ou Primário podem editar este projeto."
+      }
     }
   },
   "ProjectsProjectPlanFeedback": {
