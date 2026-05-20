@@ -8,10 +8,7 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
-  Dialog,
-  DialogTrigger,
   Link,
-  Popover,
 } from "react-aria-components";
 
 // GraphQL

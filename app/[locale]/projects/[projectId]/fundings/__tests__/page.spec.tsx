@@ -33,7 +33,7 @@ const mocks = [
     result: {
       data: {
         project: {
-          "fundings": [
+          fundings: [
             {
               id: 1,
               affiliation: {
@@ -59,7 +59,7 @@ const mocks = [
               }
             }
           ],
-          "readOnly": false,
+          readOnly: false,
         }
       },
     },
@@ -77,7 +77,7 @@ const mocksWithReadOnly = [
     result: {
       data: {
         project: {
-          "fundings": [
+          fundings: [
             {
               id: 1,
               affiliation: {
@@ -103,7 +103,7 @@ const mocksWithReadOnly = [
               }
             }
           ],
-          "readOnly": true,
+          readOnly: true,
         }
       },
     },

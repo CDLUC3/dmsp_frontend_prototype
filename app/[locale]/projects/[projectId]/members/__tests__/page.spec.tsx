@@ -1,8 +1,6 @@
-import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery } from '@apollo/client/react';
-import { ProjectDocument } from '@/generated/graphql';
 import ProjectsProjectMembers from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
