@@ -9,8 +9,11 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
+  Dialog,
+  DialogTrigger,
   Form,
   Link,
+  Popover,
   Radio,
   Text
 } from "react-aria-components";
@@ -82,6 +85,9 @@ const ProjectsProjectDetail = () => {
     projectAbstract: '',
   });
   const [errors, setErrors] = useState<string[]>([]);
+  // Track whether the project should be in read-only mode based on the "readOnly" field 
+  // returned from the backend from ProjectDocument query
+  const [isReadOnly, setIsReadOnly] = useState<boolean>(false);
 
   // Localization keys
   const ProjectOverview = useTranslations('ProjectOverview');
@@ -273,6 +279,7 @@ const ProjectsProjectDetail = () => {
         parentResearchDomainId: project.researchDomain?.parentResearchDomainId ? project.researchDomain.parentResearchDomainId : '',
         isTestProject: project.isTestProject ? project.isTestProject.toString() : 'false'
       })
+      setIsReadOnly(project.readOnly ?? false);
     }
   }, [data])
 
@@ -319,6 +326,7 @@ const ProjectsProjectDetail = () => {
               onChange={(e) => updateProjectContent('projectName', e.target.value)}
               isInvalid={(!projectData.projectName || !!fieldErrors.projectName)}
               errorMessage={fieldErrors.projectName.length > 0 ? fieldErrors.projectName : ProjectDetail('messages.errors.projectName')}
+              disabled={isReadOnly}
             />
 
             <FormTextArea
@@ -330,6 +338,7 @@ const ProjectsProjectDetail = () => {
               onChange={(value) => updateProjectContent('projectAbstract', value)}
               isInvalid={!!fieldErrors.projectAbstract}
               errorMessage={fieldErrors.projectAbstract.length > 0 ? fieldErrors.projectAbstract : ProjectDetail('messages.errors.projectAbstract')}
+              disabled={isReadOnly}
             />
 
             <div className="input-range-group">
@@ -341,6 +350,7 @@ const ProjectsProjectDetail = () => {
                   updateProjectContent('startDate', newDate);
                 }}
                 label={Global('labels.startDate')}
+                isDisabled={isReadOnly}
               />
               <DateComponent
                 name="endDate"
@@ -350,10 +360,15 @@ const ProjectsProjectDetail = () => {
                   updateProjectContent('endDate', newDate);
                 }}
                 label={Global('labels.endDate')}
+                isDisabled={isReadOnly}
               />
             </div>
 
-            <ResearchDomainCascadingDropdown projectData={projectData} setProjectData={setProjectData} />
+            <ResearchDomainCascadingDropdown
+              projectData={projectData}
+              setProjectData={setProjectData}
+              isDisabled={isReadOnly}
+            />
 
             <div className="project-type-section">
 
@@ -362,6 +377,7 @@ const ProjectsProjectDetail = () => {
                 value={projectData.isTestProject.toString()}
                 radioGroupLabel={ProjectDetail('labels.projectType')}
                 onChange={handleRadioChange}
+                isDisabled={isReadOnly}
               >
                 <div>
                   <Radio value="true">{ProjectDetail('labels.mockProject')}</Radio>
@@ -383,10 +399,32 @@ const ProjectsProjectDetail = () => {
               </RadioGroupComponent>
             </div>
 
-            <Button type="submit" className="submit-button">{Global('buttons.save')}</Button>
+            {!isReadOnly ? (
+              <Button
+                type="submit"
+                className="submit-button"
+              >
+                {Global('buttons.save')}
+              </Button>
+            ) : (
+              <DialogTrigger>
+                <Button
+                  className="disabled-button-look"
+                  type="button"
+                  aria-disabled={true}
+                >
+                  {Global('buttons.save')}
+                </Button>
+                <Popover placement="bottom" className="popover--inverse">
+                  <Dialog aria-label={ProjectDetail("messages.readOnlyLinkMessage")} className="popoverContent">
+                    {ProjectDetail("messages.readOnlyLinkMessage")}
+                  </Dialog>
+                </Popover>
+              </DialogTrigger>
+            )}
           </Form>
 
-          <div className="form-signpost my-8">
+          {!isReadOnly && (<div className="form-signpost my-8">
             <div className="form-signpost-inner">
               <div className="">
                 <p className="text-sm">
@@ -394,6 +432,7 @@ const ProjectsProjectDetail = () => {
                 </p>
               </div>
               <div className="form-signpost-button">
+
                 <Button
                   className="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800"
                   data-testid="search-projects-button"
@@ -401,9 +440,11 @@ const ProjectsProjectDetail = () => {
                 >
                   {ProjectDetail('buttons.searchProjects')}
                 </Button>
+
               </div>
             </div>
           </div>
+          )}
         </ContentContainer>
       </LayoutContainer >
     </>
