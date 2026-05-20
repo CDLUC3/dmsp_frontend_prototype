@@ -13,16 +13,19 @@
     "grantId": "ID do Financiamento",
     "edit": "Alterar",
     "editProject": "Editar Detalhes do Projeto",
+    "viewProject": "Ver detalhes do projeto",
     "fundings": "Fontes de financiamento",
     "fundingCount": "{count, plural, =0 {0 fontes de financiamento} one {1 fonte de financiamento} other {{count} fontes de financiamento}}",
     "fundingInfo": "{name} ({id})",
     "editFundings": "Editar detalhes do financiamento",
     "editFundingDetails": "Editar detalhes do financiamento",
+    "viewFundingDetails": "Ver detalhes do financiamento",
     "projectMembers": "Membros de projeto",
     "memberCount": "{count, plural, =0 {0 membros da equipe} one {1 membro da equipe} other {{count} membros da equipe}}",
     "memberInfo": "{name} ({role})",
     "editMembers": "Editar Detalhes do Projeto",
     "editProjectMembers": "Editar Detalhes do Projeto",
+    "viewProjectMembers": "Ver membros do projeto",
     "outputCount": "{count, plural, =0 {0 outputs} one {1 output} other {{count} outputs}}",
     "editOutputs": "Editar resultados de pesquisa",
     "editResearchOutputs": "Editar resultados de pesquisa",
@@ -46,10 +49,12 @@
     "sharePlan": "Compartilhar plano com os outros",
     "update": "Atualizar plano",
     "updatePlan": "Atualizar este plano",
+    "view": "Ver plano",
     "dateRange": "{startDate} até {endDate}",
     "created": "Criado",
     "messages": {
-      "errorGettingProject": "Erro ao obter detalhes do projeto"
+      "errorGettingProject": "Erro ao obter detalhes do projeto",
+      "readOnlyLinkMessage": "Apenas colaboradores do projeto podem editar este projeto."
     },
     "status": {
       "collaboration": {
@@ -68,7 +73,8 @@
       "pendingCount": "{count} pending outputs",
       "acceptedCount": "{count} accepted outputs",
       "edit": "Adjust for this project",
-      "publish": "Publish a plan to start adding published outputs to your project"
+      "publish": "Publish a plan to start adding published outputs to your project",
+      "view": "Ver trabalhos relacionados a este projeto"
     }
   },
   "ProjectsListPage": {

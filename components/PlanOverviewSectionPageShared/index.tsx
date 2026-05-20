@@ -427,6 +427,7 @@ export const PlanOverviewSectionPageShared: React.FC<{ config: SectionPageConfig
               onAddOrganization={addGuidanceOrganization}
               onRemoveOrganization={removeGuidanceOrganization}
               onClearError={clearError}
+              linkDisabled={isReadOnly || !isEditCollaborator}
             />
           </div>
         </SidebarPanel>
