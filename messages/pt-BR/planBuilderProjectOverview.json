@@ -171,7 +171,8 @@
       },
       "success": {
         "projectUpdated": "Detalhes do projeto atualizados com sucesso"
-      }
+      },
+      "readOnlyLinkMessage": "Apenas colaboradores do projeto com níveis de acesso de Coproprietário ou Primário podem editar este projeto."
     }
   },
   "ProjectsProjectFundingEdit": {
@@ -249,7 +250,8 @@
       "errors": {
         "errorGettingMembers": "Erro ao obter modelos"
       },
-      "noMembers": "Nenhum membro encontrado"
+      "noMembers": "Nenhum membro encontrado",
+      "readOnlyLinkMessage": "Apenas colaboradores do projeto com níveis de acesso de Coproprietário ou Primário podem editar este projeto."
     }
   },
   "ProjectsProjectMembersEdit": {
