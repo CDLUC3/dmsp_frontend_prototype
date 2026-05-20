@@ -290,18 +290,20 @@ const ProjectOverviewPage: React.FC = () => {
               </p>
             </OverviewSection>
 
-            <OverviewSection
-              heading={ProjectOverview("relatedWorks.title")}
-              headingId="related-works-title"
-              linkHref={routePath("projects.related-works.index", { projectId })}
-              linkText={isReadOnly ? Global("buttons.view") : ProjectOverview("relatedWorks.edit")}
-              linkAriaLabel={isReadOnly ? ProjectOverview("relatedWorks.view") : ProjectOverview("relatedWorks.edit")}
-              includeLink={!!rwProjectStats?.hasPublishedPlan}
-            >
-              {!rwProjectStats?.hasPublishedPlan && <p>{ProjectOverview("relatedWorks.publish")}</p>}
-              {rwProjectStats?.hasPublishedPlan && rwProjectStats?.pendingCount != null && <p>{ProjectOverview("relatedWorks.pendingCount", { count: rwProjectStats?.pendingCount })}</p>}
-              {rwProjectStats?.hasPublishedPlan && rwProjectStats?.acceptedCount != null && <p>{ProjectOverview("relatedWorks.acceptedCount", { count: rwProjectStats?.acceptedCount })}</p>}
-            </OverviewSection>
+            {!isReadOnly && (
+              <OverviewSection
+                heading={ProjectOverview("relatedWorks.title")}
+                headingId="related-works-title"
+                linkHref={routePath("projects.related-works.index", { projectId })}
+                linkText={isReadOnly ? Global("buttons.view") : ProjectOverview("relatedWorks.edit")}
+                linkAriaLabel={isReadOnly ? ProjectOverview("relatedWorks.view") : ProjectOverview("relatedWorks.edit")}
+                includeLink={!!rwProjectStats?.hasPublishedPlan}
+              >
+                {!rwProjectStats?.hasPublishedPlan && <p>{ProjectOverview("relatedWorks.publish")}</p>}
+                {rwProjectStats?.hasPublishedPlan && rwProjectStats?.pendingCount != null && <p>{ProjectOverview("relatedWorks.pendingCount", { count: rwProjectStats?.pendingCount })}</p>}
+                {rwProjectStats?.hasPublishedPlan && rwProjectStats?.acceptedCount != null && <p>{ProjectOverview("relatedWorks.acceptedCount", { count: rwProjectStats?.acceptedCount })}</p>}
+              </OverviewSection>
+            )}
           </div>
 
           <section

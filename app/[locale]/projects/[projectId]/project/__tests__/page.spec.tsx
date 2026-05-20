@@ -36,6 +36,20 @@ const mockUseQuery = jest.mocked(useQuery);
 const mockUseMutation = jest.mocked(useMutation);
 const mockUseLazyQuery = jest.mocked(useLazyQuery);
 
+const stableSearchParams = {
+  get: (key: string) => {
+    const params: Record<string, string> = { fromOverview: 'true' };
+    return params[key] || null;
+  },
+  getAll: () => [],
+  has: (key: string) => key in { fromOverview: 'true' },
+  keys() { },
+  values() { },
+  entries() { },
+  forEach() { },
+  toString() { return ''; },
+} as unknown as ReturnType<typeof useSearchParams>;
+
 const setupMocks = () => {
   // Create stable references OUTSIDE mockImplementation
   const stableProjectQueryReturn = {
@@ -151,21 +165,7 @@ describe('ProjectsProjectDetail', () => {
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
 
     // Render with text question type
-    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
-      return {
-        get: (key: string) => {
-          const params: Record<string, string> = { fromOverview: 'true' };
-          return params[key] || null;
-        },
-        getAll: () => [],
-        has: (key: string) => key in { fromOverview: 'true' },
-        keys() { },
-        values() { },
-        entries() { },
-        forEach() { },
-        toString() { return ''; },
-      } as unknown as ReturnType<typeof useSearchParams>;
-    });
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockReturnValue(stableSearchParams);
 
   });
 
@@ -373,5 +373,110 @@ describe('ProjectsProjectDetail', () => {
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
+  });
+});
+
+describe('when isReadOnly is true', () => {
+  let mockRouter;
+  const mockUseParams = useParams as jest.Mock;
+  beforeEach(() => {
+    setupMocks();
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+    mockScrollTo();
+    mockUseParams.mockReturnValue({ projectId: '1' });
+
+    mockRouter = { push: jest.fn() };
+    (useRouter as jest.Mock).mockReturnValue(mockRouter);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockReturnValue(stableSearchParams);
+    const stableReadOnlyProjectQueryReturn = {
+      data: {
+        project: {
+          title: 'Test Project',
+          abstractText: 'Test Abstract',
+          startDate: '2023-01-01',
+          endDate: '2023-12-31',
+          researchDomain: { id: '1' },
+          isTestProject: true,
+          readOnly: true,
+        },
+      },
+      loading: false,
+      refetch: mockRefetch,
+    };
+
+    const stableReadOnlyTopLevelDomainsReturn = {
+      data: {
+        topLevelResearchDomains: [
+          { id: '1', name: 'Domain 1' },
+          { id: '2', name: 'Domain 2' },
+        ],
+      },
+      loading: false,
+      error: undefined,
+      refetch: mockRefetch,
+    };
+
+    mockUseQuery.mockImplementation((document) => {
+      if (document === ProjectDocument) {
+        return stableReadOnlyProjectQueryReturn as any;
+      }
+      if (document === TopLevelResearchDomainsDocument) {
+        return stableReadOnlyTopLevelDomainsReturn as any;
+      }
+      return { data: null, loading: false, error: undefined } as any;
+    });
+  });
+
+  it('should disable all form fields when isReadOnly is true', () => {
+    render(<ProjectsProjectDetail />);
+
+    expect(screen.getByLabelText(/labels.projectName/)).toBeDisabled();
+    expect(screen.getByLabelText(/labels.projectAbstract/)).toBeDisabled();
+  });
+
+  it('should render a non-interactive save button with aria-disabled when isReadOnly is true', () => {
+    render(<ProjectsProjectDetail />);
+
+    const saveButton = screen.getByRole('button', { name: /save/i });
+    expect(saveButton).toHaveAttribute('aria-disabled', 'true');
+    expect(saveButton).not.toHaveAttribute('type', 'submit');
+  });
+
+  it('should show a read-only popover message when the disabled save button is clicked', async () => {
+    render(<ProjectsProjectDetail />);
+
+    const saveButton = screen.getByRole('button', { name: /save/i });
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(screen.getByText('messages.readOnlyLinkMessage')).toBeInTheDocument();
+    });
+  });
+
+  it('should not submit the mutation when the disabled save button is clicked', async () => {
+    const mockUpdateProjectMutation = jest.fn();
+    mockUseMutation.mockImplementation((document) => {
+      if (document === UpdateProjectDocument) {
+        return [mockUpdateProjectMutation, { loading: false, error: undefined }] as any;
+      }
+      return [jest.fn(), { loading: false, error: undefined }] as any;
+    });
+
+    render(<ProjectsProjectDetail />);
+
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    await waitFor(() => {
+      expect(mockUpdateProjectMutation).not.toHaveBeenCalled();
+    });
+  });
+
+  it('should hide the search projects signpost section when isReadOnly is true', () => {
+    render(<ProjectsProjectDetail />);
+
+    expect(screen.queryByTestId('search-projects-button')).not.toBeInTheDocument();
   });
 });
